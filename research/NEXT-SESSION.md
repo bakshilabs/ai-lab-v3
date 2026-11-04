@@ -6,7 +6,7 @@ Read this first if you are picking up the research in a new session.
 
 - `deltaopslearning-brochure/`: the 12-page DeltaOps Learning partner guide (HTML/CSS source, images, PDFs). The lab screenshots in `img/` show the voxel "AI labs" this research is about.
 - `research/round-1/`: ten first-pass reports (about 1,500 words each), from ordinary web search.
-- `research/round-2/`: deeper reports on the same topics. **Done:** 01, 03, 04, 05, 06, 07, 08, 09. **Missing:** 02 (learning evidence) and 10 (Minecraft); their agents were still running when the session was saved, so use the round-1 versions of those two.
+- `research/round-2/`: deeper reports on the same topics. **Done:** 01, 03–10. **Missing:** 02 (learning evidence); its agent was still running when the session was saved, so use the round-1 version.
 - `research/context.md`: what we found reviewing the brochure images (content, style, issues). Give it to every agent.
 
 ### Known weaknesses in round 2 (fix these first)
