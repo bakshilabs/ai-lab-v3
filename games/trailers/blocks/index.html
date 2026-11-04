@@ -1,0 +1,185 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Block Builders trailer</title>
+<link rel="stylesheet" href="../engine/ui.css">
+<style>
+.mat { width: 760px; height: 760px; background: #fbf6ea; border-radius: 26px; padding: 40px; box-shadow: 0 40px 80px rgba(60,40,10,.35); position: relative; }
+.mat .grid, .tab .grid, .bpg .grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; width: 100%; height: 100%; }
+.cell { border-radius: 10px; background: #efe7d2; border: 2px dashed #d8ccb0; position: relative; }
+.tile { position: absolute; inset: -2px; border-radius: 10px; display: grid; place-items: center; box-shadow: 0 5px 0 rgba(0,0,0,.18); }
+.tile svg { width: 58%; height: 58%; color: rgba(255,255,255,.95); }
+.legend { display: flex; flex-direction: column; gap: 14px; background: #fff; border-radius: 22px; padding: 22px 26px; box-shadow: 0 20px 40px rgba(60,40,10,.25); font-weight: 750; font-size: 24px; }
+.legend div { display: flex; gap: 14px; align-items: center; }
+.legend i { width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; }
+.legend i svg { width: 26px; height: 26px; color: #fff; }
+.tab { width: 860px; height: 860px; background: #13202b; border-radius: 48px; padding: 46px; box-shadow: 0 40px 80px rgba(0,0,0,.45); }
+.bpg .cell { background: #efe7d2; }
+.tab .cell { background: #22323f; border: 2px solid #2d4150; }
+.table { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 40%, #c99a66 0%, #a4744a 60%, #7d5636 100%); }
+.scan { position: absolute; left: 0; right: 0; height: 8px; background: linear-gradient(90deg, transparent, #16FFC6, transparent); box-shadow: 0 0 30px #16FFC6; }
+</style>
+<script type="importmap">{"imports":{"three":"/three/three.module.js"}}</script></head>
+<body><div id="app"><div id="bg"></div><div id="ui"></div><div id="fx"></div></div>
+<script type="module">
+import * as THREE from 'three';
+import { createStage, prog, ease, lerp, clamp, within } from '../engine/stage.js';
+import { Vox, particles, rand, hex, person } from '../engine/kit.js';
+import { el, cue, helperCard, facilCard, cardsHTML, alertHTML, kicker, titleCard, tap, fader, toScreen, ICON } from '../engine/ui.js';
+
+const DUR = 40;
+const st = createStage({ sky: ['#9fd6ff', '#f2fbff'] });
+const { scene, camera, sun, hemi } = st;
+
+const IC = {
+  house: '<svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v10H3z" fill="currentColor"/></svg>',
+  wind: '<svg viewBox="0 0 24 24"><path d="M12 12l1-9 2 9zM12 12l8 5-9-1zM12 12l-8 4 6-6z" fill="currentColor"/><path d="M11.4 12h1.2v10h-1.2z" fill="currentColor"/></svg>',
+  factory: '<svg viewBox="0 0 24 24"><path d="M2 21V10l6 4V10l6 4V4h4v17z" fill="currentColor"/></svg>',
+  battery: '<svg viewBox="0 0 24 24"><path d="M7 4h10v18H7z M10 2h4v2h-4z" fill="currentColor"/></svg>',
+};
+const KIND = {
+  Y: { c: '#F7B500', i: ICON.sun, name: 'Solar panel' }, B: { c: '#3AA0F0', i: IC.wind, name: 'Wind turbine' }, P: { c: '#6E5BF2', i: IC.battery, name: 'Battery' },
+  H: { c: '#8A97A3', i: IC.house, name: 'Houses' }, G: { c: '#2FA45A', i: ICON.leaf, name: 'Trees' }, R: { c: '#E5533D', i: IC.factory, name: 'Factory' },
+};
+const D1 = ['GGB..BGG', 'GHHYYHHG', '.HYYYYH.', 'BYYRRYYB', '.YYRRYY.', 'GHYYYYHG', 'GHH..HHG', 'GG.BB.GG'];
+const SWAP = [[2, 2], [2, 5], [4, 3]]; // cells that become batteries
+const D2 = D1.map((row, r) => row.split('').map((ch, c) => SWAP.some(([rr, cc]) => rr === r && cc === c) ? 'P' : ch).join(''));
+
+// ---------------- 3D island built per cell ----------------
+const CS = 4; // voxels per cell
+const cellGroups = [];
+const turbines = [];
+const winsAll = [];
+const smokeSrc = [];
+function cellMesh(kind, r, c) {
+  const v = new Vox(); v.jitter = 0.05;
+  const g = new THREE.Group();
+  for (let x = 0; x < CS; x++) for (let z = 0; z < CS; z++) { v.set(x, 0, z, rand(x + c * 4, 1, z + r * 4) > 0.5 ? '#7ccf55' : '#6cc04b'); v.set(x, -1, z, '#9a6a42'); }
+  const wins = [];
+  if (kind === 'G') { v.set(1, 1, 1, '#7a5232'); v.set(1, 2, 1, '#7a5232'); for (let x = 0; x < 3; x++) for (let z = 0; z < 3; z++) for (let y = 3; y < 6; y++) if (!(y === 5 && (x !== 1 && z !== 1))) v.set(x, y, z, rand(x, y, z + r) > 0.5 ? '#3f9d4a' : '#2f8a43'); if (rand(r, c, 3) > 0.5) { v.set(3, 1, 3, '#7a5232'); v.set(3, 2, 3, '#4caf50'); v.set(3, 3, 3, '#4caf50'); } }
+  if (kind === 'H') { v.box(0, 1, 0, 3, 3, 3, '#f1ebe0'); for (const [x, z] of [[1, 0], [2, 0], [0, 1], [0, 2], [3, 1], [3, 2], [1, 3], [2, 3]]) { v.set(x, 2, z, '#2c4a63'); wins.push([x + 0.5 + (x === 0 ? -0.55 : x === 3 ? 0.55 : 0), 2.5, z + 0.5 + (z === 0 ? -0.55 : z === 3 ? 0.55 : 0)]); } v.box(0, 4, 0, 3, 4, 3, '#d0573a'); v.box(1, 5, 0, 2, 5, 3, '#d0573a'); }
+  if (kind === 'Y') { for (let x = 0; x < 4; x++) for (let z = 0; z < 4; z++) v.set(x, 1, z, (x === 0 || x === 3 || z === 0 || z === 3) ? '#a9b6c0' : '#2b3f73'); v.box(1, 2, 1, 2, 2, 2, '#2b3f73'); }
+  if (kind === 'R') { v.box(0, 1, 0, 3, 3, 3, '#b8b2a8'); v.box(0, 4, 0, 3, 4, 3, '#e5533d'); v.box(3, 5, 3, 3, 8, 3, '#7b8085'); smokeSrc.push([c * CS + 3.5, 9.2, r * CS + 3.5]); }
+  if (kind === 'P') { v.box(0, 1, 0, 3, 3, 3, '#6e5bf2'); v.box(1, 4, 1, 2, 4, 2, '#16ffc6'); v.box(0, 2, 0, 3, 2, 0, '#a99cff'); }
+  if (kind === 'B') { v.box(1, 1, 1, 1, 9, 1, '#f4f6f8'); v.box(1, 10, 1, 1, 10, 2, '#e0e5ea'); v.box(0, 1, 0, 2, 1, 2, '#cfd6dc'); }
+  const m = v.mesh(); g.add(m);
+  if (kind === 'B') { const bv = new Vox(); for (let i = 1; i <= 5; i++) { bv.set(0, i, 0, '#ffffff'); } const blade = bv.mesh({ scale: 0.6 }); const hub = new THREE.Group(); for (let k = 0; k < 3; k++) { const b = blade.clone(); b.rotation.z = k * Math.PI * 2 / 3; hub.add(b); } hub.position.set(1.5, 10.5, 2.7); g.add(hub); turbines.push(hub); }
+  g.userData.wins = wins.map((w) => [w[0] + c * CS, w[1], w[2] + r * CS]);
+  g.position.set(c * CS - 16, 0, r * CS - 16);
+  return g;
+}
+function buildDesign(D) { return D.map((row, r) => row.split('').map((k, c) => { const g = cellMesh(k, r, c); g.userData.kind = k; scene.add(g); return g; })); }
+const G1 = buildDesign(D1), G2 = buildDesign(D2);
+// base slab under the grid
+const slab = (() => { const v = new Vox(); for (let x = -18; x < 18; x++) for (let z = -18; z < 18; z++) { const r = Math.max(Math.abs(x + 0.5), Math.abs(z + 0.5)); const depth = Math.round(12 - (r - 14) * 1.6 + rand(x, 2, z) * 3); for (let y = -depth; y <= -2; y++) v.set(x, y, z, y > -5 ? (rand(x, y, z) > 0.5 ? '#9a6a42' : '#8a5c38') : (rand(x, y, z) > 0.5 ? '#8b8f93' : '#7b8085')); if (r > 16) v.set(x, -1, z, '#7ccf55'); } return v.mesh(); })();
+scene.add(slab);
+// lit windows
+const allWins = []; [...G1.flat(), ...G2.flat()].forEach((g) => g.userData.wins.forEach((w) => allWins.push([w, g])));
+const winMat = new THREE.MeshBasicMaterial({ color: 0xffd66b, transparent: true, opacity: 0 });
+const winMesh = new THREE.InstancedMesh(new THREE.BoxGeometry(0.95, 0.95, 0.95), winMat, allWins.length); scene.add(winMesh);
+const d3 = new THREE.Object3D();
+const batGlow = new THREE.MeshBasicMaterial({ color: 0x16ffc6, transparent: true, opacity: 0 });
+const glowLights = [[-8, 6, -8], [8, 6, -8], [-8, 6, 8], [8, 6, 8], [0, 6, 0]].map((p) => { const l = new THREE.PointLight(0xffc870, 0, 26, 1.4); l.position.set(...p); scene.add(l); return l; });
+const capMat = new THREE.MeshBasicMaterial({ color: 0x16ffc6, transparent: true, opacity: 0 });
+const caps = []; G2.flat().forEach((g) => { if (g.userData.kind === 'P') { const m = new THREE.Mesh(new THREE.BoxGeometry(2.4, 1.2, 2.4), capMat); m.position.set(2, 4.6, 2); g.add(m); const l = new THREE.PointLight(0x16ffc6, 0, 14, 1.5); l.position.set(2, 6, 2); g.add(l); caps.push(l); } });
+const smoke = particles(40, { size: 0.9, color: '#cfd3d6' }); smoke.material.transparent = true; smoke.material.opacity = 0.7; scene.add(smoke);
+const folk = [person({ shirt: '#ff6a4a' }), person({ shirt: '#59c7fc', skin: '#e0b08a' }), person({ shirt: '#ffc83d', skin: '#8d5a3b' })]; folk.forEach((f) => scene.add(f));
+
+// ---------------- timeline ----------------
+// 0-3.6 mat build (2D) | 3.6-7 tablet copy (2D) | 7-12.2 island rises | 12.2-16.2 AI reads | 16.2-21 night, lights out
+// 21-25 swap 3 tiles (2D) | 25-31 batteries rise, lights on | 31-35.4 blueprint | 35.4-40 title
+const night = (t) => (t < 16.2 ? 0 : t < 18.2 ? prog(t, 16.4, 18.0) : t < 21 ? 1 : t < 25 ? 0 : t < 26.4 ? prog(t, 25, 26.4) * 0 + 1 : 1);
+function setIslandState(t) {
+  const showA = t < 25, showB = t >= 25;
+  G1.flat().forEach((g, i) => { g.visible = showA; });
+  G2.flat().forEach((g, i) => { g.visible = showB; });
+  // rise: slab first then tiles drop in
+  const slabK = prog(t, 7.0, 8.0, ease.out);
+  slab.position.y = lerp(-40, 0, slabK);
+  G1.flat().forEach((g, i) => { const r = Math.floor(i / 8), c = i % 8; const t0 = 7.6 + (r + c) * 0.17 + rand(i, 1) * 0.15; const k = prog(t, t0, t0 + 0.55, ease.back); g.position.y = lerp(26, 0, k); g.scale.setScalar(lerp(0.2, 1, prog(t, t0, t0 + 0.3))); g.visible = showA && t > t0; });
+  G2.flat().forEach((g, i) => { const swapped = g.userData.kind === 'P'; if (!swapped) { g.position.y = 0; g.scale.setScalar(1); return; } const t0 = 25.4 + i * 0.012; const k = prog(t, t0, t0 + 0.6, ease.back); g.position.y = lerp(22, 0, k); g.scale.setScalar(lerp(0.3, 1, prog(t, t0, t0 + 0.35))); });
+}
+st.onFrame((t) => {
+  setIslandState(t);
+  const n = night(t), dusk = t >= 15.4 && t < 18.2 ? prog(t, 15.4, 17.2) : 0;
+  const skyTop = n ? '#101f44' : dusk ? '#' + hex('#9fd6ff').lerp(hex('#ff9a5a'), dusk).getHexString() : '#9fd6ff';
+  const skyBot = n ? '#3b4f80' : dusk ? '#' + hex('#f2fbff').lerp(hex('#ffd9a0'), dusk).getHexString() : '#f2fbff';
+  st.setSky(n > 0.5 ? '#101f44' : skyTop, n > 0.5 ? '#3b4f80' : skyBot);
+  sun.intensity = lerp(2.4, 0.7, Math.max(n, dusk * 0.4)); sun.color.set(n > 0.5 ? 0x9bb4ff : dusk ? 0xffb070 : 0xfff1dc);
+  sun.position.set(-60, lerp(110, 30, dusk), 50);
+  hemi.intensity = lerp(1.25, 0.6, n); hemi.color.set(n > 0.5 ? 0x6f8fd8 : 0xdff1ff);
+  // windows: off in A at night (lights out), on in B at night
+  const litB = t >= 26.6 ? prog(t, 26.6, 27.6) : 0;
+  winMat.opacity = 1;
+  const batOn = t >= 25.8 ? prog(t, 25.8, 26.6) : 0; capMat.opacity = batOn * (n > 0.5 ? 1 : 0.6); caps.forEach((l) => (l.intensity = batOn * n * 40));
+  glowLights.forEach((l) => (l.intensity = litB * n * 55));
+  allWins.forEach(([w, g], i) => { const on = g.visible && ((G2.flat().includes(g) && litB > 0 && n > 0.5) || (G1.flat().includes(g) && t > 15.8 && t < 17.4 && n < 0.9)); d3.position.set(w[0] - 16, w[1] + g.position.y, w[2] - 16); d3.scale.setScalar(on ? 1 : 0); d3.updateMatrix(); winMesh.setMatrixAt(i, d3.matrix); });
+  winMesh.instanceMatrix.needsUpdate = true;
+  turbines.forEach((h, i) => { const windy = t < 16.2 || t > 26; h.rotation.z = (windy ? t : Math.min(t, 16.2)) * 2.4 + i; });
+  for (let i = 0; i < 40; i++) { const s = smokeSrc[i % smokeSrc.length]; const age = ((t * 0.6 + i / 40 * 3) % 3); smoke.setAt(i, s[0] - 16 + age * 1.2, s[1] + age * 2.4, s[2] - 16 + age * 0.4, 0, 0, (1 - age / 3) * (n > 0.5 ? 0 : 1)); }
+  smoke.done();
+  folk.forEach((f, i) => { const a = t * 0.3 + i * 2; f.position.set(-2 + Math.cos(a) * 3 + i * 3 - 3, 1, 10 + Math.sin(a) * 1.2); f.rotation.y = -a + Math.PI / 2; f.userData.walk(t * 7 + i); f.visible = t > 9.5; });
+  // camera: slow orbit, varies per shot
+  let ang, dist, hgt, look = [0, 0, 0], fov = 30;
+  if (t < 12.2) { const k = prog(t, 7, 12.2, (x) => x); ang = lerp(0.9, 0.6, k); dist = lerp(92, 74, k); hgt = lerp(50, 52, k); }
+  else if (t < 21) { const k = prog(t, 12.2, 21, (x) => x); ang = lerp(0.55, 0.2, k); dist = lerp(78, 68, k); hgt = lerp(46, 40, k); }
+  else if (t < 31) { const k = prog(t, 25, 31, (x) => x); ang = lerp(-0.35, -0.75, k); dist = lerp(64, 56, k); hgt = lerp(38, 32, k); }
+  else { const k = prog(t, 31, 40, (x) => x); ang = lerp(-0.8, -1.3, k); dist = lerp(90, 120, k); hgt = lerp(52, 74, k); }
+  camera.fov = fov; camera.updateProjectionMatrix();
+  camera.position.set(Math.sin(ang) * dist, hgt, Math.cos(ang) * dist); camera.lookAt(0, 2, 0);
+});
+
+// ---------------- overlay ----------------
+const ui = []; const add = (fn) => ui.push(fn);
+const fade = fader(); add((t) => fade(t < 0.5 ? 1 - prog(t, 0, 0.5, (x) => x) : t > 39.3 ? prog(t, 39.3, 40, (x) => x) : 0));
+const table = el('<div class="table"></div>', { x: 0, y: 0 }); table.style.width = '1920px'; table.style.height = '1080px';
+add((t) => { const a = (t < 7.1 || within(t, 21, 25.05)) ? 1 : 0; table.style.opacity = a; table.style.visibility = a ? 'visible' : 'hidden'; });
+function gridHTML(D, cls, tileIds) { return `<div class="${cls}"><div class="grid">${D.map((row, r) => row.split('').map((k, c) => `<div class="cell" data-rc="${r},${c}">${k !== '.' ? `<div class="tile" data-t="${r},${c}" style="background:${KIND[k].c}">${KIND[k].i}</div>` : ''}</div>`).join('')).join('')}</div></div>`; }
+// paper mat
+const mat = el(gridHTML(D1, 'mat'), { x: 760, y: 540, anchor: 'c' });
+mat.firstChild.style.transform = 'perspective(1600px) rotateX(28deg) rotateZ(-4deg)';
+add(cue(mat, 0.2, 3.5, { from: 'fade', dur: 0.4 }));
+const matTiles = [...mat.querySelectorAll('.tile')];
+add((t) => matTiles.forEach((tl, i) => { const [r, c] = tl.dataset.t.split(',').map(Number); const t0 = 0.4 + (r * 8 + c) * 0.045; const k = prog(t, t0, t0 + 0.3, ease.back); tl.style.opacity = k > 0 ? 1 : 0; tl.style.transform = `translateY(${(1 - k) * -60}px) scale(${0.6 + 0.4 * k})`; }));
+const legend = el(`<div class="legend">${['Y', 'B', 'P', 'H', 'G', 'R'].map((k) => `<div><i style="background:${KIND[k].c}">${KIND[k].i}</i>${KIND[k].name}</div>`).join('')}</div>`, { x: 1450, y: 300 });
+add(cue(legend, 0.6, 3.5, { from: 'right' }));
+const k0 = kicker('Build it on paper.', { y: 990 }); add(cue(k0, 0.7, 3.5, { from: 'up' }));
+// tablet copy
+const tab = el(gridHTML(D1, 'tab'), { x: 760, y: 540, anchor: 'c' });
+add(cue(tab, 3.7, 7.0, { from: 'up' }));
+const tabTiles = [...tab.querySelectorAll('.tile')];
+add((t) => tabTiles.forEach((tl) => { const [r, c] = tl.dataset.t.split(',').map(Number); const t0 = 4.1 + (r * 8 + c) * 0.035; const k = prog(t, t0, t0 + 0.2, ease.back); tl.style.opacity = k > 0 ? 1 : 0; tl.style.transform = `scale(${0.5 + 0.5 * k})`; }));
+const roles = el(`<div class="legend" style="font-size:26px"><div><i style="background:#0B7F74;color:#fff;font-weight:900">1</i>Reader calls the tiles</div><div><i style="background:#F7B500;font-weight:900;color:#fff">2</i>Tapper copies them</div><div><i style="background:#6E5BF2;font-weight:900;color:#fff">3</i>Checker spots mistakes</div></div>`, { x: 1300, y: 380 });
+add(cue(roles, 4.0, 7.0, { from: 'right' }));
+const k1 = kicker('Copy it to the screen.', { y: 1010 }); add(cue(k1, 4.0, 7.0, { from: 'up' }));
+const k2 = kicker('Watch your island <span style="color:#16FFC6">rise</span>.', { y: 980 }); add(cue(k2, 8.2, 12.0, { from: 'up' }));
+// AI reading scan
+const scan = el('<div class="scan" style="width:1920px"></div>', { x: 0, y: 0 });
+add((t) => { const a = within(t, 12.3, 13.6); scan.style.opacity = a ? 1 : 0; scan.style.top = lerp(120, 1000, prog(t, 12.3, 13.5, (x) => x)) + 'px'; });
+const h1 = el(helperCard('Sunny Power Town! Lights on all night.', 88, { who: 'AI helper' }), { x: 1260, y: 60 }); add(cue(h1, 13.4, 20.8, { from: 'right' }));
+const lab1 = el('<div class="saved" style="font-size:34px;background:#F7B500;color:#2b1d00">Sunny Power Town · 88%</div>', { x: 960, y: 140, anchor: 'c' }); add(cue(lab1, 13.8, 16.0));
+const al = el(alertHTML('Lights out! The sun went down.'), { x: 960, y: 150, anchor: 'c' }); add(cue(al, 18.4, 20.9));
+const fc = el(facilCard('What did the AI forget about the sun?'), { x: 60, y: 800 }); add(cue(fc, 18.9, 20.9, { from: 'up' }));
+// swap tiles on tablet
+const tab2 = el(gridHTML(D1, 'tab'), { x: 760, y: 540, anchor: 'c' }); add(cue(tab2, 21.1, 25.0, { from: 'up' }));
+const swapTiles = SWAP.map(([r, c]) => tab2.querySelector(`[data-t="${r},${c}"]`));
+add((t) => swapTiles.forEach((tl, i) => { const t0 = 22.2 + i * 0.6; if (t > t0) { tl.style.background = KIND.P.c; tl.innerHTML = KIND.P.i; const k = prog(t, t0, t0 + 0.3, ease.back); tl.style.transform = `scale(${0.6 + 0.4 * k})`; } else { tl.style.background = KIND.Y.c; tl.innerHTML = KIND.Y.i; tl.style.transform = ''; } }));
+const taps = SWAP.map(([r, c], i) => { const x = 760 - 430 + 46 + (c + 0.5) * (768 / 8), y = 540 - 430 + 46 + (r + 0.5) * (768 / 8); const f = tap(x, y); return (t) => f(t, 22.1 + i * 0.6); }); taps.forEach((f) => add(f));
+const c2 = el(cardsHTML('CHANGE 3 TILES', [{ k: '+', text: 'Swap 3 solar tiles for <b>batteries</b> to store power for night.' }], 0), { x: 1450, y: 520, anchor: 'c' });
+add(cue(c2, 21.4, 25.0, { from: 'right' }));
+const h2 = el(helperCard('Batteries store sunshine for later. Lights on all night!', 76, { who: 'AI helper' }), { x: 1260, y: 60 }); add(cue(h2, 27.2, 30.9, { from: 'right' }));
+const al2 = el(alertHTML('Lights on all night', true), { x: 960, y: 150, anchor: 'c' }); add(cue(al2, 27.8, 30.9));
+const k3 = kicker('Change 3 tiles. Test it again.', { y: 980 }); add(cue(k3, 25.6, 30.9, { from: 'up' }));
+// blueprint
+const bp = el(`<div style="display:flex;gap:30px;background:#fff;border-radius:30px;padding:34px;box-shadow:0 30px 70px rgba(0,0,0,.4);align-items:center">
+  <div style="width:380px;height:380px">${gridHTML(D2, 'bpg').replace('class="bpg"', 'class="bpg" style="width:380px;height:380px"')}</div>
+  <div style="width:520px"><div style="font-weight:850;font-size:20px;letter-spacing:.16em;color:#0B7F74">HABITAT BLUEPRINT · TEAM FOXES</div>
+  <div style="font-family:var(--display);font-weight:760;font-size:44px;line-height:1.05;margin:10px 0 18px">Eco Town that keeps the lights on</div>
+  <div style="font-size:24px;line-height:1.45;font-weight:600;color:#22343F">First guess: <b>Sunny Power Town, 88%</b>. Wrong at night.<br>We added <b>3 batteries</b>.<br>The AI got it wrong because it <u>only looked at daytime</u>.</div></div></div>`, { x: 960, y: 540, anchor: 'c' });
+bp.querySelectorAll('.cell').forEach((c) => { c.style.border = '0'; c.style.borderRadius = '6px'; }); bp.querySelectorAll('.tile').forEach((c) => { c.style.borderRadius = '6px'; c.style.boxShadow = 'none'; });
+add(cue(bp, 31.3, 35.2, { from: 'up' }));
+const dimBp = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:rgba(8,22,34,.55)"></div>'); document.getElementById('ui').insertBefore(dimBp, bp); add(cue(dimBp, 31.1, 35.3, { from: 'fade' }));
+const dimEnd = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:radial-gradient(ellipse at center, rgba(5,15,30,.45), rgba(5,15,30,.8))"></div>'); add(cue(dimEnd, 35.3, null, { from: 'fade', dur: 0.8 }));
+const title = titleCard('Block <span class="hl">Builders</span>', 'Build it. The AI reads it. You check it.'); add(cue(title, 35.5, null, { from: 'pop', dur: 0.8 }));
+
+st.onFrame((t) => ui.forEach((fn) => fn(t)));
+window.__duration = DUR;
+document.fonts.ready.then(() => { window.__ready = true; });
+</script></body></html>

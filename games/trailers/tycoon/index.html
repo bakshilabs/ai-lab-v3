@@ -1,0 +1,200 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Island Park Tycoon trailer</title>
+<link rel="stylesheet" href="../engine/ui.css">
+<style>.arrow { font-weight: 900; font-size: 20px; } .bubble.small { font-size: 18px; padding: 8px 12px; }</style>
+<script type="importmap">{"imports":{"three":"/three/three.module.js"}}</script></head>
+<body><div id="app"><div id="bg"></div><div id="ui"></div><div id="fx"></div></div>
+<script type="module">
+import * as THREE from 'three';
+import { createStage, cameraTrack, prog, ease, lerp, clamp, within } from '../engine/stage.js';
+import { Vox, island, tree, person, robot, duck, rabbit, otter, deer, owl, particles, PAL, rand, hex } from '../engine/kit.js';
+import { el, cue, helperCard, facilCard, badge, task, cardsHTML, alertHTML, kicker, titleCard, tap, fader, toScreen, ICON } from '../engine/ui.js';
+
+const DUR = 40;
+const st = createStage({ sky: ['#a8dcff', '#f4fbff'] });
+const { scene, camera } = st;
+const T = 0;
+
+// ---------------- world ----------------
+const v = new Vox();
+const isl = island(v, { rx: 44, rz: 32, depth: 15, seed: 21 });
+const inPond = (x, z) => Math.hypot((x + 22) / 10, (z + 2) / 7.5) < 1;
+for (let x = -44; x <= 44; x++) for (let z = -34; z <= 34; z++) {
+  if (!v.has(x, T, z)) continue;
+  if (inPond(x + .5, z + .5)) { v.set(x, T, z, null); v.set(x, T - 1, z, '#3f7f9a'); }
+  else if (Math.hypot((x + 22.5) / 11.2, (z + 1.5) / 8.6) < 1) v.set(x, T, z, PAL.sand);
+}
+// edge path from gate west round the pond (always there)
+const edgePath = [[0, 30], [-8, 24], [-20, 16], [-34, 10], [-36, 0], [-30, -14], [-18, -18]];
+function paintPath(pts, c, w = 1.4) { for (let i = 0; i < pts.length - 1; i++) { const a = pts[i], b = pts[i + 1]; const n = Math.ceil(Math.hypot(b[0] - a[0], b[1] - a[1]) * 2); for (let k = 0; k <= n; k++) { const x = lerp(a[0], b[0], k / n), z = lerp(a[1], b[1], k / n); for (let dx = -w; dx <= w; dx++) for (let dz = -w; dz <= w; dz++) { const X = Math.round(x + dx), Z = Math.round(z + dz); if (v.get(X, T, Z) && !inPond(X, Z)) v.set(X, T, Z, c); } } } }
+paintPath(edgePath, PAL.path);
+// fence + gate on the south edge
+for (let x = -16; x <= 16; x++) if (Math.abs(x) > 2 && v.has(x, T, 31)) { v.set(x, T + 1, 31, '#9a6a3a'); if (x % 3 === 0) v.set(x, T + 2, 31, '#9a6a3a'); }
+v.box(-3, T + 1, 31, -3, T + 6, 31, '#7a5232'); v.box(3, T + 1, 31, 3, T + 6, 31, '#7a5232'); v.box(-3, T + 7, 31, 3, T + 7, 31, '#16a37f'); v.box(-2, T + 8, 31, 2, T + 8, 31, '#16a37f');
+// woodland north
+const trees0 = [[-38, -16], [-30, -24], [-20, -26], [-10, -28], [2, -28], [14, -27], [26, -24], [36, -16], [40, -2], [38, 14], [30, 24], [-40, 14], [-28, 24]];
+for (const [x, z] of trees0) if (isl.inside(x, z)) tree(v, x, T, z, { kind: rand(x, 1, z) > 0.5 ? 'pine' : 'round' });
+// burrow mound in the meadow
+v.box(3, T + 1, 2, 5, T + 1, 4, '#8a6a44'); v.set(4, T + 2, 3, '#8a6a44');
+const world = v.mesh(); scene.add(world);
+const water = (() => { const w = new Vox(); w.jitter = 0.02; for (let x = -34; x <= -10; x++) for (let z = -12; z <= 8; z++) if (inPond(x + .5, z + .5)) w.set(x, T - 1, z, '#55bde9'); const m = w.mesh({ castShadow: false }); m.material.transparent = true; m.material.opacity = 0.85; m.position.y = 0.55; return m; })();
+scene.add(water);
+
+// meadow flowers + tall grass (instanced, so the new path can flatten them)
+const meadow = []; for (let x = -6; x <= 30; x++) for (let z = -20; z <= 24; z++) if (v.has(x, T, z) && !v.has(x, T + 1, z) && rand(x, 9, z) > 0.5 && Math.hypot((x - 12) / 20, (z - 2) / 23) < 1) meadow.push([x + .5, z + .5]);
+const FC = ['#ffffff', '#ffd23f', '#ff8fc0', '#b28cff', '#8fd06a', '#7cc85a'];
+const blooms = particles(meadow.length, { size: 0.5 }); scene.add(blooms); meadow.forEach(([x, z], i) => blooms.setColor(i, FC[Math.floor(rand(x, 4, z) * 6)]));
+// the straight path cut through the meadow (stage 1)
+const cutPath = []; for (let z = 28; z >= -16; z -= 1) for (let x = -1; x <= 1; x++) cutPath.push([x + .5, z + .5]);
+const cutTiles = particles(cutPath.length, { size: 1 }); cutTiles.geometry = new THREE.BoxGeometry(1, 0.1, 1); cutTiles.material.color.set('#d4c39a'); scene.add(cutTiles);
+// kiosks (stage 2)
+function kioskMesh(c) { const k = new Vox(); k.box(0, 1, 0, 3, 2, 2, '#f1ebe0'); k.box(-1, 3, -1, 4, 3, 3, c); k.box(0, 4, 0, 3, 4, 2, c); k.set(1, 2, -1, '#ffd23f'); k.set(2, 2, -1, '#ff6a4a'); return k.mesh(); }
+const kioskPos = [[4, 20], [-7, 14], [4, 8], [-7, 2], [4, -4], [-7, -10]];
+const kiosks = kioskPos.map(([x, z], i) => { const m = kioskMesh(['#ff6a4a', '#59c7fc', '#ffc83d', '#6e5bf2', '#16c79a', '#ff8fc0'][i]); m.position.set(x, T, z); scene.add(m); return m; });
+const bins = kioskPos.slice(0, 2).map(([x, z]) => { const b = new Vox(); b.box(0, 1, 0, 0, 2, 0, '#2f8a43'); const m = b.mesh(); m.position.set(x - 1, T, z + 1); scene.add(m); return m; });
+const litter = particles(160, { size: 0.35 }); scene.add(litter);
+const litterPos = []; for (let i = 0; i < 160; i++) { const [kx, kz] = kioskPos[i % 6]; litterPos.push([kx + 1.5 + (rand(i, 1) - 0.5) * 12, kz + (rand(i, 2) - 0.5) * 10]); litter.setColor(i, ['#ff6a4a', '#ffffff', '#ffc83d', '#59c7fc'][i % 4]); }
+const gulls = particles(8, { size: 0.5, color: '#ffffff' }); gulls.geometry = new THREE.BoxGeometry(1.4, 0.2, 0.5); scene.add(gulls);
+// finale: growing trees + bird hide
+const newTrees = [[10, -8], [16, -2], [20, 6], [14, 12], [24, -10], [-2, -12], [8, 16], [22, 16]].map(([x, z], i) => { const tv = new Vox(); tree(tv, 0, 0, 0, { kind: i % 3 ? 'round' : 'pine' }); const m = tv.mesh(); m.position.set(x, T, z); scene.add(m); return m; });
+const hide = (() => { const h = new Vox(); h.box(0, 1, 0, 6, 3, 3, '#9a6a3a'); h.box(1, 2, -1, 5, 2, -1, '#3a2a1a'); h.box(-1, 4, -1, 7, 4, 4, '#2f8a43'); return h.mesh(); })(); hide.position.set(-16, T, 8); scene.add(hide);
+
+// characters
+const bot = robot({ s: 0.42 }); bot.position.set(5, T + 1, 33); scene.add(bot);
+const COLS = ['#ff6a4a', '#59c7fc', '#ffc83d', '#6e5bf2', '#16c79a', '#ff8fc0', '#f4f1e8'];
+const SK = ['#c68a5e', '#8d5a3b', '#e0b08a', '#a8714b', '#f0c8a0'];
+const visitors = []; for (let i = 0; i < 22; i++) { const p = person({ shirt: COLS[i % 7], skin: SK[i % 5], pants: ['#2c3e66', '#3b3b5c', '#4a3a2a'][i % 3] }); scene.add(p); visitors.push(p); }
+const rabbits = [0, 1, 2].map(() => { const r = rabbit(); scene.add(r); return r; });
+const ducks = [0, 1, 2, 3].map(() => { const d = duck(); scene.add(d); return d; });
+const otters = [0, 1].map(() => { const o = otter(); scene.add(o); return o; });
+const deers = [0, 1].map(() => { const d = deer(); scene.add(d); return d; });
+const owlM = owl(); owlM.position.set(14.5, T + 9.5, -27); scene.add(owlM);
+
+// ---------------- timeline ----------------
+// hook 0-3.6 | s1 cards 3.6-7 | crowd 7-12.2 | s2 cards 12.2-15.4 | litter 15.4-20.4 | count 20.4-24.4 | fix 24.4-30.4 | charter 30.4-34.6 | title 34.6-40
+const cutOn = (t) => t >= 7 && t < 24.4; // straight path exists 7..24.4 (replaced in finale)
+const meadowCut = meadow.map(([x, z]) => Math.abs(x) < 3.2);
+st.onFrame((t) => {
+  // flowers
+  const regrow = t >= 24.4 ? prog(t, 24.6, 27) : 0;
+  meadow.forEach(([x, z], i) => { let sc = 1; if (meadowCut[i] && t >= 7.6 && t < 24.4) sc = 0; if (meadowCut[i] && t >= 24.4) sc = regrow; const sway = Math.sin(t * 2 + x * 0.3) * 0.15; blooms.setAt(i, x, T + 1.3, z, sway, 0, sc); });
+  blooms.done();
+  cutPath.forEach(([x, z], i) => { const k = prog(t, 7.4 + (28 - z) * 0.03, 7.7 + (28 - z) * 0.03); const sc = cutOn(t) ? k : (t >= 24.4 ? 1 - prog(t, 24.4, 25.4) : 0); cutTiles.setAt(i, x, T + 1.05, z, 0, 0, sc); });
+  cutTiles.done();
+  kiosks.forEach((k, i) => { const t0 = 15.6 + i * 0.25; const on = t >= t0 && (t < 24.4 || i < 2); const s = on ? (t < 24.4 ? prog(t, t0, t0 + 0.4, ease.back) : 1) : 0; k.scale.setScalar(Math.max(0.001, s)); });
+  bins.forEach((b) => b.scale.setScalar(t >= 24.8 ? prog(t, 24.8, 25.2, ease.back) : 0.001));
+  litterPos.forEach(([x, z], i) => { const t0 = 16 + (i / 160) * 3.5; const on = t > t0 && t < 25; const fadeOut = t >= 24.4 ? 1 - prog(t, 24.4, 25) : 1; litter.setAt(i, x, T + 1.15, z, rand(i, 3) * 3, rand(i, 4) * 3, on ? fadeOut : 0); });
+  litter.done();
+  for (let i = 0; i < 8; i++) { const a = t * 1.3 + i * 0.8; const on = within(t, 15.4, 24.4); gulls.setAt(i, -1 + Math.cos(a) * (6 + i % 3 * 2), T + 9 + Math.sin(t * 3 + i) * 0.8, 6 + Math.sin(a) * (8 + i % 2 * 3), Math.sin(t * 8 + i) * 0.5, -a, on ? 1 : 0); }
+  gulls.done();
+  newTrees.forEach((m, i) => { const t0 = 25 + i * 0.3; const k = prog(t, t0, t0 + 0.7, ease.back); m.scale.set(1, Math.max(0.001, k), 1); m.visible = k > 0.001; });
+  { const k = prog(t, 26.2, 26.8, ease.back); hide.scale.setScalar(Math.max(0.001, k)); hide.visible = k > 0.001; }
+  // visitors
+  visitors.forEach((p, i) => {
+    let x, z, ang = Math.PI, walking = true;
+    if (t < 7) { // a few wander the edge path
+      const u = ((t * 0.02 + i * 0.13) % 1); const seg = edgePath; const k = u * (seg.length - 1); const j = Math.floor(k), f = k - j; x = lerp(seg[j][0], seg[j + 1][0], f) + (i % 3 - 1); z = lerp(seg[j][1], seg[j + 1][1], f); ang = Math.atan2(seg[j + 1][0] - seg[j][0], seg[j + 1][1] - seg[j][1]) + Math.PI; p.visible = i < 6;
+    } else { // crowd floods the straight path
+      const t0 = 7.6 + i * 0.22; const k = clamp((t - t0) * 0.09); x = (i % 3 - 1) * 1.1 + Math.sin(i) * 0.4; z = 34 - k * (44 + (i % 5) * 1.5); p.visible = t > t0; walking = k < 1;
+      if (t >= 15.4 && i % 3 === 0) { const kk = kioskPos[i % 6]; x = kk[0] + 1.5 + (i % 2 ? 2.5 : -2.5); z = kk[1] - 2; walking = false; }
+      if (t >= 24.4) { const u = ((t * 0.03 + i * 0.07) % 1); const seg = edgePath; const kk = u * (seg.length - 1); const j = Math.floor(kk), f = kk - j; x = lerp(seg[j][0], seg[j + 1][0], f) + (i % 3 - 1) * 1.2; z = lerp(seg[j][1], seg[j + 1][1], f); ang = Math.atan2(seg[j + 1][0] - seg[j][0], seg[j + 1][1] - seg[j][1]) + Math.PI; walking = true; p.visible = true; }
+    }
+    p.position.set(x, T + 1, z); p.rotation.y = ang; p.userData.walk(walking ? t * 8 + i : 0);
+  });
+  // rabbits: by the burrow, flee at 9s, return in finale
+  rabbits.forEach((r, i) => { const flee = t >= 10.0 && t < 26 ? prog(t, 10.0 + i * 0.15, 11.4 + i * 0.15) : 0; const back = t >= 26; r.position.set(5 + i * 1.6 + flee * (18 + i * 3), T + 1 + Math.abs(Math.sin(t * 9 + i)) * (flee > 0 && flee < 1 ? 0.6 : 0), 5 + i - flee * 6); r.rotation.y = -0.4; r.visible = !(flee >= 1 && !back); });
+  ducks.forEach((d, i) => { const a = t * 0.3 + i * 1.5; const scared = within(t, 15.4, 24.4); d.position.set(-22 + Math.cos(a) * (6 - i), T + 0.6, -2 + Math.sin(a) * (4 - i * 0.6)); d.rotation.y = -a; d.visible = !scared || i < 1; });
+  otters.forEach((o, i) => { o.position.set(-13 - i * 2, T + 1, 2 + i); o.rotation.y = t * 2 + i; o.visible = t >= 26.5; });
+  deers.forEach((d, i) => { const k = prog(t, 26.5 + i * 0.4, 29); d.position.set(lerp(30, 18 - i * 4, k), T + 1, lerp(-22, -6 + i * 3, k)); d.rotation.y = -2.4; d.visible = t >= 26.5; });
+  bot.rotation.y = Math.sin(t * 1.4) * 0.3 + Math.PI; bot.position.y = T + 1 + Math.abs(Math.sin(t * 3)) * 0.15;
+});
+
+st.onFrame(cameraTrack(camera, [
+  { t: 0, pos: [14, 5, 46], look: [3, 4, 30], fov: 34 },
+  { t: 3.6, pos: [10, 6, 44], look: [2, 4.5, 29], fov: 34 },
+  { t: 3.6001, cut: true, pos: [84, 64, 92], look: [-2, -2, 0], fov: 28 },
+  { t: 7, pos: [78, 60, 86], look: [-2, -2, 0], fov: 28 },
+  { t: 7.0001, cut: true, pos: [34, 30, 52], look: [2, 0, 8], fov: 32 },
+  { t: 12.2, pos: [28, 26, 44], look: [2, 0, 4], fov: 32 },
+  { t: 12.2001, cut: true, pos: [-70, 62, 84], look: [0, -2, 0], fov: 28 },
+  { t: 15.4, pos: [-64, 58, 80], look: [0, -2, 0], fov: 28 },
+  { t: 15.4001, cut: true, pos: [-26, 26, 40], look: [-1, 1, 6], fov: 32 },
+  { t: 20.4, pos: [-20, 24, 38], look: [-1, 1, 6], fov: 32 },
+  { t: 20.4001, cut: true, pos: [60, 52, 70], look: [-4, -2, 0], fov: 30 },
+  { t: 24.4, pos: [56, 50, 66], look: [-4, -2, 0], fov: 30 },
+  { t: 24.4001, cut: true, pos: [40, 36, 46], look: [0, 0, 0], fov: 32 },
+  { t: 30.4, pos: [10, 40, 58], look: [-6, 0, 0], fov: 32 },
+  { t: 30.4001, cut: true, pos: [-60, 60, 80], look: [0, -2, 0], fov: 28 },
+  { t: 40, pos: [-100, 84, 120], look: [0, -4, 0], fov: 26 },
+]));
+
+// ---------------- overlay ----------------
+const ui = []; const add = (fn) => ui.push(fn);
+const fade = fader(); add((t) => fade(t < 0.5 ? 1 - prog(t, 0, 0.5, (x) => x) : t > 39.3 ? prog(t, 39.3, 40, (x) => x) : 0));
+const dim = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:rgba(8,22,34,.5)"></div>');
+add((t) => { const a = within(t, 3.6, 7) || within(t, 12.2, 15.4) ? 1 : 0; dim.style.opacity = a; dim.style.visibility = a ? 'visible' : 'hidden'; });
+const k0 = kicker('Meet Manager Bot.', { y: 880 }); add(cue(k0, 0.5, 3.5, { from: 'up' }));
+const k0b = kicker('It does <span style="color:#FFC83D">exactly</span> what the card says.', { y: 960, size: 54 }); add(cue(k0b, 1.4, 3.5, { from: 'up' }));
+// meters
+const V = (t) => t < 7 ? 30 : t < 12.2 ? lerp(30, 82, prog(t, 7.6, 11)) : t < 24.4 ? lerp(82, 78, prog(t, 16, 19)) : lerp(78, 74, prog(t, 25, 28));
+const Wd = (t) => t < 7 ? 70 : t < 15.4 ? lerp(70, 48, prog(t, 9, 11.5)) : t < 24.4 ? lerp(48, 32, prog(t, 16, 19)) : lerp(32, 92, prog(t, 25, 29.5));
+const Td = (t) => t < 15.4 ? 80 : t < 24.4 ? lerp(80, 35, prog(t, 16, 19.5)) : lerp(35, 88, prog(t, 24.6, 27));
+const arrow = (f, t) => { const d = f(t + 0.25) - f(t - 0.25); return d > 0.5 ? '<span class="arrow" style="color:#16a37f">▲</span>' : d < -0.5 ? '<span class="arrow" style="color:#e5533d">▼</span>' : '<span class="arrow" style="color:#bbb">•</span>'; };
+const panel = el(`<div class="meters" style="min-width:470px">${[['Visitors', '#59c7fc'], ['Wildlife', '#16c79a'], ['Tidy', '#ffc83d']].map(([l, c], i) => `<div class="meter" data-row="${i}" style="grid-template-columns:30px 120px 1fr 64px"><span data-a></span><span>${l}</span><div class="mb"><i style="background:${c}"></i></div><b>0</b></div>`).join('')}</div>`, { x: 1400, y: 40 });
+add(cue(panel, 7.3, 30.2, { from: 'right' }));
+add((t) => [V, Wd, Td].forEach((f, i) => { const row = panel.querySelector(`[data-row="${i}"]`); const val = f(t); row.querySelector('i').style.width = val + '%'; row.querySelector('b').textContent = Math.round(val); row.querySelector('[data-a]').innerHTML = arrow(f, t); row.style.opacity = i === 2 && t < 15.6 ? 0.25 : 1; if (i === 1) row.querySelector('i').style.background = val < 50 ? '#e5533d' : '#16c79a'; if (i === 2) row.querySelector('i').style.background = val < 50 ? '#e5533d' : '#ffc83d'; }));
+const bdg = el(badge('Island Park Tycoon', 'Nature park', '#16A37F', `<span style="width:28px;height:28px;color:#16A37F">${ICON.leaf}</span>`), { x: 40, y: 36 }); add(cue(bdg, 7.3, 30.2, { from: 'left' }));
+// stage 1
+const c1 = el(cardsHTML('STAGE 1 · OPENING DAY', [{ k: 'A', text: 'Get 50 visitors.' }, { k: 'B', text: 'Make the park popular.', vague: true }, { k: 'C', text: 'Get 50 visitors, and keep the meadow wild.' }], 0), { x: 960, y: 640, anchor: 'c' });
+add(cue(c1, 3.8, 6.9, { from: 'up' }));
+const tp1 = tap(540, 650); add((t) => tp1(t, 4.5));
+const h1 = el(helperCard('Goal: visitors. Fastest way: free entry and a path straight through the meadow!', 92, { who: 'Manager Bot' }), { x: 960, y: 290, anchor: 'c' }); add(cue(h1, 4.9, 6.9, { from: 'down' }));
+// bubbles helper
+function bubbleAt(text, obj, off, tIn, tOut, cls = '') {
+  const b = document.createElement('div'); b.className = 'bubble ' + cls; b.innerHTML = text; b.style.opacity = 0; document.getElementById('ui').appendChild(b);
+  add((t) => { const v = within(t, tIn, tOut) && obj.visible !== false; if (!v) { b.style.opacity = 0; return; } const p = toScreen(obj.position.clone().add(new THREE.Vector3(0, off, 0)), camera); const k = prog(t, tIn, tIn + 0.3, ease.back); b.style.left = clamp(p.x, 160, 1760) + 'px'; b.style.top = clamp(p.y, 120, 1040) + 'px'; b.style.opacity = 1; b.style.transform = `translate(-50%,-100%) scale(${k})`; });
+}
+bubbleAt('Wow, free!', visitors[1], 3.4, 8.6, 12.1, 'green');
+bubbleAt('My burrow’s under that path!', rabbits[1], 2.2, 8.3, 10.3, 'red');
+bubbleAt('Where are the flowers?', visitors[7], 3.4, 10.2, 12.1);
+const k1 = kicker('80 visitors. Wildlife down. Did it do what we <span style="color:#FFC83D">wanted</span>?', { y: 980, size: 50 }); add(cue(k1, 10.4, 12.1, { from: 'up' }));
+// stage 2
+const c2 = el(cardsHTML('STAGE 2 · SNACK ATTACK', [{ k: 'A', text: 'Sell as many snacks as possible.' }, { k: 'B', text: 'Make some money.', vague: true }, { k: 'C', text: 'Sell snacks and put a bin by every kiosk.' }], 0), { x: 960, y: 640, anchor: 'c' });
+add(cue(c2, 12.4, 15.3, { from: 'up' }));
+const tp2 = tap(540, 650); add((t) => tp2(t, 13.0));
+const h2 = el(helperCard('Maximum snacks! Six kiosks, no bins. Bins cost money.', 95, { who: 'Manager Bot' }), { x: 960, y: 290, anchor: 'c' }); add(cue(h2, 13.4, 15.3, { from: 'down' }));
+bubbleAt('The litter here is really bad', visitors[4], 3.4, 17.2, 20.3, 'red');
+bubbleAt('Crisps… I feel sick.', ducks[0], 1.6, 18.0, 20.3, 'red');
+const fc2 = el(facilCard('Nobody asked about litter. Why did it matter anyway?'), { x: 60, y: 800 }); add(cue(fc2, 18.4, 20.3, { from: 'up' }));
+// count the bubbles
+const cnt = el(`<div style="display:flex;gap:40px;align-items:center;background:#fff;border-radius:30px;padding:28px 40px;box-shadow:0 20px 50px rgba(0,0,0,.3)">
+  <div style="text-align:center"><div style="font-family:var(--display);font-weight:800;font-size:110px;line-height:1;color:#59c7fc" data-a>0</div><div style="font-weight:800;font-size:22px;letter-spacing:.1em;color:#46596A">“ZIP-LINE!”</div></div>
+  <div style="font-family:var(--display);font-weight:800;font-size:50px;color:#9fb0bb">vs</div>
+  <div style="text-align:center"><div style="font-family:var(--display);font-weight:800;font-size:110px;line-height:1;color:#16a37f" data-b>0</div><div style="font-weight:800;font-size:22px;letter-spacing:.1em;color:#46596A">“SHADE, PLEASE”</div></div></div>`, { x: 960, y: 520, anchor: 'c' });
+add(cue(cnt, 21.3, 24.3, { from: 'pop' }));
+add((t) => { cnt.querySelector('[data-a]').textContent = Math.min(3, Math.floor(prog(t, 21.6, 22.6, (x) => x) * 3.99)); cnt.querySelector('[data-b]').textContent = Math.min(8, Math.floor(prog(t, 22.2, 23.6, (x) => x) * 8.99)); });
+const c5 = el(cardsHTML('STAGE 5 · MYSTERY COMPLAINTS', [{ k: 'C', text: 'Count every bubble, <b>animals too</b>, then decide.' }], 0), { x: 960, y: 200, anchor: 'c' }); add(cue(c5, 20.6, 24.3, { from: 'down' }));
+const smallB = ['Too hot!', 'No shade', 'Too sunny', 'Need trees', 'Hot paws', 'So bright'];
+smallB.forEach((s, i) => { const o = [rabbits[0], ducks[0], owlM, ducks[1], rabbits[2], ducks[2]][i]; bubbleAt(s, o, 2, 20.8 + i * 0.15, 21.4 + 2.6, 'small'); });
+// fix
+const h3 = el(helperCard('11 bubbles: 3 zip-line, 8 shade. Planting trees and a shady hide.', 88, { who: 'Manager Bot' }), { x: 1260, y: 230 }); add(cue(h3, 24.7, 29.0, { from: 'right' }));
+bubbleAt('Shade at last.', deers[0], 3.2, 28.6, 30.2, 'green');
+bubbleAt('I saw a duckling!', visitors[2], 3.4, 27.8, 30.2, 'green');
+bubbleAt('Lovely log pile.', rabbits[0], 2.2, 28.4, 30.2, 'green');
+const k3 = kicker('Count everyone. Then decide.', { y: 980 }); add(cue(k3, 25.2, 30.2, { from: 'up' }));
+// charter
+const charter = el(`<div style="width:820px;background:#fbf8f1;border-radius:30px;overflow:hidden;box-shadow:0 30px 70px rgba(0,0,0,.4)"><div style="background:#16A37F;color:#fff;padding:22px 34px;display:flex;justify-content:space-between;align-items:center"><span style="font-family:var(--display);font-weight:760;font-size:40px">Park Charter</span><span style="display:flex;gap:6px">${[0, 1, 2].map(() => `<span style="width:44px;height:44px;color:#FFC83D">${ICON.star}</span>`).join('')}</span></div>
+  <div style="padding:26px 34px;display:grid;gap:14px;font-size:30px;font-weight:650">
+  <div><b style="display:inline-block;width:120px;color:#0B7F74;font-size:20px;letter-spacing:.12em">GOAL</b>50 visitors a day</div>
+  <div><b style="display:inline-block;width:120px;color:#D93A2B;font-size:20px;letter-spacing:.12em">NEVER</b>cut through the meadow</div>
+  <div><b style="display:inline-block;width:120px;color:#D93A2B;font-size:20px;letter-spacing:.12em">NEVER</b>leave a kiosk without a bin</div>
+  <div><b style="display:inline-block;width:120px;color:#6E5BF2;font-size:20px;letter-spacing:.12em">CHECK</b>count every bubble, animals too</div>
+  <div style="margin-top:6px;font-family:var(--display);font-weight:760;font-size:34px;color:#16A37F">Island Champion · 17 / 18</div></div></div>`, { x: 960, y: 520, anchor: 'c' });
+add(cue(charter, 30.6, 34.5, { from: 'up' }));
+const dimC = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:rgba(8,22,34,.45)"></div>'); document.getElementById('ui').insertBefore(dimC, charter); add(cue(dimC, 30.4, 34.6, { from: 'fade' }));
+const dimEnd = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:radial-gradient(ellipse at center, rgba(5,15,30,.45), rgba(5,15,30,.8))"></div>'); add(cue(dimEnd, 34.6, null, { from: 'fade', dur: 0.8 }));
+const title = titleCard('Island Park <span class="hl">Tycoon</span>', 'Manager Bot does what you say. Say what you mean.'); add(cue(title, 34.8, null, { from: 'pop', dur: 0.8 }));
+
+st.onFrame((t) => ui.forEach((fn) => fn(t)));
+window.__duration = DUR;
+document.fonts.ready.then(() => { window.__ready = true; });
+</script></body></html>

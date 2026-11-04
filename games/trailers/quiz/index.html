@@ -1,0 +1,155 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Sure or Not Sure trailer</title>
+<link rel="stylesheet" href="../engine/ui.css">
+<style>
+.qcard { width: 980px; background: #fff; border-radius: 34px; padding: 34px 40px; box-shadow: 0 30px 70px rgba(0,0,0,.45); }
+.qcard .q { font-family: var(--display); font-weight: 760; font-size: 50px; line-height: 1.08; letter-spacing: -0.01em; }
+.qcard small { display: block; font-weight: 850; font-size: 20px; letter-spacing: .16em; color: #6E5BF2; margin-bottom: 12px; }
+.opts { display: flex; gap: 18px; margin-top: 24px; }
+.opt { flex: 1; border-radius: 22px; padding: 18px 20px; font-weight: 750; font-size: 28px; color: #fff; display: flex; gap: 14px; align-items: center; }
+.opt svg { width: 38px; height: 38px; }
+.big { font-family: var(--display); font-weight: 800; letter-spacing: -0.03em; color: #fff; text-shadow: 0 10px 40px rgba(0,0,0,.4); white-space: nowrap; }
+.team { display: grid; grid-template-columns: 160px 520px 80px; align-items: center; gap: 20px; font-weight: 800; font-size: 34px; color: #fff; }
+.team .tb { height: 40px; border-radius: 99px; background: rgba(255,255,255,.15); overflow: hidden; }
+.team .tb i { display: block; height: 100%; border-radius: 99px; }
+</style>
+<script type="importmap">{"imports":{"three":"/three/three.module.js"}}</script></head>
+<body><div id="app"><div id="bg"></div><div id="ui"></div><div id="fx"></div></div>
+<script type="module">
+import * as THREE from 'three';
+import { createStage, cameraTrack, prog, ease, lerp, clamp, within } from '../engine/stage.js';
+import { Vox, person, robot, particles, rand, hex } from '../engine/kit.js';
+import { el, cue, helperCard, facilCard, cardsHTML, alertHTML, kicker, titleCard, fader, toScreen, ICON } from '../engine/ui.js';
+
+const DUR = 37;
+const st = createStage({ sky: ['#1a1446', '#4b2f7a'] });
+const { scene, camera, sun, hemi } = st;
+sun.intensity = 1.1; sun.color.set(0xc9b8ff); hemi.intensity = 0.8; hemi.color.set(0x9a8cff); hemi.groundColor.set(0x241a40);
+const T = 0;
+
+// ---------------- studio island ----------------
+const v = new Vox();
+const ZC = { A: '#ff5d4a', B: '#ffc83d', C: '#16c7a6' };
+for (let x = -30; x <= 30; x++) for (let z = -24; z <= 24; z++) {
+  const r = Math.hypot(x / 30, z / 24); if (r > 1) continue;
+  const depth = Math.round(10 * (1 - r * r) + rand(x, 1, z) * 3) + 2;
+  for (let y = -depth; y <= 0; y++) v.set(x, y, z, y === 0 ? ((x + z) % 2 ? '#2a2350' : '#312a5c') : y > -3 ? '#5a4a8a' : '#3b335e');
+}
+// three answer zones on the floor (front)
+const zones = { A: [-16, 10], B: [0, 12], C: [16, 10] };
+for (const [k, [cx, cz]] of Object.entries(zones)) for (let x = -5; x <= 5; x++) for (let z = -4; z <= 4; z++) if (Math.hypot(x / 5.5, z / 4.5) < 1) v.set(cx + x, T, cz + z, ZC[k]);
+// back screen wall
+v.box(-22, 1, -18, 22, 22, -16, '#1d1838'); v.box(-20, 3, -15, 20, 20, -15, '#0f0c22');
+for (let x = -22; x <= 22; x += 2) { v.set(x, 23, -17, x % 4 ? '#ffc83d' : '#16ffc6'); }
+// host podium
+v.box(-26, 1, -6, -21, 4, -2, '#6e5bf2'); v.box(-26, 5, -6, -21, 5, -2, '#16ffc6');
+// sure-o-meter strip (centre line), coloured red to green
+for (let x = -18; x <= 18; x++) { const k = (x + 18) / 36; const c = hex('#ff5d4a').lerp(hex('#ffc83d'), Math.min(1, k * 2)).lerp(hex('#16c7a6'), Math.max(0, k * 2 - 1)); v.set(x, T, -2, c); v.set(x, T, -1, c); }
+const world = v.mesh(); scene.add(world);
+// spotlight beams (additive cones)
+const beamMat = (c) => new THREE.MeshBasicMaterial({ color: c, transparent: true, opacity: 0.16, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide });
+const beams = [['#ff5d4a', -28], ['#16ffc6', -10], ['#ffc83d', 10], ['#6e5bf2', 28]].map(([c, x]) => { const g = new THREE.ConeGeometry(7, 60, 24, 1, true); g.translate(0, -30, 0); const m = new THREE.Mesh(g, beamMat(c)); m.position.set(x, 50, -10); scene.add(m); return m; });
+const colLights = ['#ff5d4a', '#16ffc6', '#ffc83d'].map((c, i) => { const l = new THREE.PointLight(c, 120, 60, 1.4); l.position.set(-16 + i * 16, 14, 14); scene.add(l); return l; });
+const host = robot({ s: 0.5 }); host.position.set(-23.5, 6, -4); host.rotation.y = 0.9; scene.add(host);
+// big screen image: a voxel moorhen (black body, red bill) that pops onto the wall
+const bird = (() => { const b = new Vox(); b.box(-4, 0, 0, 3, 4, 1, '#1e1e24'); b.box(2, 4, 0, 5, 7, 1, '#1e1e24'); b.box(6, 5, 0, 7, 6, 1, '#e5332a'); b.set(8, 5, 0, '#ffd23f'); b.set(4, 6, 2, '#fff'); b.box(-5, 3, 0, -4, 4, 1, '#f2f2f2'); b.box(-1, -3, 0, -1, -1, 0, '#c7d64a'); b.box(1, -3, 0, 1, -1, 0, '#c7d64a'); return b.mesh({ scale: 0.9 }); })();
+bird.position.set(-1, 9, -13.4); scene.add(bird);
+const screenMat = new THREE.MeshBasicMaterial({ color: 0x0f0c22 }); const screen = new THREE.Mesh(new THREE.PlaneGeometry(40, 17), screenMat); screen.position.set(0, 11.5, -13.9); scene.add(screen);
+const reeds = (() => { const r = new Vox(); for (let x = -18; x <= 18; x += 2) { const h = 3 + Math.floor(rand(x, 3) * 4); for (let y = 0; y < h; y++) r.set(x, y, 0, y === h - 1 ? '#8a5a32' : '#3f9d4a'); } r.box(-18, -1, 0, 18, -1, 0, '#3a9bd4'); return r.mesh({ scale: 1 }); })(); reeds.position.set(0, 4, -13.6); scene.add(reeds);
+// audience: 4 teams
+const TEAM = [['Otters', '#16c7a6'], ['Foxes', '#ff6a4a'], ['Hawks', '#6e5bf2'], ['Badgers', '#ffc83d']];
+const SK = ['#c68a5e', '#8d5a3b', '#e0b08a', '#a8714b', '#f0c8a0', '#6b4a33'];
+const kids = []; for (let i = 0; i < 24; i++) { const p = person({ shirt: TEAM[i % 4][1], skin: SK[i % 6], pants: '#2c2a44', s: 0.46 }); scene.add(p); kids.push(p); }
+const confetti = particles(200, { size: 0.45 }); scene.add(confetti); for (let i = 0; i < 200; i++) confetti.setColor(i, ['#ff5d4a', '#ffc83d', '#16ffc6', '#59c7fc', '#ffffff', '#b28cff'][i % 6]);
+
+// ---------------- timeline ----------------
+// hook 0-3.4 | Q1 3.4-7.4 | vote 7.4-10.6 | reveal ASSUMPTION 10.6-14 | sure-o-meter 14-19.4 | spot assumption 19.4-24.2 | teams 24.2-28.6 | finish 28.6-32.4 | title 32.4-37
+const home = kids.map((_, i) => [-17 + (i % 12) * 3.0 + (Math.floor(i / 12) % 2) * 1.5, 18 + Math.floor(i / 12) * 3.2]);
+function formation(t, i) {
+  const h = home[i];
+  if (within(t, 7.6, 14)) { const z = i % 5 === 0 ? 'A' : i % 5 === 1 ? 'C' : 'B'; const [cx, cz] = zones[z]; return [cx + ((i * 7) % 5 - 2) * 1.7, cz + (Math.floor(i / 5) % 4 - 1.5) * 1.7]; }
+  if (within(t, 15.2, 19.4)) { const pos = i % 7 === 0 ? 0.55 : 0.08 + (i % 4) * 0.06; return [-18 + pos * 36 + ((i * 5) % 3 - 1) * 1.0, 1 + ((i * 3) % 4) * 1.6]; }
+  if (within(t, 20.8, 24.2)) { const [cx, cz] = zones[i % 6 === 0 ? 'C' : 'A']; return [cx + ((i * 7) % 5 - 2) * 1.7, cz + (Math.floor(i / 5) % 4 - 1.5) * 1.7]; }
+  return h;
+}
+const posMem = kids.map((_, i) => home[i].slice());
+st.onFrame((t) => {
+  kids.forEach((k, i) => {
+    // smooth move: sample formation slightly in the past for easing
+    const a = formation(t, i), b = formation(t - 0.9, i); const m = prog(t % 1000, 0, 1);
+    const target = a; const prev = b; const blend = within(t, 7.6, 8.6) || within(t, 15.2, 16.2) || within(t, 20.8, 21.8) || within(t, 14, 15) || within(t, 19.4, 20.4) || within(t, 24.2, 25.2);
+    let x = target[0], z = target[1];
+    if (blend) { const tt = [7.6, 15.2, 20.8, 14, 19.4, 24.2].find((s) => within(t, s, s + 1)); const k2 = ease.inOut(clamp(t - tt)); const p0 = formation(tt - 0.01, i); x = lerp(p0[0], target[0], k2); z = lerp(p0[1], target[1], k2); }
+    const jump = within(t, 11.6, 13.6) || within(t, 23.0, 24.2) || within(t, 30.2, 32.4) ? Math.abs(Math.sin(t * 9 + i)) * 1.2 : 0;
+    k.position.set(x, T + 1 + jump, z); k.rotation.y = Math.PI + Math.sin(i) * 0.2; k.userData.walk(blend ? t * 10 + i : 0);
+  });
+  // lights
+  beams.forEach((b, i) => { b.rotation.z = Math.sin(t * 0.9 + i * 1.7) * 0.45; b.rotation.x = Math.cos(t * 0.7 + i) * 0.25; b.material.opacity = 0.12 + 0.06 * Math.sin(t * 3 + i); });
+  colLights.forEach((l, i) => { l.intensity = 90 + 40 * Math.sin(t * 2 + i * 2); });
+  host.rotation.y = 0.9 + Math.sin(t * 1.5) * 0.2; host.position.y = 6 + Math.abs(Math.sin(t * 2.2)) * 0.2;
+  screenMat.color.set(within(t, 3.6, 14) ? 0xbfe6f7 : 0x0f0c22); reeds.visible = within(t, 3.6, 14);
+  bird.visible = within(t, 3.6, 14); bird.scale.setScalar(Math.max(0.001, prog(t, 3.6, 4.1, ease.back)));
+  for (let i = 0; i < 200; i++) { const t0 = i < 100 ? 10.9 : 28.9; const age = t - t0 - (i % 25) * 0.02; const a = rand(i, 1) * 6.28, r = 6 + rand(i, 2) * 18; const on = age > 0 && age < 3.5; confetti.setAt(i, Math.cos(a) * r * Math.min(1, age * 1.5), 26 - age * 7 + Math.sin(age * 4 + i) * 0.5, Math.sin(a) * r * 0.6 + 6, age * 5, age * 3, on ? 1 : 0); }
+  confetti.done();
+});
+st.onFrame(cameraTrack(camera, [
+  { t: 0, pos: [0, 14, 80], look: [0, 8, -6], fov: 32 },
+  { t: 3.4, pos: [0, 18, 64], look: [0, 8, -6], fov: 32 },
+  { t: 3.4001, cut: true, pos: [-6, 10, 40], look: [-10, 8, -8], fov: 36 },
+  { t: 7.4, pos: [-2, 11, 42], look: [-6, 8, -8], fov: 36 },
+  { t: 7.4001, cut: true, pos: [0, 34, 50], look: [0, 0, 10], fov: 34 },
+  { t: 10.6, pos: [0, 30, 46], look: [0, 0, 10], fov: 34 },
+  { t: 10.6001, cut: true, pos: [10, 12, 44], look: [0, 6, 6], fov: 38 },
+  { t: 14, pos: [6, 14, 46], look: [0, 6, 6], fov: 38 },
+  { t: 14.0001, cut: true, pos: [0, 24, 40], look: [0, 1, -1], fov: 38 },
+  { t: 19.4, pos: [0, 22, 36], look: [0, 1, -1], fov: 38 },
+  { t: 19.4001, cut: true, pos: [-30, 26, 44], look: [-4, 2, 8], fov: 34 },
+  { t: 24.2, pos: [-24, 24, 42], look: [-4, 2, 8], fov: 34 },
+  { t: 24.2001, cut: true, pos: [30, 20, 60], look: [0, 6, 0], fov: 32 },
+  { t: 28.6, pos: [20, 18, 56], look: [0, 6, 0], fov: 32 },
+  { t: 28.6001, cut: true, pos: [0, 12, 50], look: [0, 6, 4], fov: 36 },
+  { t: 32.4, pos: [0, 14, 56], look: [0, 6, 4], fov: 36 },
+  { t: 32.4001, cut: true, pos: [0, 30, 86], look: [0, 4, 0], fov: 30 },
+  { t: 37, pos: [0, 36, 104], look: [0, 4, 0], fov: 30 },
+]));
+
+// ---------------- overlay ----------------
+const ui = []; const add = (fn) => ui.push(fn);
+const fade = fader(); add((t) => fade(t < 0.5 ? 1 - prog(t, 0, 0.5, (x) => x) : t > 36.3 ? prog(t, 36.3, 37, (x) => x) : 0));
+const chip = el('<div class="chip" style="font-size:24px">LIVE FROM THE ISLAND STUDIO</div>', { x: 960, y: 140, anchor: 'c' }); add(cue(chip, 0.4, 3.3, { from: 'down' }));
+const k0 = el('<div class="big" style="font-size:96px;text-align:center;line-height:1">Can you spot when<br>an AI is <span style="color:#FFC83D">guessing</span>?</div>', { x: 960, y: 820, anchor: 'c' }); add(cue(k0, 0.8, 3.3, { from: 'pop' }));
+const thumbsOpts = `<div class="opts"><div class="opt" style="background:#ff5d4a">A · Trust it</div><div class="opt" style="background:#e3a91f">B · Check it</div><div class="opt" style="background:#0fa58c">C · Don’t use it</div></div>`;
+const q1 = el(`<div class="qcard"><small>QUESTION 1 · TRUST, CHECK OR DON’T USE?</small><div class="q">The helper looks at this bird and says <span style="color:#0B7F74">“Duck! 95% sure.”</span></div>${thumbsOpts}</div>`, { x: 1160, y: 760, anchor: 'c' });
+add(cue(q1, 4.4, 7.3, { from: 'up' }));
+const vote = el(`<div style="display:flex;gap:16px">${thumbsOpts.replace('class="opts"', 'class="opts" style="margin:0;width:1100px"')}</div>`, { x: 960, y: 110, anchor: 'c' }); add(cue(vote, 7.6, 10.4, { from: 'down' }));
+const h1 = el(helperCard('Duck!', 95), { x: 1250, y: 70 }); add(cue(h1, 3.9, 7.3, { from: 'right' }));
+const hostSays = el('<div class="bubble" style="font-size:28px">Everyone, pick a corner!</div>', { x: 0, y: 0 }); hostSays.className = 'bubble';
+add((t) => { const v = within(t, 6.4, 9.6); hostSays.style.opacity = v ? 1 : 0; if (v) { const p = toScreen(host.position.clone().add(new THREE.Vector3(0, 6, 0)), camera); hostSays.style.left = clamp(p.x, 200, 1700) + 'px'; hostSays.style.top = clamp(p.y, 120, 900) + 'px'; } });
+const rev = el(alertHTML('It’s a moorhen!'), { x: 960, y: 170, anchor: 'c' }); add(cue(rev, 10.7, 13.9));
+const ass = el('<div class="big" style="font-size:190px;color:#FFC83D">ASSUMPTION!</div>', { x: 960, y: 560, anchor: 'c' }); add(cue(ass, 11.4, 13.8, { from: 'pop', dur: 0.35 }));
+const lesson1 = kicker('Very sure is not the same as <span style="color:#16FFC6">right</span>.', { y: 960 }); add(cue(lesson1, 12.0, 13.9, { from: 'up' }));
+// sure-o-meter
+const q2 = el(`<div class="qcard" style="width:1000px"><small>ROUND 2 · THE SURE-O-METER</small><div class="q">“Ducks need more food. Add bread.” <span style="color:#0B7F74">70% sure.</span> How sure <i>should</i> it be?</div></div>`, { x: 960, y: 170, anchor: 'c' });
+add(cue(q2, 14.3, 19.2, { from: 'down' }));
+const scale = el(`<div style="display:flex;justify-content:space-between;width:1500px;font-family:var(--display);font-weight:800;font-size:44px;color:#fff;text-shadow:0 4px 18px rgba(0,0,0,.5)"><span>0% · Not sure</span><span>100% · Sure</span></div>`, { x: 960, y: 1000, anchor: 'c' }); add(cue(scale, 14.8, 19.2, { from: 'up' }));
+const ans2 = el(alertHTML('Low! Bread is bad for ducks.', true), { x: 960, y: 760, anchor: 'c' }); add(cue(ans2, 17.4, 19.2));
+// spot the assumption
+const q3 = el(`<div class="qcard" style="width:1060px"><small>ROUND 3 · SPOT THE ASSUMPTION</small><div class="q" style="font-size:42px">Card: “Make it nice for visitors.” The helper cuts the reeds. What did it assume?</div>
+  <div class="opts"><div class="opt" style="background:#ff5d4a;font-size:24px">A · Nice means neat</div><div class="opt" style="background:#e3a91f;font-size:24px">B · Visitors hate water</div><div class="opt" style="background:#0fa58c;font-size:24px">C · Reeds are dangerous</div></div></div>`, { x: 960, y: 220, anchor: 'c' });
+add(cue(q3, 19.6, 24.1, { from: 'down' }));
+const ass2 = el('<div class="big" style="font-size:120px;color:#FFC83D">ASSUMPTION!</div>', { x: 960, y: 640, anchor: 'c' }); add(cue(ass2, 22.6, 24.1, { from: 'pop', dur: 0.35 }));
+// team scores
+const teams = el(`<div style="background:rgba(16,12,40,.82);border-radius:34px;padding:36px 46px;display:grid;gap:18px;box-shadow:0 30px 70px rgba(0,0,0,.4)"><div style="font-weight:850;font-size:22px;letter-spacing:.16em;color:#16FFC6">TEAM SCORES · GOOD THINKING, NOT SPEED</div>
+  ${TEAM.map(([n, c], i) => `<div class="team"><span>${n}</span><div class="tb"><i data-t="${i}" style="background:${c};width:0"></i></div><b data-v="${i}">0</b></div>`).join('')}</div>`, { x: 960, y: 520, anchor: 'c' });
+add(cue(teams, 24.5, 28.4, { from: 'up' }));
+const finalScores = [7, 9, 8, 8];
+add((t) => finalScores.forEach((s, i) => { const k = prog(t, 25.0 + i * 0.25, 26.8 + i * 0.25); teams.querySelector(`[data-t="${i}"]`).style.width = (k * s * 10) + '%'; teams.querySelector(`[data-v="${i}"]`).textContent = Math.round(k * s); }));
+// finish together
+const fin = el('<div class="big" style="font-size:96px;text-align:center;line-height:1.1">Before I trust an AI’s answer, I…</div>', { x: 960, y: 420, anchor: 'c' }); add(cue(fin, 28.8, 32.3, { from: 'up' }));
+const fin2 = el('<div class="big" style="font-size:200px;color:#16FFC6">CHECK.</div>', { x: 960, y: 640, anchor: 'c' }); add(cue(fin2, 29.8, 32.3, { from: 'pop', dur: 0.35 }));
+const dimEnd = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:radial-gradient(ellipse at center, rgba(10,6,30,.45), rgba(10,6,30,.82))"></div>'); add(cue(dimEnd, 32.4, null, { from: 'fade', dur: 0.6 }));
+const title = titleCard('Sure or <span class="hl">Not Sure?</span>', 'The quiz show where everyone checks the AI.', { chip: 'A DeltaOps Learning quiz for the whole room' }); add(cue(title, 32.6, null, { from: 'pop', dur: 0.8 }));
+
+st.onFrame((t) => ui.forEach((fn) => fn(t)));
+window.__duration = DUR;
+document.fonts.ready.then(() => { window.__ready = true; });
+</script></body></html>

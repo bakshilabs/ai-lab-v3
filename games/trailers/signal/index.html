@@ -1,0 +1,167 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Clear Signal trailer</title>
+<link rel="stylesheet" href="../engine/ui.css">
+<style>
+.prog { width: 900px; height: 30px; border-radius: 99px; background: rgba(255,255,255,.18); position: relative; box-shadow: inset 0 0 0 3px rgba(255,255,255,.35); }
+.prog i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 99px; background: linear-gradient(90deg, #59C7FC, #16FFC6); }
+.prog b { position: absolute; top: -8px; width: 6px; height: 46px; border-radius: 3px; background: #FFC83D; }
+.pcard { width: 470px; background: #fff; border-radius: 22px; padding: 20px 24px; display: flex; gap: 16px; align-items: center; font-weight: 750; font-size: 30px; box-shadow: 0 12px 30px rgba(0,0,0,.3); border: 5px solid transparent; }
+.pcard .k { flex: none; width: 52px; height: 52px; border-radius: 14px; display: grid; place-items: center; font-weight: 900; font-size: 26px; background: #E2F5EF; color: #0B7F74; }
+.pcard.v .k { background: #FFE6DD; color: #D14A2B; }
+.pcard.pick { border-color: #16FFC6; box-shadow: 0 0 0 4px rgba(22,255,198,.35), 0 12px 30px rgba(0,0,0,.3); }
+.att { font-family: var(--display); font-weight: 800; font-size: 54px; color: #fff; text-shadow: 0 4px 20px rgba(0,0,0,.4); }
+</style>
+<script type="importmap">{"imports":{"three":"/three/three.module.js"}}</script></head>
+<body><div id="app"><div id="bg"></div><div id="ui"></div><div id="fx"></div></div>
+<script type="module">
+import * as THREE from 'three';
+import { createStage, prog, ease, lerp, clamp, within } from '../engine/stage.js';
+import { Vox, robot, duck, tree, particles, rand, hex } from '../engine/kit.js';
+import { el, cue, helperCard, alertHTML, kicker, titleCard, fader, toScreen } from '../engine/ui.js';
+
+const DUR = 36, BPM = 120, BEAT = 60 / BPM;
+const st = createStage({ sky: ['#2b1b5e', '#ff8a6a'] });
+const { scene, camera, sun, hemi } = st;
+sun.color.set(0xffc6a0); sun.intensity = 2.0; sun.position.set(-40, 60, 60); hemi.color.set(0xd8c8ff); hemi.intensity = 1.0;
+scene.fog = new THREE.Fog(0xb06a9a, 60, 220);
+
+// ---------------- level ----------------
+// islands as [x0, x1]; gaps between them; obstacles
+const isles = [[-30, 38], [42, 108], [112, 215]];
+const gaps = [[38, 42], [108, 112]]; // jump gaps (2 and 3+ wide)
+const O = { gap1: 40, branch: 64, gap2: 110, hedge: 152, finish: 200 };
+const v = new Vox();
+const beatTiles = [];
+isles.forEach(([x0, x1], k) => {
+  for (let x = x0; x < x1; x++) for (let z = -5; z <= 5; z++) {
+    const edge = Math.min(x - x0, x1 - 1 - x);
+    const depth = 3 + Math.min(edge, 6) + Math.round(rand(x, 1, z) * 2) - Math.abs(z) * 0.4;
+    for (let y = -depth; y <= 0; y++) v.set(x, y, z, y === 0 ? (rand(x, 2, z) > 0.5 ? '#7ccf55' : '#6cc04b') : y > -3 ? '#9a6a42' : '#7b8085');
+    if (z === 0 && x % 2 === 0) beatTiles.push([x + 0.5, z + 0.5, k]);
+  }
+  // path stripe
+  for (let x = x0; x < x1; x++) v.set(x, 0, 0, '#d9c9a0');
+  for (let tx = x0 + 6; tx < x1 - 4; tx += 17) tree(v, tx, 0, -5, { kind: rand(tx, 1) > 0.5 ? 'round' : 'pine' });
+});
+// branch obstacle: tree with a long low branch over the path at x≈74
+tree(v, O.branch, 0, -4, { kind: 'round' }); v.box(O.branch - 1, 3, -4, O.branch, 3, 2, '#7a5232'); v.box(O.branch - 2, 3, 1, O.branch + 1, 4, 3, '#3f9d4a');
+// hedge at x≈152
+v.box(O.hedge, 1, -2, O.hedge + 1, 2, 2, '#2f8a43');
+// finish arch
+v.box(O.finish, 1, -4, O.finish, 7, -4, '#16ffc6'); v.box(O.finish, 1, 4, O.finish, 7, 4, '#16ffc6'); v.box(O.finish, 8, -4, O.finish, 8, 4, '#ffc83d');
+const world = v.mesh(); scene.add(world);
+// cloud above gap2 (the vague "Go up!" lands the robot on it)
+const cloud = (() => { const c = new Vox(); c.box(-3, 0, -2, 3, 1, 2, '#ffffff'); c.box(-2, 2, -1, 2, 2, 1, '#ffffff'); c.box(-4, 0, -1, 4, 0, 1, '#ffffff'); return c.mesh(); })(); cloud.position.set(O.gap2 + 0.5, 8.5, 0); scene.add(cloud);
+// beat lights on the path
+const lights = particles(beatTiles.length, { size: 0.9 }); lights.geometry = new THREE.BoxGeometry(0.9, 0.2, 0.9); lights.material = new THREE.MeshBasicMaterial({ color: 0xffffff }); scene.add(lights);
+beatTiles.forEach(([x, z], i) => lights.setAt(i, x, 1.05, z));
+// distant islands (parallax)
+for (let i = 0; i < 14; i++) { const d = new Vox(); const w = 6 + Math.floor(rand(i, 1) * 8); for (let x = 0; x < w; x++) for (let z = 0; z < w; z++) { const r = Math.hypot(x - w / 2, z - w / 2) / (w / 2); if (r > 1) continue; const dp = Math.round((1 - r) * 6) + 1; for (let y = -dp; y <= 0; y++) d.set(x, y, z, y === 0 ? '#8fd06a' : '#9a7a6a'); } if (rand(i, 4) > 0.4) tree(d, Math.floor(w / 2), 0, Math.floor(w / 2), { kind: 'pine' }); const m = d.mesh({ castShadow: false }); m.position.set(-20 + i * 17, -10 + rand(i, 2) * 26, -50 - rand(i, 3) * 60); scene.add(m); }
+// stars
+const starsP = particles(120, { size: 0.5 }); starsP.material = new THREE.MeshBasicMaterial({ color: 0xffffff }); scene.add(starsP);
+for (let i = 0; i < 120; i++) starsP.setAt(i, -40 + rand(i, 1) * 280, 25 + rand(i, 2) * 50, -120 - rand(i, 3) * 40); starsP.done();
+
+// robot + ghosts + duck
+function mkBot(op = 1) { const r = robot({ s: 0.42 }); if (op < 1) { r.material = r.material.clone(); r.material.transparent = true; r.material.opacity = op; } r.rotation.y = -Math.PI / 2; scene.add(r); return r; }
+const bot = mkBot();
+const ghosts = Array.from({ length: 10 }, () => mkBot(0.32));
+const surpriseDuck = duck({ s: 0.45 }); scene.add(surpriseDuck);
+const sparks = particles(60, { size: 0.35 }); sparks.material = new THREE.MeshBasicMaterial({ color: 0x16ffc6 }); scene.add(sparks);
+
+// run model: returns {x,y,fail}
+const SPEED = 13;
+function runPos(t, t0, x0, plan) {
+  // plan: { failAt: 'branch'|'gap2'|null, until: x }
+  let x = x0 + (t - t0) * SPEED, y = 1, state = 'run';
+  const jump = (cx, w, h) => { const d = (x - (cx - w / 2)) / w; if (d > 0 && d < 1) y = 1 + h * 4 * d * (1 - d); };
+  jump(O.gap1 + 0.5, 9, 3.2);
+  if (plan.failAt === 'branch' && x > O.branch - 3) { x = O.branch - 3 + Math.min(0, 0); state = 'fail'; }
+  else if (x > O.branch - 4 && x < O.branch + 3) y = 0.55; // slide
+  if (plan.failAt === 'gap2' && x > O.gap2 - 6) { const k = (x - (O.gap2 - 6)) / SPEED; // fly up to the cloud, bounce, fall
+    x = O.gap2 - 6 + Math.min(k, 0.5) * SPEED * 0.9; y = k < 0.5 ? 1 + 18 * k : k < 0.75 ? 10 + 1.5 * Math.sin((k - 0.5) * 12) : 10 - (k - 0.75) * 40; state = k > 0.75 ? 'fail' : 'run'; }
+  else jump(O.gap2 + 0.5, 11, 4);
+  jump(O.hedge + 1, 7, 3);
+  if (plan.until && x > plan.until) { x = plan.until; state = 'done'; }
+  return { x, y, state };
+}
+// attempts
+const A1 = { t0: 0.4, x0: 0, plan: { failAt: 'branch' }, end: 5.6 };
+const A2 = { t0: 6.4, x0: 50, plan: { failAt: 'gap2' }, end: 11.6 };
+const A12 = { t0: 19.2, x0: 95, plan: { until: O.finish + 6 }, end: 26.6 };
+const ghostPlans = [70, 98, 109, 113, 120, 140, 151, 156, 175, 190]; // where each montage ghost stops
+st.onFrame((t) => {
+  // beat pulse
+  const ph = (t % BEAT) / BEAT, pulse = Math.pow(1 - ph, 3);
+  const finale = t > 25.2 ? prog(t, 25.2, 26.4) : 0;
+  const cols = ['#16ffc6', '#59c7fc', '#ffc83d', '#ff6a9a'];
+  beatTiles.forEach(([x, z, k], i) => { const on = Math.floor(t / BEAT) % 4 === Math.floor(x / 2) % 4; const c = hex(cols[(Math.floor(x / 2) + Math.floor(t / BEAT)) % 4]).multiplyScalar(0.25 + 0.75 * (finale > 0 ? 1 : on ? pulse : 0.15)); lights.setColorAt(i, c); });
+  lights.instanceColor.needsUpdate = true;
+  // which attempt is live
+  let r = null, live = null;
+  if (t < A1.end) live = A1; else if (within(t, A2.t0, A2.end)) live = A2; else if (t >= A12.t0) live = A12;
+  bot.visible = !!live;
+  if (live) { r = runPos(t, live.t0, live.x0, live.plan); bot.position.set(r.x, r.y, 0); const run = r.state === 'run'; bot.rotation.z = run ? Math.sin(t * 20) * 0.08 : 0; bot.scale.y = r.y < 0.8 ? 0.6 : 1; }
+  // duck pops up in attempt 1 when the vague card "Duck!" is played
+  surpriseDuck.visible = within(t, 4.8, 6.4); surpriseDuck.position.set(O.branch - 1.2, 1 + Math.abs(Math.sin(t * 8)) * 0.5, 1.5); surpriseDuck.rotation.y = Math.PI / 2;
+  // montage ghosts 12.2-19
+  ghosts.forEach((g, i) => {
+    let vis = false, x = 0, y = 1;
+    if (within(t, 12.2, 19.0)) { const t0 = 12.4 + i * 0.12; const xx = 50 + Math.max(0, t - t0) * SPEED * 1.6; x = Math.min(xx, ghostPlans[i]); y = 1 + (x > O.gap1 - 4 && x < O.gap1 + 5 ? 3 * Math.sin(Math.PI * (x - O.gap1 + 4) / 9) : 0) + (x > O.gap2 - 5 && x < O.gap2 + 6 ? 4 * Math.sin(Math.PI * (x - O.gap2 + 5) / 11) : 0); vis = t > t0 && xx < ghostPlans[i] + 6; }
+    if (t > 26.4 && t < DUR) { vis = true; const k = prog(t, 26.4, 28.6); x = lerp(O.finish - 20 - i * 2.2, O.finish + 3 - (i % 5) * 1.6, k); y = 1; }
+    g.visible = vis; g.position.set(x, y, t > 26.4 ? -3 + (i % 5) * 1.5 : 0);
+  });
+  for (let i = 0; i < 60; i++) { const age = t - 25.4 - (i % 10) * 0.03; const a = rand(i, 1) * 6.28; sparks.setAt(i, O.finish + Math.cos(a) * age * 8, 4 + Math.sin(a) * age * 8 - age * age * 4, 0, 0, 0, age > 0 && age < 1.5 ? 1 : 0); }
+  sparks.done();
+  // camera follows
+  let cx;
+  if (live) cx = bot.position.x; else if (within(t, 12.2, 19.2)) cx = 50 + (t - 12.2) * 16; else cx = O.finish - 4;
+  if (t >= 26.6) cx = O.finish - 16 + (t - 26.6) * 1.2;
+  const lift = live ? Math.max(0, bot.position.y - 3) * 0.7 : 0;
+  const cy = t >= 30 ? lerp(10, 26, prog(t, 30, 36)) : 10 + lift, cz = t >= 30 ? lerp(24, 70, prog(t, 30, 36)) : 24;
+  camera.fov = 40; camera.updateProjectionMatrix();
+  camera.position.set(cx + 4, cy, cz); camera.lookAt(cx + 8, 2.2 + lift, 0);
+  // sky: dusk to night as you get closer
+  const k = prog(t, 0, 30, (x) => x);
+  st.setSky('#' + hex('#3a2470').lerp(hex('#0d1833'), k).getHexString(), '#' + hex('#ff9a6a').lerp(hex('#8a4aa8'), k).getHexString());
+  scene.fog.color.set('#' + hex('#c07a9a').lerp(hex('#3a2a6a'), k).getHexString());
+});
+
+// ---------------- overlay ----------------
+const ui = []; const add = (fn) => ui.push(fn);
+const fade = fader(); add((t) => fade(t < 0.4 ? 1 - prog(t, 0, 0.4, (x) => x) : t > 35.3 ? prog(t, 35.3, 36, (x) => x) : 0));
+// restart flashes
+const flash = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:#fff"></div>');
+add((t) => { const f = (s) => within(t, s, s + 0.35) ? 1 - (t - s) / 0.35 : 0; const v = Math.max(f(5.6), f(11.6), f(25.3) * 0.6); flash.style.opacity = v; flash.style.visibility = v > 0 ? 'visible' : 'hidden'; });
+const k0 = kicker('One button. One beat.', { y: 880 }); add(cue(k0, 0.5, 2.6, { from: 'up' }));
+const k0b = kicker('One <span style="color:#16FFC6">clear</span> instruction.', { y: 960 }); add(cue(k0b, 1.2, 2.6, { from: 'up' }));
+// progress bar + attempt counter
+const bar = el(`<div style="display:flex;gap:26px;align-items:center"><div class="prog"><i data-p></i><b data-best></b></div><span class="att" style="font-size:40px" data-pct>0%</span></div>`, { x: 960, y: 70, anchor: 'c' });
+add(cue(bar, 2.8, 30, { from: 'down' }));
+const att = el('<div class="att" data-a>ATTEMPT 1</div>', { x: 60, y: 120 }); add(cue(att, 2.8, 30, { from: 'left' }));
+const best = (t) => t < 5.6 ? 0 : t < 11.6 ? 37 : t < 19 ? lerp(52, 94, prog(t, 12.4, 18.8, (x) => x)) : 100;
+add((t) => { let x = 0; if (t < A1.end) x = runPos(t, A1.t0, A1.x0, A1.plan).x; else if (within(t, A2.t0, A2.end)) x = runPos(t, A2.t0, A2.x0, A2.plan).x; else if (t >= A12.t0) x = runPos(t, A12.t0, A12.x0, A12.plan).x; else x = Math.min(215, 50 + (t - 12.2) * 16 * 1.5); const p = clamp(x / O.finish) * 100; bar.querySelector('[data-p]').style.width = p + '%'; bar.querySelector('[data-best]').style.left = best(t) + '%'; bar.querySelector('[data-pct]').textContent = Math.round(Math.max(p, 0)) + '%';
+  const n = t < 5.9 ? 1 : t < 12.2 ? 2 : t < 19.2 ? 3 + Math.floor(prog(t, 12.4, 19, (x) => x) * 8.99) : 12; att.querySelector('[data-a]').textContent = 'ATTEMPT ' + n; });
+// card pairs (arrive on the beat)
+function pair(tIn, tPick, tOut, a, b, pickB, y = 205) {
+  const n = el(`<div style="display:flex;gap:24px"><div class="pcard${a.v ? ' v' : ''}" data-a><span class="k">A</span>${a.text}</div><div class="pcard${b.v ? ' v' : ''}" data-b><span class="k">B</span>${b.text}</div></div>`, { x: 960, y, anchor: 'c' });
+  add(cue(n, tIn, tOut, { from: 'right', dur: 0.25 }));
+  add((t) => { n.querySelector(pickB ? '[data-b]' : '[data-a]').classList.toggle('pick', t > tPick); n.querySelector(pickB ? '[data-a]' : '[data-b]').style.opacity = t > tPick ? 0.45 : 1; });
+}
+pair(1.6, 2.1, 3.0, { text: 'Jump the 2-block gap' }, { text: 'Go!', v: true }, false);
+pair(3.9, 4.5, 6.0, { text: 'Duck!', v: true }, { text: 'Slide under the branch' }, false);
+const h1 = el(helperCard('Duck! Getting you a duck.', 91, { who: 'Courier bot' }), { x: 1260, y: 640 }); add(cue(h1, 4.8, 6.2, { from: 'right' }));
+pair(9.2, 9.8, 11.4, { text: 'Go up!', v: true }, { text: 'Jump the 3-block gap' }, false);
+const h2 = el(helperCard('Up! Going all the way up.', 88, { who: 'Courier bot' }), { x: 1260, y: 640 }); add(cue(h2, 10.0, 11.6, { from: 'right' }));
+const k1 = kicker('Vague card? The bot guesses.', { y: 980 }); add(cue(k1, 10.2, 11.6, { from: 'up' }));
+const k2 = kicker('Restart in under a second. No lives. No limits.', { y: 980, size: 56 }); add(cue(k2, 12.6, 18.9, { from: 'up' }));
+const montage = el('<div class="chip" style="font-size:22px">ATTEMPTS 3 TO 11 · BEST SO FAR GOES UP</div>', { x: 960, y: 170, anchor: 'c' }); add(cue(montage, 12.6, 18.9, { from: 'down' }));
+pair(19.6, 20.0, 21.2, { text: 'Go up!', v: true }, { text: 'Jump the 3-block gap' }, true);
+pair(22.4, 22.8, 24.0, { text: 'Jump the hedge, land on the path' }, { text: 'Be careful.', v: true }, false);
+const done = el('<div class="att" style="font-size:120px;text-align:center;line-height:1">ATTEMPT 12 · <span style="color:#16FFC6">100%</span></div>', { x: 960, y: 330, anchor: 'c' }); add(cue(done, 25.6, 29.8, { from: 'pop' }));
+const k3 = kicker('Every try taught you something.', { y: 980 }); add(cue(k3, 27.0, 29.8, { from: 'up' }));
+const dimEnd = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:radial-gradient(ellipse at center, rgba(10,6,30,.35), rgba(10,6,30,.75))"></div>'); add(cue(dimEnd, 30.0, null, { from: 'fade', dur: 0.8 }));
+const title = titleCard('Clear <span class="hl">Signal</span>', 'Say it clearly. Hit the beat. Try again.', { chip: 'A DeltaOps Learning warm-up game' }); add(cue(title, 30.3, null, { from: 'pop', dur: 0.8 }));
+
+st.onFrame((t) => ui.forEach((fn) => fn(t)));
+window.__duration = DUR;
+document.fonts.ready.then(() => { window.__ready = true; });
+</script></body></html>

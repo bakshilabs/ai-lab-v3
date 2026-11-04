@@ -1,0 +1,220 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Pit Crew trailer</title>
+<link rel="stylesheet" href="../engine/ui.css">
+<script type="importmap">{"imports":{"three":"/three/three.module.js"}}</script></head>
+<body><div id="app"><div id="bg"></div><div id="ui"></div><div id="fx"></div></div>
+<script type="module">
+import * as THREE from 'three';
+import { createStage, cameraTrack, prog, ease, lerp, clamp, within } from '../engine/stage.js';
+import { Vox, island, tree, kart, duck, particles, PAL, rand, hex } from '../engine/kit.js';
+import { el, cue, helperCard, facilCard, badge, task, cardsHTML, alertHTML, kicker, titleCard, tap, fader, toScreen, ICON } from '../engine/ui.js';
+
+const DUR = 41;
+const st = createStage({ sky: ['#9fd6ff', '#f2fbff'] });
+const { scene, camera, sun, hemi } = st;
+const T = 0;
+
+// ---------------- world: Pebble Ring ----------------
+const v = new Vox();
+const isl = island(v, { rx: 46, rz: 34, depth: 15, seed: 11 });
+const A = 30, B = 20; // track ellipse
+const ell = (u) => ({ x: A * Math.cos(u * Math.PI * 2), z: B * Math.sin(u * Math.PI * 2) });
+const onTrack = (x, z) => { const r = Math.hypot(x / A, z / B); return Math.abs(r - 1) * Math.min(A, B) < 2.6; };
+const inPond = (x, z) => Math.hypot((x - 4) / 8, (z - 1) / 5.5) < 1;
+const meadow = [];
+for (let x = -44; x <= 44; x++) for (let z = -32; z <= 32; z++) {
+  if (!v.has(x, T, z)) continue;
+  if (onTrack(x + 0.5, z + 0.5)) { const edge = Math.abs(Math.hypot((x + .5) / A, (z + .5) / B) - 1) * Math.min(A, B) > 2.0; v.set(x, T, z, edge ? '#b98a5a' : (rand(x, 5, z) > 0.5 ? '#c99a66' : '#bf9060')); continue; }
+  if (inPond(x + 0.5, z + 0.5)) { v.set(x, T, z, null); v.set(x, T - 1, z, '#3f7f9a'); continue; }
+  if (Math.hypot((x + .5) / A, (z + .5) / B) < 0.9 && !inPond(x, z) && Math.hypot((x - 4) / 9.5, (z - 1) / 7) > 1 && rand(x, 7, z) > 0.45) meadow.push([x + 0.5, z + 0.5]);
+}
+// beach on the south-west outside
+for (let x = -44; x <= -20; x++) for (let z = 18; z <= 32; z++) if (v.has(x, T, z) && Math.hypot((x + .5) / A, (z + .5) / B) > 1.12) v.set(x, T, z, PAL.sand);
+// stream from pond to north edge with bridge
+for (let z = -33; z <= -4; z++) for (let x = 3; x <= 5; x++) { if (!v.has(x, T, z) && !v.has(x, T - 1, z)) continue; if (onTrack(x + .5, z + .5)) { v.set(x, T - 1, z, '#3f7f9a'); v.set(x, T, z, '#8a5a32'); continue; } v.set(x, T, z, null); v.set(x, T - 1, z, '#3f7f9a'); }
+for (let x = 1; x <= 7; x++) { const z0 = -21, z1 = -18; for (let z = z0; z <= z1; z++) v.set(x, T + (x === 1 || x === 7 ? 1 : 0), z, '#9a6a3a'); }
+// checkpoint arches at u = 0, .25, .5, .75 (east, south, west, north)
+const cps = [{ u: 0, c: '#16c7a6' }, { u: 0.25, c: '#ffc83d' }, { u: 0.5, c: '#ff6a4a' }, { u: 0.75, c: '#6e5bf2' }];
+for (const cp of cps) {
+  const p = ell(cp.u); const ns = cp.u === 0 || cp.u === 0.5; // track runs north-south at east/west
+  for (const s of [-3, 3]) { const x = Math.round(p.x + (ns ? s : 0)), z = Math.round(p.z + (ns ? 0 : s)); v.box(x, T + 1, z, x, T + 6, z, cp.c); }
+  if (ns) v.box(Math.round(p.x) - 3, T + 7, Math.round(p.z), Math.round(p.x) + 3, T + 7, Math.round(p.z), cp.c);
+  else v.box(Math.round(p.x), T + 7, Math.round(p.z) - 3, Math.round(p.x), T + 7, Math.round(p.z) + 3, cp.c);
+}
+// start gantry at u=0.25 (south): chequered bar
+{ const p = ell(0.25); for (let x = -4; x <= 4; x++) { v.set(Math.round(p.x) + x, T + 9, Math.round(p.z), (x + 10) % 2 ? '#111' : '#fff'); v.set(Math.round(p.x) + x, T + 10, Math.round(p.z), (x + 11) % 2 ? '#111' : '#fff'); } v.box(Math.round(p.x) - 4, T + 1, Math.round(p.z), Math.round(p.x) - 4, T + 8, Math.round(p.z), '#e8e8e8'); v.box(Math.round(p.x) + 4, T + 1, Math.round(p.z), Math.round(p.x) + 4, T + 8, Math.round(p.z), '#e8e8e8'); }
+// grandstand + trees + flags
+v.box(-8, T + 1, 26, 8, T + 1, 29, '#d9d2c4'); v.box(-8, T + 2, 28, 8, T + 2, 29, '#cfc6b6'); v.box(-8, T + 3, 29, 8, T + 3, 29, '#c4bba9');
+for (let x = -8; x <= 8; x += 2) v.set(x, T + 3, 28, ['#ff6a4a', '#59c7fc', '#ffc83d', '#16c7a6'][(x + 8) / 2 % 4]);
+const trees = [[-40, -6], [-38, -18], [-26, -28], [16, -29], [30, -26], [40, -16], [34, 24], [-36, 6], [20, 28], [-14, -28], [28, 30]];
+for (const [x, z] of trees) if (isl.inside(x, z)) tree(v, x, T, z, { kind: rand(x, 2, z) > 0.5 ? 'pine' : 'round' });
+const world = v.mesh(); scene.add(world);
+const water = (() => { const w = new Vox(); w.jitter = 0.02; for (let x = -44; x <= 44; x++) for (let z = -34; z <= 34; z++) if (v.get(x, T - 1, z) === null) {} for (let x = -10; x <= 16; x++) for (let z = -34; z <= 10; z++) if (!v.has(x, T, z) && v.has(x, T - 1, z)) w.set(x, T - 1, z, '#55bde9'); const m = w.mesh({ castShadow: false }); m.material.transparent = true; m.material.opacity = 0.85; m.position.y = 0.55; return m; })();
+scene.add(water);
+
+// flowers (instanced so they can be flattened and regrow)
+const FC = ['#ff7eb6', '#ffd23f', '#ffffff', '#b28cff', '#ff8a5c'];
+const flowers = particles(meadow.length * 2, { size: 0.55 }); scene.add(flowers);
+const stems = []; meadow.forEach(([x, z], i) => { flowers.setColor(i * 2, FC[Math.floor(rand(x, 3, z) * 5)]); flowers.setColor(i * 2 + 1, '#3f9d4a'); });
+// shortcut line (stage 1): from start (south) straight north-east across the meadow
+const SC0 = [-6, 19], SC1 = [24, -14];
+function segDist(px, pz, a, b) { const dx = b[0] - a[0], dz = b[1] - a[1]; let k = ((px - a[0]) * dx + (pz - a[1]) * dz) / (dx * dx + dz * dz); k = clamp(k); return [Math.hypot(px - a[0] - k * dx, pz - a[1] - k * dz), k]; }
+const flowerHit = meadow.map(([x, z]) => segDist(x, z, SC0, SC1));
+const skid = particles(60, { size: 1 }); skid.geometry = new THREE.BoxGeometry(1.6, 0.12, 1.0); skid.material.color.set('#7a5a3a'); scene.add(skid);
+const petals = particles(140, { size: 0.5 }); scene.add(petals); for (let i = 0; i < 140; i++) petals.setColor(i, FC[i % 5]);
+
+// karts
+const spr = kart({ s: 0.42, body: '#ff6a4a' }); scene.add(spr);
+const moss = kart({ s: 0.42, body: '#59c7fc', brain: '#ffffff' }); scene.add(moss);
+const bolt = kart({ s: 0.42, body: '#ffc83d', brain: '#ffffff' }); scene.add(bolt);
+const ghosts = []; for (let i = 0; i < 8; i++) { const g = kart({ s: 0.42, body: '#ff6a4a' }); g.traverse((o) => { if (o.material) { o.material = o.material.clone(); o.material.transparent = true; o.material.opacity = 0.45; } }); scene.add(g); ghosts.push(g); }
+const ducks = [0, 1, 2].map(() => { const d = duck(); scene.add(d); return d; });
+const confetti = particles(160, { size: 0.4 }); scene.add(confetti); for (let i = 0; i < 160; i++) confetti.setColor(i, ['#ff6a4a', '#ffc83d', '#16ffc6', '#59c7fc', '#ffffff', '#6e5bf2'][i % 6]);
+
+function place(k, x, z, ang, bob = 0) { k.position.set(x, T + 1 + bob, z); k.rotation.set(0, ang, 0); }
+function onEll(k, u, lane = 0) { const p = ell(u), q = ell(u + 0.002); const nx = -(q.z - p.z), nz = q.x - p.x, L = Math.hypot(nx, nz); place(k, p.x + nx / L * lane, p.z + nz / L * lane, Math.atan2(q.x - p.x, q.z - p.z)); }
+
+// ---------------- timeline ----------------
+const S = { hook: [0, 3.6], c1: [3.6, 7.2], cut: [7.2, 11.4], c2: [11.4, 14.6], loop: [14.6, 20.2], train: [20.2, 24.2], dial: [24.2, 28], clean: [28, 33.2], podium: [33.2, 37.2], title: [37.2, 41] };
+const inS = (t, k) => t >= S[k][0] && t < S[k][1];
+st.onFrame((t) => {
+  // rivals keep racing in most shots
+  const ru = (t * 0.045) % 1; onEll(moss, 0.25 + ru, -1.2); onEll(bolt, 0.18 + ru * 1.05, 1.2);
+  if (t < S.c1[1]) { const p = ell(0.25); place(moss, p.x - 3, p.z - 1.6, Math.PI / 2); place(bolt, p.x - 9.5, p.z - 1.6, Math.PI / 2); }
+  ducks.forEach((d, i) => { const a = t * 0.3 + i * 2.1; d.position.set(4 + Math.cos(a) * (5 - i), T + 0.6, 1 + Math.sin(a) * (3 - i * 0.5)); d.rotation.y = -a; });
+  ghosts.forEach((g) => (g.visible = false));
+  spr.visible = true;
+  // flowers: flattened along the shortcut after Sprocket passes, regrow during clean lap
+  const cutK = t < S.cut[0] ? -1 : t < S.clean[0] ? prog(t, S.cut[0] + 0.6, S.cut[0] + 3.4, (x) => x) : 2;
+  const regrow = t >= S.clean[0] ? prog(t, S.clean[0] + 0.5, S.clean[1] - 0.4, (x) => x) : 0;
+  meadow.forEach(([x, z], i) => {
+    const [d, k] = flowerHit[i]; let sc = 1;
+    if (d < 3.2 && cutK >= k && cutK <= 1.5) sc = 0;
+    if (t >= S.clean[0] && d < 3.2) sc = clamp((regrow * 1.6 - k * 0.6) * 1.2);
+    flowers.setAt(i * 2, x, T + 1.5, z, 0, 0, sc); flowers.setAt(i * 2 + 1, x, T + 1.0, z, 0, 0, sc * 0.8);
+  });
+  flowers.done();
+  for (let i = 0; i < 60; i++) { const k = i / 59; const x = lerp(SC0[0], SC1[0], k), z = lerp(SC0[1], SC1[1], k); const on = t >= S.cut[0] && t < S.clean[0] + 1.5 && cutK >= k; const sc = t >= S.clean[0] ? 1 - prog(t, S.clean[0], S.clean[0] + 1.5) : 1; skid.setAt(i, x, T + 1.04, z, 0, Math.atan2(SC1[0] - SC0[0], SC1[1] - SC0[1]), on ? sc * 2.2 : 0); }
+  skid.done();
+  // petals burst behind Sprocket during the cut
+  for (let i = 0; i < 140; i++) {
+    const birth = S.cut[0] + 0.6 + (i / 140) * 2.8, age = t - birth;
+    if (!inS(t, 'cut') || age < 0 || age > 1.6) { petals.setAt(i, 0, -50, 0, 0, 0, 0); continue; }
+    const k = (i / 140); const px = lerp(SC0[0], SC1[0], k), pz = lerp(SC0[1], SC1[1], k);
+    const a = rand(i, 4) * 6.28, sp = 2 + rand(i, 5) * 4;
+    petals.setAt(i, px + Math.cos(a) * sp * age, T + 1.5 + 6 * age - 6 * age * age, pz + Math.sin(a) * sp * age, age * 5, age * 3, 1);
+  }
+  petals.done();
+  confetti.visible = t > S.podium[0];
+  for (let i = 0; i < 160; i++) { const age = t - S.podium[0] - 0.5 - (i % 20) * 0.03; const p = ell(0.25); const a = rand(i, 1) * 6.28, r = rand(i, 2) * 6; confetti.setAt(i, p.x + Math.cos(a) * r * Math.min(1, age), T + 10 + 8 * age - 5 * age * age, p.z + Math.sin(a) * r * Math.min(1, age), age * 6, age * 4, age > 0 ? 1 : 0); }
+  confetti.done();
+
+  // Sprocket per shot
+  if (t < S.c1[1]) { const p = ell(0.25); place(spr, p.x - 6, p.z + 1.6, Math.PI / 2, t > 2.9 ? 0.05 * Math.sin(t * 60) : 0.02 * Math.sin(t * 40)); }
+  else if (inS(t, 'cut')) { const k = prog(t, S.cut[0] + 0.5, S.cut[0] + 3.4, ease.inOut); const x = lerp(SC0[0], SC1[0], k), z = lerp(SC0[1], SC1[1], k); place(spr, x, z, Math.atan2(SC1[0] - SC0[0], SC1[1] - SC0[1]), 0.15 * Math.abs(Math.sin(t * 20))); }
+  else if (inS(t, 'c2')) { place(spr, SC1[0], SC1[1], 0.6); }
+  else if (inS(t, 'loop')) { const a = (t - S.loop[0]) * 2.6; const cx = 34.5, cz = 0; place(spr, cx - 4.5 * Math.cos(a), cz + 4.5 * Math.sin(a), Math.atan2(4.5 * Math.sin(a), 4.5 * Math.cos(a))); }
+  else if (inS(t, 'train') || inS(t, 'dial')) {
+    spr.visible = false;
+    const k = prog(t, S.train[0], S.train[1], (x) => x);
+    ghosts.forEach((g, i) => { g.visible = inS(t, 'train'); const u = (t * 0.09 + i * 0.125) % 1; const wob = (1 - k) * (6 * Math.sin(u * 30 + i * 2) + (rand(i, 9) - 0.5) * 18) * (1 - k * 0.2); onEll(g, u, wob); });
+  }
+  else if (inS(t, 'clean')) { const u = 0.315 + prog(t, S.clean[0], S.clean[1], (x) => x) * 0.93; onEll(spr, u, 0.6); }
+  else { const p = ell(0.25); const k = prog(t, S.podium[0], S.podium[0] + 1.2, ease.out); place(spr, p.x + lerp(-16, -2, k), p.z + 0.6, Math.PI / 2); }
+  // star bursts at checkpoint in the loop shot handled in UI
+});
+
+const cam = cameraTrack(camera, [
+  { t: 0, pos: [-22, 4.5, 31], look: [-5, 2.6, 18.8], fov: 34 },
+  { t: 3.6, pos: [-19, 3.8, 29], look: [-5, 2.4, 18.8], fov: 34 },
+  { t: 3.6001, cut: true, pos: [60, 58, 78], look: [0, -2, 0], fov: 30 },
+  { t: 7.2, pos: [54, 54, 72], look: [0, -2, 0], fov: 30 },
+  { t: 7.2001, cut: true, pos: [-26, 26, 44], look: [6, 0, 4], fov: 32 },
+  { t: 11.4, pos: [-16, 30, 46], look: [12, 0, -2], fov: 32 },
+  { t: 11.4001, cut: true, pos: [-64, 52, 66], look: [0, -2, 0], fov: 30 },
+  { t: 14.6, pos: [-58, 50, 62], look: [0, -2, 0], fov: 30 },
+  { t: 14.6001, cut: true, pos: [58, 20, 26], look: [32, 2, 0], fov: 34 },
+  { t: 20.2, pos: [54, 17, 18], look: [32, 2, 0], fov: 34 },
+  { t: 20.2001, cut: true, pos: [0, 74, 42], look: [0, 0, 3], fov: 34 },
+  { t: 24.2, pos: [0, 66, 36], look: [0, 0, 3], fov: 34 },
+  { t: 24.2001, cut: true, pos: [70, 46, -60], look: [0, -2, 0], fov: 30 },
+  { t: 28, pos: [64, 44, -56], look: [0, -2, 0], fov: 30 },
+]);
+st.onFrame((t) => {
+  if (t < 28) { cam(t); return; }
+  if (t < 33.2) { // chase cam
+    const p = spr.position, a = spr.rotation.y; camera.fov = 42; camera.updateProjectionMatrix();
+    camera.position.set(p.x - Math.sin(a) * 16 + 4, p.y + 10, p.z - Math.cos(a) * 16 + 3); camera.lookAt(p.x + Math.sin(a) * 8, p.y + 1, p.z + Math.cos(a) * 8); return;
+  }
+  if (t < 37.2) { const k = prog(t, 33.2, 37.2, (x) => x); camera.fov = 34; camera.updateProjectionMatrix(); camera.position.set(lerp(-26, -20, k), 11, lerp(42, 40, k)); camera.lookAt(-2, 3, 19); return; }
+  const k = prog(t, 37.2, 41, (x) => x); camera.fov = 28; camera.updateProjectionMatrix(); camera.position.set(lerp(70, 110, k), lerp(50, 76, k), lerp(84, 126, k)); camera.lookAt(0, -3, 0);
+});
+
+// ---------------- overlay ----------------
+const ui = []; const add = (fn) => ui.push(fn);
+const fade = fader(); add((t) => fade(t < 0.5 ? 1 - prog(t, 0, 0.5, (x) => x) : t > 40.3 ? prog(t, 40.3, 41, (x) => x) : 0));
+const dim = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:rgba(8,22,34,.5)"></div>');
+add((t) => { const a = (inS(t, 'c1') || inS(t, 'c2') || inS(t, 'dial')) ? 1 : 0; dim.style.opacity = a; dim.style.visibility = a ? 'visible' : 'hidden'; });
+
+// start lights
+const lights = el(`<div style="display:flex;gap:26px;background:#13202b;padding:22px 30px;border-radius:30px;box-shadow:0 14px 30px rgba(0,0,0,.35)">${[0, 1, 2, 3].map((i) => `<i data-l="${i}" style="width:70px;height:70px;border-radius:50%;background:#3a1a1a;display:block"></i>`).join('')}</div>`, { x: 960, y: 150, anchor: 'c' });
+add(cue(lights, 0.3, 3.5, { from: 'down' }));
+add((t) => lights.querySelectorAll('i').forEach((l, i) => { const on = t > 0.6 + i * 0.6; const go = t > 2.9; l.style.background = go ? '#16ffc6' : on ? '#ff4d3d' : '#3a1a1a'; l.style.boxShadow = go ? '0 0 30px #16ffc6' : on ? '0 0 26px #ff4d3d' : 'none'; }));
+const k1 = kicker('Sprocket learns to race from one thing:', { y: 880, size: 58 }); add(cue(k1, 0.8, 3.5, { from: 'up' }));
+const k1b = kicker('the <span style="color:#FFC83D">stars</span> you give it.', { y: 955, size: 58 }); add(cue(k1b, 1.5, 3.5, { from: 'up' }));
+
+const c1 = el(cardsHTML('STAGE 1 · TELL SPROCKET WHAT TO DO', [{ k: 'A', text: '“Go fast!”', vague: true }, { k: 'B', text: 'Cross the finish line.' }, { k: 'C', text: 'Follow the dirt road all the way round.' }], 0), { x: 960, y: 640, anchor: 'c' });
+add(cue(c1, 3.9, 7.0, { from: 'up' }));
+const tp1 = tap(530, 650); add((t) => tp1(t, 4.6));
+const h1 = el(helperCard('Fast means shortest! Going straight there.', 92, { who: 'Sprocket' }), { x: 960, y: 300, anchor: 'c' }); add(cue(h1, 5.0, 7.0, { from: 'down' }));
+const meadowM = el(`<div class="meters" style="min-width:440px"><div class="meter" style="grid-template-columns:34px 120px 1fr 70px"><span style="color:#e64980;width:30px;height:30px">${ICON.leaf}</span><span>Meadow</span><div class="mb"><i data-m style="background:#16c79a"></i></div><b data-mv>100%</b></div></div>`, { x: 1420, y: 40 });
+add(cue(meadowM, 7.4, 11.3, { from: 'right' }));
+add((t) => { const m = Math.round(100 - 45 * prog(t, S.cut[0] + 0.6, S.cut[0] + 3.4, (x) => x)); meadowM.querySelector('[data-m]').style.width = m + '%'; meadowM.querySelector('[data-m]').style.background = m < 70 ? '#ff6a4a' : '#16c79a'; meadowM.querySelector('[data-mv]').textContent = m + '%'; });
+const k2 = kicker('It did <span style="color:#FFC83D">exactly</span> what we said.', { y: 960 }); add(cue(k2, 8.6, 11.3, { from: 'up' }));
+
+const c2 = el(cardsHTML('STAGE 2 · STAR POINTS', [{ k: 'A', text: 'Give stars for being good.', vague: true }, { k: 'B', text: '1 star every time you drive through a checkpoint.' }, { k: 'C', text: '1 star for each NEW checkpoint, in order.' }], 1), { x: 960, y: 640, anchor: 'c' });
+add(cue(c2, 11.6, 14.5, { from: 'up' }));
+const tp2 = tap(960, 650); add((t) => tp2(t, 12.3));
+const h2 = el(helperCard('I found a GREAT way to get stars!', 97, { who: 'Sprocket' }), { x: 960, y: 300, anchor: 'c' }); add(cue(h2, 12.8, 14.5, { from: 'down' }));
+
+const scoreboard = el(`<div style="display:flex;gap:18px"><div class="meters" style="min-width:0;padding:14px 26px;display:flex;gap:16px;align-items:center"><span style="width:44px;height:44px;color:#FFC83D">${ICON.star}</span><b data-s style="font-family:var(--display);font-size:64px;line-height:1">3</b><span style="font-weight:800;font-size:22px;color:#46596A;letter-spacing:.12em">STARS</span></div>
+  <div class="meters" style="min-width:0;padding:14px 26px;display:flex;gap:16px;align-items:center"><span style="width:44px;height:44px;color:#13202b">${ICON.flag}</span><b data-l style="font-family:var(--display);font-size:64px;line-height:1;color:#D93A2B">0</b><span style="font-weight:800;font-size:22px;color:#46596A;letter-spacing:.12em">LAPS</span></div></div>`, { x: 60, y: 40 });
+add(cue(scoreboard, 14.9, 20.1, { from: 'left' }));
+add((t) => { const n = Math.min(47, 3 + Math.floor(Math.max(0, t - 15.0) * 9)); scoreboard.querySelector('[data-s]').textContent = n; });
+const starPop = el(`<div style="width:90px;height:90px;color:#FFC83D;filter:drop-shadow(0 4px 10px rgba(0,0,0,.3))">${ICON.star}</div>`, { anchor: 'c' });
+add((t) => { if (!inS(t, 'loop')) { starPop.style.opacity = 0; return; } const ph = ((t - 15) * 9) % 1; const p = toScreen(new THREE.Vector3(30, 9, 0), camera); starPop.style.left = p.x + 'px'; starPop.style.top = (p.y - ph * 80) + 'px'; starPop.style.opacity = 1 - ph; starPop.style.transform = `translate(-50%,-50%) scale(${0.6 + ph * 0.6})`; });
+const fc2 = el(facilCard('47 stars. 0 laps. Who chose what the stars were for?'), { x: 1240, y: 780 }); add(cue(fc2, 17.3, 20.1, { from: 'up' }));
+
+const garage = el(`<div style="display:flex;gap:20px;align-items:center;background:rgba(19,32,43,.92);color:#fff;border-radius:22px;padding:16px 28px"><span style="font-weight:850;letter-spacing:.16em;font-size:22px;color:#16FFC6">TRAINING GARAGE</span><span style="font-family:var(--display);font-weight:760;font-size:40px" data-try>Try 1</span></div>`, { x: 60, y: 40 });
+add(cue(garage, 20.4, 24.1, { from: 'left' }));
+add((t) => { garage.querySelector('[data-try]').textContent = 'Try ' + Math.max(1, Math.round(50 * prog(t, 20.3, 23.8, (x) => x))); });
+const k3 = kicker('Sprocket learns by trial and error.', { y: 960 }); add(cue(k3, 20.8, 24.1, { from: 'up' }));
+const k3b = el('<div style="font-weight:800;font-size:28px;color:#fff;letter-spacing:.12em;text-shadow:0 2px 12px rgba(0,0,0,.5)">IT’S CALLED REINFORCEMENT LEARNING</div>', { x: 960, y: 1020, anchor: 'c' }); add(cue(k3b, 21.6, 24.1, { from: 'up' }));
+
+// penalty dial
+const dial = el(`<div style="width:460px;background:#fff;border-radius:30px;padding:26px 30px 30px;box-shadow:0 18px 40px rgba(0,0,0,.3);text-align:center">
+  <div style="font-weight:850;font-size:20px;letter-spacing:.16em;color:#46596A">PENALTY DIAL · LOSE STARS ON FLOWERS</div>
+  <svg viewBox="-160 -135 320 155" width="420" height="204" style="margin-top:10px">
+   <path d="M-100 0 A100 100 0 0 1 100 0" fill="none" stroke="#E2F5EF" stroke-width="34"/>
+   ${['Off', 'Tiny', 'Just right', 'HUGE'].map((l, i) => { const a = Math.PI - i * Math.PI / 3; return `<text x="${Math.cos(a) * 128}" y="${-Math.sin(a) * 128 + 8}" text-anchor="middle" font-size="17" font-weight="800" fill="#13202b" font-family="Inter">${l}</text><circle cx="${Math.cos(a) * 100}" cy="${-Math.sin(a) * 100}" r="9" fill="${i === 2 ? '#16c79a' : '#9fb0bb'}"/>`; }).join('')}
+   <g data-needle><line x1="0" y1="0" x2="-82" y2="0" stroke="#13202b" stroke-width="10" stroke-linecap="round"/><circle r="16" fill="#13202b"/></g></svg></div>`, { x: 560, y: 560, anchor: 'c' });
+add(cue(dial, 24.4, 27.9, { from: 'up' }));
+add((t) => { const k = t < 25.2 ? 0 : t < 25.9 ? 1 : 2; const kk = t < 25.2 ? 0 : t < 25.9 ? prog(t, 25.2, 25.5, ease.back) : 1 + prog(t, 25.9, 26.2, ease.back); dial.querySelector('[data-needle]').setAttribute('transform', `rotate(${kk * 60})`); });
+const c3 = el(cardsHTML('STAGE 4 · NEW RECIPE', [{ k: 'C', text: '1 star per NEW checkpoint, in order. Lose stars on flowers.' }], 0), { x: 1290, y: 560, anchor: 'c' });
+add(cue(c3, 24.8, 27.9, { from: 'right' }));
+const h3 = el(helperCard('Road, road, bridge… still road. Full lap!', 74, { who: 'Sprocket' }), { x: 1290, y: 300, anchor: 'c' }); add(cue(h3, 26.4, 27.9, { from: 'down' }));
+
+const lapBoard = el(`<div class="meters" style="min-width:460px"><div class="meter" style="grid-template-columns:34px 130px 1fr 70px"><span style="color:#16c79a;width:30px;height:30px">${ICON.leaf}</span><span>Meadow</span><div class="mb"><i data-m style="background:#16c79a"></i></div><b data-mv></b></div><div class="meter" style="grid-template-columns:34px 130px 1fr 70px"><span style="width:30px;height:30px;color:#13202b">${ICON.flag}</span><span>Laps</span><div class="mb"><i data-l style="background:#59c7fc"></i></div><b data-lv>0</b></div></div>`, { x: 1400, y: 40 });
+add(cue(lapBoard, 28.2, 33.0, { from: 'right' }));
+add((t) => { const m = Math.round(55 + 45 * prog(t, 28.6, 32.6, (x) => x)); lapBoard.querySelector('[data-m]').style.width = m + '%'; lapBoard.querySelector('[data-mv]').textContent = m + '%'; const l = t > 32.4 ? 1 : 0; lapBoard.querySelector('[data-l]').style.width = (l * 100) + '%'; lapBoard.querySelector('[data-lv]').textContent = l; });
+const k4 = kicker('Same kart. Better recipe.', { y: 960 }); add(cue(k4, 28.8, 32.9, { from: 'up' }));
+const lic = el(`<div style="width:560px;background:#fff;border-radius:26px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,.35)"><div style="background:#ff6a4a;color:#fff;padding:18px 26px;font-family:var(--display);font-weight:760;font-size:34px">Racing Licence · Team Otters</div>
+  <div style="padding:20px 26px;font-size:24px;line-height:1.35;font-weight:600"><div style="color:#46596A;font-size:17px;font-weight:850;letter-spacing:.14em">OUR AI FOUND A LOOPHOLE</div>It circled checkpoint 1 for 47 stars.<div style="color:#46596A;font-size:17px;font-weight:850;letter-spacing:.14em;margin-top:12px">OUR FIX</div>Stars for new checkpoints, in order. Lose stars on flowers.</div></div>`, { x: 1460, y: 560, anchor: 'c' });
+add(cue(lic, 34.2, 37.1, { from: 'right' }));
+const al = el(alertHTML('Full lap. Meadow safe. Fair race.', true), { x: 560, y: 160, anchor: 'c' }); add(cue(al, 33.6, 37.1));
+const dimEnd = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:radial-gradient(ellipse at center, rgba(5,15,30,.45), rgba(5,15,30,.78))"></div>'); add(cue(dimEnd, 37.0, null, { from: 'fade', dur: 0.8 }));
+const title = titleCard('Pit <span class="hl">Crew</span>', 'You don’t drive. You decide what counts.'); add(cue(title, 37.3, null, { from: 'pop', dur: 0.8 }));
+
+st.onFrame((t) => ui.forEach((fn) => fn(t)));
+window.__duration = DUR;
+document.fonts.ready.then(() => { window.__ready = true; });
+</script></body></html>

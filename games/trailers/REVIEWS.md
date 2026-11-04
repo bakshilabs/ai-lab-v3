@@ -30,3 +30,35 @@ The scale is in `games/PLAN.md`. Story has five criteria (hook, premise, AI mist
   - UI 2.
   - Pacing 1.5: hard cuts with whoosh sound effects.
 - Known nits: the farm shot holds for 5.5 s; the grey roadside bollards are chunky in close-ups.
+
+## 2. Pit Crew (`out/pitcrew.mp4`, 41 s)
+
+**v1 (stills): Story 8 · Visual 6.**
+- The opening shot was too close, with the gantry pillar blocking it.
+- The meadow cut left no visible scar.
+- A tree hid the checkpoint loop.
+- The dial labels and meters were clipped.
+- The chase camera was too low.
+- The licence card covered Sprocket.
+
+**v2: Story 8.5 · Visual 7.**
+- The scar rendered as a raised plank.
+- The meter panels ran off the right edge.
+
+**v3: Story 9 · Visual 7.5.**
+- Rival karts drove through the opening shot.
+- The gantry blocked the first second of the chase shot.
+
+**v4 (shipped): Story 9 · Visual 8.**
+- Story:
+  - Hook 2: start lights and "learns from the stars you give it".
+  - Premise 2.
+  - Mistake 2: "Go fast!" cuts the meadow; then "47 stars · 0 laps" from circling checkpoint 1.
+  - Payoff 1.5: the training garage, the penalty dial, a clean lap with flowers growing back.
+  - Resolution 2: licence and title.
+- Visual:
+  - Composition 1.5.
+  - Lighting 1.5: single daylight look.
+  - World life 1.5: karts, ducks, petals, confetti.
+  - UI 2.
+  - Pacing 1.5.
