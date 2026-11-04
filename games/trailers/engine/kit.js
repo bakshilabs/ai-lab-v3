@@ -161,7 +161,7 @@ export function particles(n, { size = 0.25, color = '#ffffff', emissive = null }
   const mat = new THREE.MeshLambertMaterial({ color });
   if (emissive) { mat.emissive = hex(emissive); mat.emissiveIntensity = 1; }
   const m = new THREE.InstancedMesh(geo, mat, n);
-  m.castShadow = false;
+  m.castShadow = false; m.frustumCulled = false;
   const d = new THREE.Object3D();
   m.setAt = (i, x, y, z, rx = 0, ry = 0, sc = 1) => { d.position.set(x, y, z); d.rotation.set(rx, ry, 0); d.scale.setScalar(sc); d.updateMatrix(); m.setMatrixAt(i, d.matrix); };
   m.setColor = (i, c) => m.setColorAt(i, hex(c));

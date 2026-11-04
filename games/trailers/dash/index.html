@@ -1,0 +1,158 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Beat Block trailer</title>
+<style>
+@font-face { font-family: 'Baloo'; src: url('../node_modules/@fontsource/baloo-2/files/baloo-2-latin-800-normal.woff2') format('woff2'); font-weight: 800; }
+@font-face { font-family: 'P2P'; src: url('../node_modules/@fontsource/press-start-2p/files/press-start-2p-latin-400-normal.woff2') format('woff2'); }
+html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: #000; }
+canvas { display: block; }
+</style></head>
+<body><canvas id="c" width="1920" height="1080"></canvas>
+<script>
+const W = 1920, H = 1080, DUR = 35, BPM = 128, BEAT = 60 / BPM;
+const cv = document.getElementById('c'), g = cv.getContext('2d');
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+const lerp = (a, b, k) => a + (b - a) * k;
+const prog = (t, a, b) => clamp((t - a) / (b - a));
+function hash(x, y = 0) { let h = (x * 374761393 + y * 668265263) | 0; h = (h ^ (h >>> 13)) * 1274126177; return ((h ^ (h >>> 16)) >>> 0) / 4294967295; }
+const GROUND = 800, CUBE = 84, PX = 560, SPEED = 700; // world px per second
+
+// ---------- level ----------
+// s = spike(s) at x (count), b = block [x, w, h], p = jump pad, o = orb, end portal
+const level = [
+  { k: 's', x: 1500, n: 1 }, { k: 's', x: 2100, n: 2 }, { k: 'b', x: 2700, w: 340, h: 1 }, { k: 's', x: 3080, n: 1 },
+  { k: 'p', x: 3500 }, { k: 's', x: 3560, n: 4 }, { k: 's', x: 4300, n: 3 }, { k: 'b', x: 4900, w: 170, h: 1 }, { k: 'b', x: 5070, w: 170, h: 2 }, { k: 'b', x: 5240, w: 170, h: 3 },
+  { k: 's', x: 5800, n: 2 }, { k: 'o', x: 6300 }, { k: 's', x: 6220, n: 5 }, { k: 's', x: 7000, n: 1 }, { k: 's', x: 7400, n: 2 }, { k: 'end', x: 8100 },
+];
+const LEN = 8100;
+// scripted jumps: [startX, duration, height, landY(blocks above ground)]
+const jumps = [[1360, 0.42, 230, 0], [1950, 0.46, 250, 0], [2560, 0.42, 230, 1], [3000, 0.46, 250, 0], [3460, 0.7, 520, 0], [4130, 0.5, 280, 0], [4760, 0.42, 230, 1], [4930, 0.42, 230, 2], [5100, 0.42, 230, 3], [5420, 0.5, 200, 0], [5650, 0.46, 250, 0], [6080, 0.75, 480, 0], [6860, 0.42, 230, 0], [7250, 0.48, 260, 0]];
+function playerAt(x) {
+  // returns {y (bottom of cube above ground in px), rot}
+  let base = 0, y = 0, rot = 0, air = false;
+  for (const [jx, d, h, land] of jumps) {
+    const w = d * SPEED; const startBase = base;
+    if (x >= jx && x < jx + w) { const k = (x - jx) / w; const endBase = land * CUBE; y = lerp(startBase, endBase, k) + h * 4 * k * (1 - k); rot = k * Math.PI; air = true; return { y, rot, air }; }
+    if (x >= jx + w) base = land * CUBE;
+  }
+  return { y: base, rot: 0, air };
+}
+// attempts: [tStart, fromX, crashX]
+const attempts = [
+  { t0: 2.4, x0: 0, crash: 2140, n: 1 },
+  { t0: 6.1, x0: 0, crash: 3700, n: 2, copilot: true },
+  { t0: 12.2, x0: 3200, crash: 4380, n: 3, fast: true }, { t0: 13.9, x0: 4000, crash: 5880, n: 5, fast: true }, { t0: 15.6, x0: 5400, crash: 6400, n: 7, fast: true },
+  { t0: 17.6, x0: 0, crash: null, n: 9 },
+];
+const crashLen = 0.55;
+function live(t) {
+  for (let i = attempts.length - 1; i >= 0; i--) { const a = attempts[i]; if (t >= a.t0) { const x = a.x0 + (t - a.t0) * SPEED * (a.fast ? 1 : 1); const cx = a.crash; if (cx != null && x >= cx) { const ct = a.t0 + (cx - a.x0) / SPEED; return { a, x: cx, crashed: t - ct }; } return { a, x: Math.min(x, LEN + 400), crashed: -1 }; } }
+  return null;
+}
+// ---------- palette per section (colour triggers) ----------
+const PAL = [[0, '#1b2cff', '#5a12c9', '#2f8bff'], [2600, '#ff2a8a', '#6a0fd0', '#ff4aa8'], [4700, '#10b88a', '#0a4a9a', '#16ffc6'], [6200, '#ff8a1a', '#c0105a', '#ffc83d']];
+function palAt(x) { let k = 0; while (k < PAL.length - 1 && x >= PAL[k + 1][0]) k++; const a = PAL[k], b = PAL[Math.min(k + 1, PAL.length - 1)]; const f = b === a ? 0 : clamp((x - b[0] + 300) / 300); const mix = (c1, c2) => { const p = (c) => [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16)); const A = p(c1), B = p(c2); return `rgb(${A.map((v, i) => Math.round(lerp(v, B[i], f))).join(',')})`; }; return [mix(a[1], b[1]), mix(a[2], b[2]), mix(a[3], b[3])]; }
+
+// ---------- drawing ----------
+function glowRect(x, y, w, h, fill, stroke, blur = 22) { g.save(); g.shadowColor = stroke; g.shadowBlur = blur; g.fillStyle = fill; g.fillRect(x, y, w, h); g.lineWidth = 5; g.strokeStyle = stroke; g.strokeRect(x + 2.5, y + 2.5, w - 5, h - 5); g.restore(); }
+function spike(x, y, s = CUBE) { g.save(); g.shadowColor = '#ffffff'; g.shadowBlur = 16; g.beginPath(); g.moveTo(x, y); g.lineTo(x + s / 2, y - s * 0.95); g.lineTo(x + s, y); g.closePath(); g.fillStyle = '#05050f'; g.fill(); g.lineWidth = 5; g.strokeStyle = '#ffffff'; g.stroke(); g.restore(); }
+function cube(x, y, rot, col = '#3dff6a', trail = true) {
+  g.save(); g.translate(x + CUBE / 2, y - CUBE / 2); g.rotate(rot);
+  g.shadowColor = col; g.shadowBlur = 30; g.fillStyle = col; g.fillRect(-CUBE / 2, -CUBE / 2, CUBE, CUBE); g.shadowBlur = 0;
+  g.fillStyle = '#0b2a6a'; g.fillRect(-CUBE / 2 + 12, -CUBE / 2 + 12, CUBE - 24, CUBE - 24);
+  g.fillStyle = col; g.fillRect(-CUBE / 2 + 22, -CUBE / 2 + 22, CUBE - 44, CUBE - 44);
+  g.fillStyle = '#16ffc6'; g.fillRect(-20, -14, 12, 14); g.fillRect(8, -14, 12, 14);
+  g.lineWidth = 5; g.strokeStyle = '#05050f'; g.strokeRect(-CUBE / 2, -CUBE / 2, CUBE, CUBE); g.restore();
+}
+function text(s, x, y, size, col = '#fff', align = 'center', font = 'Baloo', stroke = 10) { g.font = `800 ${size}px ${font}`; g.textAlign = align; g.lineJoin = 'round'; g.lineWidth = stroke; g.strokeStyle = '#05050f'; g.strokeText(s, x, y); g.fillStyle = col; g.fillText(s, x, y); }
+
+function frame(t) {
+  const L = live(t);
+  const wx = L ? L.x : 0; // world x of player
+  const [c1, c2, c3] = palAt(wx);
+  const beat = Math.pow(1 - (t % BEAT) / BEAT, 3);
+  // background gradient + pulse
+  const grd = g.createLinearGradient(0, 0, 0, H); grd.addColorStop(0, c1); grd.addColorStop(1, c2); g.fillStyle = grd; g.fillRect(0, 0, W, H);
+  g.globalAlpha = 0.12 + beat * 0.12; g.fillStyle = '#ffffff'; g.fillRect(0, 0, W, H); g.globalAlpha = 1;
+  // parallax shapes
+  for (let k = 0; k < 18; k++) { const s = 80 + hash(k) * 220, px0 = (hash(k, 2) * 3000 - wx * (0.15 + hash(k, 3) * 0.2)) % 2600; const x = ((px0 % 2600) + 2600) % 2600 - 300, y = 80 + hash(k, 4) * 600; g.save(); g.globalAlpha = 0.1 + hash(k, 5) * 0.1; g.translate(x, y); g.rotate(t * 0.2 * (hash(k, 6) - 0.5)); g.strokeStyle = '#ffffff'; g.lineWidth = 6; g.strokeRect(-s / 2, -s / 2, s, s); g.restore(); }
+  // world layer: zoomed 1.3x, with screen shake on crashes
+  const camX = wx - PX; // world x at screen 0
+  let shake = 0; if (L && L.crashed >= 0 && L.crashed < 0.35) shake = (1 - L.crashed / 0.35) * 18;
+  g.save(); g.translate(Math.sin(t * 90) * shake, -250 + Math.cos(t * 77) * shake); g.scale(1.3, 1.3);
+  // hanging decor from the top
+  for (let k = -1; k < 12; k++) { const x = k * 260 - ((camX * 0.6) % 260); const len = 2 + Math.floor(hash(k + Math.floor(camX * 0.6 / 260), 11) * 3); for (let i = 0; i < len; i++) { g.save(); g.globalAlpha = 0.55; g.strokeStyle = '#ffffff'; g.lineWidth = 4; g.strokeRect(x - 18, 190 + i * 46, 36, 36); g.restore(); } g.fillStyle = 'rgba(255,255,255,0.5)'; g.fillRect(x - 2, 190, 4, len * 46); }
+  // ground
+  g.fillStyle = c3; g.fillRect(0, GROUND, W * 1.2, 400); const gg = g.createLinearGradient(0, GROUND, 0, H); gg.addColorStop(0, 'rgba(0,0,0,0.15)'); gg.addColorStop(1, 'rgba(0,0,0,0.6)'); g.fillStyle = gg; g.fillRect(0, GROUND, W * 1.2, 400);
+  g.strokeStyle = 'rgba(255,255,255,0.25)'; g.lineWidth = 4; for (let k = -1; k < 14; k++) { const x = k * 170 - (camX % 170); g.strokeRect(x, GROUND + 6, 170, 170); }
+  g.save(); g.shadowColor = '#ffffff'; g.shadowBlur = 30; g.fillStyle = '#ffffff'; g.fillRect(0, GROUND - 3, W * 1.2, 6); g.restore();
+  // level objects
+  for (const o of level) {
+    const sx = o.x - camX; if (sx < -600 || sx > W + 400) continue;
+    if (o.k === 's') for (let i = 0; i < o.n; i++) spike(sx + i * CUBE * 0.9, GROUND);
+    if (o.k === 'b') { for (let r = 0; r < o.h; r++) glowRect(sx, GROUND - (r + 1) * CUBE, o.w, CUBE, '#05050f', '#ffffff', 18); }
+    if (o.k === 'p') { g.save(); g.shadowColor = '#ffe23d'; g.shadowBlur = 30; g.fillStyle = '#ffe23d'; g.beginPath(); g.ellipse(sx + 40, GROUND, 46, 18 + beat * 6, 0, Math.PI, 0); g.fill(); g.restore(); }
+    if (o.k === 'o') { g.save(); g.shadowColor = '#ffe23d'; g.shadowBlur = 30; g.strokeStyle = '#ffe23d'; g.lineWidth = 10; g.beginPath(); g.arc(sx, GROUND - 330, 40 + beat * 10, 0, Math.PI * 2); g.stroke(); g.restore(); }
+    if (o.k === 'end') { g.save(); g.shadowColor = '#16ffc6'; g.shadowBlur = 40; g.strokeStyle = '#16ffc6'; g.lineWidth = 14; g.beginPath(); g.ellipse(sx, GROUND - 200, 60, 200, 0, 0, Math.PI * 2); g.stroke(); g.restore(); }
+  }
+  // practice checkpoints (montage)
+  if (t >= 12 && t < 17.4) for (const cx of [3200, 4000, 5400]) { const sx = cx - camX; g.save(); g.translate(sx, GROUND - 60); g.rotate(Math.PI / 4); g.shadowColor = '#3dff6a'; g.shadowBlur = 20; g.fillStyle = '#3dff6a'; g.fillRect(-18, -18, 36, 36); g.restore(); }
+  // ghosts of earlier attempts during the montage
+  // player
+  if (L) {
+    const p = playerAt(L.x);
+    if (L.crashed < 0) {
+      // trail
+      for (let k = 1; k < 10; k++) { const tx = L.x - k * 26; const q = playerAt(tx); g.globalAlpha = (1 - k / 10) * 0.4; g.fillStyle = '#3dff6a'; g.fillRect(PX - k * 26 + CUBE / 2 - 10, GROUND - q.y - CUBE / 2 - 10, 20, 20); }
+      g.globalAlpha = 1;
+      cube(PX, GROUND - p.y, p.rot);
+    } else if (L.crashed < crashLen) {
+      const k = L.crashed / crashLen;
+      for (let i = 0; i < 40; i++) { const a = hash(i, 7) * Math.PI * 2, sp = 300 + hash(i, 8) * 700; g.globalAlpha = 1 - k; g.fillStyle = i % 2 ? '#3dff6a' : '#ffffff'; g.fillRect(PX + CUBE / 2 + Math.cos(a) * sp * k, GROUND - p.y - CUBE / 2 + Math.sin(a) * sp * k, 16 * (1 - k) + 4, 16 * (1 - k) + 4); }
+      g.globalAlpha = 1; g.save(); g.strokeStyle = '#ffffff'; g.lineWidth = 8; g.globalAlpha = 1 - k; g.beginPath(); g.arc(PX + CUBE / 2, GROUND - p.y - CUBE / 2, 40 + k * 260, 0, Math.PI * 2); g.stroke(); g.restore();
+    }
+  }
+  g.restore();
+  // level complete burst
+  if (t >= 29.2) { const k = prog(t, 29.2, 30.6); for (let i = 0; i < 80; i++) { const a = hash(i, 9) * Math.PI * 2, sp = 400 + hash(i, 10) * 900; g.globalAlpha = 1 - k; g.fillStyle = ['#16ffc6', '#ffe23d', '#ff4aa8', '#ffffff'][i % 4]; g.fillRect((LEN - camX) * 1.3 + Math.cos(a) * sp * k, (GROUND - 200) * 1.3 - 250 + Math.sin(a) * sp * k, 22, 22); } g.globalAlpha = 1; }
+
+  // ---------- HUD ----------
+  if (L && t < 29.3) {
+    const pct = Math.round(clamp(L.x / LEN) * 100);
+    const best = t < 6 ? 0 : t < 12 ? 26 : t < 17.6 ? lerp(46, 79, prog(t, 12.4, 17)) : 79;
+    g.fillStyle = 'rgba(0,0,0,0.35)'; g.fillRect(560, 46, 800, 30); g.fillStyle = '#ffffff'; g.fillRect(560, 46, 800 * pct / 100, 30);
+    g.fillStyle = '#ffe23d'; g.fillRect(560 + 800 * best / 100 - 3, 40, 6, 42);
+    text(pct + '%', 1430, 74, 40, '#fff', 'left', 'Baloo', 8);
+    if (L.a.n > 0) text('ATTEMPT ' + (L.a.fast ? L.a.n + Math.floor((t - L.a.t0) / 0.9) : L.a.n), 240, 300, 72, '#fff', 'left', 'Baloo', 12);
+  }
+  if (t >= 12 && t < 17.4) text('PRACTICE MODE', W / 2, 180, 60, '#3dff6a', 'center', 'Baloo', 12);
+  // restart flash
+  for (const a of attempts) if (a.crash) { const ct = a.t0 + (a.crash - a.x0) / SPEED; const nxt = attempts[attempts.indexOf(a) + 1]; if (nxt && t > ct + crashLen && t < nxt.t0) { g.fillStyle = 'rgba(255,255,255,' + (1 - (t - ct - crashLen) / (nxt.t0 - ct - crashLen)) * 0.6 + ')'; g.fillRect(0, 0, W, H); } }
+  // co-pilot card (confident but wrong)
+  if (t >= 8.6 && t < 11.6) {
+    const a = prog(t, 8.6, 8.9) * (1 - prog(t, 11.3, 11.6));
+    g.globalAlpha = a; const bx = 1180, by = 140;
+    g.fillStyle = '#13202b'; g.beginPath(); g.roundRect(bx, by, 640, 170, 30); g.fill();
+    g.fillStyle = '#ffffff'; g.beginPath(); g.roundRect(bx + 28, by + 34, 76, 76, 20); g.fill(); g.fillStyle = '#16c7a6'; g.fillRect(bx + 46, by + 62, 14, 18); g.fillRect(bx + 72, by + 62, 14, 18);
+    g.font = '800 30px Baloo'; g.textAlign = 'left'; g.fillStyle = '#c9d6ee'; g.fillText('CO-PILOT GUESS', bx + 130, by + 60);
+    g.font = '800 46px Baloo'; g.fillStyle = '#fff'; g.fillText('“Jump on the 4th beat!”', bx + 130, by + 108);
+    g.fillStyle = '#2a3a49'; g.fillRect(bx + 130, by + 128, 360, 12); g.fillStyle = '#16ffc6'; g.fillRect(bx + 130, by + 128, 360 * 0.92, 12); g.font = '800 28px Baloo'; g.fillStyle = '#c9d6ee'; g.fillText('92% sure', bx + 510, by + 141);
+    g.globalAlpha = 1;
+  }
+  if (t >= 11.0 && t < 12.1) text('Very sure is not the same as right.', W / 2, 980, 64, '#ffe23d', 'center', 'Baloo', 12);
+  // hook text
+  if (t < 2.4) { const a = prog(t, 0.2, 0.5); g.globalAlpha = a; text('ONE BUTTON.', W / 2, 430, 150, '#fff', 'center', 'Baloo', 16); if (t > 1.0) text('ONE BEAT.', W / 2, 590, 120, '#16ffc6', 'center', 'Baloo', 14); g.globalAlpha = 1; }
+  if (t >= 12.4 && t < 17.4) text('Restart in a second. No lives. Go again.', W / 2, 980, 60, '#fff', 'center', 'Baloo', 12);
+  if (t >= 29.15 && t < 31.6) { const k = prog(t, 29.15, 29.5); g.save(); g.translate(W / 2, 470); g.scale(0.6 + 0.4 * k, 0.6 + 0.4 * k); text('LEVEL COMPLETE!', 0, 0, 150, '#ffe23d', 'center', 'Baloo', 18); g.restore(); text('ATTEMPT 9 · 100%', W / 2, 620, 80, '#fff', 'center', 'Baloo', 12); }
+  // title
+  if (t >= 31.6) {
+    const k = prog(t, 31.6, 32.1); g.globalAlpha = k * 0.75; g.fillStyle = '#05050f'; g.fillRect(0, 0, W, H); g.globalAlpha = k;
+    g.save(); g.translate(W / 2, 470); g.scale(1 + beat * 0.04, 1 + beat * 0.04); text('BEAT BLOCK', 0, 0, 200, '#16ffc6', 'center', 'Baloo', 20); g.restore();
+    text('One button. Every try teaches you the beat.', W / 2, 600, 56, '#fff', 'center', 'Baloo', 10);
+    text('A DELTAOPS LEARNING WARM-UP GAME', W / 2, 700, 34, '#ffe23d', 'center', 'Baloo', 8);
+    g.globalAlpha = 1;
+  }
+  const f = t < 0.3 ? 1 - t / 0.3 : t > DUR - 0.6 ? prog(t, DUR - 0.6, DUR) : 0; if (f > 0) { g.globalAlpha = f; g.fillStyle = '#000'; g.fillRect(0, 0, W, H); g.globalAlpha = 1; }
+}
+window.__render = (t) => { frame(t); return true; };
+window.__duration = DUR;
+Promise.all([document.fonts.load('800 40px Baloo')]).then(() => { window.__ready = true; });
+</script></body></html>

@@ -1,0 +1,216 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Island Park Tycoon (pixel) trailer</title>
+<style>
+@font-face { font-family: 'P2P'; src: url('../node_modules/@fontsource/press-start-2p/files/press-start-2p-latin-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Silk'; src: url('../node_modules/@fontsource/silkscreen/files/silkscreen-latin-400-normal.woff2') format('woff2'); }
+html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: #000; }
+canvas { width: 1920px; height: 1080px; image-rendering: pixelated; display: block; }
+</style></head>
+<body><canvas id="c" width="640" height="360"></canvas>
+<script>
+const W = 640, H = 360, DUR = 36;
+const cv = document.getElementById('c'), g = cv.getContext('2d');
+g.imageSmoothingEnabled = false;
+// ---------- helpers ----------
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+const lerp = (a, b, k) => a + (b - a) * k;
+const prog = (t, a, b) => clamp((t - a) / (b - a));
+const eio = (k) => k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+function hash(x, y, z = 0) { let h = (x * 374761393 + y * 668265263 + z * 2147483647) | 0; h = (h ^ (h >>> 13)) * 1274126177; return ((h ^ (h >>> 16)) >>> 0) / 4294967295; }
+const px = (x, y, w, h, c) => { g.fillStyle = c; g.fillRect(Math.round(x), Math.round(y), w, h); };
+
+// ---------- map ----------
+const N = 20, TW = 64, TH = 32, Z = 2;
+const C = { g1: '#5fb33c', g2: '#68bd44', path: '#d8c08a', pathE: '#b89c62', water1: '#3a8fe0', water2: '#5aaaf0', sand: '#e8d498', soil: '#8a5a32', soilD: '#6b4424', stone: '#7a7f86' };
+const inside = (i, j) => Math.hypot(i - 9.5, (j - 9.5) * 1.05) < 9.4;
+const pond = (i, j) => Math.hypot(i - 5, j - 12) < 2.6;
+const meadow = (i, j) => i >= 10 && i <= 16 && j >= 3 && j <= 12;
+const EP = [[15, 17], [14, 17], [13, 16], [12, 16], [11, 16], [10, 16], [9, 15], [8, 15], [7, 15], [6, 15], [5, 15], [4, 14], [3, 13], [3, 12], [3, 11], [3, 10], [4, 9], [4, 8], [5, 7], [6, 7]];
+const edgePath = new Set(EP.map(([i, j]) => i + ',' + j));
+const cutPath = []; for (let j = 15; j >= 3; j--) cutPath.push([12, j]);
+const kiosks = [[11, 13.5, '#ff5a4a'], [13, 11, '#3aa0f0'], [11, 8.5, '#ffc83d'], [13, 6, '#a46cf0']];
+const trees0 = []; for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) { const d = Math.hypot(i - 9.5, (j - 9.5) * 1.05); if (inside(i, j) && d > 7.2 && hash(i, j, 7) > 0.35 && !edgePath.has(i + ',' + j) && !(i >= 11 && i <= 13 && j >= 15)) trees0.push([i + 0.5, j + 0.5]); }
+[[8, 3], [9, 4], [16, 14], [15, 15], [2, 6]].forEach((p) => trees0.push(p));
+const treesNew = [[10.5, 5], [15, 6], [11, 10], [15, 10], [10, 7.5], [16, 8]];
+const coaster = []; for (let k = 0; k < 48; k++) { const a = k / 48 * Math.PI * 2; coaster.push([6.5 + Math.cos(a) * 2.6, 5.5 + Math.sin(a) * 1.9, 1.2 + Math.max(0, Math.sin(a)) * 1.8]); }
+
+function iso(i, j, h = 0) { return [(i - j) * TW / 2, (i + j) * TH / 2 - h * TH / 2]; }
+
+// ---------- sprites (local pixel units scaled by Z) ----------
+function tile(x, y, top) { for (let r = 0; r < TH; r++) { const w = r < TH / 2 ? (r + 1) * 4 : (TH - r) * 4; px(x - w / 2, y + r, w, 1, top); } }
+function tileEdge(x, y, c) { for (let r = 0; r < TH; r += 1) { const w = r < TH / 2 ? (r + 1) * 4 : (TH - r) * 4; px(x - w / 2, y + r, 1, 1, c); px(x + w / 2 - 1, y + r, 1, 1, c); } }
+function cliff(x, y, h) { for (let k = 0; k < h; k++) { const c1 = k < 10 ? C.soil : k < 12 ? '#5f646a' : C.stone, c2 = k < 10 ? C.soilD : '#5f646a'; px(x - TW / 2, y + TH / 2 + k, TW / 2, 1, c1); px(x, y + TH / 2 + k, TW / 2, 1, c2); } px(x - TW / 2, y + TH / 2, TW / 2, 2, '#4f9e33'); px(x, y + TH / 2, TW / 2, 2, '#3f8a2a'); }
+const S = (x, y) => (dx, dy, w, h, c) => px(x + dx * Z, y + dy * Z, w * Z, h * Z, c);
+function tree(x, y, s = 1, sway = 0, pine = false) {
+  const q = S(x, y);
+  if (s < 1) { const k = s; px(x - 1, y - 10 * k, 2, 10 * k, '#6b4424'); px(x - 6 * k, y - 18 * k, 12 * k, 10 * k, '#5fb33c'); return; }
+  q(-1, -7, 2, 7, '#6b4424');
+  if (pine) { for (let r = 0; r < 10; r++) { const w = Math.round(2 + r * 1.1); q(-w / 2 + sway * (1 - r / 10), -18 + r, w, 1, r < 3 ? '#4fa860' : r < 7 ? '#2f8a4f' : '#256b43'); } return; }
+  for (let r = -6; r <= 5; r++) { const w = Math.round((6.5 - Math.abs(r + 0.5)) * 2); q(-w / 2 + sway, -13 + r, w, 1, r < -2 ? '#7ad04e' : r < 2 ? '#4fa83a' : '#3c8a2c'); }
+  q(-3 + sway, -17, 2, 2, '#9be36a'); q(2 + sway, -10, 2, 1, '#2f7a24');
+}
+function peep(x, y, shirt, ph, skin = '#e8b88a') { const q = S(x, y); const l = Math.sin(ph) > 0; q(0, -8, 2, 2, skin); q(0, -9, 2, 1, '#3a2a1a'); q(0, -6, 2, 3, shirt); q(-1, -6, 1, 2, skin); q(2, -6, 1, 2, skin); q(0, -3, 1, 3, l ? '#2c3e66' : '#1d2a48'); q(1, -3, 1, 3, l ? '#1d2a48' : '#2c3e66'); }
+function rabbit(x, y) { const q = S(x, y); q(0, -3, 4, 3, '#c9b294'); q(3, -5, 2, 2, '#c9b294'); q(3, -7, 1, 2, '#c9b294'); q(-1, -2, 1, 1, '#fff'); q(4, -5, 1, 1, '#222'); }
+function duck(x, y) { const q = S(x, y); q(0, -2, 4, 2, '#fff'); q(3, -4, 2, 2, '#2f8a4a'); q(5, -3, 1, 1, '#f2a33a'); }
+function deer(x, y) { const q = S(x, y); q(0, -6, 6, 3, '#b07040'); q(0, -3, 1, 3, '#7a4a2a'); q(5, -3, 1, 3, '#7a4a2a'); q(5, -9, 2, 3, '#b07040'); q(5, -11, 1, 2, '#5c3a1e'); q(7, -11, 1, 2, '#5c3a1e'); q(-1, -6, 1, 1, '#fff'); }
+function heart(x, y) { const q = S(x, y); q(0, 0, 2, 1, '#ff5a7a'); q(3, 0, 2, 1, '#ff5a7a'); q(0, 1, 5, 1, '#ff5a7a'); q(1, 2, 3, 1, '#ff5a7a'); q(2, 3, 1, 1, '#ff5a7a'); }
+function kiosk(x, y, c) { const q = S(x, y); q(-6, -8, 12, 7, '#f1ebe0'); q(-7, -13, 14, 5, c); for (let k = 0; k < 4; k++) q(-7 + k * 4, -13, 2, 5, '#fff'); q(-2, -6, 4, 5, '#3a2a1a'); q(-5, -7, 2, 2, '#ffd23f'); }
+function bin(x, y) { const q = S(x, y); q(-1, -5, 3, 5, '#2f8a43'); q(-1, -5, 3, 1, '#7ad04e'); }
+function wheel(x, y, t) { const q = S(x, y); q(-1, -30, 2, 30, '#8a8f96'); q(-9, -2, 18, 2, '#6b7078'); const R = 18; for (let k = 0; k < 24; k++) { const a = k / 24 * Math.PI * 2; px(x + Math.cos(a) * R * Z, y - 30 * Z + Math.sin(a) * R * Z, 2, 2, '#d0d6dc'); } for (let k = 0; k < 8; k++) { const a = k / 8 * Math.PI * 2 + t * 0.6; const cx = x + Math.cos(a) * R * Z, cy = y - 30 * Z + Math.sin(a) * R * Z; g.strokeStyle = '#aeb6be'; g.lineWidth = 1; g.beginPath(); g.moveTo(x, y - 30 * Z); g.lineTo(cx, cy); g.stroke(); px(cx - 5, cy, 10, 7, ['#ff5a4a', '#ffc83d', '#3aa0f0', '#16c79a'][k % 4]); px(cx - 4, cy + 1, 8, 2, '#ffffffaa'); } }
+function gate(x, y) { const q = S(x, y); q(-16, -20, 3, 20, '#7a5232'); q(13, -20, 3, 20, '#7a5232'); q(-18, -26, 36, 7, '#16a37f'); q(-14, -24, 28, 3, '#fff'); }
+function bench(x, y) { const q = S(x, y); q(-3, -3, 7, 1, '#8a5a32'); q(-3, -5, 7, 1, '#8a5a32'); q(-3, -2, 1, 2, '#5a3a20'); q(3, -2, 1, 2, '#5a3a20'); }
+function lamp(x, y) { const q = S(x, y); q(0, -12, 1, 12, '#3a3f46'); q(-1, -14, 3, 2, '#ffe680'); }
+function flowers(x, y, k) { const q = S(x, y); for (let f = 0; f < 5; f++) q(-3 + f * 1.5, -1 - (f % 2), 1, 1, ['#ff5a7a', '#ffd23f', '#ffffff', '#b28cff', '#ff8a4a'][(f + k) % 5]); }
+function litter(x, y, c) { px(x, y, 2, 2, c); }
+function gull(x, y, f) { const q = S(x, y); q(-2, f ? -1 : 0, 2, 1, '#fff'); q(0, 0, 1, 1, '#fff'); q(1, f ? -1 : 0, 2, 1, '#fff'); }
+
+// ---------- UI (retro bevelled windows) ----------
+function win(x, y, w, h, title, tc = '#2a6fb0') {
+  px(x, y, w, h, '#b9bec6'); px(x, y, w, 1, '#ffffff'); px(x, y, 1, h, '#ffffff'); px(x + w - 1, y, 1, h, '#5a5f66'); px(x, y + h - 1, w, 1, '#5a5f66');
+  px(x + 2, y + 2, w - 4, 9, tc); txt(title, x + 5, y + 9, '#fff', 'Silk', 8);
+}
+function txt(s, x, y, c = '#111', f = 'Silk', size = 8, align = 'left') { g.font = `${size}px ${f}`; g.textAlign = align; g.fillStyle = c; g.fillText(s, Math.round(x), Math.round(y)); }
+function txtS(s, x, y, c, f = 'P2P', size = 8, align = 'left') { txt(s, x + 1, y + 1, '#00000088', f, size, align); txt(s, x, y, c, f, size, align); }
+function bar(x, y, w, v, c) { px(x, y, w, 5, '#4a4f56'); px(x + 1, y + 1, Math.round((w - 2) * clamp(v)), 3, c); }
+function button(x, y, w, h, label, on, vague) { px(x, y, w, h, on ? '#ffe680' : '#d6dae0'); px(x, y, w, 1, '#fff'); px(x, y, 1, h, '#fff'); px(x + w - 1, y, 1, h, '#5a5f66'); px(x, y + h - 1, w, 1, '#5a5f66'); if (vague) px(x + 3, y + 3, 4, h - 6, '#ff7a5a'); txt(label, x + (vague ? 10 : 6), y + h / 2 + 3, '#111', 'Silk', 8); }
+function bubble(x, y, s, red) { g.font = '8px Silk'; const w = Math.ceil(g.measureText(s).width) + 8; const bx = Math.round(clamp(x - w / 2, 2, W - w - 2)), by = Math.round(y - 16); px(bx, by, w, 12, red ? '#ffd6d0' : '#ffffff'); px(bx, by, w, 1, '#333'); px(bx, by + 11, w, 1, '#333'); px(bx, by, 1, 12, '#333'); px(bx + w - 1, by, 1, 12, '#333'); px(Math.round(x) - 1, by + 12, 3, 2, red ? '#ffd6d0' : '#fff'); txt(s, bx + 4, by + 9, red ? '#b02010' : '#111', 'Silk', 8); }
+
+// ---------- timeline ----------
+function focus(t) {
+  const keys = [[0, 6, 6], [3.5, 9, 10], [8, 9, 10], [8.01, 12, 12], [14, 12, 10], [19.5, 11, 9], [25, 10, 9], [30, 9.5, 9.5], [36, 9.5, 9.5]];
+  let k = 0; while (k < keys.length - 1 && t > keys[k + 1][0]) k++; const a = keys[k], b = keys[Math.min(k + 1, keys.length - 1)];
+  const f = b === a ? 0 : eio(clamp((t - a[0]) / (b[0] - a[0] || 1))); return [lerp(a[1], b[1], f), lerp(a[2], b[2], f)];
+}
+function frame(t) {
+  const [fi, fj] = focus(t); const [cx, cy] = iso(fi, fj);
+  const ox = Math.round(W / 2 - cx), oy = Math.round(H / 2 - cy + 10);
+  for (let y = 0; y < H; y += 2) { const k = y / H; px(0, y, W, 2, `rgb(${Math.round(lerp(64, 150, k))},${Math.round(lerp(146, 212, k))},${Math.round(lerp(240, 255, k))})`); }
+  for (let k = 0; k < 6; k++) { const xx = ((k * 97 + t * 6) % (W + 80)) - 40, yy = 20 + (k * 37) % 70; px(xx, yy, 34, 6, '#ffffff'); px(xx + 6, yy - 4, 20, 4, '#ffffff'); px(xx + 2, yy + 6, 30, 2, '#dfe9f5'); }
+  const pathSet = new Set(edgePath);
+  const cutOn = t >= 8 && t < 19.5, cutK = prog(t, 8.2, 10.4);
+  if (cutOn) cutPath.forEach(([i, j], k) => { if (k / cutPath.length < cutK) pathSet.add(i + ',' + j); });
+  for (let s2 = 0; s2 < 2 * N; s2++) for (let i = 0; i < N; i++) {
+    const j = s2 - i; if (j < 0 || j >= N || !inside(i, j)) continue;
+    const [x0, y0] = iso(i, j); const x = x0 + ox, y = y0 + oy;
+    if (x < -70 || x > W + 70 || y < -70 || y > H + 120) continue;
+    if (!inside(i + 1, j) || !inside(i, j + 1)) cliff(x, y, 34 + Math.round(hash(i, j) * 20));
+    let top = (i + j) % 2 ? C.g1 : C.g2;
+    if (pond(i, j)) top = ((i * 3 + j + Math.floor(t * 3)) % 4 === 0) ? C.water2 : C.water1;
+    else if (Math.hypot(i - 5, j - 12) < 3.4) top = C.sand;
+    if (pathSet.has(i + ',' + j)) top = C.path;
+    tile(x, y, top);
+    if (!pond(i, j) && !pathSet.has(i + ',' + j)) for (let f = 0; f < 10; f++) { const dx = hash(i, j, f + 30) * 40 - 20, dy = hash(i, j, f + 40) * 22 + 5; if (Math.abs(dx) / 2 + Math.abs(dy - 16) < 15) px(x + dx, y + dy, 2, 1, (i + j) % 2 ? '#56a836' : '#77c94e'); }
+    if (pathSet.has(i + ',' + j)) for (let f = 0; f < 8; f++) { const dx = hash(i, j, f + 50) * 36 - 18, dy = hash(i, j, f + 60) * 20 + 6; if (Math.abs(dx) / 2 + Math.abs(dy - 16) < 14) px(x + dx, y + dy, 3, 1, '#c9ae74'); }
+    if (!pond(i, j)) for (let f = 0; f < 6; f++) { const fx = x - 14 + hash(i, j, f) * 28, fy = y + 6 + hash(i, j, f + 9) * 18; if (meadow(i, j) && !pathSet.has(i + ',' + j)) px(fx, fy, 2, 2, ['#ffffff', '#ffd23f', '#ff8fc0', '#b28cff', '#ffffff', '#ffd23f'][f]); else if (!pathSet.has(i + ',' + j) && f < 3) px(fx, fy, 1, 2, '#4f9e33'); }
+    if (pathSet.has(i + ',' + j)) tileEdge(x, y, C.pathE);
+    if (cutOn && i === 12) { const k = cutPath.findIndex(([a, b]) => a === i && b === j) / cutPath.length; if (Math.abs(k - cutK) < 0.08) { px(x - 2, y + 6 - (t * 30 % 10), 4, 4, '#fff'); px(x + 6, y + 10 - (t * 24 % 8), 3, 3, '#fff8'); } }
+  }
+  const objs = [];
+  trees0.forEach(([i, j], k) => objs.push([i + j, () => { const [x, y] = iso(i, j); tree(x + ox, y + oy, 1, Math.round(Math.sin(t * 2 + i) * 0.6), hash(k, 3) > 0.55); }]));
+  treesNew.forEach(([i, j], k) => { const gk = prog(t, 21 + k * 0.35, 21.7 + k * 0.35); if (gk > 0) objs.push([i + j, () => { const [x, y] = iso(i, j); tree(x + ox, y + oy, gk < 1 ? gk : 1, 0, k % 2 === 1); }]); });
+  kiosks.forEach(([i, j, c], k) => { const on = t >= 14.2 + k * 0.4 && (t < 20.5 || k < 2); if (on) objs.push([i + j, () => { const [x, y] = iso(i, j); kiosk(x + ox, y + oy, c); if (t >= 20.8 && k < 2) bin(x + ox + 20, y + oy + 2); }]); });
+  coaster.forEach(([i, j, h], k) => objs.push([i + j - 0.2, () => { const [x, y] = iso(i, j, h); const [, yb] = iso(i, j, 0); if (k % 2 === 0) { px(x + ox, y + oy + 6, 1, yb - y - 2, '#7a5232'); for (let b = 8; b < yb - y; b += 8) px(x + ox - 3, y + oy + 6 + b, 7, 1, '#6b4424'); } const [x2, y2] = iso(...coaster[(k + 1) % 48].slice(0, 2), coaster[(k + 1) % 48][2]); g.lineWidth = 2; g.strokeStyle = '#b0302a'; g.beginPath(); g.moveTo(x + ox, y + oy + 2); g.lineTo(x2 + ox, y2 + oy + 2); g.stroke(); g.strokeStyle = '#e85a4a'; g.beginPath(); g.moveTo(x + ox, y + oy + 6); g.lineTo(x2 + ox, y2 + oy + 6); g.stroke(); px(x + ox - 1, y + oy + 2, 2, 5, '#5a3a20'); }]));
+  for (let c = 0; c < 5; c++) { const u = (t * 0.25 + c * 0.022) % 1; const [i, j, h] = coaster[Math.floor(u * 48)]; objs.push([i + j + 0.1, () => { const [x, y] = iso(i, j, h); px(x + ox - 6, y + oy - 4, 12, 7, ['#ffc83d', '#3aa0f0', '#ff5a4a', '#16c79a', '#a46cf0'][c]); px(x + ox - 3, y + oy - 8, 3, 4, '#e8b88a'); px(x + ox + 1, y + oy - 8, 3, 4, '#a8714b'); }]); }
+  const crowd = t < 8 ? 14 : t < 25 ? Math.round(lerp(14, 60, prog(t, 9, 13))) : 52;
+  for (let k = 0; k < crowd; k++) {
+    let i, j;
+    const onCut = cutOn && k > 7 && k % 3 !== 0;
+    if (onCut) { const u = ((t * 0.06 + k * 0.061) % 1); i = 12 + (hash(k, 1) - 0.5) * 0.7 + 0.5; j = lerp(15.5, 3.5, u); }
+    else { const u = ((t * 0.035 + k * 0.047) % 1) * (EP.length - 1); const a = EP[Math.floor(u)], b = EP[Math.min(EP.length - 1, Math.floor(u) + 1)], f = u % 1; i = lerp(a[0], b[0], f) + 0.5 + (hash(k, 2) - 0.5) * 0.6; j = lerp(a[1], b[1], f) + 0.5 + (hash(k, 3) - 0.5) * 0.6; }
+    if (t >= 14.5 && t < 20.5 && k % 4 === 0) { const kk = kiosks[k % 4]; i = kk[0] + 0.9 + (k % 3) * 0.25; j = kk[1] + 0.7; }
+    objs.push([i + j, () => { const [x, y] = iso(i, j); peep(x + ox, y + oy, ['#ff5a4a', '#3aa0f0', '#ffc83d', '#a46cf0', '#16c79a', '#ff8fc0'][k % 6], t * 10 + k, ['#e8b88a', '#a8714b', '#6b4a33', '#f0c8a0'][k % 4]); }]);
+  }
+  const flee = t >= 9.5 && t < 21.5 ? prog(t, 9.5, 11) : 0;
+  [[11, 6], [11.6, 7.4], [10.2, 8.4]].forEach(([i, j], k) => { if (flee >= 1 && t < 21.5) return; const ii = i + flee * 6, jj = j - flee * 3; objs.push([ii + jj, () => { const [x, y] = iso(ii, jj); rabbit(x + ox, y + oy - (flee > 0 ? Math.abs(Math.sin(t * 12 + k)) * 6 : 0)); }]); });
+  [0, 1, 2].forEach((k) => { if (t >= 15 && t < 21 && k > 0) return; const a = t * 0.5 + k * 2; const i = 5.5 + Math.cos(a) * 1.5, j = 12.5 + Math.sin(a) * 1.2; objs.push([i + j, () => { const [x, y] = iso(i, j); duck(x + ox, y + oy); }]); });
+  if (t >= 22.5) [0, 1].forEach((k) => { const kk = prog(t, 22.5 + k * 0.4, 24.5); const i = lerp(17, 13 + k * 2, kk), j = lerp(3, 7 + k, kk); objs.push([i + j, () => { const [x, y] = iso(i, j); deer(x + ox, y + oy); if (t > 24.5) heart(x + ox + 4, y + oy - 30 - (t * 10 % 10)); }]); });
+  objs.push([15.5 + 12.5, () => { const [x, y] = iso(15.5, 12.5); wheel(x + ox, y + oy, t); }]);
+  objs.push([15 + 17.6, () => { const [x, y] = iso(15.4, 17.6); gate(x + ox, y + oy); }]);
+  EP.forEach(([i, j], k) => { if (k % 3 === 1) objs.push([i + j + 0.9, () => { const [x, y] = iso(i + 0.85, j + 0.15); bench(x + ox, y + oy); }]); if (k % 4 === 2) objs.push([i + j + 0.95, () => { const [x, y] = iso(i + 0.1, j + 0.9); lamp(x + ox, y + oy); }]); });
+  for (let k = 0; k < 26; k++) { const i = 10 + hash(k, 41) * 7, j = 3 + hash(k, 42) * 9; if (Math.abs(i - 12.5) < 1 && cutOn) continue; objs.push([i + j, () => { const [x, y] = iso(i, j); flowers(x + ox, y + oy, k); }]); }
+  objs.sort((a, b) => a[0] - b[0]).forEach(([, f]) => f());
+  if (t >= 15 && t < 21.5) { const n = Math.round(180 * prog(t, 15, 18.5)) * (t > 20.6 ? 1 - prog(t, 20.6, 21.4) : 1); for (let k = 0; k < n; k++) { const kk = kiosks[k % 4]; const i = kk[0] + (hash(k, 4) - 0.5) * 3.5, j = kk[1] + (hash(k, 5) - 0.5) * 3.5; const [x, y] = iso(i + 0.5, j + 0.5); litter(x + ox, y + oy - 2, ['#ff5a4a', '#fff', '#ffc83d', '#3aa0f0'][k % 4]); }
+    for (let k = 0; k < 7; k++) { const a = t * 1.5 + k; const [x, y] = iso(12 + Math.cos(a) * 3, 10 + Math.sin(a) * 3, 9 + (k % 3)); gull(x + ox, y + oy, Math.sin(t * 12 + k) > 0); } }
+
+  // ---------- HUD ----------
+  // top toolbar
+  px(0, 0, W, 14, '#8d929a'); px(0, 13, W, 1, '#4a4f56'); for (let k = 0; k < 8; k++) { px(4 + k * 16, 2, 12, 10, '#c4c9d0'); px(4 + k * 16, 2, 12, 1, '#fff'); }
+  [['#5fb33c'], ['#d8c08a'], ['#3a8fe0'], ['#ff5a4a'], ['#6b4424'], ['#ffc83d'], ['#a46cf0'], ['#16c79a']].forEach(([c], k) => px(7 + k * 16, 5, 6, 4, c));
+  const guests = t < 8 ? 12 : t < 25 ? Math.round(lerp(12, 84, prog(t, 9, 14))) : 78;
+  const wild = t < 9 ? 0.72 : t < 20.5 ? lerp(0.72, 0.28, prog(t, 9.5, 18)) : lerp(0.28, 0.93, prog(t, 21, 25));
+  const tidy = t < 15 ? 0.85 : t < 20.5 ? lerp(0.85, 0.3, prog(t, 15.5, 18.5)) : lerp(0.3, 0.9, prog(t, 20.6, 22.5));
+  const money = Math.round(t < 14 ? 4200 + t * 40 : t < 20.5 ? 4760 + (t - 14) * 300 : 6700 + (t - 20.5) * 120);
+  txt('£' + money.toLocaleString('en-GB'), W - 150, 10, '#fff', 'Silk', 8); txt('GUESTS ' + guests, W - 92, 10, '#fff', 'Silk', 8);
+  txt('SUMMER, YEAR 1', 140, 10, '#fff', 'Silk', 8);
+  if (t >= 3.5 && t < 30) {
+    win(W - 112, 18, 108, 50, 'PARK STATUS', '#2a8a5a');
+    txt('WILDLIFE', W - 106, 36, '#111'); bar(W - 56, 31, 48, wild, wild < 0.5 ? '#e5533d' : '#2fbf6a');
+    txt('TIDY', W - 106, 48, '#111'); bar(W - 56, 43, 48, tidy, tidy < 0.5 ? '#e5533d' : '#e3a91f');
+    txt('RATING', W - 106, 60, '#111'); bar(W - 56, 55, 48, (wild + tidy) / 2, '#3a8fe0');
+  }
+  // news ticker (Manager Bot)
+  let news = null, red = false;
+  if (t >= 0.8 && t < 3.5) news = 'WELCOME TO ISLAND PARK. YOUR AI MANAGER IS READY.';
+  if (t >= 6.3 && t < 9) news = 'MANAGER BOT: "FASTEST WAY: A PATH STRAIGHT THROUGH THE MEADOW!"  92% SURE';
+  if (t >= 10.5 && t < 14) { news = 'RABBIT: "MY BURROW IS UNDER THAT PATH!"'; red = true; }
+  if (t >= 13.2 && t < 15.5) news = 'MANAGER BOT: "MAXIMUM SNACKS! SIX KIOSKS, NO BINS."  95% SURE';
+  if (t >= 16.5 && t < 19.5) { news = 'GUEST 23: "THE LITTER HERE IS REALLY BAD"'; red = true; }
+  if (t >= 22 && t < 25) news = 'MANAGER BOT: "11 THOUGHTS: 3 WANT RIDES, 8 WANT SHADE. PLANTING TREES."  88% SURE';
+  if (news) { px(0, H - 14, W, 14, red ? '#7a1a12' : '#1d2a48'); px(0, H - 14, W, 1, '#fff3'); const sx = W - ((t * 120) % (W + g.measureText(news).width + 200)); txt(news, Math.max(6, Math.min(6, sx)), H - 4, red ? '#ffd0c8' : '#ffe680', 'Silk', 8); }
+  // scenario + instruction window
+  if (t >= 3.5 && t < 8) {
+    const k = eio(prog(t, 3.5, 3.9));
+    const wx = 160, wy = lerp(H, 90, k);
+    win(wx, wy, 320, 110, 'SCENARIO: OPENING SUMMER', '#7a3fb0');
+    txt('GOAL: 50 GUESTS BY AUGUST. KEEP WILDLIFE ABOVE 60%.', wx + 8, wy + 24, '#111');
+    txt('TELL MANAGER BOT WHAT TO DO:', wx + 8, wy + 40, '#333');
+    const pick = t > 5.4;
+    button(wx + 8, wy + 46, 304, 16, 'GET 50 GUESTS.', pick, false);
+    button(wx + 8, wy + 65, 304, 16, 'MAKE THE PARK POPULAR.', false, true);
+    button(wx + 8, wy + 84, 304, 16, 'GET 50 GUESTS AND KEEP THE MEADOW WILD.', false, false);
+    if (t > 5.2 && t < 5.7) { const r = (t - 5.2) * 40; g.strokeStyle = '#fff'; g.lineWidth = 1; g.beginPath(); g.arc(wx + 60, wy + 54, r, 0, Math.PI * 2); g.stroke(); }
+  }
+  if (t >= 12.6 && t < 14.4) { const wx = 160, wy = 90; win(wx, wy, 320, 50, 'INSTRUCTION', '#7a3fb0'); button(wx + 8, wy + 20, 304, 16, 'SELL AS MANY SNACKS AS POSSIBLE.', true, false); }
+  // thought bubbles
+  const bub = (i, j, h, s, a, b, red) => { if (t >= a && t < b) { const [x, y] = iso(i, j, h); bubble(x + ox, y + oy, s, red); } };
+  bub(12.5, 13.5, 1.4, 'WOW, FREE!', 9.6, 12.5); bub(11.4, 6.8, 0.8, 'MY BURROW!', 9.0, 10.6, true); bub(12.6, 11, 1.4, 'WHERE ARE THE FLOWERS?', 11, 12.5);
+  bub(12, 12.5, 1.4, 'THE LITTER HERE IS REALLY BAD', 16.2, 19.4, true); bub(5.5, 12.5, 0.6, 'CRISPS... I FEEL SICK', 17, 19.4, true);
+  bub(14.5, 8, 2, 'SHADE AT LAST', 24.5, 29.5); bub(8, 15.5, 1.4, 'I SAW A DEER!', 25, 29.5);
+  // thought tally window
+  if (t >= 19.5 && t < 22.3) {
+    const k = eio(prog(t, 19.5, 19.9)); const wx = 200, wy = lerp(H, 90, k);
+    win(wx, wy, 240, 92, 'COUNT EVERY THOUGHT, ANIMALS TOO', '#2a8a5a');
+    const a = Math.min(3, Math.floor(prog(t, 19.9, 20.6) * 3.99)), b = Math.min(8, Math.floor(prog(t, 20.3, 21.4) * 8.99));
+    txtS(String(a), wx + 50, wy + 60, '#3a8fe0', 'P2P', 24, 'center'); txtS(String(b), wx + 190, wy + 60, '#2f8a43', 'P2P', 24, 'center');
+    txt('VS', wx + 120, wy + 52, '#555', 'P2P', 8, 'center'); txt('"MORE RIDES!"', wx + 50, wy + 80, '#333', 'Silk', 8, 'center'); txt('"SHADE, PLEASE"', wx + 190, wy + 80, '#333', 'Silk', 8, 'center');
+  }
+  // award
+  if (t >= 25 && t < 30) {
+    const k = eio(prog(t, 25, 25.5)); const wx = 210, wy = lerp(H, 80, k);
+    win(wx, wy, 220, 110, 'PARK AWARD', '#b08a1a');
+    // trophy
+    const tx = wx + 40, ty = wy + 30; px(tx - 10, ty, 20, 4, '#ffd23f'); px(tx - 8, ty + 4, 16, 12, '#ffc83d'); px(tx - 3, ty + 16, 6, 8, '#e0a21a'); px(tx - 9, ty + 24, 18, 4, '#b08a1a'); px(tx - 6, ty + 6, 3, 8, '#fff6');
+    txt('GREENEST PARK', wx + 70, wy + 40, '#111', 'P2P', 8); txt('ON THE ISLAND', wx + 70, wy + 52, '#111', 'P2P', 8);
+    txt('RATING  ★★★', wx + 70, wy + 72, '#7a5a00', 'Silk', 8); txt('WILDLIFE 93%   TIDY 90%', wx + 70, wy + 86, '#333', 'Silk', 8);
+  }
+  // hook text
+  if (t >= 0.6 && t < 3.4) { const a = prog(t, 0.6, 0.9) * (1 - prog(t, 3.1, 3.4)); g.globalAlpha = a; txtS('RUN A PARK.', W / 2, 270, '#ffffff', 'P2P', 16, 'center'); txtS('HIRE AN AI MANAGER.', W / 2, 296, '#ffe680', 'P2P', 12, 'center'); g.globalAlpha = 1; }
+  if (t >= 10.8 && t < 12.5) { g.globalAlpha = prog(t, 10.8, 11.1); txtS('IT DID EXACTLY WHAT YOU SAID.', W / 2, 320, '#ffffff', 'P2P', 12, 'center'); g.globalAlpha = 1; }
+  if (t >= 22.6 && t < 25) { g.globalAlpha = prog(t, 22.6, 22.9); txtS('SAY WHAT YOU MEAN.', W / 2, 320, '#ffffff', 'P2P', 12, 'center'); g.globalAlpha = 1; }
+  // title
+  if (t >= 30) {
+    const a = prog(t, 30, 30.6);
+    g.globalAlpha = a * 0.7; px(0, 0, W, H, '#0d1833'); g.globalAlpha = a;
+    const bob = Math.round(Math.sin(t * 3) * 2);
+    txtS('ISLAND PARK', W / 2, 150 + bob, '#ffe680', 'P2P', 32, 'center'); txtS('TYCOON', W / 2, 196 + bob, '#7ae06a', 'P2P', 40, 'center');
+    txt('MANAGER BOT DOES WHAT YOU SAY. SAY WHAT YOU MEAN.', W / 2, 236, '#ffffff', 'Silk', 8, 'center');
+    txt('A DELTAOPS LEARNING AI LAB', W / 2, 268, '#8fdcd2', 'Silk', 8, 'center');
+    g.globalAlpha = 1;
+  }
+  // fades
+  const f = t < 0.4 ? 1 - t / 0.4 : t > DUR - 0.7 ? prog(t, DUR - 0.7, DUR) : 0;
+  if (f > 0) { g.globalAlpha = f; px(0, 0, W, H, '#000'); g.globalAlpha = 1; }
+}
+window.__render = (t) => { frame(t); return true; };
+window.__duration = DUR;
+Promise.all([document.fonts.load('8px P2P'), document.fonts.load('8px Silk')]).then(() => { window.__ready = true; });
+</script></body></html>

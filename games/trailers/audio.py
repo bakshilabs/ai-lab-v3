@@ -16,6 +16,9 @@ L = np.zeros(N); R = np.zeros(N)
 bpm = cfg.get('bpm', 100); beat = 60 / bpm
 root = cfg.get('root', 57)
 rng = np.random.default_rng(7)
+CHIP = cfg.get('chip', False)
+def osc(ph):
+    return np.sign(np.sin(ph)) * 0.55 if CHIP else np.sin(ph)
 
 def f(m): return 440 * 2 ** ((m - 69) / 12)
 def env(n, a=0.01, d=0.2, s=0.6, r=0.3, hold=None):
@@ -37,13 +40,13 @@ def pad(notes, t0, length, vol):
     for m in notes:
         for det in (-0.08, 0.0, 0.07):
             fr = f(m) * 2 ** (det / 12)
-            s += np.sin(2 * np.pi * fr * t + rng.random() * 6) * 0.5 + 0.18 * np.sin(4 * np.pi * fr * t)
+            s += osc(2 * np.pi * fr * t + rng.random() * 6) * (0.25 if CHIP else 0.5) + 0.18 * np.sin(4 * np.pi * fr * t)
     s *= env(n, a=min(0.6, length / 3), d=0.3, s=0.9, r=min(0.8, length / 3)) / (len(notes) * 3)
     add(s, t0, rng.uniform(-0.3, 0.3), vol)
 def pluck(m, t0, vol, pan=0.0, dec=6.0):
     n = int(0.9 * SR); t = np.arange(n) / SR
     fr = f(m)
-    s = (np.sin(2 * np.pi * fr * t) + 0.4 * np.sin(4 * np.pi * fr * t) + 0.15 * np.sin(6 * np.pi * fr * t)) * np.exp(-dec * t)
+    s = (osc(2 * np.pi * fr * t) + 0.4 * np.sin(4 * np.pi * fr * t) + 0.15 * np.sin(6 * np.pi * fr * t)) * np.exp(-dec * t)
     add(s * 0.5, t0, pan, vol)
 def kick(t0, vol):
     n = int(0.35 * SR); t = np.arange(n) / SR
