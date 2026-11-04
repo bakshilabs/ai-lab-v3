@@ -101,7 +101,7 @@ st.onFrame((t) => {
   bot.visible = !!live;
   if (live) { r = runPos(t, live.t0, live.x0, live.plan); bot.position.set(r.x, r.y, 0); const run = r.state === 'run'; bot.rotation.z = run ? Math.sin(t * 20) * 0.08 : 0; bot.scale.y = r.y < 0.8 ? 0.6 : 1; }
   // duck pops up in attempt 1 when the vague card "Duck!" is played
-  surpriseDuck.visible = within(t, 4.8, 6.4); surpriseDuck.position.set(O.branch - 1.2, 1 + Math.abs(Math.sin(t * 8)) * 0.5, 1.5); surpriseDuck.rotation.y = Math.PI / 2;
+  surpriseDuck.visible = within(t, 4.8, 6.4); surpriseDuck.position.set(O.branch - 1.5, 1 + Math.abs(Math.sin(t * 8)) * 0.6, 4.6); surpriseDuck.rotation.y = Math.PI / 2;
   // montage ghosts 12.2-19
   ghosts.forEach((g, i) => {
     let vis = false, x = 0, y = 1;
@@ -156,7 +156,7 @@ const k2 = kicker('Restart in under a second. No lives. No limits.', { y: 980, s
 const montage = el('<div class="chip" style="font-size:22px">ATTEMPTS 3 TO 11 · BEST SO FAR GOES UP</div>', { x: 960, y: 170, anchor: 'c' }); add(cue(montage, 12.6, 18.9, { from: 'down' }));
 pair(19.6, 20.0, 21.2, { text: 'Go up!', v: true }, { text: 'Jump the 3-block gap' }, true);
 pair(22.4, 22.8, 24.0, { text: 'Jump the hedge, land on the path' }, { text: 'Be careful.', v: true }, false);
-const done = el('<div class="att" style="font-size:120px;text-align:center;line-height:1">ATTEMPT 12 · <span style="color:#16FFC6">100%</span></div>', { x: 960, y: 330, anchor: 'c' }); add(cue(done, 25.6, 29.8, { from: 'pop' }));
+const done = el('<div class="att" style="font-size:110px;text-align:center;line-height:1;white-space:nowrap">ATTEMPT 12 · <span style="color:#16FFC6">100%</span></div>', { x: 960, y: 330, anchor: 'c' }); add(cue(done, 25.6, 29.8, { from: 'pop' }));
 const k3 = kicker('Every try taught you something.', { y: 980 }); add(cue(k3, 27.0, 29.8, { from: 'up' }));
 const dimEnd = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:radial-gradient(ellipse at center, rgba(10,6,30,.35), rgba(10,6,30,.75))"></div>'); add(cue(dimEnd, 30.0, null, { from: 'fade', dur: 0.8 }));
 const title = titleCard('Clear <span class="hl">Signal</span>', 'Say it clearly. Hit the beat. Try again.', { chip: 'A DeltaOps Learning warm-up game' }); add(cue(title, 30.3, null, { from: 'pop', dur: 0.8 }));
