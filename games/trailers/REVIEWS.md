@@ -62,3 +62,25 @@ The scale is in `games/PLAN.md`. Story has five criteria (hook, premise, AI mist
   - World life 1.5: karts, ducks, petals, confetti.
   - UI 2.
   - Pacing 1.5.
+
+## 3. Block Builders (`out/blocks.mp4`, 40 s)
+
+**v1 (stills): Story 8.5 · Visual 6.5.**
+- The blueprint grid rendered empty (missing CSS selector).
+- The "lights on" payoff was too dim to read.
+- The island was small in frame.
+
+**v2 (shipped): Story 9.5 · Visual 8.**
+- Story:
+  - Hook 1.5: tiles placed on a paper mat. Charming but gentle.
+  - Premise 2: mat, then screen grid, then the island rises tile by tile.
+  - Mistake 2: "Sunny Power Town, 88%" goes dark at night.
+  - Payoff 2: three battery tiles; windows, battery glow and warm lights all night.
+  - Resolution 2: the Habitat Blueprint card states the assumption the AI made.
+- Visual:
+  - Composition 1.5.
+  - Lighting 2: day/dusk/night contrast.
+  - World life 1: turbines and a few walkers.
+  - UI 2.
+  - Pacing 1.5.
+- Nit: the dusk colour is barely visible before night.
