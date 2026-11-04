@@ -84,3 +84,23 @@ The scale is in `games/PLAN.md`. Story has five criteria (hook, premise, AI mist
   - UI 2.
   - Pacing 1.5.
 - Nit: the dusk colour is barely visible before night.
+
+## 4. Island Park Tycoon (`out/tycoon.mp4`, 40 s)
+
+**v1 (stills): Story 8.5 · Visual 7.5.**
+- The rabbit's "My burrow" bubble vanished because the rabbit had already fled.
+- The owl's bubble overlapped the meter panel.
+
+**v2 (shipped): Story 9.5 · Visual 8.5.**
+- Story:
+  - Hook 1.5: Manager Bot at the gate, "It does exactly what the card says."
+  - Premise 2.
+  - Mistakes 2: a crowd floods a straight path cut through the meadow and rabbits flee; then six kiosks with no bins bring litter, gulls and the Tidy meter crashing.
+  - Payoff 2: "Count every bubble, animals too" gives 3 vs 8; trees grow, a hide appears, otters and deer arrive, meters recover.
+  - Resolution 2: the Park Charter states target + never + check.
+- Visual:
+  - Composition 1.5: the crowd enters from the lower-left corner.
+  - Lighting 1.5: daylight only.
+  - World life 2: about 22 visitors, rabbits, ducks, gulls, otters, deer, litter.
+  - UI 2.
+  - Pacing 1.5.
