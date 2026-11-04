@@ -1,15 +1,16 @@
 <!doctype html><html><head><meta charset="utf-8"><title>Robo-Taxi Island trailer</title>
 <link rel="stylesheet" href="../engine/ui.css">
-<script type="importmap">{"imports":{"three":"/three/three.module.js"}}</script></head>
+<script type="importmap">{"imports":{"three":"/three/three.module.js","three/addons/":"/three-addons/"}}</script></head>
 <body><div id="app"><div id="bg"></div><div id="ui"></div><div id="fx"></div></div>
 <script type="module">
 import * as THREE from 'three';
 import { createStage, cameraTrack, prog, ease, lerp, clamp, within } from '../engine/stage.js';
 import { Vox, island, tree, house, person, taxi, scarecrow, duck, particles, PAL, rand, hex } from '../engine/kit.js';
+import { clouds, waterfall, roots, floatingRocks, grass, birds, butterflies, burst } from '../engine/extras.js';
 import { el, cue, helperCard, facilCard, badge, task, cardsHTML, alertHTML, kicker, titleCard, tap, recordPanel, setRecord, thumbs, fader, toScreen } from '../engine/ui.js';
 
 const DUR = 42;
-const st = createStage({ sky: ['#ffd9b8', '#cfe9ff'] });
+const st = createStage({ sky: ['#2f8fff', '#c8ecff'] });
 const { scene, camera, sun, hemi } = st;
 
 // ---------------- world ----------------
@@ -54,11 +55,28 @@ const treeSpots = [[-44, 4], [-44, -20], [-36, -28], [-20, -30], [-2, -30], [22,
 for (const [x, z] of treeSpots) if (isl.inside(x, z)) tree(v, x, T, z, { kind: rand(x, 3, z) > 0.55 ? 'pine' : 'round' });
 // scarecrow (separate mesh so it can get a bbox)
 const crow = scarecrow({ s: 0.36 }); crow.position.set(35, T + 1, -3); scene.add(crow);
+for (let z = 25; z <= 40; z++) for (let x = 14; x <= 16; x++) if (v.has(x, T, z) && !v.has(x, T + 1, z)) { v.set(x, T, z, null); v.set(x, T - 1, z, '#3f7f9a'); pondCells.push([x, z]); }
+roots(v, isl.inside, { rx: 50, rz: 38, top: T, count: 70, seed: 7 });
+const grassCells = []; for (let x = -50; x <= 50; x++) for (let z = -38; z <= 38; z++) { const c = v.get(x, T, z); if (c && !v.has(x, T + 1, z) && rand(x, 77, z) > 0.62 && PAL.grass.some((g) => c.getHexString() === g.slice(1))) grassCells.push([x + 0.5, z + 0.5]); }
 const lampPos = [];
 for (let i = 0; i < 4; i++) { const a = loop[i], b = loop[(i + 1) % 4]; for (let k = 0.15; k < 1; k += 0.235) { const x = lerp(a[0], b[0], k), z = lerp(a[1], b[1], k); const nx = a[1] === b[1] ? 0 : 1, nz = a[1] === b[1] ? 1 : 0; for (const sg of [-1, 1]) { const px = Math.round(x + nx * sg * 4.6), pz = Math.round(z + nz * sg * 4.6); if (v.get(px, T, pz) && !v.has(px, T + 1, pz)) { v.box(px, T + 1, pz, px, T + 1, pz, '#9aa3ab'); lampPos.push([px + 0.5, pz + 0.5]); } } } }
 const world = v.mesh(); scene.add(world);
 const water = (() => { const w = new Vox(); w.jitter = 0.02; for (const [x, z] of pondCells) w.set(x, T - 1, z, '#53b9e6'); const m = w.mesh({ castShadow: false }); m.material.transparent = true; m.material.opacity = 0.85; m.position.y = 0.55; return m; })();
 scene.add(water);
+const upd = [];
+upd.push(clouds(scene, { n: 11, seed: 3 }));
+{ let ez = 38; while (v.has(15, T - 1, ez + 1)) ez++; upd.push(waterfall(scene, { x: 15.5, y: T - 0.5, z: ez + 0.5, dir: [0, 1], width: 3, length: 34 })); }
+upd.push(floatingRocks(scene, { n: 8, radius: 72, seed: 5 }));
+upd.push(grass(scene, grassCells, T));
+upd.push(birds(scene, { n: 9, center: [0, 34, -10], radius: 60 }));
+upd.push(butterflies(scene, pondCells.slice(0, 120), { n: 12, y: T }));
+const fw = [[-20, 20, -6, 33.8], [12, 24, 0, 34.4], [28, 18, 8, 35.0], [-6, 26, 10, 35.6], [18, 22, -12, 36.2], [-28, 22, 14, 36.8]].map(([x, y, z, t0], i) => burst(scene, { at: [x, y, z], t0, n: 90, colors: [['#16ffc6', '#59c7fc', '#ffffff'], ['#ffc83d', '#ff6a4a', '#ffffff'], ['#b28cff', '#ff7eb6', '#ffffff']][i % 3], size: 0.9, speed: 14, gravity: 6, up: 3, life: 2.4 }));
+fw.forEach((f) => { upd.push(f); });
+const fwMats = []; scene.traverse((o) => { if (o.isInstancedMesh && o.geometry.parameters && o.geometry.parameters.width === 0.9) { o.material = new THREE.MeshBasicMaterial({ color: 0xffffff }); } });
+st.onFrame((t) => upd.forEach((f) => f(t)));
+const starsP = particles(160, { size: 0.9 }); starsP.material = new THREE.MeshBasicMaterial({ color: 0xffffff }); scene.add(starsP);
+for (let i = 0; i < 160; i++) { const a = rand(i, 1) * Math.PI * 2, e = 0.15 + rand(i, 2) * 0.8; starsP.setAt(i, Math.cos(a) * 900 * Math.cos(e), 900 * Math.sin(e), Math.sin(a) * 900 * Math.cos(e), 0, 0, 1 + rand(i, 3) * 2); } starsP.done();
+const moon = new THREE.Mesh(new THREE.BoxGeometry(40, 40, 6), new THREE.MeshBasicMaterial({ color: 0xfff4c8 })); moon.position.set(-300, 420, -700); moon.lookAt(0, 0, 0); scene.add(moon);
 
 // lit windows + street lamps (emissive), road lights
 const winMat = new THREE.MeshBasicMaterial({ color: 0xffd66b, transparent: true, opacity: 0 });
@@ -94,14 +112,21 @@ function placePip(x, z, ang, brake = 0) { pip.position.set(x, T + 1, z); pip.rot
 
 st.onFrame((t) => {
   const n = night(t);
-  st.setSky(n ? skyNight[0] : t < 8.5 ? mixHex(skyDawn[0], skyDay[0], prog(t, 0, 8.5)) : skyDay[0], n ? skyNight[1] : t < 8.5 ? mixHex(skyDawn[1], skyDay[1], prog(t, 0, 8.5)) : skyDay[1]);
-  sun.intensity = n ? 0.9 : 2.4; sun.color.set(n ? 0x9bb4ff : t < 8.5 ? 0xffd2a8 : 0xfff1dc);
-  hemi.intensity = n ? 0.85 : 1.25; hemi.color.set(n ? 0x6f8fd8 : 0xdff1ff); hemi.groundColor.set(n ? 0x1c2440 : 0x6b5a48);
-  winMat.opacity = n; const f = fogK(t); scene.fog.color.set(0x4a6290); scene.fog.near = lerp(4000, 4, f); scene.fog.far = lerp(5000, 48, f);
+  st.setSky(n ? '#061a52' : '#1f78f0', n ? '#1f5ad0' : '#78c4ff');
+  st.dome.material.uniforms.sunAmt.value = n ? 0 : 1;
+  sun.intensity = n ? 1.5 : 3.1; sun.color.set(n ? 0xa9c2ff : 0xfff0d8); sun.castShadow = true;
+  hemi.intensity = n ? 1.0 : 1.35; hemi.color.set(n ? 0x7c9cff : 0xcfe8ff); hemi.groundColor.set(n ? 0x1a2550 : 0x7a5a3a);
+  st.rim.intensity = n ? 1.6 : 0.9; st.rim.color.set(n ? 0x6fb0ff : 0xbfe0ff);
+  starsP.visible = moon.visible = !!n;
+  st.fx.bloom.strength = n ? 0.6 : 0.3; st.fx.bloom.threshold = n ? 0.72 : 0.92;
+  st.fx.grade.uniforms.sat.value = n ? 1.3 : 1.22;
+  const wide = t < 3.8 ? false : (t < 8.5 || within(t, 8.5, 13) || t >= 33);
+  st.fx.setTilt(0.52, t < 3.8 ? 0 : wide ? 3.2 : 1.4);
+  winMat.opacity = n; scene.fog.near = 4000; scene.fog.far = 5000;
   glow.material.color.set(0xffe2a0); glow.material.opacity = n ? 1 : 0;
   const gk = t > 33.2 ? prog(t, 33.4, 36.8, (x) => x) : 0; const ng = Math.floor(lampPos.length * gk); rings.count = ng; rings.material.opacity = ng > 0 ? 0.9 : 0;
   lampPos.forEach((_, i) => glow.setColor(i, i < ng ? '#16ffc6' : '#ffe2a0')); glow.instanceColor.needsUpdate = true;
-  headlight.intensity = n ? 60 : 0; headlight.position.copy(pip.position).add(new THREE.Vector3(Math.sin(pip.rotation.y) * 4, 2, Math.cos(pip.rotation.y) * 4));
+  headlight.intensity = n ? 16 : 0; headlight.position.copy(pip.position).add(new THREE.Vector3(Math.sin(pip.rotation.y) * 4, 2, Math.cos(pip.rotation.y) * 4));
   fireflies.material.opacity = t > 33 ? prog(t, 33.5, 35) : 0;
   for (let i = 0; i < 70; i++) { const a = rand(i, 1), b = rand(i, 2); fireflies.setAt(i, -40 + a * 80 + Math.sin(t * 0.9 + i) * 1.5, T + 2 + Math.sin(t * 1.7 + i * 3) * 1.2 + b * 4, -28 + b * 56 + Math.cos(t * 0.7 + i) * 1.5); }
   fireflies.done();
@@ -209,7 +234,7 @@ add(cue(h1, 11.0, 12.6, { from: 'right' }));
 const bdg = el(badge('Robo-Taxi Island', 'AI road lab', '#E0A21A', '<svg width="30" height="30" viewBox="0 0 24 24"><path d="M3 14l2-6h14l2 6v5h-3v-2H6v2H3z" fill="#E0A21A"/></svg>'), { x: 40, y: 36 });
 add(cue(bdg, 13.2, 33, { from: 'left' }));
 const tk1 = el(task('Stage 1', 'Teach Pip to see'), { x: 40, y: 130 }); add(cue(tk1, 13.4, 23.4, { from: 'left' }));
-const tk4 = el(task('Stage 4', 'Night and fog'), { x: 40, y: 130 }); add(cue(tk4, 23.8, 33, { from: 'left' }));
+const tk4 = el(task('Stage 4', 'Pip at night'), { x: 40, y: 130 }); add(cue(tk4, 23.8, 33, { from: 'left' }));
 const rec = recordPanel('PIP’S RECORD'); rec.style.left = '1580px'; rec.style.top = '36px'; add(cue(rec, 13.6, 33, { from: 'right' }));
 add((t) => { const m = []; if (t > 15.4) m.push(true); if (t > 16.4) m.push(true); if (t > 20.7) m.push(false); if (t > 31.6) m.push(true); setRecord(rec, m); });
 const stopPill = el('<div class="saved" style="font-size:30px;padding:12px 28px;background:#0B7F74">STOPPING</div>', { x: 0, y: 0, anchor: 'bc' });

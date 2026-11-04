@@ -35,7 +35,7 @@ const camera = new THREE.PerspectiveCamera(60, W / H, 0.1, 1000);
 scene.background = new THREE.Color('#7fb6ff');
 scene.fog = new THREE.Fog('#a9cdff', 60, 160);
 const hemi = new THREE.HemisphereLight(0xffffff, 0x88775a, 1.2); scene.add(hemi);
-const sun = new THREE.DirectionalLight(0xfff4e0, 2.2); sun.position.set(-40, 80, 30); sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048);
+const sun = new THREE.DirectionalLight(0xfff4e0, 2.2); sun.position.set(-40, 80, 30); sun.castShadow = true; sun.shadow.mapSize.set(1024, 1024);
 Object.assign(sun.shadow.camera, { left: -60, right: 60, top: 60, bottom: -60, near: 1, far: 300 }); scene.add(sun);
 
 // ---------- procedural 16x16 pixel textures (original designs) ----------
@@ -63,7 +63,7 @@ const blocks = {}; // kind -> list of positions
 const put = (k, x, y, z) => (blocks[k] = blocks[k] || []).push([x, y, z]);
 
 // ---------- world ----------
-const R = 44;
+const R = 38;
 for (let x = -R; x <= R; x++) for (let z = -R; z <= R; z++) {
   const d = Math.hypot(x, z); if (d > R) continue;
   const n = Math.sin(x * 0.12) * 2 + Math.cos(z * 0.1) * 2 + Math.sin((x + z) * 0.07) * 3;

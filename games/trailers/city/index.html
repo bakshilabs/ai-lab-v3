@@ -73,8 +73,8 @@ trafficLight(B * 1.5 + RW / 2 + 1, B * 0.5 + RW / 2 + 1, 0); trafficLight(B * 1.
 // a billboard with a printed person (the false alarm)
 const bb = document.createElement('canvas'); bb.width = 256; bb.height = 128; { const g = bb.getContext('2d'); g.fillStyle = '#ffcf3d'; g.fillRect(0, 0, 256, 128); g.fillStyle = '#13202b'; g.font = '900 30px Inter'; g.fillText('RUN CLUB', 110, 50); g.font = '700 18px Inter'; g.fillText('Sundays 9am', 112, 80); g.fillStyle = '#c68a5e'; g.beginPath(); g.arc(60, 34, 16, 0, 7); g.fill(); g.fillStyle = '#ff5a4a'; g.fillRect(44, 52, 32, 44); g.fillStyle = '#2c3e66'; g.fillRect(44, 96, 12, 30); g.fillRect(64, 96, 12, 30); }
 const bbt = new THREE.CanvasTexture(bb); bbt.colorSpace = THREE.SRGBColorSpace;
-const billboard = add(new THREE.BoxGeometry(12, 6, 0.4), new THREE.MeshStandardMaterial({ map: bbt, roughness: 0.6 }), B * 0.5 + 9, 7, B * 1.5 - RW / 2 - 3.5);
-add(new THREE.BoxGeometry(0.4, 4.5, 0.4), std('#555'), B * 0.5 + 9, 2.3, B * 1.5 - RW / 2 - 3.5);
+const billboard = add(new THREE.BoxGeometry(9, 5, 0.4), new THREE.MeshStandardMaterial({ map: bbt, roughness: 0.6 }), B * 0.5 + 16, 4.6, B * 0.5 - RW / 2 - 1.2);
+add(new THREE.BoxGeometry(0.4, 2.4, 0.4), std('#555'), B * 0.5 + 16, 1.2, B * 0.5 - RW / 2 - 1.2);
 // ---------- vehicles ----------
 function car(color, ego = false) {
   const g = new THREE.Group();
@@ -97,7 +97,7 @@ const ball = add(new THREE.SphereGeometry(0.35, 14, 10), std('#ff5a4a', 0.5), 0,
 // ---------- lidar point cloud ----------
 const PN = 9000; const pts = new Float32Array(PN * 3), pcol = new Float32Array(PN * 3);
 const pgeo = new THREE.BufferGeometry(); pgeo.setAttribute('position', new THREE.BufferAttribute(pts, 3)); pgeo.setAttribute('color', new THREE.BufferAttribute(pcol, 3));
-const pcloud = new THREE.Points(pgeo, new THREE.PointsMaterial({ size: 0.28, vertexColors: true, transparent: true, opacity: 0.95, depthWrite: false })); pcloud.frustumCulled = false; scene.add(pcloud);
+const pcloud = new THREE.Points(pgeo, new THREE.PointsMaterial({ size: 0.5, vertexColors: true, transparent: true, opacity: 0.95, depthWrite: false })); pcloud.frustumCulled = false; scene.add(pcloud);
 const ray = new THREE.Raycaster(); const turbo = (k) => new THREE.Color().setHSL(0.66 - 0.66 * k, 1, 0.55);
 const hitTargets = []; scene.traverse((o) => { if (o.isMesh && o.geometry.type === 'BoxGeometry') hitTargets.push(o); });
 function lidar(t, on) {
@@ -131,13 +131,13 @@ const drive = (o, x, z, ang) => { o.position.set(x, 0, z); o.rotation.y = ang; }
 st.onFrame((t) => {
   const [ex, ez, ea, brake] = egoAt(t); drive(ego, ex, ez, ea); ego.rotation.x = -brake * 0.04; ego.userData.ring.rotation.z = t * 6;
   traffic.forEach((c, i) => { const lane = i % 2 ? B * 1.5 - 3.2 : B * 2.5 + 3.2; const dir = i % 2 ? -1 : 1; const u = ((t * 9 * (1 + i * 0.07) + i * 40) % (SPAN + 60)) - 30; if (i < 4) drive(c, dir > 0 ? u : SPAN - u, lane, dir > 0 ? Math.PI / 2 : -Math.PI / 2); else { const lx = i % 2 ? B * 2.5 + 3.2 : B * 0.5 - 3.2; drive(c, lx, dir > 0 ? u : SPAN - u, dir > 0 ? 0 : Math.PI); } });
-  drive(parked[0], B * 1.5 - 14, R1 + 3.6, Math.PI / 2); drive(parked[1], B * 2.5 - 14, R1 + 3.6, Math.PI / 2);
-  drive(van, B * 1.5 - 14.2, R1 + 4.0, Math.PI / 2);
+  drive(parked[0], B * 1.5 - 24, R1 + 3.6, Math.PI / 2); drive(parked[1], B * 2.5 - 14, R1 + 3.6, Math.PI / 2);
+  drive(van, B * 1.5 - 3.6, R1 + 4.0, Math.PI / 2);
   peds.forEach((p, k) => { const side = k % 4; const u = ((t * 1.3 + k * 9) % 40) - 20; const bx = (k % 4) * B, bz = Math.floor(k / 4) % 4 * B; if (side < 2) p.position.set(bx + u, 0.4, bz + (side ? 1 : -1) * (B - RW) / 2 + (side ? 1.5 : -1.5)); else p.position.set(bx + (side === 2 ? 1 : -1) * ((B - RW) / 2 + 1.5), 0.4, bz + u); p.position.y = 0.4 + Math.abs(Math.sin(t * 6 + k)) * 0.05; });
   // child steps out from behind the van (S4) and crosses after the stop (S5)
   const cs = t < 15 ? 0 : t < 17 ? prog(t, 15, 16.6) : t < 22 ? 1 : 1 + prog(t, 22.5, 25.5);
-  child.position.set(B * 1.5 - 10.6, 0.4, R1 + 4.6 - cs * 3.0); child.visible = t > 14.8 && t < 26.5;
-  ball.position.set(B * 1.5 - 10.2, 0.4, R1 + 3.4 - cs * 3.6); ball.visible = t > 14.6 && t < 26.5;
+  child.position.set(B * 1.5 - 0.2, 0.4, R1 + 4.4 - cs * 3.4); child.visible = t > 14.8 && t < 26.5;
+  ball.position.set(B * 1.5 + 0.4, 0.4, R1 + 3.0 - cs * 4.2); ball.visible = t > 14.6 && t < 26.5;
   // traffic lights
   const green = t > 26 || t < 9; lightMats.forEach((ms) => { ms[0].emissiveIntensity = green ? 0 : 3; ms[2].emissiveIntensity = green ? 3 : 0; });
   lidar(t, within(t, 3.4, 8.4) ? 1 : within(t, 18.8, 21) ? 0.9 : 0);
@@ -148,10 +148,10 @@ st.onFrame((t) => {
 st.onFrame((t) => {
   const p = ego.position; let cp, cl, fov = 38;
   if (t < 3.4) { const k = prog(t, 0, 3.4); cp = [lerp(-60, -20, k), lerp(90, 40, k), lerp(160, 90, k)]; cl = [p.x + 10, 0, p.z]; fov = 40; }
-  else if (t < 8.4) { cp = [p.x - 12, 9, p.z + 10]; cl = [p.x + 6, 1.5, p.z - 2]; fov = 50; }
-  else if (t < 14) { cp = [p.x - 9, 5.5, p.z + 6]; cl = [p.x + 12, 4, p.z - 4]; fov = 46; }
-  else if (t < 22) { const k = prog(t, 14, 22); cp = [p.x - 8 + k * 2, 4.5, p.z + 7]; cl = [p.x + 6, 1.5, p.z + 2]; fov = 46; }
-  else if (t < 26.5) { cp = [B * 1.5 - 4, 3.2, R1 - 9]; cl = [B * 1.5 - 12, 1.2, R1 + 2]; fov = 42; }
+  else if (t < 8.4) { cp = [p.x - 10, 26, p.z - 2]; cl = [p.x + 12, 0, p.z - 1]; fov = 52; }
+  else if (t < 14) { cp = [p.x - 13, 5.5, p.z - 4]; cl = [p.x + 14, 3, p.z - 8]; fov = 46; }
+  else if (t < 22) { const k = prog(t, 14, 22); cp = [B * 1.5 + 14 - k * 2, 6.5, R1 - 11]; cl = [B * 1.5 - 6, 1.2, R1 + 1]; fov = 42; }
+  else if (t < 26.5) { cp = [B * 1.5 + 9, 3.4, R1 - 8]; cl = [B * 1.5 - 1, 1.2, R1 + 1]; fov = 42; }
   else { const k = prog(t, 26.5, 38); cp = [lerp(p.x - 20, B * 2, k), lerp(14, 120, k), lerp(p.z + 26, B * 4.5, k)]; cl = [lerp(p.x, B * 1.5, k), 0, lerp(p.z, B * 1.5, k)]; fov = 40; }
   camera.fov = fov; camera.updateProjectionMatrix(); camera.position.set(...cp); camera.lookAt(...cl);
 });
@@ -162,12 +162,12 @@ const fade = fader(); A((t) => fade(t < 0.5 ? 1 - prog(t, 0, 0.5) : t > DUR - 0.
 const sensorTint = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:radial-gradient(ellipse at center, rgba(4,16,40,.25), rgba(4,16,40,.75))"></div>');
 A((t) => { const v = within(t, 3.4, 8.4) || within(t, 18.8, 21) ? 1 : 0; sensorTint.style.opacity = v; sensorTint.style.visibility = v ? 'visible' : 'hidden'; });
 const k0 = kicker('A car that drives itself.', { y: 900 }); A(cue(k0, 0.6, 3.3, { from: 'up' }));
-const k1 = kicker('It only sees what it was <span style="color:#16FFC6">trained</span> to see.', { y: 960, size: 56 }); A(cue(k1, 3.8, 8.2, { from: 'up' }));
+const k1 = kicker('It only sees what it was <span style="color:#16FFC6">trained</span> to see.', { y: 850, size: 56 }); A(cue(k1, 3.8, 8.2, { from: 'up' }));
 const sensorLbl = el('<div style="font:800 22px Inter;letter-spacing:.2em;color:#16ffc6">● LIDAR VIEW · 9,000 POINTS A SPIN</div>', { x: 60, y: 60 }); A(cue(sensorLbl, 3.6, 8.3, { from: 'left' }));
 // detection boxes (screen-space from 3D)
 const box3 = new THREE.Box3();
-function det(obj, label, color, tIn, tOut, pad = 8) { const b = el(`<div class="box2d" style="border-color:${color}"></div>`, { x: 0, y: 0 }); const lbl = el(`<div class="tag3d" style="background:${color}">${label}</div>`, { x: 0, y: 0 });
-  A((t) => { const v = within(t, tIn, tOut) && obj.visible !== false; b.style.opacity = lbl.style.opacity = v ? 1 : 0; if (!v) return; box3.setFromObject(obj); const c = []; for (const x of [box3.min.x, box3.max.x]) for (const y of [box3.min.y, box3.max.y]) for (const z of [box3.min.z, box3.max.z]) c.push(toScreen(new THREE.Vector3(x, y, z), camera)); const xs = c.map((p) => p.x), ys = c.map((p) => p.y); const x0 = Math.min(...xs) - pad, y0 = Math.min(...ys) - pad, x1 = Math.max(...xs) + pad, y1 = Math.max(...ys) + pad; Object.assign(b.style, { left: x0 + 'px', top: y0 + 'px', width: x1 - x0 + 'px', height: y1 - y0 + 'px', transform: 'none' }); Object.assign(lbl.style, { left: (x0 + x1) / 2 + 'px', top: y0 - 6 + 'px' }); if (typeof label === 'function') lbl.innerHTML = label(t); }); }
+function det(obj, label, color, tIn, tOut, pad = 8) { const b = el('', { x: 0, y: 0, cls: 'abs box2d' }); b.style.borderColor = color; b.style.boxShadow = `0 0 12px ${color}`; const lbl = el(`<div class="tag3d" style="background:${color}">${label}</div>`, { x: 0, y: 0 });
+  A((t) => { const v = within(t, tIn, tOut) && obj.visible !== false; b.style.opacity = lbl.style.opacity = v ? 1 : 0; if (!v) return; box3.setFromObject(obj); const c = []; for (const x of [box3.min.x, box3.max.x]) for (const y of [box3.min.y, box3.max.y]) for (const z of [box3.min.z, box3.max.z]) c.push(toScreen(new THREE.Vector3(x, y, z), camera)); const xs = c.map((p) => p.x), ys = c.map((p) => p.y); const x0 = Math.min(...xs) - pad, y0 = Math.min(...ys) - pad, x1 = Math.max(...xs) + pad, y1 = Math.max(...ys) + pad; Object.assign(b.style, { left: x0 + 'px', top: y0 + 'px', width: x1 - x0 + 'px', height: y1 - y0 + 'px', transform: 'none' }); Object.assign(lbl.style, { left: (x0 + x1) / 2 + 'px', top: y0 - 6 + 'px' }); if (typeof label === 'function') lbl.firstChild.innerHTML = label(t); }); }
 traffic.slice(0, 3).forEach((c, i) => det(c, 'CAR 97%', '#59c7fc', 4.0 + i * 0.2, 8.3));
 peds.slice(0, 3).forEach((p, i) => det(p, 'PERSON 93%', '#16ffc6', 4.4 + i * 0.2, 8.3));
 det(billboard, 'PERSON 91%', '#ff5d4a', 9.6, 12.4);
@@ -182,7 +182,7 @@ const dim = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1
 const cards = el(cardsHTML('TRAIN THE CAR', [{ k: 'A', text: 'Drive more carefully.', vague: true }, { k: 'B', text: 'Add pictures of <b>children half hidden</b> behind cars.' }, { k: 'C', text: 'Add more pictures of grown-ups.' }], 1), { x: 960, y: 560, anchor: 'c' }); A(cue(cards, 17.45, 18.8, { from: 'up' }));
 const tp = tap(960, 570); A((t) => tp(t, 17.9));
 decision('Child behind the van. <b style="color:#16ffc6">Stopping early.</b>', 88, 19.0, 25.6);
-const k2 = kicker('Train it. Test it. <span style="color:#16FFC6">Check it.</span>', { y: 960 }); A(cue(k2, 22.6, 26.2, { from: 'up' }));
+const k2 = kicker('Train it. Test it. <span style="color:#16FFC6">Check it.</span>', { y: 850 }); A(cue(k2, 22.6, 26.2, { from: 'up' }));
 // bottom dashboard
 const dashN = el(`<div class="dash"><div><small>SPEED</small><b data-s>0</b> <span style="font:700 20px Inter;color:#9fc4dd">mph</span></div><div><small>MODE</small><span class="mode" data-m style="color:#16ffc6">AUTOPILOT</span></div><div><small>RECORD</small><span data-r style="font:800 30px Inter"></span></div></div>`, { x: 0, y: 0 }); dashN.style.width = '1920px'; dashN.style.height = '1080px';
 A(cue(dashN, 3.6, 26.2, { from: 'fade' }));

@@ -1,0 +1,169 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Pit Crew GP trailer</title>
+<link rel="stylesheet" href="../engine/ui.css">
+<style>
+@font-face { font-family: 'Baloo'; src: url('../node_modules/@fontsource/baloo-2/files/baloo-2-latin-800-normal.woff2') format('woff2'); font-weight: 800; }
+.toon { font-family: 'Baloo'; font-weight: 800; color: #fff; -webkit-text-stroke: 10px #13202b; paint-order: stroke fill; letter-spacing: .01em; }
+.pill { background: #fff; border: 6px solid #13202b; border-radius: 26px; padding: 12px 26px; font-family: 'Baloo'; font-weight: 800; font-size: 46px; color: #13202b; box-shadow: 0 8px 0 #13202b; display: flex; align-items: center; gap: 14px; }
+.cardk { background: #fff; border: 6px solid #13202b; border-radius: 26px; padding: 20px 26px; font-family: 'Baloo'; font-weight: 800; font-size: 34px; color: #13202b; box-shadow: 0 8px 0 #13202b; width: 470px; line-height: 1.1; }
+.cardk.on { background: #ffe680; transform: translateY(-10px) rotate(-1deg); }
+.cardk small { display: block; font-size: 22px; color: #ff6a4a; letter-spacing: .08em; }
+.botk { background: #13202b; color: #fff; border-radius: 26px; padding: 20px 26px; font-family: 'Baloo'; font-weight: 800; font-size: 38px; width: 620px; box-shadow: 0 8px 0 #000; }
+.botk small { display: block; font-size: 22px; color: #16ffc6; letter-spacing: .1em; }
+.botk i { display: block; height: 14px; border-radius: 99px; background: #2a3a49; margin-top: 10px; overflow: hidden; }
+.botk i span { display: block; height: 100%; background: linear-gradient(90deg, #ffc83d, #16ffc6); }
+</style>
+<script type="importmap">{"imports":{"three":"/three/three.module.js","three/addons/":"/three-addons/"}}</script></head>
+<body><div id="app"><div id="bg"></div><div id="ui"></div><div id="fx"></div></div>
+<script type="module">
+import * as THREE from 'three';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { createStage, prog, ease, lerp, clamp, within } from '../engine/stage.js';
+import { el, cue, fader, toScreen } from '../engine/ui.js';
+
+const DUR = 36;
+const st = createStage({ sky: ['#2a8cff', '#aee2ff'] });
+const { scene, camera, sun, hemi, fx } = st;
+fx.setTilt(0.5, 0); fx.grade.uniforms.sat.value = 1.3; fx.grade.uniforms.contrast.value = 1.1; fx.bloom.strength = 0.3;
+sun.position.set(-80, 140, 60); sun.intensity = 3.0; Object.assign(sun.shadow.camera, { left: -130, right: 130, top: 130, bottom: -130 }); sun.shadow.mapSize.set(4096, 4096);
+hemi.intensity = 1.6;
+function rnd(x, y = 0) { let h = (x * 374761393 + y * 668265263) | 0; h = (h ^ (h >>> 13)) * 1274126177; return ((h ^ (h >>> 16)) >>> 0) / 4294967295; }
+// toon materials with a 3-step ramp + black outline hulls
+const ramp = (() => { const d = new Uint8Array([90, 170, 255]); const t = new THREE.DataTexture(d, 3, 1, THREE.RedFormat); t.minFilter = t.magFilter = THREE.NearestFilter; t.needsUpdate = true; return t; })();
+const toon = (c) => new THREE.MeshToonMaterial({ color: c, gradientMap: ramp });
+const outlineMat = new THREE.MeshBasicMaterial({ color: '#13202b', side: THREE.BackSide });
+function mesh(geo, c, outline = true, s = 1.06) { const g = new THREE.Group(); const m = new THREE.Mesh(geo, toon(c)); m.castShadow = true; m.receiveShadow = true; g.add(m); if (outline) { const o = new THREE.Mesh(geo, outlineMat); o.scale.setScalar(s); g.add(o); } return g; }
+
+// ---------- track ----------
+const CP = [[0, 70], [55, 64], [92, 22], [80, -34], [34, -64], [-22, -58], [-70, -34], [-86, 12], [-56, 52]].map(([x, z]) => new THREE.Vector3(x, 0, z));
+const curve = new THREE.CatmullRomCurve3(CP, true, 'catmullrom', 0.5);
+const NS = 600, RW = 16;
+const pos = [], nor = [], idx = [], col = [];
+const frames = [];
+for (let i = 0; i <= NS; i++) { const u = i / NS; const p = curve.getPointAt(u % 1), tg = curve.getTangentAt(u % 1); const n = new THREE.Vector3(-tg.z, 0, tg.x); frames.push([p, tg, n]);
+  for (const s of [-1, 1]) { const q = p.clone().addScaledVector(n, s * RW / 2); pos.push(q.x, 0.06, q.z); nor.push(0, 1, 0); const c = new THREE.Color(i % 20 < 10 ? '#4a4f5a' : '#474c56'); col.push(c.r, c.g, c.b); }
+  if (i < NS) { const a = i * 2; idx.push(a, a + 1, a + 2, a + 1, a + 3, a + 2); } }
+const roadGeo = new THREE.BufferGeometry(); roadGeo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); roadGeo.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3)); roadGeo.setAttribute('color', new THREE.Float32BufferAttribute(col, 3)); roadGeo.setIndex(idx);
+const road = new THREE.Mesh(roadGeo, new THREE.MeshToonMaterial({ vertexColors: true, gradientMap: ramp })); road.receiveShadow = true; scene.add(road);
+// ground + meadow
+const ground = new THREE.Mesh(new THREE.CircleGeometry(320, 48), toon('#5fd04a')); ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
+const meadow = new THREE.Mesh(new THREE.CircleGeometry(40, 32), toon('#7fe05a')); meadow.rotation.x = -Math.PI / 2; meadow.position.set(8, 0.03, 4); meadow.receiveShadow = true; scene.add(meadow);
+// kerbs
+const kerbGeo = new THREE.BoxGeometry(1.4, 0.35, 2.4);
+const kerbs = new THREE.InstancedMesh(kerbGeo, toon('#ffffff'), NS * 2); kerbs.receiveShadow = true; const d3 = new THREE.Object3D(); let kk = 0;
+for (let i = 0; i < NS; i++) for (const s of [-1, 1]) { const [p, tg, n] = frames[i]; d3.position.copy(p).addScaledVector(n, s * (RW / 2 + 0.7)); d3.position.y = 0.17; d3.rotation.set(0, Math.atan2(tg.x, tg.z), 0); d3.updateMatrix(); kerbs.setMatrixAt(kk, d3.matrix); kerbs.setColorAt(kk, new THREE.Color(Math.floor(i / 2) % 2 ? '#ff3b30' : '#ffffff')); kk++; }
+scene.add(kerbs);
+// start/finish line + gantry
+const sf = frames[0]; const chk = document.createElement('canvas'); chk.width = 128; chk.height = 16; { const g = chk.getContext('2d'); for (let x = 0; x < 16; x++) for (let y = 0; y < 2; y++) { g.fillStyle = (x + y) % 2 ? '#111' : '#fff'; g.fillRect(x * 8, y * 8, 8, 8); } }
+const chkT = new THREE.CanvasTexture(chk); chkT.magFilter = THREE.NearestFilter;
+const line = new THREE.Mesh(new THREE.PlaneGeometry(RW, 2), new THREE.MeshBasicMaterial({ map: chkT })); line.rotation.x = -Math.PI / 2; line.rotation.z = -Math.atan2(sf[1].x, sf[1].z) + Math.PI / 2; line.position.copy(sf[0]).setY(0.1); scene.add(line);
+function gantry(u, color, label) { const [p, tg, n] = frames[Math.round(u * NS) % NS]; const g = new THREE.Group(); for (const s of [-1, 1]) { const post = mesh(new RoundedBoxGeometry(1.4, 9, 1.4, 2, 0.4), color); post.position.copy(p).addScaledVector(n, s * (RW / 2 + 2)).setY(4.5); scene.add(post); } const beam = mesh(new RoundedBoxGeometry(RW + 6, 2.2, 1.6, 2, 0.5), color); beam.position.copy(p).setY(9.6); beam.rotation.y = Math.atan2(tg.x, tg.z); scene.add(beam); return beam; }
+gantry(0.0, '#ff6a4a'); gantry(0.17, '#16c7a6'); gantry(0.42, '#ffc83d'); gantry(0.68, '#6e5bf2');
+// boost pads
+function arrowTex() { const c = document.createElement('canvas'); c.width = 64; c.height = 128; const g = c.getContext('2d'); g.fillStyle = '#ff9a1a'; g.fillRect(0, 0, 64, 128); g.fillStyle = '#fff3a0'; for (let k = 0; k < 3; k++) { g.beginPath(); g.moveTo(8, 40 + k * 36); g.lineTo(32, 16 + k * 36); g.lineTo(56, 40 + k * 36); g.lineTo(56, 52 + k * 36); g.lineTo(32, 28 + k * 36); g.lineTo(8, 52 + k * 36); g.fill(); } const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t; }
+const boostMat = new THREE.MeshBasicMaterial({ map: arrowTex() });
+for (const u of [0.1, 0.56]) { const [p, tg] = frames[Math.round(u * NS)]; const b = new THREE.Mesh(new THREE.PlaneGeometry(5, 9), boostMat); b.rotation.x = -Math.PI / 2; b.rotation.z = Math.atan2(tg.x, tg.z) + Math.PI; b.position.copy(p).setY(0.12); scene.add(b); }
+// item boxes (rainbow, star-marked)
+const boxes = []; for (const u of [0.3, 0.82]) { const [p, tg, n] = frames[Math.round(u * NS)]; for (let s = -2; s <= 2; s++) { const b = mesh(new RoundedBoxGeometry(2.2, 2.2, 2.2, 2, 0.4), '#ffffff', true, 1.08); b.children[0].material = new THREE.MeshToonMaterial({ color: new THREE.Color().setHSL((s + 2) / 5, 0.9, 0.6), gradientMap: ramp, transparent: true, opacity: 0.85 }); b.position.copy(p).addScaledVector(n, s * 3).setY(2); scene.add(b); boxes.push(b); } }
+// scenery: trees, hills, stands, balloons, clouds
+const trees = []; for (let k = 0; k < 70; k++) { const a = rnd(k) * Math.PI * 2, r = 110 + rnd(k, 2) * 120; const x = Math.cos(a) * r, z = Math.sin(a) * r; const tr = mesh(new THREE.CylinderGeometry(0.7, 1, 4, 8), '#8a5a32'); tr.position.set(x, 2, z); scene.add(tr); const top = mesh(rnd(k, 3) > 0.5 ? new THREE.SphereGeometry(4 + rnd(k, 4) * 2, 12, 10) : new THREE.ConeGeometry(4, 10, 10), rnd(k, 5) > 0.5 ? '#2fae4a' : '#3fc25a'); top.position.set(x, rnd(k, 3) > 0.5 ? 7 : 9, z); scene.add(top); }
+for (let k = 0; k < 10; k++) { const a = k / 10 * Math.PI * 2 + 0.3; const h = mesh(new THREE.SphereGeometry(60 + rnd(k) * 40, 24, 16), k % 2 ? '#56c246' : '#4ab83e', false); h.position.set(Math.cos(a) * 300, -30, Math.sin(a) * 300); scene.add(h); }
+for (let k = 0; k < 2; k++) { const st2 = mesh(new RoundedBoxGeometry(40, 10, 10, 2, 1), '#3a8fe0'); st2.position.set(-10 + k * 0, 5, 92 + k * 0); st2.rotation.y = 0.05; scene.add(st2); }
+const crowd = new THREE.InstancedMesh(new THREE.SphereGeometry(0.8, 8, 6), toon('#ffffff'), 120); for (let k = 0; k < 120; k++) { d3.position.set(-28 + (k % 30) * 1.9, 10.5 + Math.floor(k / 30) * 0.2, 88 + Math.floor(k / 30) * 2); d3.rotation.set(0, 0, 0); d3.scale.setScalar(1); d3.updateMatrix(); crowd.setMatrixAt(k, d3.matrix); crowd.setColorAt(k, new THREE.Color(['#ff6a4a', '#ffc83d', '#59c7fc', '#16c7a6', '#ff7eb6', '#6e5bf2'][k % 6])); } scene.add(crowd);
+const balloons = []; for (let k = 0; k < 8; k++) { const b = mesh(new THREE.SphereGeometry(1.8, 14, 12), ['#ff3b30', '#ffc83d', '#16c7a6', '#6e5bf2'][k % 4]); b.position.set(-40 + k * 11, 18 + rnd(k) * 6, 80); scene.add(b); balloons.push(b); }
+for (let k = 0; k < 9; k++) { const c = new THREE.Group(); for (let j = 0; j < 4; j++) { const s = new THREE.Mesh(new THREE.SphereGeometry(6 + rnd(k, j) * 5, 14, 10), new THREE.MeshToonMaterial({ color: '#ffffff', gradientMap: ramp, emissive: '#ffffff', emissiveIntensity: 0.35 })); s.position.set(j * 7 - 10, rnd(k, j + 5) * 3, 0); c.add(s); } c.position.set(-200 + k * 50, 70 + rnd(k) * 20, -180 - rnd(k, 2) * 60); scene.add(c); }
+// flowers in the meadow (instanced, can be flattened)
+const FL = 500; const flowers = new THREE.InstancedMesh(new THREE.SphereGeometry(0.45, 6, 5), toon('#ffffff'), FL); const flowerP = [];
+for (let k = 0; k < FL; k++) { const a = rnd(k, 11) * Math.PI * 2, r = Math.sqrt(rnd(k, 12)) * 36; flowerP.push([8 + Math.cos(a) * r, 4 + Math.sin(a) * r]); flowers.setColorAt(k, new THREE.Color(['#ff7eb6', '#ffd23f', '#ffffff', '#b28cff', '#ff8a4a'][k % 5])); }
+scene.add(flowers);
+
+// ---------- karts ----------
+function kart(body, helmet, robot = false) {
+  const g = new THREE.Group();
+  const b = mesh(new RoundedBoxGeometry(2.8, 0.9, 4.4, 3, 0.4), body); b.position.y = 0.95; g.add(b);
+  const nose = mesh(new RoundedBoxGeometry(2.0, 0.6, 1.6, 3, 0.3), body); nose.position.set(0, 0.9, 2.6); g.add(nose);
+  const sp = mesh(new RoundedBoxGeometry(3.0, 0.25, 0.8, 2, 0.1), '#13202b'); sp.position.set(0, 2.0, -2.0); g.add(sp);
+  for (const x of [-1, 1]) { const st3 = mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.8, 6), '#13202b', false); st3.position.set(x, 1.6, -2.0); g.add(st3); }
+  const wheels = []; for (const [x, z] of [[-1.55, 1.5], [1.55, 1.5], [-1.6, -1.5], [1.6, -1.5]]) { const w = mesh(new THREE.CylinderGeometry(0.7, 0.7, 0.7, 16), '#23262c'); w.rotation.z = Math.PI / 2; w.position.set(x, 0.7, z); g.add(w); wheels.push(w); }
+  const torso = mesh(new THREE.SphereGeometry(0.75, 14, 12), robot ? '#e8eef5' : body); torso.position.set(0, 1.9, -0.4); g.add(torso);
+  const head = mesh(robot ? new RoundedBoxGeometry(1.3, 1.1, 1.2, 3, 0.25) : new THREE.SphereGeometry(0.8, 16, 14), robot ? '#f4f6f8' : helmet); head.position.set(0, 2.95, -0.3); g.add(head);
+  if (robot) { const eye = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.3, 0.05), new THREE.MeshBasicMaterial({ color: '#16ffc6' })); eye.position.set(0, 3.0, 0.31); g.add(eye); const ant = new THREE.Mesh(new THREE.SphereGeometry(0.22, 10, 8), new THREE.MeshStandardMaterial({ color: '#16ffc6', emissive: '#16ffc6', emissiveIntensity: 2 })); ant.position.set(0, 3.85, -0.3); g.add(ant); }
+  else { const visor = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.35, 0.1), new THREE.MeshBasicMaterial({ color: '#13202b' })); visor.position.set(0, 3.0, 0.42); g.add(visor); }
+  g.userData.wheels = wheels; scene.add(g); return g;
+}
+const spr = kart('#ff6a4a', '#fff', true);
+const rivals = [kart('#3a8fe0', '#ffc83d'), kart('#ffc83d', '#16c7a6'), kart('#16c7a6', '#ff7eb6'), kart('#a46cf0', '#fff')];
+const sparks = new THREE.InstancedMesh(new THREE.TetrahedronGeometry(0.25), new THREE.MeshBasicMaterial({ color: '#ffffff' }), 60); sparks.frustumCulled = false; scene.add(sparks);
+const conf = new THREE.InstancedMesh(new THREE.BoxGeometry(0.5, 0.5, 0.1), new THREE.MeshBasicMaterial({ color: '#ffffff' }), 200); conf.frustumCulled = false; scene.add(conf);
+for (let k = 0; k < 200; k++) conf.setColorAt(k, new THREE.Color(['#ff3b30', '#ffc83d', '#16ffc6', '#59c7fc', '#ffffff', '#b28cff'][k % 6]));
+
+function placeOn(k, u, lane = 0, yaw = 0) { const p = curve.getPointAt(((u % 1) + 1) % 1), tg = curve.getTangentAt(((u % 1) + 1) % 1); const n = new THREE.Vector3(-tg.z, 0, tg.x); k.position.copy(p).addScaledVector(n, lane); k.rotation.set(0, Math.atan2(tg.x, tg.z) + yaw, 0); return [p, tg, n]; }
+const SC0 = new THREE.Vector3(10, 0, 68), SC1 = new THREE.Vector3(30, 0, -62); // meadow shortcut
+const CP1 = curve.getPointAt(0.17);
+
+// timeline: hook 0-3.8 | race 3.8-8.4 | card1 8.4-10 | shortcut 10-13.4 | card2 13.4-15 | loop 15-19.6 | dial 19.6-22 | clean race 22-29 | podium 29-31.6 | title 31.6-36
+st.onFrame((t) => {
+  // rivals race the whole time (staggered)
+  const raceT = Math.max(0, t - 3.4);
+  rivals.forEach((r, i) => { const u = raceT * 0.033 + 0.012 * (i + 1) + (t > 22 ? -0.03 * (i + 1) * prog(t, 22, 28) : 0); placeOn(r, u, (i % 2 ? 1 : -1) * (3.5 + (i % 2) * 1.5), Math.sin(t * 2 + i) * 0.05); r.userData.wheels.forEach((w) => (w.rotation.x = t * 20)); if (t < 3.8) placeOn(r, -0.01 - (i + 1) * 0.012, (i % 2 ? 1 : -1) * 3.5); });
+  let drift = 0, boost = 0;
+  if (t < 3.8) { placeOn(spr, -0.006, -3.5); spr.position.y = Math.abs(Math.sin(t * 40)) * 0.04; }
+  else if (t < 10) { const u = (t - 3.8) * 0.034; const [, , ] = placeOn(spr, u, Math.sin(t * 1.2) * 2.5, within(t, 6.2, 7.6) ? -0.35 : 0); drift = within(t, 6.2, 7.6) ? 1 : 0; boost = within(t, 4.8, 5.8) ? 1 : 0; }
+  else if (t < 13.4) { const k = prog(t, 10.3, 12.8, ease.inOut); spr.position.lerpVectors(SC0, SC1, k); spr.rotation.set(0, Math.atan2(SC1.x - SC0.x, SC1.z - SC0.z), 0); spr.position.y = Math.abs(Math.sin(t * 18)) * 0.3; }
+  else if (t < 19.6) { const a = (t - 15) * 2.8; const c = CP1.clone().add(new THREE.Vector3(6, 0, 0)); if (t < 15) { spr.position.copy(CP1); } else { spr.position.set(c.x - 7 * Math.cos(a), 0, c.z + 7 * Math.sin(a)); spr.rotation.set(0, Math.atan2(7 * Math.sin(a), 7 * Math.cos(a)), 0); drift = 1; } }
+  else { const u = 0.82 + (t - 22) * 0.034; placeOn(spr, u, Math.sin(t * 1.4) * 2, within(t, 24.6, 26) ? -0.3 : 0); drift = within(t, 24.6, 26) ? 1 : 0; boost = within(t, 22.6, 23.6) ? 1 : 0; if (t >= 29) placeOn(spr, 1.0 + 0.003 * prog(t, 29, 30), 0); }
+  spr.userData.wheels.forEach((w) => (w.rotation.x = t * 22));
+  // flowers flattened by the shortcut, regrow in the clean race
+  for (let k = 0; k < FL; k++) { const [x, z] = flowerP[k]; const d = new THREE.Vector3(x, 0, z); const ab = SC1.clone().sub(SC0); const ap = d.clone().sub(SC0); const along = clamp(ap.dot(ab) / ab.lengthSq()); const dist = ap.sub(ab.multiplyScalar(along)).length(); const cut = t > 10.3 && along < prog(t, 10.3, 12.8) && dist < 4; const regrow = t > 22 ? prog(t, 22, 26) : 0; const sc = cut && t < 22 ? 0 : cut ? regrow : 1; const hit = cut && t < 22 && within(t, 10.3, 13.4) ? 0 : 1; d3.position.set(x, 0.5, z); d3.rotation.set(0, 0, 0); d3.scale.setScalar((t > 10.3 && dist < 4 && along < prog(t, 10.3, 12.8)) ? (t >= 22 ? regrow : 0) : 1); d3.updateMatrix(); flowers.setMatrixAt(k, d3.matrix); }
+  flowers.instanceMatrix.needsUpdate = true;
+  boxes.forEach((b, i) => { b.rotation.set(t * 0.8 + i, t * 1.2 + i, 0); b.position.y = 2 + Math.sin(t * 2 + i) * 0.3; });
+  balloons.forEach((b, i) => { b.position.y = 18 + Math.sin(t * 1.2 + i) * 1.2; });
+  // drift sparks
+  for (let k = 0; k < 60; k++) { const age = (t * 3 + k / 60) % 1; const on = drift > 0; const back = new THREE.Vector3(Math.sin(spr.rotation.y), 0, Math.cos(spr.rotation.y)).multiplyScalar(-2.2); const side = (k % 2 ? 1 : -1) * 1.6; const nrm = new THREE.Vector3(Math.cos(spr.rotation.y), 0, -Math.sin(spr.rotation.y)); d3.position.copy(spr.position).add(back).addScaledVector(nrm, side).add(new THREE.Vector3((Math.sin(k * 7) - 0.5) * age * 2, 0.4 + age * 1.5, (Math.cos(k * 3)) * age * 2)); d3.rotation.set(age * 9, age * 7, 0); d3.scale.setScalar(on ? (1 - age) * 1.4 : 0.001); d3.updateMatrix(); sparks.setMatrixAt(k, d3.matrix); }
+  sparks.instanceMatrix.needsUpdate = true; sparks.material.color.set(Math.floor(t * 4) % 2 ? '#59c7fc' : '#ffb03d');
+  for (let k = 0; k < 200; k++) { const age = t - 29.2 - (k % 20) * 0.03; const a = rnd(k, 31) * 6.28, r = 3 + rnd(k, 32) * 12; d3.position.set(spr.position.x + Math.cos(a) * r * Math.min(1, age), 14 + 4 * age - 2.4 * age * age, spr.position.z + Math.sin(a) * r * Math.min(1, age)); d3.rotation.set(age * 6 + k, age * 5, k); d3.scale.setScalar(age > 0 && age < 4 ? 1 : 0.001); d3.updateMatrix(); conf.setMatrixAt(k, d3.matrix); }
+  conf.instanceMatrix.needsUpdate = true;
+  st.userData = { boost };
+  // camera
+  const p = spr.position, a = spr.rotation.y; const fwd = new THREE.Vector3(Math.sin(a), 0, Math.cos(a));
+  let cp, cl, fov = 52;
+  if (t < 3.8) { cp = p.clone().addScaledVector(fwd, 9).add(new THREE.Vector3(3, 2.6, 0)); cl = p.clone().add(new THREE.Vector3(-3, 1.6, -4)); fov = 48; }
+  else if (t < 10 || t >= 22 && t < 29) { cp = p.clone().addScaledVector(fwd, -10 - boost * 2).add(new THREE.Vector3(0, 4.2, 0)); cl = p.clone().addScaledVector(fwd, 8).add(new THREE.Vector3(0, 1.5, 0)); fov = 52 + boost * 10; }
+  else if (t < 13.4) { cp = new THREE.Vector3(-30, 34, 30); cl = p.clone(); fov = 46; }
+  else if (t < 19.6) { cp = CP1.clone().add(new THREE.Vector3(26, 14, 22)); cl = CP1.clone().add(new THREE.Vector3(3, 2, 0)); fov = 46; }
+  else if (t < 22) { cp = new THREE.Vector3(0, 120, 140); cl = new THREE.Vector3(0, 0, 0); fov = 40; }
+  else if (t < 31.6) { cp = p.clone().add(new THREE.Vector3(9, 4, -9)); cl = p.clone().add(new THREE.Vector3(0, 2.5, 0)); fov = 46; }
+  else { const k = prog(t, 31.6, 36); cp = new THREE.Vector3(lerp(-40, -80, k), lerp(40, 90, k), lerp(130, 200, k)); cl = new THREE.Vector3(0, 0, 0); fov = 42; }
+  camera.fov = fov; camera.updateProjectionMatrix(); camera.position.copy(cp); camera.lookAt(cl);
+});
+
+// ---------- overlay ----------
+const ui = []; const A = (f) => ui.push(f);
+const fade = fader(); A((t) => fade(t < 0.3 ? 1 - prog(t, 0, 0.3) : t > DUR - 0.6 ? prog(t, DUR - 0.6, DUR) : 0));
+const count = el('<div class="toon" style="font-size:260px;line-height:1" data-c>3</div>', { x: 960, y: 420, anchor: 'c' });
+A((t) => { const v = t > 0.6 && t < 4.2; count.style.opacity = v ? 1 : 0; if (!v) return; const n = t < 1.6 ? '3' : t < 2.6 ? '2' : t < 3.4 ? '1' : 'GO!'; const ph = t < 1.6 ? t - 0.6 : t < 2.6 ? t - 1.6 : t < 3.4 ? t - 2.6 : t - 3.4; count.firstChild.textContent = n; count.firstChild.style.color = n === 'GO!' ? '#16ffc6' : '#ffe680'; count.style.transform = `translate(-50%,-50%) scale(${1.5 - Math.min(1, ph * 3) * 0.5})`; });
+const k0 = el('<div class="toon" style="font-size:72px;white-space:nowrap">Train an AI racer.</div>', { x: 960, y: 920, anchor: 'c' }); A(cue(k0, 4.4, 8.2, { from: 'up' }));
+// speed lines during boost
+const lines = document.createElement('canvas'); lines.width = 1920; lines.height = 1080; Object.assign(lines.style, { position: 'absolute', left: 0, top: 0 }); document.getElementById('ui').appendChild(lines); const lg = lines.getContext('2d');
+A((t) => { lg.clearRect(0, 0, 1920, 1080); const b = within(t, 4.8, 5.8) || within(t, 22.6, 23.6); if (!b) return; lg.strokeStyle = 'rgba(255,255,255,0.75)'; for (let k = 0; k < 60; k++) { const a = rnd(k, Math.floor(t * 20)) * Math.PI * 2; const r0 = 420 + rnd(k, 7) * 200, r1 = r0 + 200 + rnd(k, 8) * 300; lg.lineWidth = 2 + rnd(k, 9) * 4; lg.beginPath(); lg.moveTo(960 + Math.cos(a) * r0, 540 + Math.sin(a) * r0 * 0.6); lg.lineTo(960 + Math.cos(a) * r1, 540 + Math.sin(a) * r1 * 0.6); lg.stroke(); } });
+const boostT = el('<div class="toon" style="font-size:90px;color:#ff9a1a">BOOST!</div>', { x: 960, y: 260, anchor: 'c' }); A(cue(boostT, 4.9, 5.7, { from: 'pop', dur: 0.2 }));
+function cards(tIn, tOut, list, pick) { const n = el(`<div style="display:flex;gap:22px">${list.map((c, i) => `<div class="cardk${i === pick ? ' on' : ''}">${c.v ? '<small>VAGUE</small>' : ''}${c.text}</div>`).join('')}</div>`, { x: 960, y: 760, anchor: 'c' }); A(cue(n, tIn, tOut, { from: 'up' })); }
+function bot(text, sure, tIn, tOut, y = 140) { const n = el(`<div class="botk"><small>SPROCKET · AI RACER</small>${text}<i><span style="width:${sure}%"></span></i><div style="font-size:24px;color:#9fb0c0;margin-top:6px">${sure >= 85 ? 'Very sure' : 'Fairly sure'} · ${sure}%</div></div>`, { x: 960, y, anchor: 'c' }); A(cue(n, tIn, tOut, { from: 'down' })); }
+const dimC = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:rgba(10,20,40,.45)"></div>'); A((t) => { const v = within(t, 8.4, 10) || within(t, 13.4, 15) ? 1 : 0; dimC.style.opacity = v; dimC.style.visibility = v ? 'visible' : 'hidden'; });
+cards(8.5, 10.0, [{ text: '“Go fast!”', v: true }, { text: 'Follow the road all the way round.' }], 0);
+bot('“Fast = shortest! Straight through the middle.”', 92, 8.9, 13.2);
+const k1 = el('<div class="toon" style="font-size:72px;white-space:nowrap">It did exactly what you said.</div>', { x: 960, y: 940, anchor: 'c' }); A(cue(k1, 11.0, 13.3, { from: 'up' }));
+cards(13.5, 15.0, [{ text: '1 star every time you pass a checkpoint.' }, { text: 'Stars for NEW checkpoints, in order.' }], 0);
+bot('“I found a GREAT way to get stars!”', 97, 14.0, 19.4);
+const stars = el('<div style="display:flex;gap:20px"><div class="pill">STARS <span data-s style="color:#e0a21a">0</span></div><div class="pill">LAPS <span style="color:#ff3b30">0</span></div></div>', { x: 60, y: 40 });
+A(cue(stars, 15.0, 19.5, { from: 'left' })); A((t) => { stars.querySelector('[data-s]').textContent = Math.min(47, Math.max(0, Math.floor((t - 15.1) * 10.5))); });
+const k2 = el('<div class="toon" style="font-size:72px;white-space:nowrap">47 stars. 0 laps. <span style="color:#ffe680">Loophole!</span></div>', { x: 960, y: 940, anchor: 'c' }); A(cue(k2, 17.0, 19.5, { from: 'up' }));
+const dial = el(`<div class="cardk" style="width:900px;text-align:center"><small>PIT CREW · NEW REWARD RECIPE</small><div style="font-size:40px;margin-top:6px">Stars for <span style="color:#16a37f">new checkpoints, in order</span>.<br>Lose stars on <span style="color:#ff3b30">grass and bumps</span>.</div></div>`, { x: 960, y: 540, anchor: 'c' }); A(cue(dial, 19.8, 21.9, { from: 'pop' }));
+const k3 = el('<div class="toon" style="font-size:72px;white-space:nowrap">Same racer. <span style="color:#16ffc6">Better rules.</span></div>', { x: 960, y: 940, anchor: 'c' }); A(cue(k3, 23.0, 28.6, { from: 'up' }));
+const pos1 = el('<div class="toon" style="font-size:150px;color:#ffe680">1ST!</div>', { x: 1640, y: 160, anchor: 'c' }); A(cue(pos1, 27.0, 31.4, { from: 'pop' }));
+const lic = el(`<div class="cardk" style="width:640px"><small>RACING LICENCE · TEAM OTTERS</small><div style="font-size:34px;margin-top:8px">Our AI found a loophole: it circled checkpoint 1 for 47 stars.</div><div style="font-size:30px;margin-top:10px;color:#16a37f">Fix: new checkpoints, in order. No grass.</div></div>`, { x: 520, y: 560, anchor: 'c' }); A(cue(lic, 29.4, 31.4, { from: 'left' }));
+const dimEnd = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:radial-gradient(ellipse at center, rgba(5,15,40,.3), rgba(5,15,40,.7))"></div>'); A(cue(dimEnd, 31.5, null, { from: 'fade', dur: 0.6 }));
+const title = el(`<div style="text-align:center"><div class="toon" style="font-size:200px;line-height:.95;color:#ff6a4a">PIT CREW <span style="color:#ffe680">GP</span></div><div class="toon" style="font-size:60px;-webkit-text-stroke:8px #13202b;white-space:nowrap">You don’t drive. You decide what counts.</div><div class="toon" style="font-size:34px;-webkit-text-stroke:6px #13202b;color:#16ffc6;margin-top:20px">A DELTAOPS LEARNING AI LAB</div></div>`, { x: 960, y: 520, anchor: 'c' }); A(cue(title, 31.7, null, { from: 'pop', dur: 0.6 }));
+st.onFrame((t) => ui.forEach((f) => f(t)));
+window.__duration = DUR;
+Promise.all([document.fonts.ready, document.fonts.load('800 40px Baloo')]).then(() => { window.__ready = true; });
+</script></body></html>
