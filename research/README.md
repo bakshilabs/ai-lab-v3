@@ -22,7 +22,7 @@ parallel research agents using web search. Each report cites its sources; figure
 
 ## Round 2 (`round-2/`)
 
-Deeper versions of the same topics, with full lab specs: 01, 03–10. 02 did not finish; see `NEXT-SESSION.md`.
+Deeper versions of the same topics, with full lab specs: all ten topics (01–10).
 
 ## Next steps
 

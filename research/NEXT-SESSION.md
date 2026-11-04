@@ -6,11 +6,12 @@ Read this first if you are picking up the research in a new session.
 
 - `deltaopslearning-brochure/`: the 12-page DeltaOps Learning partner guide (HTML/CSS source, images, PDFs). The lab screenshots in `img/` show the voxel "AI labs" this research is about.
 - `research/round-1/`: ten first-pass reports (about 1,500 words each), from ordinary web search.
-- `research/round-2/`: deeper reports on the same topics. **Done:** 01, 03–10. **Missing:** 02 (learning evidence); its agent was still running when the session was saved, so use the round-1 version.
+- `research/round-2/`: deeper reports on the same topics. **Done:** all ten (01–10).
 - `research/context.md`: what we found reviewing the brochure images (content, style, issues). Give it to every agent.
 
 ### Known weaknesses in round 2 (fix these first)
 
+- 02-learning-evidence flags some sources as [MEM] (from memory); check them. Habgood & Ainsworth, Sinha & Kapur and Druga & Breazeal 2017 full texts were blocked (abstracts used).
 - The shared web-search budget ran out in several agents. Unverified claims are marked `[TK]`, "unverified", "[est.]" or listed under "Gaps" at the end of each report. 05-replayability has 49 `[TK]` claims.
 - Paywalled GDC talks (Reigns, Into the Breach, Keep Talking and Nobody Explodes, Outer Wilds, Jackbox, Stålberg, Ken Wong) were cited from write-ups, not the talks.
 - No published Chromebook benchmarks for three.js voxel scenes were found.
