@@ -22,6 +22,10 @@ parallel research agents using web search. Each report cites its sources; figure
 
 ## Round 2 (`round-2/`)
 
-Deeper, more exhaustive versions of the same ten topics, with full lab specs. Added as each completes.
+Deeper versions of the same topics, with full lab specs: 01, 03–09. 02 and 10 did not finish; see `NEXT-SESSION.md`.
+
+## Next steps
+
+`NEXT-SESSION.md` has the instructions and topic briefs for round 3 (parallel subagents using the Exa deep research connector). `context.md` summarises the brochure image review.
 
 These are research notes, not legal advice. Check the Minecraft IP points with a lawyer before relying on them.
