@@ -127,3 +127,50 @@ The scale is in `games/PLAN.md`. Story has five criteria (hook, premise, AI mist
   - UI 2.
   - Pacing 1.5.
 - Nit: the Sure-o-meter round reads weakest (children are small on the strip).
+
+## 6. Clear Signal (`out/signal.mp4`, 36 s)
+
+**v1 (stills): Story 7 · Visual 6.**
+- Unintended gaps in the level; the robot ran across empty air.
+- The branch sat over a gap, so the "Duck!" gag was hidden.
+- The camera was low and the robot tiny.
+
+**v2 (full render): Story 8.5 · Visual 7.5.**
+- Not shippable.
+- The duck gag was hidden behind foliage.
+- The robot was still small.
+- Trees cluttered every shot.
+- The ghost montage was murky.
+
+**v3 (shipped): Story 9 · Visual 8.**
+- Changes:
+  - The "Duck!" card now summons a big yellow duck right in front of the robot.
+  - Bigger robot and a closer camera.
+  - Fewer trees.
+  - A beat ring pulses under the robot.
+  - Montage ghosts are tinted with red ✕ fail markers.
+- Story:
+  - Hook 1.5.
+  - Premise 2: two cards arrive on the beat.
+  - Mistake 2: "Duck!" fetches a duck; "Go up!" flies to a cloud.
+  - Payoff 2: instant restarts, attempt counter, best-progress marker, then attempt 12 at 100%.
+  - Resolution 1.5.
+- Visual:
+  - Composition 1.5.
+  - Lighting 2: dusk-to-night sky gradient.
+  - World life 1.5.
+  - UI 2.
+  - Pacing 1.
+
+## Summary
+
+| Trailer | Story | Visual |
+| --- | --- | --- |
+| Robo-Taxi Island | 9 | 8 |
+| Pit Crew | 9 | 8 |
+| Block Builders | 9.5 | 8 |
+| Island Park Tycoon | 9.5 | 8.5 |
+| Sure or Not Sure? | 9.5 | 8.5 |
+| Clear Signal | 9 | 8 |
+
+These are self-assessed scores. The shared visual ceiling is daylight-heavy lighting and software-rendered WebGL (no post-processing such as bloom or depth of field). The obvious next step for every trailer is a human voice-over and licensed music.

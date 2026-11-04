@@ -40,10 +40,10 @@ isles.forEach(([x0, x1], k) => {
   }
   // path stripe
   for (let x = x0; x < x1; x++) v.set(x, 0, 0, '#d9c9a0');
-  for (let tx = x0 + 6; tx < x1 - 4; tx += 17) tree(v, tx, 0, -5, { kind: rand(tx, 1) > 0.5 ? 'round' : 'pine' });
+  for (let tx = x0 + 10; tx < x1 - 4; tx += 30) tree(v, tx, 0, -5, { kind: rand(tx, 1) > 0.5 ? 'round' : 'pine' });
 });
 // branch obstacle: tree with a long low branch over the path at x≈74
-tree(v, O.branch, 0, -4, { kind: 'round' }); v.box(O.branch - 1, 3, -4, O.branch, 3, 2, '#7a5232'); v.box(O.branch - 2, 3, 1, O.branch + 1, 4, 3, '#3f9d4a');
+tree(v, O.branch, 0, -4, { kind: 'round' }); v.box(O.branch - 1, 3, -4, O.branch, 3, 2, '#7a5232'); v.box(O.branch - 1, 4, 1, O.branch, 4, 2, '#3f9d4a');
 // hedge at x≈152
 v.box(O.hedge, 1, -2, O.hedge + 1, 2, 2, '#2f8a43');
 // finish arch
@@ -61,10 +61,15 @@ const starsP = particles(120, { size: 0.5 }); starsP.material = new THREE.MeshBa
 for (let i = 0; i < 120; i++) starsP.setAt(i, -40 + rand(i, 1) * 280, 25 + rand(i, 2) * 50, -120 - rand(i, 3) * 40); starsP.done();
 
 // robot + ghosts + duck
-function mkBot(op = 1) { const r = robot({ s: 0.42 }); if (op < 1) { r.material = r.material.clone(); r.material.transparent = true; r.material.opacity = op; } r.rotation.y = -Math.PI / 2; scene.add(r); return r; }
+function mkBot(op = 1, tint = null) { const r = robot({ s: 0.5 }); if (op < 1) { r.material = r.material.clone(); r.material.transparent = true; r.material.opacity = op; if (tint) { r.material.vertexColors = false; r.material.color.set(tint); } } r.rotation.y = -Math.PI / 2; scene.add(r); return r; }
 const bot = mkBot();
-const ghosts = Array.from({ length: 10 }, () => mkBot(0.32));
-const surpriseDuck = duck({ s: 0.45 }); scene.add(surpriseDuck);
+const GT = ['#59c7fc', '#ffc83d', '#ff6a9a', '#16ffc6', '#b28cff']; const ghosts = Array.from({ length: 10 }, (_, i) => mkBot(0.55, GT[i % 5]));
+const surpriseDuck = duck({ s: 0.75, body: '#ffd23f', head: '#ffd23f' }); scene.add(surpriseDuck);
+const ringMat = new THREE.MeshBasicMaterial({ color: 0x16ffc6, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false });
+const ring = new THREE.Mesh(new THREE.RingGeometry(1.6, 2.1, 32), ringMat); ring.rotation.x = -Math.PI / 2; scene.add(ring);
+const xMat = new THREE.MeshBasicMaterial({ color: 0xff5d4a, transparent: true, opacity: 0 });
+const ghostPlans = [57, 98, 109, 113, 120, 140, 151, 156, 175, 190];
+const xMarks = ghostPlans.map((gx) => { const g = new THREE.Group(); for (const r of [Math.PI / 4, -Math.PI / 4]) { const b = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.4, 0.4), xMat); b.rotation.z = r; g.add(b); } g.position.set(gx, 4.5, 0); scene.add(g); return g; });
 const sparks = particles(60, { size: 0.35 }); sparks.material = new THREE.MeshBasicMaterial({ color: 0x16ffc6 }); scene.add(sparks);
 
 // run model: returns {x,y,fail}
@@ -74,7 +79,7 @@ function runPos(t, t0, x0, plan) {
   let x = x0 + (t - t0) * SPEED, y = 1, state = 'run';
   const jump = (cx, w, h) => { const d = (x - (cx - w / 2)) / w; if (d > 0 && d < 1) y = 1 + h * 4 * d * (1 - d); };
   jump(O.gap1 + 0.5, 9, 3.2);
-  if (plan.failAt === 'branch' && x > O.branch - 3) { x = O.branch - 3 + Math.min(0, 0); state = 'fail'; }
+  if (plan.failAt === 'branch' && x > O.branch - 7) { x = O.branch - 7; state = 'fail'; }
   else if (x > O.branch - 4 && x < O.branch + 3) y = 0.55; // slide
   if (plan.failAt === 'gap2' && x > O.gap2 - 6) { const k = (x - (O.gap2 - 6)) / SPEED; // fly up to the cloud, bounce, fall
     x = O.gap2 - 6 + Math.min(k, 0.5) * SPEED * 0.9; y = k < 0.5 ? 1 + 18 * k : k < 0.75 ? 10 + 1.5 * Math.sin((k - 0.5) * 12) : 10 - (k - 0.75) * 40; state = k > 0.75 ? 'fail' : 'run'; }
@@ -87,7 +92,7 @@ function runPos(t, t0, x0, plan) {
 const A1 = { t0: 0.4, x0: 0, plan: { failAt: 'branch' }, end: 5.6 };
 const A2 = { t0: 6.4, x0: 50, plan: { failAt: 'gap2' }, end: 11.6 };
 const A12 = { t0: 19.2, x0: 95, plan: { until: O.finish + 6 }, end: 26.6 };
-const ghostPlans = [70, 98, 109, 113, 120, 140, 151, 156, 175, 190]; // where each montage ghost stops
+
 st.onFrame((t) => {
   // beat pulse
   const ph = (t % BEAT) / BEAT, pulse = Math.pow(1 - ph, 3);
@@ -101,7 +106,7 @@ st.onFrame((t) => {
   bot.visible = !!live;
   if (live) { r = runPos(t, live.t0, live.x0, live.plan); bot.position.set(r.x, r.y, 0); const run = r.state === 'run'; bot.rotation.z = run ? Math.sin(t * 20) * 0.08 : 0; bot.scale.y = r.y < 0.8 ? 0.6 : 1; }
   // duck pops up in attempt 1 when the vague card "Duck!" is played
-  surpriseDuck.visible = within(t, 4.8, 6.4); surpriseDuck.position.set(O.branch - 1.5, 1 + Math.abs(Math.sin(t * 8)) * 0.6, 4.6); surpriseDuck.rotation.y = Math.PI / 2;
+  surpriseDuck.visible = within(t, 4.8, 6.4); surpriseDuck.position.set(O.branch - 4.6, 1 + Math.abs(Math.sin(t * 8)) * 0.6, 0.2); surpriseDuck.rotation.y = Math.PI; surpriseDuck.scale.setScalar(Math.max(0.001, prog(t, 4.8, 5.1, ease.back)));
   // montage ghosts 12.2-19
   ghosts.forEach((g, i) => {
     let vis = false, x = 0, y = 1;
@@ -109,6 +114,8 @@ st.onFrame((t) => {
     if (t > 26.4 && t < DUR) { vis = true; const k = prog(t, 26.4, 28.6); x = lerp(O.finish - 20 - i * 2.2, O.finish + 3 - (i % 5) * 1.6, k); y = 1; }
     g.visible = vis; g.position.set(x, y, t > 26.4 ? -3 + (i % 5) * 1.5 : 0);
   });
+  const bph = (t % BEAT) / BEAT; if (live && bot.visible) { ring.position.set(bot.position.x, 1.08, 0); ring.scale.setScalar(0.6 + bph * 1.4); ringMat.opacity = (1 - bph) * 0.8; } else ringMat.opacity = 0;
+  xMat.opacity = within(t, 12.6, 19.0) ? 0.95 : 0; xMarks.forEach((m, i) => { m.visible = t > 12.4 + i * 0.12 + (ghostPlans[i] - 50) / (SPEED * 1.6); m.rotation.y = t * 2; });
   for (let i = 0; i < 60; i++) { const age = t - 25.4 - (i % 10) * 0.03; const a = rand(i, 1) * 6.28; sparks.setAt(i, O.finish + Math.cos(a) * age * 8, 4 + Math.sin(a) * age * 8 - age * age * 4, 0, 0, 0, age > 0 && age < 1.5 ? 1 : 0); }
   sparks.done();
   // camera follows
@@ -116,9 +123,9 @@ st.onFrame((t) => {
   if (live) cx = bot.position.x; else if (within(t, 12.2, 19.2)) cx = 50 + (t - 12.2) * 16; else cx = O.finish - 4;
   if (t >= 26.6) cx = O.finish - 16 + (t - 26.6) * 1.2;
   const lift = live ? Math.max(0, bot.position.y - 3) * 0.7 : 0;
-  const cy = t >= 30 ? lerp(10, 26, prog(t, 30, 36)) : 10 + lift, cz = t >= 30 ? lerp(24, 70, prog(t, 30, 36)) : 24;
+  const cy = t >= 30 ? lerp(9, 26, prog(t, 30, 36)) : 8.5 + lift, cz = t >= 30 ? lerp(19, 70, prog(t, 30, 36)) : 19;
   camera.fov = 40; camera.updateProjectionMatrix();
-  camera.position.set(cx + 4, cy, cz); camera.lookAt(cx + 8, 2.2 + lift, 0);
+  camera.position.set(cx + 3, cy, cz); camera.lookAt(cx + 7, 2.4 + lift, 0);
   // sky: dusk to night as you get closer
   const k = prog(t, 0, 30, (x) => x);
   st.setSky('#' + hex('#3a2470').lerp(hex('#0d1833'), k).getHexString(), '#' + hex('#ff9a6a').lerp(hex('#8a4aa8'), k).getHexString());
