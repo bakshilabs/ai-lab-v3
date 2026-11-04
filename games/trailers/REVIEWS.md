@@ -104,3 +104,26 @@ The scale is in `games/PLAN.md`. Story has five criteria (hook, premise, AI mist
   - World life 2: about 22 visitors, rabbits, ducks, gulls, otters, deer, litter.
   - UI 2.
   - Pacing 1.5.
+
+## 5. Sure or Not Sure? (`out/quiz.mp4`, 37 s)
+
+**v1 (stills): Story 8.5 · Visual 6.5.**
+- The moorhen was black on a black screen.
+- The question card covered the answer zones during the vote.
+- Children were tiny and stacked on the same spots (formation bug).
+- The Sure-o-meter camera was top-down, so children looked like they were lying flat.
+
+**v2 (shipped): Story 9.5 · Visual 8.5.**
+- Story:
+  - Hook 2: "Can you spot when an AI is guessing?" under sweeping spotlights.
+  - Premise 2: three rounds (trust/check/don't use; the Sure-o-meter; spot the assumption).
+  - Mistake 2: "Duck! 95% sure" is a moorhen; the room shouts "ASSUMPTION!"
+  - Payoff 1.5: team scores for good thinking, not speed.
+  - Resolution 2: "Before I trust an AI's answer, I… CHECK."
+- Visual:
+  - Composition 1.5.
+  - Lighting 2: coloured studio beams and point lights.
+  - World life 1.5: about 24 children moving between zones, confetti, host bot.
+  - UI 2.
+  - Pacing 1.5.
+- Nit: the Sure-o-meter round reads weakest (children are small on the strip).
