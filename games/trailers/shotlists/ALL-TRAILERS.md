@@ -578,7 +578,7 @@ Future Skills · 0:42 · a voxel newsroom on a floating grassy island, seen clos
 **Pathway card:** Next step: Civic Online Reasoning lessons (free, in school or at home) · Award: Arts Award (journalism or media project) · Route: GCSE Media Studies → A-level History or Politics · Jobs: fact-checker, OSINT analyst, librarian.
 
 **Reviewer notes:**
-- **Render status:** from the current source; not yet rendered (no `out/fs-verify.mp4`).
+- **Render status:** described from the current source; the video (`out/fs-verify.mp4`, 0:42) is now rendered and was checked on a contact sheet.
 - **Names:** Hana, 13 (checker) and **Amara Osei** (Desk Editor, mentor). The fictional author **"J. Pennethorne"** and the journal *Bulletin of Small-Town Waterways* are meant to be invented. The lab design document notes that a real journal with a similar-sounding title exists, so check this. **"VeriAssist"** (the AI's working name) appears on screen here, while most other trailers show only "AI colleague".
 - **Layout (fixed):** the struck-out old source now clears at 0:25, when the tracked changes start, so the new citation stays fully visible above the card footer. The trail chips are slightly smaller, so "council report ✓" now fits inside the browser window.
 - **Portfolio:** Hana's portfolio already holds a "Data brief" and a "Model card", which other characters make in other trailers. Is this meant to suggest one learner's journey through the series?
