@@ -16,12 +16,12 @@ A crew of four lands on a red floating island, and a planning AI called the Plan
 - By the end, learners can name two real jobs that do this checking every day, on Mars and on Earth.
 
 **Curriculum links**
-- KS2: Y5 Earth and space; living things and habitats; Y5–6 statistics (line graphs) ([DfE science](https://www.gov.uk/government/publications/national-curriculum-in-england-science-programmes-of-study)).
-- KS3: biology (photosynthesis, gas exchange, ecosystems); DT "design and make products and systems that meet human needs", evaluating against a specification ([DfE DT](https://www.gov.uk/government/publications/national-curriculum-in-england-design-and-technology-programmes-of-study/national-curriculum-in-england-design-and-technology-programmes-of-study)); computing, evaluating and debugging ([DfE computing](https://www.gov.uk/government/publications/national-curriculum-in-england-computing-programmes-of-study)). KS3 science and computing wording (to verify).
-- KS4 (age 14 stretch): GCSE biology cycles of matter and DT systems thinking (to verify against specifications).
-- NGSS: 5-LS2-1, MS-LS2-3 (matter cycling); MS-ETS1-1 to MS-ETS1-4 (criteria, competing designs, iterative testing) ([CA NGSS listing](https://www2.cde.ca.gov/cacs/id/web/29085)).
-- UNESCO AI competency framework for students: human-centred mindset (people sign off), ethics of AI (wellbeing over productivity), AI techniques and applications (planning tools and anomaly detection).
-- AI4K12 Big Ideas: 2 Representation and reasoning (the Planner reasons over a model of the colony), 3 Learning (missing and unrepresentative data), 5 Societal impact (who is accountable for a plan).
+- **KS2:** Y5 Earth and space; living things and habitats; Y5–6 line graphs ([DfE science](https://www.gov.uk/government/publications/national-curriculum-in-england-science-programmes-of-study)).
+- **KS3:** photosynthesis, gas exchange, ecosystems; DT "design and make products and systems that meet human needs" ([DfE DT](https://www.gov.uk/government/publications/national-curriculum-in-england-design-and-technology-programmes-of-study/national-curriculum-in-england-design-and-technology-programmes-of-study)); computing, evaluating and debugging ([DfE computing](https://www.gov.uk/government/publications/national-curriculum-in-england-computing-programmes-of-study)). Science and computing wording (to verify).
+- **KS4 (age 14 stretch):** GCSE biology cycles of matter; DT systems (to verify).
+- **NGSS:** 5-LS2-1, MS-LS2-3; MS-ETS1-1 to -4 ([CA NGSS](https://www2.cde.ca.gov/cacs/id/web/29085)).
+- **UNESCO AI competencies:** human-centred mindset (people sign off); ethics of AI (wellbeing over productivity); AI techniques and applications (planners, anomaly detection).
+- **AI4K12 Big Ideas:** 2 Representation and reasoning; 3 Learning (missing data); 5 Societal impact (who is accountable for a plan).
 
 ## 3. Real-world connection and careers
 **Jobs this mirrors**
@@ -54,14 +54,7 @@ A crew of four lands on a red floating island, and a planning AI called the Plan
 | Crew members | Unnamed role badges | No check needed |
 
 ## 5. Core loop and structure
-**Acts in every level**
-1. **Mission brief** (cinematic): sol number, goal, budget bars (mass, power, water, crew hours).
-2. **Ask the Planner** (Sky, ghost modules): the Commander plays one of three cards, one deliberately vague. The Planner shows ghost blocks, % sure, USED and ASSUMED (ASSUMED greyed until tapped; tapping it is a starred "pro move").
-3. **Check** (Lens, Inside or Suit walk): the role who owns the lens opens it and the flaw appears as evidence.
-4. **Fix:** a clearer card, or drag a missing data tile into USED, then pick from 3–4 real options. Budgets update live.
-5. **Sign-off checklist:** the Safety officer reads three ticks aloud: "Within budget? Worst day tested? Everyone agrees?" The Commander stamps it.
-6. **Run a sol:** a 30–60 second time-lapse in the colony's digital twin.
-7. **Celebrate:** a colony-ring segment fills; roles rotate.
+**Acts in every level:** (1) **Mission brief** with budget bars for mass, power, water and crew hours; (2) **Ask the Planner**: the Commander plays one of three cards, one deliberately vague, and the Planner shows ghost blocks, % sure, USED and ASSUMED (tapping ASSUMED is a starred "pro move"); (3) **Check**: the role who owns the lens opens it; (4) **Fix**: a clearer card or a data tile dragged into USED, then a choice from 3–4 real options; (5) **Sign-off**: the Safety officer reads "Within budget? Worst day tested? Everyone agrees?" and the Commander stamps it; (6) **Run a sol** in the digital twin; (7) **Celebrate**: a ring segment fills and roles rotate.
 
 **Levels**
 | Level | Goal | Real decisions | AI's confident mistake | How children catch it | Clearer instruction or better data | What changes on screen |
@@ -155,27 +148,23 @@ Minutes for each phase. Every version starts by saying the Planner is scripted.
    - *Purpose:* safety engineering plans for the worst credible case.
    - *Strong answer:* "Because the storm is the day people could get hurt. Opportunity ran out of power in a storm."
    - *Probe:* "What's an 'average day' plan you've seen on Earth that went wrong in bad weather? (Trains in snow, flooding.)"
-4. **"Your clearer cards often made the Planner *less* sure. Is that a bad sign?"** (reasoning: calibration)
-   - *Purpose:* honest uncertainty is useful information.
-   - *Strong answer:* "No. It was being honest that it didn't know the ice depth, so we knew to drill a test hole."
-   - *Probe:* "Would you rather work with someone who is always 90% sure, or someone who tells you when they're not?"
-5. **"The Planner was only 55% sure about the tomatoes, and it was right. What should we do with an unsure answer?"** (reasoning: unsure but right)
+4. **"The Planner was only 55% sure about the tomatoes, and it was right. Your clearer cards also made it *less* sure. Is less sure a bad sign?"** (reasoning: calibration, unsure but right)
    - *Purpose:* avoid swinging from over-trust to blanket distrust.
-   - *Strong answer:* "Check it, the same as a sure one. Not sure doesn't mean wrong."
+   - *Strong answer:* "No. Check it, the same as a sure one. Not sure doesn't mean wrong, and 'ice depth uncertain' told us to drill a test hole."
    - *Probe:* "What about the 52% leak warning? What would have happened if you'd ignored it?"
-6. **"The 'most productive week' had no rest and solo walks outside. Who decides what counts as 'productive'?"** (ethics and fairness)
+5. **"The 'most productive week' had no rest and solo walks outside. Who decides what counts as 'productive'?"** (ethics and fairness)
    - *Purpose:* a single metric can harm people; humans choose what matters.
    - *Strong answer:* "The crew should, because they're the ones who get tired. Productive should include sleep and safety."
    - *Probe:* "Can you think of a school, game or job where one number gets chased and people suffer?"
-7. **"When the toxic-leak alarm went off at 95% sure, you followed the safety card first and checked second. Why that order?"** (transfer: procedures)
+6. **"When the toxic-leak alarm went off at 95% sure, you followed the safety card first and checked second. Why that order?"** (transfer: procedures)
    - *Purpose:* professionals follow the safety procedure, then verify; they don't argue with an alarm first.
    - *Strong answer:* "Because if it was real, checking first could be dangerous. Then we checked a second sensor and it was a computer fault."
    - *Probe:* "A smoke alarm goes off at home. What's the safe order?"
-8. **"Who on Earth does what your crew did today?"** (careers)
+7. **"Who on Earth does what your crew did today?"** (careers)
    - *Purpose:* connect Mars roles to local jobs.
    - *Strong answer:* "Water company engineers watch trend graphs like the life-support officer. Hospital engineers plan for power cuts."
    - *Probe:* hand out the "Mars ↔ Earth jobs" cards: "Match your role badge to an Earth job. What would they check?"
-9. **"If you could add one thing to the Planner's screen to make it safer to use, what would it be?"** (transfer: design)
+8. **"If you could add one thing to the Planner's screen to make it safer to use, what would it be?"** (transfer: design)
    - *Purpose:* children as designers of trustworthy tools.
    - *Strong answer:* "Make ASSUMED open by default", "Show a worst-day test before it says 'plenty'", "Show its track record."
    - *Probe:* "Real teams write down a tool's inputs and assumptions. Why would that help the next crew?"

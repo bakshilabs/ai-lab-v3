@@ -16,12 +16,12 @@ Children run mission control for a small launch team, from a 50 m hop test to la
 - By the end, learners can name three mission-control jobs and what each checks.
 
 **Curriculum links**
-- KS2: Y5 forces, "unsupported objects fall towards the Earth because of the force of gravity", air resistance; Y5 Earth and space; working scientifically, line graphs ([DfE science](https://www.gov.uk/government/publications/national-curriculum-in-england-science-programmes-of-study/national-curriculum-in-england-science-programmes-of-study)); computing, "design, write and debug programs… controlling or simulating physical systems" and "detect and correct errors" ([DfE computing](https://www.gov.uk/government/publications/national-curriculum-in-england-computing-programmes-of-study/national-curriculum-in-england-computing-programmes-of-study)).
-- KS3: balanced and unbalanced forces; weight = mass × g; speed and distance–time graphs ([RMG summary](https://www.rmg.co.uk/sites/default/files/KS3%20Curriculum%20Requirements.pdf)); SI units; KS3 science wording from school schemes because the DfE PDF could not be fetched (to verify).
-- KS4 (age 14 stretch): GCSE physics forces and motion, resultant force (to verify against specifications).
-- NGSS: MS-PS2-2; 3-5-ETS1-3 (fair tests, failure points); MS-ETS1-1, -2, -4 (wording via secondary correlations, to verify).
-- UNESCO AI competency framework for students: human-centred mindset (humans make the final call), AI techniques and applications (optimisers and map-matching), AI system design (writing rules in advance).
-- AI4K12 Big Ideas: 1 Perception (sensors, map-matching), 2 Representation and reasoning (NAV optimises over the rules it is given), 5 Societal impact (accountability and safe failure).
+- **KS2:** Y5 forces (gravity, air resistance); Y5 Earth and space; line graphs ([DfE science](https://www.gov.uk/government/publications/national-curriculum-in-england-science-programmes-of-study/national-curriculum-in-england-science-programmes-of-study)); computing, "controlling or simulating physical systems" and "detect and correct errors" ([DfE computing](https://www.gov.uk/government/publications/national-curriculum-in-england-computing-programmes-of-study/national-curriculum-in-england-computing-programmes-of-study)).
+- **KS3:** balanced and unbalanced forces; weight = mass × g; distance–time graphs ([RMG summary](https://www.rmg.co.uk/sites/default/files/KS3%20Curriculum%20Requirements.pdf)); SI units. DfE KS3 PDF could not be fetched (to verify).
+- **KS4 (age 14 stretch):** GCSE physics forces and motion (to verify).
+- **NGSS:** MS-PS2-2; 3-5-ETS1-3; MS-ETS1-1, -2, -4 (wording to verify).
+- **UNESCO AI competencies:** human-centred mindset (humans make the final call); AI techniques and applications (optimisers, map-matching); AI system design (rules written in advance).
+- **AI4K12 Big Ideas:** 1 Perception (sensors); 2 Representation and reasoning (NAV optimises over the rules it is given); 5 Societal impact (accountability, safe failure).
 
 ## 3. Real-world connection and careers
 **Jobs this mirrors**
@@ -53,14 +53,7 @@ Children run mission control for a small launch team, from a 50 m hop test to la
 | Chief engineer | Unnamed | No check needed |
 
 ## 5. Core loop and structure
-**Acts in every level**
-1. **Brief:** mission banner, goal, "this really happened" card.
-2. **Plan:** pick from the option palette; the Guidance child gives NAV an instruction card (one vague, one clear, one plausible but incomplete). NAV shows a ghost trajectory and % sure.
-3. **Dry run:** the simulator flies NAV's plan; the telemetry strip shows the flaw as a spike, a split or a red zone.
-4. **Fix:** clearer card or better data; NAV re-plans, often less sure, and says why.
-5. **Go/no-go poll:** the Flight Director goes round the consoles; each ticks a three-line do-confirm card and says Go, No-go or Hold.
-6. **Fly:** chase camera, slow motion for the last 10 m; one assisted hands-on moment in Levels 1, 2 and 4.
-7. **Flight review:** stars, patch stamp, one line of "what we caught".
+**Acts in every level:** (1) **Brief** with a "this really happened" card; (2) **Plan**: pick options, and the Guidance child gives NAV a card (one vague, one clear, one plausible but incomplete); NAV shows a ghost trajectory and % sure; (3) **Dry run**: the simulator flies NAV's plan and the telemetry strip shows the flaw as a spike, split or red zone; (4) **Fix**: NAV re-plans, often less sure, and says why; (5) **Go/no-go poll**: each console ticks a three-line do-confirm card and says Go, No-go or Hold; (6) **Fly**, slow motion for the last 10 m, with one assisted hands-on moment in Levels 1, 2 and 4; (7) **Flight review**: stars, patch stamp, "what we caught".
 
 **Levels**
 | Level | Goal | Real decisions | AI's confident mistake | How children catch it | Clearer instruction or better data | What changes on screen |
@@ -91,40 +84,15 @@ Roles rotate every level; on one shared screen they are coloured badges.
 Three players: Flight Director + Recovery; Guidance + Propulsion; Telemetry.
 
 ## 7. Session plans
-**45 minutes** (Levels 1, 2, 4, 5; the units moment folded into Level 4's data sheet)
-| Minutes | Activity |
-| --- | --- |
-| 0–4 | Warm-up: "What does 'come back down' mean to a computer?"; say NAV is scripted; hand out consoles |
-| 4–12 | Level 1 Hop Test |
-| 12–20 | Level 2 Moon Landing |
-| 20–28 | Level 4 Drone Ship |
-| 28–35 | Level 5 Mars |
-| 35–45 | Discussion (10 min) and exit check |
+Minutes for each phase. Every version starts by saying NAV is scripted and practising the poll call.
 
-**60 minutes** (Levels 1–5)
-| Minutes | Activity |
-| --- | --- |
-| 0–5 | Warm-up and consoles; practise the poll call |
-| 5–12 | Level 1 |
-| 12–20 | Level 2 |
-| 20–27 | Level 3 |
-| 27–35 | Level 4 |
-| 35–45 | Level 5 |
-| 45–57 | Discussion (12 min) |
-| 57–60 | Exit check, mission patch |
-
-**90 minutes** (all six levels, plus egg-drop warm-up)
-| Minutes | Activity |
-| --- | --- |
-| 0–12 | Egg-drop lander warm-up (mass budget, soft drop zone) |
-| 12–20 | Level 1 |
-| 20–30 | Level 2 |
-| 30–39 | Level 3 |
-| 39–49 | Level 4 |
-| 49–60 | Level 5 |
-| 60–70 | Level 6 Flight Review and reflight poll |
-| 70–88 | Discussion (18 min) |
-| 88–90 | Exit check, patch and flight log |
+| Phase | 45 min (Levels 1, 2, 4, 5) | 60 min (Levels 1–5) | 90 min (all six) |
+| --- | --- | --- | --- |
+| Warm-up: "What does 'come back down' mean to a computer?"; consoles | 0–4 | 0–5 | 0–12 (adds an egg-drop lander with a mass budget) |
+| Play: Levels 1–3 | 4–20 (L1, L2) | 5–27 | 12–39 |
+| Play: Levels 4–6 | 20–35 (L4 with the units data sheet, L5) | 27–45 | 39–70 |
+| Discussion (section 9) | 35–43 | 45–57 | 70–88 |
+| Wrap-up: exit check, patch and flight log | 43–45 | 57–60 | 88–90 |
 
 **If short of time:** drop Level 6, then Level 3 (fold units into Level 4), then the hands-on moments. Keep at least one dry-run catch, the Level 4 hold and the Level 5 rules.
 
@@ -250,30 +218,9 @@ Three players: Flight Director + Recovery; Guidance + Propulsion; Telemetry.
 - **Brand:** real organisations appear only in factual "this really happened" cards; IP to be checked with the lawyer used for round-3 report 10.
 
 ## 12. Build notes
-**Scenes and assets:** desert test range; mission-control room cut-away; lunar plain with boulder field and descent-camera picture-in-picture; coast pad with predicted/tracked overlay; ocean with swell and drone ship; Mars crater with hazard map, sky crane and rover; harbour hangar; telemetry strip component (Simple and Pro views).
-
-**Scripted AI responses (minimum set)**
-- L1: vague 88%; clear 76%; distractor ("Fly as high as the fuel allows").
-- L2: vague 91%; clear re-plan with "New target. Fuel OK for 45 s"; Alarm 12 at 86%; rangefinder warning if the check is skipped; "Abort to orbit" line.
-- L3: vague 93%; clear 84%; safe-fail splash line.
-- L4: vague 89%; clear 72% hold; distractor ("Land now, but aim upwind") with a wobble result; "leg 3 not latched" if the deck check is skipped (Jason-3 echo, [Space.com](https://space.com/31649-spacex-rocket-landing-jason3-satellite-launch.html)).
-- L5: TRN 94%; vague 95% ("−200 m"); rules loaded 81%; "Radar and camera agree: still 40 m up" (trailer shows 93% on this line under YOUR RULE).
-- L6: vague 94%; clear 88%.
-
-**Reuse from the trailer:** booster model and flame, three islands (desert, sea, Mars) and the mission-control room, NAV card, cards and hand, GO/NO-GO poll with role pills, telemetry canvas, wind and deck strip, "YOUR RULES · WRITTEN BEFORE LAUNCH" block, radio-delay bar, first-photo polaroid, jobs card. The trailer shows Levels 1, 4 and 5; Levels 2, 3 and 6 need new scenes.
-
-**Trailer alignment:** trailer roles are Flight Director, Guidance, Propulsion, Telemetry, Recovery & Weather; use these names. In the trailer the glitching sensor is the leg sensor; keep that.
-
-**Open questions and items to verify**
-- Falcon 9 burn details and minimum throttle (illustrative only, to verify).
-- No official drone-ship wind or sea limits; "deck moves less than 1 m" is a game rule (to verify).
-- Apollo 11 fuel at touchdown, 17–25 s (to verify against the Apollo Lunar Surface Journal).
-- Bales and Garman wording (paraphrase; to verify).
-- New Shepard "ring and wedge fins" and restart altitude (to verify).
-- Starship HLS landing thrusters and crewed landing date (to verify).
-- Whether Falcon 9 uses G-FOLD (to verify).
-- Mars Climate Orbiter cost; avoid on cards (to verify).
-- Mars Polar Lander cause is "most probable"; say "probably" (to verify).
-- DfE KS3 science wording and NGSS wording (to verify).
-- Spaceflight Simulator download figures are dated (to verify).
-- How children read falling "% sure" has no controlled study; include it in the evaluation.
+- **Scenes and assets:** desert test range; mission-control cut-away; lunar plain with boulders and a descent-camera picture-in-picture; coast pad with predicted/tracked overlay; ocean swell and drone ship; Mars crater with hazard map, sky crane and rover; harbour hangar; a telemetry strip component with Simple and Pro views.
+- **Scripted AI responses:** every vague, clear and distractor line in the section 5 table, plus: Alarm 12 (86%); TRN divert (94%); rules loaded (81%); the rangefinder warning if the Level 2 check is skipped; "Abort to orbit"; the CRS-16-style splash line; "leg 3 not latched" if the deck check is skipped (Jason-3 echo, [Space.com](https://space.com/31649-spacex-rocket-landing-jason3-satellite-launch.html)). Distractors: "Fly as high as the fuel allows" (L1), "Land now, but aim upwind" (L4).
+- **Reuse from the trailer:** booster, flame and smoke; desert, sea and Mars islands; the mission-control room; NAV card; cards and hand; poll with role pills; telemetry canvas; wind and deck strip; "YOUR RULES · WRITTEN BEFORE LAUNCH" block; radio-delay bar; first-photo polaroid; jobs card. The trailer shows Levels 1, 4 and 5; Levels 2, 3 and 6 need new scenes.
+- **Trailer alignment:** use the trailer's console names (Flight Director, Guidance, Propulsion, Telemetry, Recovery & Weather). The glitching sensor is the leg sensor; the "Radar and camera agree" line shows 93% under YOUR RULE.
+- **Open questions:** how children read falling "% sure" has no controlled study, so include it in the evaluation; brand and IP check with the round-3 report 10 lawyer.
+- **To verify:** Falcon 9 burn details and minimum throttle (keep numbers illustrative); drone-ship wind and sea limits ("deck moves less than 1 m" is a game rule); Apollo 11 fuel at touchdown (17–25 s; check the Apollo Lunar Surface Journal); Bales and Garman wording; New Shepard fins and restart altitude; Starship HLS thrusters and crewed landing date; whether Falcon 9 uses G-FOLD; Mars Climate Orbiter cost (avoid on cards); Mars Polar Lander cause ("probably"); DfE KS3 and NGSS wording; Spaceflight Simulator download figures.
