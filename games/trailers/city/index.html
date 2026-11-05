@@ -19,9 +19,9 @@
 .ba { background: #fff; border-radius: 30px; padding: 22px 30px 24px; box-shadow: 0 8px 0 rgba(0,0,0,.08), 0 14px 30px rgba(0,0,0,.18); color: #13202b; }
 .ba > small { font: 800 22px Inter; letter-spacing: .14em; color: #46596a; }
 .barow { display: flex; align-items: center; gap: 20px; margin-top: 14px; }
-.barow .tl { width: 130px; font: 800 22px Inter; letter-spacing: .1em; color: #46596a; }
+.barow .tl { width: 120px; font: 800 22px Inter; letter-spacing: .1em; color: #46596a; }
 .barow .tl b { display: block; font: 800 30px Inter; letter-spacing: 0; color: #13202b; }
-.strip { position: relative; width: 520px; height: 84px; background: #4b4c53; border-radius: 12px; overflow: hidden; }
+.strip { position: relative; width: 470px; height: 84px; background: #4b4c53; border-radius: 12px; overflow: hidden; }
 .strip .lane { position: absolute; left: 0; right: 0; top: 8px; height: 4px; background: repeating-linear-gradient(90deg, #f4efe4 0 26px, transparent 26px 46px); }
 .strip .car { position: absolute; top: 26px; height: 50px; background: #f4f6f8; border-radius: 10px 18px 18px 10px; }
 .strip .car::before { content: ''; position: absolute; right: 30px; top: 7px; width: 36px; height: 36px; border-radius: 6px; background: #1d2a38; }
@@ -29,7 +29,7 @@
 .strip .kid { position: absolute; top: 34px; width: 34px; height: 34px; border-radius: 50%; background: #ffc83d; border: 4px solid #fff; }
 .strip .gapbar { position: absolute; top: 46px; height: 10px; border-radius: 5px; }
 .strip .gapl { position: absolute; top: 10px; transform: translateX(-50%); font: 800 26px Inter; color: #fff; padding: 0 8px; border-radius: 8px; white-space: nowrap; }
-.barow .res { width: 170px; font: 800 30px Inter; }
+.barow .res { width: 130px; font: 800 28px/1.1 Inter; }
 </style>
 <script type="importmap">{"imports":{"three":"/three/three.module.js","three/addons/":"/three-addons/"}}</script></head>
 <body><div id="app"><div id="bg"></div><div id="ui"></div><div id="fx"></div></div>
@@ -272,7 +272,7 @@ st.onFrame((t) => {
   const wOn = within(t, 9.7, 14.2) || within(t, 17.0, 20.4); wedge.visible = wOn; if (wOn) { updateWedge(Math.min(ex + 1.2, 46), R1); wedgeMat.color.set(run2(t) ? '#ffc83d' : '#ff5d4a'); wedgeMat.opacity = 0.42 * (s > 0.5 && !run2(t) ? 0.6 : 1); }
 });
 // ---------- cameras ----------
-const sideCam = (t, ex) => { const cx = clamp(ex + 6, 44, 53); return { cp: [cx - 1.5, 17, 10.5], cl: [cx + 0.5, 1.4, 31.5], fov: 42 }; };
+const sideCam = (t, ex) => { const cx = clamp(ex + 6, 44, 51); return { cp: [cx - 1.5, 17, 10.5], cl: [cx + 0.5, 1.4, 31.5], fov: 42 }; };
 st.onFrame((t) => {
   const p = ego.position; let cp, cl, fov;
   const chase = { cp: [p.x - 11, 5.2, p.z - 4.2], cl: [p.x + 12, 1.6, p.z], fov: 46 };
@@ -333,19 +333,19 @@ const gap = (txt, col, tIn, tOut, ax) => { const n = el(`<div class="tag3d" styl
 gap('1 m', '#e8573f', 12.2, 14.2, () => ego.position.x + 2.2);
 gap('6 m', '#16a37f', 20.4, 21.0, () => ego.position.x + 2.2);
 // Before / After: top-down stopping gap
-const S = 40, SW = 520, KX = SW - 48;
+const S = 40, SW = 470, KX = SW - 48;
 const strip = (gapM, col) => { const nose = KX - gapM * S, L = 4.4 * S; return `<div class="strip"><i class="lane"></i><div class="car" style="left:${nose - L}px;width:${L}px"></div><div class="gapbar" style="left:${nose + 3}px;width:${gapM * S - 6}px;background:${col}"></div><span class="gapl" style="left:${nose + gapM * S / 2}px;background:${col}">${gapM} m</span><div class="kid" style="left:${KX}px"></div></div>`; };
-const ba = el(`<div class="ba" style="width:880px"><small>SEEN FROM ABOVE: HOW MUCH ROOM WAS LEFT?</small>
+const ba = el(`<div class="ba" style="width:820px"><small>SEEN FROM ABOVE: HOW MUCH ROOM WAS LEFT?</small>
   <div class="barow"><div class="tl">TEST 1<b>“Fast”</b></div>${strip(1, '#e8573f')}<div class="res" style="color:#d14a2b">✕ Too close</div></div>
   <div class="barow" data-r2><div class="tl">TEST 2<b>Clearer</b></div>${strip(6, '#16a37f')}<div class="res" style="color:#1f9d55">✓ Safe</div></div></div>`, { x: 40, y: 1040 });
 A(cue(ba, 12.4, 14.1, { from: 'up' }));
 const ba2 = el(ba.innerHTML, { x: 40, y: 1040 }); A(cue(ba2, 21.0, 26.3, { from: 'up' }));
-for (const n of [ba, ba2]) { n.style.top = 'auto'; n.style.bottom = '40px'; }
-ba.querySelector('[data-r2]').style.visibility = 'hidden';
+for (const n of [ba, ba2]) { n.style.top = 'auto'; n.style.bottom = '40px'; n.style.left = 'auto'; n.style.right = '40px'; }
+ba.querySelector('[data-r2]').style.display = 'none';
 const k2 = kicker('<span style="background:rgba(19,32,43,.86);padding:12px 36px;border-radius:24px">Say it clearly. Test it. <span style="color:#16FFC6">Check it.</span></span>', { y: 118, size: 60 }); A(cue(k2, 23.4, 26.3, { from: 'down' }));
 // dashboard (bottom right)
 const dashN = el(`<div class="dashp"><div><small>SPEED</small><b data-s>0</b> <span style="font:700 22px Inter;color:#9fc4dd">mph</span></div><div style="min-width:240px"><small>MODE</small><span class="mode" data-m>AUTOPILOT</span></div></div>`, { x: 1880, y: 920, anchor: 'tr' });
-A((t) => { const on = within(t, 5.6, 14.1) || within(t, 17.0, 23.3) ? 1 : 0; dashN.style.opacity = on; dashN.style.visibility = on ? 'visible' : 'hidden'; dashN.style.transform = 'translate(-100%,0)'; dashN.querySelector('[data-s]').textContent = Math.round(speed(t) * 2.7); const m = dashN.querySelector('[data-m]'); const stopped = speed(t) < 0.05 && t > 6; const slow = run2(t) && t > T2.slow && !stopped; m.textContent = stopped ? 'STOPPED' : slow ? 'SLOWING' : 'AUTOPILOT'; m.style.color = stopped ? '#ff9a6a' : slow ? '#ffc83d' : '#16ffc6'; if (stopped && run2(t)) m.style.color = '#16ffc6'; });
+A((t) => { const on = within(t, 5.6, 12.35) || within(t, 17.0, 20.95) ? 1 : 0; dashN.style.opacity = on; dashN.style.visibility = on ? 'visible' : 'hidden'; dashN.style.transform = 'translate(-100%,0)'; dashN.querySelector('[data-s]').textContent = Math.round(speed(t) * 2.7); const m = dashN.querySelector('[data-m]'); const stopped = speed(t) < 0.05 && t > 6; const slow = run2(t) && t > T2.slow && !stopped; m.textContent = stopped ? 'STOPPED' : slow ? 'SLOWING' : 'AUTOPILOT'; m.style.color = stopped ? '#ff9a6a' : slow ? '#ffc83d' : '#16ffc6'; if (stopped && run2(t)) m.style.color = '#16ffc6'; });
 const dimEnd = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:radial-gradient(ellipse at center, rgba(8,24,40,.35), rgba(8,24,40,.72))"></div>'); A(cue(dimEnd, 26.3, null, { from: 'fade', dur: 0.6 }));
 const title = titleCard('Autopilot <span class="hl">City</span>', 'Tell a self-driving car what you mean. Check what it does.', { chip: 'A DeltaOps Learning AI lab' }); A(cue(title, 26.5, null, { from: 'pop', dur: 0.8 }));
 st.onFrame((t) => ui.forEach((f) => f(t)));
