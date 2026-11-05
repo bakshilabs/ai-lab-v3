@@ -1,15 +1,47 @@
 # DeltaOps game trailers
 
-Six 16:9 (1920×1080, 30 fps) trailers for the new games planned in `games/PLAN.md`. Finished videos are in `out/`. Review scores and iteration notes are in `REVIEWS.md`.
+Seventeen 16:9 (1920×1080, 30 fps) game trailers, built entirely from code. Finished videos are in `out/`. Review scores and iteration notes are in `REVIEWS.md`.
 
-| Trailer | Game | Length |
+**The seven client requests**, each drawn in the style of its reference game:
+
+| Trailer | Request | Style |
 | --- | --- | --- |
-| `out/robotaxi.mp4` | Robo-Taxi Island: teach a self-driving taxi to see | 42 s |
-| `out/pitcrew.mp4` | Pit Crew: reward an AI kart, catch its loopholes | 41 s |
-| `out/blocks.mp4` | Block Builders: a Bloxels-style grid the AI reads | 40 s |
-| `out/tycoon.mp4` | Island Park Tycoon: Manager Bot runs your nature park | 40 s |
-| `out/quiz.mp4` | Sure or Not Sure?: a room-wide quiz show | 37 s |
-| `out/signal.mp4` | Clear Signal: a one-button rhythm runner | 36 s |
+| `out/ecotown.mp4` | Eco Town: environmental world building | Brochure floating voxel island |
+| `out/tycoon2.mp4` | Island Park Tycoon: resource management | 1990s isometric pixel park sim (canvas 2D) |
+| `out/mcquiz.mp4` | Block Quiz: a Minecraft quiz | Blocky sandbox, procedural 16×16 textures (three.js) |
+| `out/dash.mp4` | Beat Block: repeat playability | Neon one-button rhythm runner (canvas 2D) |
+| `out/bloxel.mp4` | Block Quest: like Bloxels | 13×13 board to pixel platformer (canvas 2D) |
+| `out/city.mp4` | Autopilot City: a self-driving car in a city | Low-poly city with a lidar view (three.js) |
+| `out/kart.mp4` | Pit Crew GP: a racing game | Cartoon kart racer (three.js) |
+
+**Brochure world-building labs**, matched to the brochure screenshots:
+- `out/eco.mp4` is Eco AI Explorer.
+- `out/mission.mp4` is Mission AI.
+- `out/museum.mp4` is AI Time Traveller.
+- `out/mars.mp4` is AI Inventor Lab.
+
+**First concepts** (shared voxel style): `robotaxi`, `pitcrew`, `blocks`, `tycoon`, `quiz` and `signal`.
+
+## What is in this folder
+
+| Path | What it is |
+| --- | --- |
+| `<trailer>/index.html` | Each trailer's full scene: the 3D or 2D world, the timeline, the cameras and the game UI. |
+| `<trailer>/audio.json` | Each trailer's music and sound-effect cue sheet. |
+| `engine/voxel.js` | Voxel mesher: face culling, vertex ambient occlusion, colour jitter. |
+| `engine/kit.js` | Voxel kit: islands, trees, houses, people, animals, vehicles, particles. |
+| `engine/stage.js` | Renderer, lights, sky, post-processing (bloom, tilt-shift, grade) and easing. |
+| `engine/extras.js` | Clouds, waterfalls, birds, butterflies, grass and particle bursts. |
+| `engine/ui.js`, `engine/ui.css` | Overlay components for the first six trailers. |
+| `engine/lab.js`, `engine/brochure.css` | The brochure's in-game UI: badge, task, pills, AI helper, facilitator, cards, meters, alerts. |
+| `assets/` | Fonts and DeltaOps logos. |
+| `render.mjs` | Headless Chromium frame-by-frame renderer that pipes to ffmpeg. |
+| `audio.py` | Music and sound-effect synthesiser (numpy). |
+| `queue.sh`, `tools/render-all.sh` | Render trailers one after another. |
+| `tools/webenc.sh` | Compress a trailer and grab its poster for the web page. |
+| `sheet.py`, `vsheet.sh`, `debug.mjs` | Review tools: still sheets, 1 fps video sheets, in-page debugging. |
+| `web/` | Trailer web page (`index.html`, posters). Videos go in `web/videos/`, made with `tools/webenc.sh`. |
+| `reviews/` | Video contact sheets used in the reviews, plus the brochure reference images. |
 
 ## How they are made
 
@@ -47,4 +79,6 @@ ffmpeg -y -i out/robotaxi-silent.mp4 -i out/robotaxi.wav -c:v copy -c:a aac -b:a
 
 For quick review, `node render.mjs robotaxi --stills 2,10,20` writes frames to `frames/robotaxi/`. Then `python3 sheet.py robotaxi` tiles them into one image.
 
-Rendering uses software WebGL (SwiftShader) and takes about 0.3–0.4 s per frame, so a trailer takes about 7–8 minutes.
+Rendering uses software WebGL (SwiftShader). Canvas 2D trailers take about 0.4 s per frame, or 7 minutes each. The 3D ones take 1–3 s per frame, or 20–50 minutes each. Render one at a time, because each Chromium needs 1–3 GB.
+
+To rebuild everything, run `tools/render-all.sh`. To rebuild the web page videos, run `tools/webenc.sh <name> <poster-second>` for each trailer.
