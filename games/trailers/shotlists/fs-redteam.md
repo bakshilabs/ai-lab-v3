@@ -25,7 +25,7 @@ Future Skills · 0:38 · a bright floating voxel island built round the **Harbou
 **Pathway card:** Next step: Experience AI safety lessons and CyberFirst Explorers, both free · Award: CREST Bronze Award ("testing a chatbot" project) · Route: GCSE Computer Science, then a Level 4 Cyber Security Technologist apprenticeship · Jobs: AI red teamer, QA tester, cyber security analyst.
 
 **Reviewer notes:**
-- **Render status:** Described from the current source; video re-rendering.
+- **Render status:** Described from the current source; video re-rendered and checked on a contact sheet.
 - **Checks:** Data fails because the report's data is Archie's own self-marked answers (matches the AI card's "Data I used" line); Authority fails because Archie revealed a staff-only code word it had no permission to share. Each turns green only with its own fix.
 - **Tests:** cut from five to four (the Fairness test, which could not be judged from one answer, is gone) and from six columns to three. Severity ratings are no longer shown on screen.
 - **Names:** Leon, 15; Dee Marsh (mentor, security tester) — the lab design document flags this name for renaming; Harbour Museum; "Ask Archie". The brief's sender is now "Head of Visitor Safety".
