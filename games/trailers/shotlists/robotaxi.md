@@ -1,7 +1,7 @@
 # Robo-Taxi Island
 First concept · 0:42 · Floating voxel island with a road loop, houses, a pond and a farm; bright daytime, then a starry night; boxes and labels show what the taxi "sees"
 
-*From the current source; not yet re-rendered.* The video in `out/` is an older version (see reviewer notes).
+*Described from the current source; the video was re-rendered and matches it (blue-sky opening, starry night, fireworks).*
 
 **In one sentence:** Children teach a little robo-taxi called Pip to recognise things by filling its picture book; Pip mistakes a scarecrow for a person, then cannot recognise a child on a scooter at night until the children add night pictures.
 
@@ -38,7 +38,7 @@ First concept · 0:42 · Floating voxel island with a road loop, houses, a pond 
 **Ending:** The island at night with every street lamp turned green, fireworks and Pip driving safely, the line "Humans taught this car. Humans check this car.", then the title "Robo-Taxi Island" with "Teach it to see. Check what it sees."
 
 **Reviewer notes:**
-- **Render status: not yet re-rendered.** The source was changed after the video in `out/robotaxi.mp4` was made (and the shared 3D engine has changed too). The existing video and contact sheet show the older version: a peach-coloured dawn sky in the opening, a misty night with fog, no stars, moon, clouds, waterfall, birds, butterflies or fireworks, and the night task reads "Night and fog" instead of "Pip at night". This description follows the current source. Re-render before anyone reviews the video itself.
+- **Render status:** re-rendered (`out/robotaxi.mp4`, 0:42) and checked on a contact sheet. The video now shows the blue-sky opening, the "Pip at night" task, a starry night and fireworks, as described here.
 - **Two mistakes, one fix:** the scarecrow false alarm (0:19–0:23) is never fixed on screen. The clearer card at 0:30 fixes the separate night problem. A reviewer may expect the scarecrow fix to be shown, or may find two mistakes too many for 42 seconds.
 - The stage numbers jump from "Stage 1" to "Stage 4" with nothing in between. Intended to suggest progress, but check it reads clearly.
 - The cards in this trailer are tapped by a white ring, not the cartoon hand used in the brochure trailers.
