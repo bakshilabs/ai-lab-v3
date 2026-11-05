@@ -42,6 +42,7 @@
 .bub.bad { background: #ffe3dd; color: #b02a1a; } .bub.ghost { background: #13202b; color: #7fe9ff; }
 .bigbadge { transform-origin: center; }
 .bigbadge .b-badge { transform: scale(1.5); }
+.blk.hit { box-shadow: 0 0 0 5px #fff, 0 0 0 10px #e8573f, 0 10px 24px rgba(0,0,0,.25), inset 0 -6px 0 rgba(0,0,0,.18); position: relative; z-index: 1; }
 #space { position: absolute; inset: 0; opacity: 0; }
 </style>
 <script type="importmap">{"imports":{"three":"/three/three.module.js","three/addons/":"/three-addons/"}}</script></head>
@@ -341,10 +342,10 @@ st.onFrame((T) => {
   }
   if (seg === 'mars') {
     const G = 3; let sy, ry;
-    // powered descent 39.2-41.2, hover while NAV's glitch call is caught 41.2-43.2, sky-crane lowers the rover, touchdown 44.4, cut 44.8, fly away 45.0
+    // powered descent 39.2-41.2, hover while NAV's glitch call is caught 41.2-43.5, sky-crane lowers the rover, touchdown 44.4, cut 44.8, fly away 45.0
     if (t < 41.2) { sy = lerp(36, 14, ease.out(prog(t, 39.2, 41.2, (q) => q))); ry = sy - 4.4; }
-    else if (t < 43.2) { sy = lerp(14, 12.6, prog(t, 41.2, 43.2, (q) => q)); ry = sy - 4.4; }
-    else if (t < 44.4) { const q = prog(t, 43.2, 44.4, (q) => q); sy = lerp(12.6, G + 7.4, q); ry = lerp(12.6 - 4.4, G, ease.inOut(q)); }
+    else if (t < 43.5) { sy = lerp(14, 12.6, prog(t, 41.2, 43.5, (q) => q)); ry = sy - 4.4; }
+    else if (t < 44.4) { const q = prog(t, 43.5, 44.4, (q) => q); sy = lerp(12.6, G + 7.4, q); ry = lerp(12.6 - 4.4, G, ease.inOut(q)); }
     else { sy = t < 45.0 ? G + 7.4 : G + 7.4 + 30 * ease.in(prog(t, 45.0, 47.4, (q) => q)); ry = G; }
     const sx = t < 45.0 ? 0 : 26 * ease.in(prog(t, 45.0, 47.4, (q) => q));
     stage.position.set(sx, sy, 0); stage.rotation.z = t > 45.0 ? -0.35 * prog(t, 45.0, 45.6) : 0; stage.visible = t > 39.0 && t < 47.4;
@@ -356,8 +357,8 @@ st.onFrame((T) => {
     smokeAt = new THREE.Vector3(O4.x, G, O4.z); smokeAmt = t > 42.4 && t < 45.4 ? 0.55 : 0;
     glow.intensity = t > 44.8 ? 30 + Math.sin(t * 3) * 6 : 0;
     // camera
-    if (t < 41.6) { const k = prog(t, 38.2, 41.6); camAt(O4.x, lerp(13, 9.5, k), O4.z, lerp(-0.6, -0.5, k), lerp(44, 40, k), lerp(8, 10, k), 4, 0); }
-    else if (t < 48.4) { const k = prog(t, 41.6, 48.4); camAt(O4.x, lerp(9.5, 4.5, prog(t, 42.8, 45.0, ease.inOut)), O4.z, lerp(-0.5, -0.3, k), lerp(40, 32, ease.inOut(k)), lerp(10, 10, k), lerp(4, 3, k), 0); }
+    if (t < 41.6) { const k = prog(t, 38.2, 41.6); camAt(O4.x, lerp(13, 12.5, k), O4.z, lerp(-0.6, -0.5, k), lerp(44, 40, k), lerp(8, 10, k), lerp(4, 1.2, prog(t, 39.4, 40.6)), 0); }
+    else if (t < 48.4) { const k = prog(t, 41.6, 48.4), q = prog(t, 43.4, 45.2, ease.inOut); camAt(O4.x, lerp(12.5, 5, q), O4.z, lerp(-0.5, -0.3, k), lerp(40, 32, ease.inOut(k)), 10, lerp(1.2, 3, q), 0); }
     else { const k = prog(t, 48.4, 53.8); camAt(O4.x, 2, O4.z, lerp(-0.3, 0.5, k), lerp(40, 110, ease.inOut(k)), lerp(14, 60, ease.inOut(k)), 0, -4); }
   }
   drawFlame(emit.length ? emit : [new THREE.Vector3(0, -999, 0)], emit.length ? power : 0, t, seg === 'mars' ? 1.0 : 1.7);
@@ -367,123 +368,157 @@ st.onFrame((T) => {
 });
 
 // ================= UI =================
-const ui = []; const A = (f) => ui.push(f);
+// Each section is written in its scene time; SH (final − scene) shifts it onto the final timeline.
+const ui = []; let SH = 0; const A = (f) => { const d = SH; ui.push(d ? (t) => f(t - d) : f); };
 const L = makeLab(A);
 const fade = fader(); A((t) => fade(t < 0.4 ? 1 - prog(t, 0, 0.4) : t > DUR - 0.7 ? prog(t, DUR - 0.7, DUR) : 0));
 const ROCKET = (c) => `<svg viewBox="0 0 24 24"><path d="M12 2c3 2.4 4.4 6 4.4 10.2V16H7.6v-3.8C7.6 8 9 4.4 12 2z" fill="${c}"/><circle cx="12" cy="9.6" r="1.9" fill="#fff"/><path d="M7.6 12.6L4.6 16v2.4h3zM16.4 12.6l3 3.4v2.4h-3z" fill="${c}"/><path d="M10 17.4h4l-.6 3.6h-2.8z" fill="#ff8a2a"/></svg>`;
 const nav = (text, sure, a, b, o = {}) => { L.helper(text, sure, a, b, o); const all = document.querySelectorAll('.b-helper'); all[all.length - 1].querySelector('.who').firstChild.textContent = 'NAV · AI helper '; };
-const HEAD = { name: 'Land a Rocket', sub: 'STEM CLUB', color: '#2f6fd8', shade: '#1f4fa8', icon: ROCKET, tagColor: '#ffd23f', tagText: '#13202b', size: 33 };
-L.header({ ...HEAD, tag: 'CREW', task: 'Every console must say GO', tIn: 8.8, tOut: 14.7 });
-L.header({ ...HEAD, tag: 'L1', task: 'Hop test: up 50 m and back down', tIn: 15.3, tOut: 23.8 });
-L.header({ ...HEAD, tag: 'L4', task: 'Land the booster on the drone ship', tIn: 24.4, tOut: 38.0 });
-L.header({ ...HEAD, tag: 'L5', task: 'Land the rover on Mars', tIn: 38.6, tOut: 47.4 });
-// stars + XP
+// STEM purple, as in the brochure's game-stem screenshot
+const PURPLE = '#5b4ce0', PSHADE = '#3a2aa8';
+const HEAD = { name: 'Land a Rocket', sub: 'STEM CLUB', color: PURPLE, shade: PSHADE, icon: ROCKET, tagColor: '#ff8a2a', tagText: '#13202b', size: 33 };
 const STAR = '<svg width="44" height="44" viewBox="0 0 24 24"><path d="M12 2.6l2.8 5.7 6.3.9-4.6 4.4 1.1 6.2L12 16.9l-5.6 2.9 1.1-6.2-4.6-4.4 6.3-.9z" fill="#ffc83d"/></svg>';
-{ const n = el(`<div class="b-pills"><span>${STAR}<b data-s></b></span><span><em class="xp" style="background:#2f6fd8">XP</em><b data-x></b></span></div>`, { x: 1874, y: 40, anchor: 'tr' }); A(cue(n, 9.0, 47.4, { from: 'right' }));
-  const gains = [[13.2, 1, 60], [33.6, 1, 80], [37.0, 1, 60], [45.2, 3, 150]];
+// stars + XP (final time): +1 star only when the children catch a mistake or run a fair poll; landings add XP
+{ const n = el(`<div class="b-pills"><span>${STAR}<b data-s></b></span><span><em class="xp" style="background:${PURPLE}">XP</em><b data-x></b></span></div>`, { x: 1874, y: 40, anchor: 'tr' }); A(cue(n, 8.4, 48.4, { from: 'right' }));
+  const gains = [[12.6, 1, 40], [23.8, 1, 60], [34.1, 1, 60], [37.5, 0, 40], [42.3, 1, 60], [45.8, 0, 60]];
   A((t) => { let s = 4, x = 520; gains.forEach(([g, ds, dx]) => { if (t > g) { s += ds; x += Math.round(dx * prog(t, g, g + 0.8)); } }); n.querySelector('[data-s]').textContent = s; n.querySelector('[data-x]').textContent = x; }); }
 const lvlCard = (n, name, a, b) => { const c = el(`<div class="lvl"><b>LEVEL ${n} OF 6</b><span>${name}</span><div class="dots">${[1, 2, 3, 4, 5, 6].map((k) => `<i class="${k <= n ? 'on' : ''}"></i>`).join('')}</div></div>`, { x: 960, y: 540, anchor: 'c' }); A(cue(c, a, b)); };
 const STARS3 = (x, y, a, b) => { const big = STAR.replace('width="44" height="44"', ''); const s = el(`<div class="bigstars" style="display:flex;gap:26px;align-items:flex-end">${big}<span style="transform:translateY(-26px)">${big}</span>${big}</div>`, { x, y, anchor: 'c' }); A(cue(s, a, b)); };
+const chip = (text, x, y, a, b) => { const n = el(`<div class="chipstar">${STAR}${text}</div>`, { x, y, anchor: 'c' }); A(cue(n, a, b)); };
+const follow = (html, a, b, pos, anchor = 'bc') => { const n = el(html, { x: 0, y: 0, anchor }); A(cue(n, a, b, { dur: 0.25 })); A((t) => { if (!within(t, a - 0.1, b + 0.4)) return; const p = toScreen(pos(), camera); n.style.left = p.x + 'px'; n.style.top = p.y + 'px'; }); };
+function tele(title, w, h, x, y, a, b, dot = '#e8573f') { const n = el(`<div class="tele"><small><i style="background:${dot}"></i>${title}</small><canvas width="${w}" height="${h}"></canvas></div>`, { x, y }); A(cue(n, a, b, { from: 'left' })); return n.querySelector('canvas').getContext('2d'); }
 
-// ---- HOOK ----
+// ---- HOOK (0–8.0) ----
+SH = 0;
 ['3', '2', '1'].forEach((d, i) => { const n = el(`<div class="cd">${d}</div>`, { x: 960, y: 330, anchor: 'c' }); A(cue(n, 0.3 + i * 0.7, 0.85 + i * 0.7, { dur: 0.3, outDur: 0.15 })); });
 { const n = el('<div class="cd sm">LIFT-OFF</div>', { x: 960, y: 300, anchor: 'c' }); A(cue(n, 2.4, 3.6, { dur: 0.35 })); }
 { const n = el('<div class="cdlab">HOP TEST · COUNTDOWN</div>', { x: 960, y: 120, anchor: 'c' }); A(cue(n, 0.2, 2.4, { from: 'down' })); }
-{ const n = el('<div class="kicker">What goes up has to come back down…</div>', { x: 960, y: 930, anchor: 'c' }); A(cue(n, 4.3, 6.1, { from: 'up' })); }
-{ const n = el(`<div class="bigbadge"><div class="b-badge" style="background:#2f6fd8;box-shadow:0 8px 0 #1f4fa8,0 14px 30px rgba(0,0,0,.18)"><span class="ic">${ROCKET('#2f6fd8')}</span><span><b>Land a Rocket</b><small>A DELTAOPS LEARNING AI LAB</small></span></div></div>`, { x: 960, y: 250, anchor: 'c' }); A(cue(n, 6.5, 8.4, { dur: 0.6 })); }
-{ const n = el('<div class="b-saved" style="background:#16c79a;color:#13202b">Landed on the pad!</div>', { x: 960, y: 900, anchor: 'c' }); A(cue(n, 6.5, 8.4)); }
+{ const n = el('<div class="kicker" style="font-size:54px;background:rgba(19,32,43,.86);border-radius:999px;padding:14px 48px 20px;text-shadow:none;white-space:nowrap;box-shadow:0 12px 30px rgba(0,0,0,.25)">What goes up has to come back down. Gently.</div>', { x: 960, y: 930, anchor: 'c' }); A(cue(n, 4.2, 6.2, { from: 'up' })); }
+{ const n = el(`<div class="bigbadge"><div class="b-badge" style="background:${PURPLE};box-shadow:0 8px 0 ${PSHADE},0 14px 30px rgba(0,0,0,.18)"><span class="ic">${ROCKET(PURPLE)}</span><span><b>Land a Rocket</b><small>A DELTAOPS LEARNING AI LAB</small></span></div></div>`, { x: 960, y: 250, anchor: 'c' }); A(cue(n, 6.5, 7.9, { dur: 0.5 })); }
+{ const n = el('<div class="b-saved" style="background:#16c79a;color:#13202b">Landed on the pad!</div>', { x: 960, y: 900, anchor: 'c' }); A(cue(n, 6.4, 7.9)); }
 
-// ---- MISSION CONTROL ----
-{ const n = el('<div class="lens" style="background:#13202b">● GO / NO-GO POLL · HOP TEST</div>', { x: 960, y: 100, anchor: 'c' }); A(cue(n, 9.4, 14.7, { from: 'down' })); }
-ROLES.forEach(([name, c], i) => { const n = el(`<div class="role" style="--c:${c}"><i></i>${name}<em>GO</em></div>`, { x: 0, y: 0, anchor: 'bc' }); A(cue(n, 9.6 + i * 0.15, 14.7)); const head = new THREE.Vector3();
-  A((t) => { if (!within(t, 9.4, 15.2)) return; n.classList.toggle('go', t > 10.4 + i * 0.5); KIDS[i].getWorldPosition(head); head.y += 3.9 + (i % 2 ? 0 : 2.4); const p = toScreen(head, camera); n.style.left = p.x + 'px'; n.style.top = p.y + 'px'; }); });
-{ const n = el('<div class="b-saved">Flight Director: “We are GO for the hop!”</div>', { x: 960, y: 960, anchor: 'c' }); A(cue(n, 12.9, 14.7)); }
-{ const n = el(`<div class="chipstar">${STAR}+1 star: everyone had a say</div>`, { x: 960, y: 850, anchor: 'c' }); A(cue(n, 13.2, 14.7)); }
+// ---- MISSION CONTROL (final 8.0–13.6) ----
+SH = -0.6;
+L.header({ ...HEAD, tag: 'CREW', task: 'Every console must say GO', tIn: 8.8, tOut: 14.0 });
+{ const n = el('<div class="lens" style="background:#13202b">● GO / NO-GO POLL · HOP TEST</div>', { x: 960, y: 100, anchor: 'c' }); A(cue(n, 9.2, 14.0, { from: 'down' })); }
+ROLES.forEach(([name, c], i) => { const n = el(`<div class="role" style="--c:${c}"><i></i>${name}<em>GO</em></div>`, { x: 0, y: 0, anchor: 'bc' }); A(cue(n, 9.4 + i * 0.15, 14.0)); const head = new THREE.Vector3();
+  A((t) => { if (!within(t, 9.2, 14.4)) return; n.classList.toggle('go', t > 10.4 + i * 0.5); KIDS[i].getWorldPosition(head); head.y += 3.9 + (i % 2 ? 0 : 2.4); const p = toScreen(head, camera); n.style.left = p.x + 'px'; n.style.top = p.y + 'px'; }); });
+{ const n = el('<div class="b-saved">Flight Director: “We are GO for the hop!”</div>', { x: 960, y: 960, anchor: 'c' }); A(cue(n, 12.9, 14.0)); }
+chip('+1 star: everyone had a say', 960, 850, 13.2, 14.0);
 
-// ---- LEVEL 1: HOP TEST ----
-lvlCard(1, 'Hop Test', 14.95, 16.2);
-L.cards('GIVE NAV AN INSTRUCTION', [['A', 'Go up to 50 m and come back down'], ['B', 'Hop to 50 m, land slower than 2 m/s'], ['C', 'Fly as high as the fuel allows']], 16.0, 17.9, 17.1, 0);
-nav('Up at full power, then engine off to come down. Quickest way!', 88, 17.6, 21.5);
-function tele(title, w, h, x, y, a, b, dot = '#e8573f') { const n = el(`<div class="tele"><small><i style="background:${dot}"></i>${title}</small><canvas width="${w}" height="${h}"></canvas></div>`, { x, y }); A(cue(n, a, b, { from: 'left' })); return n.querySelector('canvas').getContext('2d'); }
-const g1 = tele('TELEMETRY · SPEED (m/s)', 660, 330, 46, 310, 18.0, 23.8);
+// ---- LEVEL 1: HOP TEST (final 13.6–24.9) ----
+SH = -1.3;
+L.header({ ...HEAD, tag: 'L1', task: 'Hop test: up 50 m and back down', tIn: 15.2, tOut: 26.0 });
+lvlCard(1, 'Hop Test', 14.95, 15.9);
+const C1 = [['A', 'Go up to 50 m and come back down'], ['B', 'Hop to 50 m, land slower than 2 m/s'], ['C', 'Fly as high as the fuel allows']];
+L.cards('GIVE NAV AN INSTRUCTION', C1, 15.6, 17.5, 16.7, 0);
+nav('Up at full power, then engine off to come down. Quickest way!', 88, 17.2, 20.8);
+const g1 = tele('TELEMETRY · SPEED (m/s)', 660, 330, 46, 310, 18.0, 26.0);
 { const W = 660, H = 330, P = { l: 64, r: 20, t: 20, b: 46 }; const X = (s) => P.l + s / 3.4 * (W - P.l - P.r), Y = (v) => H - P.b - v / 35 * (H - P.t - P.b);
-  A((t) => { if (!within(t, 17.9, 24.2)) return; const g = g1; g.clearRect(0, 0, W, H); g.font = '700 22px Inter'; g.fillStyle = '#e2f5ef'; g.fillRect(P.l, Y(3), W - P.l - P.r, Y(0) - Y(3));
-    g.fillStyle = '#1f9d55'; g.fillText('safe landing: under 2 m/s', W - 300, Y(3) - 8);
+  A((t) => { if (!within(t, 17.9, 26.4)) return; const g = g1; g.clearRect(0, 0, W, H); g.font = '700 22px Inter'; g.fillStyle = '#e2f5ef'; g.fillRect(P.l, Y(2), W - P.l - P.r, Y(0) - Y(2));
     g.strokeStyle = '#e6ebee'; g.lineWidth = 2; for (const v of [10, 20, 30]) { g.beginPath(); g.moveTo(P.l, Y(v)); g.lineTo(W - P.r, Y(v)); g.stroke(); g.fillStyle = '#8a98a6'; g.fillText(v, 18, Y(v) + 8); }
     g.fillStyle = '#8a98a6'; g.fillText('0', 30, Y(0) + 8); g.fillText('flight time →', W - 170, H - 12);
-    const ft = t - 18.0; g.lineWidth = 6; g.lineJoin = 'round'; g.lineCap = 'round';
-    g.beginPath(); for (let s = 0; s <= Math.min(ft, 3.4); s += 0.02) { const vv = hopSpeed(s); s === 0 ? g.moveTo(X(s), Y(vv)) : g.lineTo(X(s), Y(vv)); } g.strokeStyle = '#2f6fd8'; g.stroke();
+    g.fillStyle = '#7fd8b4'; g.fillRect(P.l, H - 30, 22, 16); g.fillStyle = '#1f9d55'; g.fillText('safe: under 2 m/s', P.l + 30, H - 12);
+    const ft = t - 18.0, f2 = t - H2, old = f2 > 0; g.lineWidth = 6; g.lineJoin = 'round'; g.lineCap = 'round';
+    g.globalAlpha = old ? 0.3 : 1; g.beginPath(); for (let s = 0; s <= Math.min(ft, 3.4); s += 0.02) { const vv = hopSpeed(s); s === 0 ? g.moveTo(X(s), Y(vv)) : g.lineTo(X(s), Y(vv)); } g.strokeStyle = '#2f6fd8'; g.stroke(); g.globalAlpha = 1;
     if (ft > 1.25 && ft < 1.9) { g.fillStyle = '#13202b'; g.fillText('engine off', X(1.3) - 40, Y(18) - 6); }
-    if (ft > 2.4) { g.fillStyle = '#e8573f'; g.beginPath(); g.arc(X(2.4), Y(31), 11, 0, 7); g.fill(); g.font = '800 26px Inter'; g.fillText('31 m/s at touchdown!', X(2.4) - 300, Y(31) + 8);
-      const k = (t - 21.0) / 0.7; if (k > 0 && k < 1) { g.strokeStyle = `rgba(232,87,63,${1 - k})`; g.lineWidth = 5; g.beginPath(); g.arc(X(2.4), Y(31), 14 + k * 40, 0, 7); g.stroke(); } }
+    if (ft > 2.4) { g.fillStyle = '#e8573f'; g.beginPath(); g.arc(X(2.4), Y(31), 11, 0, 7); g.fill(); g.font = '800 26px Inter';
+      if (!old) g.fillText('31 m/s at touchdown!', X(2.4) - 300, Y(31) + 8); else g.fillText('31 m/s', X(2.4) + 18, Y(31) + 8);
+      const k = (t - 20.6) / 0.7; if (k > 0 && k < 1) { g.strokeStyle = `rgba(232,87,63,${1 - k})`; g.lineWidth = 5; g.beginPath(); g.arc(X(2.4), Y(31), 14 + k * 40, 0, 7); g.stroke(); } }
+    if (old) { g.lineWidth = 7; g.beginPath(); for (let s = 0; s <= Math.min(f2, 2.5); s += 0.02) { const vv = hopSpeed2(s); s === 0 ? g.moveTo(X(s), Y(vv)) : g.lineTo(X(s), Y(vv)); } g.strokeStyle = '#16a68a'; g.stroke();
+      if (f2 > 1.4 && f2 < 2.2) { g.fillStyle = '#13202b'; g.font = '700 22px Inter'; g.fillText('engine relit', X(1.4) - 30, Y(10) - 14); }
+      if (f2 > 2.4) { g.fillStyle = '#16a68a'; g.beginPath(); g.arc(X(2.4), Y(1.5), 11, 0, 7); g.fill(); g.font = '800 28px Inter'; g.fillStyle = '#1f9d55'; g.fillText('New plan: 1.5 m/s ✓', P.l + 70, Y(27) + 8);
+        const k = (t - 25.0) / 0.7; if (k > 0 && k < 1) { g.strokeStyle = `rgba(22,166,138,${1 - k})`; g.lineWidth = 5; g.beginPath(); g.arc(X(2.4), Y(1.5), 14 + k * 40, 0, 7); g.stroke(); } } }
   }); }
-{ const n = el('<div class="bub ghost">ENGINE OFF</div>', { x: 0, y: 0, anchor: 'bc' }); A(cue(n, 19.3, 20.3, { dur: 0.25 })); A((t) => { if (!within(t, 19.2, 20.8)) return; const p = toScreen(booster1.localToWorld(new THREE.Vector3(0, 3.8, 0)), camera); n.style.left = p.x + 'px'; n.style.top = p.y + 'px'; }); }
-{ const n = el('<div class="bub bad">Boing! Crush pads squashed</div>', { x: 0, y: 0, anchor: 'bc' }); A(cue(n, 20.45, 22.4, { dur: 0.3 })); A((t) => { if (!within(t, 20.3, 22.8)) return; const p = toScreen(new THREE.Vector3(0, 6.6, 0), camera); n.style.left = p.x + 'px'; n.style.top = p.y + 'px'; }); }
-L.saved('Data saved. The test stand is fine.', 21.2, 23.8, { x: 960, y: 960 });
-L.facil('NAV did exactly what you said. What did you forget to tell it?', 21.7, 23.8, { color: '#ffd23f', y: 200 });
+follow('<div class="bub ghost">ENGINE OFF</div>', 19.3, 20.3, () => booster1.localToWorld(new THREE.Vector3(0, 3.8, 0)));
+follow('<div class="bub bad">Boing! 31 m/s: crush pads squashed</div>', 20.45, 21.9, () => new THREE.Vector3(0, 6.6, 0));
+L.facil('NAV did exactly what you said. What did you forget to tell it?', 21.0, 22.25, { color: '#ffd23f', y: 200 });
+L.cards('TRY A CLEARER CARD', C1, 21.4, 23.0, 22.2, 1);
+nav('New plan: relight the engine on the way down. Touchdown under 2 m/s.', 76, 22.35, 26.0, { tag: 'NEW PLAN', tagColor: '#16c79a' });
+follow('<div class="bub" style="background:#16c79a">ENGINE RELIT</div>', 24.0, 24.9, () => booster1.localToWorld(new THREE.Vector3(0, 3.8, 0)));
+L.saved('Soft landing: 1.5 m/s', 25.0, 26.1, { x: 960, y: 960 });
+chip('+1 star: you added the missing rule', 960, 850, 25.1, 26.1);
 
-// ---- LEVEL 4: DRONE SHIP IN THE WIND ----
-lvlCard(4, 'Drone Ship in the Wind', 24.05, 25.4);
+// ---- LEVEL 4: DRONE SHIP IN THE WIND (final 24.9–38.4) ----
+SH = 0.5;
+L.header({ ...HEAD, tag: 'L4', task: 'Land the booster on the drone ship', tIn: 24.8, tOut: 37.8 });
+lvlCard(4, 'Drone Ship in the Wind', 24.45, 25.6);
 const C4 = [['A', 'Check the weather and land on the ship'], ['B', 'Plan for the worst gust, and hold'], ['C', 'Land now, but aim upwind']];
 L.cards('GIVE NAV AN INSTRUCTION', C4, 25.0, 26.9, 26.1, 0);
-nav('Average wind is 12 km/h. Well within limits. Landing now!', 89, 26.6, 30.7);
-const g4 = tele('WIND AND DECK · LAST HOUR', 660, 380, 46, 310, 27.3, 35.9, '#2f6fd8');
+nav('Average wind is 12 km/h. Well within limits. Landing now!', 89, 26.6, 32.1);
+const g4 = tele('WIND AND DECK · LAST HOUR', 660, 400, 46, 300, 27.3, 35.9, '#2f6fd8');
 const wind = (m) => { let w = 11 + 3 * Math.sin(m * 0.9) + 2 * Math.sin(m * 2.3); if (m < 63) { const ph = ((m % 10) + 10) % 10; w += 33 * Math.exp(-Math.pow(ph - 5, 2) / 0.35); } else w = lerp(w, 8 + 1.5 * Math.sin(m * 1.3), clamp((m - 63) / 5)); return w; };
 const deck = (m) => (m < 63 ? 3 : lerp(3, 0.6, clamp((m - 63) / 6))) * Math.sin(m * 1.9);
-{ const W = 660, H = 380; const w0f = (t) => 25 * prog(t, 34.2, 35.4);
+{ const W = 660, H = 400; const w0f = (t) => 25 * prog(t, 34.2, 35.4);
   A((t) => { if (!within(t, 27.2, 36.3)) return; const g = g4; g.clearRect(0, 0, W, H); const w0 = w0f(t); const reveal = prog(t, 27.4, 28.8, (k) => k); const X = (m) => 64 + (m - w0) / 60 * (W - 84);
-    g.font = '700 22px Inter'; g.lineCap = 'round'; g.lineJoin = 'round';
-    // wind strip: 0-50 km/h in y 10..200
-    const Yw = (v) => 200 - v / 50 * 180; g.strokeStyle = '#e6ebee'; g.lineWidth = 2; for (const v of [0, 25, 50]) { g.beginPath(); g.moveTo(64, Yw(v)); g.lineTo(W - 20, Yw(v)); g.stroke(); g.fillStyle = '#8a98a6'; g.fillText(v, 14, Yw(v) + 8); }
-    g.setLineDash([12, 10]); g.strokeStyle = '#e8573f'; g.lineWidth = 3; g.beginPath(); g.moveTo(64, Yw(30)); g.lineTo(W - 20, Yw(30)); g.stroke(); g.setLineDash([]); g.fillStyle = '#e8573f'; g.fillText('limit 30', W - 112, Yw(30) - 8);
-    if (w0 < 5) { g.setLineDash([4, 8]); g.strokeStyle = '#13202b'; g.lineWidth = 3; g.beginPath(); g.moveTo(64, Yw(12)); g.lineTo(64 + (W - 84) * reveal, Yw(12)); g.stroke(); g.setLineDash([]); g.fillStyle = '#13202b'; g.fillText('NAV used the average: 12', 74, Yw(12) + 28); }
+    g.font = '700 22px Inter'; g.lineCap = 'round'; g.lineJoin = 'round'; g.textAlign = 'left';
+    const calm = w0 > 20, shown = reveal > 0.95 && w0 < 5;
+    // header + legend rows sit above the plot, so nothing collides with the lines
+    g.fillStyle = '#46596a'; g.fillText('WIND km/h', 64, 22);
+    g.textAlign = 'right'; g.font = '800 24px Inter';
+    if (shown) { g.fillStyle = '#e8573f'; g.fillText('gusts to 45 km/h!', W - 20, 22); } else if (calm) { g.fillStyle = '#1f9d55'; g.fillText('lull: 8 km/h, deck calm', W - 20, 22); }
+    g.textAlign = 'left'; g.font = '700 21px Inter';
+    g.setLineDash([10, 8]); g.strokeStyle = '#e8573f'; g.lineWidth = 3; g.beginPath(); g.moveTo(64, 44); g.lineTo(104, 44); g.stroke(); g.fillStyle = '#e8573f'; g.fillText('limit 30', 112, 51);
+    if (!calm) { g.setLineDash([4, 7]); g.strokeStyle = '#13202b'; g.beginPath(); g.moveTo(230, 44); g.lineTo(270, 44); g.stroke(); g.fillStyle = '#13202b'; g.fillText('NAV used the average: 12', 278, 51); }
+    g.setLineDash([]);
+    const Yw = (v) => 236 - v / 50 * 160; g.strokeStyle = '#e6ebee'; g.lineWidth = 2; g.font = '700 22px Inter'; for (const v of [0, 25, 50]) { g.beginPath(); g.moveTo(64, Yw(v)); g.lineTo(W - 20, Yw(v)); g.stroke(); g.fillStyle = '#8a98a6'; g.fillText(v, 14, Yw(v) + 8); }
+    g.setLineDash([12, 10]); g.strokeStyle = '#e8573f'; g.lineWidth = 3; g.beginPath(); g.moveTo(64, Yw(30)); g.lineTo(W - 20, Yw(30)); g.stroke(); g.setLineDash([]);
+    if (!calm) { g.setLineDash([4, 8]); g.strokeStyle = '#13202b'; g.lineWidth = 3; g.beginPath(); g.moveTo(64, Yw(12)); g.lineTo(64 + (W - 84) * reveal, Yw(12)); g.stroke(); g.setLineDash([]); }
     g.lineWidth = 5; g.strokeStyle = '#2f6fd8'; g.beginPath(); const mEnd = w0 + 60 * reveal; for (let m = w0; m <= mEnd; m += 0.25) { const y = Yw(wind(m)); m === w0 ? g.moveTo(X(m), y) : g.lineTo(X(m), y); } g.stroke();
-    if (reveal > 0.95 && w0 < 5) { const pk = 45; g.fillStyle = '#e8573f'; g.beginPath(); g.arc(X(45), Yw(wind(45)), 10, 0, 7); g.fill(); g.font = '800 26px Inter'; g.fillText('gusts to 45 km/h!', X(45) - 250, Yw(pk) + 6); }
-    if (w0 > 20) { g.font = '800 24px Inter'; g.fillStyle = '#1f9d55'; g.fillText('lull: wind 8 km/h, deck calm', X(w0 + 22), Yw(44)); }
-    g.font = '700 22px Inter'; g.fillStyle = '#46596a'; g.fillText('WIND km/h', 74, 24);
-    // deck strip: -3..3 m in y 240..360
-    const Yd = (v) => 300 - v / 3.4 * 58; g.fillStyle = '#e2f5ef'; g.fillRect(64, Yd(1), W - 84, Yd(-1) - Yd(1)); g.fillStyle = '#46596a'; g.fillText('DECK HEIGHT m', 74, 236); g.fillStyle = '#1f9d55'; g.fillText('±1 m', W - 82, Yd(0) + 8);
+    if (shown) { g.fillStyle = '#e8573f'; g.beginPath(); g.arc(X(45), Yw(wind(45)), 10, 0, 7); g.fill(); }
+    // deck strip
+    const Yd = (v) => 338 - v / 3.4 * 50; g.font = '700 22px Inter'; g.fillStyle = '#46596a'; g.fillText('DECK HEIGHT m', 64, 274);
+    g.fillStyle = '#e2f5ef'; g.fillRect(64, Yd(1), W - 84, Yd(-1) - Yd(1)); g.fillStyle = '#7fd8b4'; g.fillRect(250, 258, 22, 16); g.fillStyle = '#1f9d55'; g.font = '700 21px Inter'; g.fillText('safe ±1 m', 280, 274);
+    if (shown) { g.textAlign = 'right'; g.fillStyle = '#e8573f'; g.font = '800 24px Inter'; g.fillText('heaves ±3 m!', W - 20, 274); g.textAlign = 'left'; }
     g.lineWidth = 5; g.strokeStyle = '#16a68a'; g.beginPath(); for (let m = w0; m <= mEnd; m += 0.2) { const y = Yd(deck(m)); m === w0 ? g.moveTo(X(m), y) : g.lineTo(X(m), y); } g.stroke();
-    if (reveal > 0.95 && w0 < 5) { g.fillStyle = '#e8573f'; g.font = '800 24px Inter'; g.fillText('heaves ±3 m', 330, 372); }
   }); }
 { const n = el('<div class="bub ghost">DRY RUN · NAV’S PLAN</div>', { x: 0, y: 0, anchor: 'c' }); A(cue(n, 28.4, 31.2)); A((t) => { if (!within(t, 28.3, 31.6)) return; const p = toScreen(ship.localToWorld(ghost.position.clone().add(new THREE.Vector3(0, -2.2, 0))), camera); n.style.left = p.x + 'px'; n.style.top = p.y + 'px'; }); }
-L.alert('Dry run: a 45 km/h gust tips it over', 30.0, 30.9, { x: 1100, y: 960 });
-L.cards('TRY A CLEARER CARD', C4, 31.15, 33.0, 32.0, 1);
-nav('Worst gust 45 km/h is over the limit. I recommend we HOLD.', 72, 31.3, 37.8, { tag: 'PLAN CHECKED', tagColor: '#16c79a' });
-{ const n = el('<div class="poll"><small>FLIGHT DIRECTOR · GO / NO-GO</small><div class="opts"><span>GO</span><span data-h>HOLD</span><span>SCRUB</span></div></div>', { x: 1100, y: 820, anchor: 'c' }); A(cue(n, 33.0, 35.0, { from: 'up' })); A((t) => n.querySelector('[data-h]').classList.toggle('on', t > 33.5)); }
-{ const tapR = el('<div style="width:90px;height:90px;border-radius:50%;border:6px solid #fff;box-shadow:0 0 0 4px rgba(19,32,43,.4)"></div>', { x: 1100, y: 846, anchor: 'c' }); A((t) => { const k = (t - 33.45) / 0.6; tapR.style.visibility = k > 0 && k < 1 ? 'visible' : 'hidden'; tapR.style.opacity = 1 - k; tapR.style.transform = `translate(-50%,-50%) scale(${0.4 + k})`; }); }
-{ const n = el(`<div class="chipstar">${STAR}+1 star: good call to HOLD</div>`, { x: 1100, y: 680, anchor: 'c' }); A(cue(n, 33.6, 35.0)); }
+L.alert('Dry run: a 45 km/h gust tips it over', 30.0, 30.95, { x: 1100, y: 960 });
+L.cards('TRY A CLEARER CARD', C4, 31.15, 32.85, 32.0, 1);
+nav('Worst gust 45 km/h is over the limit. I recommend we HOLD.', 72, 32.25, 37.6, { tag: 'PLAN CHECKED', tagColor: '#16c79a' });
+const PX = 1480, PY = 910;
+{ const n = el('<div class="poll"><small>FLIGHT DIRECTOR · GO / NO-GO</small><div class="opts"><span>GO</span><span data-h>HOLD</span><span>SCRUB</span></div></div>', { x: PX, y: PY, anchor: 'c' }); A(cue(n, 33.0, 35.0, { from: 'up' })); A((t) => n.querySelector('[data-h]').classList.toggle('on', t > 33.5)); }
+{ const tapR = el('<div style="width:90px;height:90px;border-radius:50%;border:6px solid #fff;box-shadow:0 0 0 4px rgba(19,32,43,.4)"></div>', { x: PX, y: PY + 26, anchor: 'c' }); A((t) => { const k = (t - 33.45) / 0.6; tapR.style.visibility = k > 0 && k < 1 ? 'visible' : 'hidden'; tapR.style.opacity = 1 - k; tapR.style.transform = `translate(-50%,-50%) scale(${0.4 + k})`; }); }
+chip('+1 star: good call to HOLD', PX, PY - 150, 33.6, 35.0);
 { const n = el('<div class="lens" style="background:#13202b">⏸ HOLDING… 20 MINUTES LATER</div>', { x: 960, y: 100, anchor: 'c' }); A(cue(n, 34.2, 36.0, { from: 'down' })); }
-L.saved('Booster upright on a moving ship!', 37.0, 38.1, { x: 960, y: 960 });
+L.saved('Booster upright on a moving ship!', 37.0, 37.85, { x: 960, y: 960 });
 
-// ---- LEVEL 5: MARS ----
-lvlCard(5, 'Seven Minutes on Mars', 38.25, 39.6);
-{ const n = el('<div class="radio">Radio delay 14 min · no live steering<div class="rb"><i data-r></i></div></div>', { x: 1874, y: 1010, anchor: 'tr' }); A(cue(n, 39.6, 43.5, { from: 'down' })); A((t) => { n.querySelector('[data-r]').style.width = 100 * prog(t, 39.6, 46, (k) => k) + '%'; }); }
-{ const n = el('<div class="prog"><small>YOUR RULES · WRITTEN BEFORE LAUNCH</small><div class="blk" style="background:#6e5bf2"><span class="k">IF</span>sensors disagree, trust the two that agree</div><div class="blk" style="background:#ff8a2a"><span class="k">IGNORE</span>impossible values, like below zero</div><div class="blk" style="background:#16a68a"><span class="k">CUT</span>cables only when the wheels touch</div></div>', { x: 46, y: 290 }); A(cue(n, 39.8, 47.3, { from: 'left' })); }
-const g5 = tele('ALTITUDE SENSORS (m)', 700, 250, 46, 710, 40.0, 47.3, '#6e5bf2');
-{ const W = 700, H = 250, P = { l: 70, r: 20, t: 12, b: 16 }; const X = (g) => P.l + g * (W - P.l - P.r), Y = (v) => P.t + (140 - v) / 360 * (H - P.t - P.b); const alt = (g) => 120 * Math.pow(1 - g, 1.3);
-  A((t) => { if (!within(t, 39.9, 47.6)) return; const c = g5; c.clearRect(0, 0, W, H); c.font = '700 22px Inter'; c.lineCap = 'round'; c.lineJoin = 'round';
+// ---- LEVEL 5: MARS (final 38.4–48.6) ----
+SH = 0.2;
+L.header({ ...HEAD, tag: 'L5', task: 'Land the rover on Mars', tIn: 38.6, tOut: 48.2 });
+lvlCard(5, 'Seven Minutes on Mars', 38.25, 39.4);
+{ const n = el('<div class="radio">Radio delay 14 min · no live steering<div class="rb"><i data-r></i></div></div>', { x: 1874, y: 1010, anchor: 'tr' }); A(cue(n, 39.4, 41.2, { from: 'down' })); A((t) => { n.querySelector('[data-r]').style.width = 100 * prog(t, 39.4, 46, (k) => k) + '%'; }); }
+{ const n = el('<div class="prog"><small>YOUR RULES · WRITTEN BEFORE LAUNCH</small><div class="blk" style="background:#6e5bf2"><span class="k">IF</span>sensors disagree, trust the two that agree</div><div class="blk" data-ig style="background:#ff8a2a"><span class="k">IGNORE</span>impossible values, like below zero</div><div class="blk" style="background:#16a68a"><span class="k">CUT</span>cables only when the wheels touch</div></div>', { x: 46, y: 290 }); A(cue(n, 39.5, 48.0, { from: 'left' }));
+  const ig = n.querySelector('[data-ig]'); A((t) => { const on = within(t, 42.0, 43.8); ig.classList.toggle('hit', on); ig.style.transform = on ? `scale(${1.03 + 0.02 * Math.sin((t - 42) * 9) * Math.exp(-(t - 42) * 2)})` : ''; }); }
+{ const n = el('<div class="bub bad" style="font-size:28px;padding:10px 22px">✋ Your IGNORE rule blocked it</div>', { x: 395, y: 640, anchor: 'c' }); A(cue(n, 42.0, 43.8, { dur: 0.25 })); }
+const g5 = tele('ALTITUDE SENSORS (m)', 700, 250, 46, 710, 39.8, 48.0, '#6e5bf2');
+{ const W = 700, H = 250, P = { l: 70, r: 20, t: 12, b: 16 }; const X = (g) => P.l + g * (W - P.l - P.r), Y = (v) => P.t + (140 - v) / 360 * (H - P.t - P.b);
+  const GL = 0.273, GH = 0.795; const alt = (g) => g < GL ? lerp(120, 40, ease.out(g / GL)) : g < GH ? lerp(40, 30, (g - GL) / (GH - GL)) : lerp(30, 0, (g - GH) / (1 - GH));
+  A((t) => { if (!within(t, 39.7, 48.2)) return; const c = g5; c.clearRect(0, 0, W, H); c.font = '700 22px Inter'; c.lineCap = 'round'; c.lineJoin = 'round';
     c.strokeStyle = '#e6ebee'; c.lineWidth = 2; for (const v of [100, 0, -200]) { c.beginPath(); c.moveTo(P.l, Y(v)); c.lineTo(W - P.r, Y(v)); c.stroke(); c.fillStyle = '#8a98a6'; c.fillText(v === -200 ? '−200' : v, 6, Y(v) + 8); }
-    const gt = prog(t, 40.2, 43.6, (k) => k);
-    const line = (col, f, w = 6) => { c.strokeStyle = col; c.lineWidth = w; c.beginPath(); for (let g = 0; g <= gt; g += 0.005) { const y = Y(f(g)); g === 0 ? c.moveTo(X(g), y) : c.lineTo(X(g), y); } c.stroke(); };
+    const gt = prog(t, 40.0, 44.4, (k) => k);
+    const line = (col, f, w = 6) => { c.strokeStyle = col; c.lineWidth = w; c.beginPath(); for (let g = 0; g <= gt; g += 0.004) { const y = Y(f(g)); g === 0 ? c.moveTo(X(g), y) : c.lineTo(X(g), y); } c.stroke(); };
+    const caught = t > 42.0;
     line('#16a68a', alt); line('#6e5bf2', (g) => alt(g) + 4);
-    const leg = (g) => (g > 0.44 && g < 0.5 ? -200 : alt(g) - 4); line(t > 42.2 ? '#c4ccd4' : '#ff8a2a', leg, 4);
-    if (gt > 0.46) { const sx = X(0.47), sy = Y(-200); c.fillStyle = '#e8573f'; c.beginPath(); c.arc(sx, sy, 10, 0, 7); c.fill(); c.font = '800 24px Inter'; c.fillText('impossible → ignored', sx + 22, sy + 2);
-      const k = (t - 41.9) / 0.7; if (k > 0 && k < 1) { c.strokeStyle = `rgba(232,87,63,${1 - k})`; c.lineWidth = 5; c.beginPath(); c.arc(sx, sy, 14 + k * 40, 0, 7); c.stroke(); } }
+    const leg = (g) => (g > 0.255 && g < 0.29 ? -200 : alt(g) - 4); line(caught ? '#c4ccd4' : '#ff8a2a', leg, 4);
+    if (gt > 0.27) { const sx = X(0.272), sy = Y(-200); c.fillStyle = caught ? '#8a98a6' : '#e8573f'; c.beginPath(); c.arc(sx, sy, 10, 0, 7); c.fill(); c.font = '800 24px Inter'; c.fillStyle = caught ? '#1f9d55' : '#e8573f'; c.fillText(caught ? 'impossible → ignored ✓' : 'leg sensor: −200 m?', sx + 22, sy + 2);
+      for (const t0 of [41.3, 42.0]) { const k = (t - t0) / 0.7; if (k > 0 && k < 1) { c.strokeStyle = `rgba(232,87,63,${1 - k})`; c.lineWidth = 5; c.beginPath(); c.arc(sx, sy, 14 + k * 40, 0, 7); c.stroke(); } } }
     c.font = '700 20px Inter'; [['radar', '#16a68a'], ['camera', '#6e5bf2'], ['leg sensor', '#ff8a2a']].forEach(([n, col], i) => { c.fillStyle = col; c.fillRect(W - 400 + i * 120, 26, 18, 18); c.fillStyle = '#46596a'; c.fillText(n, W - 376 + i * 120, 43); });
   }); }
-nav('Leg sensor says −200 m. Impossible, so I ignore it. Still 40 m up.', 81, 42.0, 45.0, { tag: 'YOUR RULES', tagColor: '#16c79a' });
-{ const n = el('<div class="b-saved" style="background:#16c79a;color:#13202b">Wheels down · cables cut</div>', { x: 1300, y: 990, anchor: 'c' }); A(cue(n, 43.8, 45.2, { dur: 0.3 })); }
-STARS3(1400, 420, 45.2, 47.3);
-L.saved('Rover landed safely. Your rules flew it.', 45.3, 47.3, { x: 1400, y: 560 });
+nav('Leg sensor reads −200 m, so we’ve landed! Cut the engine?', 95, 41.3, 42.25);
+nav('Recalculating… radar and camera agree: still 40 m up. Engine stays on.', 93, 42.4, 43.55, { tag: 'YOUR RULE', tagColor: '#16c79a' });
+chip('+1 star: your rule caught it', 1300, 900, 42.1, 43.8);
+{ const n = el('<div class="b-saved" style="background:#16c79a;color:#13202b">Wheels down · cables cut</div>', { x: 1300, y: 990, anchor: 'c' }); A(cue(n, 44.5, 45.8, { dur: 0.3 })); }
+STARS3(1400, 420, 45.6, 48.2);
+L.saved('Rover landed safely. Your rules flew it.', 45.7, 48.2, { x: 1400, y: 560 });
 const pola = el('<div class="pola"><img data-i>First photo from Mars</div>', { x: 1874, y: 1040, anchor: 'tr' }); pola.style.transformOrigin = 'center';
-{ let snapped = false; A((t) => { if (t >= 45.6 && !snapped) { pola.querySelector('[data-i]').src = st.renderer.domElement.toDataURL('image/jpeg', 0.8); snapped = true; } const k = prog(t, 45.8, 46.5, ease.back); pola.style.opacity = t > 45.8 && t < 47.4 ? 1 : 0; pola.style.visibility = t > 45.8 && t < 47.4 ? 'visible' : 'hidden'; pola.style.transform = `translate(-100%,-100%) rotate(${lerp(-14, 4, k)}deg) scale(${lerp(1.5, 1, k)})`; }); }
+{ let snapped = false; A((t) => { if (t >= 46.0 && !snapped) { pola.querySelector('[data-i]').src = st.renderer.domElement.toDataURL('image/jpeg', 0.8); snapped = true; } const k = prog(t, 46.2, 46.9, ease.back); pola.style.opacity = t > 46.2 && t < 48.3 ? 1 : 0; pola.style.visibility = t > 46.2 && t < 48.3 ? 'visible' : 'hidden'; pola.style.transform = `translate(-100%,-100%) rotate(${lerp(-14, 4, k)}deg) scale(${lerp(1.5, 1, k)})`; }); }
 
-// ---- CAREERS + TITLE ----
-const dim = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:radial-gradient(ellipse at center, rgba(10,8,40,.35), rgba(10,8,40,.65))"></div>'); A(cue(dim, 47.6, null, { from: 'fade', dur: 0.6 }));
+// ---- CAREERS + TITLE (final 48.6–54) ----
+const dim = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:radial-gradient(ellipse at center, rgba(10,8,40,.35), rgba(10,8,40,.65))"></div>'); A(cue(dim, 48.4, null, { from: 'fade', dur: 0.6 }));
 { const J = [['Flight controller', '#6e5bf2'], ['GNC engineer', '#16c7a6'], ['Launch director', '#2f6fd8'], ['Propulsion engineer', '#ff8a2a'], ['Data analyst', '#e8573f'], ['Weather officer', '#3fbf5a']];
-  const n = el(`<div class="jobs"><h3>Real jobs: flight controller, GNC engineer, launch director, propulsion engineer…</h3><div class="list">${J.map(([j, c]) => `<span><i style="background:${c}"></i>${j}</span>`).join('')}</div><p>Every console in the lab is a real job.</p></div>`, { x: 960, y: 540, anchor: 'c' }); A(cue(n, 47.8, 50.6, { dur: 0.6 })); }
-const title = titleCard('Land a <span class="hl">Rocket</span>', 'Run mission control. Check the AI like a pro.', { chip: 'A DeltaOps Learning AI lab · Schools, clubs and museums' }); A(cue(title, 50.9, null, { from: 'pop', dur: 0.8 }));
+  const n = el(`<div class="jobs"><h3>Real mission-control jobs</h3><div class="list">${J.map(([j, c]) => `<span><i style="background:${c}"></i>${j}</span>`).join('')}</div><p>Every console in the lab is a real job.</p></div>`, { x: 960, y: 540, anchor: 'c' }); A(cue(n, 48.6, 50.6, { dur: 0.5 })); }
+const title = titleCard('Land a <span class="hl">Rocket</span>', 'Run mission control. Check the AI like a pro.', { chip: 'A DeltaOps Learning AI lab · Schools, clubs and museums' }); A(cue(title, 50.8, null, { from: 'pop', dur: 0.8 }));
 st.onFrame((t) => ui.forEach((f) => f(t)));
 window.__duration = DUR;
 document.fonts.ready.then(() => { window.__ready = true; });
