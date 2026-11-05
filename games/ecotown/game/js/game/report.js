@@ -6,7 +6,7 @@ import { LEVEL_TEXT } from './content.js';
 import { esc, h } from '../ui/ui.js';
 
 export function renderReport(app, G, s, shot) {
-  app.ui.only([]); for (const id of ['tray', 'helper', 'views', 'flower', 'tr', 'task', 'badge']) app.ui.show(id, false);
+  app.ui.only([]); for (const id of ['tray', 'helper', 'card', 'strip']) app.ui.show(id, false);
   const flowerSvg = app.ui.P.flower.querySelector('svg').outerHTML;
   const rows = LEVEL_ORDER.map((id) => {
     const m = G.mistakes.find((x) => x.level === id); const ins = G.instructions[id] || [];
@@ -22,7 +22,7 @@ export function renderReport(app, G, s, shot) {
     <h2>Before I trust an AI plan, I…</h2><p style="border-bottom:2px dashed #cfd8de;height:2.2em"></p></div></div>
     <p style="color:#46596a;font-size:.8em">Plotter is a small language model and planner made for this game. It runs on this device; nothing you typed was stored or sent.</p>
   </div></div>`);
-  app.ui.P.tray.parentElement.appendChild(n);
+  document.getElementById('layer').appendChild(n);
   n.querySelector('[data-print]').onclick = () => window.print();
   n.querySelector('[data-again]').onclick = () => location.reload();
 }

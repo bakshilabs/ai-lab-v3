@@ -68,7 +68,7 @@ export class Vox {
           else if (dy) { s1 = this.has(x + cx, y + dy, z); s2 = this.has(x, y + dy, z + cz); s3 = this.has(x + cx, y + dy, z + cz); }
           else { s1 = this.has(x + cx, y, z + dz); s2 = this.has(x, y + cy, z + dz); s3 = this.has(x + cx, y + cy, z + dz); }
           const ao = (s1 && s2) ? 0 : 3 - (s1 + s2 + s3);
-          const aoF = [0.55, 0.7, 0.85, 1][ao];
+          const aoF = [0.42, 0.62, 0.82, 1][ao];
           pos.push((x + corner[0]) * scale + offset[0], (y + corner[1]) * scale + offset[1], (z + corner[2]) * scale + offset[2]);
           nor.push(dx, dy, dz);
           tmp.copy(c).multiplyScalar(j * aoF * (0.35 + 0.65 * f.shade));

@@ -63,7 +63,7 @@ export function createLife(stage, world, terrain) {
     // cars on road tiles
     for (const c of cars) root.remove(c.m); cars.length = 0;
     let ci = 0; for (const [k, c] of cells) if (c.item === 'road') { for (let j = 0; j < 2; j++) { const m = new THREE.Mesh(carGeo, carMat[(ci++) % carMat.length]); root.add(m); cars.push({ m, k, ph: j * 0.5 + rand(ci, 2) }); } }
-    chimneys = sim.homes.filter((h) => h.gas).map((h) => top(h.k).add(new THREE.Vector3(-1, 6, -0.5)));
+    chimneys = []; for (const hm of sim.homes.filter((h) => h.gas)) { const L = world.layers.get(hm.k); for (const c of L?.rec?.chimneys || []) chimneys.push(new THREE.Vector3(L.ox + c[0], L.oy + 1 + c[1], L.oz + c[2])); }
   };
 
   // where is a resident at this hour? home → destination in the morning, back in the evening
@@ -108,7 +108,7 @@ export function createLife(stage, world, terrain) {
     for (const c of cars) { const p = top(c.k); const k = ((t * 0.12 + c.ph) % 1); c.m.position.set(p.x - 3 + k * 6, p.y + 0.5, p.z - 0.6 + (c.ph > 0.5 ? 1.4 : 0)); c.m.visible = hour > 6.5 && hour < 22; }
     // smoke from gas boilers (winter or evenings)
     smoke.visible = chimneys.length > 0 && (stage.winter > 0 || hour > 16 || hour < 9);
-    if (smoke.visible) { for (let i = 0; i < SMOKE; i++) { const c = chimneys[i % chimneys.length]; const k = ((t * 0.25 + i * 0.137) % 1); smoke.setAt(i, c.x + k * 1.5, c.y + k * 5, c.z + Math.sin(i) * 0.5, 0, 0, (1 - k) * 1.4 + 0.2); } smoke.done(); }
+    if (smoke.visible) { for (let i = 0; i < SMOKE; i++) { const c = chimneys[i % chimneys.length]; const k = ((t * 0.25 + i * 0.137) % 1); smoke.setAt(i, c.x + k * 1.2, c.y + k * 4, c.z + Math.sin(i) * 0.3, 0, 0, (1 - k) * 1.1 + 0.15); } smoke.done(); }
   };
   return life;
 }

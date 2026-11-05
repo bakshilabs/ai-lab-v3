@@ -89,7 +89,10 @@ export function createGame(app) {
         continue;
       }
       res.text = text;
+      const c = centroidOf(res.plan.placements); app.bot.hover(c); if (!app.reduce) rig.focus(c, { dist: id === 'land' ? rig.frameDist() * 0.85 : 105, pitch: 0.66 }, 1.2);
+      await sleep(app.reduce ? 0 : 900); app.bot.beam(true, 15);
       const dur = world.showGhost(res.plan.placements, res.after, { reduce: app.reduce });
+      setTimeout(() => app.bot.beam(false), dur * 1000 + 300);
       res.plan.placements.forEach((_, i) => setTimeout(() => audio.ghost(i), i * 50));
       const chips = res.read.active.map((s) => `<span>${esc(s.replace(/_/g, ' '))}</span>`).join('');
       const why = G.j ? '' : `Why ${res.sure}%? reading <b>${res.breakdown.reading}%</b> × plan fit <b>${res.breakdown.fit}%</b> × experience <b>${res.breakdown.experience}%</b>. Tested: ${esc(res.plan.tested)}.`;
@@ -99,6 +102,7 @@ export function createGame(app) {
     }
   }
 
+  function centroidOf(pl) { const ks = [...new Set(pl.map((p) => p.k))]; if (!ks.length) return new THREE.Vector3(2, 0, 4); const v = new THREE.Vector3(); for (const k of ks) v.add(world.tileTop(k)); return v.multiplyScalar(1 / ks.length); }
   // ---------------- checking: choose a lens or view
   async function checkAct(id, res, { auto = false } = {}) {
     const lv = LEVELS[id]; const sAfter = sim(res.after);
@@ -106,7 +110,7 @@ export function createGame(app) {
     if (auto) {
       const which = Object.keys(reveal)[0];
       if (!which) return { flawed: false };
-      const r = await checks.run(which, sAfter, res.after, reveal); audio.bad(); ui.alert(fmt(T(id).flaw[which], r.revealed), false); await sleep(2200); ui.show('alert', false); await checks.leave(); return { flawed: true, which };
+      const r = await checks.run(which, sAfter, res.after, reveal); audio.bad(); app.bot.shrug(); ui.alert(fmt(T(id).flaw[which], r.revealed), false); await sleep(2200); ui.show('alert', false); await checks.leave(); return { flawed: true, which };
     }
     const opts = G.j ? lv.juniorChecks : ALL_CHECKS; let first = true; let tries = 0;
     for (;;) {
@@ -115,7 +119,7 @@ export function createGame(app) {
       if (['street', 'inside'].includes(choice)) { world.clearGhost(); showCells(res.after); }
       const r = await checks.run(choice, sAfter, res.after, reveal);
       if (r.revealed) {
-        audio.bad(); ui.alert(fmt(T(id).flaw[choice], r.revealed), false);
+        audio.bad(); app.bot.shrug(); ui.alert(fmt(T(id).flaw[choice], r.revealed), false);
         if (first) addStar(1, G.C.ui.foundIt);
         await sleep(2600); await continueBtn();
         ui.show('alert', false); await checks.leave(); if (['street', 'inside'].includes(choice)) { showCells(G.cells); world.showGhost(res.plan.placements, res.after, { reduce: true }); }
@@ -225,7 +229,7 @@ export function createGame(app) {
       const e = d.options[+a].effect; G.extra.families += e.families || 0; G.extra.carbon += e.carbon || 0; G.diary.push(`Town meeting: ${d.options[+a].label}.`);
     }
     for (const c of G.cells.values()) if (c.item || c.mark) c.locked = true;
-    G.diary.push(pick(T(id).diary)); flower(true); audio.reward();
+    G.diary.push(pick(T(id).diary)); flower(true); audio.reward(); world.confetti(new THREE.Vector3(10, 20, 8), 200); app.bot.cheer();
     const st = G.levelStars[id] || 0; const s2 = sim();
     await ui.modal(`<div class="ribbon green">${esc(G.C.ui.reward)} · ${esc(T(id).title)}</div><div class="stars3">${[0, 1, 2].map((i) => `<span class="${i < st ? 'on' : ''}">★</span>`).join('')}</div><h2>${esc(G.C.ui.foundations)}</h2>
       <div class="stats"><div><small>Mistake caught</small>${esc(G.mistakes.find((m) => m.level === id) ? G.C.habits[G.mistakes.find((m) => m.level === id).habit].label : G.C.ui.firstTry)}</div><div><small>Families</small>${s2.families}</div><div><small>Town title</small>${esc(s2.title)}</div><div><small>${G.j ? 'Fact' : 'Evidence'}</small>${esc(pick(T(id).fact))}</div></div>
@@ -253,7 +257,7 @@ export function createGame(app) {
       for (;;) {
         world.clearGhost(); res = await round(id, G.C.ui.tryClearer); G.instructions[id].push(res.text);
         const again = await checkAct(id, res, { auto: true });
-        if (!again.flawed) { audio.good(); ui.alert(G.C.ui.checked, true, 1800); addStar(1, G.C.ui.checked); ui.helper({ name: G.C.helperName, tag: G.C.ui.checked, tagCls: 'ok', html: `<ul>${res.plan.reading.map((r) => `<li>${esc(r)}</li>`).join('')}</ul>`, sure: res.sure, sureLabel: G.C.ui.sure }); break; }
+        if (!again.flawed) { audio.good(); app.bot.cheer(); world.confetti(app.bot.group.position.clone(), 90); ui.alert(G.C.ui.checked, true, 1800); addStar(1, G.C.ui.checked); ui.helper({ name: G.C.helperName, tag: G.C.ui.checked, tagCls: 'ok', html: `<ul>${res.plan.reading.map((r) => `<li>${esc(r)}</li>`).join('')}</ul>`, sure: res.sure, sureLabel: G.C.ui.sure }); break; }
         ui.helper({ name: G.C.helperName, tag: 'STILL WRONG', tagCls: 'bad', html: `<p>${esc(G.j ? 'Still a problem. Add what must be protected or tested.' : 'Still failing the test. Add a limit or a test condition.')}</p>` });
       }
       ui.facil(null);

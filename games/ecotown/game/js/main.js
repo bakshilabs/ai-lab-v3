@@ -3,6 +3,7 @@
 import * as THREE from 'three';
 import { createStage, probeTier } from './engine/stage.js';
 import { createLife } from './engine/life.js';
+import { createBot } from './engine/bot.js';
 import { initAudio, sfx, setSound, setMusic } from './engine/audio.js';
 import { makeTerrain } from './world/terrain.js';
 import { simulate } from './sim/sim.js';
@@ -25,9 +26,10 @@ const world = createWorld(stage, terrain);
 const life = createLife(stage, world, terrain);
 const inside = createInside(stage);
 const rig = createRig(stage, canvas, $('#fade'));
+const bot = createBot(stage);
 life.setTown(simulate(terrain, new Map()), new Map(), stage.q);
 const app = {
-  stage, terrain, world, life, inside, rig, audio: sfx, band: 'junior', session: 60, hour: 11, moveIn: null, winterTest: false,
+  stage, terrain, world, life, inside, rig, bot, audio: sfx, band: 'junior', session: 60, hour: 11, moveIn: null, winterTest: false,
   settings: { readAloud: true, reduce: matchMedia('(prefers-reduced-motion: reduce)').matches, sound: true, facilitator: false, text: 'normal', quality: 'auto', ...prefs },
   get reduce() { return this.settings.reduce; },
   // town picture for the report: render, then paint it over the current sky colours
@@ -51,7 +53,7 @@ applySettings();
 let last = performance.now(); const T0 = last;
 function loop(now) {
   const dt = Math.min(0.05, (now - last) / 1000); last = now; const t = (now - T0) / 1000;
-  rig.update(dt); world.update(dt, t, { windStill: app.winterTest }); life.update(dt, t, app.hour, { windStill: app.winterTest, moveIn: app.moveIn }); inside.update(dt, t);
+  rig.update(dt); world.update(dt, t, { windStill: app.winterTest }); life.update(dt, t, app.hour, { windStill: app.winterTest, moveIn: app.moveIn }); inside.update(dt, t); bot.update(dt, t);
   stage.render(dt, t); ui.labels.update(stage.camera, canvas);
   requestAnimationFrame(loop);
 }

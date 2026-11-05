@@ -33,27 +33,27 @@ await p.waitForTimeout(800);
 const skip = await p.$('text=Skip ⏭'); if (skip) await skip.click().catch(() => {});
 
 async function instruct(text, card) {
-  await p.waitForSelector('#tray:not(.hide) h3', { timeout: 30000 });
-  if (via === 'cards') { await click('#tray [data-m="cards"]'); await click(`#tray [data-card="${card}"]`); }
-  else { await click('#tray [data-m="text"]'); await p.fill('#tray [data-in]', text); await p.waitForTimeout(300); await click('#tray [data-send]'); }
+  await p.waitForSelector('#dock:not(.hide) [data-actions] h3', { timeout: 30000 });
+  if (via === 'cards') { await click('#dock [data-actions] [data-m="cards"]'); await click(`#dock [data-actions] [data-card="${card}"]`); }
+  else { await click('#dock [data-actions] [data-m="text"]'); await p.fill('#dock [data-actions] [data-in]', text); await p.waitForTimeout(300); await click('#dock [data-actions] [data-send]'); }
 }
 for (const [id, check, habit, vague, clear] of LEVELS) {
   await click('#modal:not(.hide) [data-act="go"]', 60000); // brief + unlock card
   await p.waitForTimeout(400);
   await instruct(vague, 0); await p.waitForTimeout(2200); await shot(`${id}-plan`); budget.push([`${id}-plan`, await panelsVisible()]);
-  await click(`#tray [data-c="${check}"]`); await p.waitForSelector('#alert:not(.hide)', { timeout: 30000 }); await shot(`${id}-check-${check}`); budget.push([`${id}-check`, await panelsVisible()]);
-  await click('#tray [data-go]'); await p.waitForTimeout(1500);
-  await click(`#tray [data-h="${habit}"]`); await p.waitForTimeout(900);
-  await instruct(clear, 1); await p.waitForSelector('#tray [data-done]:not([disabled])', { timeout: 40000 }); await shot(`${id}-build`); budget.push([`${id}-build`, await panelsVisible()]);
-  await click('#tray [data-done]');
+  await click(`#dock [data-actions] [data-c="${check}"]`); await p.waitForSelector('#alert:not(.hide)', { timeout: 30000 }); await shot(`${id}-check-${check}`); budget.push([`${id}-check`, await panelsVisible()]);
+  await click('#dock [data-actions] [data-go]'); await p.waitForTimeout(1500);
+  await click(`#dock [data-actions] [data-h="${habit}"]`); await p.waitForTimeout(900);
+  await instruct(clear, 1); await p.waitForSelector('#dock [data-actions] [data-done]:not([disabled])', { timeout: 40000 }); await shot(`${id}-build`); budget.push([`${id}-build`, await panelsVisible()]);
+  await click('#dock [data-actions] [data-done]');
   if (id === 'heart') {
-    if (band === 'junior') { for (let i = 0; i < 6; i++) await click(`#tray [data-r="${i}"]`); await click('#tray [data-act="gate"]'); }
-    else { await click('#tray [data-act="gate"]'); await p.waitForTimeout(600); await click('#tray [data-act="everyone"]'); }
-    await p.waitForTimeout(2000); for (const i of [0, 1, 2]) await click(`#tray [data-p="${i}"]`); await click('#tray [data-ok]'); await click('#modal:not(.hide) [data-act="ok"]');
+    if (band === 'junior') { for (let i = 0; i < 6; i++) await click(`#dock [data-actions] [data-r="${i}"]`); await click('#dock [data-actions] [data-act="gate"]'); }
+    else { await click('#dock [data-actions] [data-act="gate"]'); await p.waitForTimeout(600); await click('#dock [data-actions] [data-act="everyone"]'); }
+    await p.waitForTimeout(2000); for (const i of [0, 1, 2]) await click(`#dock [data-actions] [data-p="${i}"]`); await click('#dock [data-actions] [data-ok]'); await click('#modal:not(.hide) [data-act="ok"]');
   }
   // live: screenshot midway, then skip
-  const first = await Promise.race([p.waitForSelector('#tray [data-skip]', { state: 'visible', timeout: 40000 }).then(() => 'live'), p.waitForSelector('#modal:not(.hide) [data-act]', { timeout: 40000 }).then(() => 'modal')]);
-  if (first === 'live') { await p.waitForTimeout(3000); await shot(`${id}-live`); budget.push([`${id}-live`, await panelsVisible()]); await click('#tray [data-skip]'); }
+  const first = await Promise.race([p.waitForSelector('#dock [data-actions] [data-skip]', { state: 'visible', timeout: 40000 }).then(() => 'live'), p.waitForSelector('#modal:not(.hide) [data-act]', { timeout: 40000 }).then(() => 'modal')]);
+  if (first === 'live') { await p.waitForTimeout(3000); await shot(`${id}-live`); budget.push([`${id}-live`, await panelsVisible()]); await click('#dock [data-actions] [data-skip]'); }
   // petitions / dilemmas (senior) and the reward card
   for (let i = 0; i < 3; i++) {
     const m = await p.waitForSelector('#modal:not(.hide) [data-act]', { timeout: 30000 });
@@ -63,8 +63,8 @@ for (const [id, check, habit, vague, clear] of LEVELS) {
   }
   console.log('level done', id, 'stars', await p.evaluate(() => window.__eco.app.G.stars));
 }
-await p.waitForSelector('#tray [data-skip]', { timeout: 60000 }); await p.waitForTimeout(4000); await shot('final-day'); await click('#tray [data-skip]');
+await p.waitForSelector('#dock [data-actions] [data-skip]', { timeout: 60000 }); await p.waitForTimeout(4000); await shot('final-day'); await click('#dock [data-actions] [data-skip]');
 await p.waitForSelector('#report', { timeout: 60000 }); await p.waitForTimeout(800); await shot('report');
-const over = budget.filter(([k, v]) => v.filter((x) => ['helper', 'tray', 'alert', 'lensbar', 'facil', 'modal'].includes(x)).length > (/live/.test(k) ? 2 : 4));
+const over = budget.filter(([k, v]) => v.filter((x) => ['dock', 'alert', 'lensbar', 'modal'].includes(x)).length > (/live/.test(k) ? 2 : 4));
 console.log(JSON.stringify({ errors, external: requests, panelBudgetViolations: over }, null, 1));
 await b.close();

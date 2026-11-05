@@ -10,82 +10,102 @@ export const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&am
 const PETAL_COL = { homes: '#ff8a5c', food: '#ffc83d', nature: '#4caf50', health: '#ff7eb6', energy: '#2f9de0', community: '#b28cff', carbon: '#7a8a96' };
 const PETAL_ICON = { homes: '🏠', food: '🍎', nature: '🦋', health: '❤', energy: '⚡', community: '🤝', carbon: '☁' };
 
+export const LEVEL_ICONS = ['🗺', '🚲', '🏡', '🍎', '⚡', '🏫'];
 export function createUI(root, labelsRoot, opts) {
   const P = {};
   const mk = (id, cls, html = '') => { const n = h(`<div id="${id}" class="panel hide ${cls}">${html}</div>`); root.appendChild(n); P[id] = n; return n; };
-  mk('badge', 'from-left', '<span class="ic">🌱</span><span><b>Eco Town</b><small data-sub></small></span>');
-  mk('task', 'from-left');
-  mk('tr', 'from-right', '<div class="pill" data-stars><span class="star">★</span><b>0</b></div><button class="pill" data-menu aria-label="Settings">☰</button>');
-  mk('helper', 'from-right');
-  mk('tray', 'from-bottom');
-  mk('views', 'from-right', '<button data-v="sky" class="on">SKY</button><button data-v="street">STREET</button><button data-v="inside">INSIDE</button>');
-  mk('flower', 'from-left', '<svg viewBox="-60 -60 120 120" aria-label="Town flower"></svg><div class="ttl"></div>');
-  mk('alert', 'from-top', '<span class="x">✕</span><span data-t></span>');
+  // one town card (top-left), one icon strip (top-right), one dock (bottom): the whole frame
+  mk('card', 'from-left', `<div class="crow"><span class="leaf">🌱</span><b class="brand">Eco Town</b><span class="band" data-sub></span><span class="stars"><span class="star">★</span><b data-stars>0</b></span></div>
+    <div class="track" data-track>${LEVEL_ICONS.map((ic, i) => `<i data-l="${i + 1}"><span>${ic}</span></i>`).join('<em></em>')}</div><div class="goal" data-goal></div>`);
+  mk('strip', 'from-right', `<button class="ib" data-flower aria-label="Town flower"><svg viewBox="-60 -60 120 120"></svg></button><span class="sep"></span>
+    <button class="ib" data-v="sky" aria-label="Sky view">☁</button><button class="ib" data-v="street" aria-label="Street view">👟</button><button class="ib" data-v="inside" aria-label="Inside view">🏠</button><span class="sep"></span><button class="ib" data-menu aria-label="Settings">☰</button>`);
+  mk('flowerpop', 'from-right', '<svg viewBox="-60 -60 120 120" aria-label="Town flower"></svg><div class="ttl"></div><div class="legend"></div>');
+  mk('dock', 'from-bottom', '<div class="head" data-head></div><div class="speaker" data-speaker></div><div class="actions" data-actions></div>');
+  mk('alert', 'pop', '<span class="x">✕</span><span data-t></span>');
   mk('lensbar', 'from-top');
-  mk('facil', 'from-left', '<small>FACILITATOR</small><p></p>');
   mk('modal', 'modal');
   mk('settings', 'from-right');
-  const caption = h('<div id="caption" class="panel hide from-top" style="left:50%;top:calc(12px + 3.6em);transform:translateX(-50%);background:rgba(19,32,43,.9);color:#fff;font-weight:700;padding:8px 16px;border-radius:14px;max-width:80vw;text-align:center"></div>');
-  root.appendChild(caption); P.caption = caption;
+  const D = { head: P.dock.querySelector('[data-head]'), speaker: P.dock.querySelector('[data-speaker]'), actions: P.dock.querySelector('[data-actions]') };
+  const facilEl = h('<div class="facil"></div>'); P.dock.prepend(facilEl);
+  P.tray = D.actions; P.helper = D.speaker; P.tr = P.strip; P.views = P.strip; P.flower = P.flowerpop; P.badge = P.card; P.task = P.card;
+  const dockState = { speaker: false, actions: false, head: false };
+  const syncDock = () => { P.dock.classList.toggle('hide', !(dockState.speaker || dockState.actions)); D.speaker.style.display = dockState.speaker ? '' : 'none'; D.actions.style.display = dockState.actions ? '' : 'none'; P.dock.classList.toggle('talk-only', dockState.speaker && !dockState.actions); };
 
   const ui = {
-    P, readAloud: false, budget: { live: 2, plan: 4 },
-    show(id, on = true) { P[id].classList.toggle('hide', !on); },
-    only(ids) { for (const id of ['helper', 'tray', 'alert', 'lensbar', 'facil', 'modal', 'settings', 'caption']) this.show(id, ids.includes(id)); },
-    visibleCount() { return Object.values(P).filter((n) => !n.classList.contains('hide')).length; },
-    setBadge(sub) { P.badge.querySelector('[data-sub]').textContent = sub; this.show('badge'); },
-    setTask(lv, text) { P.task.innerHTML = `<span class="lv">${esc(lv)}</span><span>${esc(text)}</span>`; this.show('task'); },
-    setStars(n) { const b = P.tr.querySelector('[data-stars] b'); b.textContent = n; this.show('tr'); },
-    // helper card: { tag, tagCls, html, sure, sureLabel, why, thinking }
+    P, readAloud: false,
+    show(id, on = true) {
+      if (id === 'helper') { dockState.speaker = on; return syncDock(); }
+      if (id === 'tray') { dockState.actions = on; return syncDock(); }
+      if (id === 'caption') { if (!on) D.head.classList.remove('on'); return; }
+      if (id === 'facil') { facilEl.classList.toggle('on', on); return; }
+      if (['badge', 'task', 'tr'].includes(id)) id = id === 'tr' ? 'strip' : 'card';
+      if (id === 'views' || id === 'flower') id = 'strip';
+      P[id]?.classList.toggle('hide', !on);
+    },
+    only(ids) { for (const id of ['helper', 'tray', 'alert', 'lensbar', 'facil', 'modal', 'settings', 'caption']) this.show(id, ids.includes(id)); P.flowerpop.classList.add('hide'); },
+    setBadge(sub) { P.card.querySelector('[data-sub]').textContent = sub; this.show('card'); this.show('strip'); },
+    setTask(lv, text) {
+      P.card.querySelector('[data-goal]').textContent = text; const n = parseInt(String(lv).replace(/\D/g, '')) || 0;
+      P.card.querySelectorAll('[data-l]').forEach((e) => { const l = +e.dataset.l; e.classList.toggle('done', l < n); e.classList.toggle('on', l === n); });
+      this.show('card');
+    },
+    setStars(n) { const b = P.card.querySelector('[data-stars]'); if (b.textContent !== String(n)) { b.textContent = n; b.parentElement.classList.remove('bump'); void b.offsetWidth; b.parentElement.classList.add('bump'); } this.show('card'); },
+    // Plotter speaks in the dock: { tag, tagCls, html, sure, sureLabel, why, thinking }
     helper(o) {
       if (!o) { this.show('helper', false); return; }
-      P.helper.classList.toggle('thinking', !!o.thinking);
-      P.helper.innerHTML = `<div class="bot"><i></i><i></i></div><div class="who">${esc(o.name || 'Plotter')} <em class="${o.tagCls || ''}">${esc(o.tag || 'GUESS')}</em></div>
-        <div>${o.html || ''}</div>${o.sure != null ? `<div class="sure"><div class="bar"><i></i></div><span>${o.sure}% ${esc(o.sureLabel || 'sure')}</span></div>` : ''}${o.why ? `<div class="why">${o.why}</div>` : ''}`;
+      D.speaker.className = 'speaker' + (o.thinking ? ' thinking' : '') + (o.tagCls ? ' ' + o.tagCls : '');
+      D.speaker.innerHTML = `<div class="avatar"><div class="bot"><i></i><i></i></div></div><div class="say"><div class="name">${esc(o.name || 'Plotter')} <em class="${o.tagCls || ''}">${esc(o.tag || 'GUESS')}</em></div>
+        <div class="text">${o.html || ''}</div>${o.sure != null ? `<div class="sure"><div class="bar"><i></i></div><span>${o.sure}% ${esc(o.sureLabel || 'sure')}</span></div>` : ''}${o.why ? `<div class="why">${o.why}</div>` : ''}</div>`;
       this.show('helper');
-      if (o.sure != null) requestAnimationFrame(() => requestAnimationFrame(() => { const i = P.helper.querySelector('.sure .bar i'); if (i) i.style.width = o.sure + '%'; }));
+      if (o.sure != null) requestAnimationFrame(() => requestAnimationFrame(() => { const i = D.speaker.querySelector('.sure .bar i'); if (i) i.style.width = o.sure + '%'; }));
       if (o.say) this.say(o.say);
     },
-    tray(html, bind) { P.tray.innerHTML = html; this.show('tray', !!html); bind?.(P.tray); document.documentElement.style.setProperty('--trayH', P.tray.offsetHeight + 'px'); return P.tray; },
+    tray(html, bind) { D.actions.innerHTML = html; this.show('tray', !!html); bind?.(D.actions); return D.actions; },
     alert(text, good = false, ms = 0) {
       P.alert.classList.toggle('good', good); P.alert.querySelector('.x').textContent = good ? '✓' : '✕'; P.alert.querySelector('[data-t]').textContent = text; this.show('alert');
-      this.say(text); if (ms) setTimeout(() => this.show('alert', false), ms);
+      this.say(text); clearTimeout(this._at); if (ms) this._at = setTimeout(() => this.show('alert', false), ms);
     },
     lensbar(html) { if (!html) return this.show('lensbar', false); P.lensbar.innerHTML = html; this.show('lensbar'); },
-    facil(text) { if (!text || !opts.facilitator()) return this.show('facil', false); P.facil.querySelector('p').textContent = text; this.show('facil'); },
-    // centre card; resolves with the data-act of the button pressed
+    facil(text) { if (!text || !opts.facilitator()) return this.show('facil', false); facilEl.innerHTML = `<small>FACILITATOR</small> ${esc(text)}`; this.show('facil'); },
     modal(html, { say } = {}) {
       P.modal.innerHTML = html; this.show('modal'); if (say) this.say(say);
       const first = P.modal.querySelector('button'); setTimeout(() => first?.focus(), 50);
       return new Promise((res) => { P.modal.onclick = (e) => { const b = e.target.closest('[data-act]'); if (!b) return; P.modal.onclick = null; this.show('modal', false); res(b.dataset.act); }; });
     },
-    caption(text, ms = 3500) { if (!text) return this.show('caption', false); P.caption.textContent = text; this.show('caption'); clearTimeout(this._ct); this._ct = setTimeout(() => this.show('caption', false), ms); },
+    // short status line: shown as the dock's headline, or as a toast when the dock is hidden
+    caption(text, ms = 3500) {
+      if (!text) { D.head.classList.remove('on'); P.toast?.classList.add('hide'); return; }
+      const host = P.dock.classList.contains('hide') ? (P.toast ||= (() => { const n = h('<div id="toast" class="panel hide pop"></div>'); root.appendChild(n); return n; })()) : D.head;
+      host.textContent = text; host.classList.add('on'); host.classList.remove('hide'); clearTimeout(this._ct);
+      this._ct = setTimeout(() => { host.classList.remove('on'); if (host === P.toast) host.classList.add('hide'); }, ms);
+    },
     say(text) {
       if (!this.readAloud || !('speechSynthesis' in window) || !text) return;
       try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(String(text).replace(/[★✕✓☁🌊]/g, '')); u.lang = 'en-GB'; u.rate = 0.98; speechSynthesis.speak(u); } catch { /* speech unavailable */ }
     },
     views(active, enabled = ['sky', 'street', 'inside']) {
-      for (const b of P.views.querySelectorAll('button')) { b.classList.toggle('on', b.dataset.v === active); b.disabled = !enabled.includes(b.dataset.v); }
-      this.show('views', enabled.length > 0);
+      for (const b of P.strip.querySelectorAll('[data-v]')) { b.classList.toggle('on', b.dataset.v === active); b.disabled = !enabled.includes(b.dataset.v); }
+      this.show('strip');
     },
-    // ---------- town flower (seven petals, "enough" ring at 1.0)
     flower(petals, title, { open = null, flash = false } = {}) {
-      const svg = P.flower.querySelector('svg'); const R = 50; let s = `<circle r="${R * 0.62}" fill="none" stroke="#dfe6ea" stroke-width="1.5" stroke-dasharray="3 3"/>`;
+      const R = 50; let s = `<circle r="${R * 0.62}" fill="none" stroke="#e3d5bb" stroke-width="1.5" stroke-dasharray="3 3"/>`;
       PETALS.forEach((p, i) => {
         const a = (i / PETALS.length) * Math.PI * 2 - Math.PI / 2, v = Math.max(0.08, petals[p] || 0), len = R * 0.62 * Math.min(1.45, v);
-        const x = Math.cos(a) * len, y = Math.sin(a) * len, w = 11;
-        s += `<g transform="rotate(${(a * 180) / Math.PI + 90})"><ellipse cx="0" cy="${-len / 2}" rx="${w}" ry="${len / 2}" fill="${PETAL_COL[p]}" opacity="${v >= 1 ? 1 : 0.55}"/></g>`;
+        s += `<g transform="rotate(${(a * 180) / Math.PI + 90})"><ellipse cx="0" cy="${-len / 2}" rx="11" ry="${len / 2}" fill="${PETAL_COL[p]}" opacity="${v >= 1 ? 1 : 0.5}"/></g>`;
         s += `<text x="${Math.cos(a) * (R + 1)}" y="${Math.sin(a) * (R + 1) + 4}" font-size="11" text-anchor="middle">${PETAL_ICON[p]}</text>`;
       });
-      s += '<circle r="8" fill="#ffd23f"/>'; svg.innerHTML = s;
-      P.flower.querySelector('.ttl').textContent = title || '';
-      P.flower.setAttribute('title', PETALS.map((p) => `${p}: ${Math.round((petals[p] || 0) * 100)}%`).join(', '));
-      this.show('flower');
-      if (open !== null) P.flower.classList.toggle('open', open);
-      if (flash) { P.flower.classList.add('open'); clearTimeout(this._ft); this._ft = setTimeout(() => P.flower.classList.remove('open'), 2600); }
+      s += '<circle r="8" fill="#ffd23f"/>';
+      P.flowerpop.querySelector('svg').innerHTML = s; P.strip.querySelector('[data-flower] svg').innerHTML = s;
+      P.flowerpop.querySelector('.ttl').textContent = title || '';
+      P.flowerpop.querySelector('.legend').innerHTML = PETALS.map((p) => `<span>${PETAL_ICON[p]} ${p} <b>${Math.round((petals[p] || 0) * 100)}%</b></span>`).join('');
+      this.show('strip');
+      if (open !== null) P.flowerpop.classList.toggle('hide', !open);
+      if (flash) { const btn = P.strip.querySelector('[data-flower]'); btn.classList.remove('bump'); void btn.offsetWidth; btn.classList.add('bump'); }
     },
   };
-  P.flower.addEventListener('click', () => P.flower.classList.toggle('open'));
+  P.strip.querySelector('[data-flower]').addEventListener('click', () => P.flowerpop.classList.toggle('hide'));
+  P.flowerpop.addEventListener('click', () => P.flowerpop.classList.add('hide'));
+
 
   // ---------- world-anchored labels and bubbles
   const anchored = []; const v3 = new THREE.Vector3();
