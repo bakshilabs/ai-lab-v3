@@ -77,7 +77,7 @@ function bubble(x, y, s, red) { g.font = '8px Silk'; const w = Math.ceil(g.measu
 
 // ---------- timeline ----------
 function focus(t) {
-  const keys = [[0, 6, 6], [3.5, 9, 10], [8, 9, 10], [8.01, 11.5, 10.5], [14, 12, 10], [19.5, 11, 9], [25, 10, 9], [30, 9.5, 9.5], [36, 9.5, 9.5]];
+  const keys = [[0, 6, 6], [3.5, 9, 10], [8, 9, 10], [8.01, 11.5, 10.5], [14, 12, 10], [19.5, 11, 9], [22.6, 11, 9], [23.4, 14.5, 7.5], [25.6, 14.5, 7.5], [27, 10, 9], [30, 9.5, 9.5], [36, 9.5, 9.5]];
   let k = 0; while (k < keys.length - 1 && t > keys[k + 1][0]) k++; const a = keys[k], b = keys[Math.min(k + 1, keys.length - 1)];
   const f = b === a ? 0 : eio(clamp((t - a[0]) / (b[0] - a[0] || 1))); return [lerp(a[1], b[1], f), lerp(a[2], b[2], f)];
 }
@@ -87,9 +87,10 @@ function frame(t) {
   for (let y = 0; y < H; y += 2) { const k = y / H; px(0, y, W, 2, `rgb(${Math.round(lerp(64, 150, k))},${Math.round(lerp(146, 212, k))},${Math.round(lerp(240, 255, k))})`); }
   for (let k = 0; k < 6; k++) { const xx = ((k * 97 + t * 6) % (W + 80)) - 40, yy = 20 + (k * 37) % 70; px(xx, yy, 34, 6, '#ffffff'); px(xx + 6, yy - 4, 20, 4, '#ffffff'); px(xx + 2, yy + 6, 30, 2, '#dfe9f5'); }
   const pathSet = new Set(edgePath);
-  const cutOn = t >= 8 && t < 23.8, cutK = t < 22.3 ? prog(t, 8.2, 10.4) : 1 - prog(t, 22.3, 23.8);
+  const cutOn = t >= 8 && t < 25.2, cutK = t < 23.0 ? prog(t, 8.2, 10.4) : 1 - prog(t, 23.0, 25.2);
   const reroute = []; for (let i = 12; i <= 17; i++) reroute.push([i, 13]); for (let j = 12; j >= 5; j--) reroute.push([17, j]);
-  if (t >= 22.3) reroute.forEach(([i, j], k) => { if (k / reroute.length < prog(t, 22.3, 23.8, (q) => q)) pathSet.add(i + ',' + j); });
+  if (t >= 23.0) reroute.forEach(([i, j], k) => { if (k / reroute.length < prog(t, 23.0, 25.2, (q) => q)) pathSet.add(i + ',' + j); });
+  if (t >= 23.0 && t < 25.4) { const kk = clamp(prog(t, 23.0, 25.2, (q) => q) * reroute.length, 0, reroute.length - 1); const [bi, bj] = reroute[Math.floor(kk)]; const [bx, by] = iso(bi, bj); window.__bld = [bx, by]; } else window.__bld = null;
   if (cutOn) cutPath.forEach(([i, j], k) => { if (k / cutPath.length < cutK) pathSet.add(i + ',' + j); });
   for (let s2 = 0; s2 < 2 * N; s2++) for (let i = 0; i < N; i++) {
     const j = s2 - i; if (j < 0 || j >= N || !inside(i, j)) continue;
@@ -163,18 +164,23 @@ function frame(t) {
   
   px(0, H - 14, W, 14, '#8d929a'); px(0, H - 14, W, 1, '#c4c9d0'); txt('£' + money.toLocaleString('en-GB') + '   GUESTS ' + guests, 6, H - 4, '#fff', 'P2P', 8); txt('PARK RATING', W - 200, H - 4, '#fff', 'P2P', 8); bar(W - 108, H - 10, 100, (wild + tidy) / 2, '#2fbf6a');
   if (news) { px(0, H - 14, W, 14, red ? '#7a1a12' : '#1d2a48'); px(0, H - 14, W, 1, '#fff3'); const sx = W - ((t * 120) % (W + g.measureText(news).width + 200)); txt(news, Math.max(6, Math.min(6, sx)), H - 4, red ? '#ffd0c8' : '#ffe680', 'Silk', 8); }
+  // builder cursor laying the new path, and a pointer for the children's choices
+  if (window.__bld) { const [bx, by] = window.__bld; const X = bx + ox, Y = by + oy; px(X - 1, Y - 22, 3, 18, '#ffe680'); px(X - 6, Y - 26, 13, 6, '#ffe680'); px(X - 4, Y - 24, 9, 2, '#b08a1a'); txtS('BUILDING PATH', X + 10, Y - 20, '#ffe680', 'P2P', 8); }
+  const pointer = (x, y) => { px(x, y, 2, 12, '#fff'); px(x + 2, y + 2, 2, 8, '#fff'); px(x + 4, y + 4, 2, 6, '#fff'); px(x + 6, y + 6, 2, 3, '#fff'); px(x - 1, y - 1, 1, 14, '#111'); };
+  if (t >= 4.4 && t < 7.6) { const k = eio(prog(t, 4.4, 5.3)); pointer(Math.round(lerp(470, 230, k)), Math.round(lerp(260, 150, k))); }
+  if (t >= 21.4 && t < 22.9) { const k = eio(prog(t, 21.4, 21.9)); pointer(Math.round(lerp(470, 240, k)), Math.round(lerp(260, 124, k))); }
   // Manager Bot advisor window (big, readable)
   const advisor = (l1, l2, sure, a, b, right) => { if (t < a || t >= b) return; const k = eio(prog(t, a, a + 0.3)); const wx = right ? W - 368 : 8, wy = Math.round(lerp(H, H - 94, k)), ww = 360, wh = 76; win(wx, wy, ww, wh, 'MANAGER BOT  ·  AI ADVISOR', '#127a6a');
     const q = (x, y, w, h, c) => px(wx + 8 + x, wy + 18 + y, w, h, c); q(0, 0, 40, 40, '#2a3a48'); q(6, 8, 28, 22, '#f4f6f8'); q(10, 13, 7, 7, '#16c7a6'); q(23, 13, 7, 7, '#16c7a6'); q(12, 24, 16, 2, '#2a3a48'); q(18, 2, 4, 6, '#ffc83d');
     txt(l1, wx + 58, wy + 30, '#111', 'P2P', 8); txt(l2, wx + 58, wy + 44, '#111', 'P2P', 8);
     px(wx + 58, wy + 54, 200, 8, '#4a4f56'); px(wx + 59, wy + 55, Math.round(198 * sure * prog(t, a + 0.2, a + 0.8)), 6, sure > 0.9 ? '#ff8a3a' : '#2fbf6a'); txt(Math.round(sure * 100) + '% SURE', wx + 266, wy + 62, '#7a1a12', 'P2P', 8); };
   advisor('FASTEST WAY TO 50 GUESTS:', 'A PATH STRAIGHT THROUGH THE MEADOW!', 0.92, 6.3, 10.4);
-  advisor('GOT IT: PATH ROUND THE MEADOW.', 'MEADOW STAYS WILD. 50 GUESTS.', 0.88, 22.9, 26.4, true);
+  advisor('GOT IT: PATH ROUND THE MEADOW.', 'MEADOW STAYS WILD. 50 GUESTS.', 0.88, 25.4, 28.4);
   // clearer instruction (the fix)
   if (t >= 21.3 && t < 23) { const k = eio(prog(t, 21.3, 21.6)); const wx = 160, wy = Math.round(lerp(H, 96, k)); win(wx, wy, 320, 52, 'NEW INSTRUCTION FOR MANAGER BOT', '#7a3fb0'); button(wx + 8, wy + 22, 304, 18, 'GET 50 GUESTS. KEEP THE MEADOW WILD.', t > 21.9, false); if (t > 21.8 && t < 22.3) { const r = (t - 21.8) * 40; g.strokeStyle = '#fff'; g.lineWidth = 1; g.beginPath(); g.arc(wx + 60, wy + 28, r, 0, Math.PI * 2); g.stroke(); } }
   // harm alert
   if (t >= 10.6 && t < 12.4) { const k = eio(prog(t, 10.6, 10.9)); const wx = 190, wy = Math.round(lerp(-60, 22, k)); win(wx, wy, 260, 46, 'PARK ALERT', '#b0281a'); txt('WILDLIFE FALLING:', wx + 10, wy + 26, '#7a1a12', 'P2P', 8); txt(Math.round(lerp(72, 40, prog(t, 10.6, 12.2))) + '%  ↓', wx + 170, wy + 38, '#b0281a', 'P2P', 8); }
-  if (t >= 16.6 && t < 19.4) { const k = eio(prog(t, 16.6, 16.9)); const wx = 190, wy = Math.round(lerp(-60, 22, k)); win(wx, wy, 260, 46, 'PARK ALERT', '#b0281a'); txt('DEER LEAVING THE PARK:', wx + 10, wy + 26, '#7a1a12', 'P2P', 8); txt('WILDLIFE 30%  ↓', wx + 120, wy + 38, '#b0281a', 'P2P', 8); }
+  if (t >= 13.6 && t < 16.6) { const k = eio(prog(t, 13.6, 13.9)); const wx = 190, wy = Math.round(lerp(-60, 22, k)); win(wx, wy, 260, 46, 'PARK ALERT', '#b0281a'); txt('DEER LEAVING THE PARK:', wx + 10, wy + 26, '#7a1a12', 'P2P', 8); txt('WILDLIFE 30%  ↓', wx + 120, wy + 38, '#b0281a', 'P2P', 8); }
   // ride window (hook)
   if (t >= 0.8 && t < 3.4) { const wx = W - 150, wy = 20; win(wx, wy, 142, 62, 'TWISTER COASTER', '#b0402a'); txt('STATUS: OPEN', wx + 8, wy + 26, '#1a6a2a'); txt('RIDERS TODAY: 412', wx + 8, wy + 39, '#111'); txt('EXCITEMENT: HIGH', wx + 8, wy + 52, '#111'); }
   // scenario + instruction window
@@ -194,7 +200,7 @@ function frame(t) {
   // thought bubbles
   const bub = (i, j, h, s, a, b, red) => { if (t >= a && t < b) { const [x, y] = iso(i, j, h); bubble(x + ox, y + oy, s, red); } };
   bub(12.5, 13.5, 1.4, 'WOW, FREE!', 9.6, 12.5); bub(11.4, 6.8, 0.8, 'MY BURROW!', 9.0, 10.6, true); bub(12.6, 11, 1.4, 'WHERE ARE THE FLOWERS?', 11, 12.5);
-  bub(12, 12.5, 1.4, 'I CAME TO SEE THE DEER', 16.2, 19.4, true); bub(5.5, 12.5, 0.6, 'TOO NOISY HERE', 17, 19.4, true);
+  bub(12, 12.5, 1.4, 'I CAME TO SEE THE DEER', 13.4, 16.6, true); bub(5.5, 12.5, 0.6, 'TOO NOISY HERE', 14, 16.6, true);
   bub(14.5, 8, 2, 'SHADE AT LAST', 24.5, 29.5); bub(8, 15.5, 1.4, 'I SAW A DEER!', 25, 29.5);
   // thought tally window
   if (false) {
@@ -216,7 +222,7 @@ function frame(t) {
   // hook text
   if (t >= 0.6 && t < 3.4) { const a = prog(t, 0.6, 0.9) * (1 - prog(t, 3.1, 3.4)); g.globalAlpha = a; txtS('RUN A PARK.', W / 2, 270, '#ffffff', 'P2P', 16, 'center'); txtS('HIRE AN AI MANAGER.', W / 2, 296, '#ffe680', 'P2P', 12, 'center'); g.globalAlpha = 1; }
   if (t >= 10.8 && t < 12.5) { g.globalAlpha = prog(t, 10.8, 11.1); px(W / 2 - 200, 304, 400, 24, '#13202bcc'); txtS('IT DID EXACTLY WHAT YOU SAID.', W / 2, 320, '#ffffff', 'P2P', 12, 'center'); g.globalAlpha = 1; }
-  if (t >= 23.2 && t < 25.6) { g.globalAlpha = prog(t, 23.2, 23.5); px(W / 2 - 130, 36, 260, 24, '#13202bcc'); txtS('SAY WHAT YOU MEAN.', W / 2, 52, '#ffffff', 'P2P', 12, 'center'); g.globalAlpha = 1; }
+  if (t >= 25.2 && t < 26.4) { g.globalAlpha = prog(t, 25.2, 25.5); px(W / 2 - 130, 36, 260, 24, '#13202bcc'); txtS('SAY WHAT YOU MEAN.', W / 2, 52, '#ffffff', 'P2P', 12, 'center'); g.globalAlpha = 1; }
   // title
   if (t >= 30) {
     const a = prog(t, 30, 30.6);
