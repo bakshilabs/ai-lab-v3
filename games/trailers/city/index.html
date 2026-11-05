@@ -306,7 +306,7 @@ st.onFrame((t) => {
   const wOn = within(t, 9.7, 14.2) || within(t, 17.0, 20.4); wedge.visible = wOn; if (wOn) { updateWedge(Math.min(ex + 1.2, 46), R1); wedgeMat.color.set(run2(t) ? '#ffc83d' : '#ff5d4a'); wedgeMat.opacity = 0.42 * (s > 0.5 && !run2(t) ? 0.6 : 1); }
 });
 // ---------- cameras ----------
-const sideCam = (t, ex) => { const cx = clamp(ex + 6, 44, 51); return { cp: [cx - 1.5, 17, 10.5], cl: [cx + 0.5, 1.4, 31.5], fov: 42 }; };
+const sideCam = (t, ex) => { const cx = clamp(ex + 6, 44, 51); return { cp: [cx - 1.5, 21, 13.5], cl: [cx + 0.5, 1.4, 32], fov: 42 }; };
 st.onFrame((t) => {
   const p = ego.position; let cp, cl, fov;
   const chase = { cp: [p.x - 11, 5.2, p.z - 4.2], cl: [p.x + 12, 1.6, p.z], fov: 46 };
@@ -336,17 +336,17 @@ det(child, '? 41%', '#ffc83d', 10.8, 14.2, 6);
 det(child, 'CHILD 88%', '#16ffc6', 19.3, 21.0, 6);
 // blind-spot label follows the wedge
 const wl = el('<div class="tag3d"></div>', { x: 0, y: 0 });
-A((t) => { const v = within(t, 9.9, 10.75) || within(t, 17.2, 19.25); wl.style.opacity = v ? 1 : 0; if (!v) return; const p = toScreen(wedgeC, camera); wl.style.left = clamp(p.x, 300, 1620) + 'px'; wl.style.top = p.y + 40 + 'px'; const r2 = run2(t); wl.style.background = r2 ? '#ffc83d' : '#ff5d4a'; wl.style.color = r2 ? '#13202b' : '#fff'; wl.firstChild.textContent = r2 ? 'CAN’T SEE HERE → SLOW DOWN' : 'CAN’T SEE BEHIND THE VAN'; });
+A((t) => { const v = within(t, 9.9, 10.75) || within(t, 17.2, 19.25); wl.style.opacity = v ? 1 : 0; if (!v) return; const p = toScreen(wedgeC, camera); wl.style.left = clamp(p.x, 860, 1620) + 'px'; wl.style.top = p.y + 40 + 'px'; const r2 = run2(t); wl.style.background = r2 ? '#ffc83d' : '#ff5d4a'; wl.style.color = r2 ? '#13202b' : '#fff'; wl.firstChild.textContent = r2 ? 'CAN’T SEE HERE → SLOW DOWN' : 'CAN’T SEE BEHIND THE VAN'; });
 // test-drive chip (top left) restates the instruction in use
 const chip = (head, line, col, tIn, tOut) => A(cue(el(`<div class="tchip"><small style="color:${col}">${head}</small><span>${line}</span></div>`, { x: 40, y: 40 }), tIn, tOut, { from: 'left' }));
 chip('TEST DRIVE 1 · YOUR INSTRUCTION', '“Get me to school <b style="color:#ffc83d">fast</b>.”', '#ffc83d', 5.7, 14.1);
 chip('TEST DRIVE 2 · NEW INSTRUCTION', 'Can’t see past something? <b style="color:#16ffc6">Slow down.</b><br>Not sure? <b style="color:#16ffc6">Stop.</b>', '#16ffc6', 17.0, 23.3);
 const lidLbl = el('<div style="font:800 22px Inter;letter-spacing:.2em;color:#16ffc6;background:rgba(4,16,40,.82);border-radius:999px;padding:10px 22px;box-shadow:0 6px 18px rgba(0,0,0,.25)">● LIDAR VIEW · 9,000 POINTS A SPIN</div>', { x: 40, y: 182 }); A(cue(lidLbl, 6.0, 9.5, { from: 'left' }));
 // AI helper (brochure style, top right)
-function helper(text, sure, tIn, tOut, tag = 'MY PLAN', tagColor = '#ffc83d') { const n = el(`<div class="b-helper" style="width:540px"><div class="bot"><i></i><i></i></div><div class="who">Autopilot <em style="background:${tagColor}">${tag}</em></div><p>${text}</p><div class="sure"><div class="bar"><i style="width:${sure}%"></i></div><span>${sure}% sure</span></div></div>`, { x: 1880, y: 40, anchor: 'tr' }); A(cue(n, tIn, tOut, { from: 'right' })); }
+function helper(text, sure, tIn, tOut, tag = 'MY PLAN', tagColor = '#ffc83d') { const n = el(`<div class="b-helper" style="width:620px"><div class="bot"><i></i><i></i></div><div class="who">Autopilot <em style="background:${tagColor};white-space:nowrap">${tag}</em></div><p>${text}</p><div class="sure"><div class="bar"><i style="width:${sure}%"></i></div><span>${sure}% sure</span></div></div>`, { x: 40, y: 244 }); A(cue(n, tIn, tOut, { from: 'left' })); } // left column, under the instruction chip: keeps the SCHOOL sign clear
 helper('“Fast” means <b style="color:#ffc83d">don’t slow down</b>.', 90, 5.9, 11.9);
 helper('Can’t see past the van. <b style="color:#ffc83d">Slowing down.</b>', 85, 17.3, 19.2, 'NEW RULE', '#16ffc6');
-helper('Not sure what that is. <b style="color:#16ffc6">Stopping!</b>', 88, 19.3, 20.9, 'NEW RULE', '#16ffc6');
+helper('Not sure what that is. <b style="color:#16ffc6">Stopping!</b>', 88, 19.3, 20.6, 'NEW RULE', '#16ffc6');
 // instruction cards: big brochure cards with a tapping hand
 const HAND = '<svg width="90" height="110" viewBox="0 0 90 110"><path d="M34 8c6 0 9 4 9 9v30l4-1c5-1 9 2 9 6l1-1c5-1 9 2 9 6l1 0c5-1 9 2 9 7v16c0 14-10 26-26 26H44c-9 0-15-4-20-11L8 72c-3-5-1-10 4-11 4-1 7 1 9 4l4 5V17c0-5 3-9 9-9z" fill="#fff" stroke="#13202b" stroke-width="5" stroke-linejoin="round"/></svg>';
 function cards(head, list, tIn, tOut, pickAt, pick) {
