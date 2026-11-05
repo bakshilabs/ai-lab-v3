@@ -562,7 +562,7 @@ Future Skills · 0:37 · a voxel newsroom on a floating grassy island in warm da
 **Pathway card:** Next step: Civic Online Reasoning lessons (free) · Award: Arts Award (journalism project) · Route: GCSE Media Studies, then A-level History or Politics · Jobs: fact-checker, journalist, librarian.
 
 **Reviewer notes:**
-- **Render status:** Described from the current source; video re-rendering.
+- **Render status:** Described from the current source; video re-rendered and checked on a contact sheet.
 - **What changed in this round:** cards now fill at most about half the frame and the newsroom stays readable on the left throughout; a title moment opens the trailer (0:00–0:03); the AI card is struck and marked "Returned" once Source fails; the pointer parks left of the cards so it no longer covers text; the comments rail and the 6 s hold on the AI draft are gone; the step strip text is always set (no empty "Step 6 of 6"); the ending is bright daylight with the island beside the title and pathway card (6 s); smallest text is about 19 px at 1080p; the pathway now says "Journalist" instead of "OSINT analyst".
 - **Names:** Hana, 13 (checker) and Amara Osei (Desk Editor, mentor). The author "J. Pennethorne" and the journal *Bulletin of Small-Town Waterways* are meant to be invented; the lab design document notes a real journal with a similar title, so check this.
 - **Portfolio:** consistent across the set: Council Data Desk → Data brief; Model Test Lab → Model card; Verification Desk → Fact-check card (new here); Should It Be AI? → Decision record.
