@@ -129,9 +129,9 @@ const CARDS = [['A', 'Plan a Roman feast for them'], ['B', 'Plan their day from 
 L.cards('ASK THE AI HELPER TO PLAN THE DAY', CARDS, 4.2, 8.6, 6.3, 0);
 L.helper('Romans ate feasts, so I planned peacock, dormice and oysters.', 66, 8.8, 16.2);
 const feastLbl = el('<div class="lbl3">A Roman feast</div>', { x: 0, y: 0, anchor: 'bc' }); A(cue(feastLbl, 9.6, 20.2));
-A((t) => { const p = toScreen(new THREE.Vector3(8.5, 6.2, -9), camera); feastLbl.style.left = p.x + 'px'; feastLbl.style.top = p.y + 'px'; });
+A((t) => { const p = toScreen(new THREE.Vector3(8.5, 6.2, -9), camera); feastLbl.style.left = p.x + 'px'; feastLbl.style.top = Math.max(p.y, 290) + 'px'; });
 const travLbl = el('<div class="lbl3" style="background:#6e5bf2">Traveller</div>', { x: 0, y: 0, anchor: 'bc' }); const tc1 = cue(travLbl, 1.6, 4.4), tc2 = cue(travLbl, 21.2, 25.8); A((t) => (t < 12 ? tc1 : tc2)(t));
-A((t) => { const p = toScreen(new THREE.Vector3(trav.position.x, trav.position.y + 3.8, trav.position.z), camera); travLbl.style.left = p.x + 'px'; travLbl.style.top = p.y + 'px'; });
+A((t) => { const p = toScreen(new THREE.Vector3(trav.position.x, trav.position.y + 3.8, trav.position.z), camera); travLbl.style.left = p.x + 'px'; travLbl.style.top = Math.max(p.y, 290) + 'px'; });
 const tick = '<svg width="34" height="34" viewBox="0 0 24 24"><path d="M4 12l5 5L20 6" stroke="#13202b" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const bulb = '<svg width="34" height="34" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2zM9 19h6v2H9z" fill="#e5533d"/></svg>';
 const acc = (t) => t < 9.6 ? 50 : t < 21.4 ? 50 - 16 * prog(t, 9.6, 11) : 34 + 54 * prog(t, 21.8, 25.6);
