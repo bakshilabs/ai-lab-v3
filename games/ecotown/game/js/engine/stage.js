@@ -30,8 +30,8 @@ const SKY = [
   [0,    '#0a1436', '#1b2c5c', '#8fa0ff', 0.0, 0.32],
   [5,    '#2b2d5e', '#d8846e', '#ffb48a', 0.5, 0.5],
   [7,    '#6d8fd0', '#ffd2b0', '#ffd9b0', 2.0, 0.95],
-  [10,   '#5d9fe0', '#f5dcc2', '#fff0d8', 2.9, 1.1],
-  [14.5, '#5d9fe0', '#f5dcc2', '#fff0d8', 2.9, 1.1],
+  [10,   '#2f8cf0', '#d4ecff', '#fff4e2', 3.0, 1.25],
+  [14.5, '#2f8cf0', '#d4ecff', '#fff4e2', 3.0, 1.25],
   [16.5, '#7a8fd6', '#ffd0a4', '#ffd29a', 2.7, 1.0],
   [18.2, '#7a6ab4', '#ffa47a', '#ff9a62', 1.9, 0.82],
   [19.6, '#3e3f86', '#f07a6a', '#ff7a5c', 0.6, 0.55],
@@ -42,7 +42,7 @@ const C = (h) => new THREE.Color(h);
 
 // warm colour grade with vignette (linear HDR in, before tone mapping in OutputPass)
 const GradeShader = {
-  uniforms: { tDiffuse: { value: null }, sat: { value: 1.02 }, contrast: { value: 1.08 }, vignette: { value: 0.36 }, warm: { value: 0.08 } },
+  uniforms: { tDiffuse: { value: null }, sat: { value: 1.06 }, contrast: { value: 1.04 }, vignette: { value: 0.18 }, warm: { value: 0.0 } },
   vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
   fragmentShader: `uniform sampler2D tDiffuse; uniform float sat, contrast, vignette, warm; varying vec2 vUv;
     void main(){ vec4 c = texture2D(tDiffuse, vUv); vec3 col = c.rgb; float l = dot(col, vec3(0.2126,0.7152,0.0722));
@@ -76,15 +76,15 @@ export function createStage(canvas, skyEl) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.12;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap; renderer.localClippingEnabled = true;
   const scene = new THREE.Scene();
-  scene.fog = new THREE.Fog(0xf5dcc2, 420, 1500);
+  scene.fog = new THREE.Fog(0xd4ecff, 900, 2600);
   const camera = new THREE.PerspectiveCamera(32, 1, 0.5, 3000);
   const dome = skyDome(); scene.add(dome);
-  const hemi = new THREE.HemisphereLight(0xd8e6ff, 0x8a6a48, 1.0); scene.add(hemi);
+  const hemi = new THREE.HemisphereLight(0xdcebff, 0x7a6a50, 1.2); scene.add(hemi);
   const sun = new THREE.DirectionalLight(0xfff0d8, 2.8); sun.castShadow = true; scene.add(sun, sun.target);
-  const sc = sun.shadow.camera; sc.left = -80; sc.right = 80; sc.top = 80; sc.bottom = -80; sc.near = 1; sc.far = 500;
-  sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.04; sun.shadow.radius = 4;
+  const sc = sun.shadow.camera; sc.left = -60; sc.right = 60; sc.top = 60; sc.bottom = -60; sc.near = 1; sc.far = 500;
+  sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.04; sun.shadow.radius = 2;
   const fill = new THREE.DirectionalLight(0xa9c4ff, 0.45); fill.position.set(80, 50, -90); scene.add(fill);
   const moon = new THREE.DirectionalLight(0x8fa6ff, 0); moon.position.set(60, 90, -40); scene.add(moon);
   if (skyEl) skyEl.style.display = 'none';
@@ -103,7 +103,7 @@ export function createStage(canvas, skyEl) {
 
   const stage = {
     renderer, scene, camera, sun, hemi, fill, moon, dome, tier: 'mid', q: TIERS.mid, hour: 15.5, winter: 0, night: 0, updaters: [], skyColors: ['#5d9fe0', '#f5dcc2'],
-    tilt: { focus: 0.55, amount: 2.6 },
+    tilt: { focus: 0.5, amount: 0.6 },
     onFrame(fn) { this.updaters.push(fn); return fn; },
     setTier(name) {
       const q = TIERS[name]; this.tier = name; this.q = q;
@@ -129,7 +129,7 @@ export function createStage(canvas, skyEl) {
       dome.material.uniforms.top.value.copy(top); dome.material.uniforms.bottom.value.copy(bot); scene.fog.color.copy(bot);
       // the sun swings low across the south so shadows stay long and soft
       const k = clamp((this.hour - 6) / 13); const elev = Math.sin(k * Math.PI);
-      sun.position.set(-150 + k * 300, 25 + elev * (winter ? 55 : 85), 90 - elev * 30);
+      sun.position.set(-110 + k * 160, 30 + elev * (winter ? 60 : 100), 80 - elev * 20);
       sun.color.copy(C(a[3]).lerp(C(b[3]), t)); sun.intensity = lerp(a[4], b[4], t) * (winter ? 0.85 : 1);
       hemi.intensity = lerp(a[5], b[5], t); hemi.color.set(winter ? 0xe4eeff : 0xd8e6ff);
       this.night = clamp(1 - lerp(a[4], b[4], t) / 1.2);
@@ -150,7 +150,7 @@ export function createStage(canvas, skyEl) {
     },
   };
   window.addEventListener('resize', () => stage.resize());
-  stage.setTier('mid'); stage.setTime(15.5);
+  stage.setTier('mid'); stage.setTime(12.5);
   return stage;
 }
 

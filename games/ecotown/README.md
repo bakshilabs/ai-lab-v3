@@ -44,6 +44,17 @@ The ☰ menu has these settings:
 2. **Plan.** The player instructs Plotter with word tiles (default for 8–12), free text (default for 13–17) or a card. Plotter flies over, beams down a see-through plan and shows its reading and its "% sure".
 3. **Check.** The player chooses a lens or view. The island turns to pale clay and the honest simulation shows what the plan would really do.
 4. **Fix.** The player names Plotter's habit, writes a clearer instruction and builds.
+   - When the plan is accepted, a short letterboxed **film** shows it being made, then the player can adjust it. Each film is skippable and replaced by a cut when Reduce motion is on.
+
+     | Level | Film |
+     |---|---|
+     | 1 | Surveyors stake out the land |
+     | 2 | A road roller lays paths and lanes |
+     | 3 | A crane, scaffolding and builders raise the homes layer by layer |
+     | 4 | A tractor ploughs and sows; hives and orchards go in |
+     | 5 | The turbine tower rises, its blades drop into place, and panels go on the roofs |
+     | 6 | The school and square are built and the ribbon is cut |
+
    - Plotter re-tests every new plan.
    - The player can paint and adjust tiles. The 13–17 version also has a budget.
 5. **Move in.** The followed family arrives on the sky-ferry.
@@ -87,4 +98,5 @@ From `games/ecotown/game`:
   node tests/playwright/run.mjs http://localhost:8765/ senior /tmp/shots-s 1920 1080 text
   ```
 
+- Watch any film on its own: `index.html?film=homes`. The other films are `land`, `move`, `food`, `power` and `heart`.
 - Render test page for the world on its own: `tests/visual/world.html?levels=6&hour=16.5&tier=high`.

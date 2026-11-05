@@ -190,3 +190,13 @@ html[data-motion="reduce"] .panel { transition: opacity .15s; }
   #dock { grid-template-columns: 1fr; } #card { width: calc(100vw - 150px); }
   #start .ages, #report .grid { grid-template-columns: 1fr; }
 }
+
+/* ---------- films: letterbox, title card, skip */
+#letterbox i { position: absolute; left: 0; right: 0; height: 0; background: #0d1422; transition: height .5s cubic-bezier(.3, .8, .3, 1); z-index: 40; }
+#letterbox i:first-child { top: 0; } #letterbox i:last-child { bottom: 0; }
+#letterbox.on i { height: 9vh; }
+#filmtitle { position: absolute; left: 50%; bottom: calc(9vh + 14px); transform: translateX(-50%); display: flex; align-items: center; gap: 12px; background: rgba(13, 20, 34, .82); color: #fff; border-radius: 18px; padding: 10px 20px; z-index: 41; animation: filmIn .6s cubic-bezier(.2, .9, .3, 1.2); max-width: calc(100vw - 28px); }
+#filmtitle span { font-size: 1.8em; } #filmtitle b { font: 800 1.3em 'Bricolage', 'Inter'; white-space: nowrap; } #filmtitle small { font-weight: 600; opacity: .85; }
+#filmskip { position: absolute; right: 14px; bottom: calc(9vh + 14px); z-index: 41; }
+@keyframes filmIn { from { opacity: 0; transform: translate(-50%, 20px); } }
+html[data-motion="reduce"] #letterbox i { transition: none; }

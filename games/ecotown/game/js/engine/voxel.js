@@ -24,6 +24,8 @@ function patch(mat) {
 }
 let _shared = null;
 export function sharedVoxelMaterial() { return _shared || (_shared = patch(new THREE.MeshLambertMaterial({ vertexColors: true }))); }
+// A voxel material that hides everything beyond a moving plane (for build-up animations).
+export function clipMaterial(planes) { const m = patch(new THREE.MeshLambertMaterial({ vertexColors: true })); m.clippingPlanes = planes; m.clipShadows = true; m.customProgramCacheKey = () => 'eco-voxel-clip'; return m; }
 export function voxelMaterial(emissive) { const m = patch(new THREE.MeshLambertMaterial({ vertexColors: true })); m.emissive = hex(emissive); return m; }
 
 function hash3(x, y, z) {

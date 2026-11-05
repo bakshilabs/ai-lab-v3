@@ -2,9 +2,9 @@
 // The island is an 18 × 14 grid of 6-voxel tiles. Each tile has a fixed zone and height.
 
 export const T = 6;            // voxels per tile side
-export const GW = 18, GH = 14; // grid size in tiles
-export const X0 = -54, Z0 = -42;
-export const RX = 52, RZ = 40; // island radii in voxels
+export const GW = 14, GH = 11; // grid size in tiles (compact, dense island)
+export const X0 = -42, Z0 = -33;
+export const RX = 41, RZ = 32; // island radii in voxels
 
 export const ZONES = {
   river:   { label: 'River',              top: '#5bbcf0' },
@@ -36,7 +36,7 @@ export function insideVoxel(x, z) {
   const w = 1 + (noise2(Math.cos(a) * 3 + 10, Math.sin(a) * 3 + 10, 77) - 0.5) * 0.12;
   return r <= w;
 }
-export const riverX = (z) => -39 + 1.6 * Math.sin(z / 9);
+export const riverX = (z) => -27 + 1.4 * Math.sin(z / 7);
 export const inRiverVoxel = (x, z) => Math.abs(x + 0.5 - riverX(z)) < 1.8;
 
 export const key = (gx, gz) => gx + ',' + gz;
@@ -44,18 +44,21 @@ export const tileOrigin = (gx, gz) => [X0 + gx * T, Z0 + gz * T];
 export const tileCenter = (gx, gz) => [X0 + gx * T + T / 2, Z0 + gz * T + T / 2];
 export function tileAt(x, z) { const gx = Math.floor((x - X0) / T), gz = Math.floor((z - Z0) / T); return gx >= 0 && gz >= 0 && gx < GW && gz < GH ? [gx, gz] : null; }
 
+// Zone of a point (tile centre or voxel). Shared by the simulation and the mesh.
+export function zoneAt(cx, cz) {
+  if (cx < -11) return 'meadow';
+  if (Math.hypot(cx / 7, cz / 6) < 1.25) return 'wetland';
+  if (cx > 17 && cz < -9) return 'wood';
+  if (cz > 17) return 'coast';
+  if (cx > 3 && cz > -7) return 'slope';
+  return 'field';
+}
 function zoneOf(gx, gz) {
   const [cx, cz] = tileCenter(gx, gz);
-  // a tile belongs to the island if all four corners are on land
   const [x0, z0] = tileOrigin(gx, gz);
   for (const [x, z] of [[x0, z0], [x0 + T - 1, z0], [x0, z0 + T - 1], [x0 + T - 1, z0 + T - 1]]) if (!insideVoxel(x, z)) return null;
   if (gx === 2) return 'river';
-  if (cx < -14) return 'meadow';
-  if (Math.hypot(cx / 9, cz / 8) < 1.25) return 'wetland';
-  if (cx > 22 && cz < -12) return 'wood';
-  if (cz > 24) return 'coast';
-  if (cx > 4 && cz > -8) return 'slope';
-  return 'field';
+  return zoneAt(cx, cz);
 }
 
 // Build the immutable terrain description.
@@ -64,14 +67,14 @@ export function makeTerrain() {
   for (let gx = 0; gx < GW; gx++) for (let gz = 0; gz < GH; gz++) {
     const zone = zoneOf(gx, gz); if (!zone) continue;
     const [cx] = tileCenter(gx, gz);
-    const h = zone === 'slope' ? (cx > 28 ? 2 : 1) : 0;
-    const hedge = zone === 'field' && (gz === 3 || gz === 5) && gx >= 6 && gx <= 13;
+    const h = zone === 'slope' ? (cx > 20 ? 2 : 1) : 0;
+    const hedge = zone === 'field' && (gz === 2 || gz === 4) && gx >= 4 && gx <= 11;
     tiles.set(key(gx, gz), { gx, gz, k: key(gx, gz), zone, h, hedge });
   }
   // fixed features: island school and ferry dock on the coast, nearest the slope
   const coast = [...tiles.values()].filter((t) => t.zone === 'coast').sort((a, b) => a.gx - b.gx);
-  const school = coast.find((t) => t.gx >= 11) || coast[coast.length - 1];
-  const dock = coast.find((t) => t.gx >= 8 && t !== school) || coast[0];
+  const school = coast.find((t) => t.gx >= 9) || coast[coast.length - 1];
+  const dock = coast.find((t) => t.gx >= 5 && t.gx < 9 && t !== school) || coast[0];
   if (school) school.fixed = 'oldschool';
   if (dock) dock.fixed = 'dock';
   return { tiles, school: school?.k, dock: dock?.k };

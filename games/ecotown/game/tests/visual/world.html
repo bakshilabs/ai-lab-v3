@@ -19,7 +19,7 @@ let cells = new Map();
 L.slice(0, upto).forEach(([lv, s], i) => { const p = plan(lv, (vague && i === upto-1) ? [vague] : s, { terrain, cells, numbers:{minutes:10} }); cells = applyPlacements(cells, p.placements); });
 for (const [k, c] of cells) world.setCell(k, c);
 const sim = simulate(terrain, cells); world.setLights(sim.power.winterOK || !upto ? sim.homes.map(h=>h.k) : []);
-stage.setTime(+(q.get('hour') ?? 11), +(q.get('winter') ?? 0));
+stage.setTime(+(q.get('hour') ?? 12.5), +(q.get('winter') ?? 0));
 if (q.get('flood')) world.setFlood(+q.get('flood'));
 if (q.get('clay')) { world.setClay(true, true); }
 if (q.get('street')) { const k = terrain.school; const p = world.tileTop(k); rig.street = { base: { pos: p.clone().add({x:-8,y:2,z:-10}), look: p.clone().add({x:0,y:1.5,z:0}), fov:50 }, yaw:0, pitch:0 }; rig.mode='street'; }

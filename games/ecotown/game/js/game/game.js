@@ -11,6 +11,7 @@ import { createChecks } from './checks.js';
 import { bubblesFor } from './bubbles.js';
 import { esc, h } from '../ui/ui.js';
 import { renderReport } from './report.js';
+import { createFilm } from './film.js';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const SAVE = 'ecotown.save.v1';
@@ -21,8 +22,9 @@ export function createGame(app) {
     band: app.band, C: CONTENT[app.band], j: app.band === 'junior', cells: new Map(), stars: 0, levelStars: {}, mistakes: [], diary: [], instructions: {}, charter: [],
     budget: app.band === 'senior' ? 150 : Infinity, spent: 0, li: 0, extra: { families: 0, carbon: 0 },
   };
-  app.C = G.C; app.hour = 11;
+  app.C = G.C; app.hour = 12.5;
   const checks = createChecks(app);
+  const film = app.film = createFilm(app);
   const T = (id) => LEVEL_TEXT[id];
   const pick = (o) => (typeof o === 'string' ? o : G.j ? o.j : o.s);
   const sim = (cells = G.cells) => { const s = simulate(terrain, cells, { natureStart: app.natureStart }); s.families += G.extra.families; s.carbon += G.extra.carbon; return s; };
@@ -153,7 +155,10 @@ export function createGame(app) {
     const lv = LEVELS[id];
     // accept the plan with a pop-in sequence (the plan becomes real)
     world.clearGhost(); const before = new Map(G.cells); G.cells = res.after; G.spent += planCost(res.plan.placements);
-    const changed = new Set(res.plan.placements.map((p) => p.k)); showCells(G.cells, changed); flower(true);
+    const changed = new Set(res.plan.placements.map((p) => p.k));
+    // the plan becomes real in a short film (construction, installation, farming…)
+    await film.play(id, changed, G.cells, { band: G.band });
+    life.setTown(sim(), G.cells, stage.q); app.refreshLights(); flower(true); await rig.overview(1.0);
     let tool = lv.palette[0];
     return new Promise((resolve) => {
       const render = () => {
@@ -178,7 +183,7 @@ export function createGame(app) {
           if (it.kind === 'mark') c.mark = tool; else if (it.kind === 'mod') c.mods.push(tool); else { if (c.item && ITEMS[c.item].level === id) G.spent -= ITEMS[c.item].cost || 0; c.item = tool; }
           G.spent += it.cost || 0;
         }
-        G.cells.set(k, c); world.setCell(k, c, { animate: true, reduce: app.reduce }); audio.pop(); life.setTown(sim(), G.cells, stage.q); app.refreshLights(); flower(true); render();
+        G.cells.set(k, c); world.setCell(k, c, { build: { dur: 0.7 }, reduce: app.reduce }); audio.pop(); life.setTown(sim(), G.cells, stage.q); app.refreshLights(); flower(true); render();
       };
       rig.onHover = (ndc) => { if (tool === 'erase') return; const k = world.pick(ndc, stage.camera); if (k === app._hk) return; app._hk = k; if (!k) return world.clearGhost(); const c = cellOf(G.cells, k); const why = placeReason(tool, terrain.tiles.get(k), c); const nc = { ...c, mods: [...c.mods] }; const it = ITEMS[tool]; if (it.kind === 'mark') nc.mark = tool; else if (it.kind === 'mod') nc.mods.push(tool); else nc.item = tool; world.showGhost([{ k }], new Map([[k, nc]]), { reduce: true, bad: why ? new Set([k]) : new Set() }); ui.labels.set(why ? [{ at: world.tileTop(k).add(new THREE.Vector3(0, 4, 0)), text: why, cls: 'bad' }] : []); };
       render(); void before;
@@ -210,7 +215,7 @@ export function createGame(app) {
       if (el >= nextB && list.length) { const b = list[bi++ % list.length]; ui.labels.bubble({ at: () => world.tileTop(b.k).add(new THREE.Vector3(0, 7, 0)), text: b.text, bad: b.bad }); nextB = el + 3.2; }
       await sleep(50);
     }
-    ui.labels.clear('bub'); app.hour = 11; stage.setTime(11); await rig.overview(1.1);
+    ui.labels.clear('bub'); app.hour = 12.5; stage.setTime(12.5); await rig.overview(1.1);
     // senior: residents' petition when the same problem keeps coming up
     const bad = list.filter((b) => b.bad); if (!G.j && bad.length >= 3) { const top = bad[0]; await ui.modal(`<div class="ribbon">${esc(G.C.ui.petition)}</div><div class="big">📜</div><h2>“${esc(top.text)}”</h2><p>${bad.length} residents signed. You can fix it in the next level, or explain your trade-off at the town meeting.</p><button class="btn go" data-act="ok">${esc(G.C.ui.continue)}</button>`); }
   }
@@ -221,8 +226,9 @@ export function createGame(app) {
     const lv = LEVELS[id]; const s = sim();
     // same-angle before/after: hide this level's builds, then pop them back in
     ui.only([]); await rig.overview(1.0);
-    for (const k of levelChanged) world.setCell(k, emptyCell()); await sleep(app.reduce ? 200 : 700);
-    showCells(G.cells, levelChanged); await sleep(app.reduce ? 300 : 1300);
+    for (const k of levelChanged) world.setCell(k, emptyCell()); await sleep(app.reduce ? 200 : 600);
+    let i = 0; for (const k of levelChanged) world.setCell(k, G.cells.get(k), { build: { dur: 0.8, delay: (i++) * 0.06 }, reduce: app.reduce });
+    await sleep(app.reduce ? 300 : 1200 + i * 60); world.finishBuilds();
     rig.startTurntable(app.reduce ? 0 : 0.1);
     if (!G.j && DILEMMAS[id] && app.session !== 45) {
       const d = DILEMMAS[id]; const a = await ui.modal(`<div class="ribbon">Town meeting</div><h2>${esc(d.text)}</h2><div class="row" style="justify-content:center">${d.options.map((o, i) => `<button class="btn ${i ? 'alt' : 'go'}" data-act="${i}">${esc(o.label)}</button>`).join('')}</div>`);
@@ -241,11 +247,11 @@ export function createGame(app) {
   async function runLevel(id) {
     app.levelId = id; const lv = LEVELS[id]; const L = T(id); const short = app.session === 45;
     ui.setBadge(`${G.j ? 'SCHOOL CLUB' : 'AI LAB'} · L${lv.n}/6`); ui.setTask(`L${lv.n}/6`, pick(L.goal)); ui.helper(null); ui.facil(null); ui.views(null, []);
-    stage.setTime(9.5); app.hour = 11; await rig.overview(1.4);
+    stage.setTime(12); app.hour = 12.5; await rig.overview(1.4);
     // Act 1: brief (with the unlock card for the new lens)
     const lens = G.C.checks[lv.newLens];
     await ui.modal(`<div class="ribbon">${esc(G.C.ui.newLens)}</div><div class="big">${lens.icon}</div><h2>${esc(lens.label)}</h2><p>${esc(L.title)}</p><div class="levelbar"><b>LEVEL ${lv.n} OF 6</b><span>${esc(L.title)}</span><span class="dots">${[1, 2, 3, 4, 5, 6].map((i) => `<i class="${i <= lv.n ? 'on' : ''}"></i>`).join('')}</span></div><p>${esc(pick(L.brief))}</p><button class="btn go" data-act="go">${esc(G.C.ui.start)} ➜</button>`, { say: pick(L.brief) });
-    stage.setTime(11);
+    stage.setTime(12.5);
     // Act 2: plan
     let res = await round(id, G.C.ui.tell); G.instructions[id] = [res.text];
     // Act 3: check

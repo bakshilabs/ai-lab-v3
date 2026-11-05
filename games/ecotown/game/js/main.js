@@ -123,4 +123,21 @@ async function opening() {
 }
 
 window.__eco = { app, terrain, ready: () => !!app.G, modelReady };
-start();
+// Film preview: index.html?film=homes builds the town up to that level with the clear instructions, then plays its film.
+const filmParam = new URLSearchParams(location.search).get('film');
+if (filmParam) filmPreview(filmParam); else start();
+async function filmPreview(level) {
+  const { plan, applyPlacements } = await import('./sim/planner.js');
+  const { createFilm } = await import('./game/film.js');
+  const CLEAR = { land: ['dry', 'sunny', 'keep_meadow'], move: ['safe_walking', 'cycling', 'cars_at_edge'], homes: ['warm', 'low_carbon', 'natural_materials'], food: ['enough_food', 'keep_hedges', 'bees'], power: ['enough_power', 'winter', 'night', 'storage', 'solar'], heart: ['walk_time', 'market', 'nature_links'] };
+  const order = Object.keys(CLEAR); let cells = new Map();
+  for (const id of order.slice(0, order.indexOf(level))) { cells = applyPlacements(cells, plan(id, CLEAR[id], { terrain, cells, numbers: { minutes: 10 } }).placements); for (const c of cells.values()) c.locked = true; }
+  for (const [k, c] of cells) world.setCell(k, c);
+  const next = applyPlacements(cells, plan(level, CLEAR[level], { terrain, cells, numbers: { minutes: 10 } }).placements);
+  const changed = new Set([...next.keys()].filter((k) => JSON.stringify(next.get(k)) !== JSON.stringify(cells.get(k))));
+  life.setTown(simulate(terrain, cells), cells, stage.q); ui.setBadge('FILM PREVIEW'); ui.setTask('L1/6', level);
+  await rig.overview(0.1); app.film = createFilm(app); initAudio();
+  window.__filmStart = performance.now();
+  await app.film.play(level, changed, next, { band: 'junior' });
+  window.__filmDone = true;
+}

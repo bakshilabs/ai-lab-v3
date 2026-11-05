@@ -136,11 +136,11 @@ export function simulate(terrain, cells, extra = {}) {
   R.homesCarbon = homesCarbon; R.carbon = Math.round(carbon); R.food = food; R.foodNeed = need; R.nature = Math.round(nature * 10) / 10; R.natureStart = natureStart;
   R.health = health; R.community = community; R.avgTemp = Math.round(avgTemp); R.cars = cars;
   R.species = {
-    deer: woodIntact >= 7 && hedges >= 4,
+    deer: woodIntact >= 5 && hedges >= 4,
     bees: (hedges >= 4 || (count.hives || 0) >= 1) && (meadowIntact >= 6 || (count.orchard || 0) >= 2 || (count.hives || 0) >= 2),
-    otters: wetIntact >= 9,
-    birds: woodIntact >= 5 || hedges >= 5,
-    frogs: wetIntact >= 6 || (count.reedbed || 0) >= 1,
+    otters: wetIntact >= 5,
+    birds: woodIntact >= 4 || hedges >= 4,
+    frogs: wetIntact >= 4 || (count.reedbed || 0) >= 1,
   };
   const ceil = TARGETS.carbonCeiling;
   R.petals = {

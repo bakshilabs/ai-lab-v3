@@ -1,10 +1,10 @@
 // The island in three.js: terrain mesh, water, per-tile layers (decoration, mark, build, ghost, lens overlay),
 // window lights, turbine rotors and picking. Reads terrain + cells; never decides anything itself.
 import * as THREE from 'three';
-import { Vox, WORLD, rand, noise2 } from '../engine/voxel.js';
+import { Vox, WORLD, rand, noise2, clipMaterial } from '../engine/voxel.js';
 import { clouds, waterfall, roots, floatingRocks } from '../engine/extras.js';
 import { ease, clamp } from '../engine/stage.js';
-import { T, X0, Z0, RX, RZ, insideVoxel, inRiverVoxel, riverX, tileAt, tileOrigin, tileCenter, ZONES } from './terrain.js';
+import { T, X0, Z0, RX, RZ, zoneAt, insideVoxel, inRiverVoxel, riverX, tileAt, tileOrigin, tileCenter, ZONES } from './terrain.js';
 import { BUILD, MARK, addMod, addModFine, decorate, tree2 } from './builders.js';
 import { ITEMS } from './catalog.js';
 
@@ -13,21 +13,13 @@ const GHOST_MAT = new THREE.MeshBasicMaterial({ color: '#ffffff', transparent: t
 const GHOST_BAD = new THREE.MeshBasicMaterial({ color: '#ffd0c8', transparent: true, opacity: 0.55, depthWrite: false });
 
 function zoneAtVoxel(x0, z0) {
-  // wobble the boundaries so zones blend instead of following the tile grid
-  const x = x0 + (noise2(x0 * 0.18, z0 * 0.18, 31) - 0.5) * 5, z = z0 + (noise2(x0 * 0.18, z0 * 0.18, 47) - 0.5) * 5;
-  if (x < -14) return 'meadow';
-  if (Math.hypot(x / 9, z / 8) < 1.35) return 'wetland';
-  if (x > 22 && z < -12) return 'wood';
-  if (z > 24) return 'coast';
-  if (x > 4 && z > -8) return 'slope';
-  return 'field';
+  // wobble the boundaries a little so zones blend instead of following the tile grid
+  return zoneAt(x0 + (noise2(x0 * 0.18, z0 * 0.18, 31) - 0.5) * 3, z0 + (noise2(x0 * 0.18, z0 * 0.18, 47) - 0.5) * 3);
 }
 const TOPS = {
-  meadow: ['#a3c664', '#97bb5a', '#adcd6e'], wetland: ['#86b27a', '#7aa771', '#8fba82'], wood: ['#6a8f40', '#759a46', '#62853a'],
-  slope: ['#b0c862', '#a5bd5a', '#bbcf6c'], coast: ['#efdfb2', '#e6d19f', '#f3e5be'], field: ['#9dbf5c', '#93b555', '#a7c663'],
+  meadow: ['#7fd04f', '#74c846', '#89d65a'], wetland: ['#6cbf5a', '#62b552', '#76c663'], wood: ['#4fab3a', '#58b442', '#47a034'],
+  slope: ['#86d250', '#7bc947', '#90d85c'], coast: ['#efdcab', '#e7d29b', '#f3e3b8'], field: ['#6fc444', '#66bb3d', '#79cc4d'],
 };
-// pale limestone strata for the cliffs, like a chalk coast
-const STRATA = ['#efe5d2', '#e6d8bd', '#f3ead9', '#dccaa8', '#ebdfc6', '#d6c29e'];
 
 export function createWorld(stage, terrain) {
   const { scene } = stage;
@@ -40,29 +32,27 @@ export function createWorld(stage, terrain) {
     if (!insideVoxel(x, z)) continue;
     const tt = tileAt(x, z); const h = tt ? tileH(tt[0], tt[1]) : 0;
     const zone = zoneAtVoxel(x, z); const r = Math.hypot(x / RX, z / RZ);
-    const under = Math.round(18 * (1 - r * r * 0.85) + noise2(x / 3, z / 3, 86) * 4);
+    const under = Math.round(15 * (1 - r * r * 0.8) + noise2(x / 3, z / 3, 86) * 4);
     const river = inRiverVoxel(x, z);
     const top = river ? -1 : h;
     for (let y = top - under; y <= top; y++) {
       let c;
       if (y === top) { const pal = TOPS[zone]; c = river ? '#d6c08a' : pal[Math.floor(noise2(x * 0.35, z * 0.35, 9) * 2.99 + rand(x, z) * 0.6) % 3]; }
-      else if (y >= top - 1) c = rand(x, y, z) > 0.5 ? '#7d5a3a' : '#6e4f33';
-      else if (y >= top - 2 && r > 0.85 && rand(x, z, 5) > 0.55) c = '#6f9a45'; // moss on the rim
-      else { const band = Math.floor((y + noise2(x * 0.12, z * 0.12, 3) * 3) / 2); c = STRATA[((band % 6) + 6) % 6]; if (rand(x, y, z) > 0.93) c = '#c8b48c'; if (y < top - under + 3) c = '#b9a888'; }
+      else if (y >= top - 2) c = rand(x, y, z) > 0.5 ? '#9a6a42' : '#8a5c38';             // brown topsoil band
+      else c = rand(x, y, z) > 0.5 ? '#8b8f93' : (rand(x, z, y) > 0.5 ? '#7b8085' : '#959a9e'); // grey stone
       v.set(x, y, z, c);
     }
     if (river) { water.set(x, 0, z, rand(x, 9, z) > 0.5 ? '#5bbcf0' : '#4fb3ea'); riverCells.push([x, z]); }
   }
   // trees around the rim and on the edges of tiles, so the island never looks like a grid
-  for (let i = 0; i < 44; i++) {
+  for (let i = 0; i < 40; i++) {
     const a = rand(i, 3, 9) * Math.PI * 2, rr = 0.9 + rand(i, 4, 9) * 0.08; const x = Math.round(Math.cos(a) * RX * rr), z = Math.round(Math.sin(a) * RZ * rr);
     if (!insideVoxel(x, z) || inRiverVoxel(x, z) || insideVoxel(x + 3, z) && insideVoxel(x - 3, z) && insideVoxel(x, z + 3) && insideVoxel(x, z - 3) && tileAt(x, z)) continue;
     const tt = tileAt(x, z); const zone = zoneAtVoxel(x, z); if (tt && terrain.tiles.has(tt[0] + ',' + tt[1])) continue;
-    tree2(v, x, (tt ? tileH(tt[0], tt[1]) : 0), z, zone === 'coast' ? 'cypress' : ['round', 'autumn', 'olive', 'cypress', 'pine'][i % 5], i);
+    tree2(v, x, (tt ? tileH(tt[0], tt[1]) : 0), z, zone === 'coast' ? 'round' : ['round', 'pine', 'round', 'pine'][i % 4], i);
   }
-  roots(v, insideVoxel, { rx: RX, rz: RZ, top: 0, count: 60, seed: 4 });
-  const ground = v.mesh(); ground.castShadow = true; ground.receiveShadow = true; root.add(ground);
-  const islets = floatingRocks(scene, { n: 9, center: [0, -8, 0], radius: 120, seed: 8 });
+    const ground = v.mesh(); ground.castShadow = true; ground.receiveShadow = true; root.add(ground);
+  const islets = floatingRocks(scene, { n: 6, center: [0, -6, 0], radius: 95, seed: 8 });
   const waterMesh = water.mesh({ castShadow: false });
   const uTime = { value: 0 };
   waterMesh.material = new THREE.MeshLambertMaterial({ vertexColors: true, transparent: true, opacity: 0.82 });
@@ -79,8 +69,8 @@ export function createWorld(stage, terrain) {
   // waterfalls where the river pours off the island
   const rz = riverCells.map((c) => c[1]); const zMin = Math.min(...rz), zMax = Math.max(...rz);
   const falls = [waterfall(scene, { x: riverX(zMin), y: -0.5, z: zMin, dir: [0, -1], width: 3, length: 26 }), waterfall(scene, { x: riverX(zMax), y: -0.5, z: zMax, dir: [0, 1], width: 3, length: 26 })];
-  const cloudUpd = clouds(scene, { n: 10, spread: 360, y: [30, 70], z: [-260, -120], scale: 2.4, seed: 5 });
-  const cloudSea = clouds(scene, { n: 18, spread: 700, y: [-150, -120], z: [-380, 380], scale: 3.0, seed: 9 });
+  const cloudUpd = clouds(scene, { n: 8, spread: 300, y: [25, 55], z: [-200, -110], scale: 2.2, seed: 5 });
+  const cloudSea = () => {};
 
   // ---------------- per-tile layers
   const layers = new Map();
@@ -106,7 +96,7 @@ export function createWorld(stage, terrain) {
   const grassCells = []; const grassTile = new Map();
   for (const t of terrain.tiles.values()) {
     if (!['meadow', 'field', 'slope', 'wetland'].includes(t.zone)) continue;
-    const [ox, oz] = tileOrigin(t.gx, t.gz); const n = Math.round((t.zone === 'meadow' ? 22 : 16) * stage.q.grass);
+    const [ox, oz] = tileOrigin(t.gx, t.gz); const n = Math.round((t.zone === 'meadow' ? 14 : 8) * stage.q.grass);
     const start = grassCells.length;
     for (let i = 0; i < n; i++) { const x = ox + rand(i, t.gx, t.gz) * T, z = oz + rand(t.gz, i, t.gx) * T; if (!inRiverVoxel(Math.floor(x), Math.floor(z))) grassCells.push([x, z, t.h, t.zone]); }
     grassTile.set(t.k, [start, grassCells.length]);
@@ -156,19 +146,46 @@ export function createWorld(stage, terrain) {
     return { g, rec };
   }
 
+  // ---------------- build-up animations: a plane sweeps up (buildings) or across (ground works)
+  const FLAT = new Set(['road', 'carpark', 'path', 'cycle', 'tram', 'bridge', 'bigfield', 'mixed', 'allot', 'raingarden', 'reedbed', 'compost', 'town', 'wild']);
+  const builds = new Map();
+  function startBuild(L, g, { dur = 2, delay = 0, fromH = null, kind = '' }) {
+    const box = new THREE.Box3().setFromObject(g); if (box.isEmpty()) return;
+    const dir = FLAT.has(kind) ? 'x' : 'up';
+    const plane = dir === 'up' ? new THREE.Plane(new THREE.Vector3(0, -1, 0), 0) : new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0);
+    const a = dir === 'up' ? (fromH ?? L.oy + 0.5) : L.ox - 0.5, b = dir === 'up' ? box.max.y + 0.5 : L.ox + T + 0.5;
+    plane.constant = a; const meshes = [];
+    g.traverse((o) => { if (o.isMesh && o.material && o.material.vertexColors) { meshes.push([o, o.material]); o.material = clipMaterial([plane]); } });
+    if (L.rotor) { L.rotor.visible = false; }
+    builds.set(L.t.k, { L, g, plane, a, b, dir, t: -delay, dur, meshes, top: box.max.y, kind });
+  }
+  function endBuild(B) {
+    for (const [o, m] of B.meshes) { o.material.dispose(); o.material = m; }
+    if (B.L.rotor) { B.L.rotor.visible = true; rotorDrops.push({ r: B.L.rotor, y: B.L.rotor.position.y, t: 0 }); }
+    builds.delete(B.L.t.k);
+  }
+  const rotorDrops = [];
+
   const world = {
-    root, layers, ground, terrain,
+    root, layers, ground, terrain, builds,
+    // progress of a tile's build: { k (0..1), level (current world y or x of the sweep), top, dir }
+    buildState(k) { const B = builds.get(k); if (!B) return null; const p = Math.max(0, Math.min(1, B.t / B.dur)); return { k: p, level: B.plane.constant, top: B.top, dir: B.dir, kind: B.kind }; },
+    finishBuilds() { for (const B of [...builds.values()]) { B.plane.constant = B.b; endBuild(B); } for (const r of rotorDrops) r.t = 9; },
     // Show a cell's state on its tile. animate: pop-in with dust and sound hook.
-    setCell(k, cell, { animate = false, delay = 0, reduce = false } = {}) {
+    setCell(k, cell, { animate = false, delay = 0, reduce = false, build = null } = {}) {
       const L = layers.get(k); if (!L) return;
+      if (builds.has(k)) endBuild(builds.get(k));
+      const prevTop = L.build ? new THREE.Box3().setFromObject(L.build).max.y : null; const prevItem = L.cellItem;
       if (L.build) { L.group.remove(L.build); dispose(L.build); L.build = null; L.rec = null; L.rotor = null; }
+      L.cellItem = cell?.item || null;
       const has = cell && (cell.item || cell.mark);
       L.deco.visible = !L.fixed && !(cell && cell.item) && !(cell && cell.mark === 'town');
       const gr = grassTile.get(k); if (gr) grassVis(gr[0], gr[1], L.deco.visible);
       if (L.hedge) L.hedge.visible = !(cell && cell.item) || HEDGE_SAFE.has(cell.item);
       if (!has) return;
       const { g, rec } = buildMeshes(L, cell); L.build = g; L.rec = rec; L.group.add(g);
-      if (animate) { pop(g, delay, { reduce }); const [cx, cz] = tileCenter(L.t.gx, L.t.gz); setTimeout(() => puff(cx, L.oy + 1.2, cz), delay * 1000); }
+      if (build && !reduce) { startBuild(L, g, { ...build, delay: build.delay ?? delay, fromH: prevItem && prevItem === cell.item ? prevTop - 1.2 : null, kind: cell.item || cell.mark }); }
+      else if (animate) { pop(g, delay, { reduce }); const [cx, cz] = tileCenter(L.t.gx, L.t.gz); setTimeout(() => puff(cx, L.oy + 1.2, cz), delay * 1000); }
     },
     // Ghost plan: see-through blocks that appear one after another.
     showGhost(placements, cellsAfter, { reduce = false, bad = new Set() } = {}) {
@@ -227,6 +244,13 @@ export function createWorld(stage, terrain) {
       lightMesh.material.opacity = clamp((stage.night - 0.25) * 2);
       for (let i = anims.length - 1; i >= 0; i--) { const a = anims[i]; a.t += dt; const k = clamp(a.t / a.dur); if (a.t >= 0) a.obj.scale.set(1, Math.max(0.001, ease.back(k)), 1); if (k >= 1) anims.splice(i, 1); }
       for (const L of layers.values()) if (L.rotor) L.rotor.rotation.z += dt * (windStill ? 0.25 : 2.2);
+      for (const B of [...builds.values()]) {
+        B.t += dt; if (B.t < 0) continue; const k = Math.min(1, B.t / B.dur); const e = k < 1 ? k * k * (3 - 2 * k) : 1;
+        B.plane.constant = B.a + (B.b - B.a) * e;
+        if (Math.random() < dt * 6) { const [cx, cz] = tileCenter(B.L.t.gx, B.L.t.gz); puff(B.dir === 'x' ? B.plane.constant : cx + (Math.random() - 0.5) * 5, B.dir === 'up' ? B.plane.constant - 0.5 : B.L.oy + 1.3, cz + (Math.random() - 0.5) * 5, 3); }
+        if (k >= 1) endBuild(B);
+      }
+      for (let i = rotorDrops.length - 1; i >= 0; i--) { const r = rotorDrops[i]; r.t += dt; const k = Math.min(1, r.t / 1.2); r.r.position.y = r.y + (1 - (1 - (1 - k) ** 3)) * 0 + (1 - k) ** 2 * 14; if (k >= 1) { r.r.position.y = r.y; rotorDrops.splice(i, 1); } }
       const d = new THREE.Object3D();
       for (let i = 0; i < DUST; i++) { const p = dustP[i]; if (p.life > 0) { p.life -= dt; p.vy -= 9 * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.z += p.vz * dt; d.position.set(p.x, Math.max(p.y, 0.5), p.z); d.scale.setScalar(Math.max(0.01, p.life)); } else d.scale.setScalar(0.0001); d.updateMatrix(); dust.setMatrixAt(i, d.matrix); }
       dust.instanceMatrix.needsUpdate = true;
@@ -280,9 +304,9 @@ function tufts(scene, cells) {
   };
   const m = new THREE.InstancedMesh(geo, mat, Math.max(1, N)); m.castShadow = false; m.receiveShadow = true; m.frustumCulled = false;
   const d = new THREE.Object3D(); const mats = [];
-  const GRASS = ['#a9d466', '#8cc04f', '#b9dc76', '#7fb24a'], FLOW = ['#ff7eb6', '#ffd23f', '#ffffff', '#b28cff', '#ff8a5c'];
+  const GRASS = ['#8ad85a', '#6fc444', '#9be06a', '#5fb83c'], FLOW = ['#ff7eb6', '#ffd23f', '#ffffff', '#b28cff'];
   cells.forEach(([x, z, h, zone], i) => {
-    const flower = zone === 'meadow' && noise2(x * 0.12, z * 0.12, 21) > 0.58 && rand(i, 7) > 0.3; // flowers grow in drifts
+    const flower = zone === 'meadow' && noise2(x * 0.12, z * 0.12, 21) > 0.6 && rand(i, 7) > 0.55; // flowers grow in drifts
     d.position.set(x, h + 1, z); d.rotation.set(0, rand(i, 4) * 3, 0); d.scale.set(flower ? 1.2 : 1, flower ? 0.9 + rand(i, 2) * 0.5 : 0.5 + rand(i, 3) * 0.9, flower ? 1.2 : 1); d.updateMatrix();
     m.setMatrixAt(i, d.matrix); mats.push(d.matrix.clone());
     m.setColorAt(i, new THREE.Color(flower ? FLOW[i % FLOW.length] : zone === 'wetland' ? '#6f9a45' : GRASS[i % GRASS.length]));

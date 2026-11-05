@@ -44,7 +44,8 @@ for (const [id, check, habit, vague, clear] of LEVELS) {
   await click(`#dock [data-actions] [data-c="${check}"]`); await p.waitForSelector('#alert:not(.hide)', { timeout: 30000 }); await shot(`${id}-check-${check}`); budget.push([`${id}-check`, await panelsVisible()]);
   await click('#dock [data-actions] [data-go]'); await p.waitForTimeout(1500);
   await click(`#dock [data-actions] [data-h="${habit}"]`); await p.waitForTimeout(900);
-  await instruct(clear, 1); await p.waitForSelector('#dock [data-actions] [data-done]:not([disabled])', { timeout: 40000 }); await shot(`${id}-build`); budget.push([`${id}-build`, await panelsVisible()]);
+  await instruct(clear, 1); await p.waitForSelector('#filmtitle', { timeout: 40000 }); await p.waitForTimeout(4200); await shot(`${id}-film`);
+  await p.waitForSelector('#dock [data-actions] [data-done]:not([disabled])', { timeout: 40000 }); await shot(`${id}-build`); budget.push([`${id}-build`, await panelsVisible()]);
   await click('#dock [data-actions] [data-done]');
   if (id === 'heart') {
     if (band === 'junior') { for (let i = 0; i < 6; i++) await click(`#dock [data-actions] [data-r="${i}"]`); await click('#dock [data-actions] [data-act="gate"]'); }

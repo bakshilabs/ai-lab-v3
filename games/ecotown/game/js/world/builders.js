@@ -90,7 +90,7 @@ export const MARK = {
 };
 
 // ---------- richer trees: autumn deciduous, olive, cypress, pine (TtC-style mixed palette)
-const LEAVES = { round: ['#4f8f3a', '#5c9a40', '#447f33'], autumn: ['#d9822b', '#e39a3a', '#c8701f'], olive: ['#8a9a4a', '#97a656', '#7d8c40'], pine: ['#2f6b45', '#295f3d', '#367a4f'], cypress: ['#3d6b3a', '#355f33', '#47773f'] };
+const LEAVES = { round: ['#3f9d3a', '#4caf44', '#5bbd4f', '#2f8a34'], autumn: ['#3f9d3a', '#4caf44', '#5bbd4f'], olive: ['#4caf44', '#5bbd4f', '#3f9d3a'], pine: ['#2e7d4f', '#256b43', '#348a59'], cypress: ['#2e7d4f', '#348a59', '#256b43'] };
 export function tree2(v, x, y, z, kind = 'round', seed = 0) {
   const L = LEAVES[kind]; const pick = (i) => L[Math.floor(rand(x + i, y, z + seed) * L.length)];
   const h = 2 + Math.floor(rand(x, z, seed) * 2);
@@ -106,14 +106,19 @@ export function tree2(v, x, y, z, kind = 'round', seed = 0) {
 // ---------- natural decoration for untouched tiles
 export function decorate(t, G, B, H) {
   const s = t.gx * 31 + t.gz;
-  if (t.zone === 'meadow' && rand(s, 13) > 0.5) dots(G, 6, ['#ff9ec4', '#ffe27a', '#ffffff', '#c7a8ff'], s);
+  if (t.zone === 'meadow' && rand(s, 13) > 0.6) dots(G, 4, ['#ff9ec4', '#ffe27a', '#ffffff'], s);
   if (t.zone === 'slope') dots(G, 4, ['#ffd23f', '#ffffff'], s);
   if (t.zone === 'field') dots(G, 6, ['#8fd96a', '#6cc04b'], s);
-  if (t.zone === 'coast') { dots(G, 6, ['#f3e4b8', '#dcc68e'], s); if (rand(s, 2) > 0.6) B.box(1, 0, 3, 2, 0, 3, '#9aa0a5'); }
-  if (t.zone === 'wood') { tree2(B, 1 + Math.floor(rand(s, 1) * 2), -1, 1 + Math.floor(rand(s, 2) * 2), ['pine', 'round', 'autumn'][s % 3], s); if (rand(s, 4) > 0.3) tree2(B, 4, -1, 4, ['round', 'autumn', 'olive'][(s + 1) % 3], s + 1); }
-  if ((t.zone === 'field' || t.zone === 'slope') && rand(s, 9) > 0.84) tree2(B, rand(s, 10) > 0.5 ? 0 : 5, -1, Math.floor(rand(s, 11) * 6), ['olive', 'autumn', 'cypress', 'round'][s % 4], s);
-  if (t.zone === 'coast' && rand(s, 12) > 0.85) tree2(B, 5, -1, 1, 'cypress', s);
-  if (t.zone === 'wetland') { for (let x = 0; x < 12; x++) for (let z = 0; z < 12; z++) if (Math.hypot(x - 6 + rand(s, 1) * 3, z - 6) < 3.5 + rand(x, z, s) * 1.2) G.set(x, 0, z, '#4fb3ea'); for (let i = 0; i < 7; i++) { const x = Math.floor(rand(i, s) * 6), z = Math.floor(rand(i, s, 1) * 6); if (Math.hypot(x - 3, z - 3) > 1.6) B.box(x, 0, z, x, 1, z, '#6b8f3a'); } }
+  if (t.zone === 'coast') {
+    dots(G, 5, ['#f3e4b8', '#dcc68e'], s); const r = rand(s, 2);
+    if (r > 0.82) { B.box(1, 0, 2, 2, 1, 3, '#9aa0a5'); B.set(2, 2, 2, '#8b8f93'); }                                   // rocks
+    else if (r > 0.64) { G.box(2, 1, 2, 2, 5, 2, '#8a5c38'); for (let i = 0; i < 5; i++) G.box(0 + i, 6 - Math.abs(i - 2), 0 + i, 0 + i, 6 - Math.abs(i - 2), 4 - i + 2, ['#ff8a5c', '#ffffff', '#3a6fc9'][i % 3]); } // beach umbrella
+    else if (r > 0.5) { tree2(B, 3, -1, 3, 'round', s); }
+  }
+  if (t.zone === 'wood') { tree2(B, 1 + Math.floor(rand(s, 1) * 2), -1, 1 + Math.floor(rand(s, 2) * 2), ['pine', 'round', 'pine'][s % 3], s); if (rand(s, 4) > 0.3) tree2(B, 4, -1, 4, ['round', 'pine', 'round'][(s + 1) % 3], s + 1); }
+  if ((t.zone === 'field' || t.zone === 'slope') && rand(s, 9) > 0.84) tree2(B, rand(s, 10) > 0.5 ? 0 : 5, -1, Math.floor(rand(s, 11) * 6), ['round', 'pine'][s % 2], s);
+  
+  if (t.zone === 'wetland') { for (let x = 0; x < 12; x++) for (let z = 0; z < 12; z++) if (Math.hypot(x - 6 + rand(s, 1) * 3, z - 6) < 3.8 + rand(x, z, s) * 1.2) G.set(x, 0, z, (x + z) % 3 ? '#4fb3ea' : '#5bbcf0'); for (let i = 0; i < 14; i++) { const x = Math.floor(rand(i, s) * 12), z = Math.floor(rand(i, s, 1) * 12); if (Math.hypot(x - 6, z - 6) > 3.6) { G.set(x, 1, z, '#5a9a3a'); if (i % 3 === 0) G.set(x, 2, z, '#8a6a3a'); } } if (rand(s, 5) > 0.5) G.set(6, 1, 6, '#ffffff'); }
   if (t.hedge) for (let x = 0; x < 6; x++) { H.set(x, 0, 0, '#2f8a43'); H.set(x, 1, 0, rand(x, s) > 0.8 ? '#ff7eb6' : x % 2 ? '#3f9d4a' : '#2f8a43'); }
 }
 
@@ -165,17 +170,17 @@ function fgarden(F, x0, z0, x1, z1, seed) {
 }
 const FINE = {
   timber(G, B, rec, t, F) {
-    fill(G, '#9dbf5c'); const plank = (x, y, z) => ((x + z) % 2 ? '#c08a56' : '#b07a48');
+    fill(G, '#6fc444'); const plank = (x, y, z) => ((x + z) % 2 ? '#c08a56' : '#b07a48');
     fhouse(F, 1, 2, 5, 6, 7, { wall: '#c08a56', stripes: plank, roof: '#9c4f32', shutter: '#3f6b3a' }, rec);
     fhouse(F, 6, 2, 5, 6, 7, { wall: '#c08a56', stripes: plank, roof: '#a85a3a', shutter: '#2f5f8a' }, rec);
     fgarden(F, 1, 9, 10, 11, t?.gx || 1);
   },
-  straw(G, B, rec, t, F) { fill(G, '#a3c664'); fhouse(F, 2, 2, 8, 6, 5, { wall: '#f6ecd0', roof: '#d9a441', roofType: 'thatch', shutter: '#5b7fbf', trim: '#e8d7a8' }, rec); fgarden(F, 1, 9, 10, 11, (t?.gz || 2) + 5); },
-  earth(G, B, rec, t, F) { fill(G, '#9dbf5c'); const bands = (x, y) => (Math.floor(y / 2) % 2 ? '#c98a5a' : '#b87a4c'); fhouse(F, 1, 2, 10, 6, 7, { wall: '#c98a5a', stripes: bands, roof: '#5f9a45', roofType: 'flat', shutter: '#8a4f2a', trim: '#e9d2b0' }, rec); fgarden(F, 1, 9, 10, 11, 3); },
-  reclaimed(G, B, rec, t, F) { fill(G, '#9dbf5c'); const brick = (x, y, z) => ((x + z + (y % 2)) % 3 === 0 ? '#a24a35' : y % 3 === 0 ? '#c9b8a2' : '#b5523b'); fhouse(F, 1, 2, 5, 6, 8, { wall: '#b5523b', stripes: brick, roof: '#5a6d80', shutter: '#e8e2d4' }, rec); fhouse(F, 6, 2, 5, 6, 8, { wall: '#b5523b', stripes: brick, roof: '#4f6274', shutter: '#3f6b3a' }, rec); fgarden(F, 1, 9, 10, 11, 7); },
-  cohousing(G, B, rec, t, F) { fill(G, '#a3c664'); fhouse(F, 1, 1, 10, 4, 6, { wall: '#f1dcc0', roof: '#b9603e', shutter: '#4f7f6a' }, rec); fhouse(F, 1, 7, 4, 4, 5, { wall: '#e6a15a', roof: '#a85a3a', chimney: false }, rec); fhouse(F, 7, 7, 4, 4, 5, { wall: '#f3c9a0', roof: '#a85a3a', chimney: false }, rec); F.set(5, 0, 8, '#6b4a2e'); F.set(5, 1, 8, '#6b4a2e'); F.box(4, 2, 7, 6, 4, 9, '#5c9a40'); },
+  straw(G, B, rec, t, F) { fill(G, '#7fd04f'); fhouse(F, 2, 2, 8, 6, 5, { wall: '#f6ecd0', roof: '#d9a441', roofType: 'thatch', shutter: '#5b7fbf', trim: '#e8d7a8' }, rec); fgarden(F, 1, 9, 10, 11, (t?.gz || 2) + 5); },
+  earth(G, B, rec, t, F) { fill(G, '#6fc444'); const bands = (x, y) => (Math.floor(y / 2) % 2 ? '#c98a5a' : '#b87a4c'); fhouse(F, 1, 2, 10, 6, 7, { wall: '#c98a5a', stripes: bands, roof: '#5f9a45', roofType: 'flat', shutter: '#8a4f2a', trim: '#e9d2b0' }, rec); fgarden(F, 1, 9, 10, 11, 3); },
+  reclaimed(G, B, rec, t, F) { fill(G, '#6fc444'); const brick = (x, y, z) => ((x + z + (y % 2)) % 3 === 0 ? '#a24a35' : y % 3 === 0 ? '#c9b8a2' : '#b5523b'); fhouse(F, 1, 2, 5, 6, 8, { wall: '#b5523b', stripes: brick, roof: '#5a6d80', shutter: '#e8e2d4' }, rec); fhouse(F, 6, 2, 5, 6, 8, { wall: '#b5523b', stripes: brick, roof: '#4f6274', shutter: '#3f6b3a' }, rec); fgarden(F, 1, 9, 10, 11, 7); },
+  cohousing(G, B, rec, t, F) { fill(G, '#7fd04f'); fhouse(F, 1, 1, 10, 4, 6, { wall: '#f1dcc0', roof: '#b9603e', shutter: '#4f7f6a' }, rec); fhouse(F, 1, 7, 4, 4, 5, { wall: '#e6a15a', roof: '#a85a3a', chimney: false }, rec); fhouse(F, 7, 7, 4, 4, 5, { wall: '#f3c9a0', roof: '#a85a3a', chimney: false }, rec); F.set(5, 0, 8, '#6b4a2e'); F.set(5, 1, 8, '#6b4a2e'); F.box(4, 2, 7, 6, 4, 9, '#5c9a40'); },
   concrete(G, B, rec, t, F) { fill(G, '#9aa0a5'); const grid = (x, y) => (y % 4 === 0 ? '#8f959a' : '#a7acb0'); fhouse(F, 1, 1, 10, 9, 18, { wall: '#a3a8ac', stripes: grid, roof: '#7d8286', roofType: 'flat', trim: '#8f959a', shutter: '#8f959a', floorH: 4, balcony: true }, rec); F.box(7, 19, 3, 8, 20, 4, '#c8ced2'); },
-  school(G, B, rec, t, F) { fill(G, null, null, (x, z) => (z > 8 ? (x % 4 === 0 || z === 9 ? '#ffffff' : '#c8553d') : '#93c457')); fhouse(F, 0, 1, 12, 6, 8, { wall: '#ffe08a', roof: '#c0563a', shutter: '#2f6fd8', floorH: 4 }, rec); F.box(10, 0, 8, 10, 10, 8, '#9aa0a5'); F.set(10, 11, 8, '#16c79a'); F.set(9, 10, 8, '#16c79a'); },
+  school(G, B, rec, t, F) { fill(G, null, null, (x, z) => (z > 8 ? (x % 4 === 0 || z === 9 ? '#ffffff' : '#c8553d') : '#6fc444')); fhouse(F, 0, 1, 12, 6, 8, { wall: '#ffe08a', roof: '#c0563a', shutter: '#2f6fd8', floorH: 4 }, rec); F.box(10, 0, 8, 10, 10, 8, '#9aa0a5'); F.set(10, 11, 8, '#16c79a'); F.set(9, 10, 8, '#16c79a'); },
   hall(G, B, rec, t, F) { fill(G, '#e3d6b6'); fhouse(F, 1, 3, 10, 7, 10, { wall: '#f6efe2', roof: '#c0563a', shutter: '#c0563a', floorH: 5 }, rec); for (let x = 1; x < 12; x += 3) F.box(x, 0, 1, x, 8, 1, '#e8e2d4'); F.box(0, 9, 0, 11, 9, 2, '#f6efe2'); F.box(10, 15, 6, 10, 18, 6, '#9aa0a5'); F.set(10, 18, 5, '#16c79a'); },
   repair(G, B, rec, t, F) { fill(G, '#d9c9a0'); fhouse(F, 1, 3, 9, 6, 7, { wall: '#f1ebe0', roof: '#3a4752', shutter: '#f28c38' }, rec); for (let x = 1; x < 10; x++) { F.set(x, 4, 1, x % 2 ? '#f28c38' : '#ffffff'); F.set(x, 4, 2, x % 2 ? '#f28c38' : '#ffffff'); } F.box(10, 0, 4, 11, 1, 5, '#2f6fd8'); },
   oldschool(G, B, rec, t, F) { fill(G, null, null, (x, z) => (z > 8 ? (x % 4 === 0 ? '#ffffff' : '#2f6fd8') : '#d9c9a0')); fhouse(F, 0, 1, 9, 6, 6, { wall: '#fff3d6', roof: '#2f6fd8', shutter: '#2f6fd8' }, rec); F.box(10, 0, 2, 11, 9, 3, '#fff3d6'); F.box(10, 10, 2, 11, 11, 3, '#2f6fd8'); F.set(10, 8, 1, '#ffd23f'); },
