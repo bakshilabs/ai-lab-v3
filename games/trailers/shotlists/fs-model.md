@@ -25,7 +25,7 @@ Future Skills · 0:39 · a tilt-shift voxel model of a recycling plant on a floa
 **Pathway card:** Next step: Experience AI Foundations (free, or Machine Learning for Kids) · Award: CREST Machine Learning Bronze (project brief) · Route: A-level Computer Science, or a Level 4 AI & Automation Practitioner apprenticeship · Jobs: ML engineer, data annotator, QA test engineer.
 
 **Reviewer notes:**
-- **Render status:** Described from the current source; video re-rendering.
+- **Render status:** Described from the current source; video re-rendered and checked on a contact sheet.
 - **Changes in this version:** 39.4 s (was 43). One story: Data fails first (scored on its own training photos, no held-back test, no night-shift photos), the held-back test is the evidence, then Case fails on the night-shift condition. The dataset-split card is gone; the matrix fills before the score appears; the AI card returns struck through and "Returned"; cards grow as text appears; larger labelling text; in-world wall sign removed; wider camera; bright ending.
 - **Company name:** the source now says **Tallowmere Recycling** (on the brief). The lab design document reports that a real business trades as "Tallowmere Recycling" (Massachusetts) and that there are UK companies called Tallowmere Waste Services Ltd and Tallowmere Corporation. This needs a decision before release.
 - **Other names:** Kofi (13), Sofia and Zara.
