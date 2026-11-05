@@ -24,8 +24,8 @@ Block Quiz is a whole-room quiz show about Minecraft for up to about 30 children
 - **OECD/EC AILit:** "Engage with AI": evaluate AI outputs.
 
 ## 3. Real-world connection and careers
-- **Fact-checkers and journalists** check claims before they are published. **Librarians and teachers** help people judge sources. **Quiz writers and game testers** check that every answer is right for the current version of a game. **Software testers and AI evaluators** run question sets against AI systems to measure how often they are right, and whether their confidence matches.
-- **How professionals use AI:** people use chatbots to draft answers quickly, then check facts against trusted sources. The UK Department for Education warns that generative AI can produce "hallucination" and that "any content produced requires critical judgement" ([DfE](https://www.gov.uk/government/publications/generative-artificial-intelligence-in-education/generative-artificial-intelligence-ai-in-education)).
+- **Fact-checkers and journalists** check claims before publishing. **Librarians and teachers** help people judge sources. **Quiz writers and game testers** check answers against the current game version. **AI evaluators** run question sets against AI systems to measure how often they are right and whether their confidence matches.
+- **How professionals use AI:** people draft answers with chatbots, then check facts against trusted sources; the DfE warns about "hallucination" (see section 9).
 - **Children want adults involved:** in a survey supported by Microsoft, 84% of 9–12-year-olds who use AI wanted at least some help from adults ([4-H](https://4-h.org/about/blog/young-people-want-guidance-from-adults-on-use-of-ai-tools-says-first-of-its-kind-survey-from-national-4-h-council/)).
 
 ## 4. Setting, look and characters
@@ -218,12 +218,11 @@ The Department for Education's guidance on generative AI in education says that 
 - **Brand language:** say "the game" or "block-building games" in scripts; do not show or describe official assets.
 
 ## 10. Accessibility and inclusion
-- **Reading level:** questions under 15 words, read aloud twice; options shown with letter, colour and shape.
-- **Audio and captions:** Hunch's lines are voiced and captioned.
-- **Colour-blind-safe:** pads use colour, letter and shape (A circle, B triangle, C square); the reveal uses a tick and a cross.
-- **Motor-friendly:** children who can't move to pads hold up A/B/C cards or use a buddy; no running.
-- **Inclusion of non-players:** roles that don't need game knowledge; mixed teams.
-- **No devices:** fully runnable with a printed question deck, A/B/C cards and the facilitator reading Hunch's lines from a script.
+- **Reading level:** questions under 15 words, read aloud twice. **Audio:** Hunch voiced and captioned.
+- **Colour-blind-safe:** pads use colour, letter and shape (A circle, B triangle, C square); reveal uses ✔ and ✘.
+- **Motor-friendly:** A/B/C cards or a buddy instead of moving; no running.
+- **Non-players:** roles that need no game knowledge; mixed teams.
+- **No devices:** a printed question deck, A/B/C cards and Hunch's lines read from a script.
 
 ## 11. Safety, ethics and data
 - **Data collected:** none. No accounts, no names on screen (team names only), no camera.
@@ -233,6 +232,6 @@ The Department for Education's guidance on generative AI in education says that 
 
 ## 12. Build notes
 - **Scenes:** flat-colour studio island, three pads, reveal drop and confetti, Sure-o-meter graphic, scoreboard, Rule Card builder, title and end screens with the disclaimer.
-- **Scripted AI responses (Hunch):** "Lava!" (90%, no reason) · "Emeralds. WHY: they buy and sell almost everything for emeralds." (85%) · "North! Compasses point north." (92%) · "Flour, eggs, milk, sugar." (80%), then "Not sure: 55%. Check with a player." · "I think yes, after it eats grass." (55%) · "Yes! Beds are for sleeping." (88%) · "Any pickaxe." (75%).
+- **Scripted AI responses:** as in the section 5 table, plus "Not sure: 55%. Check with a player." and "Any pickaxe." (75%).
 - **Reuse from the trailer:** pad layout and drop animation, avatar movement and cheer, question and AI panels, team scoreboard, "Just answer / Answer, and tell us WHY" fix panel. **Replace:** 16×16 textures, pixel fonts, "Redstone Crew", and question wording with in-game proper nouns.
 - **Open questions:** May in-game proper nouns appear inside question text? (lawyer). Verify every fact against the current game version. Can the venue host it as "a quiz about Minecraft" in listings, given the naming rules? (lawyer).

@@ -31,15 +31,9 @@ Children give **Manager Bot**, a pretend AI park manager, its instruction for ea
 - **Fictional names (all to be checked against real organisations and people before release):** Island Park, Manager Bot, Twister Coaster, Opening Summer (scenario), the awards "Greenest Park on the Island" and "Tidiest Island in the Sky". "Manager Bot" is a generic phrase; check app stores for a product of that name. Team names (Otters, Foxes, Hawks, Badgers) are animal words.
 
 ## 5. Core loop and structure
-**Act structure in every season (about 5–7 minutes each)**
-1. **Brief:** the scenario window shows the goal and the limits ("50 guests by August. Keep Wildlife above 60%").
-2. **Instruct:** the group picks one of three cards. One is vague.
-3. **Guess:** Manager Bot restates the card, shows its plan and a "% sure".
-4. **Season:** a 10-second time-lapse. Builders lay paths, guests arrive, bubbles pop up, meters move with equal-sized "+came / −left" arrows.
-5. **Check:** the Goal Check window ticks or crosses each condition. The facilitator asks one question.
-6. **Fix:** the group adds a "never" or "check" tile, or picks the clearer card, and replays. Retry costs seconds and never costs stars.
+**Act structure in every season (5–7 minutes):** 1 **Brief** (goal and limits: "50 guests by August. Keep Wildlife above 60%") → 2 **Instruct** (one of three cards; one vague) → 3 **Guess** (Manager Bot restates the card with "% sure") → 4 **Season** (10-second time-lapse; bubbles; meters with equal-sized "+came / −left" arrows) → 5 **Check** (Goal Check ticks or crosses; one facilitator question) → 6 **Fix** (add a Never or Check tile, or the clearer card; retry costs seconds, never stars).
 
-**Meters:** Guests, Wildlife, Tidy (appears in Season 2) and a needs panel (food, water, shelter, friends) from Season 3. Stars per season: ★ target met, ★★ no other meter fell by more than 5, ★★★ no red bubble at the end.
+**Meters:** Guests, Wildlife, Tidy (from Season 2), needs panel (food, water, shelter, friends; from Season 3). Stars per season: ★ target met, ★★ no other meter fell by more than 5, ★★★ no red bubble at the end.
 
 | Season | Goal | Real decisions (options) | AI's confident mistake | How children catch it | Clearer instruction | On screen |
 |---|---|---|---|---|---|---|
@@ -200,10 +194,10 @@ In October 2026 the charity Born Free criticised the zoo game Planet Zoo 2. It a
 - **Next step:** take the Park Charter home and write one Never rule for a family decision. In clubs, try the next lab, Pit Crew GP, where an AI finds a loophole in a reward.
 
 **Facilitator notes**
-- **Sensitive topics:** animals leaving or losing eggs can upset younger children. Stress that every animal comes back on retry and that the island is pretend. Avoid real stories of animals harmed.
-- **Safeguarding:** if a child discloses something personal during the "time someone chased one number" question (e.g. pressure at home), acknowledge calmly, move on and report to the venue's designated safeguarding lead (DSL) using the venue's procedure.
-- **Dominant voices:** use "pair first, share second" and call on pairs, not hands. Give the Tally Keeper role to quieter children; they hold the evidence in Season 5. Use a "three before me" rule: three others speak before one child speaks again.
-- **Money:** do not praise the £ total. If children ask, say "Manager Bot made money. What did it cost?"
+- **Sensitive topics:** animals leaving or losing eggs can upset younger children. Stress that every animal comes back on retry; avoid real stories of animals harmed.
+- **Safeguarding:** if a child discloses something personal (e.g. pressure at home) during question 6, acknowledge calmly, move on and report to the venue's designated safeguarding lead (DSL).
+- **Dominant voices:** pair first, share second; call on pairs, not hands; "three before me". Give quieter children the Tally Keeper role: they hold the Season 5 evidence.
+- **Money:** never praise the £ total. "Manager Bot made money. What did it cost?"
 
 ## 10. Accessibility and inclusion
 - **Reading level:** cards at about age 8 level; bubbles of 10 words or fewer, read aloud on tap or by the Guest Reporter. A "clear text" toggle swaps the pixel font for a larger plain sans.
@@ -219,7 +213,7 @@ In October 2026 the charity Born Free criticised the zoo game Planet Zoo 2. It a
 - **No dark patterns:** no purchases, streaks or random rewards; team-only scores (ICO Children's Code Standards 5 and 13; research `05-replayability.md`, §4).
 
 ## 12. Build notes
-- **Scenes:** the isometric park in six states (meadow path, kiosks without bins, feeding-only, open nesting area, zip-line, charter celebration), each with a fix state; Goal Check, scenario and charter-builder windows; needs panel; news ticker.
+- **Scenes:** the park in six mistake states, each with a fix state; Goal Check, scenario and charter-builder windows; needs panel; ticker.
 - **Scripted AI responses:** all lines in the section 5 table, plus "Got it: path round the meadow. Meadow stays wild." (88%), "Popular means loud and fun? A bouncy castle!" (61%), "11 bubbles: 3 zip-line, 8 shade. Planting trees." (88%) and "Clear goal, clear limits. I can do this." (85–95%). B-card lines as in research `08-tycoon.md`, §7.4.
 - **Bubble bank:** the 44 lines in `08-tycoon.md`, §7.5, with RCT-pattern lines rewritten in our own words.
 - **Reuse from the trailer:** isometric renderer, window chrome, ticker, Goal Check, builder cursor, typed-instruction window, thought bubbles, award window.
