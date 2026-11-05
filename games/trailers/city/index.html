@@ -1,81 +1,172 @@
 <!doctype html><html><head><meta charset="utf-8"><title>Autopilot City trailer</title>
 <link rel="stylesheet" href="../engine/ui.css">
+<link rel="stylesheet" href="../engine/brochure.css">
 <style>
-.hud { font-family: 'Inter', sans-serif; color: #e8f6ff; }
-.tag3d { position: absolute; transform: translate(-50%, -100%); font: 800 22px Inter; padding: 5px 10px; border-radius: 6px; white-space: nowrap; color: #021; }
-.box2d { position: absolute; border: 3px solid; border-radius: 4px; }
-.dash { position: absolute; left: 50%; bottom: 40px; transform: translateX(-50%); display: flex; gap: 18px; align-items: stretch; }
-.dash > div { background: rgba(6, 14, 26, 0.78); border: 1px solid rgba(120, 200, 255, 0.35); border-radius: 18px; padding: 14px 22px; backdrop-filter: blur(4px); }
-.dash small { display: block; font: 800 14px Inter; letter-spacing: .16em; color: #7fb6d9; }
-.dash b { font: 800 44px 'Bricolage Grotesque', Inter; color: #fff; }
-.mode { font: 800 30px 'Bricolage Grotesque'; }
-.mini { position: absolute; right: 40px; top: 40px; width: 300px; height: 300px; border-radius: 22px; overflow: hidden; background: rgba(6, 14, 26, 0.8); border: 1px solid rgba(120, 200, 255, 0.35); }
-.decision { position: absolute; left: 40px; top: 40px; width: 560px; background: rgba(6, 14, 26, 0.82); border: 1px solid rgba(120, 200, 255, 0.35); border-radius: 20px; padding: 18px 24px; }
-.decision small { font: 800 14px Inter; letter-spacing: .16em; color: #7fb6d9; }
-.decision p { font: 700 30px Inter; margin: 6px 0 10px; line-height: 1.2; color: #fff; }
-.conf { display: flex; gap: 12px; align-items: center; font: 700 18px Inter; color: #9fc4dd; }
-.conf i { display: block; width: 220px; height: 10px; border-radius: 99px; background: #1e3346; overflow: hidden; }
-.conf i span { display: block; height: 100%; background: linear-gradient(90deg, #ffc83d, #16ffc6); }
+.tag3d { position: absolute; transform: translate(-50%, -100%); font: 800 26px Inter; padding: 6px 14px; border-radius: 8px; white-space: nowrap; color: #13202b; box-shadow: 0 4px 12px rgba(0,0,0,.25); }
+.box2d { position: absolute; border: 4px solid; border-radius: 6px; }
+.chip { display: inline-block; background: rgba(19,32,43,.88); color: #fff; border-radius: 22px; padding: 14px 26px; box-shadow: 0 8px 22px rgba(0,0,0,.2); }
+.chip small { display: block; font: 800 20px Inter; letter-spacing: .16em; }
+.chip span { display: block; font: 700 32px/1.2 Inter; margin-top: 4px; }
+.dashp { display: flex; gap: 14px; }
+.dashp > div { background: rgba(19,32,43,.88); border-radius: 22px; padding: 14px 26px; min-width: 170px; box-shadow: 0 8px 22px rgba(0,0,0,.2); }
+.dashp small { display: block; font: 800 18px Inter; letter-spacing: .16em; color: #9fc4dd; }
+.dashp b { font: 800 50px 'Bricolage Grotesque', Inter; color: #fff; }
+.dashp .mode { font: 800 34px 'Bricolage Grotesque', Inter; display: block; margin-top: 8px; }
+.pc .b-cards { gap: 24px; align-items: stretch; }
+.pc .b-card { width: 584px; font: 600 38px/1.2 Inter; transition: none; }
+.pc .b-card b { color: #0b7f74; }
+.pc .b-card.vague .k { background: #ffe6dd; color: #d14a2b; }
+.ba { background: #fff; border-radius: 30px; padding: 22px 30px 24px; box-shadow: 0 8px 0 rgba(0,0,0,.08), 0 14px 30px rgba(0,0,0,.18); color: #13202b; }
+.ba > small { font: 800 22px Inter; letter-spacing: .14em; color: #46596a; }
+.barow { display: flex; align-items: center; gap: 20px; margin-top: 14px; }
+.barow .tl { width: 130px; font: 800 22px Inter; letter-spacing: .1em; color: #46596a; }
+.barow .tl b { display: block; font: 800 30px Inter; letter-spacing: 0; color: #13202b; }
+.strip { position: relative; width: 520px; height: 84px; background: #4b4c53; border-radius: 12px; overflow: hidden; }
+.strip .lane { position: absolute; left: 0; right: 0; top: 8px; height: 4px; background: repeating-linear-gradient(90deg, #f4efe4 0 26px, transparent 26px 46px); }
+.strip .car { position: absolute; top: 26px; height: 50px; background: #f4f6f8; border-radius: 10px 18px 18px 10px; }
+.strip .car::before { content: ''; position: absolute; right: 30px; top: 7px; width: 36px; height: 36px; border-radius: 6px; background: #1d2a38; }
+.strip .car::after { content: ''; position: absolute; left: 70px; top: 17px; width: 16px; height: 16px; border-radius: 50%; background: #16ffc6; box-shadow: 0 0 8px #16ffc6; }
+.strip .kid { position: absolute; top: 34px; width: 34px; height: 34px; border-radius: 50%; background: #ffc83d; border: 4px solid #fff; }
+.strip .gapbar { position: absolute; top: 46px; height: 10px; border-radius: 5px; }
+.strip .gapl { position: absolute; top: 10px; transform: translateX(-50%); font: 800 26px Inter; color: #fff; padding: 0 8px; border-radius: 8px; white-space: nowrap; }
+.barow .res { width: 170px; font: 800 30px Inter; }
 </style>
 <script type="importmap">{"imports":{"three":"/three/three.module.js","three/addons/":"/three-addons/"}}</script></head>
 <body><div id="app"><div id="bg"></div><div id="ui"></div><div id="fx"></div></div>
 <script type="module">
 import * as THREE from 'three';
 import { createStage, prog, ease, lerp, clamp, within } from '../engine/stage.js';
-import { el, cue, kicker, titleCard, fader, toScreen, cardsHTML, tap, facilCard } from '../engine/ui.js';
+import { el, cue, kicker, titleCard, fader, toScreen } from '../engine/ui.js';
 
-const DUR = 32.6;
-const st = createStage({ sky: ['#2a86f2', '#bfe6ff'] });
-const { scene, camera, sun, hemi, fx } = st;
-fx.setTilt(0.5, 0); fx.grade.uniforms.sat.value = 1.12; fx.grade.uniforms.vignette.value = 0.2; fx.bloom.strength = 0.25;
-sun.position.set(-90, 140, 70); sun.shadow.camera.left = sun.shadow.camera.bottom = -120; sun.shadow.camera.right = sun.shadow.camera.top = 120; sun.shadow.mapSize.set(4096, 4096);
+// Timeline (s): 0 aerial · 3 first instruction · 5.6 test drive 1 (lidar) · 9.6 side-on hazard · 12.2 too late
+// 14.2 clearer instruction · 17 test drive 2 · 20.2 stops 6 m away · 23.4 wrap-up · 26.5 title · 30 end
+const DUR = 30.0;
+const st = createStage({ sky: ['#3d97ec', '#ffe4bf'] });
+const { scene, camera, sun, hemi, fx, renderer, rim } = st;
+fx.setTilt(0.5, 0); fx.grade.uniforms.sat.value = 1.1; fx.grade.uniforms.vignette.value = 0.16; fx.grade.uniforms.warm.value = 0.1; fx.bloom.strength = 0.2;
+// warm afternoon: low-ish sun from the south-west, warm key, soft sky fill
+sun.color.set('#ffdcaa'); sun.intensity = 3.4; sun.position.set(-110, 105, 80);
+hemi.color.set('#d4eaff'); hemi.groundColor.set('#c9a070'); hemi.intensity = 1.2; rim.intensity = 0.6;
+sun.shadow.camera.left = sun.shadow.camera.bottom = -120; sun.shadow.camera.right = sun.shadow.camera.top = 120; sun.shadow.mapSize.set(4096, 4096);
+const ANISO = renderer.capabilities.getMaxAnisotropy();
 function rnd(x, y = 0) { let h = (x * 374761393 + y * 668265263) | 0; h = (h ^ (h >>> 13)) * 1274126177; return ((h ^ (h >>> 16)) >>> 0) / 4294967295; }
 const std = (c, r = 0.75, m = 0) => new THREE.MeshStandardMaterial({ color: c, roughness: r, metalness: m });
+const flat = (c, r = 0.85) => new THREE.MeshStandardMaterial({ color: c, roughness: r, flatShading: true });
 const add = (geo, mat, x, y, z, ry = 0) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.rotation.y = ry; m.castShadow = true; m.receiveShadow = true; scene.add(m); return m; };
+const canvasTex = (w, h, paint) => { const c = document.createElement('canvas'); c.width = w; c.height = h; const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = ANISO; t.userData.paint = () => { paint(c.getContext('2d'), w, h); t.needsUpdate = true; }; t.userData.paint(); return t; };
+const texts = []; // canvas textures that draw text: repainted once the web fonts have loaded
 
 // ---------- city: 4x4 blocks, roads every 50 ----------
-const B = 50, RW = 14, N = 4, SPAN = N * B;
-add(new THREE.BoxGeometry(SPAN + 60, 1, SPAN + 60), std('#3a3f47', 0.95), SPAN / 2 - B / 2, -0.5, SPAN / 2 - B / 2);
-{ const gp = add(new THREE.BoxGeometry(1600, 1, 1600), std('#6fb456', 0.95), SPAN / 2 - B / 2, -0.62, SPAN / 2 - B / 2); gp.castShadow = false; }
-// lane markings + crosswalks
-const lineMat = std('#f2f2ea', 0.6);
-for (let i = 0; i <= N; i++) { const p = i * B - B / 2; for (let k = -B / 2; k < SPAN; k += 6) { add(new THREE.BoxGeometry(0.3, 0.05, 2.6), lineMat, p, 0.03, k); add(new THREE.BoxGeometry(2.6, 0.05, 0.3), lineMat, k, 0.03, p); } }
-for (let i = 0; i <= N; i++) for (let j = 0; j <= N; j++) { const x = i * B - B / 2, z = j * B - B / 2; for (let s = -5; s <= 5; s += 1.6) { add(new THREE.BoxGeometry(1, 0.06, 3), lineMat, x + s, 0.04, z + RW / 2 + 2.2); add(new THREE.BoxGeometry(3, 0.06, 1), lineMat, x + RW / 2 + 2.2, 0.04, z + s); } }
-// window texture
-function winTex(base, lit) { const c = document.createElement('canvas'); c.width = 64; c.height = 128; const g = c.getContext('2d'); g.fillStyle = base; g.fillRect(0, 0, 64, 128); for (let y = 6; y < 128; y += 12) for (let x = 5; x < 64; x += 12) { g.fillStyle = rnd(x, y + base.length) > 0.82 ? lit : '#2c4a63'; g.fillRect(x, y, 8, 8); g.fillStyle = 'rgba(255,255,255,.25)'; g.fillRect(x, y, 8, 2); } const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; return t; }
-const facades = ['#f2c6a0', '#a9cdec', '#f4dc8a', '#c9e2b0', '#eab4b8', '#d9d2f0', '#e9e4da'].map((c) => winTex(c, '#ffe9a8'));
-const trees = [], peds = [];
+const B = 50, RW = 14, N = 4, SPAN = N * B, IN = B - RW, LAWN = IN - 4; // sidewalk ring 2 m, road 14 m
+const R1 = B * 0.5 + 1.8; // hero lane (eastbound) on the road z = 25
+const VAN = { x: 55.5, z: 30.4 }; // parked at the school kerb
+const KID0 = [57.6, 33.2], KID1 = [60.6, 27.6]; // behind the van -> in the lane
+const STOP1 = 60.6 - 1.1 - 2.2, STOP2 = 60.6 - 6.1 - 2.2; // car centre at the end of each test drive
+add(new THREE.BoxGeometry(SPAN + 60, 1, SPAN + 60), std('#4b4b52', 0.95), SPAN / 2 - B / 2, -0.5, SPAN / 2 - B / 2);
+{ const gp = add(new THREE.BoxGeometry(1600, 1, 1600), std('#93c45e', 0.95), SPAN / 2 - B / 2, -0.62, SPAN / 2 - B / 2); gp.castShadow = false; }
+// lane markings: centre dashes + solid edge lines
+const lineMat = std('#f4efe4', 0.6);
+for (let i = 0; i <= N; i++) { const p = i * B - B / 2; for (let k = -B / 2 + 2; k < SPAN - B / 2; k += 6) { if (Math.abs(((k + B / 2) % B) - B / 2) > B / 2 - RW / 2 - 1) continue; add(new THREE.BoxGeometry(0.3, 0.05, 2.6), lineMat, p, 0.03, k); add(new THREE.BoxGeometry(2.6, 0.05, 0.3), lineMat, k, 0.03, p); } }
+// zebra crossings: one by the school (where the story happens) and one up the road
+function zebra(x, zc, alongX = true) { for (let s = -5.6; s <= 5.6; s += 1.4) { if (alongX) add(new THREE.BoxGeometry(3.4, 0.06, 0.7), lineMat, x, 0.04, zc + s); else add(new THREE.BoxGeometry(0.7, 0.06, 3.4), lineMat, zc + s, 0.04, x); } }
+zebra(65.6, 25); zebra(-12, 25); zebra(41, B * 1.5, false);
+// facades: four window styles x warm palette, so neighbouring buildings differ
+function winTex(base, style, seed) {
+  return canvasTex(64, 128, (g) => {
+    g.fillStyle = base; g.fillRect(0, 0, 64, 128); const glass = '#3b5a74', lit = '#ffe6a6';
+    if (style === 0) for (let y = 6; y < 128; y += 12) for (let x = 5; x < 64; x += 12) { g.fillStyle = rnd(x + seed, y) > 0.85 ? lit : glass; g.fillRect(x, y, 8, 8); g.fillStyle = 'rgba(255,255,255,.3)'; g.fillRect(x, y, 8, 2); }
+    if (style === 1) for (let y = 8; y < 128; y += 16) { g.fillStyle = glass; g.fillRect(0, y, 64, 7); g.fillStyle = 'rgba(255,255,255,.35)'; g.fillRect(0, y, 64, 2); }
+    if (style === 2) for (let y = 6; y < 128; y += 16) for (let x = 6; x < 64; x += 16) { g.fillStyle = '#fff6e8'; g.fillRect(x - 2, y - 2, 10, 14); g.fillStyle = rnd(x, y + seed) > 0.8 ? lit : glass; g.fillRect(x, y, 6, 10); }
+    if (style === 3) for (let y = 6; y < 128; y += 16) for (let x = 4; x < 64; x += 20) { g.fillStyle = glass; g.fillRect(x, y, 14, 9); g.fillStyle = 'rgba(0,0,0,.18)'; g.fillRect(x - 2, y + 9, 18, 3); }
+  });
+}
+const PAL = ['#f2c6a0', '#e59b74', '#f4dc8a', '#a9cdec', '#f3e7d3', '#d9876a', '#c9e2b0', '#eab4b8', '#d6cbe8'];
+const facades = []; for (let s = 0; s < 4; s++) for (let c = 0; c < PAL.length; c++) facades.push(winTex(PAL[c], s, c * 7 + s));
+const awnMats = ['#e8573f', '#16a37f', '#3a8fe0', '#ffc83d', '#7a4fd0'].map((c) => std(c, 0.7));
+const trees = [];
+const roofMat = std('#f4f1ea', 0.6), ventMat = std('#a7aeb5', 0.5), roofRed = flat('#c4543a'), roofGrey = flat('#6e7a86');
+function building(x, z, w, d, h, ti, k) {
+  const t = facades[ti % facades.length].clone(); t.needsUpdate = true; t.repeat.set(Math.max(1, Math.round(w / 8)), Math.max(1, Math.round(h / 16))); t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  add(new THREE.BoxGeometry(w, h, d), new THREE.MeshStandardMaterial({ map: t, roughness: 0.75 }), x, h / 2 + 0.5, z);
+  add(new THREE.BoxGeometry(w + 0.6, 0.7, d + 0.6), roofMat, x, h + 0.85, z);
+  if (k % 3 === 0 && h > 20) add(new THREE.BoxGeometry(w * 0.6, 5, d * 0.6), new THREE.MeshStandardMaterial({ map: t, roughness: 0.75 }), x, h + 3.5, z); // stepped top
+  else if (k % 3 === 1) add(new THREE.CylinderGeometry(1.4, 1.4, 2.6, 10), ventMat, x + w * 0.2, h + 2.4, z - d * 0.15);
+  else add(new THREE.BoxGeometry(3, 1.6, 2.4), ventMat, x - w * 0.2, h + 2, z);
+}
+function house(x, z, w, d, h, ci, ry) {
+  add(new THREE.BoxGeometry(w, h, d), new THREE.MeshStandardMaterial({ map: facades[18 + (ci % 9)], roughness: 0.8 }), x, h / 2 + 0.5, z);
+  const roof = add(new THREE.ConeGeometry(Math.max(w, d) * 0.78, 3.4, 4), ci % 2 ? roofRed : roofGrey, x, h + 2.2, z, Math.PI / 4); roof.scale.set(w / Math.max(w, d), 1, d / Math.max(w, d));
+  add(new THREE.BoxGeometry(1.4, 2.4, 0.2), std('#3a8fe0', 0.6), x, 1.7, z + (ry ? -d / 2 - 0.05 : d / 2 + 0.05));
+}
+const benchMat = std('#9b6a3e', 0.8);
 for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
-  const cx = i * B, cz = j * B, inner = B - RW;
-  // sidewalk
-  add(new THREE.BoxGeometry(inner + 4, 0.4, inner + 4), std('#b9bcc2', 0.9), cx, 0.2, cz);
-  add(new THREE.BoxGeometry(inner, 0.5, inner), std('#72bf58', 0.9), cx, 0.25, cz).receiveShadow = true;
-  if ((i + j) % 5 === 3) { // park block
-    for (let k = 0; k < 9; k++) trees.push([cx - 12 + (k % 3) * 12, cz - 12 + Math.floor(k / 3) * 12]);
+  const cx = i * B, cz = j * B;
+  add(new THREE.BoxGeometry(IN, 0.4, IN), std('#e3d6c0', 0.9), cx, 0.2, cz); // sidewalk
+  add(new THREE.BoxGeometry(LAWN, 0.5, LAWN), std('#9acb63', 0.9), cx, 0.25, cz).receiveShadow = true;
+  if (i === 1 && j === 0) { // park opposite the school (the side-on camera sits above it)
+    for (let k = 0; k < 6; k++) trees.push([cx - 12 + (k % 3) * 12, cz - 12 + Math.floor(k / 3) * 9, k]);
+    add(new THREE.CylinderGeometry(3, 3.4, 0.8, 16), std('#d8d2c4', 0.7), cx, 0.9, cz + 6); add(new THREE.CylinderGeometry(2.4, 2.4, 0.3, 16), std('#5fb7e6', 0.2), cx, 1.2, cz + 6);
+    for (const bx of [-10, 10]) add(new THREE.BoxGeometry(3, 0.5, 0.9), benchMat, cx + bx, 0.95, cz + 12);
+    continue;
+  }
+  if (i === 1 && j === 1) continue; // school block, built below
+  if ((i + j) % 5 === 3) { for (let k = 0; k < 9; k++) trees.push([cx - 12 + (k % 3) * 12, cz - 12 + Math.floor(k / 3) * 12, k + i]); continue; }
+  if (j === 1 || (j === 2 && i === 0)) { // low houses with pitched roofs
+    for (let k = 0; k < 4; k++) { const w = 8 + rnd(i, k) * 3, d = 8 + rnd(k, j) * 3, h = 4.5 + rnd(i + k, j) * 2.5; house(cx - 8 + (k % 2) * 16, cz - 8 + Math.floor(k / 2) * 16, w, d, h, i * 4 + k, Math.floor(k / 2) === 0); }
+    for (let k = 0; k < 4; k++) trees.push([cx + (k % 2 ? 1 : -1) * 2, cz - 12 + k * 8, k + 3]);
     continue;
   }
   const n = 2 + Math.floor(rnd(i, j) * 3);
   for (let k = 0; k < n; k++) {
-    const w = 10 + rnd(i * 7 + k, j) * 8, d = 10 + rnd(i, j * 7 + k) * 8, h = 10 + rnd(i + k, j + 3) * (i === 2 && j === 1 ? 70 : 34);
-    const x = cx - inner / 2 + w / 2 + 2 + (k % 2) * (inner - w - 4), z = cz - inner / 2 + d / 2 + 2 + Math.floor(k / 2) * (inner - d - 4);
-    const t = facades[(i * 3 + j + k) % facades.length].clone(); t.needsUpdate = true; t.repeat.set(w / 8, h / 16);
-    const m = new THREE.MeshStandardMaterial({ map: t, roughness: 0.7 });
-    add(new THREE.BoxGeometry(w, h, d), m, x, h / 2 + 0.5, z);
-    add(new THREE.BoxGeometry(w + 0.6, 0.8, d + 0.6), std('#f4f4f2', 0.6), x, h + 0.9, z);
-    if (rnd(k, i + j) > 0.5) add(new THREE.BoxGeometry(3, 2, 3), std('#9aa3ab', 0.5), x + 1, h + 2, z - 1);
+    const w = 10 + rnd(i * 7 + k, j) * 6, d = 10 + rnd(i, j * 7 + k) * 6, h = 9 + rnd(i + k, j + 3) * (i === 2 && j === 1 ? 60 : 30);
+    const x = cx - LAWN / 2 + w / 2 + 1 + (k % 2) * (LAWN - w - 2), z = cz - LAWN / 2 + d / 2 + 1 + Math.floor(k / 2) * (LAWN - d - 2);
+    building(x, z, w, d, h, (i * 5 + j * 3 + k * 7) % 36, k + i);
+    if ((i + j + k) % 2 === 0) add(new THREE.BoxGeometry(w * 0.8, 0.3, 1.6), awnMats[(i + j * 2 + k) % awnMats.length], x, 3.6, z + (Math.floor(k / 2) ? d / 2 + 0.8 : -d / 2 - 0.8));
   }
-  for (let k = 0; k < 4; k++) trees.push([cx - inner / 2 - 1 + (k % 2) * (inner + 2), cz - inner / 2 + 6 + Math.floor(k / 2) * (inner - 12)]);
+  for (let k = 0; k < 4; k++) trees.push([cx - LAWN / 2 - 1 + (k % 2) * (LAWN + 2), cz - LAWN / 2 + 6 + Math.floor(k / 2) * (LAWN - 12), k + j]);
 }
-const leafMat = std('#4caf50', 0.85), trunkMat = std('#7a5232', 0.9);
-trees.forEach(([x, z], k) => { add(new THREE.CylinderGeometry(0.35, 0.45, 3, 6), trunkMat, x, 1.9, z); add(new THREE.IcosahedronGeometry(2.4 + rnd(k) * 0.8, 0), leafMat, x, 4.8, z); });
-// traffic lights at the hero junction
-const lightMats = []; function trafficLight(x, z, ry) { const g = add(new THREE.BoxGeometry(0.3, 6, 0.3), std('#2a2f36'), x, 3, z, ry); const head = add(new THREE.BoxGeometry(1, 2.4, 0.8), std('#20252b'), x, 6.4, z, ry); const ms = ['#ff3b30', '#ffcc00', '#2ee66b'].map((c, i) => { const m = new THREE.MeshStandardMaterial({ color: '#333', emissive: c, emissiveIntensity: 0 }); add(new THREE.SphereGeometry(0.3, 10, 8), m, x + Math.sin(ry) * 0.45, 7.2 - i * 0.75, z + Math.cos(ry) * 0.45); return m; }); lightMats.push(ms); }
-trafficLight(B * 1.5 + RW / 2 + 1, B * 0.5 + RW / 2 + 1, 0); trafficLight(B * 1.5 - RW / 2 - 1, B * 0.5 - RW / 2 - 1, Math.PI);
-// a billboard with a printed person (the false alarm)
-const bb = document.createElement('canvas'); bb.width = 256; bb.height = 128; { const g = bb.getContext('2d'); g.fillStyle = '#ffcf3d'; g.fillRect(0, 0, 256, 128); g.fillStyle = '#13202b'; g.font = '900 26px Inter'; g.fillText('RUN CLUB', 100, 50); g.font = '700 18px Inter'; g.fillText('Sundays 9am', 112, 80); g.fillStyle = '#c68a5e'; g.beginPath(); g.arc(60, 34, 16, 0, 7); g.fill(); g.fillStyle = '#ff5a4a'; g.fillRect(44, 52, 32, 44); g.fillStyle = '#2c3e66'; g.fillRect(44, 96, 12, 30); g.fillRect(64, 96, 12, 30); }
-const bbt = new THREE.CanvasTexture(bb); bbt.colorSpace = THREE.SRGBColorSpace;
-const billboard = add(new THREE.BoxGeometry(9, 5, 0.4), new THREE.MeshStandardMaterial({ map: bbt, roughness: 0.6 }), B * 0.5 + 16, 4.6, B * 0.5 - RW / 2 - 1.2);
-add(new THREE.BoxGeometry(0.4, 2.4, 0.4), std('#555'), B * 0.5 + 16, 1.2, B * 0.5 - RW / 2 - 1.2);
+// ---------- the school (block 1,1) ----------
+{
+  const sx = 49, sz = 47, w = 26, d = 13, h = 8.5;
+  const t = canvasTex(64, 64, (g) => { g.fillStyle = '#e48a5c'; g.fillRect(0, 0, 64, 64); g.fillStyle = '#fff6e8'; g.fillRect(6, 14, 22, 20); g.fillRect(36, 14, 22, 20); g.fillStyle = '#3b5a74'; g.fillRect(9, 17, 16, 14); g.fillRect(39, 17, 16, 14); g.fillStyle = 'rgba(0,0,0,.12)'; for (let y = 0; y < 64; y += 6) g.fillRect(0, y, 64, 1); });
+  t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(5, 2);
+  add(new THREE.BoxGeometry(w, h, d), new THREE.MeshStandardMaterial({ map: t, roughness: 0.8 }), sx, h / 2 + 0.5, sz);
+  add(new THREE.BoxGeometry(w + 1, 0.8, d + 1), std('#fff6e8', 0.6), sx, h + 0.9, sz);
+  add(new THREE.BoxGeometry(5, 4.2, 1.6), std('#fff6e8', 0.6), sx, 2.6, sz - d / 2 - 0.6); // porch
+  add(new THREE.BoxGeometry(2.6, 3, 0.2), std('#2a7fd0', 0.5), sx, 2.0, sz - d / 2 - 1.45); // door
+  const signT = canvasTex(1024, 256, (g, W, H) => { g.fillStyle = '#1f9d55'; g.beginPath(); g.roundRect(0, 0, W, H, 40); g.fill(); g.fillStyle = '#fff'; g.font = '900 150px Inter, Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('SCHOOL', W / 2, H / 2 + 8); }); texts.push(signT);
+  const sign = new THREE.Mesh(new THREE.PlaneGeometry(9, 2.25), new THREE.MeshStandardMaterial({ map: signT, roughness: 0.6, transparent: true })); sign.position.set(sx, 6.7, sz - d / 2 - 0.06); sign.rotation.y = Math.PI; scene.add(sign);
+  // flagpole + fence along the schoolyard
+  add(new THREE.CylinderGeometry(0.12, 0.12, 10, 8), std('#dfe3e6', 0.4, 0.6), sx + 15, 5.5, sz - 9);
+  add(new THREE.BoxGeometry(3, 1.8, 0.05), std('#3a8fe0', 0.6), sx + 16.5, 9.4, sz - 9);
+  const fenceMat = std('#fbf8f1', 0.6);
+  for (const [a, b] of [[B - LAWN / 2, B - 4], [B + 1, B + LAWN / 2]]) { add(new THREE.BoxGeometry(b - a, 0.18, 0.15), fenceMat, (a + b) / 2, 1.5, B - LAWN / 2 + 0.3); for (let x = a; x <= b; x += 1.6) add(new THREE.BoxGeometry(0.18, 1.3, 0.18), fenceMat, x, 1.15, B - LAWN / 2 + 0.3); }
+  for (let k = 0; k < 4; k++) trees.push([B - 14 + (k % 2) * 30, B + 14, k + 9]);
+}
+// school-zone sign (yellow diamond) before the hazard + road paint
+{
+  const st2 = canvasTex(256, 256, (g) => { g.fillStyle = '#ffc83d'; g.save(); g.translate(128, 128); g.rotate(Math.PI / 4); g.beginPath(); g.roundRect(-84, -84, 168, 168, 14); g.fill(); g.lineWidth = 8; g.strokeStyle = '#13202b'; g.stroke(); g.restore(); g.fillStyle = '#13202b'; for (const [x, s] of [[98, 1], [150, 0.85]]) { g.beginPath(); g.arc(x, 92 + (1 - s) * 30, 13 * s, 0, 7); g.fill(); g.fillRect(x - 12 * s, 110 + (1 - s) * 30, 24 * s, 44 * s); g.fillRect(x - 12 * s, 154 + (1 - s) * 30, 8 * s, 24 * s); g.fillRect(x + 4 * s, 154 + (1 - s) * 30, 8 * s, 24 * s); } g.font = '900 30px Inter, Arial, sans-serif'; g.textAlign = 'center'; g.fillText('SCHOOL', 128, 214); }); texts.push(st2);
+  for (const [x, z, ry] of [[38, 32.9, -Math.PI / 2 - 0.5], [-14, 32.9, -Math.PI / 2 - 0.5]]) {
+    add(new THREE.CylinderGeometry(0.1, 0.1, 3.4, 8), std('#9aa3ab', 0.4, 0.6), x, 2.1, z);
+    const s = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 2.2), new THREE.MeshStandardMaterial({ map: st2, transparent: true, roughness: 0.6, side: THREE.DoubleSide })); s.position.set(x, 4.2, z); s.rotation.y = ry; scene.add(s);
+  }
+  const rt = canvasTex(256, 512, (g, W, H) => { g.clearRect(0, 0, W, H); g.fillStyle = '#f4efe4'; g.font = '900 104px Inter, Arial, sans-serif'; g.textAlign = 'center'; g.save(); g.scale(1, 3.2); g.fillText('SCHOOL', W / 2, 130); g.restore(); }); texts.push(rt);
+  const paint = new THREE.Mesh(new THREE.PlaneGeometry(3.0, 6), new THREE.MeshStandardMaterial({ map: rt, transparent: true, roughness: 0.7, depthWrite: false })); paint.rotation.set(-Math.PI / 2, 0, -Math.PI / 2); paint.position.set(36, 0.05, R1); paint.receiveShadow = true; scene.add(paint);
+}
+// trees: round, cone and a few golden ones for the warm afternoon
+const leafMats = [flat('#5fae45'), flat('#79be4a'), flat('#e8a53a'), flat('#4f9d4a')], trunkMat = flat('#7a5232', 0.9);
+trees.forEach(([x, z, k], n) => { add(new THREE.CylinderGeometry(0.3, 0.42, 3, 6), trunkMat, x, 1.9, z); const m = leafMats[(n * 7 + k) % 4]; if ((n + k) % 3 === 2) add(new THREE.ConeGeometry(2.4, 6, 7), m, x, 6, z); else add(new THREE.IcosahedronGeometry(2.3 + rnd(n) * 0.8, 1), m, x, 4.9, z); });
+// traffic lights at the junction past the school
+const lightMats = []; function trafficLight(x, z, ry) { add(new THREE.BoxGeometry(0.3, 6, 0.3), std('#2a2f36'), x, 3, z, ry); add(new THREE.BoxGeometry(1, 2.4, 0.8), std('#20252b'), x, 6.4, z, ry); const ms = ['#ff3b30', '#ffcc00', '#2ee66b'].map((c, i) => { const m = new THREE.MeshStandardMaterial({ color: '#333', emissive: c, emissiveIntensity: 0 }); add(new THREE.SphereGeometry(0.3, 10, 8), m, x - Math.sin(ry) * 0.45, 7.2 - i * 0.75, z - Math.cos(ry) * 0.45); return m; }); lightMats.push(ms); }
+trafficLight(B * 1.5 - RW / 2 - 0.6, B * 0.5 + RW / 2 + 0.6, Math.PI / 2);
+// RUN CLUB billboard (bold sans, big canvas)
+{
+  const bbt = canvasTex(1024, 512, (g, W, H) => { g.fillStyle = '#ffcf3d'; g.fillRect(0, 0, W, H); g.fillStyle = '#ff6a4a'; g.fillRect(0, H - 70, W, 70); g.fillStyle = '#c68a5e'; g.beginPath(); g.arc(200, 130, 60, 0, 7); g.fill(); g.fillStyle = '#ff5a4a'; g.fillRect(140, 200, 120, 160); g.fillStyle = '#2c3e66'; g.fillRect(140, 360, 48, 80); g.fillRect(212, 360, 48, 80); g.fillStyle = '#13202b'; g.font = '900 140px Inter, Arial, sans-serif'; g.textBaseline = 'alphabetic'; g.fillText('RUN', 340, 200); g.fillText('CLUB', 340, 340); g.fillStyle = '#fff'; g.font = '800 44px Inter, Arial, sans-serif'; g.fillText('SUNDAYS 9 AM', 340, H - 20); }); texts.push(bbt);
+  const bx = 6, bz = B - LAWN / 2 + 1.5;
+  add(new THREE.BoxGeometry(10, 5, 0.3), std('#2a2f36', 0.6), bx, 5.6, bz + 0.2);
+  const face = new THREE.Mesh(new THREE.PlaneGeometry(9.6, 4.8), new THREE.MeshStandardMaterial({ map: bbt, roughness: 0.6 })); face.position.set(bx, 5.6, bz); face.rotation.y = Math.PI; scene.add(face);
+  for (const px of [-3, 3]) add(new THREE.BoxGeometry(0.4, 3.4, 0.4), std('#555'), bx + px, 2, bz + 0.2);
+}
 // ---------- vehicles ----------
 function car(color, ego = false) {
   const g = new THREE.Group();
@@ -83,33 +174,56 @@ function car(color, ego = false) {
   const cab = new THREE.Mesh(new THREE.BoxGeometry(1.9, 0.75, 2.3), std('#1d2a38', 0.15, 0.4)); cab.position.set(0, 1.65, -0.2); g.add(cab);
   for (const [x, z] of [[-1.1, 1.4], [1.1, 1.4], [-1.1, -1.4], [1.1, -1.4]]) { const w = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.45, 0.35, 14), std('#111', 0.8)); w.rotation.z = Math.PI / 2; w.position.set(x, 0.45, z); g.add(w); }
   const hl = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.2, 0.05), new THREE.MeshStandardMaterial({ color: '#fff', emissive: '#fff8d0', emissiveIntensity: 1.2 })); hl.position.set(0, 0.95, 2.22); g.add(hl);
-  if (ego) { const dome = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.5, 0.45, 18), std('#20262e', 0.3, 0.6)); dome.position.set(0, 2.25, -0.2); g.add(dome); const ring = new THREE.Mesh(new THREE.TorusGeometry(0.47, 0.06, 6, 24), new THREE.MeshStandardMaterial({ color: '#16ffc6', emissive: '#16ffc6', emissiveIntensity: 2 })); ring.rotation.x = Math.PI / 2; ring.position.set(0, 2.32, -0.2); g.add(ring); g.userData.ring = ring; }
+  if (ego) {
+    const stripe = new THREE.Mesh(new THREE.BoxGeometry(2.24, 0.18, 4.42), new THREE.MeshStandardMaterial({ color: '#16c79a', emissive: '#16c79a', emissiveIntensity: 0.3 })); stripe.position.y = 0.95; g.add(stripe);
+    const dome = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.5, 0.45, 18), std('#20262e', 0.3, 0.6)); dome.position.set(0, 2.25, -0.2); g.add(dome);
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.47, 0.06, 6, 24), new THREE.MeshStandardMaterial({ color: '#16ffc6', emissive: '#16ffc6', emissiveIntensity: 2 })); ring.rotation.x = Math.PI / 2; ring.position.set(0, 2.32, -0.2); g.add(ring); g.userData.ring = ring;
+    const tl = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.22, 0.05), new THREE.MeshStandardMaterial({ color: '#600', emissive: '#ff2a2a', emissiveIntensity: 0.4 })); tl.position.set(0, 0.95, -2.22); g.add(tl); g.userData.tail = tl;
+  }
   g.traverse((o) => { if (o.isMesh) { o.castShadow = true; } }); scene.add(g); return g;
 }
-const ego = car('#f4f6f8', true);
-const traffic = ['#e8573f', '#3a8fe0', '#2a2f36', '#ffc83d', '#7a4fd0', '#16a37f', '#c0c4c9'].map((c) => car(c));
-const parked = [car('#59c7fc'), car('#e9e4da')];
+const ego = car('#f4f6f8', true); ego.rotation.order = 'YXZ';
+const traffic = ['#e8573f', '#3a8fe0', '#2a2f36', '#ffc83d', '#7a4fd0', '#16a37f'].map((c) => car(c));
+const oncoming = [car('#e8573f'), car('#3a8fe0')];
+const parked = [car('#59c7fc'), car('#d9876a'), car('#ffc83d')];
 const van = (() => { const g = new THREE.Group(); const b = new THREE.Mesh(new THREE.BoxGeometry(2.6, 2.8, 5.6), std('#f1f1ee', 0.5)); b.position.y = 1.7; g.add(b); const s = new THREE.Mesh(new THREE.BoxGeometry(2.62, 0.5, 5.62), std('#ff6a4a', 0.5)); s.position.y = 1.6; g.add(s); for (const [wx, wz] of [[-1.3, -1.8], [1.3, -1.8], [-1.3, 1.8], [1.3, 1.8]]) { const w = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.35, 14), std('#23262c', 0.8)); w.rotation.z = Math.PI / 2; w.position.set(wx, 0.5, wz); g.add(w); } for (const sx of [-1.31, 1.31]) { const win = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.8, 1.4), std('#2c4a63', 0.3)); win.position.set(sx, 2.3, 1.8); g.add(win); } const ws = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.9, 0.02), std('#2c4a63', 0.3)); ws.position.set(0, 2.3, 2.81); g.add(ws); g.traverse((o) => { if (o.isMesh) o.castShadow = true; }); scene.add(g); return g; })();
-function person(shirt, skin = '#c68a5e', s = 1) { const g = new THREE.Group(); const b = new THREE.Mesh(new THREE.CapsuleGeometry(0.32 * s, 0.9 * s, 4, 10), std(shirt, 0.8)); b.position.y = 1.0 * s; g.add(b); const h = new THREE.Mesh(new THREE.SphereGeometry(0.28 * s, 14, 10), std(skin, 0.7)); h.position.y = 1.85 * s; g.add(h); const hair = new THREE.Mesh(new THREE.SphereGeometry(0.29 * s, 14, 10, 0, Math.PI * 2, 0, Math.PI / 2), std('#2b1d14', 0.8)); hair.position.y = 1.9 * s; g.add(hair); for (const sx of [-1, 1]) { const arm = new THREE.Mesh(new THREE.CapsuleGeometry(0.09 * s, 0.6 * s, 3, 6), std(shirt, 0.8)); arm.position.set(sx * 0.4 * s, 1.15 * s, 0); arm.rotation.z = sx * 0.15; g.add(arm); const leg = new THREE.Mesh(new THREE.CapsuleGeometry(0.11 * s, 0.5 * s, 3, 6), std('#2c3e66', 0.8)); leg.position.set(sx * 0.15 * s, 0.35 * s, 0); g.add(leg); } b.position.y = 1.15 * s; b.scale.set(1, 0.75, 1); g.traverse((o) => { if (o.isMesh) o.castShadow = true; }); scene.add(g); return g; }
-for (let k = 0; k < 18; k++) peds.push(person(['#ff6a4a', '#59c7fc', '#ffc83d', '#6e5bf2', '#16c79a', '#f4f1e8'][k % 6], ['#c68a5e', '#8d5a3b', '#e0b08a', '#a8714b'][k % 4], 1));
-const child = person('#ffc83d', '#a8714b', 0.62);
+function person(shirt, skin = '#c68a5e', s = 1, bag = null) { const g = new THREE.Group(); const b = new THREE.Mesh(new THREE.CapsuleGeometry(0.32 * s, 0.9 * s, 4, 10), std(shirt, 0.8)); g.add(b); const h = new THREE.Mesh(new THREE.SphereGeometry(0.28 * s, 14, 10), std(skin, 0.7)); h.position.y = 1.85 * s; g.add(h); const hair = new THREE.Mesh(new THREE.SphereGeometry(0.29 * s, 14, 10, 0, Math.PI * 2, 0, Math.PI / 2), std('#2b1d14', 0.8)); hair.position.y = 1.9 * s; g.add(hair); const legs = []; for (const sx of [-1, 1]) { const arm = new THREE.Mesh(new THREE.CapsuleGeometry(0.09 * s, 0.6 * s, 3, 6), std(shirt, 0.8)); arm.position.set(sx * 0.4 * s, 1.15 * s, 0); arm.rotation.z = sx * 0.15; g.add(arm); const leg = new THREE.Mesh(new THREE.CapsuleGeometry(0.11 * s, 0.5 * s, 3, 6), std('#2c3e66', 0.8)); leg.position.set(sx * 0.15 * s, 0.35 * s, 0); g.add(leg); legs.push(leg); } if (bag) { const p = new THREE.Mesh(new THREE.BoxGeometry(0.5 * s, 0.6 * s, 0.25 * s), std(bag, 0.7)); p.position.set(0, 1.2 * s, -0.36 * s); g.add(p); } b.position.y = 1.15 * s; b.scale.set(1, 0.75, 1); g.userData.legs = legs; g.traverse((o) => { if (o.isMesh) o.castShadow = true; }); scene.add(g); return g; }
+// pedestrians: [x0, z0, axis, length, speed]; the first three walk the hero street (lidar boxes)
+const pedPaths = [[-14, B * 0.5 - 8.2, 'x', 26, 1.2], [4, B * 0.5 + 8.2, 'x', 22, -1.1], [-2, B * 0.5 - 8.4, 'x', 26, 0.9]];
+for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) { if ((i === 1 && (j === 0 || j === 1)) || (i === 0 && j <= 1)) continue; if (rnd(i + 11, j + 5) > 0.55) continue; pedPaths.push([i * B - 14, j * B + (rnd(i, j + 1) > 0.5 ? 1 : -1) * (IN / 2 - 1), 'x', 28, 1 + rnd(i, j)]); pedPaths.push([i * B + (rnd(j, i) > 0.5 ? 1 : -1) * (IN / 2 - 1), j * B - 14, 'z', 28, 1.1]); }
+const peds = pedPaths.map((_, k) => person(['#ff6a4a', '#59c7fc', '#ffc83d', '#6e5bf2', '#16c79a', '#f4f1e8'][k % 6], ['#c68a5e', '#8d5a3b', '#e0b08a', '#a8714b'][k % 4], 1));
+const schoolKids = [[44, 36.4, '#59c7fc'], [45.4, 36.9, '#ff6a4a'], [41.8, 37.6, '#16c79a']].map(([x, z, c], k) => { const p = person(c, ['#e0b08a', '#8d5a3b', '#c68a5e'][k], 0.7, '#3a8fe0'); p.position.set(x, 0.5, z); p.rotation.y = Math.PI * 0.9; return p; });
+const child = person('#ffc83d', '#a8714b', 0.72, '#7a4fd0');
 const ball = add(new THREE.SphereGeometry(0.35, 14, 10), std('#ff5a4a', 0.5), 0, -5, 0);
+
+// ---------- blind spot behind the van, as seen from the car's sensor ----------
+const wedgeGeo = new THREE.BufferGeometry(); wedgeGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(18), 3));
+const wedgeMat = new THREE.MeshBasicMaterial({ color: '#ff5d4a', transparent: true, opacity: 0.4, depthWrite: false, side: THREE.DoubleSide });
+const wedge = new THREE.Mesh(wedgeGeo, wedgeMat); wedge.renderOrder = 5; wedge.frustumCulled = false; scene.add(wedge);
+const wedgeC = new THREE.Vector3();
+function updateWedge(ex, ez) {
+  const cs = [[VAN.x - 2.8, VAN.z - 1.3], [VAN.x + 2.8, VAN.z - 1.3], [VAN.x - 2.8, VAN.z + 1.3], [VAN.x + 2.8, VAN.z + 1.3]].map(([x, z]) => ({ x, z, a: Math.atan2(z - ez, x - ex) }));
+  cs.sort((p, q) => p.a - q.a); const c1 = cs[0], c2 = cs[3]; const far = (c, L) => { const dx = c.x - ex, dz = c.z - ez, l = Math.hypot(dx, dz); return { x: c.x + dx / l * L, z: c.z + dz / l * L }; };
+  const f1 = far(c1, 9), f2 = far(c2, 9); const y = 0.58; const P = wedgeGeo.attributes.position.array;
+  [[c1, c2, f2], [c1, f2, f1]].flat().forEach((p, i) => { P[i * 3] = p.x; P[i * 3 + 1] = y; P[i * 3 + 2] = p.z; });
+  wedgeGeo.attributes.position.needsUpdate = true; wedgeC.set((c2.x + f1.x + f2.x) / 3, 0.6, (c2.z + f1.z + f2.z) / 3 + 0.6);
+}
 
 // ---------- lidar point cloud ----------
 const PN = 9000; const pts = new Float32Array(PN * 3), pcol = new Float32Array(PN * 3);
 const pgeo = new THREE.BufferGeometry(); pgeo.setAttribute('position', new THREE.BufferAttribute(pts, 3)); pgeo.setAttribute('color', new THREE.BufferAttribute(pcol, 3));
 const pcloud = new THREE.Points(pgeo, new THREE.PointsMaterial({ size: 0.5, vertexColors: true, transparent: true, opacity: 0.95, depthWrite: false })); pcloud.frustumCulled = false; scene.add(pcloud);
 const ray = new THREE.Raycaster(); const turbo = (k) => new THREE.Color().setHSL(0.66 - 0.66 * k, 1, 0.55);
-const hitTargets = []; scene.traverse((o) => { if (o.isMesh && o.geometry.type === 'BoxGeometry') hitTargets.push(o); });
+const egoMeshes = new Set(); ego.traverse((o) => egoMeshes.add(o));
+const hitTargets = []; scene.traverse((o) => { if (o.isMesh && o.geometry.type === 'BoxGeometry' && !egoMeshes.has(o) && o.geometry.parameters.height > 0.3 && o.geometry.parameters.width < 300) hitTargets.push(o); });
 function lidar(t, on) {
   pcloud.visible = on > 0; if (!on) return;
   pcloud.material.opacity = on;
-  const o = ego.position.clone().add(new THREE.Vector3(0, 2.3, 0)); let n = 0;
+  const o = ego.position.clone().add(new THREE.Vector3(0, 2.4, 0)); let n = 0;
   const sweep = (t * 2.2) % 1;
   for (let a = 0; a < 360 && n < PN; a += 1.2) for (let e = -24; e <= 2 && n < PN; e += 1.5) {
     const ang = a / 180 * Math.PI, el2 = e / 180 * Math.PI; const d = new THREE.Vector3(Math.sin(ang) * Math.cos(el2), Math.sin(el2), Math.cos(ang) * Math.cos(el2));
-    let dist = e < 0 ? (2.3 / Math.sin(-el2)) : 60; dist = Math.min(dist, 60);
-    // approximate hits against nearby boxes via raycast (sparse)
+    let dist = e < 0 ? (2.4 / Math.sin(-el2)) : 60; dist = Math.min(dist, 60);
     if ((a * 7 + e) % 3 === 0) { ray.set(o, d); ray.far = 60; const h = ray.intersectObjects(hitTargets, false)[0]; if (h && h.distance < dist) dist = h.distance; }
     const p = o.clone().addScaledVector(d, dist);
     const age = ((a / 360) - sweep + 1) % 1; if (age > 0.85) continue;
@@ -118,84 +232,123 @@ function lidar(t, on) {
   pgeo.setDrawRange(0, n); pgeo.attributes.position.needsUpdate = true; pgeo.attributes.color.needsUpdate = true;
 }
 
-// ---------- paths ----------
-// Ego drives east along road z = B*0.5 (between rows), then turns south down x = B*1.5
-const R1 = B * 0.5 + 3.2; // lane z on the east-west road (south lane)
-function egoAt(t) {
-  if (t < 9.0) { const x = lerp(-10, B * 0.5 - 6, prog(t, 0, 9.0)); return [x, R1, Math.PI / 2, 0]; }
-  if (t < 14) { const x = lerp(B * 0.5 - 6, B * 0.5 + 16.8, prog(t, 9.0, 14, (q) => q)); return [x, R1, Math.PI / 2, 0]; }
-  if (t < 18.85) { const k = t < 16.4 ? (t - 14) / 2.4 * 0.85 : 0.85 + 0.15 * ease.out(prog(t, 16.4, 17.0)); const x = lerp(B * 0.5 + 16.8, B * 1.5 - 4.6, k); return [x, R1, Math.PI / 2, within(t, 16.4, 17.2) ? 1 : 0]; }
-  if (t < 22) { const x = lerp(B * 0.5 + 16.8, B * 1.5 - 10, prog(t, 18.9, 21, ease.out)); return [x, R1, Math.PI / 2, within(t, 20.2, 21) ? 1 : 0]; }
-  const x = lerp(B * 1.5 - 8, B * 3.2, prog(t, 26.5, 33, ease.in)); return [x, R1, Math.PI / 2, 0];
-}
+// ---------- motion: speed profiles, integrated so speedo and position agree ----------
+const sm = (a, b, t) => { const k = clamp((t - a) / (b - a)); return k * k * (3 - 2 * k); };
+const T1 = { go: 5.6, brake: 11.6, stop: 12.2 }, T2 = { start: 17.0, slow: 17.8, brake: 19.6, stop: 20.2, leave: 24.0 };
+const KID_RUN1 = [10.5, 11.4], KID_RUN2 = [19.0, 19.9], BALL_RUN1 = [10.1, 11.4], BALL_RUN2 = [18.6, 19.9];
+function v1(t) { if (t < T1.go) return 0; if (t < T1.brake) return 11 * sm(T1.go, T1.go + 1, t); return 11 * (1 - clamp((t - T1.brake) / (T1.stop - T1.brake))); }
+function v2(t) { if (t < T2.start) return 0; if (t < T2.brake) return 11 - 7.5 * sm(T2.slow, T2.slow + 1, t); if (t < T2.leave) return 3.5 * (1 - clamp((t - T2.brake) / (T2.stop - T2.brake))); return 5 * sm(T2.leave, T2.leave + 1.6, t); }
+const DT = 0.002, NT = Math.ceil(31 / DT) + 2, C1 = new Float64Array(NT), C2 = new Float64Array(NT);
+for (let i = 1; i < NT; i++) { const t = i * DT; C1[i] = C1[i - 1] + v1(t) * DT; C2[i] = C2[i - 1] + v2(t) * DT; }
+const at = (A, t) => A[Math.min(NT - 1, Math.max(0, Math.round(t / DT)))];
+const X1 = STOP1 - at(C1, 13), X2 = STOP2 - (at(C2, T2.leave - 0.1) - at(C2, T2.start));
+const egoX = (t) => t < T2.start ? X1 + at(C1, t) : X2 + at(C2, t) - at(C2, T2.start);
+const speed = (t) => t < T2.start ? v1(t) : v2(t);
+const run2 = (t) => t >= T2.start;
 const drive = (o, x, z, ang) => { o.position.set(x, 0, z); o.rotation.y = ang; };
+const kidS = (t) => run2(t) ? prog(t, ...KID_RUN2, ease.out) : prog(t, ...KID_RUN1, ease.out);
 st.onFrame((t) => {
-  const [ex, ez, ea, brake] = egoAt(t); drive(ego, ex, ez, ea); ego.rotation.x = -brake * 0.04; ego.userData.ring.rotation.z = t * 6;
-  traffic.forEach((c, i) => { const lane = i % 2 ? B * 1.5 - 3.2 : B * 2.5 + 3.2; const dir = i % 2 ? -1 : 1; const u = ((t * 9 * (1 + i * 0.07) + i * 40) % (SPAN + 60)) - 30; if (i < 4) drive(c, dir > 0 ? u : SPAN - u, lane, dir > 0 ? Math.PI / 2 : -Math.PI / 2); else { const lx = i % 2 ? B * 2.5 + 3.2 : B * 0.5 - 3.2; drive(c, lx, dir > 0 ? u : SPAN - u, dir > 0 ? 0 : Math.PI); } });
-  drive(parked[0], B * 1.5 - 24, R1 + 3.6, Math.PI / 2); drive(parked[1], B * 2.5 - 14, R1 + 3.6, Math.PI / 2);
-  drive(van, B * 1.5 - 3.6, R1 + 4.0, Math.PI / 2);
-  peds.forEach((p, k) => { const side = k % 4; const u = ((t * 1.3 + k * 9) % 40) - 20; const bx = (k % 4) * B, bz = Math.floor(k / 4) % 4 * B; if (side < 2) p.position.set(bx + u, 0.4, bz + (side ? 1 : -1) * (B - RW) / 2 + (side ? 1.5 : -1.5)); else p.position.set(bx + (side === 2 ? 1 : -1) * ((B - RW) / 2 + 1.5), 0.4, bz + u); p.position.y = 0.4 + Math.abs(Math.sin(t * 6 + k)) * 0.05; });
-  // child steps out from behind the van (S4) and crosses after the stop (S5)
-  const cs = t < 15 ? 0 : t < 18.85 ? prog(t, 15, 16.6) : t < 22 ? prog(t, 19.8, 21.2) : 1 + prog(t, 22.5, 25.5);
-  child.position.set(B * 1.5 - 0.2, 0.4, R1 + 4.4 - cs * 3.4); child.visible = t > 14.8 && t < 26.5;
-  ball.position.set(B * 1.5 + 0.4, 0.4, R1 + 3.0 - cs * 4.2); ball.visible = t > 14.6 && t < 26.5;
-  // traffic lights
-  const green = t > 26 || t < 9; lightMats.forEach((ms) => { ms[0].emissiveIntensity = green ? 0 : 3; ms[2].emissiveIntensity = green ? 3 : 0; });
-  lidar(t, within(t, 3.4, 8.4) ? 1 : within(t, 18.8, 21) ? 0.9 : 0);
-  // dim scene during sensor view
-  scene.background = null;
+  const ex = egoX(t), braking = (within(t, T1.brake, T1.stop + 0.2) || within(t, T2.slow, T2.stop + 0.2)) ? 1 : 0;
+  drive(ego, ex, R1, Math.PI / 2); ego.rotation.x = braking * 0.035 * (within(t, T1.brake, T1.stop + 0.2) ? 1.4 : 1); ego.userData.ring.rotation.z = t * 6; ego.userData.tail.material.emissiveIntensity = braking ? 3 : 0.4;
+  traffic.forEach((c, i) => { const u = ((t * 9 * (1 + i * 0.07) + i * 40) % (SPAN + 60)) - 30; if (i < 3) drive(c, i % 2 ? SPAN - u : u, i % 2 ? B * 1.5 - 1.8 : B * 2.5 + 1.8, i % 2 ? -Math.PI / 2 : Math.PI / 2); else drive(c, i % 2 ? B * 2.5 - 1.8 : B * 3.5 + 1.8, i % 2 ? SPAN - u : u, i % 2 ? Math.PI : 0); });
+  oncoming.forEach((c, i) => { c.visible = t > 3 && t < 11.5; drive(c, (i ? 104 : 88) - 13 * (t - 3), B * 0.5 - 1.8, -Math.PI / 2); });
+  drive(parked[0], 20, B * 0.5 + 5.2, Math.PI / 2); drive(parked[1], 73, B * 0.5 - 5.2, -Math.PI / 2); drive(parked[2], 112, B * 0.5 + 5.2, Math.PI / 2);
+  drive(van, VAN.x, VAN.z, Math.PI / 2);
+  peds.forEach((p, k) => { const [x0, z0, ax, L, v] = pedPaths[k]; const u = (((t * v + k * 7) % L) + L) % L; if (ax === 'x') { p.position.set(x0 + u, 0.4, z0); p.rotation.y = v > 0 ? Math.PI / 2 : -Math.PI / 2; } else { p.position.set(x0, 0.4, z0 + u); p.rotation.y = 0; } p.position.y = 0.4 + Math.abs(Math.sin(t * 6 + k)) * 0.05; });
+  // the child: hidden behind the van, chases the ball into the lane; in test 2 crosses safely once the car has stopped
+  const s = kidS(t); let kx = lerp(KID0[0], KID1[0], s), kz = lerp(KID0[1], KID1[1], s);
+  const cross = run2(t) ? prog(t, 21.0, 22.8) : 0; kx += cross * 0.6; kz += cross * 6.0;
+  const running = run2(t) ? within(t, KID_RUN2[0], KID_RUN2[1]) || within(t, 21.0, 23.0) : within(t, KID_RUN1[0], KID_RUN1[1]);
+  child.position.set(kx, (kz > 31.8 ? 0.4 : 0) + (running ? Math.abs(Math.sin(t * 14)) * 0.12 : 0), kz);
+  child.rotation.y = cross > 0 && cross < 1 ? 0.1 : s > 0.02 ? Math.PI - 0.5 : -Math.PI / 2; child.userData.legs.forEach((l, i) => { l.rotation.x = running ? Math.sin(t * 14 + i * Math.PI) * 0.6 : 0; });
+  child.visible = t > 9.0 && t < 26.4;
+  const bs = run2(t) ? prog(t, ...BALL_RUN2, ease.out) : prog(t, ...BALL_RUN1, ease.out);
+  const bz1 = run2(t) ? 26.4 : 21; ball.position.set(lerp(59.2, 61.6, bs), 0.35 + (bs > 0 && bs < 0.15 ? 0.25 : 0) + (lerp(KID0[1], bz1, bs) > 31.8 ? 0.4 : 0), lerp(KID0[1] - 0.3, bz1, bs));
+  if (run2(t) && t > 21.0) ball.position.set(child.position.x + 0.45, child.position.y + 1.0, child.position.z);
+  ball.visible = t > 9.0 && t < 26.4;
+  const red = !(t > 26 || t < 9); lightMats.forEach((ms) => { ms[0].emissiveIntensity = red ? 3 : 0; ms[2].emissiveIntensity = red ? 0 : 3; });
+  lidar(t, within(t, 5.9, 9.6) ? 1 : 0);
+  // blind-spot wedge: red in test 1 (ignored), yellow in test 2 (the car slows for it)
+  const wOn = within(t, 9.7, 14.2) || within(t, 17.0, 20.4); wedge.visible = wOn; if (wOn) { updateWedge(Math.min(ex + 1.2, 46), R1); wedgeMat.color.set(run2(t) ? '#ffc83d' : '#ff5d4a'); wedgeMat.opacity = 0.42 * (s > 0.5 && !run2(t) ? 0.6 : 1); }
 });
-// camera
+// ---------- cameras ----------
+const sideCam = (t, ex) => { const cx = clamp(ex + 6, 44, 53); return { cp: [cx - 1.5, 17, 10.5], cl: [cx + 0.5, 1.4, 31.5], fov: 42 }; };
 st.onFrame((t) => {
-  const p = ego.position; let cp, cl, fov = 38;
-  if (t < 3.4) { const k = prog(t, 0, 3.4); cp = [lerp(-60, -24, k), lerp(96, 58, k), lerp(160, 92, k)]; cl = [p.x + 10, 0, p.z]; fov = 40; }
-  else if (t < 8.4) { cp = [p.x - 10, 26, p.z - 2]; cl = [p.x + 12, 0, p.z - 1]; fov = 52; }
-  else if (t < 14) { cp = [p.x - 13, 5.5, p.z - 4]; cl = [p.x + 14, 3, p.z - 8]; fov = 46; }
-  else if (t < 22) { cp = [p.x - 9, 3.6, p.z - 1.6]; cl = [p.x + 10, 1.0, p.z + 2.2]; fov = 50; }
-  else if (t < 26.5) { cp = [p.x - 9, 3.6, p.z - 1.6]; cl = [p.x + 10, 1.0, p.z + 2.2]; fov = 50; }
-  else { const k = prog(t, 26.5, 34); cp = [lerp(p.x - 24, B * 2, k), lerp(52, 120, ease.out(k)), lerp(p.z + 34, B * 4.5, k)]; cl = [lerp(p.x, B * 1.5, k), 0, lerp(p.z, B * 1.5, k)]; fov = 40; }
+  const p = ego.position; let cp, cl, fov;
+  const chase = { cp: [p.x - 11, 5.2, p.z - 4.2], cl: [p.x + 12, 1.6, p.z], fov: 46 };
+  const lid = { cp: [p.x - 12, 15, p.z - 6.5], cl: [p.x + 14, 0, p.z + 0.5], fov: 52 };
+  if (t < 3.0) { const k = prog(t, 0, 3.0, ease.inOut); cp = [lerp(-56, chase.cp[0], k), lerp(46, chase.cp[1], ease.in(k) * 0.3 + k * 0.7), lerp(70, chase.cp[2], k)]; cl = [lerp(36, chase.cl[0], k), lerp(0, chase.cl[1], k), lerp(44, chase.cl[2], k)]; fov = lerp(44, chase.fov, k); }
+  else if (t < T1.go) { ({ cp, cl, fov } = chase); cp = [cp[0] + (t - 3) * 0.4, cp[1], cp[2]]; }
+  else if (t < 9.6) { const k = prog(t, T1.go, T1.go + 1.0); cp = chase.cp.map((v, i) => lerp(v + (i === 0 ? 1 : 0), lid.cp[i], k)); cl = chase.cl.map((v, i) => lerp(v, lid.cl[i], k)); fov = lerp(chase.fov, lid.fov, k); }
+  else if (t < 23.4) ({ cp, cl, fov } = sideCam(t, p.x));
+  else { const a = sideCam(t, STOP2), k = prog(t, 23.4, DUR, ease.inOut); cp = [lerp(a.cp[0], 40, k), lerp(a.cp[1], 24, k), lerp(a.cp[2], -6, k)]; cl = [lerp(a.cl[0], 58, k), lerp(a.cl[1], 0, k), lerp(a.cl[2], 32, k)]; fov = lerp(a.fov, 48, k); }
   camera.fov = fov; camera.updateProjectionMatrix(); camera.position.set(...cp); camera.lookAt(...cl);
 });
 
 // ---------- overlay ----------
 const ui = []; const A = (f) => ui.push(f);
-const fade = fader(); A((t) => fade(t < 0.5 ? 1 - prog(t, 0, 0.5) : t > DUR - 0.7 ? prog(t, DUR - 0.7, DUR) : 0));
-const sensorTint = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:radial-gradient(ellipse at center, rgba(4,16,40,.25), rgba(4,16,40,.75))"></div>');
-A((t) => { const v = within(t, 3.4, 8.4) || within(t, 18.8, 21) ? 1 : 0; sensorTint.style.opacity = v; sensorTint.style.visibility = v ? 'visible' : 'hidden'; });
-const k0 = kicker('A car that drives itself.', { y: 900 }); A(cue(k0, 0.6, 3.3, { from: 'up' }));
-const k1 = kicker('It does <span style="color:#16FFC6">exactly</span> what you tell it.', { y: 850, size: 56 }); A(cue(k1, 3.8, 8.2, { from: 'up' }));
-const sensorLbl = el('<div style="font:800 22px Inter;letter-spacing:.2em;color:#16ffc6">● LIDAR VIEW · 9,000 POINTS A SPIN</div>', { x: 60, y: 60 }); A(cue(sensorLbl, 3.6, 8.3, { from: 'left' }));
-// detection boxes (screen-space from 3D)
+const fade = fader(); A((t) => fade(t < 0.4 ? 1 - prog(t, 0, 0.4) : t > DUR - 0.6 ? prog(t, DUR - 0.6, DUR) : 0));
+const sensorTint = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:radial-gradient(ellipse at center, rgba(4,16,40,0), rgba(4,16,40,.45))"></div>'); A(cue(sensorTint, 5.9, 9.5, { from: 'fade', dur: 0.4, outDur: 0.1 }));
+A(cue(kicker('<span style="background:rgba(19,32,43,.86);padding:12px 36px;border-radius:24px">A car that drives itself.</span>', { y: 930, size: 60 }), 0.3, 2.7, { from: 'up' }));
+// 3D-anchored detection boxes
 const box3 = new THREE.Box3();
-function det(obj, label, color, tIn, tOut, pad = 8) { const b = el('', { x: 0, y: 0, cls: 'abs box2d' }); b.style.borderColor = color; b.style.boxShadow = `0 0 12px ${color}`; const lbl = el(`<div class="tag3d" style="background:${color}">${label}</div>`, { x: 0, y: 0 });
-  A((t) => { const v = within(t, tIn, tOut) && obj.visible !== false; b.style.opacity = lbl.style.opacity = v ? 1 : 0; if (!v) return; box3.setFromObject(obj); const c = []; for (const x of [box3.min.x, box3.max.x]) for (const y of [box3.min.y, box3.max.y]) for (const z of [box3.min.z, box3.max.z]) c.push(toScreen(new THREE.Vector3(x, y, z), camera)); const xs = c.map((p) => p.x), ys = c.map((p) => p.y); const x0 = Math.min(...xs) - pad, y0 = Math.min(...ys) - pad, x1 = Math.max(...xs) + pad, y1 = Math.max(...ys) + pad; Object.assign(b.style, { left: x0 + 'px', top: y0 + 'px', width: x1 - x0 + 'px', height: y1 - y0 + 'px', transform: 'none' }); Object.assign(lbl.style, { left: (x0 + x1) / 2 + 'px', top: y0 - 6 + 'px' }); if (typeof label === 'function') lbl.firstChild.innerHTML = label(t); }); }
-traffic.slice(0, 3).forEach((c, i) => det(c, 'CAR 97%', '#59c7fc', 4.0 + i * 0.2, 8.3));
-peds.slice(0, 3).forEach((p, i) => det(p, 'PERSON 93%', '#16ffc6', 4.4 + i * 0.2, 8.3));
-det(child, '? 41%', '#ffc83d', 15.6, 17.4);
-det(child, 'CHILD · 88%', '#16ffc6', 20.4, 23);
-// decision panel
-function decision(text, sure, tIn, tOut, color = '#16ffc6') { const n = el(`<div class="decision"><small>AUTOPILOT DECISION</small><p>${text}</p><div class="conf"><span>${sure >= 85 ? 'Very sure' : sure >= 60 ? 'Fairly sure' : 'Not sure'}</span><i><span style="width:${sure}%"></span></i><span>${sure}%</span></div></div>`, { x: 40, y: 40 }); A(cue(n, tIn, tOut, { from: 'left' })); }
-const c0 = el(cardsHTML('TELL THE CAR HOW TO DRIVE', [{ k: 'A', text: 'Get me to school <b>fast</b>.', vague: true }, { k: 'B', text: 'Drive slowly everywhere.' }, { k: 'C', text: 'Follow the bus.' }], 0), { x: 960, y: 760, anchor: 'c' }); A(cue(c0, 9.4, 12.4, { from: 'up' }));
-const tp0 = tap(700, 770); A((t) => tp0(t, 11.0));
-decision('“Fast” means <b style="color:#ffc83d">don’t slow down</b>.', 90, 12.2, 17.4);
-const al = el('<div class="alert"><span class="x">✕</span>Braked too late: only 1 m to spare!</div>', { x: 960, y: 170, anchor: 'c' }); A(cue(al, 16.7, 18.6));
-const dim = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:rgba(6,14,26,.82)"></div>'); A((t) => { const v = within(t, 17.4, 18.8) ? 1 : 0; dim.style.opacity = v; dim.style.visibility = v ? 'visible' : 'hidden'; });
-const cards = el(cardsHTML('TRY A CLEARER INSTRUCTION', [{ k: 'A', text: 'Drive more carefully.', vague: true }, { k: 'B', text: 'Can’t see past something? <b>Slow down.</b> Not sure? <b>Stop.</b>' }, { k: 'C', text: 'Only stop for grown-ups.' }], 1), { x: 960, y: 560, anchor: 'c' }); A(cue(cards, 17.45, 18.8, { from: 'up' }));
-const tp = tap(1180, 640); A((t) => tp(t, 17.9));
-decision('Can’t see behind the van. <b style="color:#ffc83d">Slowing down.</b>', 80, 19.0, 20.5);
-decision('Child behind the van. <b style="color:#16ffc6">Stopping early.</b>', 88, 20.6, 25.6);
-const res = el(`<div class="decision" style="position:relative;left:0;top:0;width:700px"><small>TEST DRIVE WITH THE CLEARER INSTRUCTION</small><p style="margin-top:8px">✓ Can’t see past the van: <b style="color:#16ffc6">slows down</b></p><p>✓ Child steps out: <b style="color:#16ffc6">stopped in time</b></p></div>`, { x: 1880, y: 40, anchor: 'tr' }); A(cue(res, 23.0, 26.2, { from: 'right' }));
-const gap = (txt, col, tIn, tOut, ax, bx) => { const n = el(`<div class="tag3d" style="background:${col};font-size:30px;padding:8px 18px">${txt}</div>`, { x: 0, y: 0, anchor: 'c' }); A(cue(n, tIn, tOut)); const line = el(`<div style="height:6px;border-radius:3px;background:${col};box-shadow:0 0 10px ${col}"></div>`, { x: 0, y: 0 }); A(cue(line, tIn, tOut)); A((t) => { if (!within(t, tIn - 0.1, tOut + 0.4)) return; const a = toScreen(new THREE.Vector3(ax(), 0.3, R1 + 1.5), camera), b = toScreen(new THREE.Vector3(bx, 0.3, R1 + 1.5), camera); n.style.left = (a.x + b.x) / 2 + 'px'; n.style.top = Math.min(a.y, b.y) - 40 + 'px'; line.style.left = Math.min(a.x, b.x) + 'px'; line.style.top = (a.y + b.y) / 2 + 'px'; line.style.width = Math.abs(b.x - a.x) + 'px'; }); };
-gap('only 1 m away!', '#ff5d4a', 16.8, 17.35, () => ego.position.x + 2.4, B * 1.5 - 0.2);
-gap('stopped 6 m away ✓', '#16c79a', 21.3, 23.0, () => ego.position.x + 2.4, B * 1.5 - 0.2);
-const k2 = kicker('<span style="background:rgba(6,14,26,.82);padding:10px 34px;border-radius:22px">Say it clearly. Test it. <span style="color:#16FFC6">Check it.</span></span>', { y: 850 }); A(cue(k2, 22.6, 26.2, { from: 'up' }));
-// bottom dashboard
-const dashN = el(`<div class="dash"><div><small>SPEED</small><b data-s>0</b> <span style="font:700 20px Inter;color:#9fc4dd">mph</span></div><div><small>MODE</small><span class="mode" data-m style="color:#16ffc6">AUTOPILOT</span></div><div><small>RECORD</small><span data-r style="font:800 30px Inter"></span></div></div>`, { x: 0, y: 0 }); dashN.style.width = '1920px'; dashN.style.height = '1080px';
-A(cue(dashN, 3.6, 26.2, { from: 'fade' }));
-A((t) => { const sp = t < 16.4 ? 22 : t < 17.0 ? lerp(22, 0, prog(t, 16.4, 17.0)) : t < 18.9 ? 0 : t < 21 ? lerp(14, 0, prog(t, 18.9, 21)) : 0; dashN.querySelector('[data-s]').textContent = Math.round(sp); const m = dashN.querySelector('[data-m]'); const stop = within(t, 16.9, 18.9) || within(t, 21, 27); m.textContent = stop ? 'STOPPED' : 'AUTOPILOT'; m.style.color = stop ? '#ffc83d' : '#16ffc6'; const r = []; if (t > 8) r.push('✓', '✓'); if (t > 17) r.push('✕'); if (t > 21.2) r.push('✓'); dashN.querySelector('[data-r]').innerHTML = r.map((x) => `<span style="color:${x === '✓' ? '#16ffc6' : '#ff5d4a'};margin-right:8px">${x}</span>`).join(''); });
-const dimEnd = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:radial-gradient(ellipse at center, rgba(5,15,30,.35), rgba(5,15,30,.7))"></div>'); A(cue(dimEnd, 28.4, null, { from: 'fade', dur: 0.8 }));
-const title = titleCard('Autopilot <span class="hl">City</span>', 'Tell a self-driving car what you mean. Check what it does.', { chip: 'A DeltaOps Learning AI lab' }); A(cue(title, 28.6, null, { from: 'pop', dur: 0.8 }));
+function det(obj, label, color, tIn, tOut, pad = 8) {
+  const b = el('', { x: 0, y: 0, cls: 'abs box2d' }); b.style.borderColor = color; b.style.boxShadow = `0 0 12px ${color}`; const lbl = el(`<div class="tag3d" style="background:${color}"></div>`, { x: 0, y: 0 });
+  A((t) => { const v = within(t, tIn, tOut) && obj.visible !== false; b.style.opacity = lbl.style.opacity = v ? 1 : 0; if (!v) return; box3.setFromObject(obj); const c = []; for (const x of [box3.min.x, box3.max.x]) for (const y of [box3.min.y, box3.max.y]) for (const z of [box3.min.z, box3.max.z]) c.push(toScreen(new THREE.Vector3(x, y, z), camera)); const xs = c.map((p) => p.x), ys = c.map((p) => p.y); const x0 = Math.min(...xs) - pad, y0 = Math.min(...ys) - pad, x1 = Math.max(...xs) + pad, y1 = Math.max(...ys) + pad; Object.assign(b.style, { left: x0 + 'px', top: y0 + 'px', width: x1 - x0 + 'px', height: y1 - y0 + 'px', transform: 'none' }); Object.assign(lbl.style, { left: (x0 + x1) / 2 + 'px', top: y0 - 8 + 'px' }); lbl.firstChild.innerHTML = typeof label === 'function' ? label(t) : label; });
+}
+oncoming.forEach((c, i) => det(c, 'CAR 97%', '#59c7fc', 6.2 + i * 0.3, 9.5));
+peds.slice(0, 3).forEach((p, i) => det(p, 'PERSON 93%', '#16ffc6', 6.6 + i * 0.25, 9.5));
+det(child, '? 41%', '#ffc83d', 10.8, 14.2, 6);
+det(child, 'CHILD 88%', '#16ffc6', 19.3, 21.0, 6);
+// blind-spot label follows the wedge
+const wl = el('<div class="tag3d"></div>', { x: 0, y: 0 });
+A((t) => { const v = within(t, 9.9, 10.75) || within(t, 17.2, 19.25); wl.style.opacity = v ? 1 : 0; if (!v) return; const p = toScreen(wedgeC, camera); wl.style.left = clamp(p.x, 300, 1620) + 'px'; wl.style.top = p.y + 40 + 'px'; const r2 = run2(t); wl.style.background = r2 ? '#ffc83d' : '#ff5d4a'; wl.style.color = r2 ? '#13202b' : '#fff'; wl.firstChild.textContent = r2 ? 'CAN’T SEE HERE → SLOW DOWN' : 'CAN’T SEE BEHIND THE VAN'; });
+// test-drive chip (top left) restates the instruction in use
+const chip = (head, line, col, tIn, tOut) => A(cue(el(`<div class="chip"><small style="color:${col}">${head}</small><span>${line}</span></div>`, { x: 40, y: 40 }), tIn, tOut, { from: 'left' }));
+chip('TEST DRIVE 1 · YOUR INSTRUCTION', '“Get me to school <b style="color:#ffc83d">fast</b>.”', '#ffc83d', 5.7, 14.1);
+chip('TEST DRIVE 2 · NEW INSTRUCTION', 'Can’t see past something? <b style="color:#16ffc6">Slow down.</b><br>Not sure? <b style="color:#16ffc6">Stop.</b>', '#16ffc6', 17.0, 23.3);
+const lidLbl = el('<div style="font:800 22px Inter;letter-spacing:.2em;color:#16ffc6;text-shadow:0 2px 8px rgba(0,0,0,.6)">● LIDAR VIEW · 9,000 POINTS A SPIN</div>', { x: 44, y: 172 }); A(cue(lidLbl, 6.0, 9.5, { from: 'left' }));
+// AI helper (brochure style, top right)
+function helper(text, sure, tIn, tOut, tag = 'MY PLAN', tagColor = '#ffc83d') { const n = el(`<div class="b-helper" style="width:780px"><div class="bot"><i></i><i></i></div><div class="who">Autopilot <em style="background:${tagColor}">${tag}</em></div><p>${text}</p><div class="sure"><div class="bar"><i style="width:${sure}%"></i></div><span>${sure}% sure</span></div></div>`, { x: 1880, y: 40, anchor: 'tr' }); A(cue(n, tIn, tOut, { from: 'right' })); }
+helper('“Fast” means <b style="color:#ffc83d">don’t slow down</b>.', 90, 5.9, 11.9);
+helper('Can’t see past the van. <b style="color:#ffc83d">Slowing down.</b>', 85, 17.3, 19.2, 'NEW RULE', '#16ffc6');
+helper('Not sure what that is. <b style="color:#16ffc6">Stopping!</b>', 88, 19.3, 20.9, 'NEW RULE', '#16ffc6');
+// instruction cards: big brochure cards with a tapping hand
+const HAND = '<svg width="90" height="110" viewBox="0 0 90 110"><path d="M34 8c6 0 9 4 9 9v30l4-1c5-1 9 2 9 6l1-1c5-1 9 2 9 6l1 0c5-1 9 2 9 7v16c0 14-10 26-26 26H44c-9 0-15-4-20-11L8 72c-3-5-1-10 4-11 4-1 7 1 9 4l4 5V17c0-5 3-9 9-9z" fill="#fff" stroke="#13202b" stroke-width="5" stroke-linejoin="round"/></svg>';
+function cards(head, list, tIn, tOut, pickAt, pick) {
+  const n = el(`<div class="pc"><div class="b-head">${head}</div><div class="b-cards">${list.map((c) => `<div class="b-card${c.vague ? ' vague' : ''}"><span class="k">${c.k}</span><span>${c.text}</span></div>`).join('')}</div></div>`, { x: 960, y: 1046, anchor: 'bc' });
+  A(cue(n, tIn, tOut, { from: 'up' }));
+  const h = el(HAND, { x: 0, y: 0 });
+  A((t) => { const v = within(t, pickAt - 0.8, tOut) ? 1 : 0; h.style.opacity = v; h.style.visibility = v ? 'visible' : 'hidden'; n.querySelectorAll('.b-card')[pick].classList.toggle('pick', t > pickAt); const cardEl = n.querySelectorAll('.b-card')[pick]; const r = cardEl.getBoundingClientRect(); const tx = r.left + r.width * 0.5 - 34, ty = r.bottom - 26; const k = prog(t, pickAt - 0.8, pickAt - 0.1, ease.out); h.style.left = lerp(tx + 260, tx, k) + 'px'; h.style.top = lerp(ty + 200, ty, k) + 'px'; h.style.transform = `scale(${t > pickAt && t < pickAt + 0.15 ? 0.88 : 1})`; });
+}
+cards('YOUR TEAM TELLS THE CAR', [{ k: 'A', text: 'Get me to school <b>fast</b>.', vague: true }, { k: 'B', text: 'Drive slowly everywhere.' }, { k: 'C', text: 'Follow the bus.' }], 3.0, 5.5, 4.6, 0);
+cards('TRY A CLEARER INSTRUCTION', [{ k: 'A', text: 'Drive more carefully.', vague: true }, { k: 'B', text: 'Can’t see past something? <b>Slow down.</b> Not sure? <b>Stop.</b>' }, { k: 'C', text: 'Only stop for grown-ups.' }], 14.2, 16.9, 15.8, 1);
+// alerts
+const alert = (txt, good, tIn, tOut) => A(cue(el(`<div class="b-alert" style="${good ? 'color:#1f7a4d' : ''}"><span class="x" style="${good ? 'background:#16c79a' : ''}">${good ? '✓' : '✕'}</span>${txt}</div>`, { x: 960, y: 215, anchor: 'c' }), tIn, tOut));
+alert('Braked too late: only 1 m to spare!', false, 12.1, 14.1);
+alert('Stopped in time: 6 m to spare!', true, 20.95, 23.2);
+// gap ruler on the road between the car's nose and the child
+const gap = (txt, col, tIn, tOut, ax) => { const n = el(`<div class="tag3d" style="background:${col};color:#fff;font-size:34px;padding:8px 20px">${txt}</div>`, { x: 0, y: 0 }); const line = el(`<div style="height:8px;border-radius:4px;background:${col};box-shadow:0 0 10px ${col}"></div>`, { x: 0, y: 0 });
+  A((t) => { const v = within(t, tIn, tOut) ? 1 : 0; n.style.opacity = line.style.opacity = v; if (!v) return; const a = toScreen(new THREE.Vector3(ax(), 0.2, R1 + 0.6), camera), b = toScreen(new THREE.Vector3(KID1[0] - 0.2, 0.2, R1 + 0.6), camera); n.style.left = (a.x + b.x) / 2 + 'px'; n.style.top = Math.min(a.y, b.y) + 90 + 'px'; n.style.transform = 'translate(-50%,0)'; line.style.left = Math.min(a.x, b.x) + 'px'; line.style.top = (a.y + b.y) / 2 + 'px'; line.style.width = Math.abs(b.x - a.x) + 'px'; }); };
+gap('1 m', '#e8573f', 12.2, 14.2, () => ego.position.x + 2.2);
+gap('6 m', '#16a37f', 20.4, 21.0, () => ego.position.x + 2.2);
+// Before / After: top-down stopping gap
+const S = 40, SW = 520, KX = SW - 48;
+const strip = (gapM, col) => { const nose = KX - gapM * S, L = 4.4 * S; return `<div class="strip"><i class="lane"></i><div class="car" style="left:${nose - L}px;width:${L}px"></div><div class="gapbar" style="left:${nose + 3}px;width:${gapM * S - 6}px;background:${col}"></div><span class="gapl" style="left:${nose + gapM * S / 2}px;background:${col}">${gapM} m</span><div class="kid" style="left:${KX}px"></div></div>`; };
+const ba = el(`<div class="ba" style="width:880px"><small>SEEN FROM ABOVE: HOW MUCH ROOM WAS LEFT?</small>
+  <div class="barow"><div class="tl">TEST 1<b>“Fast”</b></div>${strip(1, '#e8573f')}<div class="res" style="color:#d14a2b">✕ Too close</div></div>
+  <div class="barow" data-r2><div class="tl">TEST 2<b>Clearer</b></div>${strip(6, '#16a37f')}<div class="res" style="color:#1f9d55">✓ Safe</div></div></div>`, { x: 40, y: 1040 });
+A(cue(ba, 12.4, 14.1, { from: 'up' }));
+const ba2 = el(ba.innerHTML, { x: 40, y: 1040 }); A(cue(ba2, 21.0, 26.3, { from: 'up' }));
+for (const n of [ba, ba2]) { n.style.top = 'auto'; n.style.bottom = '40px'; }
+ba.querySelector('[data-r2]').style.visibility = 'hidden';
+const k2 = kicker('<span style="background:rgba(19,32,43,.86);padding:12px 36px;border-radius:24px">Say it clearly. Test it. <span style="color:#16FFC6">Check it.</span></span>', { y: 118, size: 60 }); A(cue(k2, 23.4, 26.3, { from: 'down' }));
+// dashboard (bottom right)
+const dashN = el(`<div class="dashp"><div><small>SPEED</small><b data-s>0</b> <span style="font:700 22px Inter;color:#9fc4dd">mph</span></div><div style="min-width:240px"><small>MODE</small><span class="mode" data-m>AUTOPILOT</span></div></div>`, { x: 1880, y: 920, anchor: 'tr' });
+A((t) => { const on = within(t, 5.6, 14.1) || within(t, 17.0, 23.3) ? 1 : 0; dashN.style.opacity = on; dashN.style.visibility = on ? 'visible' : 'hidden'; dashN.style.transform = 'translate(-100%,0)'; dashN.querySelector('[data-s]').textContent = Math.round(speed(t) * 2.7); const m = dashN.querySelector('[data-m]'); const stopped = speed(t) < 0.05 && t > 6; const slow = run2(t) && t > T2.slow && !stopped; m.textContent = stopped ? 'STOPPED' : slow ? 'SLOWING' : 'AUTOPILOT'; m.style.color = stopped ? '#ff9a6a' : slow ? '#ffc83d' : '#16ffc6'; if (stopped && run2(t)) m.style.color = '#16ffc6'; });
+const dimEnd = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:radial-gradient(ellipse at center, rgba(8,24,40,.35), rgba(8,24,40,.72))"></div>'); A(cue(dimEnd, 26.3, null, { from: 'fade', dur: 0.6 }));
+const title = titleCard('Autopilot <span class="hl">City</span>', 'Tell a self-driving car what you mean. Check what it does.', { chip: 'A DeltaOps Learning AI lab' }); A(cue(title, 26.5, null, { from: 'pop', dur: 0.8 }));
 st.onFrame((t) => ui.forEach((f) => f(t)));
 window.__duration = DUR;
-document.fonts.ready.then(() => { window.__ready = true; });
+Promise.all([document.fonts.load('900 100px Inter'), document.fonts.load('800 100px "Bricolage Grotesque"'), document.fonts.ready]).then(() => { texts.forEach((t) => t.userData.paint()); window.__ready = true; });
 </script></body></html>
