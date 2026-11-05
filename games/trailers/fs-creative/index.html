@@ -193,7 +193,7 @@ const say = pin('“Every picture needs a credit.”', 'fs-say');
 on((t) => {
   place(tagLeo, camera, [LEO.position.x, LEO.position.y + 4.2, LEO.position.z], fadeIO(t, 3.4, T_OUT - 0.4), 0);
   const mp = mentor.position; place(tagMentor, camera, [mp.x, mp.y + 4.3, mp.z], fadeIO(t, 3.8, 5.0) + fadeIO(t, 8.4, 10.6), 0);
-  place(say, camera, [mp.x, mp.y + 4.3, mp.z], fadeIO(t, 5.2, 8.0), 0);
+  place(say, camera, [mp.x - 1.4, mp.y + 4.3, mp.z], fadeIO(t, 5.2, 8.0), 0);
 });
 
 // timings
@@ -238,7 +238,7 @@ const cred = ui(`<div class="fs-card cp-cred"><span class="fs-lbl">Credits &amp;
   <div class="cp-r"><div class="nm">Harbour photo</div><div class="vl" data-r="1"></div></div>
   <div class="cp-r"><div class="nm">Font</div><div class="vl">Open-source typeface<br><span class="lic ok">✓ Open Font Licence</span></div></div>
   <div class="cp-r"><div class="nm">AI-use statement</div><div class="vl" data-r="3"></div></div></div>`, 1444, 164);
-on(cue(cred, CRED_IN, SIGN, { from: 'right' }));
+on(cue(cred, CRED_IN, SIGN - 0.4, { from: 'right' }));
 const R = [0, 1, 3].map((i) => cred.querySelector(`[data-r="${i}"]`));
 const STMT = 'I used an AI tool for layout and colour ideas. The lanterns are my own drawing. No living artist’s style was copied.';
 on((t) => {
