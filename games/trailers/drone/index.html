@@ -158,7 +158,7 @@ const hSm = (x, z) => { const x0 = Math.floor(x), z0 = Math.floor(z), fx = x - x
 const PADS = { harbour: [-33, 6], light: [14, 8], clinic: [42, 13] };
 for (const [px, pz] of Object.values(PADS)) { const g = hAt(px, pz); for (let dx = -2; dx <= 2; dx++) for (let dz = -2; dz <= 2; dz++) { const hm = (dx === -1 || dx === 1) && dz !== 0 ? 1 : (dx === -1 || dx === 1 || (dx === 0 && dz === 0)) ? 1 : 0; const Hm = (Math.abs(dx) === 1) || (dx === 0 && dz === 0); v.set(px + dx, g, pz + dz, Hm ? '#ffd23f' : '#4f565e'); } }
 // moor crags and a path
-for (const [x, z, s] of [[12, -17, 2], [3, -14, 1], [18, -11, 1], [-1, -18, 2]]) { const g = hAt(x, z); v.box(x, g + 1, z, x + s, g + s, z + s, '#8b8f93'); v.set(x, g + s + 1, z, '#9aa0a5'); }
+for (const [x, z, s] of [[12, -18, 2], [6, -20, 1], [18, -11, 1], [-2, -19, 2]]) { const g = hAt(x, z); v.box(x, g + 1, z, x + s, g + s, z + s, '#8b8f93'); v.set(x, g + s + 1, z, '#9aa0a5'); }
 for (let i = 0; i <= 40; i++) { const x = Math.round(lerp(-3, 16, i / 40)), z = Math.round(lerp(-6, -19, i / 40) + Math.sin(i / 6) * 1.5); v.set(x, hAt(x, z), z, '#c9b48a'); }
 // hedges round the fields
 const hedge = (x0, z0, x1, z1) => { for (let x = x0; x <= x1; x++) for (let z = z0; z <= z1; z++) { const g = hAt(x, z); if (g < 1) continue; v.set(x, g + 1, z, rand(x, 5, z) > .5 ? '#2f7a3a' : '#3a8a43'); if (rand(x, 6, z) > 0.35) v.set(x, g + 2, z, rand(x, 7, z) > .5 ? '#2f8a43' : '#3f9d4a'); } };
@@ -169,7 +169,7 @@ house(v, -13, 1, -9, { w: 8, d: 5, h: 4, roof: '#5a6d80', wall: '#cfd6dc', wins 
 v.box(6, 2, -4, 6, 6, -4, '#e8e8e0');
 // village
 for (const [x, z, roof, wall] of [[-33, -9, '#d0573a', '#f1ebe0'], [-25, -10, '#5a6d80', '#efe2c9'], [-34, -2, '#d0573a', '#efe2c9'], [-26, -3, '#c8a050', '#f1ebe0'], [-29, 4, '#5a6d80', '#f1ebe0'], [-21, 5, '#d0573a', '#efe2c9']]) house(v, x, hAt(x, z), z, { w: 6, d: 5, h: 4, roof, wall, wins });
-for (const [x, z] of [[-18, -6], [-37, 3], [-20, -12], [-16, 1], [-30, -14], [-38, -6]]) tree(v, x, hAt(x, z), z, { kind: 'round', s: 1 });
+for (const [x, z] of [[-18, -6], [-38, -1], [-20, -12], [-16, 1], [-30, -14], [-38, -6]]) tree(v, x, hAt(x, z), z, { kind: 'round', s: 1 });
 for (const [x, z] of [[-31, -17], [-20, -18], [-36, -12]]) tree(v, x, hAt(x, z), z, { kind: 'pine', s: 1 });
 // harbour quay, sea wall, boats
 v.box(-52, -1, 8, -40, 1, 10, '#9aa0a5'); for (let x = -52; x <= -40; x += 3) v.set(x, 2, 10, '#5a6168');
@@ -183,7 +183,7 @@ v.set(LX, LG + 21, LZ, '#d8342c'); for (const [dx, dz] of [[-1, -1], [1, -1], [-
 // Little Holm: island clinic with a green cross
 house(v, 37, 1, 4, { w: 7, d: 5, h: 4, roof: '#16a37f', wall: '#f4f1ea', wins });
 for (const [dx, dy] of [[0, 0], [0, 1], [0, -1], [1, 0], [-1, 0]]) v.set(40 + dx, 3 + dy, 9, '#16c79a');
-for (const [x, z] of [[47, 6], [35, 8]]) tree(v, x, hAt(x, z), z, { kind: 'round', s: 1 });
+for (const [x, z] of [[47, 6]]) tree(v, x, hAt(x, z), z, { kind: 'round', s: 1 });
 scene.add(v.mesh());
 
 // lighthouse lamp + beam
@@ -233,9 +233,9 @@ const SKIN = ['#c68a5e', '#8d5a3b', '#e0b08a', '#a8714b', '#e8c09a'], HAIR = ['#
 const team = ROLES.map(([, c], i) => { const p = person({ shirt: c, skin: SKIN[i], hair: HAIR[i], s: 0.27 }); scene.add(p); return p; });
 const scout = person({ shirt: '#6e5bf2', skin: SKIN[3], hair: HAIR[3], s: 0.27 }); scene.add(scout);
 const walker = person({ shirt: '#d8342c', pants: '#2c3e66', skin: '#e0b08a', hair: '#7a4a2c', s: 0.3 }); scene.add(walker);
-const WK = [13, -9]; walker.position.set(WK[0], hAt(...WK) + 1.3, WK[1]); walker.rotation.set(0, 0.5, -Math.PI / 2);
+const WK = [3, -14]; walker.position.set(WK[0], hAt(...WK) + 1.3, WK[1]); walker.rotation.set(0, 0.5, -Math.PI / 2);
 const foil = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.5, 1.4), new THREE.MeshLambertMaterial({ color: '#ffd23f', emissive: new THREE.Color('#a87a10'), emissiveIntensity: 0.5 })); foil.position.set(WK[0] + 1.1, hAt(...WK) + 1.5, WK[1] + 0.5); foil.rotation.y = 0.5; scene.add(foil);
-const SHEEP = [[6, -13, 0.4], [10, -11, 2.2], [4.5, -9.5, 1.0], [10.5, -15.5, -0.6], [7, -17, 2.8]].map(([x, z, a]) => { const s = sheep({ s: 0.3 }); s.position.set(x, hAt(x, z) + 1, z); s.rotation.y = a; scene.add(s); return s; });
+const SHEEP = [[9, -12, 0.4], [12.5, -10, 2.2], [8, -8.5, 1.0], [13, -14.5, -0.6], [10.5, -16.5, 2.8]].map(([x, z, a]) => { const s = sheep({ s: 0.3 }); s.position.set(x, hAt(x, z) + 1, z); s.rotation.y = a; scene.add(s); return s; });
 const rescuers = [0, 1, 2].map((i) => { const p = person({ shirt: '#ff8a2a', pants: '#2a2f36', skin: SKIN[i + 1], s: 0.3 }); const torch = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.3, 0.3), new THREE.MeshBasicMaterial({ color: '#fffbe0' })); torch.position.set(-0.15, 7.3 * 0.3, -0.45); torch.userData.fxHide = true; p.add(torch); scene.add(p); return p; });
 const nurse = person({ shirt: '#59c7fc', pants: '#2c3e66', skin: '#8d5a3b', s: 0.3 }); nurse.position.set(39, 2, 11.5); scene.add(nurse);
 const nurseArm = new THREE.Mesh(new THREE.BoxGeometry(0.3, 1.0, 0.3), new THREE.MeshLambertMaterial({ color: '#59c7fc' })); scene.add(nurseArm);
@@ -258,7 +258,7 @@ const NDVI_ZONES = [[-0.5, 11.5], [7, 15], [4, 10]];
 const ndvi = (() => { const nv = new Vox(); nv.jitter = 0.0; for (let x = -1; x <= 9; x++) for (let z = 6; z <= 17; z++) { let c; const n = rand(x, 21, z); if (x <= 0 && z >= 7 && z <= 16) c = n > .3 ? '#e8402a' : '#f06a3a'; else if (x >= 6 && x <= 8 && z >= 14 && z <= 16) c = n > .3 ? '#e8402a' : '#f06a3a'; else if (Math.hypot(x - 4, z - 10) < 1.9) c = n > .4 ? '#e8402a' : '#f28a2a'; else if (Math.hypot(x - 4, z - 10) < 2.9 || x === 1) c = '#f2c53a'; else c = n > .6 ? '#3fc24a' : n > .2 ? '#55cf4a' : '#8fd640'; nv.set(x, 0, z, c); } const m = nv.mesh({ castShadow: false, receiveShadow: false }); m.material = new THREE.MeshBasicMaterial({ vertexColors: true, transparent: true, opacity: 0, depthWrite: false }); m.scale.y = 0.12; m.position.y = 2.1; m.userData.fxHide = true; scene.add(m); return m; })();
 // wind arrows (headwind from the east)
 const arrowGeo = (() => { const av = new Vox(); av.box(0, 0, 0, 5, 0, 0, '#fff'); av.box(0, 0, -1, 0, 0, 1, '#fff'); av.set(-1, 0, 0, '#fff'); av.box(1, 0, -2, 1, 0, 2, '#fff'); return av.mesh({ scale: 0.6 }).geometry; })();
-const ARW = []; for (let i = 0; i < 26; i++) ARW.push([rand(i, 31) * 100 - 48, 6 + rand(i, 32) * 4, rand(i, 33) * 44 - 16]);
+const ARW = []; for (let i = 0; i < 44; i++) ARW.push([rand(i, 31) * 100 - 48, 6 + rand(i, 32) * 4, rand(i, 33) * 44 - 16]);
 const arrows = new THREE.InstancedMesh(arrowGeo, new THREE.MeshBasicMaterial({ color: '#e8f8ff' }), ARW.length); arrows.frustumCulled = false; scene.add(arrows);
 // rain streaks
 const NR = 700; const rain = new THREE.InstancedMesh(new THREE.BoxGeometry(0.07, 1.8, 0.07), new THREE.MeshBasicMaterial({ color: '#dcecff', transparent: true, opacity: 0.6 }), NR); rain.frustumCulled = false; scene.add(rain);
@@ -329,17 +329,17 @@ const fieldWalk = [[0.5, 15.5], [0.5, 9]];
 const orb = (ang, dist, hgt, lk) => ({ pos: [Math.sin(ang) * dist + lk[0], hgt + lk[1], Math.cos(ang) * dist + lk[2]], look: lk });
 function cam(t) {
   if (t < 2.6) { const k = prog(t, 0, 2.6); const o = orb(lerp(-0.75, -0.5, ease.inOut(k)), lerp(185, 150, ease.out(k)), lerp(125, 100, k), [2, -6, 2]); return { ...o, fov: 30 }; }
-  if (t < TM.chk) { const d = dronePose(t).p; const k = prog(t, 2.6, TM.chk); return { pos: [lerp(-46, -45, k), lerp(6, 11, k), lerp(23, 22, k)], look: [d[0] + 1, d[1] - 0.5, d[2]], fov: 34 }; }
+  if (t < TM.chk) { const d = dronePose(t).p; const k = prog(t, 2.6, TM.chk); return { pos: [lerp(-22, -23, k), lerp(3.6, 5, k), lerp(17, 16, k)], look: [d[0] - 1, d[1] + 1.2, d[2]], fov: 38 }; }
   if (t < TM.mon) { const k = prog(t, TM.chk, TM.mon); return { pos: [lerp(-41, -40, k), lerp(10.5, 9.5, k), lerp(22, 20, k)], look: [-35.5, 2.6, 6.5], fov: 36 }; }
   if (t < 14.6) { const k = prog(t, TM.mon, 14.6); return { pos: [lerp(14, 13, k), lerp(112, 106, k), lerp(78, 74, k)], look: [lerp(14, 13, k), 0, 4], fov: 34 }; }
   if (t < TM.wed) { const d = dronePose(t).p; return { pos: [d[0] - 6, d[1] + 11, d[2] + 20], look: [d[0] + 4, d[1] - 2, d[2] - 4], fov: 40 }; }
   if (t < 18.8 || within(t, 20.4, TM.fri)) { const k = prog(t, TM.wed, TM.fri); return { pos: [lerp(5, 7, k), 32, lerp(38, 35, k)], look: [lerp(8, 9, k), 0, 10], fov: 34 }; }
   if (t < 20.4) { const k = prog(t, 18.8, 20.4); return { pos: [lerp(3.6, 3.4, k), 5.6, lerp(20.5, 19.5, k)], look: [-0.4, 2.0, 9], fov: 52 }; }
   if (t < 22.8) { const k = prog(t, TM.fri, 22.8); return { pos: [lerp(-34, -30, k), lerp(52, 46, k), lerp(42, 38, k)], look: [6, 0, -8], fov: 30 }; }
-  if (t < 26.4 || within(t, 30.4, 32.2)) { const k = within(t, 30.4, 32.2) ? 1 : prog(t, 22.8, 26.4); return { pos: [lerp(2, 2.5, k), 25, lerp(6, 5, k)], look: [13, 0, -16], fov: 34 }; }
-  if (t < 28.6) { const k = prog(t, 26.4, 28.6); return { pos: [3, 12, 1], look: [7, 2.5, -14], fov: lerp(30, 22, ease.out(k)) }; }
-  if (t < 30.4) { const k = prog(t, 28.6, 30.4); return { pos: [7, 16, lerp(3, 2, k)], look: [13, 1.5, -11.5], fov: 26 }; }
-  if (t < TM.sat) { const k = prog(t, 32.2, TM.sat); return { pos: [lerp(-10, -8, k), lerp(17, 15, k), lerp(-13, -12, k)], look: [11, 1, -8], fov: 36 }; }
+  if (t < 26.4 || within(t, 30.4, 32.2)) { const k = within(t, 30.4, 32.2) ? 1 : prog(t, 22.8, 26.4); return { pos: [lerp(4, 4.5, k), 25, lerp(5, 4, k)], look: [8.5, 0, -17], fov: 34 }; }
+  if (t < 28.6) { const k = prog(t, 26.4, 28.6); return { pos: [5, 11, 0], look: [9.5, 3, -14], fov: lerp(30, 22, ease.out(k)) }; }
+  if (t < 30.4) { const k = prog(t, 28.6, 30.4); return { pos: [-2, 16, lerp(1, 0, k)], look: [4, 1.5, -15], fov: 28 }; }
+  if (t < TM.sat) { const k = prog(t, 32.2, TM.sat); return { pos: [lerp(-15, -13, k), lerp(16, 14, k), lerp(3, 2, k)], look: [4, 1, -12], fov: 36 }; }
   if (t < 35.8) { const k = prog(t, TM.sat, 35.8); const o = orb(lerp(0.5, 0.42, k), 150, 92, [8, -6, 6]); return { ...o, fov: 30 }; }
   if (t < 42.2) { const k = prog(t, 35.8, 42.2); return { pos: [lerp(14, 13, k), lerp(116, 110, k), lerp(84, 80, k)], look: [lerp(14, 13, k), 0, 6], fov: 34 }; }
   if (t < 44.4) { const d = dronePose(t).p; return { pos: [d[0] - 10, d[1] + 5, d[2] + 11], look: [d[0] + 5, d[1] - 2, d[2] - 1], fov: 40 }; }
@@ -369,7 +369,7 @@ st.onFrame((t) => {
   // drone
   const dp = dronePose(t); drone.position.set(...dp.p); drone.rotation.set(0, dp.yaw, 0); drone.rotateX(-(dp.tilt || 0)); drone.rotateZ(dp.roll || 0);
   drone.userData.props.forEach((p, i) => { p.rotation.y = (i % 2 ? -1 : 1) * t * 40 * dp.spin + i; }); drone.userData.disc.opacity = 0.32 * dp.spin;
-  drone.userData.box.visible = !!dp.box; drone.visible = mode < 0;
+  drone.userData.box.visible = !!dp.box; drone.visible = mode < 0 && !within(t, 22.8, 30.4);
   // lift-off dust
   for (let i = 0; i < 24; i++) { const a = i / 24 * Math.PI * 2, ph = (t * 1.4 + rand(i, 5)) % 1; const on = within(t, 2.0, 4.0) ? 1 : 0; dust.setAt(i, PADS.harbour[0] + Math.cos(a) * (1 + ph * 4), 2.2 + ph * 0.6, PADS.harbour[1] + Math.sin(a) * (1 + ph * 4), 0, 0, on * (1 - ph)); } dust.done();
   // night spotlight on the walker
