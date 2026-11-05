@@ -199,7 +199,7 @@ on((t) => {
   op('pa', prog(t, 12.4, 13.0) - prog(t, 25.2, 26.0)); op('pb', prog(t, 25.2, 26.0)); op('cr', prog(t, 28.6, 29.0));
   const an = (k, t0, t1, tok) => { const n = AN(k); n.style.opacity = fadeIO(t, t0, t1, 0.3); n.classList.toggle('ok', t > tok); n.querySelector('span').textContent = t > tok ? (k === 'art' ? 'Own drawing ✓' : 'CC BY 4.0 · credited ✓') : (k === 'art' ? 'Copies Mira Kell’s style' : 'Licence: non-commercial only'); };
   an('art', 19.5, 22.6, 21.6); an('ph', 24.1, 27.0, 26.0);
-  const s = t < 12.4 ? ['', 'Sketch'] : t < 18.6 ? ['ai', 'AI draft'] : t < 29.0 ? ['rev', 'In review'] : ['ok', 'Signed off'];
+  const s = t < 12.4 ? ['', 'Sketch'] : t < 18.6 ? ['ai', 'AI draft'] : t < 28.8 ? ['rev', 'In review'] : ['ok', 'Signed off'];
   const cls = 'fs-status' + (s[0] ? ' ' + s[0] : ''); if (pSt.className !== cls) pSt.className = cls; if (pSt.textContent !== s[1]) pSt.textContent = s[1];
   const ttl = t < 29.2 ? 'Festival poster' : 'After'; if (pT.textContent !== ttl) pT.textContent = ttl;
 });

@@ -201,4 +201,4 @@ By the end, learners can:
   6. "Quote matches a council press release; full text not found. (61% sure)"
   7. "Auto-publish when checks pass: ON. (90% sure)"
 - **Reuse from the trailer:** all UI text, tab URLs, trail labels, the corrected sentence and citation, the sign-off time and Amara's line.
-- **Open questions:** replace the fake journal and author; confirm the Civic Online Reasoning host; rename Amara here or in `fs-data`; the trailer shows one citation while the strand research describes two (one invented, one misquoted). Add the misquoted second citation as a 90-minute stretch.
+- **Open questions:** replace the fake journal and author; confirm the Civic Online Reasoning host; the trailer shows one citation while the strand research describes two (one invented, one misquoted). Add the misquoted second citation as a 90-minute stretch.

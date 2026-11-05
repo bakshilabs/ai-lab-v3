@@ -214,8 +214,8 @@ on((t) => {
   setHTML(fPriv, ph);
   let dh;
   if (t < 15.8) dh = '<span class="muted">—</span>';
-  else if (t < 28.6) dh = `<span class="fs-aitxt"><span class="fs-aitag">AI</span>${typed(DEC_AI, t, 15.8, 40)}</span>`;
-  else { const ty = typed(DEC_FIX, t, 28.6, 46); dh = `<span class="fs-new">${ty}${ty.length < DEC_FIX.length ? '<i class="fs-caret"></i>' : ''}</span>`; }
+  else if (t < 28.2) dh = `<span class="fs-aitxt"><span class="fs-aitag">AI</span>${typed(DEC_AI, t, 15.8, 40)}</span>`;
+  else { const ty = typed(DEC_FIX, t, 28.2, 130); dh = `<span class="fs-new">${ty}${ty.length < DEC_FIX.length ? '<i class="fs-caret"></i>' : ''}</span>`; }
   setHTML(fDec, dh);
   const sst = t < 15.2 ? ['', 'Draft'] : t < 19.0 ? ['ai', 'AI draft'] : t < 29.0 ? ['rev', 'In review'] : ['ok', 'Signed off'];
   const cls = 'fs-status' + (sst[0] ? ' ' + sst[0] : ''); if (fSt.className !== cls) fSt.className = cls; if (fSt.textContent !== sst[1]) fSt.textContent = sst[1];

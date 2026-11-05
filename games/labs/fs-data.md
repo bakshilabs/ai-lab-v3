@@ -25,8 +25,8 @@ By the end, learners can:
 ## 4. Setting, look and characters
 - **Visual style:** a voxel workplace diorama: a cut-away council insight office (six desks, a wall screen showing "Fault reports by ward") beside a harbour town with four wards: **Harbourside**, **Mill Lane**, **Castle Hill** and **Old Quay**. Lamp posts carry report pins; Old Quay's red "unreported fault" pins appear only during the Data check. The camera then moves to full-screen work tools: `fault-reports.csv`, a bar chart, a review panel and a Data Brief with tracked changes. Status chips (*Draft · In review · Returned · Approved*) replace meters; "Checks passed: 4 of 4" replaces stars.
 - **AI colleague:** **InsightAssist** (working name; the trailer card says "AI colleague"). No face: a card with a confidence bar, "% sure" and a "Data I used" chip. It uses process language ("matched", "counted", "estimated"), never "I think" or "I feel".
-- **People:** **Amara**, council data analyst and team lead (the facilitator plays her). **Maya, 13**, junior analyst (the learner's on-screen stand-in). Four colleagues at desks; Old Quay residents on a bench.
-- **Fictional names to check:** Harbourside Council, the four wards, Quay Road, Ash Street, Keep Lane, Net Loft Row, InsightAssist, Amara, Maya. A web search found no "Harbourside Council", but "Harbourside" is a real place name (Bristol) and the street names are common. Final clearance (to verify), per research §10 item 28.
+- **People:** **Ines**, council data analyst and team lead (the facilitator plays her). **Freya, 13**, junior analyst (the learner's on-screen stand-in). Four colleagues at desks; Old Quay residents on a bench.
+- **Fictional names to check:** Harbourside Council, the four wards, Quay Road, Ash Street, Keep Lane, Net Loft Row, InsightAssist, Ines, Freya. A web search found no "Harbourside Council", but "Harbourside" is a real place name (Bristol) and the street names are common. Final clearance (to verify), per research §10 item 28.
 
 ## 5. Core loop and structure
 **Act structure in every work stage:** *Brief* (what the councillor needs) → *Do the work* (inspect, clean, chart) → *Hand-over* (InsightAssist offers confident output with a confidence score) → *Review* (the Checker runs the Four Checks; the team approves or returns) → *Fix and log* (the Recorder updates the Data Brief and the data-quality log).
@@ -38,7 +38,7 @@ By the end, learners can:
 | 3. Clean | Fix issues without inventing data | Blanks: A set to 0 · B delete row · C mark "unknown" | "Fill gaps" → fills blank Faults with 0 (86%) | **Case:** ask what 0 means: "inspected and fine", not "not recorded" | Rule: "Blank is not 0" | 120 rows → 112 clean rows; four teal log pills |
 | 4. Chart | Show the answer to the question | Bar chart of reports · pie chart · bar chart with a note | *(unsure but right)* "Possible gap: Old Quay has far fewer rows than other wards. Check coverage?" (48% sure) | Team decides to keep the flag for the review | "Low-confidence flags are still worth reading" | Bars grow: 38 · 36 · 34 · 4; Old Quay bar amber |
 | 5. Review the finding | Sign off or send back | Approve · Approve with edit · Send back | "Summarise" → "Old Quay has the fewest faults, so its streetlights are in the best condition. Repairs can wait there." (94%) | **Data:** ward profile card shows most Old Quay residents are over 65, few use the app, and 9 streets sent no reports. **Case:** 4 against 34–38 is an outlier to explain, not a result | Note: "Few reports is not the same as few faults" | Data chip red, Case amber; red pins rise over Old Quay; verdict "Send back" |
-| 6. Fix and ship | A Data Brief a councillor can trust | Better data: A door-knock survey · B lamp-post sensor sample · C phone line for reports | None: the team writes it | Peer check against the rubric | "What this data can't tell us: faults nobody reported" | Tracked change, boxes appear, "Signed off · Maya, 13"; brief flies into the portfolio |
+| 6. Fix and ship | A Data Brief a councillor can trust | Better data: A door-knock survey · B lamp-post sensor sample · C phone line for reports | None: the team writes it | Peer check against the rubric | "What this data can't tell us: faults nobody reported" | Tracked change, boxes appear, "Signed off · Freya, 13"; brief flies into the portfolio |
 
 In stage 5, Source and Authority pass (the numbers trace to the export). Learners still say *why*; a check that passes is a finding too. §9 revisits whether "Repairs can wait there" is an analyst's call at all.
 
@@ -60,7 +60,7 @@ Minute ranges for each version. The discussion is never shortened below 10 minut
 
 | Phase | 45 min | 60 min | 90 min | What happens |
 |---|---|---|---|---|
-| Warm-up and brief | 0–4 | 0–5 | 0–8 | Mentor clip; Amara (facilitator) reads the brief; "Is no news good news?" hands-up; roles dealt |
+| Warm-up and brief | 0–4 | 0–5 | 0–8 | Mentor clip; Ines (facilitator) reads the brief; "Is no news good news?" hands-up; roles dealt |
 | Tool onboarding | 4–8 | 5–10 | 8–16 | Demo: sort, filter, log an issue; meet InsightAssist and the confidence bar. 90 min adds a "spot the blank" practice table |
 | Work stages | 8–26 (stage 1 as a class, then 2–5) | 10–36 (stages 1–5, rotate roles after 3) | 16–50 (stages 1–5 in full; Pro extension) | The core work and the review |
 | Fix and ship | 26–32 | 36–43 | 50–62 | Rewrite the finding, add the boxes, sign off. 90 min adds a second chart that shows uncertainty |
@@ -98,7 +98,7 @@ Learners self-assess one criterion of their choice on the Data Brief footer.
 - Screens to lock or lids down: the facilitator says "Hands off, eyes up" and shows the signed-off Data Brief on the big screen.
 - Teams stay in their groups for the pair stage, then turn chairs to face the front. Seated in a horseshoe if possible.
 - Materials: the wall-screen chart (38 · 36 · 34 · 4) printed A3; the Four Checks card for each table; sticky notes; one pathway card per learner.
-- Facilitator steps out of the Amara role: "I'm not your team lead now. Let's talk about what really happened."
+- Facilitator steps out of the Ines role: "I'm not your team lead now. Let's talk about what really happened."
 
 **Structure.**
 
@@ -219,5 +219,4 @@ Learners self-assess one criterion of their choice on the Data Brief footer.
 - **Open questions:**
   - Product name for the AI colleague: InsightAssist, or keep "AI colleague"?
   - Ward profile figures: give a percentage over 65 or only words ("most residents")? Words avoid invented-looking statistics.
-  - Amara appears in both `fs-data` (analyst) and `fs-verify` (Amara Osei, Desk Editor). Rename one.
   - Mentor contributor: find a real council analyst so it counts as an employer encounter ([Gatsby](https://gatsbybenchmarks.org.uk/?p=777)).
