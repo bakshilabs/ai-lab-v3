@@ -253,7 +253,7 @@ const birdU = birds(scene, { n: 6, center: [10, 34, -30], radius: 40, seed: 5 })
 const orbit = (look, ang, dist, hgt, ox = 0, oy = 0) => ({ look, ang, dist, hgt, ox, oy });
 const WIDE = (t) => { const k = prog(t, 0, 5.2, (q) => q); return orbit([0, 0, -3], lerp(-0.62, -0.42, k), lerp(126, 108, k), lerp(66, 58, k), 0, 0); };
 const MED = (t) => { const k = prog(t, 5.0, 29.4, (q) => q); return orbit([1, 1, -1], lerp(0.30, 0.42, k), lerp(86, 80, k), lerp(52, 48, k), 470, 30); };
-const END = (t) => { const k = prog(t, 29.4, DUR, (q) => q); return orbit([0, -1, -3], lerp(0.28, 0.52, k), lerp(138, 132, k), lerp(68, 64, k), 450, -40); };
+const END = (t) => { const k = prog(t, 29.4, DUR, (q) => q); return orbit([0, -1, -3], lerp(0.28, 0.52, k), lerp(150, 144, k), lerp(74, 70, k), 430, -40); };
 const mixO = (a, b, k) => ({ look: a.look.map((x, i) => lerp(x, b.look[i], k)), ang: lerp(a.ang, b.ang, k), dist: lerp(a.dist, b.dist, k), hgt: lerp(a.hgt, b.hgt, k), ox: lerp(a.ox, b.ox, k), oy: lerp(a.oy, b.oy, k) });
 function cam(t) {
   let c;
@@ -367,7 +367,7 @@ A((t) => {
   const sgt = t >= T_SIGN ? 'Reviewed by: Hana, age 13' : 'Reviewed by: not yet'; if (sg.textContent !== sgt) sg.textContent = sgt;
   sg.style.color = t >= T_SIGN ? '#13202b' : ''; sb.style.display = t >= T_SIGN ? 'none' : '';
   // fly into the portfolio
-  if (t >= 26.6) { const k = prog(t, 26.6, 27.5, ease.inOut); doc.style.transformOrigin = '50% 0'; doc.style.transform = `translate(${k * 0}px, ${k * 250}px) scale(${1 - k * 0.8})`; doc.style.opacity = 1 - prog(t, 27.2, 27.5); doc.style.visibility = t > 27.5 ? 'hidden' : 'visible'; }
+  if (t >= 26.4) { const k = prog(t, 26.4, 27.2, ease.inOut); doc.style.transformOrigin = '50% 0'; doc.style.transform = `translate(${k * 0}px, ${k * 250}px) scale(${1 - k * 0.8})`; doc.style.opacity = 1 - prog(t, 26.9, 27.2); doc.style.visibility = t > 27.2 ? 'hidden' : 'visible'; }
 });
 
 // AI colleague (bottom slot)
@@ -426,7 +426,7 @@ const folder = el(`<div class="folder"><span class="tabf">PORTFOLIO · Hana</spa
  <div class="it"><i></i><span>Data brief<small>Council Data Desk</small></span></div>
  <div class="it"><i></i><span>Model card<small>Model Test Lab</small></span></div>
  <div class="it nw" data-nw><i></i><span>Fact-check card<small>Verification Desk · flood-barrier story</small></span><span class="new">NEW</span></div></div></div>`, { x: COL, y: 150 });
-A(cue(folder, 26.5, 29.0, { from: 'up' }));
+A(cue(folder, 26.9, 29.0, { from: 'up' }));
 A((t) => { const n = folder.querySelector('[data-nw]'); n.style.opacity = prog(t, 27.4, 27.7); n.style.transform = `scale(${t > 27.4 ? 1 + 0.06 * (1 - prog(t, 27.4, 27.9, ease.out)) : 0.9})`; });
 
 // cursor (parks in the gap left of the cards, never over text)
