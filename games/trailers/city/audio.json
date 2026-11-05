@@ -11,7 +11,7 @@
   {"t": 23.4, "chords": [[0, 4, 7], [7, 11, 14], [9, 12, 16], [5, 9, 12]], "energy": 0.95},
   {"t": 26.5, "chords": [[0, 4, 7, 11], [5, 9, 12, 16]], "energy": 0.3}],
  "sfx": [
-  {"t": 0.3, "type": "whoosh"},
+  {"t": 0.3, "type": "whoosh"}, {"t": 1.45, "type": "blip"},
   {"t": 3.0, "type": "pop"}, {"t": 4.6, "type": "tap"},
   {"t": 5.6, "type": "riser", "len": 0.5}, {"t": 6.2, "type": "blip"}, {"t": 6.6, "type": "blip"}, {"t": 7.0, "type": "blip"},
   {"t": 9.6, "type": "whoosh"}, {"t": 10.8, "type": "blip"},
