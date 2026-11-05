@@ -32,7 +32,7 @@ const trees0 = []; for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) { con
 [[8, 3], [9, 4], [16, 14], [15, 15], [2, 6]].forEach((p) => trees0.push(p));
 for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) { const d = Math.hypot(i - 9.5, (j - 9.5) * 1.05); if (inside(i, j) && d <= 7.2 && hash(i, j, 11) > 0.8 && !meadow(i, j) && Math.hypot(i - 5, j - 12) > 3.8 && Math.hypot(i - 6.5, j - 5.5) > 3.4 && !edgePath.has(i + ',' + j) && i !== 12) trees0.push([i + 0.5, j + 0.5]); }
 const treesNew = [[10.5, 5], [15, 6], [11, 10], [15, 10], [10, 7.5], [16, 8]];
-const coaster = []; for (let k = 0; k < 48; k++) { const a = k / 48 * Math.PI * 2; coaster.push([6.5 + Math.cos(a) * 2.6, 5.5 + Math.sin(a) * 1.9, 1.2 + Math.max(0, Math.sin(a)) * 1.8]); }
+const coaster = []; for (let k = 0; k < 48; k++) { const a = k / 48 * Math.PI * 2; coaster.push([6.5 + Math.cos(a) * 2.6, 5.5 + Math.sin(a) * 1.9, 1.0 + Math.max(0, Math.sin(a)) * 3.6 + Math.max(0, Math.sin(a * 3)) * 0.8]); }
 
 function iso(i, j, h = 0) { return [(i - j) * TW / 2, (i + j) * TH / 2 - h * TH / 2]; }
 
@@ -87,7 +87,9 @@ function frame(t) {
   for (let y = 0; y < H; y += 2) { const k = y / H; px(0, y, W, 2, `rgb(${Math.round(lerp(64, 150, k))},${Math.round(lerp(146, 212, k))},${Math.round(lerp(240, 255, k))})`); }
   for (let k = 0; k < 6; k++) { const xx = ((k * 97 + t * 6) % (W + 80)) - 40, yy = 20 + (k * 37) % 70; px(xx, yy, 34, 6, '#ffffff'); px(xx + 6, yy - 4, 20, 4, '#ffffff'); px(xx + 2, yy + 6, 30, 2, '#dfe9f5'); }
   const pathSet = new Set(edgePath);
-  const cutOn = t >= 8 && t < 22.4, cutK = t < 22 ? prog(t, 8.2, 10.4) : 1;
+  const cutOn = t >= 8 && t < 23.8, cutK = t < 22.3 ? prog(t, 8.2, 10.4) : 1 - prog(t, 22.3, 23.8);
+  const reroute = []; for (let i = 12; i <= 17; i++) reroute.push([i, 13]); for (let j = 12; j >= 5; j--) reroute.push([17, j]);
+  if (t >= 22.3) reroute.forEach(([i, j], k) => { if (k / reroute.length < prog(t, 22.3, 23.8, (q) => q)) pathSet.add(i + ',' + j); });
   if (cutOn) cutPath.forEach(([i, j], k) => { if (k / cutPath.length < cutK) pathSet.add(i + ',' + j); });
   for (let s2 = 0; s2 < 2 * N; s2++) for (let i = 0; i < N; i++) {
     const j = s2 - i; if (j < 0 || j >= N || !inside(i, j)) continue;
@@ -127,7 +129,7 @@ function frame(t) {
   [[11, 6], [11.6, 7.4], [10.2, 8.4]].forEach(([i, j], k) => { if (flee >= 1 && t < 21.5) return; const ii = i + flee * 6, jj = j - flee * 3; objs.push([ii + jj, () => { const [x, y] = iso(ii, jj); rabbit(x + ox, y + oy - (flee > 0 ? Math.abs(Math.sin(t * 12 + k)) * 6 : 0)); }]); });
   [0, 1, 2].forEach((k) => { if (t >= 15 && t < 21 && k > 0) return; const a = t * 0.5 + k * 2; const i = 5.5 + Math.cos(a) * 1.5, j = 12.5 + Math.sin(a) * 1.2; objs.push([i + j, () => { const [x, y] = iso(i, j); duck(x + ox, y + oy); }]); });
   if (t >= 22.5) [0, 1].forEach((k) => { const kk = prog(t, 22.5 + k * 0.4, 24.5); const i = lerp(17, 13 + k * 2, kk), j = lerp(3, 7 + k, kk); objs.push([i + j, () => { const [x, y] = iso(i, j); deer(x + ox, y + oy); if (t > 24.5) heart(x + ox + 4, y + oy - 30 - (t * 10 % 10)); }]); });
-  objs.push([15.5 + 12.5, () => { const [x, y] = iso(15.5, 12.5); wheel(x + ox, y + oy, t); }]);
+  objs.push([7.5 + 15.5, () => { const [x, y] = iso(7.5, 15.5); wheel(x + ox, y + oy, t); }]);
   objs.push([15 + 17.6, () => { const [x, y] = iso(15.4, 17.6); gate(x + ox, y + oy); }]);
   EP.forEach(([i, j], k) => { if (k % 3 === 1) objs.push([i + j + 0.9, () => { const [x, y] = iso(i + 0.85, j + 0.15); bench(x + ox, y + oy); }]); if (k % 4 === 2) objs.push([i + j + 0.95, () => { const [x, y] = iso(i + 0.1, j + 0.9); lamp(x + ox, y + oy); }]); });
   for (let k = 0; k < 26; k++) { const i = 10 + hash(k, 41) * 7, j = 3 + hash(k, 42) * 9; if (Math.abs(i - 12.5) < 1 && cutOn) continue; objs.push([i + j, () => { const [x, y] = iso(i, j); flowers(x + ox, y + oy, k); }]); }
@@ -221,7 +223,7 @@ function frame(t) {
     g.globalAlpha = a * 0.7; px(0, 0, W, H, '#0d1833'); g.globalAlpha = a;
     const bob = Math.round(Math.sin(t * 3) * 2);
     txtS('ISLAND PARK', W / 2, 150 + bob, '#ffe680', 'P2P', 32, 'center'); txtS('TYCOON', W / 2, 196 + bob, '#7ae06a', 'P2P', 40, 'center');
-    txt('MANAGER BOT DOES WHAT YOU SAY. SAY WHAT YOU MEAN.', W / 2, 236, '#ffffff', 'P2P', 8, 'center');
+    txtS('MANAGER BOT DOES WHAT YOU SAY.', W / 2, 238, '#ffffff', 'P2P', 10, 'center'); txtS('SAY WHAT YOU MEAN.', W / 2, 254, '#ffe680', 'P2P', 10, 'center');
     txt('A DELTAOPS LEARNING AI LAB', W / 2, 268, '#8fdcd2', 'P2P', 8, 'center');
     g.globalAlpha = 1;
   }
