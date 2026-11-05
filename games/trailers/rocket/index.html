@@ -108,7 +108,7 @@ const rocketL = new THREE.Group();
   for (let y = 0; y <= 13; y++) { const r = y < 10 ? 2 : y < 12 ? 1 : 0; for (let x = -r; x <= r; x++) for (let z = -r; z <= r; z++) { if (r === 2 && Math.abs(x) === 2 && Math.abs(z) === 2) continue; let c = y < 2 ? '#c9cdd6' : '#ffffff'; if (y === 4) c = '#ff8a2a'; if (y >= 12) c = '#e8573f'; u.set(x, y, z, c); } }
   u.set(0, 14, 0, '#e8573f'); u.box(-1, -1, -1, 1, -1, 1, '#4a4f5a');
   const bm = b.mesh({ scale: 0.3, offset: [-0.15, 0.3, -0.15] }); const um = u.mesh({ scale: 0.3, offset: [-0.15, 18 * 0.3 + 0.3, -0.15] });
-  rocketL.add(bm, um); G1.add(rocketL);
+  rocketL.add(bm, um); rocketL.scale.setScalar(1.8); G1.add(rocketL);
 }
 
 // ---------- flame + smoke ----------
@@ -159,11 +159,11 @@ function drawPlume(base, power, t, len, w = 1) {
   // flame deflector at the trench mouth
   v.box(5, 2, -2, 6, 3, 2, '#7b8085'); v.box(5, 4, -2, 5, 4, 2, '#5b6168');
   // launch tower: red and white lattice, two service arms
-  for (let y = 2; y <= 17; y++) for (const [x, z] of [[-7, -2], [-4, -2], [-7, 1], [-4, 1]]) v.set(x, y, z, Math.floor((y - 2) / 2) % 2 ? '#f4f1ea' : '#e8573f');
-  for (let y = 4; y <= 17; y += 3) { v.box(-7, y, -2, -4, y, -2, '#c9ced3'); v.box(-7, y, 1, -4, y, 1, '#c9ced3'); v.box(-7, y, -2, -7, y, 1, '#c9ced3'); v.box(-4, y, -2, -4, y, 1, '#c9ced3'); }
-  v.box(-3, 10, -1, -2, 10, 0, '#9aa0a6'); v.box(-3, 14, -1, -2, 14, 0, '#9aa0a6'); v.box(-7, 18, -2, -4, 18, 1, '#5b4ce0'); v.set(-6, 19, -1, '#ffd23f');
+  for (let y = 2; y <= 25; y++) for (const [x, z] of [[-7, -2], [-4, -2], [-7, 1], [-4, 1]]) v.set(x, y, z, Math.floor((y - 2) / 2) % 2 ? '#f4f1ea' : '#e8573f');
+  for (let y = 4; y <= 25; y += 3) { v.box(-7, y, -2, -4, y, -2, '#c9ced3'); v.box(-7, y, 1, -4, y, 1, '#c9ced3'); v.box(-7, y, -2, -7, y, 1, '#c9ced3'); v.box(-4, y, -2, -4, y, 1, '#c9ced3'); }
+  v.box(-3, 13, -1, -3, 13, 0, '#9aa0a6'); v.box(-3, 19, -1, -3, 19, 0, '#9aa0a6'); v.box(-7, 26, -2, -4, 26, 1, '#5b4ce0'); v.set(-6, 27, -1, '#ffd23f');
   // lightning masts
-  for (const [x, z] of [[-10, -9], [9, -9], [-10, 8], [10, 6]]) { v.box(x, 2, z, x, 21, z, '#c9ced3'); v.set(x, 22, z, '#e8573f'); }
+  for (const [x, z] of [[-10, -9], [9, -9], [-10, 8], [10, 6]]) { v.box(x, 2, z, x, 29, z, '#c9ced3'); v.set(x, 30, z, '#e8573f'); }
   // fuel spheres
   for (const [cx, cz] of [[6, -13], [11, -12]]) { for (let x = -2; x <= 2; x++) for (let y = -2; y <= 2; y++) for (let z = -2; z <= 2; z++) if (Math.hypot(x, y, z) < 2.6) v.set(cx + x, 5 + y, cz + z, y === 2 ? '#e2e6ea' : '#f6f7f9'); v.box(cx - 1, 2, cz - 1, cx - 1, 3, cz - 1, '#9aa0a6'); v.box(cx + 1, 2, cz + 1, cx + 1, 3, cz + 1, '#9aa0a6'); }
   v.box(5, 2, -10, 12, 2, -10, '#9aa0a6');
@@ -176,7 +176,7 @@ function drawPlume(base, power, t, len, w = 1) {
   v.box(-16, 9, 4, -12, 12, 8, '#ff8a2a'); v.box(-15, 13, 5, -13, 13, 7, '#e8573f');
   // trees, bushes, flowers
   const tree = (x, z, s = 2) => { const g = top(x, z); v.box(x, g + 1, z, x, g + 3, z, '#7a5232'); for (let dx = -s; dx <= s; dx++) for (let dy = 0; dy <= s + 1; dy++) for (let dz = -s; dz <= s; dz++) if (Math.hypot(dx, (dy - 1) * 1.2, dz) <= s + 0.5 && rand(x + dx, dy, z + dz) > 0.1) v.set(x + dx, g + 4 + dy, z + dz, ['#3f9d4a', '#4caf50', '#2f8a43', '#5bbd5a'][Math.floor(rand(x + dx, dy + 7, z + dz) * 4)]); };
-  for (const [x, z, s] of [[-22, 0, 2], [-21, 6, 2], [-19, 11, 1], [20, 6, 2], [22, -2, 2], [4, 15, 2], [-6, 15, 1], [12, 14, 2], [-2, -15, 2], [17, -12, 1], [-24, -6, 1], [9, 11, 1]]) tree(x, z, s);
+  for (const [x, z, s] of [[-22, 0, 2], [-21, 6, 2], [-19, 11, 1], [20, 6, 2], [22, -2, 2], [-2, -15, 2], [17, -12, 1], [-24, -6, 1], [-12, 13, 1], [21, 11, 1]]) tree(x, z, s);
   for (let i = 0; i < 70; i++) { const x = Math.round(-RX + rand(i, 51) * RX * 2), z = Math.round(-RZ + rand(i, 52) * RZ * 2); if (!T.has(K(x, z)) || (Math.abs(x) <= 9 && Math.abs(z) <= 8) || v.has(x, top(x, z) + 1, z)) continue; const c = ['#ffd23f', '#ff6a4a', '#ffffff', '#3f9d4a', '#4caf50'][i % 5]; v.set(x, top(x, z) + 1, z, c); }
   // perimeter fence
   for (let x = -9; x <= 9; x++) for (const z of [-8, 8]) if (!(z === 8 && x >= -4)) { v.set(x, 2, z, x % 2 ? '#c9ced3' : '#9aa0a6'); }
@@ -227,7 +227,7 @@ const [stCv, sg, stTex] = mkCanvas(512, 384);
   G2.add(C.mesh({ scale: 0.5 }));
   const sm = SV.mesh({ scale: 0.5, castShadow: false }); sm.material = new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false }); G2.add(sm);
   const scr = (tex, w, h, x, y) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ map: tex, toneMapped: false })); m.position.set(x, y, -9.97); G2.add(m); };
-  scr(wallTex, 18.6, 8.14, 0, 8.5); scr(camTex, 5.6, 4.2, -13.5, 8); scr(stTex, 4.6, 3.45, 12, 8);
+  scr(wallTex, 18.6, 8.14, 0, 8.5); scr(camTex, 5.6, 4.2, -13.5, 8); scr(stTex, 4.6, 3.45, 12, 8); G2.children.slice(-2).forEach((m) => (m.position.z = -8.96));
   const skins = ['#c68a5e', '#8d5a3b', '#e0b08a', '#6b4430', '#d9a27a', '#b07a52', '#e8c09a', '#7a4a32', '#c68a5e', '#a0603e'], hair = ['#2b1d14', '#13100c', '#d8a040', '#3a2a1a', '#7a4a2c', '#1a1410', '#c0502a', '#2b1d14', '#5a3a20', '#13100c'];
   const SEATS = [];
   CONS.forEach(([sx, b, pz, col], i) => { (i < 3 ? [-1.4, 1.4] : [0]).forEach((dx) => SEATS.push([sx + dx, b, pz, col])); });
@@ -297,9 +297,9 @@ const ship = new THREE.Group(), tug = new THREE.Group(), tug2 = new THREE.Group(
 const seaFog = new THREE.Fog('#d6eeff', 80, 320);
 {
   seaGeo = new THREE.PlaneGeometry(SX1 - SX0, SZ1 - SZ0, 70, 48); seaGeo.rotateX(-Math.PI / 2); seaGeo.translate((SX0 + SX1) / 2, 0, (SZ0 + SZ1) / 2); seaPos = seaGeo.attributes.position;
-  const seaMat = new THREE.MeshPhongMaterial({ color: '#1f86d8', flatShading: true, shininess: 80, specular: '#fff4dc' });
+  const seaMat = new THREE.MeshPhongMaterial({ color: '#1a76cc', flatShading: true, shininess: 30, specular: '#7fb8e8' });
   const sea = new THREE.Mesh(seaGeo, seaMat); sea.position.set(0, -0.4, 0); sea.receiveShadow = true; G3.add(sea);
-  const ocean = new THREE.Mesh(new THREE.PlaneGeometry(1400, 1400), new THREE.MeshPhongMaterial({ color: '#2a8de0', shininess: 40, specular: '#bfe6ff' })); ocean.rotation.x = -Math.PI / 2; ocean.position.set(0, OCEAN - 0.45, 0); G3.add(ocean);
+  const ocean = new THREE.Mesh(new THREE.PlaneGeometry(1400, 1400), new THREE.MeshPhongMaterial({ color: '#1f80d6', shininess: 20, specular: '#6fa8d8' })); ocean.rotation.x = -Math.PI / 2; ocean.position.set(0, OCEAN - 0.45, 0); G3.add(ocean);
   // drone ship (voxel 0.25): deck 10 x 6 units, blast walls, thruster pods, deck kit
   const s = new Vox(); s.jitter = 0.04;
   for (let x = -20; x <= 19; x++) for (let z = -12; z <= 11; z++) {
@@ -377,17 +377,17 @@ st.onFrame((t) => {
   ASC.forEach((c) => (c.visible = seg === 'launch'));
 
   if (seg === 'launch') {
-    const y = LY(t); rocketL.position.set(0, y - 2, 0);
-    if (t > LT - 0.15) pl = { base: new THREE.Vector3(0, y - 0.1, 0), power: clamp((t - (LT - 0.15)) / 0.15), len: lerp(4, 9, prog(t, LT, LT + 1.2)), w: 1.4 };
+    const y = LY(t); rocketL.position.set(0, y, 0);
+    if (t > LT - 0.15) pl = { base: new THREE.Vector3(0, y - 0.1, 0), power: clamp((t - (LT - 0.15)) / 0.15), len: lerp(6, 14, prog(t, LT, LT + 1.2)), w: 2.2 };
     if (t > LT - 0.5) { smokeAt = new THREE.Vector3(0, 2, 0); smokeAmt = t < LT ? 0.7 * prog(t, LT - 0.5, LT) : 1.6; smokeSpread = lerp(5, 12, prog(t, LT - 0.4, 3.2)); }
     for (let i = 0; i < 120; i++) { const ts = LT + 0.05 + (i / 120) * 2.1; const age = t - ts; const on = age > 0; const yy = LY(ts) - 0.5; const a = rand(i, 31) * 6.28; const r = (0.3 + Math.min(age, 3) * 0.8) * (0.4 + rand(i, 32) * 0.8);
       trail.setAt(i, Math.cos(a) * r + age * 0.5, yy + rand(i, 33) * 1.2, Math.sin(a) * r, i, i * 0.3, on ? Math.min(1, 0.35 + age * 5) * (1.4 + Math.min(age, 3) * 1.0) : 0); }
     trail.done();
-    if (t < LT) { const k = prog(t, 0, LT); camAt(0, 5.5, 0, lerp(0.62, 0.56, k), lerp(36, 33, ease.out(k)), lerp(2.6, 2.2, k), 3.2, 0.6, 34); }
-    else { const k = prog(t, LT, SEA); const ty = lerp(5.5, y + 4, prog(t, LT + 0.2, LT + 1.4)); camAt(0, ty, 0, lerp(0.56, 0.72, k), lerp(33, 30, k), lerp(2.2, 4.5, k), lerp(3.2, 2.4, k), lerp(0.6, 0.2, k), 34); }
+    if (t < LT) { const k = prog(t, 0, LT); camAt(0, 10, 0, lerp(0.66, 0.6, k), lerp(64, 58, ease.out(k)), lerp(5, 4, k), 7, 0, 34); }
+    else { const k = prog(t, LT, SEA); const ty = lerp(10, y + 9, prog(t, LT + 0.2, LT + 1.4)); camAt(0, ty, 0, lerp(0.6, 0.72, k), lerp(58, 52, k), lerp(4, 6, k), lerp(7, 5, k), 0, 34); }
   }
   if (seg === 'room') {
-    const k = prog(t, ROOM, BACK, (q) => q); camAt(O2.x - 0.5, 6.4, O2.z - 4, lerp(0.1, 0.03, k), lerp(31, 27.5, ease.out(k)), lerp(4.4, 3.6, k), 0, 1.4);
+    const k = prog(t, ROOM, BACK, (q) => q); camAt(O2.x - 0.5, 6.4, O2.z - 4, lerp(0.1, 0.03, k), lerp(40, 36, ease.out(k)), lerp(9, 8, k), 0, 0.6);
     KIDS.forEach(([p, b], i) => { p.userData.walk(0); const cheer = t > HOLD_T + 0.6 && t < HOLD_T + 1.6 ? Math.abs(Math.sin((t - HOLD_T - 0.6) * 7 + i)) * 0.35 : 0; p.position.y = b + cheer; });
     if (Math.abs(t - lastWall) > 0.001) { drawWall(t); lastWall = t; }
   }
@@ -422,10 +422,10 @@ st.onFrame((t) => {
     if (bv) { const k = prog(t, TL, TLD, ease.out); booster4.position.set(0, lerp(10, 0.5, k), 0); booster4.rotation.set(0, 0.5, 0); booster4.userData.setLegs(prog(t, TL + 1.0, TL + 1.6)); power = t < TLD + 0.05 ? 1 : 1 - prog(t, TLD + 0.05, TLD + 0.3, (q) => q); emit = [booster4.localToWorld(_v.set(0, 0.15, 0)).clone()]; smokeAt = ship.localToWorld(new THREE.Vector3(0, 0.5, 0)); smokeAmt = 0.45 * power * clamp(1 - (booster4.position.y - 0.5) / 5); }
     const sx = O3.x + SHIPX;
     if (t < ROOM) {
-      if (t < TG) { const k = prog(t, SEA, TG); camAt(sx, 2.4, O3.z, lerp(-0.7, -0.6, k), lerp(42, 36, ease.out(k)), lerp(9, 7.5, k), lerp(-1.5, -1.0, k), 1.0); }
-      else { const k = prog(t, TG, ROOM); camAt(sx, 2.2, O3.z, lerp(-0.6, -0.5, ease.inOut(k)), lerp(36, 29, ease.inOut(k)), lerp(7.5, 6.2, k), lerp(-1.0, -0.8, k), 1.0); }
+      if (t < TG) { const k = prog(t, SEA, TG); camAt(sx, 2.4, O3.z, lerp(-0.7, -0.6, k), lerp(34, 29, ease.out(k)), lerp(8, 7, k), lerp(0, 3.2, prog(t, 4.6, 6.6)), lerp(1.5, 2.6, k)); }
+      else { const k = prog(t, TG, ROOM); camAt(sx, 2.2, O3.z, lerp(-0.6, -0.5, ease.inOut(k)), lerp(29, 24, ease.inOut(k)), lerp(7, 6, k), 3.2, lerp(2.6, 1.4, prog(t, 12.6, 13.6))); }
     } else if (t < TLD + 0.8) { const k = prog(t, BACK, TLD + 0.8); camAt(sx, lerp(3.4, 2.4, k), O3.z, lerp(-0.42, -0.3, k), lerp(30, 24, ease.inOut(k)), lerp(4.6, 4.0, k), lerp(-0.6, 0, k), 1.2); }
-    else { const k = prog(t, TLD + 0.8, DUR, (q) => q); camAt(sx, 2.4, O3.z, lerp(-0.3, 0.95, ease.inOut(k)), lerp(24, 27, k), lerp(4.0, 5.6, k), 0, lerp(1.2, 2.0, k)); }
+    else { const k = prog(t, TLD + 0.8, DUR, (q) => q); camAt(sx, 2.4, O3.z, lerp(-0.3, 0.95, ease.inOut(k)), lerp(24, 22.5, k), lerp(4.0, 4.3, k), 0, lerp(1.2, 1.9, prog(t, HERO - 0.5, HERO + 1.5))); }
   }
   drawFlame(emit.length ? emit : [new THREE.Vector3(0, -999, 0)], emit.length ? power : 0, t, 1.7);
   drawSmoke(smokeAt || new THREE.Vector3(0, -999, 0), smokeAt ? smokeAmt : 0, t, smokeSpread);
@@ -453,7 +453,7 @@ function cards(head, list, tIn, tOut, pickAt, pick) {
   const h = el(HAND, { x: 0, y: 0 });
   A((t) => { const v = within(t, pickAt - 0.8, tOut) ? 1 - prog(t, tOut, tOut + 0.2) : t >= tOut && t < tOut + 0.2 ? 1 - prog(t, tOut, tOut + 0.2) : 0; h.style.opacity = v; h.style.visibility = v > 0.001 ? 'visible' : 'hidden';
     n.querySelectorAll('.b-card')[pick].classList.toggle('pick', t > pickAt);
-    const tx = 46 + pick * 580 + 556 - 70 - 38, ty = CARD_Y + 66 + 150 - 40 - 8; const k = prog(t, pickAt - 0.8, pickAt - 0.1, ease.out);
+    const tx = 46 + pick * 580 + 556 - 52 - 38, ty = CARD_Y + 66 + 150 - 40 - 8; const k = prog(t, pickAt - 0.8, pickAt - 0.1, ease.out);
     h.style.left = lerp(tx + 220, tx, k) + 'px'; h.style.top = lerp(ty + 120, ty, k) + 'px'; h.style.transform = `scale(${t > pickAt && t < pickAt + 0.15 ? 0.88 : 1})`; h.style.transformOrigin = '38px 8px'; });
 }
 function tele(title, w, h, x, y, a, b, dot) { const n = el(`<div class="tele"><small><i style="background:${dot}"></i>${title}</small><canvas width="${w}" height="${h}"></canvas></div>`, { x, y }); A(cue(n, a, b, { from: 'left', outDur: 0.3 })); return n.querySelector('canvas').getContext('2d'); }
@@ -469,7 +469,7 @@ pill('<div class="kick">What goes up has to come back down.</div>', 960, 960, 2.
 // ---- persistent game HUD ----
 const HUD0 = SEA + 0.2, HUD1 = HERO - 0.4;
 { const b = el(`<div class="b-badge" style="background:${PURPLE};box-shadow:0 8px 0 ${PSHADE},0 14px 30px rgba(0,0,0,.18)"><span class="ic">${ROCKET(PURPLE)}</span><span><b>Land a Rocket</b><small>STEM CLUB</small></span></div>`, { x: 46, y: 40 }); A(cue(b, HUD0, HUD1, { from: 'left' }));
-  const TASKS = [['L4', 'Land the booster on the drone ship', HUD0 + 0.2, ROOM - 0.45], ['L4', 'Flight Director: GO or HOLD?', ROOM + 0.2, BACK - 0.45], ['L4', 'Land the booster on the drone ship', BACK + 0.2, HUD1]];
+  const TASKS = [['L4', 'Land the booster on the drone ship', HUD0 + 0.2, ROOM - 0.45], ['L4', 'Land the booster on the drone ship', BACK + 0.2, HUD1]];
   TASKS.forEach(([tag, task, a, z]) => { const tk = el(`<div class="b-task" style="width:auto;max-width:1100px;font-size:33px"><span class="lv" style="background:#ff8a2a;color:#13202b;width:auto;padding:0 16px;box-shadow:none">${tag}</span>${task}</div>`, { x: 46, y: 176 }); A(cue(tk, a, z, { from: 'left', outDur: 0.3 })); }); }
 { const n = el(`<div class="b-pills"><span>${STAR}<b data-s></b></span><span><em class="xp" style="background:${PURPLE}">XP</em><b data-x></b></span></div>`, { x: 1874, y: 40, anchor: 'tr' }); A(cue(n, HUD0 + 0.1, HUD1, { from: 'right' }));
   const gains = [[19.3, 1, 60], [TLD + 0.4, 1, 80]];
@@ -490,13 +490,13 @@ A((t) => { if (!within(t, 6.9, 16.5)) return; const g = g4; g.clearRect(0, 0, 72
   if (gust > 0) legend(g, lx, 22, [['worst gust 45 km/h', '#e8573f', '#ffffff', gust]]);
   windChart(g, { x0, y0, w, h, ink: '#13202b', sub: '#7a8a98', grid: '#e6ebee', curve: '#2f6fd8', band: '#ffe1db', bandInk: '#e8573f', reveal: prog(t, 7.2, 8.4, (q) => q), gust, fs: 1 });
   if (gust > 0) { const gx = x0 + 45 / 60 * w; g.globalAlpha = gust; g.strokeStyle = '#e8573f'; g.lineWidth = 3; g.beginPath(); g.moveTo(gx, 40); g.lineTo(gx, y0 + h - 45 / 50 * h - 14); g.stroke(); g.globalAlpha = 1; } });
-follow('<div class="bub ghost" style="font-size:28px">DRY RUN · NAV’S PLAN</div>', TG + 0.1, TD - 0.1, () => ship.localToWorld(simPivot.position.clone().add(new THREE.Vector3(-1.18, 4.2, 0))));
-follow('<div class="bub" style="background:#e8573f;color:#fff;font-size:30px">GUST 45 km/h →</div>', TT, TF + 0.3, () => ship.localToWorld(new THREE.Vector3(-4.5, 4.6, 0)));
+follow('<div class="bub ghost" style="font-size:28px">DRY RUN · NAV’S PLAN</div>', TG + 0.1, TD - 0.1, () => ship.localToWorld(simPivot.position.clone().add(new THREE.Vector3(-1.18, -0.6, 0))), 'c');
+follow('<div class="bub" style="background:#e8573f;color:#fff;font-size:30px">GUST 45 km/h →</div>', TT, TF + 0.3, () => ship.localToWorld(new THREE.Vector3(2.8, 4.4, 0)));
 { const n = el('<div class="alertx"><span class="x">✕</span>A 45 km/h gust tipped it over</div>', { x: 1180, y: 700, anchor: 'c' }); A(cue(n, TFE + 0.05, 13.2, { dur: 0.35, outDur: 0.3 })); }
 cards('TRY A CLEARER CARD', C4, 13.5, 16.0, 15.0, 1);
 
 // ---- MISSION CONTROL (16.8–21.6): the HOLD call ----
-nav('Worst gust 45 km/h. Hold.', 72, ROOM + 0.3, 21.0, { tag: 'PLAN CHECKED', tagColor: '#16c79a', y: 640 });
+nav('Worst gust 45 km/h. Hold.', 72, ROOM + 0.3, 20.9, { tag: 'PLAN CHECKED', tagColor: '#16c79a', y: 670 });
 const PX = 46, PY = 846;
 { const n = el('<div class="poll"><small>FLIGHT DIRECTOR · GO / NO-GO</small><div class="opts"><span>GO</span><span data-h>HOLD</span><span>SCRUB</span></div></div>', { x: PX, y: PY }); A(cue(n, ROOM + 0.5, 21.0, { from: 'up', outDur: 0.3 })); A((t) => n.querySelector('[data-h]').classList.toggle('on', t > HOLD_T));
   const h = el(HAND, { x: 0, y: 0 }); const hx = PX + 28 + 152 + 16 + 150, hy = PY + 160; // lower-right corner of the HOLD button
@@ -509,11 +509,11 @@ L.saved('✓ Booster upright on a moving ship!', TLD + 0.35, HUD1, { x: 960, y: 
 { const big = STAR.replace('width="44" height="44"', ''); const s = el(`<div class="bigstars" style="display:flex;gap:26px;align-items:flex-end">${big}<span style="transform:translateY(-26px)">${big}</span>${big}</div>`, { x: 960, y: 330, anchor: 'c' }); A(cue(s, TLD + 0.6, HUD1)); }
 
 // ---- HERO: careers, then title, over the booster on the ship ----
-{ const s = el('<div class="scrim" style="background:linear-gradient(180deg, rgba(10,22,40,0) 30%, rgba(10,22,40,.55) 100%)"></div>'); A(cue(s, HERO, 31.4, { from: 'fade', dur: 0.6, outDur: 0.6 }));
+{ const s = el('<div class="scrim" style="background:linear-gradient(0deg, rgba(10,22,40,0) 40%, rgba(10,22,40,.55) 100%)"></div>'); A(cue(s, HERO, 31.4, { from: 'fade', dur: 0.6, outDur: 0.6 }));
   const J = [['Flight controller', '#6e5bf2'], ['GNC engineer', '#16c7a6'], ['Weather officer', '#3fbf5a'], ['Propulsion engineer', '#ff8a2a'], ['Data analyst', '#e8573f']];
-  const n = el(`<div class="jobs"><h3>Every console is a real job</h3><div class="list">${J.map(([j, c]) => `<span><i style="background:${c}"></i>${j}</span>`).join('')}</div></div>`, { x: 960, y: 840, anchor: 'c' }); A(cue(n, HERO + 0.3, 31.0, { from: 'up', dur: 0.5, outDur: 0.35 })); }
-{ const s = el('<div class="scrim" style="background:radial-gradient(ellipse 60% 55% at 50% 50%, rgba(10,22,40,.5), rgba(10,22,40,.18))"></div>'); A(cue(s, 31.2, null, { from: 'fade', dur: 0.7 })); }
-const title = titleCard('Land a <span class="hl">Rocket</span>', 'Run mission control. Check the AI like a pro.', { chip: 'A DeltaOps Learning AI lab · Schools, clubs and museums' }); A(cue(title, 31.5, null, { from: 'pop', dur: 0.8 }));
+  const n = el(`<div class="jobs"><h3>Every console is a real job</h3><div class="list">${J.map(([j, c]) => `<span><i style="background:${c}"></i>${j}</span>`).join('')}</div></div>`, { x: 960, y: 230, anchor: 'c' }); A(cue(n, HERO + 0.3, 31.0, { from: 'down', dur: 0.5, outDur: 0.35 })); }
+{ const s = el('<div class="scrim" style="background:radial-gradient(ellipse 65% 50% at 50% 28%, rgba(10,22,40,.5), rgba(10,22,40,.12))"></div>'); A(cue(s, 31.2, null, { from: 'fade', dur: 0.7 })); }
+const title = titleCard('Land a <span class="hl">Rocket</span>', 'Run mission control. Check the AI like a pro.', { chip: 'A DeltaOps Learning AI lab · Schools, clubs and museums' }); title.style.placeItems = 'start center'; title.style.paddingTop = '96px'; A(cue(title, 31.5, null, { from: 'pop', dur: 0.8 }));
 A((t) => { if (t > 32.3) title.style.transform += ` scale(${1 + 0.01 * (t - 32.3)})`; });
 st.onFrame((t) => ui.forEach((f) => f(t)));
 window.__duration = DUR;
