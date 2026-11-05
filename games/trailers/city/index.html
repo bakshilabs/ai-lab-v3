@@ -178,14 +178,14 @@ det(child, 'CHILD · 88%', '#ffc83d', 18.9, 21);
 function decision(text, sure, tIn, tOut, color = '#16ffc6') { const n = el(`<div class="decision"><small>AUTOPILOT DECISION</small><p>${text}</p><div class="conf"><span>${sure >= 85 ? 'Very sure' : sure >= 60 ? 'Fairly sure' : 'Not sure'}</span><i><span style="width:${sure}%"></span></i><span>${sure}%</span></div></div>`, { x: 40, y: 40 }); A(cue(n, tIn, tOut, { from: 'left' })); }
 decision('Person ahead. <b style="color:#ff5d4a">Emergency stop.</b>', 91, 10.2, 12.6);
 const al = el('<div class="alert"><span class="x">✕</span>False alarm. It’s a poster.</div>', { x: 960, y: 170, anchor: 'c' }); A(cue(al, 11.2, 13.8));
-const fc = el(facilCard('It was 91% sure. Why did a poster fool it?'), { x: 1250, y: 780 }); A(cue(fc, 11.8, 13.9, { from: 'up' }));
-decision('Something behind the van… <b style="color:#ffc83d">slowing. Ask the driver?</b>', 41, 15.8, 17.4);
+const fc = el(facilCard('It learned “person” from posters and photos. What might it miss?'), { x: 1250, y: 780 }); A(cue(fc, 11.8, 13.9, { from: 'up' }));
+decision('Something behind the van… <b style="color:#ffc83d">not like my training pictures.</b>', 41, 15.8, 17.4);
 const dim = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:rgba(6,14,26,.55)"></div>'); A((t) => { const v = within(t, 17.4, 18.8) ? 1 : 0; dim.style.opacity = v; dim.style.visibility = v ? 'visible' : 'hidden'; });
 const cards = el(cardsHTML('TRAIN THE CAR', [{ k: 'A', text: 'Drive more carefully.', vague: true }, { k: 'B', text: 'Add pictures of <b>posters</b>, and of <b>children half hidden</b> behind cars.' }, { k: 'C', text: 'Add more pictures of grown-ups.' }], 1), { x: 960, y: 560, anchor: 'c' }); A(cue(cards, 17.45, 18.8, { from: 'up' }));
-const tp = tap(960, 570); A((t) => tp(t, 17.9));
+const tp = tap(1180, 640); A((t) => tp(t, 17.9));
 decision('Child behind the van. <b style="color:#16ffc6">Stopping early.</b>', 88, 19.0, 25.6);
 const res = el(`<div class="decision" style="position:relative;left:0;top:0;width:780px"><small>TEST RESULTS AFTER TRAINING</small><p style="margin-top:8px">✓ Runner on a poster: <b style="color:#16ffc6">not a person</b> <span style="color:#9fc4dd">(8%)</span></p><p>✓ Child behind the van: <b style="color:#16ffc6">stop early</b> <span style="color:#9fc4dd">(88%)</span></p></div>`, { x: 1880, y: 400, anchor: 'tr' }); A(cue(res, 23.0, 26.2, { from: 'right' }));
-const k2 = kicker('Train it. Test it. <span style="color:#16FFC6">Check it.</span>', { y: 850 }); A(cue(k2, 22.6, 26.2, { from: 'up' }));
+const k2 = kicker('<span style="background:rgba(6,14,26,.82);padding:10px 34px;border-radius:22px">Train it. Test it. <span style="color:#16FFC6">Check it.</span></span>', { y: 850 }); A(cue(k2, 22.6, 26.2, { from: 'up' }));
 // bottom dashboard
 const dashN = el(`<div class="dash"><div><small>SPEED</small><b data-s>0</b> <span style="font:700 20px Inter;color:#9fc4dd">mph</span></div><div><small>MODE</small><span class="mode" data-m style="color:#16ffc6">AUTOPILOT</span></div><div><small>RECORD</small><span data-r style="font:800 30px Inter"></span></div></div>`, { x: 0, y: 0 }); dashN.style.width = '1920px'; dashN.style.height = '1080px';
 A(cue(dashN, 3.6, 26.2, { from: 'fade' }));

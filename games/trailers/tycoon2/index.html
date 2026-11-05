@@ -136,7 +136,7 @@ function frame(t) {
   // top toolbar
   px(0, 0, W, 14, '#8d929a'); px(0, 13, W, 1, '#4a4f56'); for (let k = 0; k < 8; k++) { px(4 + k * 16, 2, 12, 10, '#c4c9d0'); px(4 + k * 16, 2, 12, 1, '#fff'); }
   const ic = (k, f) => f(6 + k * 16, 3); ic(0, (x, y) => { px(x + 2, y + 1, 4, 2, '#2e8a2e'); px(x + 1, y + 3, 6, 3, '#3fae3f'); px(x + 3, y + 6, 2, 2, '#6b4424'); }); ic(1, (x, y) => { px(x, y + 5, 8, 3, '#d8c08a'); px(x, y + 5, 8, 1, '#b89c62'); }); ic(2, (x, y) => { px(x, y + 6, 8, 1, '#c03a2a'); px(x + 1, y + 3, 2, 3, '#c03a2a'); px(x + 3, y + 1, 2, 2, '#c03a2a'); px(x + 5, y + 3, 2, 3, '#c03a2a'); }); ic(3, (x, y) => { px(x, y + 2, 8, 2, '#ff5a4a'); px(x + 2, y + 2, 2, 2, '#fff'); px(x + 6, y + 2, 2, 2, '#fff'); px(x + 1, y + 4, 6, 4, '#c9a06a'); }); ic(4, (x, y) => { px(x + 2, y + 2, 4, 6, '#6a7078'); px(x + 1, y + 1, 6, 1, '#4a4f56'); }); ic(5, (x, y) => { px(x, y + 3, 8, 4, '#3a8fe0'); px(x + 1, y + 4, 2, 1, '#9fd4ff'); px(x + 5, y + 5, 2, 1, '#9fd4ff'); }); ic(6, (x, y) => { px(x, y + 4, 6, 3, '#ffc83d'); px(x + 6, y + 2, 2, 5, '#e0a21a'); px(x + 1, y + 7, 2, 1, '#333'); px(x + 4, y + 7, 2, 1, '#333'); }); ic(7, (x, y) => { txt('£', x + 1, y + 7, '#1f7a2a', 'P2P', 8); });
-  const guests = t < 8 ? 12 : t < 25 ? Math.round(lerp(12, 84, prog(t, 9, 14))) : 78;
+  const guests = t < 8 ? 12 : Math.round(lerp(12, 84, prog(t, 9, 14)));
   const wild = t < 9 ? 0.72 : t < 22.4 ? lerp(0.72, 0.28, prog(t, 9.5, 18)) : lerp(0.28, 0.93, prog(t, 22.6, 25.5));
   const tidy = t < 15 ? 0.85 : t < 22.4 ? lerp(0.85, 0.3, prog(t, 15.5, 18.5)) : lerp(0.3, 0.9, prog(t, 22.4, 24));
   const money = Math.round(t < 14 ? 4200 + t * 40 : t < 20.5 ? 4760 + (t - 14) * 300 : 6700 + (t - 20.5) * 120);
@@ -193,7 +193,7 @@ function frame(t) {
   bub(12, 12.5, 1.4, 'THE LITTER HERE IS REALLY BAD', 16.2, 19.4, true); bub(5.5, 12.5, 0.6, 'CRISPS... I FEEL SICK', 17, 19.4, true);
   bub(14.5, 8, 2, 'SHADE AT LAST', 24.5, 29.5); bub(8, 15.5, 1.4, 'I SAW A DEER!', 25, 29.5);
   // thought tally window
-  if (t >= 19.5 && t < 21.3) {
+  if (false) {
     const k = eio(prog(t, 19.5, 19.9)); const wx = 200, wy = lerp(H, 90, k);
     win(wx, wy, 240, 92, 'COUNT EVERY THOUGHT, ANIMALS TOO', '#2a8a5a');
     const a = Math.min(3, Math.floor(prog(t, 19.8, 20.3) * 3.99)), b = Math.min(8, Math.floor(prog(t, 20.1, 20.8) * 8.99));
@@ -211,8 +211,8 @@ function frame(t) {
   }
   // hook text
   if (t >= 0.6 && t < 3.4) { const a = prog(t, 0.6, 0.9) * (1 - prog(t, 3.1, 3.4)); g.globalAlpha = a; txtS('RUN A PARK.', W / 2, 270, '#ffffff', 'P2P', 16, 'center'); txtS('HIRE AN AI MANAGER.', W / 2, 296, '#ffe680', 'P2P', 12, 'center'); g.globalAlpha = 1; }
-  if (t >= 10.8 && t < 12.5) { g.globalAlpha = prog(t, 10.8, 11.1); txtS('IT DID EXACTLY WHAT YOU SAID.', W / 2, 320, '#ffffff', 'P2P', 12, 'center'); g.globalAlpha = 1; }
-  if (t >= 23.2 && t < 25.6) { g.globalAlpha = prog(t, 23.2, 23.5); txtS('SAY WHAT YOU MEAN.', W / 2, 52, '#ffffff', 'P2P', 12, 'center'); g.globalAlpha = 1; }
+  if (t >= 10.8 && t < 12.5) { g.globalAlpha = prog(t, 10.8, 11.1); px(W / 2 - 200, 304, 400, 24, '#13202bcc'); txtS('IT DID EXACTLY WHAT YOU SAID.', W / 2, 320, '#ffffff', 'P2P', 12, 'center'); g.globalAlpha = 1; }
+  if (t >= 23.2 && t < 25.6) { g.globalAlpha = prog(t, 23.2, 23.5); px(W / 2 - 130, 36, 260, 24, '#13202bcc'); txtS('SAY WHAT YOU MEAN.', W / 2, 52, '#ffffff', 'P2P', 12, 'center'); g.globalAlpha = 1; }
   // title
   if (t >= 30) {
     const a = prog(t, 30, 30.6);
