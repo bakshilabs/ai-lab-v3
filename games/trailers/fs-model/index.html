@@ -5,14 +5,14 @@
 .tile { border-radius: 18px; background: #f4f7f8; padding: 10px 10px 12px; border: 3px solid transparent; }
 .tile.dis { border-color: #ff5d4a; background: #fff3f1; }
 .tile.agree { border-color: #16c79a; background: #effcf7; }
-.tile .ph { height: 120px; border-radius: 12px; background: #dfe7ec; display: grid; place-items: center; }
+.tile .ph { height: 104px; border-radius: 12px; background: #dfe7ec; display: grid; place-items: center; }
 .tile .ph svg { width: 96px; height: 96px; }
-.tile .nm { font: 700 20px 'Inter'; color: #13202b; margin: 8px 2px 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.tile .lb { display: grid; gap: 6px; font: 800 20px 'Inter'; margin-top: 4px; }
+.tile .nm { font: 800 24px 'Inter'; color: #13202b; margin: 8px 2px 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tile .lb { display: grid; gap: 6px; font: 800 23px 'Inter'; margin-top: 4px; }
 .tile .lb span { border-radius: 8px; padding: 3px 8px; background: #fff; white-space: nowrap; }
 .tile .lb span.x { background: #ff5d4a; color: #fff; }
 .tile .lb span.ok { background: #16c79a; color: #fff; }
-.rules { margin: 8px 26px 22px; border-radius: 18px; background: #13202b; color: #fff; padding: 14px 22px; font: 700 27px/1.4 'Inter'; min-height: 116px; }
+.rules { margin: 8px 26px 22px; border-radius: 18px; background: #13202b; color: #fff; padding: 14px 22px; font: 700 30px/1.4 'Inter'; }
 .rules small { display: block; font: 800 19px 'Inter'; letter-spacing: .12em; text-transform: uppercase; color: #16c79a; margin-bottom: 4px; }
 .split { padding: 22px 30px 26px; }
 .split .bar { display: flex; height: 92px; border-radius: 18px; overflow: hidden; font: 800 28px 'Inter'; }
@@ -24,7 +24,7 @@
 .mx { padding: 14px 30px 22px; }
 .mx table { border-collapse: separate; border-spacing: 8px; margin: 0 auto; }
 .mx th { font: 800 19px 'Inter'; letter-spacing: .1em; text-transform: uppercase; color: #5b6b78; padding: 0 6px; }
-.mx td.c { width: 150px; height: 72px; border-radius: 14px; text-align: center; font: 800 36px 'Inter'; background: #f4f7f8; color: #13202b; }
+.mx td.c { width: 150px; height: 60px; border-radius: 14px; text-align: center; font: 800 36px 'Inter'; background: #f4f7f8; color: #13202b; }
 .mx td.c.d { background: #dcf7ee; color: #0b6e55; }
 .mx td.c.hot { background: #ff5d4a; color: #fff; box-shadow: 0 0 0 6px rgba(255,93,74,.25); }
 .mx td.rl { font: 800 24px 'Inter'; text-align: right; padding-right: 10px; white-space: nowrap; }
@@ -43,9 +43,9 @@ import { createStage, prog, ease, lerp, clamp, within } from '../engine/stage.js
 import { Vox, tree, house, person, particles, rand, noise2 } from '../engine/kit.js';
 import { el, cue, fader, titleCard } from '../engine/ui.js';
 import { clouds } from '../engine/extras.js';
-import { makeFS, SVG, typed, screenTex } from '../fs-data/fs-ui.js';
+import { makeFS, SVG, typed, screenTex, grow } from '../fs-data/fs-ui.js';
 
-const DUR = 43;
+const DUR = 39.4;
 const st = createStage({ sky: ['#5db6ff', '#d9efff'], post: false });
 const { scene, camera, sun, hemi, rim } = st;
 rim.intensity = 0.55; st.dome.visible = false; st.renderer.setClearColor(0x000000, 0);
@@ -131,8 +131,7 @@ screens.forEach((s, i) => {
 const wallTex = screenTex(512, 288, (g, w, h) => { g.fillStyle = '#fff'; g.fillRect(0, 0, w, h); g.fillStyle = '#13202b'; g.font = '800 28px Inter, sans-serif'; g.fillText('Line 2 sorter · training', 24, 44); g.strokeStyle = '#16c79a'; g.lineWidth = 8; g.beginPath(); g.moveTo(30, 260); g.quadraticCurveTo(120, 80, 480, 76); g.stroke(); g.fillStyle = '#5b6b78'; g.font = '700 22px Inter, sans-serif'; g.fillText('training accuracy 98%', 270, 120); });
 const wallScr = new THREE.Mesh(new THREE.PlaneGeometry(9, 5.06), new THREE.MeshBasicMaterial({ map: wallTex, toneMapped: false })); wallScr.position.set(-22, 4.8, -15.8); scene.add(wallScr);
 const wf = new THREE.Mesh(new THREE.BoxGeometry(9.6, 5.6, 0.3), new THREE.MeshLambertMaterial({ color: '#1d2731' })); wf.position.set(-22, 4.8, -15.98); scene.add(wf);
-const signTex = screenTex(512, 64, (g, w, h) => { g.fillStyle = '#13202b'; g.fillRect(0, 0, w, h); g.fillStyle = '#16c79a'; g.fillRect(16, 22, 20, 20); g.fillStyle = '#fff'; g.font = '800 30px Inter, sans-serif'; g.fillText('Tallowmere Recycling · Quality Lab', 50, 43); });
-const sign = new THREE.Mesh(new THREE.PlaneGeometry(10, 1.25), new THREE.MeshBasicMaterial({ map: signTex, toneMapped: false })); sign.position.set(4, 6.4, -15.9); scene.add(sign);
+
 // bin labels
 ['METAL', 'CARTON', 'FILM'].forEach((n, i) => { const tx = screenTex(256, 64, (g, w, h) => { g.fillStyle = '#13202b'; g.fillRect(0, 0, w, h); g.fillStyle = '#fff'; g.font = '800 36px Inter, sans-serif'; g.textAlign = 'center'; g.fillText(n, w / 2, 45); }); const m = new THREE.Mesh(new THREE.PlaneGeometry(3.2, 0.8), new THREE.MeshBasicMaterial({ map: tx, toneMapped: false })); m.position.set(25.5, 2.4, BINS[i][1] + 1.52); scene.add(m); });
 
@@ -167,38 +166,37 @@ const op = person({ shirt: '#f2a31b', pants: '#2c3e66', skin: '#e0b08a', hair: '
 const hat = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.35, 1.0), new THREE.MeshLambertMaterial({ color: '#ffd23f' })); hat.position.set(-0.18, 3.15, -0.2); op.add(hat);
 
 // ---------- timeline ----------
-// 0-3.8 title | 3.8-8.4 brief | 8.4-13.4 labelling rules | 13.4-17.6 hold back a test set | 17.6-21.6 AI claims 98% | 21.6-30 review: Case red, 71%, confusion matrix | 30-34.6 model card + sign-off | 34.6-37.6 portfolio | 37.6-43 pathway
+// 0-2.4 title | 2.4-5.6 brief | 5.6-10.8 labelling rules | 10.8-15.4 AI claims 98% | 15.4-24.8 review: Data red -> held-back test 71% -> Case red | 24.8-31 model card + sign-off | 31-33.6 portfolio | 33.6-39.4 pathway
+const T = { title: 0.2, brief: 2.4, lab: 5.6, ai: 11.0, rev: 15.4, fix: 24.8, fly: 31.0, end: 33.6 };
 const K = [
-  { t: 0, ang: -0.75, dist: 150, hgt: 105, look: [0, -2, 0], ox: 0 },
-  { t: 3.6, ang: -0.5, dist: 118, hgt: 82, look: [-2, -2, 0], ox: 0 },
-  { t: 5.0, ang: -0.4, dist: 70, hgt: 50, look: [-18, 1, -5], ox: 430 },
-  { t: 8.2, ang: -0.34, dist: 62, hgt: 45, look: [-18, 1, -5], ox: 430 },
-  { t: 9.4, ang: -0.22, dist: 34, hgt: 23, look: [-15.5, 2, -2.5], ox: 470 },
-  { t: 13.2, ang: -0.16, dist: 31, hgt: 21, look: [-15.5, 2, -2.5], ox: 470 },
-  { t: 14.8, ang: -0.1, dist: 50, hgt: 32, look: [6, 3, -7], ox: 440 },
-  { t: 21.4, ang: 0.02, dist: 46, hgt: 30, look: [8, 3, -7], ox: 440 },
-  { t: 23.0, ang: 0.12, dist: 40, hgt: 26, look: [13, 3.5, -7], ox: 440 },
-  { t: 29.6, ang: 0.2, dist: 38, hgt: 25, look: [13, 3.5, -7], ox: 440 },
-  { t: 30.8, ang: -0.22, dist: 34, hgt: 23, look: [-15.5, 2, -2.5], ox: 470 },
-  { t: 34.4, ang: -0.18, dist: 31, hgt: 21, look: [-15.5, 2, -2.5], ox: 470 },
-  { t: 36.4, ang: -0.3, dist: 90, hgt: 62, look: [-4, 0, -2], ox: 320 },
-  { t: 38.2, ang: 0.0, dist: 130, hgt: 90, look: [0, -3, 0], ox: 0 },
-  { t: 43, ang: 0.25, dist: 140, hgt: 96, look: [0, -3, 0], ox: 0 },
+  { t: 0, ang: -0.75, dist: 165, hgt: 115, look: [0, -2, 0], ox: 0, oy: 0 },
+  { t: 2.0, ang: -0.62, dist: 150, hgt: 104, look: [-2, -2, 0], ox: 0, oy: 0 },
+  { t: 4.0, ang: -0.46, dist: 100, hgt: 70, look: [-10, 0, -2], ox: 380, oy: 0 },
+  { t: 5.8, ang: -0.42, dist: 88, hgt: 62, look: [-13, 0, -3], ox: 390, oy: 0 },
+  { t: 10.6, ang: -0.32, dist: 84, hgt: 58, look: [-13, 0, -3], ox: 390, oy: 0 },
+  { t: 12.0, ang: -0.12, dist: 92, hgt: 64, look: [5, 0, -5], ox: 390, oy: 0 },
+  { t: 17.4, ang: 0.02, dist: 90, hgt: 62, look: [7, 0, -5], ox: 390, oy: 0 },
+  { t: 18.6, ang: 0.2, dist: 84, hgt: 58, look: [14, 0, -6], ox: 390, oy: 0 },
+  { t: 24.4, ang: 0.26, dist: 82, hgt: 56, look: [14, 0, -6], ox: 390, oy: 0 },
+  { t: 25.8, ang: -0.28, dist: 118, hgt: 82, look: [-2, 0, -2], ox: 400, oy: 0 },
+  { t: 31.0, ang: -0.2, dist: 114, hgt: 80, look: [-2, 0, -2], ox: 400, oy: 0 },
+  { t: 33.2, ang: -0.12, dist: 140, hgt: 96, look: [0, -2, 0], ox: 200, oy: 40 },
+  { t: 34.4, ang: -0.05, dist: 150, hgt: 104, look: [0, -3, 0], ox: 0, oy: 62 },
+  { t: 39.4, ang: 0.2, dist: 154, hgt: 106, look: [0, -3, 0], ox: 0, oy: 62 },
 ];
 function camAt(t) {
   let i = 0; while (i < K.length - 2 && t > K[i + 1].t) i++;
   const a = K[i], b = K[i + 1]; const k = ease.inOut(clamp((t - a.t) / (b.t - a.t)));
   const L = (p) => lerp(a[p], b[p], k);
-  return { ang: L('ang'), dist: L('dist'), hgt: L('hgt'), ox: L('ox'), look: a.look.map((q, j) => lerp(q, b.look[j], k)) };
+  return { ang: L('ang'), dist: L('dist'), hgt: L('hgt'), ox: L('ox'), oy: L('oy'), look: a.look.map((q, j) => lerp(q, b.look[j], k)) };
 }
-const NIGHT = [23.6, 29.8];
+const CH = { data: 16.0, dataR: 16.8, test: 17.8, fill: 18.4, score: 19.4, hot: 19.85, case: 21.0, caseR: 21.6, src: 22.0, auth: 22.4, verdict: 23.0 };
+const NIGHT = [18.0, 23.2];
 let heroS = -1, wallS = -1;
-const wallMx = (g, w, h) => { mxDraw(g, w, h); g.fillStyle = '#13202b'; g.font = '800 26px Inter, sans-serif'; g.fillText('Held-back test: 71%', 270, 140); };
 st.onFrame((t) => {
   updClouds(t);
-  const hs = t < 13.4 ? 0 : t < 25.6 ? 1 : 2; if (hs !== heroS) { heroS = hs; heroTex.redraw([gridDraw, curveDraw, mxDraw][hs]); }
-  const ws = t < 25.6 ? 0 : 1; if (ws !== wallS) { wallS = ws; if (ws) wallTex.redraw((g, w, h) => { g.fillStyle = '#fff'; g.fillRect(0, 0, w, h); g.fillStyle = '#13202b'; g.font = '800 28px Inter, sans-serif'; g.fillText('Held-back test set · 71%', 24, 44); const M = [[15, 1, 0], [2, 7, 7], [0, 4, 12]]; M.forEach((r, i) => r.forEach((k, j) => { g.fillStyle = i === 1 && j === 2 ? '#ff5d4a' : i === j ? '#16c79a' : '#e6ebee'; g.fillRect(120 + j * 96, 70 + i * 68, 88, 60); g.fillStyle = (i === j || (i === 1 && j === 2)) ? '#fff' : '#13202b'; g.font = '800 30px Inter, sans-serif'; g.fillText(String(k), 152 + j * 96, 112 + i * 68); })); }); }
-  // belt items
+  const hs = t < CH.fill ? (t < T.ai ? 0 : 1) : 2; if (hs !== heroS) { heroS = hs; heroTex.redraw([gridDraw, curveDraw, mxDraw][hs]); }
+  const ws = t < CH.score ? 0 : 1; if (ws !== wallS) { wallS = ws; if (ws) wallTex.redraw((g, w, h) => { g.fillStyle = '#fff'; g.fillRect(0, 0, w, h); g.fillStyle = '#13202b'; g.font = '800 28px Inter, sans-serif'; g.fillText('Held-back test · 71%', 24, 44); const M = [[15, 1, 0], [2, 7, 7], [0, 4, 12]]; M.forEach((r, i) => r.forEach((k, j) => { g.fillStyle = i === 1 && j === 2 ? '#ff5d4a' : i === j ? '#16c79a' : '#e6ebee'; g.fillRect(120 + j * 96, 70 + i * 68, 88, 60); g.fillStyle = (i === j || (i === 1 && j === 2)) ? '#fff' : '#13202b'; g.font = '800 30px Inter, sans-serif'; g.fillText(String(k), 152 + j * 96, 112 + i * 68); })); }); }
   const night = within(t, NIGHT[0], NIGHT[1]) ? clamp(Math.min(t - NIGHT[0], NIGHT[1] - t) / 0.5) : 0;
   ITEMS.forEach(([m, k], i) => { const u = (t * 1.1 + i * 3.1) % 27.9; m.position.set(-6 + u, 4, -7.5 + (k === 1 ? -0.15 : 0)); m.visible = u > 0.6 && u < 27.2; });
   cone.material.opacity = 0.16 + Math.sin(t * 6) * 0.05;
@@ -207,7 +205,7 @@ st.onFrame((t) => {
   crew.forEach((p, i) => { p.children[2].rotation.x = Math.sin(t * 3 + i * 2) * 0.04; });
   op.rotation.y = Math.PI + Math.sin(t * 0.7) * 0.4;
   const c = camAt(t);
-  camera.fov = 30; camera.setViewOffset(1920, 1080, c.ox, 0, 1920, 1080); camera.updateProjectionMatrix();
+  camera.fov = 30; camera.setViewOffset(1920, 1080, c.ox, c.oy, 1920, 1080); camera.updateProjectionMatrix();
   camera.position.set(Math.sin(c.ang) * c.dist + c.look[0], c.hgt + c.look[1], Math.cos(c.ang) * c.dist + c.look[2]);
   camera.lookAt(c.look[0], c.look[1], c.look[2]);
 });
@@ -215,14 +213,15 @@ st.onFrame((t) => {
 // ---------- UI ----------
 const ui = []; const A = (fn) => ui.push(fn);
 const FS = makeFS(A, camera);
-const fade = fader(); A((t) => fade(t < 0.5 ? 1 - prog(t, 0, 0.5) : t > DUR - 0.6 ? prog(t, DUR - 0.6, DUR) : 0));
-const dimT = el('<div class="dim" style="background:radial-gradient(ellipse 60% 45% at 50% 45%, rgba(8,32,60,.62), rgba(8,32,60,.18))"></div>'); A(cue(dimT, 0, 3.5, { from: 'fade', dur: 0.3 }));
-const title = titleCard('Model <span class="hl">Test Lab</span>', 'Hold back a test set. Read the matrix.', { chip: 'DeltaOps Learning · Future Skills' }); A(cue(title, 0.4, 3.5, { from: 'pop', dur: 0.7 }));
-FS.appbar('Model Test Lab', 3.9, 37.4, SVG.mark);
+const fade = fader(); A((t) => fade(t < 0.4 ? 1 - prog(t, 0, 0.4) : t > DUR - 0.5 ? prog(t, DUR - 0.5, DUR) : 0));
+const dimT = el('<div class="dim" style="background:radial-gradient(ellipse 60% 45% at 50% 45%, rgba(8,32,60,.5), rgba(8,32,60,.1))"></div>'); A(cue(dimT, 0, 2.1, { from: 'fade', dur: 0.3 }));
+const title = titleCard('Model <span class="hl">Test Lab</span>', 'Hold back a test set. Read the matrix.', { chip: 'DeltaOps Learning · Future Skills' }); A(cue(title, T.title, 2.1, { from: 'pop', dur: 0.6 }));
+FS.appbar('Model Test Lab', 2.3, 33.0, SVG.mark);
 
-FS.brief({ from: 'Tallowmere Recycling · Quality Lead', task: 'Test the sorting camera before it goes live on Line 2', deliver: 'A model card the plant can trust', due: 'Friday' }, 4.2, 8.4, { x: 1000, y: 150 });
-FS.caption('<b>Sofia</b>ML engineer', () => new THREE.Vector3(-12.4, 5.6, -0.6), 4.8, 13.2);
-FS.caption('<b>Kofi, 13</b>model tester', () => new THREE.Vector3(-16.6, 3.9, -1.25), 9.6, 13.2, { cls: 'teal' });
+const brief = FS.brief({ from: 'Tallowmere Recycling · Quality Lead', task: 'Test the sorting camera before it goes live on Line 2', deliver: 'A model card the plant can trust', due: 'Friday' }, T.brief, T.lab, { x: 1000, y: 150 });
+A((t) => brief.querySelectorAll('.row').forEach((r, i) => { const k = prog(t, T.brief + 0.3 + i * 0.35, T.brief + 0.6 + i * 0.35, ease.out); r.style.opacity = k; r.style.transform = `translateX(${(1 - k) * 30}px)`; }));
+FS.caption('<b>Sofia</b>ML engineer', () => new THREE.Vector3(-12.4, 5.6, -0.6), 3.2, 5.5);
+FS.caption('<b>Kofi, 13</b>model tester', () => new THREE.Vector3(-16.6, 3.9, -1.25), 5.9, 10.6, { cls: 'teal' });
 
 // photo icons
 const PH = {
@@ -231,77 +230,77 @@ const PH = {
   carton: '<svg viewBox="0 0 40 40"><path d="M12 13l8-6 8 6v21H12z" fill="#f4f1ea" stroke="#9aa4ad" stroke-width="1.5"/><rect x="12" y="19" width="16" height="7" fill="#3a7fd8"/></svg>',
   foil: '<svg viewBox="0 0 40 40"><path d="M12 13l8-6 8 6v21H12z" fill="#c9ced3" stroke="#7b8085" stroke-width="1.5"/><rect x="12" y="19" width="16" height="7" fill="#f2a31b"/></svg>',
 };
+// labelling tool: two labellers disagree, write rules, then agree
 const TILES = [['can', 'Can', 'Metal', 'Metal'], ['crushed', 'Crushed can', 'Metal', 'Film'], ['carton', 'Carton', 'Carton', 'Carton'], ['foil', 'Foil carton', 'Carton', 'Film']];
 const RULES = ['1. A crushed can is still Metal.', '2. A foil-lined carton is a Carton.'];
-const lab = FS.card(`<div class="fs-top"><span class="ttl"><span class="ic">${SVG.grid()}</span>Labelling tool · 20 photos</span><span class="fs-pill amber" data-ag>Agree: 14 / 20</span></div>
-  <div class="tiles" data-tiles></div><div class="rules"><small>Labelling rules · Kofi &amp; Zara</small><div data-rules></div></div>`, 8.6, 13.4, { x: 1000, y: 150, w: 874, from: 'right' });
+const LT = { dis: 6.3, r1: [6.9, 8.2], fix1: 8.3, r2: [8.6, 9.9], fix2: 10.0 };
+const lab = FS.card(`<div class="fs-top"><span class="ttl"><span class="ic">${SVG.grid()}</span>Labelling · 20 photos</span><span class="fs-pill amber" data-ag>Agree: 14 / 20</span></div>
+  <div class="tiles" data-tiles></div><div class="rules"><small>Our labelling rules</small><div data-rules></div></div>`, T.lab + 0.3, T.ai, { x: 1000, y: 150, w: 874, from: 'right' });
 A((t) => {
-  const fixed = [false, t > 12.0, false, t > 12.8];
-  const html = TILES.map(([k, n, a, b], i) => { const dis = a !== b; const ok = dis && fixed[i]; return `<div class="tile ${dis ? (ok ? 'agree' : t > 9.4 ? 'dis' : '') : ''}"><div class="ph">${PH[k]}</div><div class="nm">${n}</div><div class="lb"><span>Zara: ${a}</span><span class="${dis ? (ok ? 'ok' : t > 9.4 ? 'x' : '') : ''}">Kofi: ${ok ? a : b}</span></div></div>`; }).join('');
+  const fixed = [false, t > LT.fix1, false, t > LT.fix2];
+  const html = TILES.map(([k, n, a, b], i) => { const dis = a !== b; const ok = dis && fixed[i]; return `<div class="tile ${dis ? (ok ? 'agree' : t > LT.dis ? 'dis' : '') : ''}"><div class="ph">${PH[k]}</div><div class="nm">${n}</div><div class="lb"><span>Zara: ${a}</span><span class="${dis ? (ok ? 'ok' : t > LT.dis ? 'x' : '') : ''}">Kofi: ${ok ? a : b}</span></div></div>`; }).join('');
   const tl = lab.querySelector('[data-tiles]'); if (tl.dataset.h !== html) { tl.innerHTML = html; tl.dataset.h = html; }
-  const r = lab.querySelector('[data-rules]'); r.innerHTML = typed(RULES[0], t, 10.2, 11.6) + '<br>' + typed(RULES[1], t, 11.8, 12.8);
-  const ag = lab.querySelector('[data-ag]'); const done = t > 12.9; ag.textContent = done ? 'Agree: 19 / 20' : 'Agree: 14 / 20'; ag.className = 'fs-pill ' + (done ? 'teal' : 'amber');
+  const r = lab.querySelector('[data-rules]'); const r1 = typed(RULES[0], t, ...LT.r1), r2 = typed(RULES[1], t, ...LT.r2);
+  const rh = (r1 || '…') + (r2 ? '<br>' + r2 : ''); if (r.dataset.h !== rh) { r.innerHTML = rh; r.dataset.h = rh; }
+  const ag = lab.querySelector('[data-ag]'); const done = t > LT.fix2 + 0.1; ag.textContent = done ? 'Agree: 19 / 20' : 'Agree: 14 / 20'; ag.className = 'fs-pill ' + (done ? 'teal' : 'amber');
 });
 
-// split: hold back a test set
-const split = FS.card(`<div class="fs-top"><span class="ttl"><span class="ic">${SVG.flask()}</span>Dataset · 240 photos</span><span class="fs-pill grey" data-sp>Split the data</span></div>
-  <div class="split"><div class="bar"><div class="tr" data-tr>Training · 192</div><div class="te" data-te>${SVG.lock('#fff')} Test · 48</div></div>
-  <div class="lg"><span class="fs-pill teal">Model learns from these</span><span class="fs-pill ink" data-lk>Held back · never seen</span><span class="fs-pill amber">Includes night-shift photos</span></div></div>`, 13.6, 21.6, { x: 1000, y: 150, w: 874, from: 'right' });
-A((t) => { const k = prog(t, 14.3, 15.3, ease.out); split.querySelector('[data-tr]').style.flex = String(lerp(1, 0.72, k)); split.querySelector('[data-te]').style.flex = String(lerp(0.0001, 0.28, k)); const sp = split.querySelector('[data-sp]'); sp.textContent = t > 15.4 ? 'Test set locked' : 'Split the data'; sp.className = 'fs-pill ' + (t > 15.4 ? 'ink' : 'grey'); split.querySelectorAll('.lg span').forEach((s, i) => { s.style.opacity = prog(t, 15.4 + i * 0.35, 15.7 + i * 0.35); }); });
-FS.caption('<b>Model camera</b>sorts Line 2', () => new THREE.Vector3(8, 10.6, -7), 15.0, 21.4, { cls: 'teal' });
-FS.ai({ text: 'Trained and tested: accuracy 98%. The sorter is ready to go live on Line 2.', sure: 97, data: 'Training photos · 192' }, 17.8, 21.6, { x: 1000, y: 520, w: 874 });
+// the AI colleague's claim: its data line shows the flaw (it was scored on its own training photos)
+FS.caption('<b>Model camera</b>sorts Line 2', () => new THREE.Vector3(8, 10.6, -7), 11.4, 15.2, { cls: 'teal' });
+const ai = FS.ai({ text: 'Tested: 98% accurate. The sorter is ready to go live on Line 2.', sure: 98, data: '192 day-shift photos · trained and tested on them' }, T.ai + 0.3, CH.test, { x: 1000, y: 150, w: 874 });
+const ai2 = FS.ai({ text: 'Tested: 98% accurate. The sorter is ready to go live on Line 2.', sure: 98, data: '192 day-shift photos · trained and tested on them' }, CH.verdict + 0.4, T.fix, { x: 1000, y: 560, w: 874, from: 'up' });
+A((t) => { ai.style.top = lerp(150, 560, prog(t, T.rev, T.rev + 0.6)) + 'px'; });
+FS.aiReact(ai, { flagAt: CH.dataR, retAt: 99 });
+FS.aiReact(ai2, { flagAt: 0, retAt: CH.verdict + 0.8, sure2: 71, sureNote: 'on new photos' });
 
-// review
+// review: Data, then the held-back test as evidence, then Case, Source, Authority
 const rev = FS.card(`<div class="fs-top"><span class="ttl"><span class="ic">${SVG.check()}</span>Review: “98%, ready to go live”</span><span class="fs-pill grey" data-verdict>Checking</span></div>
-  <div style="padding:18px 30px 6px">${FS.checksHTML()}</div><div style="padding:4px 30px 10px" data-notes></div>`, 21.8, 30.0, { x: 1000, y: 150, w: 874, from: 'right' });
-const CH = { data: 22.3, case: 22.9, caseR: 23.6, src: 28.2, auth: 28.6 };
-FS.bindChecks(rev, (t) => [t < CH.data ? 'idle' : t < CH.data + 0.4 ? 'run' : 'ok', t < CH.case ? 'idle' : t < CH.caseR ? 'run' : 'bad', t < CH.src ? 'idle' : t < CH.src + 0.3 ? 'run' : 'ok', t < CH.auth ? 'idle' : t < CH.auth + 0.3 ? 'run' : 'ok']);
-const notes = rev.querySelector('[data-notes]'), verdict = rev.querySelector('[data-verdict]');
+  <div style="padding:18px 30px 8px">${FS.checksHTML()}</div>
+  <div style="padding:0 30px 10px"><div class="fs-note" data-n0><i style="background:#ff5d4a">✕</i><span><b>Data:</b> scored on the photos it learned from. No held-back test, no night-shift photos.</span></div>
+  <div class="fs-note" data-n1><i style="background:#ff5d4a">✕</i><span><b>Case:</b> Line 2 runs at night. Under orange light, cartons are read as Film.</span></div></div>`, T.rev + 0.35, T.fix, { x: 1000, y: 150, w: 874, from: 'down' });
+FS.bindChecks(rev, (t) => [t < CH.data ? 'idle' : t < CH.dataR ? 'run' : 'bad', t < CH.case ? 'idle' : t < CH.caseR ? 'run' : 'bad', t < CH.src ? 'idle' : t < CH.src + 0.3 ? 'run' : 'ok', t < CH.auth ? 'idle' : t < CH.auth + 0.3 ? 'run' : 'ok']);
+const n0 = rev.querySelector('[data-n0]'), n1 = rev.querySelector('[data-n1]'), verdict = rev.querySelector('[data-verdict]');
 A((t) => {
-  let h = '';
-  if (t >= CH.caseR && t < 27.4) h = `<div class="fs-note"><i style="background:#ff5d4a">✕</i><span><b>Case:</b> the 98% came from photos it trained on. Run it on the 48 held-back photos.</span></div>`;
-  if (t >= 27.4) h = `<div class="fs-note"><i style="background:#13202b">→</i><span><b>New photos: 71%, not 98%.</b> Send it back. Fix the data, then re-test.</span></div>`;
-  if (notes.dataset.h !== h) { notes.innerHTML = h; notes.dataset.h = h; }
-  const vd = t >= 27.4 ? ['red', 'Send back'] : t >= CH.caseR ? ['red', '1 check failed'] : ['grey', 'Checking'];
+  grow(n0, prog(t, CH.dataR, CH.dataR + 0.4, ease.out), 140); grow(n1, prog(t, CH.caseR, CH.caseR + 0.4, ease.out), 140);
+  const vd = t >= CH.verdict ? ['red', 'Send back'] : t >= CH.caseR ? ['red', '2 checks failed'] : t >= CH.dataR ? ['red', '1 check failed'] : ['grey', 'Checking'];
   verdict.className = 'fs-pill ' + vd[0]; verdict.textContent = vd[1];
 });
+// evidence: run the model on 48 photos it has never seen (day and night shift)
 const M = [[15, 1, 0], [2, 7, 7], [0, 4, 12]]; const NM = ['Metal', 'Carton', 'Film'];
-const mx = FS.card(`<div class="fs-top"><span class="ttl"><span class="ic">${SVG.grid()}</span>Held-back test · 48 photos</span><span class="big" data-acc>98%</span></div>
+const mx = FS.card(`<div class="fs-top"><span class="ttl"><span class="ic">${SVG.lock()}</span>Held-back test · 48 new photos</span><span class="big" data-acc style="opacity:0">71%</span></div>
   <div class="mx"><table><tr><th></th><th colspan="3" style="text-align:center">Model said</th></tr><tr><th></th>${NM.map((n) => `<th>${n}</th>`).join('')}</tr>
-  ${M.map((r, i) => `<tr><td class="rl">${i === 0 ? '<span style="display:block;font:800 17px Inter;letter-spacing:.1em;color:#5b6b78">REALLY</span>' : ''}${NM[i]}</td>${r.map((k, j) => `<td class="c${i === j ? ' d' : ''}" data-c="${i}${j}">${k}</td>`).join('')}</tr>`).join('')}</table>
-  <div class="cap" data-cap>Cartons under orange night light are read as Film</div></div>`, 24.2, 30.0, { x: 1000, y: 560, w: 874, from: 'up' });
+  ${M.map((r, i) => `<tr><td class="rl">${i === 0 ? '<span style="display:block;font:800 18px Inter;letter-spacing:.1em;color:#5b6b78">REALLY</span>' : ''}${NM[i]}</td>${r.map((k, j) => `<td class="c${i === j ? ' d' : ''}" data-c="${i}${j}">${k}</td>`).join('')}</tr>`).join('')}</table>
+  <div class="cap" data-cap>Cartons under orange night light → read as Film</div></div>`, CH.test + 0.35, CH.verdict, { x: 1000, y: 560, w: 874, from: 'up' });
 A((t) => {
-  const acc = Math.round(lerp(98, 71, prog(t, 24.6, 25.8, ease.out))); const a = mx.querySelector('[data-acc]'); a.textContent = acc + '%'; a.style.color = acc < 90 ? '#c0392b' : '#13202b';
-  mx.querySelectorAll('[data-c]').forEach((c, n) => { c.style.opacity = prog(t, 25.6 + n * 0.08, 25.9 + n * 0.08); c.classList.toggle('hot', c.dataset.c === '12' && t > 26.6); });
-  mx.querySelector('[data-cap]').style.opacity = prog(t, 26.7, 27.0);
+  mx.querySelectorAll('[data-c]').forEach((c, n) => { c.style.opacity = prog(t, CH.fill + n * 0.08, CH.fill + 0.25 + n * 0.08); c.classList.toggle('hot', c.dataset.c === '12' && t > CH.hot); });
+  const a = mx.querySelector('[data-acc]'); const k = prog(t, CH.score, CH.score + 0.35, ease.back); a.style.opacity = clamp(k); a.style.color = '#c0392b'; a.style.transform = `scale(${0.6 + 0.4 * k})`; a.style.display = 'inline-block';
+  grow(mx.querySelector('[data-cap]'), prog(t, CH.hot + 0.1, CH.hot + 0.4, ease.out), 60);
 });
-FS.caption('<b>Night-shift light</b>orange, dimmer', () => new THREE.Vector3(15.5, 11.2, -7.5), 24.0, 29.8, { cls: 'teal' });
-FS.caption('<b>Carton → Film ✕</b>cartons under this light', () => new THREE.Vector3(16.2, 5.2, -6.5), 26.8, 29.8, { cls: 'red' });
+FS.caption('<b>Night-shift light</b>orange, dimmer', () => new THREE.Vector3(15.5, 11.4, -7.5), 18.3, 22.9, { cls: 'teal' });
+FS.caption('<b>Carton → Film ✕</b>under this light', () => new THREE.Vector3(17, 5.0, -6.5), CH.hot + 0.2, 22.9, { cls: 'red' });
 
-// fix: the model card + sign-off
+// fix: the model card grows row by row, then sign-off
 const card = FS.card(`<div class="fs-top"><span class="ttl"><span class="ic">${SVG.doc()}</span>Model Card · Line 2 sorter</span><span class="fs-pill amber" data-st>Editing</span></div>
   <div class="fs-doc" style="padding-top:12px"><div class="mc">
   <div>Fix</div><div data-fix></div>
-  <div>Held-back test</div><div data-acc2 style="opacity:0"><del>98%</del> <span style="color:#c0392b">71%</span> → <ins>90% on a new held-back set</ins></div>
-  <div>Known failure</div><div data-kf style="opacity:0">Dim orange light</div>
-  <div>Do not use for</div><div data-dn style="opacity:0">Batteries or hazardous waste</div></div>
-  <div data-sign style="opacity:0;margin-top:18px">${FS.signHTML('Kofi', 13, 'Signed off · sent to Tallowmere Recycling')}</div></div>`, 30.2, null, { x: 1000, y: 150, w: 874, from: 'right' });
-const FIXT = 'Add 40 night-shift carton photos, label with Rule 2, retrain.';
+  <div data-r1a>Held-back test</div><div data-r1b><del>98%</del> <span style="color:#c0392b">71%</span> → <ins>93% on new photos</ins></div>
+  <div data-r2a>Known limit</div><div data-r2b>Very dim light</div>
+  <div data-r3a>Do not use for</div><div data-r3b>Batteries or hazardous waste</div></div>
+  <div data-sign style="margin-top:18px">${FS.signHTML('Kofi', 13, 'Checks passed: 4 of 4 · signed off')}</div></div>`, T.fix + 0.35, null, { x: 1000, y: 150, w: 874, from: 'right' });
+const FIXT = 'Add 60 night-shift photos, label with Rule 2, retrain.';
+const SIGN = 28.6;
 A((t) => {
-  card.querySelector('[data-fix]').textContent = typed(FIXT, t, 30.8, 32.0);
-  card.querySelector('[data-acc2]').style.opacity = prog(t, 32.2, 32.5);
-  card.querySelector('[data-kf]').style.opacity = prog(t, 32.7, 33.0);
-  card.querySelector('[data-dn]').style.opacity = prog(t, 33.1, 33.4);
-  const s = card.querySelector('[data-sign]'); const k = prog(t, 33.6, 34.0, ease.back); s.style.opacity = clamp(k); s.style.transform = `scale(${0.8 + 0.2 * k})`;
-  const p = card.querySelector('[data-st]'); const done = t > 33.7; p.className = 'fs-pill ' + (done ? 'teal' : 'amber'); p.textContent = done ? 'Signed off' : 'Editing';
+  card.querySelector('[data-fix]').textContent = typed(FIXT, t, 25.5, 26.9) || '…';
+  [[27.1, 'r1'], [27.6, 'r2'], [28.1, 'r3']].forEach(([t0, r]) => { const k = prog(t, t0, t0 + 0.3, ease.out); grow(card.querySelector(`[data-${r}a]`), k, 90); grow(card.querySelector(`[data-${r}b]`), k, 90); });
+  const s = card.querySelector('[data-sign]'); grow(s, prog(t, SIGN, SIGN + 0.35, ease.out), 140); const k = prog(t, SIGN, SIGN + 0.4, ease.back); s.style.transform = `scale(${0.85 + 0.15 * k})`;
+  const p = card.querySelector('[data-st]'); const done = t > SIGN + 0.1; p.className = 'fs-pill ' + (done ? 'teal' : 'amber'); p.textContent = done ? 'Signed off' : 'Editing';
 });
-const folder = FS.folder('Portfolio', 'Kofi · 0 pieces', 34.6, 37.6, { x: 1500, y: 760 }); folder.paperAt(36.0);
-FS.fly(card, 35.0, 36.2, { dx: 1560 - 1000, dy: 790 - 150, s: 0.22, fadeAt: 0.8 });
-A((t) => { folder.querySelector('[data-sub]').textContent = t > 36.1 ? 'Model Card added' : 'Kofi · 0 pieces'; });
+const folder = FS.folder('Portfolio', 'Kofi · 0 pieces', T.fly + 0.3, 33.4, { x: 1500, y: 790 }); folder.paperAt(32.1);
+FS.fly(card, T.fly, 32.2, { dx: 1560 - 1000, dy: 820 - 150, s: 0.2, fadeAt: 0.75 });
+A((t) => { folder.querySelector('[data-sub]').textContent = t > 32.1 ? 'Model Card added' : 'Kofi · 0 pieces'; });
 
-const dimE = el('<div class="dim"></div>'); A(cue(dimE, 37.6, null, { from: 'fade', dur: 0.6 }));
-FS.pathway({ lab: 'Model Test Lab', next: 'Experience AI Foundations', nextSub: 'Free · or Machine Learning for Kids', award: 'CREST Machine Learning Bronze', awardSub: 'Project brief', route: 'A-level Computer Science', routeSub: 'or Level 4 AI &amp; Automation Practitioner apprenticeship', jobs: ['ML engineer', 'Data annotator', 'QA test engineer'] }, 38.0, null);
-const logo = el('<img src="../assets/logo-learning-white.svg" style="height:58px">', { x: 960, y: 900, anchor: 'c' }); A(cue(logo, 38.8, null, { from: 'up' }));
+FS.endTitle('Model Test Lab', 'Hold back a test set. Read the matrix.', T.end);
+FS.pathway({ next: 'Experience AI Foundations', nextSub: 'Free · or Machine Learning for Kids', award: 'CREST Machine Learning Bronze', awardSub: 'Project brief', route: 'A-level Computer Science', routeSub: 'or Level 4 AI &amp; Automation Practitioner apprenticeship', jobs: ['ML engineer', 'Data annotator', 'QA test engineer'] }, T.end + 0.6, null);
 
 st.onFrame((t) => ui.forEach((fn) => fn(t)));
 window.__duration = DUR;

@@ -3,7 +3,7 @@
 > Strand: Future Skills · Ages: 11–16 (Core 11–13, Pro 14–16) · Session: 45 / 60 / 90 min · Trailer: `games/trailers/fs-data/` (`out/fs-data.mp4`, not yet rendered)
 
 ## 1. Summary
-Learners join the Harbourside Council Insight Team as junior data analysts. Their brief is to answer a councillor's question, "Which wards need more streetlight repairs?", using 120 synthetic fault reports. They clean the data, draw one chart and review the AI colleague's finding: "Old Quay has the fewest faults, so its streetlights are in the best condition" (94% sure). It fails the **Data check**: most Old Quay residents are over 65, few use the reporting app, and 9 streets sent no reports. Learners rewrite the finding, propose better data and sign off a one-page Data Brief. The lesson: **few reports is not the same as few faults**, and an analyst owns the conclusion, not the tool.
+Learners join the Harbourside Council Insight Team as junior data analysts. Their brief is to answer a councillor's question, "Which wards need more streetlight repairs?", using 120 synthetic fault reports. They clean the data, draw one chart and review the AI colleague's finding: "Old Quay has the fewest faults, so its repairs can wait" (94% sure). It fails the **Data check**: most Old Quay residents are over 65, few use the reporting app, and 9 streets sent no reports. Learners rewrite the finding, propose better data and sign off a one-page Data Brief. The lesson: **few reports is not the same as few faults**, and an analyst owns the conclusion, not the tool.
 
 ## 2. Learning outcomes
 By the end, learners can:
@@ -37,7 +37,7 @@ By the end, learners can:
 | 2. Inspect | Find what's wrong before cleaning | Scan by column · sort by Ref · filter by ward | "Check the data" → "Data is clean: 120 valid rows" (91%) | **Data:** sort by Ref shows F-032 twice; ward filter shows "Harbr side" | Data-quality log, one line per issue | Rows highlight; log pills appear |
 | 3. Clean | Fix issues without inventing data | Blanks: A set to 0 · B delete row · C mark "unknown" | "Fill gaps" → fills blank Faults with 0 (86%) | **Case:** ask what 0 means: "inspected and fine", not "not recorded" | Rule: "Blank is not 0" | 120 rows → 112 clean rows; four teal log pills |
 | 4. Chart | Show the answer to the question | Bar chart of reports · pie chart · bar chart with a note | *(unsure but right)* "Possible gap: Old Quay has far fewer rows than other wards. Check coverage?" (48% sure) | Team decides to keep the flag for the review | "Low-confidence flags are still worth reading" | Bars grow: 38 · 36 · 34 · 4; Old Quay bar amber |
-| 5. Review the finding | Sign off or send back | Approve · Approve with edit · Send back | "Summarise" → "Old Quay has the fewest faults, so its streetlights are in the best condition. Repairs can wait there." (94%) | **Data:** ward profile card shows most Old Quay residents are over 65, few use the app, and 9 streets sent no reports. **Case:** 4 against 34–38 is an outlier to explain, not a result | Note: "Few reports is not the same as few faults" | Data chip red, Case amber; red pins rise over Old Quay; verdict "Send back" |
+| 5. Review the finding | Sign off or send back | Approve · Approve with edit · Send back | "Summarise" → "Old Quay has the fewest faults, so its repairs can wait." (94%) | **Data:** ward profile card shows most Old Quay residents are over 65, few use the app, and 9 streets sent no reports. **Case:** 4 against 34–38 is an outlier to explain, not a result | Note: "Few reports is not the same as few faults" | Checks run in order: Data chip red (red pins rise over Old Quay), then Case amber; verdict "Send back"; the AI card's claim is struck through and marked "Returned" |
 | 6. Fix and ship | A Data Brief a councillor can trust | Better data: A door-knock survey · B lamp-post sensor sample · C phone line for reports | None: the team writes it | Peer check against the rubric | "What this data can't tell us: faults nobody reported" | Tracked change, boxes appear, "Signed off · Freya, 13"; brief flies into the portfolio |
 
 In stage 5, Source and Authority pass (the numbers trace to the export). Learners still say *why*; a check that passes is a finding too. §9 revisits whether "Repairs can wait there" is an analyst's call at all.
@@ -133,7 +133,7 @@ Learners self-assess one criterion of their choice on the Data Brief footer.
    - *Purpose:* reporting bias beyond streetlights.
    - *Strong answer:* "Bullying reports at school, potholes, hospital complaints, crimes people don't report, bugs users don't mention."
    - *Probe:* "In that example, what better data could you collect?"
-6. **Authority: "InsightAssist wrote 'Repairs can wait there.' Whose decision is that?"**
+6. **Authority: "InsightAssist wrote 'its repairs can wait.' Whose decision is that?"**
    - *Purpose:* the Authority check in policy work; analysts inform, elected councillors decide.
    - *Strong answer:* "Not the AI's and not really ours. We give evidence and limits; the councillors decide and are accountable."
    - *Probe:* "Should our brief say what to do, or what we know and don't know?"
@@ -213,7 +213,7 @@ Learners self-assess one criterion of their choice on the Data Brief footer.
   2. Stage 2: "Data is clean: 120 valid rows. (91% sure)"
   3. Stage 3: "Filled 6 blank Faults cells with 0 so totals add up. (86% sure)"
   4. Stage 4: "Possible gap: Old Quay has far fewer rows than other wards. Check coverage? (48% sure)"
-  5. Stage 5: "Old Quay has the fewest faults, so its streetlights are in the best condition. Repairs can wait there. (94% sure) · Data I used: Fault-report app · 112 rows"
+  5. Stage 5: "Old Quay has the fewest faults, so its repairs can wait. (94% sure) · Data I used: Fault-report app · 112 rows"
   6. On return: "Noted. Finding withdrawn pending new data."
 - **Reuse from the trailer:** the diorama, `fs-ui.js` components, rows F-031 to F-058, log pills, chart values and Data Brief wording.
 - **Open questions:**

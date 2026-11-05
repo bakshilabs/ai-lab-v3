@@ -17,6 +17,9 @@ export const SVG = {
 // Type text in over [t0,t1] (keeps HTML tags intact by revealing plain text only)
 export function typed(text, t, t0, t1) { const n = Math.round(text.length * clamp((t - t0) / (t1 - t0))); return text.slice(0, n); }
 
+// reveal a block by growing its height (the card grows with it), k in 0..1
+export function grow(node, k, max = 240) { node.style.maxHeight = (k * max) + 'px'; node.style.opacity = clamp(k * 1.4 - 0.2); node.style.overflow = 'hidden'; node.style.display = k <= 0 ? 'none' : ''; }
+
 export function makeFS(A, camera) {
   const api = {
     // persistent top-left app bar with the lab name and strand chip
@@ -35,11 +38,25 @@ export function makeFS(A, camera) {
         <div class="rows"><div class="row"><span>Brief from</span><b>${from}</b></div><div class="row"><span>Task</span><b>${task}</b></div>${deliver ? `<div class="row"><span>Hand in</span><b>${deliver}</b></div>` : ''}<div class="row"><span>Due</span><b>${due}</b></div></div></div>`, tIn, tOut, { x, y, w, from: 'right' });
     },
     ai({ text, sure, data, tag = 'draft' }, tIn, tOut, { x = 1000, y = 500, w = 874, from = 'right' } = {}) {
-      const n = el(`<div class="fs-ai" style="width:${w}px"><div class="hd"><span class="bot"></span><span style="color:#fff">AI colleague</span><em>${tag}</em></div><p>${text}</p>
-        <div class="ft"><div class="sure"><div class="bar"><i style="width:${sure}%"></i></div><span>${sure}% sure</span></div></div>
-        <div style="margin-top:16px"><span class="data">Data I used: <b>${data}</b></span></div></div>`, { x, y });
+      const n = el(`<div class="fs-ai" style="width:${w}px"><div class="hd"><span class="bot"></span><span style="color:#fff">AI colleague</span><em data-tag>${tag}</em></div><p data-claim>${text}</p>
+        <div class="ft"><div class="sure"><div class="bar"><i data-bar style="width:${sure}%"></i></div><span data-sure>${sure}% sure</span></div></div>
+        <div style="margin-top:16px"><span class="data" data-pill>Data I used: <b>${data}</b></span></div></div>`, { x, y });
       A(cue(n, tIn, tOut, { from }));
+      n.sure0 = sure;
       return n;
+    },
+    // the AI card reacts: flag its data pill at flagAt; at retAt strike the claim, flip to "Returned" and drop the % to sure2
+    aiReact(n, { flagAt = null, retAt, sure2 = null, retLabel = 'Returned', retNote = 'Sent back', sureNote = 'on new photos' }) {
+      const p = n.querySelector('[data-claim]'), tag = n.querySelector('[data-tag]'), bar = n.querySelector('[data-bar]'), su = n.querySelector('[data-sure]'), pill = n.querySelector('[data-pill]');
+      const tag0 = tag.textContent;
+      A((t) => {
+        if (flagAt != null) pill.classList.toggle('flag', t >= flagAt);
+        const r = t >= retAt; p.classList.toggle('struck', r); tag.classList.toggle('ret', r); tag.textContent = r ? retLabel : tag0;
+        const k = prog(t, retAt, retAt + 0.6, ease.out);
+        const s = Math.round(lerp(n.sure0, sure2 == null ? 8 : sure2, k));
+        bar.style.width = s + '%'; bar.classList.toggle('low', r);
+        su.textContent = !r ? `${n.sure0}% sure` : sure2 != null ? `${s}% ${sureNote}` : retNote;
+      });
     },
     // check chips: states(t) -> array of 'idle'|'run'|'ok'|'warn'|'bad'
     checksHTML() { return `<div class="fs-checks">${['Data', 'Case', 'Source', 'Authority'].map((k) => `<div class="fs-check" data-k="${k}"><i></i>${k}</div>`).join('')}</div>`; },
@@ -76,19 +93,24 @@ export function makeFS(A, camera) {
       A((t) => {
         if (t < t0) return;
         const k = prog(t, t0, t1, ease.inOut);
-        node.style.transformOrigin = '0 0';
+        node.style.transformOrigin = '0 0'; node.style.zIndex = 20;
         node.style.transform = `translate(${dx * k}px, ${dy * k}px) scale(${lerp(1, s, k)})`;
         if (k > fadeAt) { const o = 1 - (k - fadeAt) / (1 - fadeAt); node.style.opacity = o; node.style.visibility = o <= 0.001 ? 'hidden' : 'visible'; }
       });
     },
-    pathway({ lab, next, nextSub, award, awardSub, route, routeSub, jobs }, tIn, tOut) {
-      const n = el(`<div class="fs-card fs-path"><div class="hd"><div class="lab"><h2>${lab}</h2></div><span class="fs-chip" style="font-size:24px;padding:10px 22px">DeltaOps Learning · Future Skills</span></div>
+    // end: lab title on the sky (top) and an opaque pathway card (bottom); the island sits between them
+    endTitle(lab, tagline, tIn) {
+      const n = el(`<div class="fs-endt"><span class="fs-chip">DeltaOps Learning · Future Skills</span><h1>${lab}</h1><h2>${tagline}</h2></div>`, { x: 0, y: 30 });
+      A(cue(n, tIn, null, { from: 'down', dur: 0.6 }));
+      return n;
+    },
+    pathway({ next, nextSub, award, awardSub, route, routeSub, jobs }, tIn, tOut) {
+      const n = el(`<div class="fs-card fs-path"><div class="hd"><span class="tag">PATHWAY</span><span class="ph">Where this skill goes next</span><img src="../assets/logo-learning.svg"></div>
         <div class="cols"><div class="col"><span>Next step</span><b>${next}</b><small>${nextSub}</small></div>
         <div class="col"><span>Award</span><b>${award}</b><small>${awardSub}</small></div>
         <div class="col"><span>Route</span><b>${route}</b><small>${routeSub}</small></div>
-        <div class="arr">→</div>
-        <div class="col jobs"><span>Jobs</span><b>${jobs.join('<br>')}</b></div></div></div>`, { x: 960, y: 500, anchor: 'c' });
-      A(cue(n, tIn, tOut, { from: 'pop', dur: 0.6 }));
+        <div class="col jobs"><span>Jobs</span><b>${jobs.join('<br>')}</b></div></div></div>`, { x: 960, y: 1046, anchor: 'bc' });
+      A(cue(n, tIn, tOut, { from: 'up', dur: 0.6, dist: 80 }));
       return n;
     },
   };

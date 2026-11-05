@@ -108,3 +108,24 @@
 .fs-folder .paper { position: absolute; left: 40px; top: -6px; width: 200px; height: 150px; border-radius: 14px; background: #fff; box-shadow: 0 6px 16px rgba(19,32,43,.2); opacity: 0;
   background-image: linear-gradient(#13202b, #13202b), linear-gradient(#dcf7ee, #dcf7ee), linear-gradient(#e6ebee, #e6ebee), linear-gradient(#e6ebee, #e6ebee);
   background-size: 120px 12px, 150px 12px, 150px 10px, 110px 10px; background-position: 22px 22px, 22px 48px, 22px 72px, 22px 92px; background-repeat: no-repeat; }
+
+/* AI card reaction */
+.fs-ai p { transition: none; }
+.fs-ai p.struck { color: #8d9aa6; text-decoration: line-through; text-decoration-color: #ff5d4a; text-decoration-thickness: 4px; }
+.fs-ai .hd em.ret { background: #ff5d4a; color: #fff; }
+.fs-ai .sure .bar i.low { background: #ff5d4a; }
+.fs-ai .data.flag { border-color: #ff5d4a; background: #4a2626; box-shadow: 0 0 0 5px rgba(255,93,74,.28); }
+
+/* end title (on the sky, above the island) */
+.fs-endt { width: 1920px; text-align: center; color: #fff; font-family: 'Inter', sans-serif; }
+.fs-endt .fs-chip { background: #fff; box-shadow: 0 6px 18px rgba(19,32,43,.18); }
+.fs-endt h1 { font: 800 96px/1 var(--display, 'Inter'); letter-spacing: -.03em; margin: 18px 0 0; text-shadow: 0 6px 26px rgba(0,40,90,.35); }
+.fs-endt h2 { font: 700 34px 'Inter'; margin: 12px 0 0; text-shadow: 0 3px 14px rgba(0,40,90,.4); }
+
+/* pathway v2: one product line */
+.fs-path .hd { gap: 18px; justify-content: flex-start; margin-bottom: 22px; }
+.fs-path .hd .tag { background: #16c79a; color: #062a20; border-radius: 999px; padding: 8px 18px; font: 800 22px 'Inter'; letter-spacing: .12em; }
+.fs-path .hd .ph { font: 800 26px 'Inter'; letter-spacing: .02em; color: #5b6b78; flex: 1; }
+.fs-path .hd img { height: 46px; }
+.fs-path .cols { grid-template-columns: 1fr 1fr 1.15fr 1fr; }
+.fs-path { padding: 28px 40px 32px; }

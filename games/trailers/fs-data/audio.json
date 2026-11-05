@@ -1,18 +1,18 @@
-{"dur": 42, "bpm": 92, "root": 60, "end": 41.6,
+{"dur": 38, "bpm": 92, "root": 60, "end": 37.6,
  "sections": [
   {"t": 0, "chords": [[0,4,7],[9,12,16],[5,9,12],[7,11,14]], "energy": 0.4},
-  {"t": 8.6, "chords": [[0,4,7],[5,9,12]], "energy": 0.5},
-  {"t": 16.6, "chords": [[9,12,16],[5,9,12]], "energy": 0.45},
-  {"t": 21.8, "chords": [[9,12,16],[4,7,11]], "energy": 0.3, "shift": -2},
-  {"t": 27.6, "chords": [[0,4,7],[7,11,14],[9,12,16],[5,9,12]], "energy": 0.6},
-  {"t": 35.8, "chords": [[0,4,7,11],[5,9,12,16]], "energy": 0.35}
+  {"t": 5.9, "chords": [[0,4,7],[5,9,12]], "energy": 0.5},
+  {"t": 12.2, "chords": [[9,12,16],[5,9,12]], "energy": 0.45},
+  {"t": 15.6, "chords": [[9,12,16],[4,7,11]], "energy": 0.3, "shift": -2},
+  {"t": 23.5, "chords": [[0,4,7],[7,11,14],[9,12,16],[5,9,12]], "energy": 0.6},
+  {"t": 32.0, "chords": [[0,4,7,11],[5,9,12,16]], "energy": 0.35}
  ],
  "sfx": [
-  {"t":0.5,"type":"pop"},{"t":3.9,"type":"pop"},{"t":4.2,"type":"pop"},{"t":4.8,"type":"tap"},
-  {"t":8.8,"type":"pop"},{"t":9.8,"type":"tap"},{"t":11.0,"type":"tap"},{"t":12.2,"type":"tap"},{"t":13.4,"type":"tap"},
-  {"t":15.0,"type":"pop"},{"t":16.6,"type":"pop"},
-  {"t":19.8,"type":"pop"},{"t":20.8,"type":"tap"},{"t":21.8,"type":"chime","vol":0.5},{"t":22.4,"type":"tap"},{"t":23.2,"type":"error"},
-  {"t":25.0,"type":"tap"},{"t":25.6,"type":"tap"},{"t":26.0,"type":"pop"},
-  {"t":27.8,"type":"pop"},{"t":30.1,"type":"tap"},{"t":30.5,"type":"tap"},{"t":31.1,"type":"success"},
-  {"t":32.4,"type":"pop"},{"t":34.0,"type":"chime"},{"t":36.0,"type":"pop"},{"t":36.8,"type":"chime","vol":0.6}
+  {"t":0.3,"type":"pop"},{"t":2.3,"type":"pop"},{"t":2.4,"type":"pop"},{"t":3.2,"type":"tap"},
+  {"t":5.9,"type":"pop"},{"t":6.6,"type":"tap"},{"t":7.8,"type":"tap"},{"t":9.0,"type":"tap"},{"t":10.0,"type":"tap"},
+  {"t":11.3,"type":"pop"},{"t":12.2,"type":"pop"},
+  {"t":15.75,"type":"pop"},{"t":16.2,"type":"tap"},{"t":17.0,"type":"error"},{"t":18.4,"type":"tap"},{"t":19.2,"type":"chime","vol":0.5},
+  {"t":19.8,"type":"tap"},{"t":20.3,"type":"tap"},{"t":21.0,"type":"pop"},
+  {"t":23.55,"type":"pop"},{"t":25.6,"type":"tap"},{"t":26.0,"type":"tap"},{"t":26.6,"type":"success"},
+  {"t":29.3,"type":"pop"},{"t":30.1,"type":"chime"},{"t":32.0,"type":"pop"},{"t":32.6,"type":"chime","vol":0.6}
  ]}

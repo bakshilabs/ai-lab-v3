@@ -28,9 +28,9 @@ import { createStage, prog, ease, lerp, clamp, within } from '../engine/stage.js
 import { Vox, tree, house, person, particles, rand, noise2 } from '../engine/kit.js';
 import { el, cue, fader, titleCard } from '../engine/ui.js';
 import { clouds } from '../engine/extras.js';
-import { makeFS, SVG, typed, screenTex } from './fs-ui.js';
+import { makeFS, SVG, typed, screenTex, grow } from './fs-ui.js';
 
-const DUR = 42;
+const DUR = 38;
 const st = createStage({ sky: ['#5db6ff', '#d9efff'], post: false });
 const { scene, camera, sun, hemi, rim } = st;
 rim.intensity = 0.55; st.dome.visible = false; st.renderer.setClearColor(0x000000, 0);
@@ -149,9 +149,7 @@ const wallTex = screenTex(512, 288, (g, w, h) => {
 const wallScr = new THREE.Mesh(new THREE.PlaneGeometry(9, 5.06), new THREE.MeshBasicMaterial({ map: wallTex, toneMapped: false }));
 wallScr.position.set(-21.5, 4.6, -15.8); scene.add(wallScr);
 const wallFrame = new THREE.Mesh(new THREE.BoxGeometry(9.6, 5.6, 0.3), new THREE.MeshLambertMaterial({ color: '#1d2731' })); wallFrame.position.set(-21.5, 4.6, -15.98); scene.add(wallFrame);
-// council sign above
-const signTex = screenTex(512, 64, (g, w, h) => { g.fillStyle = '#13202b'; g.fillRect(0, 0, w, h); g.fillStyle = '#16c79a'; g.fillRect(16, 22, 20, 20); g.fillStyle = '#ffffff'; g.font = '800 30px Inter, sans-serif'; g.fillText('Harbourside Council · Insight Team', 50, 43); });
-const sign = new THREE.Mesh(new THREE.PlaneGeometry(10, 1.25), new THREE.MeshBasicMaterial({ map: signTex, toneMapped: false })); sign.position.set(-11.5, 6.0, -15.9); scene.add(sign);
+
 
 // ---------- people ----------
 const seat = (p, x, z, face) => { p.children[0].rotation.x = p.children[1].rotation.x = Math.PI / 2; p.position.set(x, 1 - 0.06, z); p.rotation.y = face === 'n' ? 0 : Math.PI; scene.add(p); return p; };
@@ -182,48 +180,46 @@ for (const [x, z, w, bad] of LAMPS) {
 const qOk = pinMesh('#16c79a'); qOk.position.set(26.5, 6.2, -11.5); scene.add(qOk);
 
 // ---------- timeline ----------
-// 0-3.8 title | 3.8-8.6 brief | 8.6-14.8 clean the data | 14.8-19.6 chart + AI colleague | 19.6-27.4 review (Case, Data red) | 27.4-32.6 fix + sign-off | 32.6-35.8 portfolio | 35.8-42 pathway
+// 0-2.4 title | 2.4-5.6 brief | 5.6-11 clean the data | 11-15.4 chart + AI colleague | 15.4-23.2 review (Data red, Case amber) | 23.2-29 fix + sign-off | 29-32 portfolio | 32-38 pathway
+const T = { title: 0.2, brief: 2.4, clean: 5.6, chart: 11.0, ai: 12.2, rev: 15.4, fix: 23.2, fly: 29.0, end: 32.0 };
 const K = [
-  { t: 0, ang: -0.75, dist: 150, hgt: 105, look: [0, -2, 0], ox: 0 },
-  { t: 3.6, ang: -0.5, dist: 118, hgt: 82, look: [-2, -2, 0], ox: 0 },
-  { t: 5.0, ang: -0.42, dist: 72, hgt: 50, look: [-17, 1, -4], ox: 430 },
-  { t: 8.4, ang: -0.36, dist: 64, hgt: 45, look: [-17, 1, -4], ox: 430 },
-  { t: 9.6, ang: -0.22, dist: 34, hgt: 23, look: [-14.5, 2, -2.5], ox: 470 },
-  { t: 14.6, ang: -0.16, dist: 31, hgt: 21, look: [-14.5, 2, -2.5], ox: 470 },
-  { t: 15.8, ang: -0.08, dist: 42, hgt: 22, look: [-22, 3.5, -10], ox: 440 },
-  { t: 19.4, ang: -0.02, dist: 40, hgt: 21, look: [-22, 3.5, -10], ox: 440 },
-  { t: 21.4, ang: 0.32, dist: 76, hgt: 58, look: [21, 0, -8], ox: 420 },
-  { t: 27.0, ang: 0.4, dist: 70, hgt: 54, look: [21, 0, -8], ox: 420 },
-  { t: 28.4, ang: -0.22, dist: 34, hgt: 23, look: [-14.5, 2, -2.5], ox: 470 },
-  { t: 32.4, ang: -0.18, dist: 31, hgt: 21, look: [-14.5, 2, -2.5], ox: 470 },
-  { t: 34.4, ang: -0.3, dist: 90, hgt: 62, look: [-6, 0, -2], ox: 320 },
-  { t: 36.2, ang: 0.0, dist: 130, hgt: 90, look: [0, -3, 0], ox: 0 },
-  { t: 42, ang: 0.25, dist: 140, hgt: 96, look: [0, -3, 0], ox: 0 },
+  { t: 0, ang: -0.75, dist: 165, hgt: 115, look: [0, -2, 0], ox: 0, oy: 0 },
+  { t: 2.0, ang: -0.62, dist: 150, hgt: 104, look: [-2, -2, 0], ox: 0, oy: 0 },
+  { t: 4.0, ang: -0.46, dist: 100, hgt: 70, look: [-9, 0, -2], ox: 380, oy: 0 },
+  { t: 5.8, ang: -0.42, dist: 90, hgt: 62, look: [-11, 0, -3], ox: 390, oy: 0 },
+  { t: 10.8, ang: -0.32, dist: 84, hgt: 58, look: [-11, 0, -3], ox: 390, oy: 0 },
+  { t: 12.0, ang: -0.2, dist: 88, hgt: 60, look: [-9, 0, -4], ox: 390, oy: 0 },
+  { t: 15.4, ang: -0.12, dist: 88, hgt: 60, look: [-7, 0, -4], ox: 390, oy: 0 },
+  { t: 16.8, ang: 0.3, dist: 96, hgt: 68, look: [13, 0, -6], ox: 380, oy: 0 },
+  { t: 22.8, ang: 0.38, dist: 92, hgt: 66, look: [13, 0, -6], ox: 380, oy: 0 },
+  { t: 24.2, ang: -0.28, dist: 118, hgt: 82, look: [-2, 0, -2], ox: 400, oy: 0 },
+  { t: 29.0, ang: -0.2, dist: 114, hgt: 80, look: [-2, 0, -2], ox: 400, oy: 0 },
+  { t: 31.6, ang: -0.12, dist: 140, hgt: 96, look: [0, -2, 0], ox: 200, oy: 40 },
+  { t: 32.8, ang: -0.05, dist: 150, hgt: 104, look: [0, -3, 0], ox: 0, oy: 62 },
+  { t: 38, ang: 0.2, dist: 154, hgt: 106, look: [0, -3, 0], ox: 0, oy: 62 },
 ];
 function camAt(t) {
   let i = 0; while (i < K.length - 2 && t > K[i + 1].t) i++;
   const a = K[i], b = K[i + 1]; const k = ease.inOut(clamp((t - a.t) / (b.t - a.t)));
   const L = (p) => lerp(a[p], b[p], k);
-  return { ang: L('ang'), dist: L('dist'), hgt: L('hgt'), ox: L('ox'), look: a.look.map((q, j) => lerp(q, b.look[j], k)) };
+  return { ang: L('ang'), dist: L('dist'), hgt: L('hgt'), ox: L('ox'), oy: L('oy'), look: a.look.map((q, j) => lerp(q, b.look[j], k)) };
 }
 const heroStates = [sheetDraw('#16c79a'), chartDraw];
 let heroState = -1;
+const DATA_BAD = 17.0;
 st.onFrame((t) => {
   updClouds(t);
-  const hs = t < 14.8 ? 0 : 1; if (hs !== heroState) { heroState = hs; heroTex.redraw(heroStates[hs]); }
-  // pins bob; Old Quay red pins appear during the data check
-  pins.forEach((m, i) => { m.position.y = 6.2 + Math.sin(t * 2 + i) * 0.25; m.rotation.y = t * 0.8 + i; m.visible = t > 2 && !(t > 35.8); });
-  qOk.position.y = 6.2 + Math.sin(t * 2 + 9) * 0.25; qOk.rotation.y = t * 0.8; qOk.visible = t > 2 && t < 35.8;
-  qPins.forEach((m, i) => { const k = prog(t, 23.0 + i * 0.25, 23.5 + i * 0.25, ease.back); m.visible = k > 0 && t < 35.8; m.scale.setScalar(Math.max(k, 0.001)); m.position.y = 6.2 + Math.sin(t * 2 + i * 1.7) * 0.25; m.rotation.y = t * 0.8 + i; });
-  // Freya typing, Ines gesturing
+  const hs = t < T.chart ? 0 : 1; if (hs !== heroState) { heroState = hs; heroTex.redraw(heroStates[hs]); }
+  // pins bob; Old Quay red pins appear when the Data check fails
+  pins.forEach((m, i) => { m.position.y = 6.2 + Math.sin(t * 2 + i) * 0.25; m.rotation.y = t * 0.8 + i; m.visible = t > 1.2 && t < T.end; });
+  qOk.position.y = 6.2 + Math.sin(t * 2 + 9) * 0.25; qOk.rotation.y = t * 0.8; qOk.visible = t > 1.2 && t < T.end;
+  qPins.forEach((m, i) => { const k = prog(t, DATA_BAD + i * 0.2, DATA_BAD + 0.5 + i * 0.2, ease.back); m.visible = k > 0 && t < T.end; m.scale.setScalar(Math.max(k, 0.001)); m.position.y = 6.2 + Math.sin(t * 2 + i * 1.7) * 0.25; m.rotation.y = t * 0.8 + i; });
   freya.children[2].rotation.x = Math.sin(t * 6) * 0.03;
   amara.children[2].rotation.z = Math.sin(t * 1.5) * 0.04;
   crew.forEach((p, i) => { p.children[2].rotation.x = Math.sin(t * 3 + i * 2) * 0.04; });
-  // walkers along the main road
   walkers.forEach((p, i) => { const u = ((t * 0.045 + i * 0.33) % 1); const x = lerp(-3, 30, u); const z = i === 1 ? 4.5 : 0.4; p.position.set(i === 1 ? 30 - (x + 3) : x, 1, z); p.rotation.y = i === 1 ? Math.PI / 2 : -Math.PI / 2; p.userData.walk(t * 7 + i); });
-  // camera
   const c = camAt(t);
-  camera.fov = 30; camera.setViewOffset(1920, 1080, c.ox, 0, 1920, 1080); camera.updateProjectionMatrix();
+  camera.fov = 30; camera.setViewOffset(1920, 1080, c.ox, c.oy, 1920, 1080); camera.updateProjectionMatrix();
   camera.position.set(Math.sin(c.ang) * c.dist + c.look[0], c.hgt + c.look[1], Math.cos(c.ang) * c.dist + c.look[2]);
   camera.lookAt(c.look[0], c.look[1], c.look[2]);
 });
@@ -231,23 +227,24 @@ st.onFrame((t) => {
 // ---------- UI ----------
 const ui = []; const A = (f) => ui.push(f);
 const FS = makeFS(A, camera);
-const fade = fader(); A((t) => fade(t < 0.5 ? 1 - prog(t, 0, 0.5) : t > DUR - 0.6 ? prog(t, DUR - 0.6, DUR) : 0));
-// title
-const dimT = el('<div class="dim" style="background:radial-gradient(ellipse 60% 45% at 50% 45%, rgba(8,32,60,.62), rgba(8,32,60,.18))"></div>'); A(cue(dimT, 0, 3.5, { from: 'fade', dur: 0.3 }));
-const title = titleCard('Council <span class="hl">Data Desk</span>', 'Clean the data. Question the conclusion.', { chip: 'DeltaOps Learning · Future Skills' }); A(cue(title, 0.4, 3.5, { from: 'pop', dur: 0.7 }));
-FS.appbar('Council Data Desk', 3.9, 35.6, SVG.mark);
+const fade = fader(); A((t) => fade(t < 0.4 ? 1 - prog(t, 0, 0.4) : t > DUR - 0.5 ? prog(t, DUR - 0.5, DUR) : 0));
+// title (short; the camera is already moving)
+const dimT = el('<div class="dim" style="background:radial-gradient(ellipse 60% 45% at 50% 45%, rgba(8,32,60,.5), rgba(8,32,60,.1))"></div>'); A(cue(dimT, 0, 2.1, { from: 'fade', dur: 0.3 }));
+const title = titleCard('Council <span class="hl">Data Desk</span>', 'Clean the data. Question the conclusion.', { chip: 'DeltaOps Learning · Future Skills' }); A(cue(title, T.title, 2.1, { from: 'pop', dur: 0.6 }));
+FS.appbar('Council Data Desk', 2.3, 31.4, SVG.mark);
 
-// brief
-FS.brief({ from: 'Harbourside Council · Head of Insight', task: 'Which wards need more streetlight repairs?', deliver: 'A one-page Data Brief for councillors', due: 'Friday' }, 4.2, 8.6, { x: 1000, y: 150 });
-FS.caption('<b>Ines</b>council data analyst', () => new THREE.Vector3(-11.4, 5.6, -0.6), 4.8, 14.6);
-FS.caption('<b>Freya, 13</b>junior analyst', () => new THREE.Vector3(-15.6, 3.9, -1.25), 9.8, 14.6, { cls: 'teal' });
+// brief: rows arrive one by one
+const brief = FS.brief({ from: 'Harbourside Council · Head of Insight', task: 'Which wards need more streetlight repairs?', deliver: 'A one-page Data Brief for councillors', due: 'Friday' }, T.brief, T.clean, { x: 1000, y: 150 });
+A((t) => brief.querySelectorAll('.row').forEach((r, i) => { const k = prog(t, T.brief + 0.3 + i * 0.35, T.brief + 0.6 + i * 0.35, ease.out); r.style.opacity = k; r.style.transform = `translateX(${(1 - k) * 30}px)`; }));
+FS.caption('<b>Ines</b>council data analyst', () => new THREE.Vector3(-11.4, 5.6, -0.6), 3.2, 5.6);
+FS.caption('<b>Freya, 13</b>junior analyst', () => new THREE.Vector3(-15.6, 3.9, -1.25), 5.9, 10.6, { cls: 'teal' });
 
 // cleaning the spreadsheet
 const sheet = FS.card(`<div class="fs-top"><span class="ttl"><span class="ic">${SVG.grid()}</span>fault-reports.csv</span><span class="fs-pill grey" data-rows>120 rows</span></div>
   <table class="sheet"><tr><th>Ref</th><th>Ward</th><th>Street</th><th>Reported</th><th>Faults</th></tr><tbody data-body></tbody></table>
-  <div style="padding:14px 26px 0" class="fs-eyebrow">Data-quality log</div><div class="log" data-log></div>`, 8.8, 14.8, { x: 1000, y: 150, w: 874, from: 'right' });
+  <div style="padding:14px 26px 0" class="fs-eyebrow">Data-quality log</div><div class="log" data-log></div>`, T.clean + 0.3, T.chart, { x: 1000, y: 150, w: 874, from: 'right' });
 const body = sheet.querySelector('[data-body]'), log = sheet.querySelector('[data-log]'), rowsN = sheet.querySelector('[data-rows]');
-const FIX = [9.8, 11.0, 12.2, 13.4];
+const FIX = [6.6, 7.8, 9.0, 10.0];
 const LOG = ['8 duplicates removed', 'Ward names matched', 'One date format', 'Blank is not 0'];
 A((t) => {
   const d = FIX.map((x) => t >= x);
@@ -262,7 +259,7 @@ A((t) => {
   ];
   const html = rows.filter((r) => !(r[6] === 'dup' && t > FIX[0] + 0.7)).map((r) => `<tr class="${r[6] === 'dup' && d[0] ? 'dup' : ''}${r[5] === hot || (r[6] === 'dup' && hot === 0) ? ' hot' : ''}"><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td></tr>`).join('');
   if (body.dataset.h !== html) { body.innerHTML = html; body.dataset.h = html; }
-  const lg = LOG.map((s, i) => d[i] ? `<span class="fs-pill teal">✓ ${s}</span>` : '').join('') + (d.every(Boolean) ? '' : '');
+  const lg = LOG.map((s, i) => d[i] ? `<span class="fs-pill teal">✓ ${s}</span>` : '').join('');
   if (log.dataset.h !== lg) { log.innerHTML = lg || '<span class="fs-pill grey">Checking…</span>'; log.dataset.h = lg; }
   rowsN.textContent = t > FIX[0] + 0.7 ? '112 clean rows' : '120 rows';
   rowsN.className = 'fs-pill ' + (t > FIX[0] + 0.7 ? 'teal' : 'grey');
@@ -270,53 +267,54 @@ A((t) => {
 
 // chart + AI colleague
 const chart = FS.card(`<div class="fs-top"><span class="ttl"><span class="ic">${SVG.chart()}</span>Fault reports by ward</span><span class="fs-pill grey">112 reports</span></div>
-  <div class="bars">${[['Harbourside', 38], ['Mill Lane', 36], ['Castle Hill', 34], ['Old Quay', 4]].map(([n, k], i) => `<div class="r${i === 3 ? ' q' : ''}"><span>${n}</span><div class="t"><i data-b="${k}"></i></div><b>${k}</b></div>`).join('')}</div>`, 15.0, 19.6, { x: 1000, y: 150, w: 874, from: 'right' });
-A((t) => chart.querySelectorAll('[data-b]').forEach((b, i) => { b.style.width = (Number(b.dataset.b) / 38 * 100 * prog(t, 15.3 + i * 0.12, 16.3 + i * 0.12, ease.out)) + '%'; }));
-FS.ai({ text: 'Old Quay has the fewest faults, so its streetlights are in the best condition. Repairs can wait there.', sure: 94, data: 'Fault-report app · 112 rows' }, 16.6, 19.6, { x: 1000, y: 530, w: 874 });
+  <div class="bars">${[['Harbourside', 38], ['Mill Lane', 36], ['Castle Hill', 34], ['Old Quay', 4]].map(([n, k], i) => `<div class="r${i === 3 ? ' q' : ''}"><span>${n}</span><div class="t"><i data-b="${k}"></i></div><b>${k}</b></div>`).join('')}</div>`, T.chart + 0.3, T.rev, { x: 1000, y: 150, w: 874, from: 'right' });
+A((t) => chart.querySelectorAll('[data-b]').forEach((b, i) => { b.style.width = (Number(b.dataset.b) / 38 * 100 * prog(t, T.chart + 0.3 + i * 0.15, T.chart + 1.2 + i * 0.15, ease.out)) + '%'; }));
+const CLAIM = 'Old Quay has the fewest faults, so its repairs can wait.';
+const ai = FS.ai({ text: CLAIM, sure: 94, data: 'Fault-report app · 112 rows' }, T.ai, T.fix, { x: 1000, y: 512, w: 874 });
+// the AI card moves down to make room for the review
+A((t) => { ai.style.top = lerp(512, 652, prog(t, T.rev, T.rev + 0.6)) + 'px'; });
 
-// review
+// review: Data, Case, Source, Authority in order
 const rev = FS.card(`<div class="fs-top"><span class="ttl"><span class="ic">${SVG.check()}</span>Review the draft</span><span class="fs-pill grey" data-verdict>Checking</span></div>
-  <div style="padding:20px 30px 6px"><div style="font:600 27px/1.3 Inter;color:#5b6b78;margin-bottom:18px">“Old Quay has the fewest faults, so its streetlights are in the best condition.” <b style="color:#13202b">AI colleague · 94% sure</b></div>${FS.checksHTML()}</div>
-  <div style="padding:6px 30px 18px" data-notes></div>`, 19.8, 27.4, { x: 1000, y: 150, w: 874, from: 'right' });
-const CH = { case: 20.8, caseR: 21.8, data: 22.4, dataR: 23.2, src: 25.0, auth: 25.6 };
+  <div style="padding:20px 30px 8px">${FS.checksHTML()}</div>
+  <div style="padding:0 30px 10px" data-notes><div class="fs-note" data-n0><i style="background:#ff5d4a">✕</i><span><b>Data:</b> app reports only. Most Old Quay residents don't use the app. 9 streets sent none.</span></div>
+  <div class="fs-note" data-n1><i style="background:#f2a31b">!</i><span><b>Case:</b> 4 reports against 34–38 elsewhere. An outlier to explain, not a result.</span></div></div>`, T.rev + 0.35, T.fix, { x: 1000, y: 150, w: 874, from: 'down' });
+const CH = { data: 16.2, dataR: DATA_BAD, case: 18.4, caseR: 19.2, src: 19.8, auth: 20.3, verdict: 21.0 };
 FS.bindChecks(rev, (t) => [t < CH.data ? 'idle' : t < CH.dataR ? 'run' : 'bad', t < CH.case ? 'idle' : t < CH.caseR ? 'run' : 'warn', t < CH.src ? 'idle' : t < CH.src + 0.4 ? 'run' : 'ok', t < CH.auth ? 'idle' : t < CH.auth + 0.4 ? 'run' : 'ok']);
-const notes = rev.querySelector('[data-notes]'), verdict = rev.querySelector('[data-verdict]');
+FS.aiReact(ai, { flagAt: CH.dataR, retAt: CH.verdict, retNote: 'Sent back' });
+const n0 = rev.querySelector('[data-n0]'), n1 = rev.querySelector('[data-n1]'), verdict = rev.querySelector('[data-verdict]');
 A((t) => {
-  let h = '';
-  if (t >= CH.caseR) h += `<div class="fs-note"><i style="background:#f2a31b">!</i><span><b>Case:</b> Old Quay is the odd one out. 4 reports, against 34 to 38 everywhere else.</span></div>`;
-  if (t >= CH.dataR) h += `<div class="fs-note"><i style="background:#ff5d4a">✕</i><span><b>Data:</b> app reports only. Most Old Quay residents are over 65 and few use the app. <b>9 streets sent no reports at all.</b></span></div>`;
-  if (t >= CH.auth + 0.4) h += `<div class="fs-note"><i style="background:#13202b">→</i><span><b>Few reports is not the same as few faults.</b> Send it back and fix the finding.</span></div>`;
-  if (notes.dataset.h !== h) { notes.innerHTML = h; notes.dataset.h = h; }
-  const vd = t >= CH.auth + 0.4 ? ['red', 'Send back'] : t >= CH.dataR ? ['red', '1 check failed'] : ['grey', 'Checking'];
+  grow(n0, prog(t, CH.dataR, CH.dataR + 0.4, ease.out), 140); grow(n1, prog(t, CH.caseR, CH.caseR + 0.4, ease.out), 140);
+  const vd = t >= CH.verdict ? ['red', 'Send back'] : t >= CH.dataR ? ['red', '1 check failed'] : ['grey', 'Checking'];
   verdict.className = 'fs-pill ' + vd[0]; verdict.textContent = vd[1];
 });
-FS.caption('<b>Old Quay</b>4 reports', () => new THREE.Vector3(21.5, 9.5, -12), 21.6, 27.2);
-FS.caption('<b>Fault, not reported</b>no app user on this street', () => new THREE.Vector3(18.5, 8.6, -0.5), 23.6, 27.2, { cls: 'red' });
+FS.caption('<b>Old Quay</b>4 reports', () => new THREE.Vector3(23, 10.5, -16), 17.4, 22.4);
+FS.caption('<b>Fault, not reported</b>no app user on this street', () => new THREE.Vector3(18.5, 7.6, -0.5), 18.0, 22.4, { cls: 'red' });
 
-// fix: the Data Brief with tracked changes, then sign-off
-const NEW = 'Old Quay has the fewest reports, not the fewest faults. Most residents there do not use the app.';
+// fix: the Data Brief grows as Freya writes, then sign-off
+const NEW = "Old Quay has the fewest reports, not the fewest faults. Most residents there don't use the app.";
 const doc = FS.card(`<div class="fs-top"><span class="ttl"><span class="ic">${SVG.doc()}</span>Data Brief · Streetlights</span><span class="fs-pill amber" data-st>Editing</span></div>
   <div class="fs-doc"><div class="meta">For: Harbourside councillors · Finding 1 of 3</div>
-  <p><del>Old Quay has the fewest faults, so its streetlights are in the best condition.</del><br><ins data-new></ins></p>
-  <div class="fs-box" data-box style="opacity:0"><small>What this data can't tell us</small>Faults that nobody reported.</div>
-  <div class="fs-box" data-next style="opacity:0;border-color:#16c79a"><small>Better data</small>Door-knock survey on Old Quay's 9 quiet streets</div>
-  <div data-sign style="opacity:0;margin-top:14px">${FS.signHTML('Freya', 13)}</div></div>`, 27.8, null, { x: 1000, y: 150, w: 874, from: 'right' });
+  <p><del>${CLAIM}</del><br><ins data-new></ins></p>
+  <div data-box><div class="fs-box"><small>What this data can't tell us</small>Faults that nobody reported.</div></div>
+  <div data-next><div class="fs-box" style="border-color:#16c79a"><small>Better data</small>Door-knock survey on Old Quay's 9 quiet streets</div></div>
+  <div data-sign style="margin-top:14px">${FS.signHTML('Freya', 13, 'Checks passed: 4 of 4 · signed off')}</div></div>`, T.fix + 0.35, null, { x: 1000, y: 150, w: 874, from: 'right' });
+const SIGN = 26.6;
 A((t) => {
-  doc.querySelector('[data-new]').textContent = typed(NEW, t, 28.4, 30.0);
-  doc.querySelector('[data-box]').style.opacity = prog(t, 30.1, 30.4);
-  doc.querySelector('[data-next]').style.opacity = prog(t, 30.5, 30.8);
-  const s = doc.querySelector('[data-sign]'); const k = prog(t, 31.1, 31.5, ease.back); s.style.opacity = clamp(k); s.style.transform = `scale(${0.8 + 0.2 * k})`;
-  const p = doc.querySelector('[data-st]'); const done = t > 31.2; p.className = 'fs-pill ' + (done ? 'teal' : 'amber'); p.textContent = done ? 'Signed off' : 'Editing';
+  doc.querySelector('[data-new]').textContent = typed(NEW, t, 23.9, 25.5);
+  grow(doc.querySelector('[data-box]'), prog(t, 25.6, 25.9, ease.out), 160);
+  grow(doc.querySelector('[data-next]'), prog(t, 26.0, 26.3, ease.out), 160);
+  const s = doc.querySelector('[data-sign]'); grow(s, prog(t, SIGN, SIGN + 0.35, ease.out), 140); const k = prog(t, SIGN, SIGN + 0.4, ease.back); s.style.transform = `scale(${0.85 + 0.15 * k})`;
+  const p = doc.querySelector('[data-st]'); const done = t > SIGN + 0.1; p.className = 'fs-pill ' + (done ? 'teal' : 'amber'); p.textContent = done ? 'Signed off' : 'Editing';
 });
-// portfolio: the brief flies into the folder
-const folder = FS.folder('Portfolio', 'Freya · 1 piece', 32.4, 35.6, { x: 1500, y: 760 }); folder.paperAt(34.0);
-FS.fly(doc, 33.0, 34.2, { dx: 1560 - 1000, dy: 790 - 150, s: 0.22, fadeAt: 0.8 });
-A((t) => { folder.querySelector('[data-sub]').textContent = t > 34.1 ? 'Data Brief added' : 'Freya · 0 pieces'; folder.style.transform = (folder.style.transform || '') + (t > 34.1 && t < 34.4 ? ' scale(1.06)' : ''); });
+// portfolio: the folder rises only once the brief starts to fly, and the brief stays on top of it
+const folder = FS.folder('Portfolio', 'Freya · 0 pieces', T.fly + 0.3, 31.6, { x: 1500, y: 790 }); folder.paperAt(30.1);
+FS.fly(doc, T.fly, 30.2, { dx: 1560 - 1000, dy: 820 - 150, s: 0.2, fadeAt: 0.75 });
+A((t) => { folder.querySelector('[data-sub]').textContent = t > 30.1 ? 'Data Brief added' : 'Freya · 0 pieces'; });
 
-// pathway
-const dimE = el('<div class="dim"></div>'); A(cue(dimE, 35.6, null, { from: 'fade', dur: 0.6 }));
-FS.pathway({ lab: 'Council Data Desk', next: 'MEI Introduction to Data Science', nextSub: 'Free · or a Code Club data project', award: 'CREST Discovery', awardSub: 'Data project', route: 'T Level Digital Data Analytics', routeSub: 'or Level 3 Data Technician apprenticeship', jobs: ['Data technician', 'Data analyst', 'Policy researcher'] }, 36.0, null);
-const logo = el('<img src="../assets/logo-learning-white.svg" style="height:58px">', { x: 960, y: 900, anchor: 'c' }); A(cue(logo, 36.8, null, { from: 'up' }));
+// end: bright sky, whole island, title above and pathway card below
+FS.endTitle('Council Data Desk', 'Clean the data. Question the conclusion.', T.end);
+FS.pathway({ next: 'MEI Introduction to Data Science', nextSub: 'Free · or a Code Club data project', award: 'CREST Discovery', awardSub: 'Data project', route: 'T Level Digital Data Analytics', routeSub: 'or Level 3 Data Technician apprenticeship', jobs: ['Data technician', 'Data analyst', 'Policy researcher'] }, T.end + 0.6, null);
 
 st.onFrame((t) => ui.forEach((fn) => fn(t)));
 window.__duration = DUR;
