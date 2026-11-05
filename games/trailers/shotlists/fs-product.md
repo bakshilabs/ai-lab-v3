@@ -23,7 +23,7 @@ Future Skills · 0:37 · the client's own library on a floating grassy island in
 **Pathway card:** Next step: Apps for Good (free, with your school) · Award: iDEA Bronze Award (free, online) · Route: GCSE Design & Technology, then T Level Digital · Jobs: UX designer, product manager, service designer.
 
 **Reviewer notes:**
-- **Render status:** Described from the current source; video re-rendering.
+- **Render status:** Described from the current source; video re-rendered and checked on a contact sheet.
 - **What changed in this round:** the set is now the library itself (no longer the Verification Desk newsroom); cards fill at most about half the frame; a title moment opens the trailer; **Data** now fails (it matches the AI card's "survey of smartphone users, in English"), Case passes and the old "Case check failed" comment is gone; the options table and persona sub-lines were cut, and the smallest text is about 19 px at 1080p; the pointer parks left of the cards; the step strip text is always set; the ending is bright daylight with the island beside the title and pathway card (6 s); "Technovation Girls" was replaced by Apps for Good, which is open to any gender.
 - **Portfolio:** consistent across the set: Data brief (Council Data Desk), Model card (Model Test Lab), Fact-check card (Verification Desk), then the new Decision record.
 - **Pathway facts to check:** that Apps for Good is still free for UK schools and covers ages 11–16 (marked "to verify" in the lab design document); the name "iDEA Bronze Award".
