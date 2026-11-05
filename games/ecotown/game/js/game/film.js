@@ -73,13 +73,12 @@ export function createFilm(app) {
       const skipBtn = h('<button class="btn alt" id="filmskip">Skip ⏭</button>'); document.getElementById('layer').appendChild(skipBtn); skipBtn.onclick = () => { this.skip = true; };
       app.ui.say(band === 'junior' ? F.lines.j : F.lines.s);
       // shot 1: establishing, the crew arrives; surroundings first
-      const heroDur = levelId === 'homes' || levelId === 'heart' ? 5 : 4;
+      const heroDur = { land: 3, move: 9, homes: 16, food: 9, power: 13, heart: 14 }[levelId] || 10;
       await rig.focus(centre, { dist: 70, pitch: 0.62, yaw: rig.sky.yaw + 0.3 }, 1.3);
-      ordered.forEach((k, i) => { if (k !== hero) world.setCell(k, cells.get(k), { build: { dur: 1.6, delay: 0.25 + i * 0.12 } }); });
       // crew
       const crewUpd = [];
       const st = () => world.buildState(hero);
-      if (F.crew === 'crane' && tall(hero)) { const away = heroP.clone().sub(stage.camera.position).setY(0).normalize(); crewUpd.push(crane(heroP.clone().add(away.multiplyScalar(7.5)).add(new THREE.Vector3(-2, 0, 0)), 20)); scaffold(world.layers.get(hero), heroP.y + 9); }
+      if (F.crew === 'crane' && tall(hero)) { const away = heroP.clone().sub(stage.camera.position).setY(0).normalize(); crewUpd.push(crane(heroP.clone().add(away.multiplyScalar(-11)).add(new THREE.Vector3(-6, 0, 0)), 20)); }
       if (['crane', 'install', 'survey'].includes(F.crew)) for (let i = 0; i < 3; i++) { const w = worker(i, F.crew === 'survey' ? '#ffffff' : '#ffd23f'); const a = (i / 3) * Math.PI * 2; crewUpd.push((t) => { w.position.set(heroP.x + Math.cos(a + t * 0.3) * 4.6, heroP.y, heroP.z + Math.sin(a + t * 0.3) * 4.6); w.rotation.y = -(a + t * 0.3); w.userData.walk(t * 8); }); }
       if (F.crew === 'survey') ordered.slice(0, 8).forEach((k) => flag(world.tileTop(k)));
       if (F.crew === 'roller' || F.crew === 'tractor') {
@@ -89,20 +88,32 @@ export function createFilm(app) {
       let tick = 0; const loop = (t) => { for (const f of crewUpd) f(t, st()); if (++tick % 20 === 0 && st() && st().k < 1) (F.crew === 'crane' || F.crew === 'install' ? audio.tap() : audio.ghost(tick)); };
       stage.onFrame(loop);
       // shot 2: close-up on the hero build
-      world.setCell(hero, cells.get(hero), { build: { dur: heroDur, delay: 0.6 } });
+      // the hero tile is built slowly, stage by stage, with a numbered step strip so children can follow the method
+      const steps = h('<div id="filmsteps"></div>'); document.getElementById('layer').appendChild(steps); this._steps = steps;
+      const onStage = (i, st, all) => {
+        steps.innerHTML = all.map((x, j) => `<span class="${j < i ? 'done' : j === i ? 'on' : ''}"><i>${j + 1}</i>${esc(band === 'junior' ? x.label.j : x.label.s)}</span>`).join('');
+        audio.tap(); if (band === 'junior') ui.say(all[i].label.j);
+      };
+      world.setCell(hero, cells.get(hero), { build: { dur: heroDur, delay: 0.6, onStage } });
       const isTall = ['wind', 'concrete', 'school', 'hall'].includes(cells.get(hero)?.item);
-      if (!this.skip) await rig.focus(heroP.clone().add(new THREE.Vector3(0, isTall ? 7 : 3, 0)), { dist: isTall ? 44 : levelId === 'food' ? 38 : 30, pitch: levelId === 'food' ? 0.98 : 0.42, yaw: rig.sky.yaw - 0.5 }, 1.4);
+      // look at the hero from outside the town, so nothing stands between the camera and the build
+      const out = heroP.clone().sub(centre).setY(0); const yawOut = out.lengthSq() > 4 ? Math.atan2(out.x, out.z) : rig.sky.yaw;
+      if (!this.skip) await rig.focus(heroP.clone().add(new THREE.Vector3(0, isTall ? 6 : 2, 0)), { dist: isTall ? 52 : levelId === 'food' || levelId === 'move' ? 34 : 24, pitch: levelId === 'food' || levelId === 'move' ? 0.95 : isTall ? 0.35 : 0.55, yaw: yawOut }, 1.4);
       const t0 = performance.now();
-      rig.startTurntable(0.12);
-      while (!this.skip && (world.builds.size || performance.now() - t0 < 1200) && performance.now() - t0 < (heroDur + 2.5) * 1000) await sleep(80);
+      rig.startTurntable(0.04);
+      while (!this.skip && (world.builds.has(hero) || performance.now() - t0 < 1200) && performance.now() - t0 < 90000) await sleep(80);
       rig.startTurntable(0);
       // finale: pull back, little celebration
+      // then the rest of this level's plan goes up quickly around it
+      rig.startTurntable(0); if (!this.skip) await rig.focus(centre, { dist: 70, pitch: 0.7 }, 1.0);
+      ordered.forEach((k, i) => { if (k !== hero) world.setCell(k, cells.get(k), { build: { dur: 1.8, delay: i * 0.1 } }); });
+      const t1 = performance.now(); while (!this.skip && world.builds.size && performance.now() - t1 < 30000) await sleep(80);
       world.finishBuilds();
       if (levelId === 'heart') { const rb = ribbon(heroP.clone().add(new THREE.Vector3(0, 0, -4.2))); await sleep(400); rb.r.visible = false; }
       world.confetti(heroP.clone().add(new THREE.Vector3(0, 8, 0)), 70); audio.good();
       if (!this.skip) await rig.focus(centre, { dist: 80, pitch: 0.7 }, 1.2);
       stage.updaters.splice(stage.updaters.indexOf(loop), 1);
-      clear(); title.remove(); skipBtn.remove(); bars.classList.remove('on'); ui.show('card'); ui.show('strip'); app.bot.show(true); this.playing = false;
+      clear(); title.remove(); skipBtn.remove(); this._steps?.remove(); bars.classList.remove('on'); ui.show('card'); ui.show('strip'); app.bot.show(true); this.playing = false;
     },
   };
   return film;

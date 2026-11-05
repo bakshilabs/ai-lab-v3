@@ -57,6 +57,16 @@ export function rimHeight(x, z) {
   const h = (1.5 + back * 7) * hills * Math.min(1, t * 2.4) + back * 2 * t + massif * Math.min(1, t * 1.8 + 0.25);
   return Math.max(0, Math.round(h));
 }
+// Canyons: deep gorges carved through the rim (never into the tile area). Returns how far below the rim top
+// the floor is cut (0 = no canyon). Gorge 1 runs from the massif east to the island edge; gorge 2 cuts the west rim.
+export function canyonDepth(x, z) {
+  if (insideTileArea(x, z)) return 0;
+  const c1 = Math.abs(z - (-29 + 4 * Math.sin(x / 7))); const w1 = x > 2 ? Math.max(0, 1 - c1 / (2.6 + Math.max(0, x - 30) * 0.08)) : 0;
+  const c2 = Math.abs(x - (-45 + 2.5 * Math.sin(z / 5))); const w2 = z < -6 && z > -30 ? Math.max(0, 1 - c2 / 2.2) : 0;
+  const c3 = Math.abs(x - (30 + 3 * Math.sin(z / 4))); const w3 = z > 14 ? Math.max(0, 1 - c3 / 2.4) : 0;
+  const w = Math.max(w1, w2, w3); if (w <= 0) return 0;
+  return Math.round(4 + w * 14);
+}
 export const isLimestone = (x, z, h) => h >= 12 || (h >= 8 && Math.hypot((x - 24) / 28, (z + 30) / 15) < 0.4 && noise2(x / 4, z / 4, 14) > 0.35);
 export const riverX = (z) => -27 + 1.4 * Math.sin(z / 7);
 export const inRiverVoxel = (x, z) => Math.abs(x + 0.5 - riverX(z)) < 1.8;
@@ -89,7 +99,8 @@ export function makeTerrain() {
   for (let gx = 0; gx < GW; gx++) for (let gz = 0; gz < GH; gz++) {
     const zone = zoneOf(gx, gz); if (!zone) continue;
     const [cx] = tileCenter(gx, gz);
-    const h = zone === 'slope' ? (cx > 20 ? 2 : 1) : zone === 'wood' ? 2 : zone === 'field' && gz <= 1 ? 1 : 0;
+    const n = noise2(gx / 2.3, gz / 2.3, 21);
+    const h = zone === 'slope' ? 1 + (cx > 14 ? 1 : 0) + (n > 0.62 ? 1 : 0) : zone === 'wood' ? 3 + (n > 0.5 ? 1 : 0) : zone === 'field' ? 1 + (n > 0.58 ? 1 : 0) + (gz <= 1 ? 1 : 0) : 0;
     const hedge = zone === 'field' && (gz === 2 || gz === 4) && gx >= 4 && gx <= 11;
     tiles.set(key(gx, gz), { gx, gz, k: key(gx, gz), zone, h, hedge });
   }

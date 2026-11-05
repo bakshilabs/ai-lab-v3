@@ -105,11 +105,11 @@ export function tree2(v, x, y, z, kind = 'round', seed = 0) {
 // Tiered conifer like the brochure islands: square tiers stepping in, darker under each tier.
 const PINE = ['#2c7a45', '#348a4f', '#3f9a58'], PINE_D = '#1f5e36';
 function tallPine(v, x, y, z, seed, k = 1) {
-  const tiers = Math.round((3 + Math.floor(rand(x, z, seed) * 2)) * k + 0.4), trunk = 2;
+  const tiers = Math.max(2, Math.round((2 + Math.floor(rand(x, z, seed) * 2)) * k)), trunk = 1 + (rand(x, z, seed + 1) > 0.5 ? 1 : 0);
   for (let i = 1; i <= trunk; i++) v.set(x, y + i, z, '#5a3d24');
   let yy = y + trunk + 1;
   for (let t = 0; t < tiers; t++) {
-    const r = Math.max(1, Math.round((tiers - t) * 0.9 * k + 0.4));
+    const r = Math.max(1, Math.round((tiers - t) * 0.7 * k + 0.2));
     for (let layer = 0; layer < 2; layer++) {
       const rr = r - layer;
       for (let dx = -rr; dx <= rr; dx++) for (let dz = -rr; dz <= rr; dz++) {
@@ -121,14 +121,14 @@ function tallPine(v, x, y, z, seed, k = 1) {
   }
   v.set(x, yy, z, PINE[2]); v.set(x, yy + 1, z, PINE[2]);
 }
-export function bigOakAt(v, x, y, z) { bigOak(v, x, y, z, 99, 1.6); }
+export function bigOakAt(v, x, y, z) { bigOak(v, x, y, z, 99, 1.5); }
 // Big broadleaf: chunky trunk with a branch, a wide two-tone canopy with a darker lower band.
 const OAK = ['#4caf44', '#58bb4c', '#43a03c'], OAK_D = '#2f8a34';
 function bigOak(v, x, y, z, seed, k = 1) {
-  const h = Math.round((4 + Math.floor(rand(x, z, seed) * 2)) * k);
-  for (let i = 1; i <= h; i++) { v.set(x, y + i, z, '#6b4a2e'); if (k >= 1) v.set(x + 1, y + i, z, '#5f4128'); }
+  const h = Math.round((2 + Math.floor(rand(x, z, seed) * 2)) * k);
+  for (let i = 1; i <= h; i++) { v.set(x, y + i, z, '#6b4a2e'); if (k > 1.2) v.set(x + 1, y + i, z, '#5f4128'); }
   v.set(x - 1, y + h - 1, z, '#6b4a2e'); v.set(x - 2, y + h, z, '#6b4a2e');
-  const R = Math.round(3.4 * k + 0.3), cy = y + h + R - 1;
+  const R = Math.round(2.1 * k + 0.2), cy = y + h + R - 1;
   for (let dx = -R - 1; dx <= R + 1; dx++) for (let dy = -R; dy <= R; dy++) for (let dz = -R - 1; dz <= R + 1; dz++) {
     const d = Math.hypot(dx / 1.15, dy * 1.05, dz / 1.15) + (rand(x + dx, cy + dy, z + dz + seed) - 0.5) * 0.5;
     if (d > R + 0.2) continue;
@@ -169,6 +169,8 @@ export { Vox };
 const shade = (hex, k) => { const n = parseInt(hex.slice(1), 16); const f = (v) => Math.max(0, Math.min(255, Math.round(v * k))); return '#' + [(n >> 16) & 255, (n >> 8) & 255, n & 255].map(f).map((v) => v.toString(16).padStart(2, '0')).join(''); };
 export function fhouse(F, x0, z0, w, d, h, o, rec) {
   const { wall, roof, trim = '#fbf6ec', shutter = '#4f7f6a', door = '#7a4a2c', roofType = 'gable', chimney = true, floorH = 5, stripes = null, balcony = false } = o;
+  // remember the shell so the construction sequence can show it being built system by system
+  (rec.shells ||= []).push({ x0, z0, w, d, h, open: [ '#3d5a73', trim, shutter, door ].map((c) => c.toLowerCase()) });
   for (let x = 0; x < w; x++) for (let z = 0; z < d; z++) for (let y = 0; y < h; y++) {
     const edge = x === 0 || z === 0 || x === w - 1 || z === d - 1; if (!edge) continue;
     let c = stripes ? stripes(x, y, z) : (y % 2 ? wall : shade(wall, 0.96));

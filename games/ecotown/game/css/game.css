@@ -200,3 +200,9 @@ html[data-motion="reduce"] .panel { transition: opacity .15s; }
 #filmskip { position: absolute; right: 14px; bottom: calc(9vh + 14px); z-index: 41; }
 @keyframes filmIn { from { opacity: 0; transform: translate(-50%, 20px); } }
 html[data-motion="reduce"] #letterbox i { transition: none; }
+
+#filmsteps { position: absolute; left: 50%; top: calc(9vh + 14px); transform: translateX(-50%); display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; z-index: 41; max-width: calc(100vw - 28px); }
+#filmsteps span { display: inline-flex; align-items: center; gap: 6px; background: rgba(13, 20, 34, .7); color: #9fb0c0; border-radius: 999px; padding: 4px 12px 4px 4px; font-weight: 800; font-size: .82em; transition: all .3s; }
+#filmsteps span i { font-style: normal; width: 1.6em; height: 1.6em; border-radius: 50%; display: grid; place-items: center; background: #2b3a55; color: #fff; }
+#filmsteps span.done { color: #dff3e6; } #filmsteps span.done i { background: var(--green); }
+#filmsteps span.on { background: #fffaf0; color: var(--ink); transform: scale(1.12); box-shadow: 0 6px 18px rgba(0,0,0,.3); } #filmsteps span.on i { background: var(--yellow); color: var(--ink); }
