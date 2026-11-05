@@ -44,7 +44,7 @@ for (let x = -RX - 4; x <= RX + 4; x++) for (let z = -RZ - 4; z <= RZ + 4; z++) 
   const isBase = x < -16 && z < -6; if (isBase) h = 3;
   const pad = x > -24 && x < -14 && z > 2 && z < 10; if (pad) h = 2;
   const sd = sand(x, z); if (sd < 1) h = 2;
-  const cr = crater(x, z); if (cr < 1) h = 2 - Math.round(3.5 * (1 - cr * cr)); else if (cr < 1.35) h = Math.max(h, 4);
+  const cr = crater(x, z); if (cr < 1) h = 2 - Math.round(6 * (1 - cr * cr)); else if (cr < 1.35) h = Math.max(h, 6);
   H.set(K(x, z), h);
   const r = Math.hypot(x / RX, z / RZ); const under = Math.round(10 * (1 - r * r * 0.7) + noise2(x / 3, z / 3, 4) * 3);
   for (let y = h - under; y <= h; y++) { let c; if (y === h) { c = pad ? ((x + z) % 2 ? '#a9a9b0' : '#9a9aa2') : sd < 1 ? (sd < 0.75 ? (rand(x, 3, z) > .5 ? '#fbe2bd' : '#f6d6a8') : '#f0c08a') : cr < 1 ? '#b0522a' : SH[Math.floor(clamp(noise2(x / 5, z / 5, 9) * 1.4 - 0.2) * 3.99)]; } else { const b = Math.floor((y + noise2(x / 5, z / 5, 2) * 2) / 2); c = ['#c4602c', '#a84a24', '#d9743a', '#8a3a1e', '#e8a06a'][((b % 5) + 5) % 5]; } v.set(x, y, z, c); }
@@ -70,7 +70,7 @@ const rover = new THREE.Group(); { const b = new Vox(); b.box(-3, 2, -2, 3, 3, 2
 const wheels = []; for (const wx of [-1.6, 0.1, 1.8]) for (const wz of [-1.8, 1.8]) { const w = new THREE.Mesh(new THREE.BoxGeometry(1.25, 1.25, 0.7), new THREE.MeshLambertMaterial({ color: '#22222c' })); const hub = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.35, 0.52), new THREE.MeshLambertMaterial({ color: '#7a7a8a' })); w.add(hub); w.position.set(wx, 0.62, wz); rover.add(w); wheels.push(w); }
 scene.add(rover);
 const RA = [[-17, -6], [-10, -3], [-1, -1], [8, 1], [17, 2]];
-const RB = [[-17, -6], [-12, -12], [-2, -15], [9, -13], [15, -6], [17.5, -1], [17.5, 1.5]];
+const RB = [[-17, -6], [-12, -12], [-2, -15], [9, -13], [15, -6], [16, -1], [16, 3]];
 const segL = (R) => { const L = [0]; for (let i = 1; i < R.length; i++) L.push(L[i - 1] + Math.hypot(R[i][0] - R[i - 1][0], R[i][1] - R[i - 1][1])); return L; };
 const LA = segL(RA), LB = segL(RB);
 const at = (R, L, u) => { const d = clamp(u) * L[L.length - 1]; let i = 1; while (i < L.length - 1 && L[i] < d) i++; const k = (d - L[i - 1]) / (L[i] - L[i - 1]); return [lerp(R[i - 1][0], R[i][0], k), lerp(R[i - 1][1], R[i][1], k), Math.atan2(R[i][1] - R[i - 1][1], R[i][0] - R[i - 1][0])]; };
@@ -102,7 +102,7 @@ st.onFrame((t) => {
   else if (t < 16.2) { const k = prog(t, 8.4, 16.2); ang = lerp(-0.42, -0.18, k); dist = lerp(70, 40, ease.inOut(k)); hgt = lerp(50, 28, ease.inOut(k)); { const q = prog(t, 9.6, 12); look = [lerp(-6, x + 1, q), lerp(2, hSm(x, z), q), lerp(-4, z + 1, q)]; dy = lerp(-1.5, 2.5, q); } }
   else if (t < 20.4) { const k = prog(t, 16.2, 20.4); ang = lerp(-0.18, -0.36, k); dist = lerp(40, 74, ease.inOut(k)); hgt = lerp(28, 52, ease.inOut(k)); look = [lerp(-1, 0, k), 2, lerp(-1, -4, k)]; }
   else if (t < 26.4) { const k = prog(t, 20.4, 26.4); ang = lerp(-0.36, 0.1, ease.inOut(k)); dist = lerp(66, 44, k); hgt = lerp(48, 32, k); { const q = prog(t, 20.6, 22); look = [lerp(-4, x + 1, q), lerp(2, hSm(x, z), q), lerp(-6, z + 1, q)]; dy = lerp(-1.5, 2.5, q); } }
-  else if (t < 31) { const k = prog(t, 26.4, 31); ang = lerp(0.1, 0.32, k); dist = lerp(44, 58, k); hgt = lerp(30, 40, k); look = [lerp(19, 17, k), 3, lerp(1, 0, k)]; }
+  else if (t < 31) { const k = prog(t, 26.4, 31); ang = lerp(0.1, 0.32, k); dist = lerp(44, 58, k); hgt = lerp(30, 40, k); look = [lerp(22, 21, k), 1, lerp(4, 4, k)]; }
   else { const k = prog(t, 31, 37); ang = lerp(0.32, 0.75, k); dist = lerp(100, 140, k); hgt = lerp(70, 96, k); dy = 3; }
   camera.fov = 30; camera.updateProjectionMatrix(); camera.position.set(Math.sin(ang) * dist + look[0], hgt + look[1], Math.cos(ang) * dist + look[2]); camera.lookAt(look[0], look[1] + dy, look[2]);
 });
@@ -128,7 +128,7 @@ const STAR = '<svg viewBox="0 0 24 24"><path d="M12 2.6l2.8 5.7 6.3.9-4.6 4.4 1.
 const stars = el(`<div class="bigstars" style="display:flex;gap:30px;align-items:flex-end">${STAR}<span style="transform:translateY(-30px)">${STAR}</span>${STAR}</div>`, { x: 520, y: 500, anchor: 'c' }); A(cue(stars, 26.8, 30.8));
 const lvl = el('<div class="lvl">Level 5 unlocked<div class="bar"><i data-b></i></div></div>', { x: 520, y: 660, anchor: 'c' }); A(cue(lvl, 27.2, 30.8)); A((t) => { lvl.querySelector('[data-b]').style.width = 100 * prog(t, 27.4, 28.6) + '%'; });
 const pola = el('<div class="pola"><img data-i>Crater photo #1</div>', { x: 1180, y: 1040, anchor: 'tr' }); pola.style.transformOrigin = 'center';
-let snapped = false; A((t) => { if (t >= 26.05 && !snapped) { pola.querySelector('[data-i]').src = st.renderer.domElement.toDataURL('image/jpeg', 0.8); snapped = true; } const k = prog(t, 26.3, 27.1, ease.back); pola.style.opacity = t > 26.3 && t < 31 ? 1 : 0; pola.style.transform = `translate(-100%,-100%) rotate(${lerp(-14, 4, k)}deg) scale(${lerp(1.6, 1, k)})`; });
+let snapped = false; A((t) => { if (t >= 26.7 && !snapped) { pola.querySelector('[data-i]').src = st.renderer.domElement.toDataURL('image/jpeg', 0.8); snapped = true; } const k = prog(t, 26.9, 27.7, ease.back); pola.style.opacity = t > 26.9 && t < 31 ? 1 : 0; pola.style.transform = `translate(-100%,-100%) rotate(${lerp(-14, 4, k)}deg) scale(${lerp(1.6, 1, k)})`; });
 const dimEnd = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:radial-gradient(ellipse at center, rgba(10,8,40,.2), rgba(10,8,40,.55))"></div>'); A(cue(dimEnd, 31.2, null, { from: 'fade', dur: 0.8 }));
 const title = titleCard('AI Inventor <span class="hl">Lab</span>', 'Program the rover. Check what the AI thinks you meant.', { chip: 'A DeltaOps Learning AI lab · STEM clubs' }); A(cue(title, 31.4, null, { from: 'pop', dur: 0.8 }));
 st.onFrame((t) => ui.forEach((f) => f(t)));
