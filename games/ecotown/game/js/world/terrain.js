@@ -67,7 +67,7 @@ export function canyonDepth(x, z) {
   const w = Math.max(w1, w2, w3); if (w <= 0) return 0;
   return Math.round(4 + w * 14);
 }
-export const isLimestone = (x, z, h) => h >= 12 || (h >= 8 && Math.hypot((x - 24) / 28, (z + 30) / 15) < 0.4 && noise2(x / 4, z / 4, 14) > 0.35);
+export const isLimestone = (x, z, h) => h >= 9 || (h >= 6 && Math.hypot((x - 24) / 28, (z + 30) / 15) < 0.5);
 export const riverX = (z) => -27 + 1.4 * Math.sin(z / 7);
 export const inRiverVoxel = (x, z) => Math.abs(x + 0.5 - riverX(z)) < 1.8;
 

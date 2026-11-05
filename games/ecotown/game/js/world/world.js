@@ -20,9 +20,9 @@ function zoneAtVoxel(x0, z0) {
 const TOPS = {
   rim: ['#5fbf3f', '#6cc848', '#57b23a'], meadow: ['#74cf4c', '#82d858', '#69c443'], wetland: ['#5fb84a', '#6cc153', '#56ad42'],
   wood: ['#4fae3c', '#5ab944', '#46a236'], slope: ['#7dd24f', '#8adb5c', '#72c846'], field: ['#68c443', '#75cd4e', '#5eb93c'],
-  coast: ['#f0dcaa', '#e8d29c', '#f5e4b8'],
+  coast: ['#f6d2a2', '#f0c38c', '#fadfb8'],
 };
-const LIME = ['#f1ece0', '#e4ddcc', '#d6cfbd', '#ebe5d6'];
+const LIME = ['#e8874c', '#d9733f', '#c4622f', '#f09a5a']; // terracotta mesa (rover palette)
 
 export function createWorld(stage, terrain) {
   const { scene } = stage;
@@ -37,7 +37,7 @@ export function createWorld(stage, terrain) {
   const canyonBed = (x, z) => { const d = canyonDepth(x, z); return d ? Math.min(rimH(x, z), 0) - d + Math.min(rimH(x, z), 0) * 0 : null; };
   const heightAt = (x, z) => { if (!insideVoxel(x, z)) return null; if (inRiverVoxel(x, z)) return -1; const tt = inTiles(x, z); if (tt) return tileH(tt[0], tt[1]); const cb = canyonBed(x, z); return cb != null ? Math.min(rimH(x, z), cb) : rimH(x, z); };
   // warm sandstone strata exposed wherever the land drops into a canyon
-  const SAND = ['#e3a66a', '#d98a4e', '#c46f3a', '#eab47a', '#b65f33', '#d4935a'];
+  const SAND = ['#f0955a', '#d9733f', '#b85a2e', '#f6ab70', '#9a4424', '#e07f47'];
   const nearCanyon = (x, z) => { for (let dx = -3; dx <= 3; dx++) for (let dz = -3; dz <= 3; dz++) if (canyonDepth(x + dx, z + dz)) return true; return false; };
   const dither = (pal, x, z) => { const bx = x >> 1, bz = z >> 1; const n = rand(bx, bz, 3) * 0.75 + rand(x, z, 4) * 0.25 + (noise2(x * 0.12, z * 0.12, 9) - 0.5) * 0.7; return pal[n < 0.33 ? 2 : n < 0.7 ? 0 : 1]; };
   const rimCells = [];
@@ -52,17 +52,17 @@ export function createWorld(stage, terrain) {
     const edge = !insideVoxel(x + 1, z) || !insideVoxel(x - 1, z) || !insideVoxel(x, z + 1) || !insideVoxel(x, z - 1);
     for (let y = top - under; y <= top; y++) {
       let c; const dTop = top - y, dBot = y - (top - under);
-      if (dTop === 0) c = river ? '#d9c79a' : !tt && canyonDepth(x, z) ? '#c9a46a' : lime ? (top >= 12 && rand(x, z, 8) > 0.4 ? '#ffffff' : LIME[Math.floor(rand(x, z, 5) * 4)]) : dither(TOPS[zone], x, z);
-      else if (lime && y > 0) c = LIME[(Math.floor(y / 2) + Math.floor(rand(x, z, y) * 2)) % 4];          // pale cliff strata
+      if (dTop === 0) c = river ? '#d9c79a' : !tt && canyonDepth(x, z) ? ['#f2b07a', '#e8955c', '#f6c08e'][Math.floor(rand(x, z, 6) * 3)] : lime ? ['#f6ab70', '#f2b07a', '#e8955c'][Math.floor(rand(x >> 1, z >> 1, 5) * 3)] : dither(TOPS[zone], x, z);
+      else if (lime && y > 0) c = ['#e07f47', '#d06d3a', '#e8874c', '#c4622f'][(Math.floor(y / 2) + (rand(x >> 1, y >> 1, z >> 1) > 0.8 ? 1 : 0)) % 4]; // terracotta mesa cliffs
       else if (!tt && dTop > 1 && dBot > 2 && nearCanyon(x, z)) c = SAND[(((y + 40) >> 1) + (rand(x, z, y) > 0.85 ? 1 : 0)) % 6]; // canyon strata
-      else if (dTop <= 1 && !river) c = zone === 'coast' ? '#e3cf98' : '#7ca33a';                           // turf lip
-      else if (dBot <= 2) c = rand(x, y, z) > 0.5 ? '#4a2f1c' : '#3d2616';                                  // dark base
-      else { const streak = (Math.floor(x * 1.7 + z * 2.3) & 3); c = ['#8a5a34', '#7c4f2d', '#966540', '#71482a'][(streak + (rand(x, z, y) > 0.8 ? 1 : 0)) & 3]; } // streaked earth
+      else if (dTop <= 1 && !river) c = zone === 'coast' ? '#eab47a' : '#8a5a2a';                           // turf lip
+      else if (dBot <= 2) c = rand(x, y, z) > 0.5 ? '#6e2f18' : '#5a2612';                                  // dark base
+      else { const streak = (Math.floor(x * 1.7 + z * 2.3) & 3); c = ['#d9733f', '#c96535', '#e07f47', '#b85a2e'][(Math.floor(y / 2) + (rand(x >> 1, y >> 1, z >> 1) > 0.75 ? 1 : 0) + (streak === 0 ? 1 : 0)) % 4]; } // terracotta earth in chunky blocks
       v.set(x, y, z, c);
     }
     // dark root tips under the rim
-    if (r > 0.55 && rand(x, z, 77) > 0.94) { const by = top - under; const len = 2 + Math.floor(rand(x, z, 78) * 5); for (let k = 1; k <= len; k++) v.set(x, by - k, z, k === len ? '#2f1e12' : '#4a2f1c'); }
-    if (edge && rand(x, z, 31) > 0.86) { const nx = insideVoxel(x + 1, z) ? -1 : 1; const y0 = top - 3 - Math.floor(rand(x, z, 32) * 5); v.set(x + nx, y0, z, '#7c4f2d'); v.set(x + nx, y0 + 1, z, '#5fbf3f'); }
+    if (r > 0.55 && rand(x, z, 77) > 0.94) { const by = top - under; const len = 2 + Math.floor(rand(x, z, 78) * 5); for (let k = 1; k <= len; k++) v.set(x, by - k, z, k === len ? '#4a1c0c' : '#7a3418'); }
+    if (edge && rand(x, z, 31) > 0.86) { const nx = insideVoxel(x + 1, z) ? -1 : 1; const y0 = top - 3 - Math.floor(rand(x, z, 32) * 5); v.set(x + nx, y0, z, '#b85a2e'); v.set(x + nx, y0 + 1, z, '#5fbf3f'); }
     if (river) { water.set(x, 0, z, rand(x, 9, z) > 0.5 ? '#3fa2e6' : '#4aaeea'); riverCells.push([x, z]); }
     const cd = !tt && canyonDepth(x, z); if (cd && cd >= 12) water.set(x, top + 1, z, '#3fa2e6');
     if (!tt && !river && !edge && !cd) rimCells.push([x, z, top, zone, lime]);

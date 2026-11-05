@@ -30,8 +30,8 @@ const SKY = [
   [0,    '#0a1436', '#1b2c5c', '#8fa0ff', 0.0, 0.32],
   [5,    '#2b2d5e', '#d8846e', '#ffb48a', 0.5, 0.5],
   [7,    '#6d8fd0', '#ffd2b0', '#ffd9b0', 2.0, 0.95],
-  [10,   '#2f8cf0', '#d4ecff', '#fff4e2', 3.4, 1.05],
-  [14.5, '#2f8cf0', '#d4ecff', '#fff4e2', 3.4, 1.05],
+  [10,   '#3f8fe6', '#b9dcf8', '#fff1dc', 3.4, 1.05],
+  [14.5, '#3f8fe6', '#b9dcf8', '#fff1dc', 3.4, 1.05],
   [16.5, '#7a8fd6', '#ffd0a4', '#ffd29a', 2.7, 1.0],
   [18.2, '#7a6ab4', '#ffa47a', '#ff9a62', 1.9, 0.82],
   [19.6, '#3e3f86', '#f07a6a', '#ff7a5c', 0.6, 0.55],
@@ -42,7 +42,7 @@ const C = (h) => new THREE.Color(h);
 
 // warm colour grade with vignette (linear HDR in, before tone mapping in OutputPass)
 const GradeShader = {
-  uniforms: { tDiffuse: { value: null }, sat: { value: 1.14 }, contrast: { value: 1.08 }, vignette: { value: 0.18 }, warm: { value: 0.0 } },
+  uniforms: { tDiffuse: { value: null }, sat: { value: 1.16 }, contrast: { value: 1.1 }, vignette: { value: 0.18 }, warm: { value: 0.035 } },
   vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
   fragmentShader: `uniform sampler2D tDiffuse; uniform float sat, contrast, vignette, warm; varying vec2 vUv;
     void main(){ vec4 c = texture2D(tDiffuse, vUv); vec3 col = c.rgb; float l = dot(col, vec3(0.2126,0.7152,0.0722));
