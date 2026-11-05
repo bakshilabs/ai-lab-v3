@@ -25,7 +25,7 @@ Future Skills · 0:38 · a tilt-shift voxel model of a small harbour town on a s
 **Pathway card:** Next step: MEI Introduction to Data Science (free, or a Code Club data project) · Award: CREST Discovery (data project) · Route: T Level Digital Data Analytics, or a Level 3 Data Technician apprenticeship · Jobs: data technician, data analyst, policy researcher.
 
 **Reviewer notes:**
-- **Render status:** Described from the current source; video re-rendering.
+- **Render status:** Described from the current source; video re-rendered and checked on a contact sheet.
 - **Changes in this version:** 38 s (was 42). Shorter title and brief; wider camera so the island stays visible beside the cards; in-world office sign removed; checks run Data → Case → Source → Authority; the AI card reacts ("Returned"); cards grow as text appears; bright ending with the island visible (no dark dim); pathway card in the shared "PATHWAY · Where this skill goes next" style with no arrow.
 - **Names:** **Freya, 13** (learner) and **Ines** (council data analyst). These replace the earlier Maya and Amara, so the analyst no longer clashes with **Amara Osei** (Desk Editor) in Verification Desk. Neither name is used in any other trailer or lab.
 - **Places:** "Harbourside" is a real place name (Bristol). The ward and street names (Mill Lane, Castle Hill, Old Quay, Quay Road, Ash Street, Keep Lane, Net Loft Row) are common. These need a final check.
