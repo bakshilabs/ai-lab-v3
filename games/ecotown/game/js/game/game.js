@@ -208,11 +208,12 @@ export function createGame(app) {
   async function liveAct(id, seconds) {
     const s = sim(); ui.only([]); ui.setTask(`L${LEVELS[id].n}/6`, G.C.ui.live); ui.views('sky');
     const list = bubblesFor(s, G.cells, terrain, G.j, id); const pois = poiList(s);
-    let skip = false; ui.tray(`<div class="row" style="justify-content:center"><button class="btn alt" data-skip>Skip ⏭</button>${!G.j ? '<button class="btn alt" data-said>What residents said</button>' : ''}</div>`, (tr) => { tr.querySelector('[data-skip]').onclick = () => (skip = true); const ws = tr.querySelector('[data-said]'); if (ws) ws.onclick = () => saidList(list); });
+    let skip = false; const diaryLine = pick(T(id).diary); ui.tray(`<div class="row" style="align-items:center;justify-content:space-between;gap:14px;flex-wrap:nowrap"><span style="font:800 1.4em Bricolage,Inter;min-width:4.2em" data-clock>7:00</span><span style="flex:1;font-weight:700;color:var(--ink2)">📔 ${esc(life.family ? 'Family diary: ' : '')}“${esc(diaryLine)}”</span>${!G.j ? '<button class="btn alt" data-said>What residents said</button>' : ''}<button class="btn alt" data-skip>Skip ⏭</button></div>`, (tr) => { tr.querySelector('[data-skip]').onclick = () => (skip = true); const ws = tr.querySelector('[data-said]'); if (ws) ws.onclick = () => saidList(list); });
     const t0 = performance.now(); let bi = 0, pi = 0, nextB = 1.5, nextP = 0;
     while (!skip) {
       const el = (performance.now() - t0) / 1000; if (el > seconds) break;
       app.hour = 7 + (el / seconds) * 14; stage.setTime(app.hour, 0);
+      const ck = ui.P.tray.querySelector('[data-clock]'); if (ck) { const hh = Math.floor(app.hour), mm = Math.floor((app.hour - hh) * 4) * 15; ck.textContent = `${hh}:${String(mm).padStart(2, '0')}`; }
       if (el >= nextP && pois.length && !app.reduce) { const p = pois[pi++ % pois.length]; rig.focus(p, { dist: 62, pitch: 0.55, yaw: rig.sky.yaw + 0.5 }, 3.2); nextP = el + 5.5; }
       if (el >= nextB && list.length) { const b = list[bi++ % list.length]; ui.labels.bubble({ at: () => world.tileTop(b.k).add(new THREE.Vector3(0, 7, 0)), text: b.text, bad: b.bad }); nextB = el + 3.2; }
       await sleep(50);
@@ -240,7 +241,7 @@ export function createGame(app) {
     G.diary.push(pick(T(id).diary)); flower(true); audio.reward(); world.confetti(new THREE.Vector3(10, 20, 8), 200); app.bot.cheer();
     const st = G.levelStars[id] || 0; const s2 = sim();
     await ui.modal(`<div class="ribbon green">${esc(G.C.ui.reward)} · ${esc(T(id).title)}</div><div class="stars3">${[0, 1, 2].map((i) => `<span class="${i < st ? 'on' : ''}">★</span>`).join('')}</div><h2>${esc(G.C.ui.foundations)}</h2>
-      <div class="stats"><div><small>Mistake caught</small>${esc(G.mistakes.find((m) => m.level === id) ? G.C.habits[G.mistakes.find((m) => m.level === id).habit].label : G.C.ui.firstTry)}</div><div><small>Families</small>${s2.families}</div><div><small>Town title</small>${esc(s2.title)}</div><div><small>${G.j ? 'Fact' : 'Evidence'}</small>${esc(pick(T(id).fact))}</div></div>
+      <div class="stats"><div><small>Mistake caught</small>${esc(G.mistakes.find((m) => m.level === id) ? G.C.habits[G.mistakes.find((m) => m.level === id).habit].label : G.C.ui.firstTry)}</div><div><small>${s2.families ? 'Families' : 'Town land'}</small>${s2.families || s2.townTiles + ' tiles'}</div><div><small>Town title</small>${esc(s2.title)}</div><div><small>${G.j ? 'Fact' : 'Evidence'}</small>${esc(pick(T(id).fact))}</div></div>
       <button class="btn go" data-act="next">${esc(G.C.ui.continue)} ➜</button>`, { say: G.C.ui.foundations });
     rig.startTurntable(0); save();
   }

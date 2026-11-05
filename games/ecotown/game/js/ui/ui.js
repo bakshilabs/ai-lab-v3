@@ -29,7 +29,7 @@ export function createUI(root, labelsRoot, opts) {
   const facilEl = h('<div class="facil"></div>'); P.dock.prepend(facilEl);
   P.tray = D.actions; P.helper = D.speaker; P.tr = P.strip; P.views = P.strip; P.flower = P.flowerpop; P.badge = P.card; P.task = P.card;
   const dockState = { speaker: false, actions: false, head: false };
-  const syncDock = () => { P.dock.classList.toggle('hide', !(dockState.speaker || dockState.actions)); D.speaker.style.display = dockState.speaker ? '' : 'none'; D.actions.style.display = dockState.actions ? '' : 'none'; P.dock.classList.toggle('talk-only', dockState.speaker && !dockState.actions); };
+  const syncDock = () => { P.dock.classList.toggle('hide', !(dockState.speaker || dockState.actions)); D.speaker.style.display = dockState.speaker ? '' : 'none'; D.actions.style.display = dockState.actions ? '' : 'none'; P.dock.classList.toggle('talk-only', dockState.speaker && !dockState.actions); P.dock.classList.toggle('actions-only', !dockState.speaker && dockState.actions); };
 
   const ui = {
     P, readAloud: false,

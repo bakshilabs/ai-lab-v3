@@ -206,3 +206,6 @@ html[data-motion="reduce"] #letterbox i { transition: none; }
 #filmsteps span i { font-style: normal; width: 1.6em; height: 1.6em; border-radius: 50%; display: grid; place-items: center; background: #2b3a55; color: #fff; }
 #filmsteps span.done { color: #dff3e6; } #filmsteps span.done i { background: var(--green); }
 #filmsteps span.on { background: #fffaf0; color: var(--ink); transform: scale(1.12); box-shadow: 0 6px 18px rgba(0,0,0,.3); } #filmsteps span.on i { background: var(--yellow); color: var(--ink); }
+
+#dock.actions-only { grid-template-columns: 1fr; width: auto; min-width: min(560px, calc(100vw - 28px)); max-width: min(1180px, calc(100vw - 28px)); }
+#dock.actions-only .actions { align-items: stretch; }

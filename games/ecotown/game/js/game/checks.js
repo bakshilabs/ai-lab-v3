@@ -105,6 +105,7 @@ export function createChecks(app) {
     // run a check against a planned town (cells after the plan). Returns {revealed, info}
     async run(id, sim, cells, reveal) {
       clear(); app.audio.whoosh();
+      if (!['street', 'inside'].includes(id) && rig.mode === 'sky') await rig.overview(0.9); // lenses read best on the whole island
       const info = await RUN[id](sim, cells);
       return { revealed: reveal[id] || null, info };
     },

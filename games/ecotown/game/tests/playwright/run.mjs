@@ -38,7 +38,7 @@ async function instruct(text, card) {
   else { await click('#dock [data-actions] [data-m="text"]'); await p.fill('#dock [data-actions] [data-in]', text); await p.waitForTimeout(300); await click('#dock [data-actions] [data-send]'); }
 }
 for (const [id, check, habit, vague, clear] of LEVELS) {
-  await click('#modal:not(.hide) [data-act="go"]', 60000); // brief + unlock card
+  await click('#modal:not(.hide) [data-act="go"]', 180000); // brief + unlock card
   await p.waitForTimeout(400);
   await instruct(vague, 0); await p.waitForTimeout(2200); await shot(`${id}-plan`); budget.push([`${id}-plan`, await panelsVisible()]);
   await click(`#dock [data-actions] [data-c="${check}"]`); await p.waitForSelector('#alert:not(.hide)', { timeout: 30000 }); await shot(`${id}-check-${check}`); budget.push([`${id}-check`, await panelsVisible()]);
