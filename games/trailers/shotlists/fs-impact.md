@@ -29,12 +29,13 @@ Future Skills · 0:43 · a floating grassy voxel island with a cut-away council 
 **Pathway card:** Next step: Experience AI ethics lessons (free, 11–14) and Elements of AI (free, 16+) · Award: DofE Skills section (public speaking) and Citizenship GCSE · Route: EPQ → A-level Law, Politics or Philosophy · Jobs: policy adviser, data protection officer, AI governance specialist.
 
 **Reviewer notes:**
-- **Render status:** from the current source; not yet rendered (no `out/fs-impact.mp4`).
+- **Render status:** checked against the rendered video (`out/fs-impact.mp4`, 43 s, newer than the source) at one frame per second. Timings and on-screen text match the list above; no corrections were needed apart from the timing note below.
+- **Seen on the video:** from about 0:08 the brief chip at the top left is cut off by the left edge of the picture (it reads "…rbourside Council · Due Friday" in most frames). Check the chip's position.
 - **Age (fixed):** the sign-off card now says "Reviewed by: Zainab, age 15", matching her name tag.
 - **Camera count (fixed):** the energy line now says "4 cameras", matching the 4 camera poles in the park and the 4 camera spots on the wall map. The ≈1,100 kWh estimate is unchanged.
 - **Law line:** this was corrected recently. It now names "UK GDPR and the ICO’s video surveillance guidance", which is better than the Children's Code wording the lab design document warned about. Have someone with data-protection knowledge confirm it. "Delete footage after 24 hours" is a policy choice in the story, not a legal rule.
 - **Checks:** the AI's data was "Council survey · adults 18+", yet **Data** passes and the missing young people are caught under **Authority**. A reviewer may ask why.
 - **Pathway:** "Citizenship GCSE" is a qualification, not an award. Also confirm the stated age ranges for Experience AI and Elements of AI.
 - **Names:** Zainab (lead) and Priya Shah (mentor, DPO). The lab design document asks for Priya Shah to be checked, as it is a common name.
-- **Timing:** the new decision line is still typing (until about 0:30) when the sign-off card appears at 0:29.
+- **Timing:** on the video the new decision line finishes typing at about 0:29, the same moment the sign-off card appears, so there is no time to read it before it is signed off.
 - The title card comes at the end. The trailer has no voice-over apart from the on-screen speech bubble. Labels in capitals are styled that way on screen.

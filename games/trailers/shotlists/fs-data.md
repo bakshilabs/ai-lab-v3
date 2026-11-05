@@ -29,7 +29,9 @@ Future Skills · 0:42 · a tilt-shift voxel model of a small harbour town on a s
 **Pathway card:** Next step: MEI Introduction to Data Science (free, or a Code Club data project) · Award: CREST Discovery (data project) · Route: T Level Digital Data Analytics, or a Level 3 Data Technician apprenticeship · Jobs: data technician, data analyst, policy researcher.
 
 **Reviewer notes:**
-- **Render status:** from the current source; not yet rendered (no `out/fs-data.mp4`).
+- **Render status:** checked against the rendered video (`out/fs-data.mp4`, 42 s, newer than the source) at one frame per second. Timings and on-screen text match the list above to within about half a second (for example, Freya's label appears at about 0:10, just after the spreadsheet card); no text corrections were needed.
+- **Seen on the video:** from about 0:20 the top-left bar is slightly cut off by the left edge of the picture (it reads "…ouncil Data Desk" in several frames). Check its position.
+- **Ending:** on the video the pathway card and logo stay fully bright until the last half-second, so the fade to black is very short.
 - **Names:** **Freya, 13** (learner) and **Ines** (council data analyst). These replace the earlier Maya and Amara, so the analyst no longer clashes with **Amara Osei** (Desk Editor) in Verification Desk. Neither name is used in any other trailer or lab.
 - **Places:** "Harbourside" is a real place name (Bristol). The ward and street names (Mill Lane, Castle Hill, Old Quay, Quay Road, Ash Street, Keep Lane, Net Loft Row) are common. These need a final check.
 - **Checks:** only Data turns red. Case is shown as an amber warning rather than a fail. Please confirm this is the intended teaching point.

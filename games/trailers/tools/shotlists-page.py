@@ -106,7 +106,7 @@ def parse(tid):
     parts = meta.split(' · ', 2)
     strand, length, look = (parts + ['', '', ''])[:3]
     src = (SL / f'{tid}.md').read_text()
-    unrendered = bool(re.search(r'not yet (re-)?rendered', src, re.I))
+    unrendered = bool(re.search(r'not yet (re-)?rendered|video re-rendering', src, re.I))
     return dict(id=tid, title=title, strand=strand, length=length, look=look,
                 main=md_to_html(main), notes=md_to_html(notes), unrendered=unrendered)
 
