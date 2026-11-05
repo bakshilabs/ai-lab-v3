@@ -4,8 +4,8 @@ import * as THREE from 'three';
 import { Vox, WORLD, rand, noise2, clipMaterial } from '../engine/voxel.js';
 import { clouds, waterfall, roots, floatingRocks } from '../engine/extras.js';
 import { ease, clamp } from '../engine/stage.js';
-import { T, X0, Z0, RX, RZ, zoneAt, rimHeight, insideVoxel, inRiverVoxel, riverX, tileAt, tileOrigin, tileCenter, ZONES } from './terrain.js';
-import { BUILD, MARK, addMod, addModFine, decorate, tree2 } from './builders.js';
+import { T, X0, Z0, RX, RZ, zoneAt, rimHeight, isLimestone, insideVoxel, inRiverVoxel, riverX, tileAt, tileOrigin, tileCenter, ZONES } from './terrain.js';
+import { BUILD, MARK, addMod, addModFine, decorate, tree2, bigOakAt } from './builders.js';
 import { ITEMS } from './catalog.js';
 
 const HEDGE_SAFE = new Set(['mixed', 'orchard', 'hives', 'hedge', 'path', 'cycle', 'park', 'allot', 'greenbridge']);
@@ -17,22 +17,24 @@ function zoneAtVoxel(x0, z0) {
   return zoneAt(x0 + (noise2(x0 * 0.18, z0 * 0.18, 31) - 0.5) * 3, z0 + (noise2(x0 * 0.18, z0 * 0.18, 47) - 0.5) * 3);
 }
 const TOPS = {
-  rim: ['#62bb3d', '#58b036', '#6fc447'],
-  meadow: ['#7fd04f', '#74c846', '#89d65a'], wetland: ['#6cbf5a', '#62b552', '#76c663'], wood: ['#4fab3a', '#58b442', '#47a034'],
-  slope: ['#86d250', '#7bc947', '#90d85c'], coast: ['#efdcab', '#e7d29b', '#f3e3b8'], field: ['#6fc444', '#66bb3d', '#79cc4d'],
+  rim: ['#5fbf3f', '#6cc848', '#57b23a'], meadow: ['#74cf4c', '#82d858', '#69c443'], wetland: ['#5fb84a', '#6cc153', '#56ad42'],
+  wood: ['#4fae3c', '#5ab944', '#46a236'], slope: ['#7dd24f', '#8adb5c', '#72c846'], field: ['#68c443', '#75cd4e', '#5eb93c'],
+  coast: ['#f0dcaa', '#e8d29c', '#f5e4b8'],
 };
+const LIME = ['#f1ece0', '#e4ddcc', '#d6cfbd', '#ebe5d6'];
 
 export function createWorld(stage, terrain) {
   const { scene } = stage;
   const root = new THREE.Group(); scene.add(root);
   const tileH = (gx, gz) => terrain.tiles.get(gx + ',' + gz)?.h ?? 0;
 
-  // ---------------- terrain mesh: the buildable tile area, ringed by a wild rim of hills, rocks, trees and beach
-  const v = new Vox(); v.jitter = 0.03; const water = new Vox(); water.jitter = 0.03; const riverCells = [];
+  // ---------------- terrain mesh: buildable tile area + a dramatic rim (limestone massif, terraced hills, tiered pines,
+  //                  big oaks, a spring waterfall) and a deep brown underside with streaks and hanging roots
+  const v = new Vox(); v.jitter = 0.04; const water = new Vox(); water.jitter = 0.03; const riverCells = [];
   const inTiles = (x, z) => { const tt = tileAt(x, z); return tt && terrain.tiles.has(tt[0] + ',' + tt[1]) ? tt : null; };
-  // the rim is cut by the river valley so the river still runs off both ends
   const rimH = (x, z) => Math.round(rimHeight(x, z) * Math.min(1, Math.max(0, (Math.abs(x + 0.5 - riverX(z)) - 2.5) / 6)));
   const heightAt = (x, z) => { if (!insideVoxel(x, z)) return null; if (inRiverVoxel(x, z)) return -1; const tt = inTiles(x, z); return tt ? tileH(tt[0], tt[1]) : rimH(x, z); };
+  const dither = (pal, x, z) => { const n = rand(x, z, 3) + (noise2(x * 0.15, z * 0.15, 9) - 0.5) * 0.9; return pal[n < 0.33 ? 2 : n < 0.72 ? 0 : 1]; };
   const rimCells = [];
   for (let x = -RX - 4; x <= RX + 4; x++) for (let z = -RZ - 4; z <= RZ + 4; z++) {
     if (!insideVoxel(x, z)) continue;
@@ -40,40 +42,62 @@ export function createWorld(stage, terrain) {
     const r = Math.hypot(x / RX, z / RZ);
     const beach = !tt && z > 18 && top <= 1;
     const zone = tt ? zoneAtVoxel(x, z) : beach ? 'coast' : 'rim';
-    let under = Math.round(14 * (1 - r * r * 0.75) + noise2(x / 3, z / 3, 86) * 4) + top;
-    if (rand(x, z, 77) > 0.985 && r < 0.85) under += 5 + Math.floor(rand(x, z, 78) * 5);   // hanging rock tips
+    const lime = !tt && isLimestone(x, z, top);
+    let under = Math.round(13 * (1 - r * r * 0.7) + noise2(x / 3, z / 3, 86) * 4) + Math.max(0, top);
     const edge = !insideVoxel(x + 1, z) || !insideVoxel(x - 1, z) || !insideVoxel(x, z + 1) || !insideVoxel(x, z - 1);
     for (let y = top - under; y <= top; y++) {
-      let c;
-      if (y === top) {
-        const pal = TOPS[zone]; const n = noise2(x * 0.09, z * 0.09, 9) * 0.8 + noise2(x * 0.3, z * 0.3, 4) * 0.2;   // large, calm colour patches
-        c = river ? '#d6c08a' : zone === 'rim' && top >= 4 ? pal[2] : pal[Math.min(2, Math.floor(n * 3))];
-      } else if (y >= top - 2) c = rand(x, y, z) > 0.5 ? '#9a6a42' : '#8a5c38';                       // brown topsoil
-      else c = (y + Math.floor(noise2(x * 0.2, z * 0.2, 3) * 3)) % 4 === 0 ? '#9ca0a4' : rand(x, y, z) > 0.5 ? '#8b8f93' : '#7b8085'; // grey strata
+      let c; const dTop = top - y, dBot = y - (top - under);
+      if (dTop === 0) c = river ? '#d9c79a' : lime ? (top >= 12 && rand(x, z, 8) > 0.4 ? '#ffffff' : LIME[Math.floor(rand(x, z, 5) * 4)]) : dither(TOPS[zone], x, z);
+      else if (lime && y > 0) c = LIME[(Math.floor(y / 2) + Math.floor(rand(x, z, y) * 2)) % 4];          // pale cliff strata
+      else if (dTop <= 1 && !river) c = zone === 'coast' ? '#e3cf98' : '#7ca33a';                           // turf lip
+      else if (dBot <= 2) c = rand(x, y, z) > 0.5 ? '#4a2f1c' : '#3d2616';                                  // dark base
+      else { const streak = (Math.floor(x * 1.7 + z * 2.3) & 3); c = ['#8a5a34', '#7c4f2d', '#966540', '#71482a'][(streak + (rand(x, z, y) > 0.8 ? 1 : 0)) & 3]; } // streaked earth
       v.set(x, y, z, c);
     }
-    // ledges on the outer cliff
-    if (edge && rand(x, z, 31) > 0.82) { const nx = insideVoxel(x + 1, z) ? -1 : 1, nz = insideVoxel(x, z + 1) ? -1 : 1; const y0 = top - 4 - Math.floor(rand(x, z, 32) * 4); v.set(x + nx, y0, z, '#8b8f93'); v.set(x + nx, y0 + 1, z, '#6fbf4a'); void nz; }
-    if (river) { water.set(x, 0, z, rand(x, 9, z) > 0.5 ? '#5bbcf0' : '#4fb3ea'); riverCells.push([x, z]); }
-    if (!tt && !river && !edge) rimCells.push([x, z, top, zone]);
+    // dark root tips under the rim
+    if (r > 0.55 && rand(x, z, 77) > 0.94) { const by = top - under; const len = 2 + Math.floor(rand(x, z, 78) * 5); for (let k = 1; k <= len; k++) v.set(x, by - k, z, k === len ? '#2f1e12' : '#4a2f1c'); }
+    if (edge && rand(x, z, 31) > 0.86) { const nx = insideVoxel(x + 1, z) ? -1 : 1; const y0 = top - 3 - Math.floor(rand(x, z, 32) * 5); v.set(x + nx, y0, z, '#7c4f2d'); v.set(x + nx, y0 + 1, z, '#5fbf3f'); }
+    if (river) { water.set(x, 0, z, rand(x, 9, z) > 0.5 ? '#3fa2e6' : '#4aaeea'); riverCells.push([x, z]); }
+    if (!tt && !river && !edge) rimCells.push([x, z, top, zone, lime]);
   }
-  // rocks and boulders on the rim and along the beach
-  for (const [x, z, top, zone] of rimCells) {
+  // grey boulders at the foot of the massif and on the beach
+  for (const [x, z, top, zone, lime] of rimCells) {
     const p = rand(x, z, 41);
-    if ((zone === 'rim' && top >= 2 && p > 0.985) || (zone === 'coast' && p > 0.99)) {
+    if ((zone === 'rim' && !lime && top >= 2 && p > 0.988) || (zone === 'coast' && p > 0.992)) {
       const s2 = 1 + Math.floor(rand(x, z, 42) * 2);
-      for (let dx = -s2; dx <= s2; dx++) for (let dz = -s2; dz <= s2; dz++) for (let dy = 1; dy <= s2 + 1; dy++) if (Math.hypot(dx, dz, (dy - 1) * 1.2) <= s2 + 0.3) v.set(x + dx, top + dy, z + dz, dy === s2 + 1 ? '#a3a8ac' : rand(dx, dy, dz) > 0.5 ? '#8b8f93' : '#9aa0a5');
+      for (let dx = -s2; dx <= s2; dx++) for (let dz = -s2; dz <= s2; dz++) for (let dy = 1; dy <= s2 + 1; dy++) if (Math.hypot(dx, dz, (dy - 1) * 1.2) <= s2 + 0.3) v.set(x + dx, top + dy, z + dz, dy === s2 + 1 ? '#b4b9bd' : rand(dx, dy, dz) > 0.5 ? '#8b8f93' : '#9aa0a5');
     }
   }
-  // dense tree clumps on the rim hills: pines up high, round trees lower down
+  // the beach rim: dune grass, driftwood and shells so the sand is never a blank sheet
   for (const [x, z, top, zone] of rimCells) {
-    if (zone !== 'rim' || x % 3 || z % 3) continue;
-    const mask = noise2(x / 11, z / 11, 17) + (top >= 3 ? 0.18 : 0);
-    if (mask < 0.5 || rand(x, z, 19) < 0.25) continue;
-    tree2(v, x + Math.floor(rand(x, z, 20) * 2), top, z + Math.floor(rand(x, z, 21) * 2), top >= 4 ? 'pine' : rand(x, z, 22) > 0.35 ? 'round' : 'pine', x * 7 + z);
+    if (zone !== 'coast') continue; const p = rand(x, z, 61);
+    if (noise2(x / 5, z / 5, 63) > 0.68 && p > 0.45) { v.set(x, top + 1, z, p > 0.8 ? '#7fb54a' : '#9cc45a'); if (p > 0.75) v.set(x, top + 2, z, '#9cc45a'); }
+    else if (p < 0.006) { for (let k = 0; k < 4; k++) v.set(x + k, top + 1, z, '#a07a50'); }
+    
   }
-  roots(v, insideVoxel, { rx: RX, rz: RZ, top: 0, count: 34, seed: 4 });
+  // forest on the rim: tall tiered pines up high, big oaks lower down; fewer, bigger, denser clumps
+  const used = new Set();
+  for (const [x, z, top, zone, lime] of rimCells) {
+    if (zone !== 'rim' || x % 4 || z % 4) continue;
+    const mask = noise2(x / 12, z / 12, 17) + (top >= 3 ? 0.25 : 0) - (lime ? 0.7 : 0);
+    if (mask < 0.48 || rand(x, z, 19) < 0.2) continue;
+    const ox = x + Math.floor(rand(x, z, 20) * 3) - 1, oz = z + Math.floor(rand(x, z, 21) * 3) - 1; const k = ox + ',' + oz; if (used.has(k)) continue; used.add(k);
+    const h0 = heightAt(ox, oz); if (h0 == null || h0 < 0) continue;
+    tree2(v, ox, h0, oz, top >= 4 || lime ? 'tallpine' : rand(x, z, 22) > 0.4 ? 'oak' : 'tallpine', x * 7 + z);
+  }
+  // landmarks: a giant oak at the meadow's rim edge, an old stone windmill on a rim hill
+  const giant = [-44, 6]; bigOakAt(v, giant[0], Math.max(0, heightAt(...giant) ?? 0), giant[1]);
+  const millAt = [-30, -36]; const millY = Math.max(0, heightAt(...millAt) ?? 0);
+  for (let y = 1; y <= 11; y++) for (let dx = -2; dx <= 2; dx++) for (let dz = -2; dz <= 2; dz++) { const rr = y > 8 ? 1.5 : 2.3; if (Math.hypot(dx, dz) <= rr) v.set(millAt[0] + dx, millY + y, millAt[1] + dz, (y + dx + dz) % 3 ? '#e9e1d0' : '#d8cdb6'); }
+  for (let y = 12; y <= 14; y++) { const rr = 2.6 - (y - 12) * 0.9; for (let dx = -3; dx <= 3; dx++) for (let dz = -3; dz <= 3; dz++) if (Math.hypot(dx, dz) <= rr) v.set(millAt[0] + dx, millY + y, millAt[1] + dz, '#b5523b'); }
+  v.set(millAt[0], millY + 2, millAt[1] + 2, '#6b4a2e'); v.set(millAt[0], millY + 3, millAt[1] + 2, '#6b4a2e'); v.set(millAt[0], millY + 6, millAt[1] + 2, '#3d5a73');
+  // spring waterfall from the massif down to the river head (water cells for the stream on the hill)
+  roots(v, insideVoxel, { rx: RX, rz: RZ, top: 0, count: 26, seed: 4 });
   const ground = v.mesh(); ground.castShadow = true; ground.receiveShadow = true; root.add(ground);
+  // windmill sails
+  const sails = new THREE.Group(); { const mat = new THREE.MeshLambertMaterial({ color: '#f6efe2' }); const arm = new THREE.MeshLambertMaterial({ color: '#7a5232' });
+    for (let i = 0; i < 4; i++) { const g = new THREE.Group(); const a1 = new THREE.Mesh(new THREE.BoxGeometry(0.4, 8, 0.3), arm); a1.position.y = 4; const sl = new THREE.Mesh(new THREE.BoxGeometry(1.8, 6, 0.15), mat); sl.position.set(1.1, 4.6, 0); g.add(a1, sl); g.rotation.z = i * Math.PI / 2; sails.add(g); }
+    sails.position.set(millAt[0] + 0.5, millY + 11, millAt[1] + 3.2); sails.traverse((o) => { if (o.isMesh) o.castShadow = true; }); root.add(sails); }
   const islets = floatingRocks(scene, { n: 6, center: [0, -6, 0], radius: 95, seed: 8 });
   const waterMesh = water.mesh({ castShadow: false });
   const uTime = { value: 0 };
@@ -90,7 +114,8 @@ export function createWorld(stage, terrain) {
   waterMesh.position.y = -0.35; root.add(waterMesh);
   // waterfalls where the river pours off the island
   const rz = riverCells.map((c) => c[1]); const zMin = Math.min(...rz), zMax = Math.max(...rz);
-  const falls = [waterfall(scene, { x: riverX(zMin), y: -0.5, z: zMin, dir: [0, -1], width: 3, length: 26 }), waterfall(scene, { x: riverX(zMax), y: -0.5, z: zMax, dir: [0, 1], width: 3, length: 26 })];
+  const falls = [waterfall(scene, { x: riverX(zMin), y: -0.5, z: zMin, dir: [0, -1], width: 3, length: 30 }), waterfall(scene, { x: riverX(zMax), y: -0.5, z: zMax, dir: [0, 1], width: 3, length: 30 }),
+    waterfall(scene, { x: 14, y: heightAt(14, -31) + 0.5, z: -31, dir: [0, 1], width: 2, length: Math.max(4, heightAt(14, -31) - 1) })];
   const cloudUpd = clouds(scene, { n: 8, spread: 300, y: [25, 55], z: [-200, -110], scale: 2.2, seed: 5 });
   const cloudSea = () => {};
 
@@ -160,6 +185,43 @@ export function createWorld(stage, terrain) {
   // ---------------- build-up animations: a plane sweeps up (buildings) or across (ground works)
   const FLAT = new Set(['road', 'carpark', 'path', 'cycle', 'tram', 'bridge', 'bigfield', 'mixed', 'allot', 'raingarden', 'reedbed', 'compost', 'town', 'wild']);
   const builds = new Map();
+  // ---- "blocks fly in": a shared swarm of cubes that assemble each build just ahead of the reveal
+  const SW = 4000; const swarm = new THREE.InstancedMesh(new THREE.BoxGeometry(0.42, 0.42, 0.42), new THREE.MeshLambertMaterial({ color: '#ffffff' }), SW);
+  swarm.frustumCulled = false; swarm.castShadow = true; root.add(swarm); const zero = new THREE.Matrix4().makeScale(0, 0, 0);
+  for (let i = 0; i < SW; i++) { swarm.setMatrixAt(i, zero); swarm.setColorAt(i, new THREE.Color('#ffffff')); }
+  const freeSlots = Array.from({ length: SW }, (_, i) => SW - 1 - i);
+  function sampleSwarm(g, n, plane, dir, a, b) {
+    const pts = []; const tmp = new THREE.Vector3(); const col = new THREE.Color();
+    g.updateMatrixWorld(true);
+    g.traverse((o) => { if (!o.isMesh || !o.geometry.attributes.color) return; const pos = o.geometry.attributes.position, c = o.geometry.attributes.color; for (let i = 0; i < pos.count; i += 4) pts.push([o, i, pos, c]); });
+    if (!pts.length) return [];
+    const out = []; const step = Math.max(1, Math.floor(pts.length / n));
+    for (let i = 0; i < pts.length && out.length < n; i += step) {
+      const [o, vi, pos, c] = pts[(i + Math.floor(Math.random() * step)) % pts.length];
+      tmp.set(0, 0, 0); for (let k = 0; k < 4 && vi + k < pos.count; k++) tmp.add(new THREE.Vector3().fromBufferAttribute(pos, vi + k)); tmp.multiplyScalar(0.25).applyMatrix4(o.matrixWorld);
+      col.fromBufferAttribute(c, vi).multiplyScalar(1.15);
+      const slot = freeSlots.pop(); if (slot == null) break;
+      const frac = Math.max(0, Math.min(1, ((dir === 'up' ? tmp.y : tmp.x) - a) / Math.max(0.1, b - a)));
+      const ang = Math.random() * 6.28, rad = 6 + Math.random() * 10;
+      const from = tmp.clone().add(new THREE.Vector3(Math.cos(ang) * rad, 10 + Math.random() * 14, Math.sin(ang) * rad));
+      swarm.setColorAt(slot, col); out.push({ slot, to: tmp.clone(), from, frac, spin: Math.random() * 6 });
+    }
+    swarm.instanceColor.needsUpdate = true; return out;
+  }
+  const dObj = new THREE.Object3D();
+  function stepSwarm(B) {
+    const FLY = 0.9;
+    for (const p of B.swarm) {
+      const tArrive = p.frac * B.dur, k = (B.t - (tArrive - FLY)) / FLY;
+      if (k <= 0 || k >= 1.05) { swarm.setMatrixAt(p.slot, zero); continue; }
+      const e = 1 - Math.pow(1 - Math.min(1, k), 3);
+      dObj.position.lerpVectors(p.from, p.to, e); dObj.position.y += Math.sin(e * Math.PI) * 2;
+      dObj.rotation.set(p.spin * (1 - e), p.spin * 0.7 * (1 - e), 0); dObj.scale.setScalar(0.6 + 0.4 * e); dObj.updateMatrix(); swarm.setMatrixAt(p.slot, dObj.matrix);
+    }
+    swarm.instanceMatrix.needsUpdate = true;
+  }
+  function freeSwarm(B) { for (const p of B.swarm || []) { swarm.setMatrixAt(p.slot, zero); freeSlots.push(p.slot); } B.swarm = []; swarm.instanceMatrix.needsUpdate = true; }
+
   function startBuild(L, g, { dur = 2, delay = 0, fromH = null, kind = '' }) {
     const box = new THREE.Box3().setFromObject(g); if (box.isEmpty()) return;
     const dir = FLAT.has(kind) ? 'x' : 'up';
@@ -168,9 +230,12 @@ export function createWorld(stage, terrain) {
     plane.constant = a; const meshes = [];
     g.traverse((o) => { if (o.isMesh && o.material && o.material.vertexColors) { meshes.push([o, o.material]); o.material = clipMaterial([plane]); } });
     if (L.rotor) { L.rotor.visible = false; }
-    builds.set(L.t.k, { L, g, plane, a, b, dir, t: -delay, dur, meshes, top: box.max.y, kind });
+    const n = Math.round((FLAT.has(kind) ? 60 : 320) * (stage.q.particles ?? 1));
+    const B = { L, g, plane, a, b, dir, t: -delay, dur: Math.max(dur, 1.2), meshes, top: box.max.y, kind, swarm: [] };
+    B.swarm = sampleSwarm(g, n, plane, dir, a, b); builds.set(L.t.k, B);
   }
   function endBuild(B) {
+    freeSwarm(B);
     for (const [o, m] of B.meshes) { o.material.dispose(); o.material = m; }
     if (B.L.rotor) { B.L.rotor.visible = true; rotorDrops.push({ r: B.L.rotor, y: B.L.rotor.position.y, t: 0 }); }
     builds.delete(B.L.t.k);
@@ -247,7 +312,7 @@ export function createWorld(stage, terrain) {
       return hit;
     },
     update(dt, t, { windStill = false } = {}) {
-      uTime.value = t; cloudUpd(t); cloudSea(t * 0.4); islets(t); falls.forEach((f) => f(t));
+      uTime.value = t; sails.rotation.z = -t * 0.6; cloudUpd(t); cloudSea(t * 0.4); islets(t); falls.forEach((f) => f(t));
       // clay fade
       this.clay += (this.clayTarget - this.clay) * Math.min(1, dt * 7); WORLD.clay.value = this.clay;
       // night lights fade with the sky
@@ -256,8 +321,8 @@ export function createWorld(stage, terrain) {
       for (const L of layers.values()) if (L.rotor) L.rotor.rotation.z += dt * (windStill ? 0.25 : 2.2);
       for (const B of [...builds.values()]) {
         B.t += dt; if (B.t < 0) continue; const k = Math.min(1, B.t / B.dur); const e = k < 1 ? k * k * (3 - 2 * k) : 1;
-        B.plane.constant = B.a + (B.b - B.a) * e;
-        if (Math.random() < dt * 6) { const [cx, cz] = tileCenter(B.L.t.gx, B.L.t.gz); puff(B.dir === 'x' ? B.plane.constant : cx + (Math.random() - 0.5) * 5, B.dir === 'up' ? B.plane.constant - 0.5 : B.L.oy + 1.3, cz + (Math.random() - 0.5) * 5, 3); }
+        B.plane.constant = B.a + (B.b - B.a) * e; stepSwarm(B);
+        if (Math.random() < dt * 3) { const [cx, cz] = tileCenter(B.L.t.gx, B.L.t.gz); puff(B.dir === 'x' ? B.plane.constant : cx + (Math.random() - 0.5) * 5, B.dir === 'up' ? B.plane.constant - 0.5 : B.L.oy + 1.3, cz + (Math.random() - 0.5) * 5, 3); }
         if (k >= 1) endBuild(B);
       }
       for (let i = rotorDrops.length - 1; i >= 0; i--) { const r = rotorDrops[i]; r.t += dt; const k = Math.min(1, r.t / 1.2); r.r.position.y = r.y + (1 - (1 - (1 - k) ** 3)) * 0 + (1 - k) ** 2 * 14; if (k >= 1) { r.r.position.y = r.y; rotorDrops.splice(i, 1); } }

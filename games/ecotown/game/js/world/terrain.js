@@ -47,15 +47,17 @@ export function insideVoxel(x, z) {
 // and low at the front (south coast), so the town stays in view from the default camera.
 export function rimHeight(x, z) {
   if (insideTileArea(x, z)) return 0;
-  // distance outward from the tile area, roughly 0..1 across the belt
-  const rIn = Math.hypot(x / TRX, z / TRZ), rOut = Math.hypot(x / RX, z / RZ);
-  const t = Math.max(0, Math.min(1, (rIn - 1) / Math.max(0.05, (RX / TRX) - 1)));
-  const back = Math.max(0, Math.min(1, 0.55 - z / 40 + x / 140));       // 1 at the north, ~0 at the south
-  const hills = noise2(x / 9, z / 9, 5) * 0.7 + noise2(x / 4, z / 4, 6) * 0.3;
-  const h = (1.2 + back * 6.5) * hills * Math.min(1, t * 2.2) + back * 1.5 * t;
-  void rOut;
+  const rIn = Math.hypot(x / TRX, z / TRZ);
+  const t = Math.max(0, Math.min(1, (rIn - 1) / ((RX / TRX) - 1)));            // 0 at the tile edge → 1 at the outline
+  const back = Math.max(0, Math.min(1, 0.45 - z / 34 + x / 160));              // north/back of the island
+  const hills = noise2(x / 8, z / 8, 5) * 0.65 + noise2(x / 3.5, z / 3.5, 6) * 0.35;
+  // the massif: a limestone mountain on the north-east shoulder, rising steeply behind the wood
+  const m = Math.max(0, 1 - Math.hypot((x - 24) / 28, (z + 30) / 15));
+  const massif = (m * 1.4 - m * m * 0.55) * 15 + noise2(x / 5, z / 5, 12) * 3 * m;   // broad, rounded shoulders with a craggy top
+  const h = (1.5 + back * 7) * hills * Math.min(1, t * 2.4) + back * 2 * t + massif * Math.min(1, t * 1.8 + 0.25);
   return Math.max(0, Math.round(h));
 }
+export const isLimestone = (x, z, h) => h >= 12 || (h >= 8 && Math.hypot((x - 24) / 28, (z + 30) / 15) < 0.4 && noise2(x / 4, z / 4, 14) > 0.35);
 export const riverX = (z) => -27 + 1.4 * Math.sin(z / 7);
 export const inRiverVoxel = (x, z) => Math.abs(x + 0.5 - riverX(z)) < 1.8;
 
@@ -87,7 +89,7 @@ export function makeTerrain() {
   for (let gx = 0; gx < GW; gx++) for (let gz = 0; gz < GH; gz++) {
     const zone = zoneOf(gx, gz); if (!zone) continue;
     const [cx] = tileCenter(gx, gz);
-    const h = zone === 'slope' ? (cx > 20 ? 2 : 1) : 0;
+    const h = zone === 'slope' ? (cx > 20 ? 2 : 1) : zone === 'wood' ? 2 : zone === 'field' && gz <= 1 ? 1 : 0;
     const hedge = zone === 'field' && (gz === 2 || gz === 4) && gx >= 4 && gx <= 11;
     tiles.set(key(gx, gz), { gx, gz, k: key(gx, gz), zone, h, hedge });
   }

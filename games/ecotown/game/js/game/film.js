@@ -73,9 +73,9 @@ export function createFilm(app) {
       const skipBtn = h('<button class="btn alt" id="filmskip">Skip ⏭</button>'); document.getElementById('layer').appendChild(skipBtn); skipBtn.onclick = () => { this.skip = true; };
       app.ui.say(band === 'junior' ? F.lines.j : F.lines.s);
       // shot 1: establishing, the crew arrives; surroundings first
-      const heroDur = levelId === 'homes' || levelId === 'heart' ? 4.2 : 3.4;
+      const heroDur = levelId === 'homes' || levelId === 'heart' ? 5 : 4;
       await rig.focus(centre, { dist: 70, pitch: 0.62, yaw: rig.sky.yaw + 0.3 }, 1.3);
-      ordered.forEach((k, i) => { if (k !== hero) world.setCell(k, cells.get(k), { build: { dur: 1.1, delay: 0.25 + i * 0.12 } }); });
+      ordered.forEach((k, i) => { if (k !== hero) world.setCell(k, cells.get(k), { build: { dur: 1.6, delay: 0.25 + i * 0.12 } }); });
       // crew
       const crewUpd = [];
       const st = () => world.buildState(hero);

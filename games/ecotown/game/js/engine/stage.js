@@ -30,8 +30,8 @@ const SKY = [
   [0,    '#0a1436', '#1b2c5c', '#8fa0ff', 0.0, 0.32],
   [5,    '#2b2d5e', '#d8846e', '#ffb48a', 0.5, 0.5],
   [7,    '#6d8fd0', '#ffd2b0', '#ffd9b0', 2.0, 0.95],
-  [10,   '#2f8cf0', '#d4ecff', '#fff4e2', 3.0, 1.25],
-  [14.5, '#2f8cf0', '#d4ecff', '#fff4e2', 3.0, 1.25],
+  [10,   '#2f8cf0', '#d4ecff', '#fff4e2', 3.4, 1.05],
+  [14.5, '#2f8cf0', '#d4ecff', '#fff4e2', 3.4, 1.05],
   [16.5, '#7a8fd6', '#ffd0a4', '#ffd29a', 2.7, 1.0],
   [18.2, '#7a6ab4', '#ffa47a', '#ff9a62', 1.9, 0.82],
   [19.6, '#3e3f86', '#f07a6a', '#ff7a5c', 0.6, 0.55],
@@ -42,7 +42,7 @@ const C = (h) => new THREE.Color(h);
 
 // warm colour grade with vignette (linear HDR in, before tone mapping in OutputPass)
 const GradeShader = {
-  uniforms: { tDiffuse: { value: null }, sat: { value: 1.06 }, contrast: { value: 1.04 }, vignette: { value: 0.18 }, warm: { value: 0.0 } },
+  uniforms: { tDiffuse: { value: null }, sat: { value: 1.14 }, contrast: { value: 1.08 }, vignette: { value: 0.18 }, warm: { value: 0.0 } },
   vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
   fragmentShader: `uniform sampler2D tDiffuse; uniform float sat, contrast, vignette, warm; varying vec2 vUv;
     void main(){ vec4 c = texture2D(tDiffuse, vUv); vec3 col = c.rgb; float l = dot(col, vec3(0.2126,0.7152,0.0722));
@@ -79,12 +79,12 @@ export function createStage(canvas, skyEl) {
   renderer.shadowMap.type = THREE.PCFSoftShadowMap; renderer.localClippingEnabled = true;
   const scene = new THREE.Scene();
   scene.fog = new THREE.Fog(0xd4ecff, 900, 2600);
-  const camera = new THREE.PerspectiveCamera(32, 1, 0.5, 3000);
+  const camera = new THREE.PerspectiveCamera(22, 1, 1, 4000);
   const dome = skyDome(); scene.add(dome);
-  const hemi = new THREE.HemisphereLight(0xdcebff, 0x7a6a50, 1.2); scene.add(hemi);
+  const hemi = new THREE.HemisphereLight(0xdcebff, 0x6a5a44, 1.0); scene.add(hemi);
   const sun = new THREE.DirectionalLight(0xfff0d8, 2.8); sun.castShadow = true; scene.add(sun, sun.target);
   const sc = sun.shadow.camera; sc.left = -60; sc.right = 60; sc.top = 60; sc.bottom = -60; sc.near = 1; sc.far = 500;
-  sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.04; sun.shadow.radius = 2;
+  sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.04; sun.shadow.radius = 1;
   const fill = new THREE.DirectionalLight(0xa9c4ff, 0.45); fill.position.set(80, 50, -90); scene.add(fill);
   const moon = new THREE.DirectionalLight(0x8fa6ff, 0); moon.position.set(60, 90, -40); scene.add(moon);
   if (skyEl) skyEl.style.display = 'none';

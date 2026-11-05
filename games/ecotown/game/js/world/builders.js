@@ -92,14 +92,47 @@ export const MARK = {
 // ---------- richer trees: autumn deciduous, olive, cypress, pine (TtC-style mixed palette)
 const LEAVES = { round: ['#3f9d3a', '#4caf44', '#5bbd4f', '#2f8a34'], autumn: ['#3f9d3a', '#4caf44', '#5bbd4f'], olive: ['#4caf44', '#5bbd4f', '#3f9d3a'], pine: ['#2e7d4f', '#256b43', '#348a59'], cypress: ['#2e7d4f', '#348a59', '#256b43'] };
 export function tree2(v, x, y, z, kind = 'round', seed = 0) {
-  const L = LEAVES[kind]; const pick = (i) => L[Math.floor(rand(x + i, y, z + seed) * L.length)];
+  if (kind === 'tallpine' || kind === 'pine') return tallPine(v, x, y, z, seed, kind === 'pine' ? 0.75 : 1);
+  if (kind === 'oak' || kind === 'autumn' || kind === 'olive') return bigOak(v, x, y, z, seed, kind === 'oak' ? 1 : 0.8);
+  const L = LEAVES.round; const pick = (i) => L[Math.floor(rand(x + i, y, z + seed) * L.length)];
   const h = 2 + Math.floor(rand(x, z, seed) * 2);
   for (let i = 1; i <= h; i++) v.set(x, y + i, z, '#6b4a2e');
-  if (kind === 'cypress') { for (let k = 0; k < 7; k++) { const r = k < 5 ? 1 : 0; for (let dx = -r; dx <= r; dx++) for (let dz = -r; dz <= r; dz++) if (Math.abs(dx) + Math.abs(dz) <= r) v.set(x + dx, y + h + k, z + dz, pick(k + dx)); } v.set(x, y + h + 7, z, L[0]); return; }
-  if (kind === 'pine') { for (let l = 0; l < 4; l++) { const r = 2 - Math.floor(l / 2); for (let dx = -r; dx <= r; dx++) for (let dz = -r; dz <= r; dz++) if (Math.abs(dx) + Math.abs(dz) <= r + 1) v.set(x + dx, y + h + l, z + dz, pick(l * 3 + dx)); } v.set(x, y + h + 4, z, L[1]); return; }
-  const r = kind === 'olive' ? 2 : 2 + (rand(x, z, 7) > 0.6 ? 1 : 0);
+  const r = 2 + (rand(x, z, 7) > 0.6 ? 1 : 0);
   for (let dx = -r; dx <= r; dx++) for (let dy = 0; dy <= r * 2 - 1; dy++) for (let dz = -r; dz <= r; dz++) {
     const d = Math.hypot(dx, (dy - r + 0.5) * 1.15, dz); if (d <= r + 0.4 && rand(x + dx, dy, z + dz + seed) > 0.1) v.set(x + dx, y + h + dy, z + dz, pick(dx * 7 + dy * 3 + dz));
+  }
+}
+// Tiered conifer like the brochure islands: square tiers stepping in, darker under each tier.
+const PINE = ['#2c7a45', '#348a4f', '#3f9a58'], PINE_D = '#1f5e36';
+function tallPine(v, x, y, z, seed, k = 1) {
+  const tiers = Math.round((3 + Math.floor(rand(x, z, seed) * 2)) * k + 0.4), trunk = 2;
+  for (let i = 1; i <= trunk; i++) v.set(x, y + i, z, '#5a3d24');
+  let yy = y + trunk + 1;
+  for (let t = 0; t < tiers; t++) {
+    const r = Math.max(1, Math.round((tiers - t) * 0.9 * k + 0.4));
+    for (let layer = 0; layer < 2; layer++) {
+      const rr = r - layer;
+      for (let dx = -rr; dx <= rr; dx++) for (let dz = -rr; dz <= rr; dz++) {
+        if (Math.abs(dx) === rr && Math.abs(dz) === rr && rr > 1) continue;
+        v.set(x + dx, yy, z + dz, layer === 0 ? PINE_D : PINE[Math.floor(rand(x + dx, yy, z + dz) * 3)]);
+      }
+      yy++;
+    }
+  }
+  v.set(x, yy, z, PINE[2]); v.set(x, yy + 1, z, PINE[2]);
+}
+export function bigOakAt(v, x, y, z) { bigOak(v, x, y, z, 99, 1.6); }
+// Big broadleaf: chunky trunk with a branch, a wide two-tone canopy with a darker lower band.
+const OAK = ['#4caf44', '#58bb4c', '#43a03c'], OAK_D = '#2f8a34';
+function bigOak(v, x, y, z, seed, k = 1) {
+  const h = Math.round((4 + Math.floor(rand(x, z, seed) * 2)) * k);
+  for (let i = 1; i <= h; i++) { v.set(x, y + i, z, '#6b4a2e'); if (k >= 1) v.set(x + 1, y + i, z, '#5f4128'); }
+  v.set(x - 1, y + h - 1, z, '#6b4a2e'); v.set(x - 2, y + h, z, '#6b4a2e');
+  const R = Math.round(3.4 * k + 0.3), cy = y + h + R - 1;
+  for (let dx = -R - 1; dx <= R + 1; dx++) for (let dy = -R; dy <= R; dy++) for (let dz = -R - 1; dz <= R + 1; dz++) {
+    const d = Math.hypot(dx / 1.15, dy * 1.05, dz / 1.15) + (rand(x + dx, cy + dy, z + dz + seed) - 0.5) * 0.5;
+    if (d > R + 0.2) continue;
+    v.set(x + dx, cy + dy, z + dz, dy < -R * 0.35 ? OAK_D : OAK[Math.floor(rand(x + dx * 3, cy + dy, z + dz) * 3)]);
   }
 }
 
@@ -109,12 +142,16 @@ export function decorate(t, G, B, H) {
   // meadows: an occasional bold flower bed (one colour) instead of scattered specks
   if (t.zone === 'meadow' && rand(s, 13) > 0.66) { const c = ['#ff7eb6', '#ffd23f', '#ffffff', '#b28cff'][s % 4]; const x0 = 2 + Math.floor(rand(s, 14) * 6), z0 = 2 + Math.floor(rand(s, 15) * 6), n = 2 + (s % 2); for (let x = 0; x < n; x++) for (let z = 0; z < n; z++) if ((x + z) % 2 === 0 || n === 2) G.set(x0 + x, 1, z0 + z, c); }
   if (t.zone === 'coast') {
+    // a lively beach: huts, rock pools, dune grass, umbrellas, driftwood
     const r = rand(s, 2);
-    if (r > 0.86) { B.box(1, 0, 2, 2, 1, 3, '#9aa0a5'); B.set(2, 2, 2, '#8b8f93'); }
-    else if (r > 0.74) { G.box(2, 1, 2, 2, 5, 2, '#8a5c38'); for (let i = 0; i < 5; i++) G.box(0 + i, 6 - Math.abs(i - 2), 0 + i, 0 + i, 6 - Math.abs(i - 2), 4 - i + 2, ['#ff8a5c', '#ffffff', '#3a6fc9'][i % 3]); }
+    if (rand(s, 6) > 0.6) { const x0 = Math.floor(rand(s, 3) * 8), z0 = Math.floor(rand(s, 4) * 8); for (let i = 0; i < 5; i++) G.box(x0 + (i % 3), 1, z0 + Math.floor(i / 2), x0 + (i % 3), 2 + (i % 2), z0 + Math.floor(i / 2), i % 2 ? '#7fb54a' : '#9cc45a'); }   // one dune-grass clump
+    if (r > 0.78) { const c = ['#ff7eb6', '#3a6fc9', '#ffd23f', '#16c79a'][s % 4]; for (let x = 0; x < 3; x++) for (let y = 0; y < 3; y++) { B.set(1 + x, y, 2, x === 1 && y < 2 ? '#6b4a2e' : (x + y) % 2 ? c : '#ffffff'); B.set(1 + x, y, 4, (x + y) % 2 ? c : '#ffffff'); B.set(1, y, 3, c); B.set(3, y, 3, c); } for (let x = 0; x < 5; x++) for (let z = 1; z < 6; z++) B.set(x, 3, z, (x + z) % 2 ? '#ffffff' : c); }
+    else if (r > 0.5) { for (let x = 0; x < 12; x++) for (let z = 0; z < 12; z++) if (Math.hypot(x - 6, z - 6) < 3 + noise2(x / 2, z / 2, s) * 1.5) G.set(x, 0, z, '#4aaeea'); B.box(1, 0, 1, 1, 1, 2, '#9aa0a5'); B.set(4, 0, 4, '#8b8f93'); G.set(6, 1, 6, '#ff8a5c'); }
+    else if (r > 0.3) { G.box(2, 1, 2, 2, 5, 2, '#8a5c38'); for (let i = 0; i < 5; i++) G.box(0 + i, 6 - Math.abs(i - 2), 0 + i, 0 + i, 6 - Math.abs(i - 2), 4 - i + 2, ['#ff8a5c', '#ffffff', '#3a6fc9'][i % 3]); G.box(5, 1, 6, 7, 1, 7, ['#16c79a', '#ffd23f'][s % 2]); }
+    else { G.box(1, 1, 5, 6, 1, 5, '#a07a50'); G.set(7, 1, 6, '#a07a50'); }
   }
-  if (t.zone === 'wood') { tree2(B, 1 + Math.floor(rand(s, 1) * 2), -1, 1 + Math.floor(rand(s, 2) * 2), ['pine', 'round', 'pine'][s % 3], s); if (rand(s, 4) > 0.3) tree2(B, 4, -1, 4, ['round', 'pine', 'round'][(s + 1) % 3], s + 1); }
-  if ((t.zone === 'field' || t.zone === 'slope') && rand(s, 9) > 0.88) tree2(B, rand(s, 10) > 0.5 ? 0 : 5, -1, Math.floor(rand(s, 11) * 6), ['round', 'pine'][s % 2], s);
+  if (t.zone === 'wood') { tree2(B, 2 + Math.floor(rand(s, 1) * 2), -1, 2 + Math.floor(rand(s, 2) * 2), ['tallpine', 'oak', 'tallpine'][s % 3], s); }
+  if ((t.zone === 'field' || t.zone === 'slope') && rand(s, 9) > 0.9) tree2(B, rand(s, 10) > 0.5 ? 1 : 4, -1, 2 + Math.floor(rand(s, 11) * 2), ['oak', 'pine'][s % 2], s);
   // wetland: one clear pond with a few chunky reed clumps around it
   if (t.zone === 'wetland') {
     for (let x = 0; x < 12; x++) for (let z = 0; z < 12; z++) if (Math.hypot(x - 6 + rand(s, 1) * 2, z - 6) < 4 + noise2(x / 3, z / 3, s) * 1.2) G.set(x, 0, z, '#4fb3ea');

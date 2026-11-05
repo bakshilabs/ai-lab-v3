@@ -7,19 +7,19 @@ import { clamp, lerp, ease } from '../engine/stage.js';
 const DEG = Math.PI / 180;
 export function createRig(stage, canvas, fadeEl) {
   const cam = stage.camera;
-  const sky = { target: new THREE.Vector3(0, -2, 0), yaw: -38 * DEG, pitch: 38 * DEG, dist: 150, vy: 0, vp: 0 };
+  const sky = { target: new THREE.Vector3(0, 1, -2), yaw: -40 * DEG, pitch: 34 * DEG, dist: 220, vy: 0, vp: 0 };
   const rig = {
     mode: 'sky', reduce: false, locked: false, sky, onTap: null, onDoubleTap: null, onHover: null,
     street: null, flight: null, turntable: 0, follow: null,
     // distance that makes the island ~75% of the screen width (or height on portrait screens)
-    frameDist(span = 100, fill = 0.8) {
+    frameDist(span = 100, fill = 0.92) {
       const vf = cam.fov * DEG; const hf = 2 * Math.atan(Math.tan(vf / 2) * cam.aspect);
       const f = Math.min(hf, vf * 1.25);
       return (span / 2 / fill) / Math.tan(f / 2) * 0.92;
     },
     skyPose(o = sky) {
       const p = new THREE.Vector3(Math.sin(o.yaw) * Math.cos(o.pitch), Math.sin(o.pitch), Math.cos(o.yaw) * Math.cos(o.pitch)).multiplyScalar(o.dist).add(o.target);
-      return { pos: p, look: o.target.clone(), fov: 32 };
+      return { pos: p, look: o.target.clone(), fov: 22 };
     },
     current() { return { pos: cam.position.clone(), look: this._look.clone(), fov: cam.fov }; },
     _look: new THREE.Vector3(),
@@ -38,7 +38,7 @@ export function createRig(stage, canvas, fadeEl) {
       this.street = null; this.follow = null; this.turntable = 0;
       await this.fly(this.skyPose(), dur); this.mode = 'sky';
     },
-    overview(dur = 1.4) { return this.toSky({ target: new THREE.Vector3(0, -2, 0), dist: this.frameDist(), pitch: 38 * DEG }, dur); },
+    overview(dur = 1.4) { return this.toSky({ target: new THREE.Vector3(0, 1, -2), dist: this.frameDist(), pitch: 34 * DEG }, dur); },
     focus(point, { dist = 70, pitch = 42 * DEG, yaw = sky.yaw } = {}, dur = 1.2) { return this.toSky({ target: point.clone(), dist, pitch, yaw }, dur); },
     // Street view: eye height ~1.2 m for a child (2 world units), looking at `look`.
     async toStreet(pos, look, dur = 1.6) {
