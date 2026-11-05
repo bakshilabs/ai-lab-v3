@@ -183,7 +183,7 @@ const form = ui(`<div class="fs-card ip-form"><div class="hd"><div><span class="
   <div class="ip-sec"><span class="fs-lbl">Who is affected</span><div class="ip-stk">${stk.map(([n, c], i) => `<div class="ip-s" data-s="${i}"><i style="background:${c}22">${ICO.person(c)}</i>${n}</div>`).join('')}<div class="ip-s new" data-s="5"><i style="background:#16c79a33">${ICO.person('#0c8f6d')}</i>Young people (under 18)</div></div></div>
   <div class="ip-rows">
    <div class="ip-r"><span class="k">Privacy</span><span data-priv></span></div>
-   <div class="ip-r"><span class="k">Energy</span><span class="ip-en"><span class="bar"><i data-en></i></span><span><b data-kwh>0 kWh a year</b><small>6 cameras + cloud processing · about 40% of one home</small></span></span></div>
+   <div class="ip-r"><span class="k">Energy</span><span class="ip-en"><span class="bar"><i data-en></i></span><span><b data-kwh>0 kWh a year</b><small>4 cameras + cloud processing · about 40% of one home</small></span></span></div>
    <div class="ip-r"><span class="k">Decision</span><span data-dec></span></div>
   </div></div>`, 1000, 150);
 const fS = [...form.querySelectorAll('[data-s]')];
@@ -236,7 +236,7 @@ const findAuth = ui(findHTML('AUTHORITY CHECK · NOT ITS CALL', [['Draft says', 
 on(cue(findAuth, 25.2, 28.4, { from: 'left' }));
 on((t) => { const ok = t > 27.2; findAuth.firstChild.classList.toggle('ok', ok); findAuth.querySelector('.hd').lastChild.textContent = ok ? 'AUTHORITY CHECK · FIXED' : 'AUTHORITY CHECK · NOT ITS CALL'; findAuth.querySelector('.hd i').textContent = ok ? '✓' : '✕'; });
 on((t) => { const ok = t > 24.4; findSrc.firstChild.classList.toggle('ok', ok); findSrc.querySelector('.hd').lastChild.textContent = ok ? 'SOURCE CHECK · FIXED' : 'SOURCE CHECK · CLAIM NOT FOUND'; findSrc.querySelector('.hd i').textContent = ok ? '✓' : '✕'; });
-const sign = ui(signHTML('Zainab', 13), 46, 820);
+const sign = ui(signHTML('Zainab', 15), 46, 820);
 on(cue(sign, 29.0, 30.4, { from: 'pop' }));
 
 // portfolio

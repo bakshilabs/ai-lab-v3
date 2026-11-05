@@ -220,8 +220,8 @@ const STMT = 'I used an AI tool for layout and colour ideas. The lanterns are my
 on((t) => {
   setHTML(R[0], t < 21.4 ? '<span class="fs-aitxt"><span class="fs-aitag">AI</span>“In the style of Mira Kell”</span><br><span class="lic ' + (t > 19.45 ? 'bad">✕ Living artist · no permission' : 'ai">? Not checked') + '</span>' : '<span class="fs-new">Leo’s own drawing</span><br><span class="lic ok">✓ Own work · AI colour help</span>');
   setHTML(R[1], t < 25.6 ? '<span class="fs-aitxt"><span class="fs-aitag">AI</span>“Royalty-free”</span><br><span class="lic ' + (t > 24.05 ? 'bad">✕ Licence says non-commercial' : 'ai">? Not checked') + '</span>' : '<span class="fs-new">Harbourside Archive</span><br><span class="lic ok">✓ CC BY 4.0 · credited</span>');
-  const ty = typed(STMT, t, 26.9, 52);
-  setHTML(R[2], t < 26.9 ? '<span class="lic bad">✕ Missing</span>' : `<span class="fs-new">${ty}${ty.length < STMT.length ? '<i class="fs-caret"></i>' : ''}</span>`);
+  const ty = typed(STMT, t, 26.1, 90); // 116 chars → done by ≈27.4, readable until the panel leaves at 29.0
+  setHTML(R[2], t < 26.1 ? '<span class="lic bad">✕ Missing</span>' : `<span class="fs-new">${ty}${ty.length < STMT.length ? '<i class="fs-caret"></i>' : ''}</span>`);
 });
 
 // review

@@ -53,7 +53,7 @@
 .doc h3 { font:800 44px/1.14 'Inter'; letter-spacing:-.015em; margin:0; }
 .doc .by { font:600 22px 'Inter'; color:var(--mut); margin:12px 0 18px; }
 .doc p.tx { font:500 29px/1.48 'Inter'; margin:0; }
-.doc .src { margin-top:20px; border-top:2px solid var(--line); padding-top:14px; }
+.doc .src { margin-top:14px; border-top:2px solid var(--line); padding-top:10px; }
 .doc .src small { font:800 19px 'Inter'; letter-spacing:.14em; color:var(--mut); }
 .doc .src p { font:500 25px/1.38 'Inter'; margin:6px 0 0; }
 .del { color:#b4232a; text-decoration:line-through; text-decoration-thickness:3px; background:#fde3e3; border-radius:4px; }
@@ -107,11 +107,11 @@
 .brw .pg .kv { display:grid; grid-template-columns:auto 1fr; gap:4px 18px; margin-top:12px; font:600 23px 'Inter'; }
 .brw .pg .kv span:nth-child(odd) { color:var(--mut); } .brw .pg .kv span:nth-child(even) { color:#b4232a; font-weight:800; }
 .brw .pg .kv.g span:nth-child(even) { color:#08694f; }
-.brw .trail { display:flex; align-items:center; gap:6px; padding:0 16px; border-top:2px solid var(--line); background:#fbfcfd; }
-.brw .trail .lb { font:800 17px 'Inter'; letter-spacing:.12em; color:var(--mut); margin-right:4px; }
-.brw .trail span.s { font:800 19px 'Inter'; border-radius:999px; padding:7px 11px; white-space:nowrap; opacity:0; }
+.brw .trail { display:flex; align-items:center; gap:4px; padding:0 14px; border-top:2px solid var(--line); background:#fbfcfd; }
+.brw .trail .lb { font:800 15px 'Inter'; letter-spacing:.08em; color:var(--mut); margin-right:4px; }
+.brw .trail span.s { font:800 17px 'Inter'; border-radius:999px; padding:6px 9px; white-space:nowrap; opacity:0; }
 .brw .trail span.s.x { background:#fde3e3; color:#b4232a; } .brw .trail span.s.o { background:#dcf6ec; color:#08694f; } .brw .trail span.s.n { background:#eef2f5; color:var(--ink); }
-.brw .trail span.ar { color:#9aa8b4; font:800 20px 'Inter'; opacity:0; }
+.brw .trail span.ar { color:#9aa8b4; font:800 18px 'Inter'; opacity:0; }
 /* step strip */
 .steps { display:flex; align-items:center; gap:16px; background:rgba(19,32,43,.88); color:#fff; border-radius:999px; padding:12px 30px 12px 14px; white-space:nowrap; }
 .steps .n { font:800 22px 'Inter'; background:var(--teal); color:#062a20; border-radius:999px; padding:7px 16px; }
@@ -343,7 +343,7 @@ A((t) => {
   const ps = Q('[data-pass]'); ps.textContent = `Checks passed: ${npass} of 4`; cls(ps, 'ok', npass === 4);
   cls(Q('[data-cite]'), 'flag', within(t, 13.9, 25.8)); cls(Q('[data-s1t]'), 'flag', within(t, 13.9, 23.3));
   // fix: strike old source, type new one, tracked edits in the claim
-  cls(Q('[data-s1t]'), 'del', t >= 23.3); Q('[data-s1]').style.display = t >= 26.4 ? 'none' : '';
+  cls(Q('[data-s1t]'), 'del', t >= 23.3); Q('[data-s1]').style.display = t >= 25.0 ? 'none' : ''; // struck source leaves once the new one is typed, so the tracked edits fit
   Q('[data-s2]').style.display = t >= 23.6 ? '' : 'none'; typed(Q('[data-s2]'), NEWS, 23.7, 25.0, t);
   cls(Q('[data-o1]'), 'del', t >= 25.0); cls(Q('[data-o2]'), 'del', t >= 25.0);
   Q('[data-o1]').style.display = t >= 26.4 ? 'none' : ''; Q('[data-o2]').style.display = t >= 26.4 ? 'none' : '';

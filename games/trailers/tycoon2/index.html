@@ -7,7 +7,7 @@ canvas { width: 1920px; height: 1080px; image-rendering: pixelated; display: blo
 </style></head>
 <body><canvas id="c" width="640" height="360"></canvas>
 <script>
-const W = 640, H = 360, DUR = 31;
+const W = 640, H = 360, DUR = 30;
 const cv = document.getElementById('c'), g = cv.getContext('2d');
 g.imageSmoothingEnabled = false;
 // ---------- helpers ----------
@@ -58,7 +58,19 @@ function heart(x, y) { const q = S(x, y); q(0, 0, 2, 1, '#ff5a7a'); q(3, 0, 2, 1
 function kiosk(x, y, c) { const q = S(x, y); q(-6, -8, 12, 7, '#f1ebe0'); q(-7, -13, 14, 5, c); for (let k = 0; k < 4; k++) q(-7 + k * 4, -13, 2, 5, '#fff'); q(-2, -6, 4, 5, '#3a2a1a'); q(-5, -7, 2, 2, '#ffd23f'); }
 function bin(x, y) { const q = S(x, y); q(-1, -5, 3, 5, '#2f8a43'); q(-1, -5, 3, 1, '#7ad04e'); }
 function wheel(x, y, t) { const q = S(x, y); q(-1, -30, 2, 30, '#8a8f96'); q(-9, -2, 18, 2, '#6b7078'); const R = 18; for (let k = 0; k < 24; k++) { const a = k / 24 * Math.PI * 2; px(x + Math.cos(a) * R * Z, y - 30 * Z + Math.sin(a) * R * Z, 2, 2, '#d0d6dc'); } for (let k = 0; k < 8; k++) { const a = k / 8 * Math.PI * 2 + t * 0.6; const cx = x + Math.cos(a) * R * Z, cy = y - 30 * Z + Math.sin(a) * R * Z; g.strokeStyle = '#aeb6be'; g.lineWidth = 1; g.beginPath(); g.moveTo(x, y - 30 * Z); g.lineTo(cx, cy); g.stroke(); px(cx - 5, cy, 10, 7, ['#ff5a4a', '#ffc83d', '#3aa0f0', '#16c79a'][k % 4]); px(cx - 4, cy + 1, 8, 2, '#ffffffaa'); } }
-function gate(x, y) { const q = S(x, y); q(-16, -20, 3, 20, '#7a5232'); q(13, -20, 3, 20, '#7a5232'); q(-18, -26, 36, 7, '#16a37f'); q(-14, -24, 28, 3, '#fff'); for (let k = 0; k < 6; k++) q(-12 + k * 4.4, -24, 2, 3, '#16a37f'); }
+function gate(x, y, t) { const q = S(x, y);
+  q(-24, -24, 4, 24, '#7a5232'); q(20, -24, 4, 24, '#7a5232'); q(-24, -24, 1, 24, '#a07448'); q(20, -24, 1, 24, '#a07448');
+  // striped flags on the posts
+  q(-23, -34, 1, 10, '#3a3f46'); q(21, -34, 1, 10, '#3a3f46'); const fl = Math.floor(t * 4) % 2;
+  q(-22, -34, 5 + fl, 3, '#ff5a4a'); q(22, -34, 5 + fl, 3, '#ffd23f');
+  // the sign board with readable text
+  q(-27, -33, 54, 11, '#0c5a48'); q(-26, -32, 52, 9, '#16a37f'); q(-26, -32, 52, 1, '#5fe0b8'); q(-26, -24, 52, 1, '#0c6a52');
+  txt('ISLAND PARK', x, y - 51, '#ffffff', 'Silk', 8, 'center'); txt('ISLAND PARK', x, y - 52, '#ffffff', 'Silk', 8, 'center');
+  // ticket booth
+  q(-36, -10, 9, 10, '#f1ebe0'); q(-37, -13, 11, 3, '#ff5a4a'); q(-34, -8, 5, 3, '#3a6a9a'); }
+function fence(i0, j0, i1, j1, ox, oy) { const [ax, ay] = iso(i0, j0), [bx, by] = iso(i1, j1); const n = 4; for (let k = 0; k <= n; k++) { const x = lerp(ax, bx, k / n) + ox, y = lerp(ay, by, k / n) + oy; px(x, y - 8, 2, 8, '#6b4424'); px(x, y - 9, 2, 1, '#c79a62'); }
+  g.strokeStyle = '#a8784a'; g.lineWidth = 1; for (const h of [6, 3]) { g.beginPath(); g.moveTo(ax + ox + 1, ay + oy - h + 0.5); g.lineTo(bx + ox + 1, by + oy - h + 0.5); g.stroke(); } }
+function flowerbed(x, y, k) { const q = S(x, y); q(-5, -2, 10, 3, '#5a3a20'); q(-5, -2, 10, 1, '#8a5a32'); q(-6, 0, 12, 1, '#c9c2b4'); for (let f = 0; f < 6; f++) q(-4 + f * 1.6, -3 - (f % 2), 1, 1, ['#ff5a7a', '#ffd23f', '#ffffff', '#b28cff', '#ff8a4a', '#ff5a7a'][(f + k) % 6]); for (let f = 0; f < 3; f++) q(-3 + f * 3, -2, 1, 1, '#3f8a2a'); }
 function bench(x, y) { const q = S(x, y); q(-3, -3, 7, 1, '#8a5a32'); q(-3, -5, 7, 1, '#8a5a32'); q(-3, -2, 1, 2, '#5a3a20'); q(3, -2, 1, 2, '#5a3a20'); }
 function lamp(x, y) { const q = S(x, y); q(0, -12, 1, 12, '#3a3f46'); q(-1, -14, 3, 2, '#ffe680'); }
 function flowers(x, y, k) { const q = S(x, y); for (let f = 0; f < 5; f++) q(-3 + f * 1.5, -1 - (f % 2), 1, 1, ['#ff5a7a', '#ffd23f', '#ffffff', '#b28cff', '#ff8a4a'][(f + k) % 5]); }
@@ -66,9 +78,21 @@ function litter(x, y, c) { px(x, y, 2, 2, c); }
 function gull(x, y, f) { const q = S(x, y); q(-2, f ? -1 : 0, 2, 1, '#fff'); q(0, 0, 1, 1, '#fff'); q(1, f ? -1 : 0, 2, 1, '#fff'); }
 
 // ---------- UI (retro bevelled windows) ----------
+// RCT-style window: dark outline, double bevel, coloured title bar with a close (×) box, inset content panel
 function win(x, y, w, h, title, tc = '#2a6fb0') {
-  px(x, y, w, h, '#b9bec6'); px(x, y, w, 1, '#ffffff'); px(x, y, 1, h, '#ffffff'); px(x + w - 1, y, 1, h, '#5a5f66'); px(x, y + h - 1, w, 1, '#5a5f66');
-  px(x + 2, y + 2, w - 4, 9, tc); txt(title, x + 5, y + 9, '#fff', 'Silk', 8);
+  x = Math.round(x); y = Math.round(y);
+  px(x + 3, y + 3, w, h, '#00000055');
+  px(x - 1, y - 1, w + 2, h + 2, '#1a1c20');
+  px(x, y, w, h, '#b9bec6');
+  px(x, y, w, 1, '#ffffff'); px(x, y, 1, h, '#ffffff'); px(x + 1, y + 1, w - 2, 1, '#e2e6ea'); px(x + 1, y + 1, 1, h - 2, '#e2e6ea');
+  px(x + w - 1, y, 1, h, '#4a4f56'); px(x, y + h - 1, w, 1, '#4a4f56'); px(x + w - 2, y + 1, 1, h - 2, '#80868e'); px(x + 1, y + h - 2, w - 2, 1, '#80868e');
+  px(x + 3, y + 3, w - 6, 11, tc); px(x + 3, y + 3, w - 6, 1, '#ffffff55'); px(x + 3, y + 13, w - 6, 1, '#00000055');
+  txt(title, x + 7, y + 12, '#00000088', 'Silk', 8); txt(title, x + 6, y + 11, '#fff', 'Silk', 8);
+  // close box
+  const bx = x + w - 15, by = y + 4; px(bx, by, 11, 9, '#c8ccd2'); px(bx, by, 11, 1, '#fff'); px(bx, by, 1, 9, '#fff'); px(bx + 10, by, 1, 9, '#4a4f56'); px(bx, by + 8, 11, 1, '#4a4f56');
+  for (let k = 0; k < 5; k++) { px(bx + 3 + k, by + 2 + k, 1, 1, '#2a1a1a'); px(bx + 7 - k, by + 2 + k, 1, 1, '#2a1a1a'); }
+  // inset content panel
+  px(x + 3, y + 16, w - 6, 1, '#80868e'); px(x + 3, y + 16, 1, h - 19, '#80868e'); px(x + 3, y + h - 4, w - 6, 1, '#ffffff'); px(x + w - 4, y + 16, 1, h - 19, '#ffffff');
 }
 function txt(s, x, y, c = '#111', f = 'Silk', size = 8, align = 'left') { g.font = `${size}px ${f}`; g.textAlign = align; g.fillStyle = c; g.fillText(s, Math.round(x), Math.round(y)); }
 function txtS(s, x, y, c, f = 'P2P', size = 8, align = 'left') { txt(s, x + 1, y + 1, '#00000088', f, size, align); txt(s, x, y, c, f, size, align); }
@@ -78,7 +102,7 @@ function bubble(x, y, s, red) { g.font = '8px Silk'; const w = Math.ceil(g.measu
 
 // ---------- timeline ----------
 function focus(t) {
-  const keys = [[0, 6, 6], [3.5, 9, 10], [7.0, 9, 10], [8.8, 11.5, 10.5], [11.2, 12.2, 9.4], [13.4, 12, 10], [15.4, 11, 9.5], [19.2, 11, 9.5], [21.4, 11.8, 9.6], [24.4, 11.4, 9.4], [27.6, 9.5, 9.5], [36, 9.5, 9.5]];
+  const keys = [[0, 6, 6], [3.5, 9, 10], [7.0, 9, 10], [8.8, 11.5, 10.5], [11.2, 12.2, 9.4], [13.4, 12, 10], [15.4, 11, 9.5], [20.8, 11, 9.5], [22.6, 12.6, 9.2], [24.8, 12.0, 9.4], [27.6, 9.5, 9.5], [36, 9.5, 9.5]];
   let k = 0; while (k < keys.length - 1 && t > keys[k + 1][0]) k++; const a = keys[k], b = keys[Math.min(k + 1, keys.length - 1)];
   const f = b === a ? 0 : eio(clamp((t - a[0]) / (b[0] - a[0] || 1))); return [lerp(a[1], b[1], f), lerp(a[2], b[2], f)];
 }
@@ -88,14 +112,17 @@ function frame(t) {
   for (let y = 0; y < H; y += 2) { const k = y / H; px(0, y, W, 2, `rgb(${Math.round(lerp(64, 150, k))},${Math.round(lerp(146, 212, k))},${Math.round(lerp(240, 255, k))})`); }
   for (let k = 0; k < 6; k++) { const xx = ((k * 97 + t * 6) % (W + 80)) - 40, yy = 20 + (k * 37) % 70; px(xx, yy, 34, 6, '#ffffff'); px(xx + 6, yy - 4, 20, 4, '#ffffff'); px(xx + 2, yy + 6, 30, 2, '#dfe9f5'); }
   const pathSet = new Set(edgePath);
-  const cutOn = t >= 7.4 && t < 20.8, cutK = t < 19.4 ? prog(t, 7.4, 9.4) : 1 - prog(t, 19.4, 20.8);
-  // trampling: flowers beside the cut path get flattened, then grow back after the reroute
-  const trample = prog(t, 9.6, 12.8) * (1 - prog(t, 20.4, 22.6));
+  // story clock: s runs the first attempt; the rewind plays it backwards to June, then the second attempt runs on t
+  const RW0 = 19.5, RW1 = 20.7, rewinding = t >= RW0 && t < RW1, P2 = t >= RW1;
+  const s = t < RW0 ? t : rewinding ? lerp(13.6, 7.0, eio(prog(t, RW0, RW1))) : 7.0;
+  const cutOn = s >= 7.4, cutK = prog(s, 7.4, 9.4);
+  // trampling: flowers beside the cut path get flattened (undone by the rewind)
+  const trample = prog(s, 9.6, 12.8);
   const trampled = (i, j, f) => trample > 0 && meadow(i, j) && Math.abs(i - 12) <= 1 && hash(i, j, f + 70) < trample * 1.05;
   const reroute = [[12, 15], [12, 14]]; for (let i = 12; i <= 17; i++) reroute.push([i, 13]); for (let j = 12; j >= 5; j--) reroute.push([17, j]);
-  const rk = prog(t, 19.6, 22.0);
-  if (t >= 19.6) reroute.forEach(([i, j], k) => { if (k / reroute.length < rk) pathSet.add(i + ',' + j); });
-  if (t >= 19.6 && t < 22.1) { const kk = clamp(rk * reroute.length, 0, reroute.length - 1); const [bi, bj] = reroute[Math.floor(kk)]; const [bx, by] = iso(bi, bj); window.__bld = [bx, by]; } else window.__bld = null;
+  const rk = prog(t, 21.0, 22.8);
+  if (t >= 21.0) reroute.forEach(([i, j], k) => { if (k / reroute.length < rk) pathSet.add(i + ',' + j); });
+  if (t >= 21.0 && t < 22.9) { const kk = clamp(rk * reroute.length, 0, reroute.length - 1); const [bi, bj] = reroute[Math.floor(kk)]; const [bx, by] = iso(bi, bj); window.__bld = [bx, by]; } else window.__bld = null;
   if (cutOn) cutPath.forEach(([i, j], k) => { if (k / cutPath.length < cutK) pathSet.add(i + ',' + j); });
   for (let s2 = 0; s2 < 2 * N; s2++) for (let i = 0; i < N; i++) {
     const j = s2 - i; if (j < 0 || j >= N || !inside(i, j)) continue;
@@ -116,41 +143,44 @@ function frame(t) {
   }
   const objs = [];
   trees0.forEach(([i, j], k) => objs.push([i + j, () => { const [x, y] = iso(i, j); tree(x + ox, y + oy, 1, Math.round(Math.sin(t * 2 + i) * 0.6), hash(k, 3) > 0.55); }]));
-  treesNew.forEach(([i, j], k) => { const gk = prog(t, 21.6 + k * 0.3, 22.3 + k * 0.3); if (gk > 0) objs.push([i + j, () => { const [x, y] = iso(i, j); tree(x + ox, y + oy, gk < 1 ? gk : 1, 0, k % 2 === 1); }]); });
+  treesNew.forEach(([i, j], k) => { const gk = prog(t, 22.8 + k * 0.3, 23.5 + k * 0.3); if (gk > 0) objs.push([i + j, () => { const [x, y] = iso(i, j); tree(x + ox, y + oy, gk < 1 ? gk : 1, 0, k % 2 === 1); }]); });
   kiosks.forEach(([i, j, c], k) => { const on = k < 2; if (on) objs.push([i + j, () => { const [x, y] = iso(i, j); kiosk(x + ox, y + oy, c); if (k < 2) bin(x + ox + 20, y + oy + 2); }]); });
   coaster.forEach(([i, j, h], k) => objs.push([i + j - 0.2, () => { const [x, y] = iso(i, j, h); const [, yb] = iso(i, j, 0); if (k % 2 === 0) { px(x + ox, y + oy + 6, 1, yb - y - 2, '#7a5232'); for (let b = 8; b < yb - y; b += 8) px(x + ox - 3, y + oy + 6 + b, 7, 1, '#6b4424'); } const [x2, y2] = iso(...coaster[(k + 1) % 48].slice(0, 2), coaster[(k + 1) % 48][2]); g.lineWidth = 2; g.strokeStyle = '#b0302a'; g.beginPath(); g.moveTo(x + ox, y + oy + 2); g.lineTo(x2 + ox, y2 + oy + 2); g.stroke(); g.strokeStyle = '#e85a4a'; g.beginPath(); g.moveTo(x + ox, y + oy + 6); g.lineTo(x2 + ox, y2 + oy + 6); g.stroke(); px(x + ox - 1, y + oy + 2, 2, 5, '#5a3a20'); }]));
   for (let c = 0; c < 5; c++) { const u = (t * 0.25 + c * 0.022) % 1; const [i, j, h] = coaster[Math.floor(u * 48)]; objs.push([i + j + 0.1, () => { const [x, y] = iso(i, j, h); px(x + ox - 6, y + oy - 4, 12, 7, ['#ffc83d', '#3aa0f0', '#ff5a4a', '#16c79a', '#a46cf0'][c]); px(x + ox - 3, y + oy - 8, 3, 4, '#e8b88a'); px(x + ox + 1, y + oy - 8, 3, 4, '#a8714b'); }]); }
   // coaster station + queue, and a carousel (more rides, like RCT)
   objs.push([9.6 + 5.0, () => { const [x, y] = iso(9.6, 5.0); const q = S(x + ox, y + oy); q(-10, -8, 20, 6, '#c9a06a'); q(-10, -12, 20, 4, '#b0302a'); q(-9, -11, 18, 1, '#ffd23f'); q(-12, -2, 24, 2, '#8a5a32'); for (let k = 0; k < 4; k++) q(-10 + k * 6, -14, 2, 4, '#7a5232'); }]);
   objs.push([2.6 + 8.6, () => { const [x, y] = iso(2.6, 8.6); const q = S(x + ox, y + oy); q(-9, -2, 18, 3, '#e8d8b8'); q(-1, -16, 2, 14, '#7a5232'); const r = Math.floor(t * 6) % 4; for (let k = 0; k < 4; k++) q(-8 + k * 4, -10 + ((k + r) % 2), 3, 4, ['#ff5a4a', '#ffd23f', '#3aa0f0', '#16c79a'][(k + r) % 4]); q(-10, -18, 20, 3, '#ff7eb6'); q(-6, -21, 12, 3, '#ffd23f'); q(-1, -23, 2, 2, '#fff'); }]);
-  const guests = t < 9.4 ? 12 : t < 22 ? Math.round(lerp(12, 50, prog(t, 9.4, 13.2))) : Math.round(lerp(50, 54, prog(t, 22, 25)));
-  const wild = t < 9.6 ? 0.72 : t < 21.8 ? lerp(0.72, 0.28, prog(t, 9.6, 13.6)) : lerp(0.28, 0.93, prog(t, 21.8, 24.2));
+  const guests = P2 ? Math.round(lerp(12, 52, prog(t, 22.6, 24.6))) : s < 9.4 ? 12 : Math.round(lerp(12, 50, prog(s, 9.4, 13.2)));
+  const wild = P2 ? lerp(0.72, 0.93, eio(prog(t, 22.8, 25.4))) : s < 9.6 ? 0.72 : lerp(0.72, 0.28, prog(s, 9.6, 13.6));
+  // calendar: 0 = 1 June, 2 = 1 August (the deadline)
+  const day = P2 ? 2 * prog(t, 20.9, 24.8) : rewinding ? lerp(2, 0, eio(prog(t, RW0, RW1))) : 2 * prog(t, 3.6, 13.4);
   const money = 3600 + guests * 60 + Math.floor(t * 12);
   const crowd = Math.round(guests * 1.2);
   for (let k = 0; k < crowd; k++) {
     let i, j;
     const cu = ((t * 0.06 + k * 0.061) % 1), cj = lerp(15.5, 3.5, cu);
-    const onCut = cutOn && k > 7 && k % 3 !== 0 && cj > 15.6 - cutK * 13;
-    const onNew = t >= 21.2 && k > 7 && k % 3 !== 0 && hash(k, 9) < prog(t, 21.4, 23.2);
+    const cutPeep = cutOn && k > 7 && k % 3 !== 0, onCut = cutPeep && cj > 15.6 - cutK * 13;
+    if (cutPeep && !onCut) continue;
+    const onNew = P2 && k > 7 && k % 3 !== 0 && hash(k, 9) < prog(t, 22.6, 24.4);
     if (onCut) { i = 12 + (hash(k, 1) - 0.5) * 0.7 + 0.5; j = cj; }
     else if (onNew) { const u = ((t * 0.05 + k * 0.061) % 1) * (reroute.length - 1); const a = reroute[Math.floor(u)], b = reroute[Math.min(reroute.length - 1, Math.floor(u) + 1)], f = u % 1; i = lerp(a[0], b[0], f) + 0.5 + (hash(k, 2) - 0.5) * 0.6; j = lerp(a[1], b[1], f) + 0.5 + (hash(k, 3) - 0.5) * 0.6; }
     else { const u = ((t * 0.035 + k * 0.047) % 1) * (EP.length - 1); const a = EP[Math.floor(u)], b = EP[Math.min(EP.length - 1, Math.floor(u) + 1)], f = u % 1; i = lerp(a[0], b[0], f) + 0.5 + (hash(k, 2) - 0.5) * 0.6; j = lerp(a[1], b[1], f) + 0.5 + (hash(k, 3) - 0.5) * 0.6; }
     objs.push([i + j, () => { const [x, y] = iso(i, j); peep(x + ox, y + oy, ['#ff5a4a', '#3aa0f0', '#ffc83d', '#a46cf0', '#16c79a', '#ff8fc0'][k % 6], t * 10 + k, ['#e8b88a', '#a8714b', '#6b4a33', '#f0c8a0'][k % 4]); }]);
   }
-  const flee = t >= 9.4 && t < 22 ? prog(t, 9.4, 10.8) : 0;
+  const flee = s >= 9.4 ? prog(s, 9.4, 10.8) : 0;
   [[11, 6], [11.6, 7.4], [10.2, 8.4]].forEach(([i, j], k) => { if (flee >= 1) return; const ii = i + flee * 6, jj = j - flee * 3; objs.push([ii + jj, () => { const [x, y] = iso(ii, jj); rabbit(x + ox, y + oy - (flee > 0 ? Math.abs(Math.sin(t * 12 + k)) * 6 : 0)); }]); });
-  [0, 1, 2].forEach((k) => { if (t >= 12.6 && t < 22.4 && k > 0) return; const a = t * 0.5 + k * 2; const i = 5.5 + Math.cos(a) * 1.5, j = 12.5 + Math.sin(a) * 1.2; objs.push([i + j, () => { const [x, y] = iso(i, j); duck(x + ox, y + oy); }]); });
+  [0, 1, 2].forEach((k) => { if (s >= 12.6 && k > 0) return; const a = t * 0.5 + k * 2; const i = 5.5 + Math.cos(a) * 1.5, j = 12.5 + Math.sin(a) * 1.2; objs.push([i + j, () => { const [x, y] = iso(i, j); duck(x + ox, y + oy); }]); });
   // deer: graze in the meadow, look up, bolt off the island, then come back after the reroute
   DEER.forEach(([di, dj], k) => {
     let i = di, j = dj, hop = 0;
-    if (t >= 11.8 && t < 22) { const b = prog(t, 11.8 + k * 0.15, 13.0 + k * 0.15); if (b >= 1) return; i = di + eio(b) * 7; j = dj - eio(b) * 4; hop = Math.abs(Math.sin(t * 14 + k)) * 7; }
-    else if (t >= 22) { const r = prog(t, 22.0 + k * 0.3, 23.8 + k * 0.3); if (r <= 0) return; i = lerp(di + 6, di, eio(r)); j = lerp(dj - 3.5, dj, eio(r)); hop = r < 1 ? Math.abs(Math.sin(t * 12 + k)) * 4 : 0; }
-    objs.push([i + j, () => { const [x, y] = iso(i, j); deer(x + ox, y + oy - hop); if (hop > 0 && t < 14) for (let d = 1; d <= 3; d++) px(x + ox - d * 7, y + oy - 2 + (d % 2) * 2, 5 - d, 4 - d, '#e8dcc0');
-      if (t >= 11.0 && t < 12.0) { const q = S(x + ox, y + oy); q(5, -20, 3, 6, '#fff'); q(6, -19, 1, 3, '#d0281a'); q(6, -15, 1, 1, '#d0281a'); }
-      if (t > 24.2 && t < 27.6) heart(x + ox + 4, y + oy - 30 - (t * 10 % 10)); }]);
+    if (s >= 11.8) { const b = prog(s, 11.8 + k * 0.15, 13.0 + k * 0.15); if (b >= 1) return; i = di + eio(b) * 7; j = dj - eio(b) * 4; hop = Math.abs(Math.sin(t * 14 + k)) * 7; }
+    else if (P2) { i = di + Math.sin(t * 0.7 + k * 2) * 0.25; j = dj + Math.cos(t * 0.5 + k) * 0.15; }
+    objs.push([i + j, () => { const [x, y] = iso(i, j); deer(x + ox, y + oy - hop); if (hop > 0 && !P2) for (let d = 1; d <= 3; d++) px(x + ox - d * 7, y + oy - 2 + (d % 2) * 2, 5 - d, 4 - d, '#e8dcc0');
+      if (s >= 11.0 && s < 12.0 && !rewinding) { const q = S(x + ox, y + oy); q(5, -20, 3, 6, '#fff'); q(6, -19, 1, 3, '#d0281a'); q(6, -15, 1, 1, '#d0281a'); }
+      if (t > 24.8 && t < 27.6) heart(x + ox + 4, y + oy - 30 - (t * 10 % 10)); }]);
   });
   objs.push([7.5 + 15.5, () => { const [x, y] = iso(7.5, 15.5); wheel(x + ox, y + oy, t); }]);
-  objs.push([15 + 17.6, () => { const [x, y] = iso(15.4, 17.6); gate(x + ox, y + oy); }]);
+  objs.push([15 + 17.6, () => { const [x, y] = iso(15.4, 17.6); gate(x + ox, y + oy, t); }]);
   EP.forEach(([i, j], k) => { if (k % 3 === 1) objs.push([i + j + 0.9, () => { const [x, y] = iso(i + 0.85, j + 0.15); bench(x + ox, y + oy); }]); if (k % 4 === 2) objs.push([i + j + 0.95, () => { const [x, y] = iso(i + 0.1, j + 0.9); lamp(x + ox, y + oy); }]); });
   for (let k = 0; k < 26; k++) { const i = 10 + hash(k, 41) * 7, j = 3 + hash(k, 42) * 9; if (Math.abs(i - 12.5) < 1 && cutOn) continue; if (Math.abs(i - 12.5) < 2.2 && hash(k, 43) < trample) continue; objs.push([i + j, () => { const [x, y] = iso(i, j); flowers(x + ox, y + oy, k); }]); }
   objs.sort((a, b) => a[0] - b[0]).forEach(([, f]) => f());
