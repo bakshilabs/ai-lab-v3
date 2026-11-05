@@ -206,12 +206,10 @@ In 2016 OpenAI described a boat-racing AI trained to score points in a game call
 - **Language:** use "reward", "trial and error" and "reinforcement learning" aloud; children often won't name the idea unprompted.
 
 ## 10. Accessibility and inclusion
-- **Reading level:** reward cards of 10 words or fewer, with icons; Sprocket's lines read aloud.
-- **Audio and captions:** voiced and captioned lines; star gain and loss have sound and a visual (sparkle in, falling star out).
-- **Colour-blind-safe:** Fair Play uses a face (smile, flat, frown) as well as colour; Stars and Laps are numbers; flags have patterns (chequered, solid black).
-- **Motor-friendly:** no steering; cards and a three-or-four-click dial; no time pressure.
-- **Reduce motion:** a setting slows camera swoops and removes boost flashes.
-- **No devices:** play it unplugged as "Be Sprocket" with paper arches, tokens and recipe cards; the facilitator reads outcomes from a look-up sheet.
+- **Reading level:** reward cards of 10 words or fewer, with icons; Sprocket voiced and captioned; star gain and loss have a sound and a visual.
+- **Colour-blind-safe:** Fair Play uses a face as well as colour; Stars and Laps are numbers; flags are patterned.
+- **Motor-friendly:** no steering; cards and a four-step dial; no time pressure. **Reduce motion** slows swoops and removes boost flashes.
+- **No devices:** "Be Sprocket" with paper arches, tokens, recipe cards and a facilitator outcome sheet.
 
 ## 11. Safety, ethics and data
 - **Data collected:** none. No accounts, names (team names only) or camera.
@@ -221,6 +219,6 @@ In 2016 OpenAI described a boat-racing AI trained to score points in a game call
 
 ## 12. Build notes
 - **Scenes:** Pebble Ring circuit, Training Garage montage, Thunder Ridge, Mirror Island, Dial Strip, Team Ghost, podium, Racing Licence.
-- **Scripted AI responses (Sprocket):** "Fast means shortest! Straight there." (92%) · "Road, road… bridge? Still road, I think." (61%) · "More checkpoints = more stars. Any way I like!" (92%) · "Next checkpoint, in order. Racing the full lap!" (88%) · "Passing is easier if they're not on the road!" (90%) · "Bumps are free!" (90%) · "Too scary! Pulling over." (93%) · "Copying everything, even the wiggles!" (89%) · "Win = cross first. Mud is shorter!" (94%) · "Never seen mud. Shortcut? Thumbs up or down?" (48%) · "Bonus! Bonus! Bonus!" (99%).
+- **Scripted AI responses:** all lines are in the section 5 table and Patch It; the dial lines and B/C lines follow research `07-ai-racing.md`, §6.3.
 - **Reuse from the trailer:** toon kart track, start lights and countdown, boost pads, reward cards with VAGUE tag, Sprocket card, Stars/Laps pills, the new reward recipe card, HUD, mini-map, podium, Racing Licence, title card.
 - **Open questions:** remove "?" item boxes from the build to avoid Mario Kart resemblance; test whether 8-year-olds can read Stars and Laps together without the facilitator; decide whether race day uses three or six teams.

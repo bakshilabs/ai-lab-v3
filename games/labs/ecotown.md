@@ -23,7 +23,7 @@ Children start with an empty floating island and build a whole sustainable town 
 - **UNESCO AI Competency Framework** ([UNESCO](https://www.unesco.org/en/articles/ai-competency-framework-students)): human-centred mindset, ethics of AI. **AI4K12:** Big Ideas 2 and 5.
 
 ## 3. Real-world connection and careers
-- **Town planners** decide where homes, schools and roads go and check flood maps. **Architects** choose materials and design warm, low-carbon homes. **Ecologists** survey habitats before building. **Transport planners** design safe walking and cycling routes. **Energy engineers** plan power for the worst days, not average ones. **Community engagement officers** ask residents what they need.
+- **Town planners** place homes, schools and roads and check flood maps. **Architects** design warm, low-carbon homes. **Ecologists** survey habitats first. **Transport planners** design safe walking and cycling routes. **Energy engineers** plan for the worst days, not average ones. **Community engagement officers** ask residents what they need.
 - **How professionals use AI:** planners and engineers use software and AI tools to model floods, traffic and energy demand, then check the results against site visits and local knowledge (to verify a named UK example before citing one).
 - **Real places to mention:** Goldsmith Street in Norwich won the 2019 Stirling Prize; its terraces of very low-energy council homes push parking to the edges ([Architizer](https://architizer.com/blog/inspiration/stories/goldsmith-street-stirling-prize/)). At BedZED in London, monitoring found that recycling bins placed far from homes were used less ([Passive House Plus](https://passivehouseplus.co.uk/blogs/bedding-sustainability-into-british-buildings-bioregional-s-bedzed)).
 
@@ -234,12 +234,10 @@ Goldsmith Street in Norwich is a street of about 100 council homes built to a ve
 - **Dominant voices:** the town-meeting format uses a talking object; each role speaks for its evidence once before open discussion.
 
 ## 10. Accessibility and inclusion
-- **Reading level:** cards under 12 words with icons; bubbles of 8 words or fewer, read aloud (DESIGN.md).
-- **Audio and captions:** helper lines and bubbles voiced and captioned; lens changes have a sound and a label.
-- **Colour-blind-safe:** lenses use patterns as well as colour (flood waves, carbon cloud dots, walking-time contour numbers); the town flower petals have icons and an "enough" line.
-- **Motor-friendly:** tap-to-place with large targets; undo within a level; no time limits; camera on rails in street view.
-- **Comfort:** Reduce motion, no camera shake, a mini-map (DESIGN.md).
-- **No devices:** run it on an A2 printed island map with clear acetate lens overlays (flood, nature, walking time), paper build tiles and a facilitator script of the AI's plans and outcomes.
+- **Reading level:** cards under 12 words with icons; bubbles of 8 words or fewer, read aloud; all lines voiced and captioned.
+- **Colour-blind-safe:** lenses use patterns as well as colour (flood waves, carbon dots, walking-time numbers); petals have icons and an "enough" line.
+- **Motor-friendly:** large tap-to-place targets, undo within a level, no time limits, street view on rails. Reduce motion and a mini-map (DESIGN.md).
+- **No devices:** an A2 island map with acetate lens overlays, paper build tiles and a facilitator script of plans and outcomes.
 
 ## 11. Safety, ethics and data
 - **Data collected:** none. No accounts, names (town titles only) or camera.

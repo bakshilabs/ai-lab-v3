@@ -21,8 +21,8 @@ Beat Block is a one-button rhythm runner: a neon cube races along a track in tim
 - **AI4K12:** Big Idea 3 (learning: predicting from patterns in data).
 
 ## 3. Real-world connection and careers
-- **Game designers and level designers** build levels around the music and test them hundreds of times. **Game testers (QA)** replay sections to find where players fail. **Music producers and audio engineers** work with tempo and beat grids. **Data scientists** build models that predict the next value in a series, and test where those predictions break.
-- **How professionals use AI:** prediction systems (text suggestions, music recommendations, weather forecasts) all assume that what usually happened before will happen again. Professionals test them on cases where the pattern changes. Weather forecasters publish a "% chance of rain" so people can judge the risk themselves (Met Office explanation of rain probability: to verify the exact page before citing).
+- **Level designers** build levels around the music and test them hundreds of times. **Game testers (QA)** replay sections to find where players fail. **Music producers** work with tempo and beat grids. **Data scientists** build models that predict the next value in a series and test where they break.
+- **How professionals use AI:** prediction systems (text suggestions, recommendations, forecasts) assume what happened before will happen again, so professionals test them where the pattern changes. Forecasters publish a "% chance of rain" so people can judge the risk (Met Office explanation: to verify the page before citing).
 - **Replay design in real games:** Geometry Dash restarts about one second after a crash, shows an attempt counter and has a separate practice mode with checkpoints ([Geometry Dash Wiki: Settings](https://geometrydash.wiki.gg/wiki/Settings); [Practice Mode](https://geometrydash.wiki.gg/wiki/Practice_Mode)). Beat Block uses the same ideas with its own look.
 
 ## 4. Setting, look and characters
@@ -212,9 +212,9 @@ Weather forecasts are predictions made from patterns in past data, and they are 
 - **No devices:** a body-percussion version with a floor ruler, spike counters and Tempo's calls read aloud.
 
 ## 11. Safety, ethics and data
-- **Data collected:** none; attempts and best % live only in the session; no accounts, names or camera.
-- **Age and real AI tools:** Tempo is scripted. No live AI tools are used. If real AI music tools come up, staff mention age limits and adult supervision (check each tool's terms; to verify).
-- **Gentle consequences:** a crash is a soft pop and a one-second restart; nothing is lost.
+- **Data collected:** none: attempts and best % live only in the session; no accounts, names or camera.
+- **Age and real AI tools:** Tempo is scripted; no live AI tools. If real tools come up, staff mention age limits and adult supervision (check each tool's terms; to verify).
+- **Gentle consequences:** a crash is a soft pop and a one-second restart.
 - **Healthy replay:** no streaks, no lives, no random rewards, a cap on runs, natural breaks between levels, and neutral "play again?" prompts (ICO Children's Code Standards 5 and 13, as quoted in research `05-replayability.md`, §4.1).
 
 ## 12. Build notes

@@ -204,20 +204,19 @@ Google's Quick, Draw! asks people to doodle an object while an AI guesses what i
 - **Dominant voices:** watch for the child kneeling at the edge to see the screen; make them Tapper next. Role bags mean every child places tiles.
 
 ## 10. Accessibility and inclusion
-- **Reading level:** almost no reading; tiles carry icons; the AI's labels are two or three words and read aloud.
-- **Audio and captions:** voiced and captioned AI lines; sound effects have visual equivalents.
-- **Colour-blind-safe:** every tile has colour, a white icon and a pattern, plus a printed colour name on the legend; check printed sheets with a colour-vision simulator.
-- **Motor-friendly:** large 20 mm tiles (or dot stickers), tap-or-drag painting with large cells, no timers, no camera needed.
-- **No devices:** fully runnable on paper: children build on the mat, the facilitator reads the AI's scripted label from a look-up card, and another group "plays" the room with a counter, moving one square per turn.
+- **Reading level:** almost no reading; tiles carry icons; AI labels are two or three words, voiced and captioned.
+- **Colour-blind-safe:** every tile has colour, white icon and pattern, and the legend prints colour names; test print sheets in a colour-vision simulator.
+- **Motor-friendly:** 20 mm tiles or dot stickers, large tap-or-drag cells, no timers.
+- **No devices:** build on the mat; the facilitator reads the AI's label from a look-up card; another group "plays" the room with a counter, one square per turn.
 
 ## 11. Safety, ethics and data
-- **Data collected:** none. No accounts, no names, no photos. The grid is copied by tapping, not by camera; designs live only for the session and on the printed blueprint.
-- **Age and real AI tools:** the Level Helper is scripted. Staff don't use live AI art or level tools with children; if they come up, staff mention age limits and adult supervision (check each tool's terms; to verify).
-- **Gentle consequences:** an impossible room means the player bounces back to the start; no losing, no deleting designs.
+- **Data collected:** none: no accounts, names or photos; grids are copied by tapping, not camera, and live only for the session and on the blueprint.
+- **Age and real AI tools:** the helper is scripted; no live AI art or level tools with children. If they come up, staff mention age limits and adult supervision (check each tool's terms; to verify).
+- **Gentle consequences:** an impossible room bounces the player to the start; designs are never deleted.
 - **Original content:** colour grammar, sprites and tiles are original; don't copy Bloxels' block types or art.
 
 ## 12. Build notes
 - **Scenes:** grid board and snap animation, platformer renderer (rooms 7×7 and 9×9, plus the trailer's 13×13 for demos), art board, playtest replay with fall and quit icons, world map, printable mat and tiles, blueprint template.
-- **Scripted AI responses:** "Lava Cave, very hard." (84%) · "Easy Cave." (80%) · "HARDER = MORE SPIKES!" (89%) · "One tricky jump, still fair." (82%) · "A FROG!" (72%) · "A DRAGON!" (90%) · "Fair = same for everyone: removing all hazards." (86%) · "More coins = more fun!" (93%) · "Choice, secret, reward." (74%) · "Team B finishes in 1 try." (80%) · "I've never seen this world." (58%).
+- **Scripted AI responses:** all lines are in the section 5 table; free-build labels come from rules on tile counts and positions.
 - **Reuse from the trailer:** board-to-room snap, platformer hero and room clear, AI helper card, playtest banners, art board with "AI HELPER GUESSES", world map of rooms, title card.
 - **Open questions:** grid size (trailer 13×13 vs recommended 9×9/7×7); whether an optional board-only camera capture on the facilitator's device is worth the privacy review; how the scripted classifier handles thousands of possible grids (rules on tile counts and positions, as in research `06-kid-creators.md`, §9.5).

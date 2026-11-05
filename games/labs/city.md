@@ -22,8 +22,8 @@ Children are the test team for a self-driving car in a small low-poly city. They
 - **AI4K12:** Big Idea 1 (perception: sensors and their limits) and Big Idea 3 (learning from labelled examples) ([AI4K12](https://ai4k12.org/gradeband-progression-charts/)).
 
 ## 3. Real-world connection and careers
-- **Safety drivers and test operators** ride in test vehicles, ready to take over. **Perception engineers** build the systems that find people, cars and signs in sensor data. **Data labellers** draw boxes round objects in thousands of images. **Safety assessors and road-safety officers** decide what counts as safe enough. **Transport planners** design streets, crossings and school zones.
-- **How professionals use AI:** self-driving cars combine cameras, lidar and radar with machine-learning models that label what they see, and test teams look for the "edge cases" the models miss. Researchers have shown that small stickers on a real stop sign could make an image classifier misread it in most video frames tested ([Eykholt et al., arXiv 1707.08945](https://arxiv.org/abs/1707.08945)).
+- **Safety drivers** ride in test vehicles, ready to take over. **Perception engineers** build systems that find people, cars and signs in sensor data. **Data labellers** draw boxes round objects in thousands of images. **Safety assessors and road-safety officers** decide what is safe enough. **Transport planners** design streets, crossings and school zones.
+- **How professionals use AI:** self-driving cars combine cameras, lidar and radar with machine-learning models that label what they see; test teams hunt for the "edge cases" the models miss (see the stop-sign study in section 9).
 - **UK context:** the UK passed the Automated Vehicles Act in 2024, which sets out who is responsible when a car drives itself (to verify details before quoting: [legislation.gov.uk](https://www.legislation.gov.uk/ukpga/2024/10/contents)). PAVE UK runs public education on automated vehicles ([WMG, University of Warwick](https://warwick.ac.uk/fac/sci/wmg/news-and-events/news/wayve-nissan-and-uber-join-forces-with-paveuk-to-support-responsible-deployment-of-self-driving-vehicles/)).
 
 ## 4. Setting, look and characters
@@ -207,12 +207,10 @@ In 2017 researchers showed that a few black and white stickers on a real stop si
 - **Dominant voices:** the Safety Driver paddle gives a quieter child an authoritative role. Use "Lidar Watcher speaks first" for evidence questions.
 
 ## 10. Accessibility and inclusion
-- **Reading level:** card text 10 words or fewer; detection labels are single words plus %; all read aloud.
-- **Audio and captions:** voiced Kerb lines, captions, and visual equivalents for the alarm and chime.
-- **Colour-blind-safe:** boxes use colour plus a line style (solid = sure, dashed = unsure, "?" label); the gap ruler shows numbers; ✓/✕ symbols.
-- **Motor-friendly:** cards are large tap targets; no steering or timed input.
-- **Reduce motion:** a setting removes camera swoops and shake between street and lidar views.
-- **No devices:** run it on the floor map with a toy car, view cone, printed detection-box cards and the facilitator's outcome script.
+- **Reading level:** cards of 10 words or fewer; labels are one word plus %; all voiced and captioned, with visual equivalents for alarms.
+- **Colour-blind-safe:** boxes use colour plus line style (solid = sure, dashed = unsure, "?"); the gap ruler shows numbers; ✓/✕.
+- **Motor-friendly:** large tap targets; no steering or timed input. **Reduce motion** removes swoops and shake.
+- **No devices:** the floor map, toy car, view cone, printed detection-box cards and the facilitator's outcome script.
 
 ## 11. Safety, ethics and data
 - **Data collected:** none. No accounts, names, photos or camera use.
@@ -222,6 +220,6 @@ In 2017 researchers showed that a few black and white stickers on a real stop si
 
 ## 12. Build notes
 - **Scenes:** city diorama; street and lidar views; detection boxes anchored to 3D objects; blind-spot wedge; gap ruler; top-down before/after strip; picture book; map layer; night and rain; Driving Licence.
-- **Scripted AI responses (Kerb):** "'Fast' means don't slow down." (90%) · "Can't see past the van. Slowing down." (85%) · "Not sure what that is. Stopping!" (88%) · "Child on scooter." (86%, after data) · "PERSON" on the poster (93%) · "Flat picture. Not a person." (80%) · "Same speed as daytime." (82%) · "Something ahead. 52% sure. Slowing." · "SPEED LIMIT 30." (87%) · "Sign and map disagree. Slowing; asking the safety driver." (55%).
+- **Scripted AI responses:** all lines are in the section 5 table, plus the trailer's "Not sure what that is. Stopping!" (88%).
 - **Reuse from the trailer:** city, ego car, oncoming cars, pedestrians, child and ball, van, lidar point cloud, detection boxes, blind-spot label, gap ruler, before/after strip, dashboard, card UI, title card.
 - **Open questions:** rename "Autopilot" (character) and review the lab title; check whether the trailer's "RUN" billboard should become the Drive 3 poster; offer PAVE UK a review of the facilitator notes; verify the Automated Vehicles Act summary.
