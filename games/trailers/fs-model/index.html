@@ -174,7 +174,7 @@ const hat = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.35, 1.0), new THREE.Mesh
 
 // ---------- timeline ----------
 // 0-2.1 title | 2.5-4.3 brief | 4.7 AI draft "98%" | 7.0-15.2 review: Data red -> held-back test 71% -> Case red; Source/Authority pass
-// 15.55-23.4 fix on the island (retrain with night-shift photos, re-test 93%), re-check, V2, sign-off | 23.8-26.5 go-live night | 26.8-30.0 portfolio | 30.4-36 end
+// 15.55-23.4 fix on the island (retrain with night-shift photos, re-test 94%), re-check, V2, sign-off | 23.8-26.5 go-live night | 26.8-30.0 portfolio | 30.4-36 end
 const T = { brief: 2.5, ai: 4.7, rev: 7.1, fix: 15.55, sign: 21.0, live: 23.8, port: 26.85, end: 30.4 };
 const K = [
   { t: 0, ang: -0.66, dist: 180, hgt: 96, look: [0, -6, 0], ox: 0, oy: -120 },
@@ -191,8 +191,8 @@ const K = [
   { t: 26.5, ang: 0.44, dist: 90, hgt: 51, look: [10, 0, -6], ox: 0, oy: 0 },
   { t: 27.5, ang: -0.16, dist: 118, hgt: 70, look: [-6, 0, -4], ox: 470, oy: 20 },
   { t: 29.8, ang: -0.08, dist: 118, hgt: 70, look: [-6, 0, -4], ox: 470, oy: 20 },
-  { t: 31.2, ang: 0.08, dist: 172, hgt: 96, look: [0, -6, 0], ox: 430, oy: -50 },
-  { t: 36, ang: 0.3, dist: 166, hgt: 94, look: [0, -6, 0], ox: 430, oy: -50 },
+  { t: 31.2, ang: 0.08, dist: 178, hgt: 96, look: [0, -6, 0], ox: 380, oy: -50 },
+  { t: 36, ang: 0.3, dist: 172, hgt: 94, look: [0, -6, 0], ox: 380, oy: -50 },
 ];
 function camAt(t) {
   let i = 0; while (i < K.length - 2 && t > K[i + 1].t) i++;
@@ -217,7 +217,7 @@ st.onFrame((t) => {
   updClouds(t);
   const hs = t < CH.fill ? (t < T.ai ? 0 : 1) : 2; if (hs !== heroS) { heroS = hs; heroTex.redraw([gridDraw, curveDraw, mxDraw][hs]); }
   const ws = t < CH.score ? 0 : t < RETEST.done ? 1 : 2;
-  if (ws !== wallS) { wallS = ws; if (ws === 1) wallTex.redraw(drawScore('Held-back test · 71%', [[15, 1, 0], [2, 7, 7], [0, 4, 12]], true)); if (ws === 2) wallTex.redraw(drawScore('Re-test · 93% on new photos', [[16, 0, 0], [0, 15, 1], [0, 2, 14]], false)); }
+  if (ws !== wallS) { wallS = ws; if (ws === 1) wallTex.redraw(drawScore('Held-back test · 71%', [[15, 1, 0], [2, 7, 7], [0, 4, 12]], true)); if (ws === 2) wallTex.redraw(drawScore('Re-test · 94% on new photos', [[16, 0, 0], [0, 15, 1], [0, 2, 14]], false)); }
   const night = Math.max(...NIGHT.map(([a, b]) => within(t, a, b) ? clamp(Math.min(t - a, b - t) / 0.5) : 0));
   ITEMS.forEach(([m, k], i) => { const u = (t * 1.1 + i * 3.1) % 27.9; m.position.set(-6 + u, 4, -7.5 + (k === 1 ? -0.15 : 0)); m.visible = u > 0.6 && u < 27.2; });
   cone.material.opacity = 0.16 + Math.sin(t * 6) * 0.05;
@@ -240,7 +240,7 @@ FS.appbar('Model Test Lab', 2.5, 30.0, SVG.mark);
 const COL = 1000;
 
 const brief = FS.brief({ from: 'Tallowmere Recycling · Quality Lead', task: 'Test the sorting camera before it goes live on Line 2', deliver: 'A model card the plant can trust', due: 'Friday' }, T.brief, 4.3, { x: COL, y: 150 });
-A((t) => brief.querySelectorAll('.row').forEach((r, i) => { const k = prog(t, T.brief + 0.25 + i * 0.25, T.brief + 0.5 + i * 0.25, ease.out); r.style.opacity = k; r.style.transform = `translateX(${(1 - k) * 30}px)`; }));
+A((t) => brief.querySelectorAll('.row').forEach((r, i) => { const k = prog(t, T.brief + 0.1 + i * 0.22, T.brief + 0.35 + i * 0.22, ease.out); grow(r, k, 110); r.style.display = k <= 0 ? 'none' : 'grid'; r.style.transform = `translateX(${(1 - k) * 30}px)`; }));
 FS.tag('<b>Sofia</b><small>ML engineer · mentor</small>', () => new THREE.Vector3(-13.2, 5.4, -0.6), 2.8, 4.3, 'fs-ntag m');
 FS.tag('<b>Kofi, 13</b><small>model tester</small>', () => new THREE.Vector3(-16, 4.2, -1.25), 4.5, 7.6);
 FS.tag('<b>Model camera</b><small>sorts Line 2</small>', () => new THREE.Vector3(7.5, 11.4, -7), 5.0, 8.7, 'fs-ntag m');
@@ -255,7 +255,7 @@ A((t) => {
   ai.style.top = (t < 11 ? lerp(150, 600, prog(t, 6.6, 7.1, ease.inOut)) : 600 + 150 * k) + 'px';
   ai.firstChild.style.zoom = lerp(1, 0.86, k);
 });
-FS.aiReact(ai, { flagAt: STEPS[0][2], retAt: 13.9, sure2: 71, sureNote: 'on new photos', v2: { at: 20.3, name: 'Kofi', sure: 93, text: 'Re-tested: <b>93%</b> on new day and night photos. Ready for Line 2.', data: '252 photos · 48 held back for the test' } });
+FS.aiReact(ai, { flagAt: STEPS[0][2], retAt: 13.4, sure2: 71, sureNote: 'on new photos', v2: { at: 20.3, name: 'Kofi', sure: 94, text: 'Re-tested: <b>94%</b> on new day and night photos. Ready for Line 2.', data: '252 training photos · tested on 48 new ones' } });
 
 // review: Data, then the held-back test as evidence, then Case, Source, Authority (one-line reason each)
 const rev = FS.card(`<div class="fs-top"><span class="ttl"><span class="ic">${SVG.check()}</span>Review: “98%, ready to go live”</span><span class="fs-pill grey" data-verdict>Checking</span></div>
@@ -294,11 +294,11 @@ FS.bindChecks(card, (t) => [t < RE.d0 ? 'bad' : t < RE.d1 ? 'run' : 'ok', t < RE
 A((t) => {
   card.querySelector('[data-fix]').textContent = typed(FIXT, t, 15.9, 16.9) || '…';
   const k1 = prog(t, RETEST.run - 0.2, RETEST.run + 0.1, ease.out); grow(card.querySelector('[data-r1a]'), k1, 90); grow(card.querySelector('[data-r1b]'), k1, 90);
-  const rt = card.querySelector('[data-rt]'); const rh = t < RETEST.done ? 'Running on 48 new photos…' : '<del>98%</del> <span style="color:#c0392b">71%</span> → <ins>93% on new photos</ins>'; if (rt.dataset.h !== rh) { rt.innerHTML = rh; rt.dataset.h = rh; }
+  const rt = card.querySelector('[data-rt]'); const rh = t < RETEST.done ? 'Running on 48 new photos…' : '<del>98%</del> <span style="color:#c0392b">71%</span> → <ins>94% on new photos</ins>'; if (rt.dataset.h !== rh) { rt.innerHTML = rh; rt.dataset.h = rh; }
   const k2 = prog(t, RETEST.done + 0.1, RETEST.done + 0.4, ease.out); grow(card.querySelector('[data-r2a]'), k2, 90); grow(card.querySelector('[data-r2b]'), k2, 90);
   grow(card.querySelector('[data-re]'), prog(t, RE.show - 0.2, RE.show + 0.1, ease.out), 160);
   const w = card.querySelector('[data-why]');
-  const wt = t < RE.d0 ? '<b>Re-check</b> the two that failed' : t < RE.d1 ? '<b>Data:</b> re-checking…' : t < RE.c0 ? '<b>Data:</b> tested on 48 photos it never saw ✓' : t < RE.c1 ? '<b>Case:</b> re-checking…' : '<b>Case:</b> 93% under night light; very dim light listed ✓';
+  const wt = t < RE.d0 ? '<b>Re-check</b> the two that failed' : t < RE.d1 ? '<b>Data:</b> re-checking…' : t < RE.c0 ? '<b>Data:</b> tested on 48 photos it never saw ✓' : t < RE.c1 ? '<b>Case:</b> re-checking…' : '<b>Case:</b> 94% under night light; very dim light listed ✓';
   if (w.dataset.h !== wt) { w.innerHTML = wt; w.dataset.h = wt; }
   const s = card.querySelector('[data-sign]'); grow(s, prog(t, T.sign, T.sign + 0.3, ease.out), 140); const k = prog(t, T.sign, T.sign + 0.4, ease.back); s.style.transform = `scale(${0.85 + 0.15 * k})`;
   const p = card.querySelector('[data-st]'); const done = t > T.sign + 0.1; const pc = 'fs-pill ' + (done ? 'teal' : 'amber'); if (p.className !== pc) { p.className = pc; p.textContent = done ? 'Signed off' : 'Editing'; }
@@ -310,7 +310,7 @@ FS.tag('<b>Line 2 · first night shift</b><small>sorter live, Model Card on file
 FS.tag('<b>Carton ✓</b><small>into the Carton bin</small>', () => new THREE.Vector3(21, 6.4, -7.5), 24.8, 26.5, 'fs-ntag ok');
 
 // portfolio: only Kofi's own work from this trailer; the sign-off stamp sits below it (no overlap)
-FS.portfolio('Kofi', [['Held-back test', 'Line 2 sorter · 48 photos, 71% → 93%', 26.95, false], ['Model Card · Line 2 sorter', 'Model Test Lab · signed off', 27.4, true]], T.port, 30.0, { x: COL, y: 150 });
+FS.portfolio('Kofi', [['Held-back test', 'Line 2 sorter · 48 photos, 71% → 94%', 26.95, false], ['Model Card · Line 2 sorter', 'Model Test Lab · signed off', 27.4, true]], T.port, 30.0, { x: COL, y: 150 });
 const stamp = el(`<div class="fs-signbig"><span class="tick">${SVG.tick()}</span><span><small>SIGNED OFF</small><b>Reviewed by: Kofi, age 13</b><em>Checks passed: 4 of 4</em></span></div>`, { x: COL, y: 500 });
 A(cueS(stamp, T.port + 0.3, 30.0, { from: 'up' }));
 

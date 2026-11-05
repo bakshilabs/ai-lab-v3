@@ -38,7 +38,7 @@ By the end, learners can:
 | 3. Clean | Fix issues without inventing data | Blanks: A set to 0 · B delete row · C mark "unknown" | "Fill gaps" → fills blank Faults with 0 (86%) | **Case:** ask what 0 means: "inspected and fine", not "not recorded" | Rule: "Blank is not 0" | 120 rows → 112 clean rows; four teal log pills |
 | 4. Chart | Show the answer to the question | Bar chart of reports · pie chart · bar chart with a note | *(unsure but right)* "Possible gap: Old Quay has far fewer rows than other wards. Check coverage?" (48% sure) | Team decides to keep the flag for the review | "Low-confidence flags are still worth reading" | Bars grow: 38 · 36 · 34 · 4; Old Quay bar amber |
 | 5. Review the finding | Sign off or send back | Approve · Approve with edit · Send back | "Summarise" → "Old Quay has the fewest faults, so its repairs can wait." (94%) | **Data:** ward profile card shows most Old Quay residents are over 65, few use the app, and 9 streets sent no reports. **Case:** 4 against 34–38 is an outlier to explain, not a result | Note: "Few reports is not the same as few faults" | Checks run in order: Data chip red (red pins rise over Old Quay), then Case amber; verdict "Send back"; the AI card's claim is struck through and marked "Returned" |
-| 6. Fix and ship | A Data Brief a councillor can trust | Better data: A door-knock survey · B lamp-post sensor sample · C phone line for reports | None: the team writes it | Peer check against the rubric | "What this data can't tell us: faults nobody reported" | Tracked change, boxes appear, "Signed off · Freya, 13"; brief flies into the portfolio |
+| 6. Fix and ship | A Data Brief a councillor can trust | Better data: A door-knock survey · B lamp-post sensor sample · C phone line for reports | None: the team writes it | Peer check against the rubric | "What this data can't tell us: faults nobody reported" | Tracked change, boxes appear; Data and Case re-run and turn green; InsightAssist's card returns as "V2 · re-checked by Freya" (90%); "Signed off · Freya, 13"; the brief and the clean-up log go into Freya's portfolio |
 
 In stage 5, Source and Authority pass (the numbers trace to the export). Learners still say *why*; a check that passes is a finding too. §9 revisits whether "Repairs can wait there" is an analyst's call at all.
 
@@ -215,7 +215,7 @@ Learners self-assess one criterion of their choice on the Data Brief footer.
   4. Stage 4: "Possible gap: Old Quay has far fewer rows than other wards. Check coverage? (48% sure)"
   5. Stage 5: "Old Quay has the fewest faults, so its repairs can wait. (94% sure) · Data I used: Fault-report app · 112 rows"
   6. On return: "Noted. Finding withdrawn pending new data."
-- **Reuse from the trailer:** the diorama, `fs-ui.js` components, rows F-031 to F-058, log pills, chart values and Data Brief wording.
+- **Reuse from the trailer:** the rounded island diorama, `fs-ui.js` components (check list with one-line reasons, V2 AI card, portfolio), rows F-031 to F-058, log pills, chart values and Data Brief wording. The trailer also shows a "one week later" door-knock survey (31 faults found on Old Quay against 4 app reports; repairs booked) as an optional debrief reveal.
 - **Open questions:**
   - Product name for the AI colleague: InsightAssist, or keep "AI colleague"?
   - Ward profile figures: give a percentage over 65 or only words ("most residents")? Words avoid invented-looking statistics.

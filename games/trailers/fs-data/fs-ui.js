@@ -36,7 +36,7 @@ export function cueS(node, tIn, tOut, { from = 'right', dur = 0.45, outDur = 0.3
   return (t) => {
     const a = prog(t, tIn, tIn + dur, from === 'pop' ? ease.back : ease.out);
     const b = tOut == null ? 0 : prog(t, tOut, tOut + outDur, ease.in);
-    const v = b >= 1 ? 0 : a;
+    const v = b >= 1 ? 0 : clamp(a * 3); // opaque within ~0.1 s, then it just slides (no see-through card)
     node.style.opacity = v; node.style.visibility = v <= 0.001 ? 'hidden' : 'visible';
     let tr = from === 'pop' ? `scale(${0.6 + 0.4 * a})` : from === 'up' ? `translateY(${(1 - a) * dist}px)` : from === 'down' ? `translateY(${-(1 - a) * dist}px)` : `translateX(${(1 - a) * dist * 3}px)`;
     if (b > 0) tr += ` translateX(${b * 1000}px)`;
@@ -132,7 +132,7 @@ export function makeFS(A, camera) {
     // end: island on the left, lab title + pathway rows stacked on the right (bright sky)
     endRight(lab, tagline, tIn, { x = 1000, y = 70 } = {}) {
       const n = el(`<div class="fs-etitle"><span class="fs-chip2">DeltaOps Learning · Future Skills</span><h1>${lab}</h1><h2>${tagline}</h2></div>`, { x, y });
-      A(cue(n, tIn, null, { from: 'up', dur: 0.6 }));
+      A(cueS(n, tIn, null, { from: 'up', dur: 0.6 }));
       return n;
     },
     pathRows({ next, award, route, jobs }, tIn, { x = 1000, y = 400 } = {}) {
@@ -140,7 +140,7 @@ export function makeFS(A, camera) {
         <div class="row"><span>Next step</span><b>${next}</b></div><div class="row"><span>Award</span><b>${award}</b></div>
         <div class="row"><span>Route</span><b>${route}</b></div><div class="row"><span>Jobs</span><div class="jobs">${jobs.map((j) => `<i>${j}</i>`).join('')}</div></div>
         <div class="lg"><img src="../assets/logo-learning.svg"></div></div>`, { x, y });
-      A(cue(n, tIn, null, { from: 'up', dur: 0.6 }));
+      A(cueS(n, tIn, null, { from: 'up', dur: 0.6 }));
       return n;
     },
     // opening title on the sky above the island
