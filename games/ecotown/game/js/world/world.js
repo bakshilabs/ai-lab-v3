@@ -271,6 +271,7 @@ export function createWorld(stage, terrain) {
       st.group.visible = B.t >= st.t0 && !(st.hideAt != null && B.t >= st.hideAt);
       const e = k * k * (3 - 2 * k); st.plane.constant = st.a + (st.b - st.a) * e;
       if (B.t >= st.t0 && B.t < st.t1) { B.plane.constant = st.plane.constant; B.dir = st.dir; }
+      if (st.xray) { const on = B.t >= st.t0 && B.t < st.t1 + 0.6; for (const prev of B.stages.slice(0, i)) if (prev.temp && prev !== st) prev.group.traverse((o) => { if (o.isMesh) { o.material.transparent = on; o.material.opacity = on ? 0.22 : 1; o.material.depthWrite = !on; } }); }
       if (st.cable && B.cable) B.cable.userData.grow(k);
     });
     if (Math.random() < dt * 2.5) { const [cx, cz] = tileCenter(B.L.t.gx, B.L.t.gz); puff(cx + (Math.random() - 0.5) * 5, B.L.oy + 1.3, cz + (Math.random() - 0.5) * 5, 2); }
@@ -280,8 +281,8 @@ export function createWorld(stage, terrain) {
   function makeCable(L) {
     const [cx, cz] = tileCenter(L.t.gx, L.t.gz); const homes = [...layers.values()].filter((x) => x.cellItem && ITEMS[x.cellItem]?.home);
     const tgt = homes.length ? homes.reduce((a, h) => a.add(new THREE.Vector3(h.ox + 3, 0, h.oz + 3)), new THREE.Vector3()).multiplyScalar(1 / homes.length) : new THREE.Vector3(0, 0, 0);
-    const n = 40; const m = new THREE.InstancedMesh(new THREE.BoxGeometry(0.5, 0.25, 0.5), new THREE.MeshBasicMaterial({ color: '#ffd23f' }), n); m.frustumCulled = false; const d = new THREE.Object3D();
-    m.userData.grow = (k) => { for (let i = 0; i < n; i++) { const f = i / (n - 1); d.position.set(cx + (tgt.x - cx) * f, L.oy + 1.15 + Math.max(0, (heightNear(cx + (tgt.x - cx) * f, cz + (tgt.z - cz) * f) - L.oy)), cz + (tgt.z - cz) * f); d.scale.setScalar(f <= k ? 1 : 0.0001); d.updateMatrix(); m.setMatrixAt(i, d.matrix); } m.instanceMatrix.needsUpdate = true; };
+    const n = 60; const m = new THREE.InstancedMesh(new THREE.BoxGeometry(0.8, 0.5, 0.8), new THREE.MeshBasicMaterial({ color: '#ffe066' }), n); m.frustumCulled = false; const d = new THREE.Object3D();
+    m.userData.grow = (k) => { for (let i = 0; i < n; i++) { const f = i / (n - 1); d.position.set(cx + (tgt.x - cx) * f, L.oy + 1.15 + Math.max(0, (heightNear(cx + (tgt.x - cx) * f, cz + (tgt.z - cz) * f) - L.oy)), cz + (tgt.z - cz) * f); const pulse = Math.abs(f - ((performance.now() / 900) % 1)) < 0.06 ? 1.8 : 1; d.scale.setScalar(f <= k ? pulse : 0.0001); d.updateMatrix(); m.setMatrixAt(i, d.matrix); } m.instanceMatrix.needsUpdate = true; };
     m.userData.grow(0); L.group.add(m); return m;
   }
   const heightNear = (x, z) => { const tt = tileAt(x, z); const t = tt && terrain.tiles.get(tt[0] + ',' + tt[1]); return t ? t.h : 0; };

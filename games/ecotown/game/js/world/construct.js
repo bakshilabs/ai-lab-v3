@@ -64,7 +64,7 @@ export function planStages(cell, vox, rec) {
   const shells = rec.shells || [];
   if (HOMES.has(id) || shells.length) {
     const M = MATERIAL[id] || { frame: '#c08a56', j: 'Frame', s: 'Structural frame', walls: L('Walls') };
-    const ground = P(), found = P(), frame = P(), pipes = P(), walls = P(), open = P(), roof = P(), sys = P();
+    const ground = P(), found = P(), frame = P(), pipes = P(), walls = P(), open = P(), rafters = P(), roof = P(), sys = P();
     copy(vox.G, ground.G); copy(vox.B, ground.B);
     const inShell = (x, z, s) => x >= s.x0 && x < s.x0 + s.w && z >= s.z0 && z < s.z0 + s.d;
     const roofY = (x, z) => { for (const s of shells) if (inShell(x, z, s)) return s.h; return 99; };
@@ -75,12 +75,13 @@ export function planStages(cell, vox, rec) {
       const X1 = s.x0 + s.w - 1, Z1 = s.z0 + s.d - 1;
       for (let x = s.x0; x <= X1; x++) for (let z = s.z0; z <= Z1; z++) {
         const onWall = x === s.x0 || x === X1 || z === s.z0 || z === Z1; if (!onWall) continue;
-        const post = (x === s.x0 || x === X1) && (z === s.z0 || z === Z1) || ((x - s.x0) % 2 === 0 && (z === s.z0 || z === Z1)) || ((z - s.z0) % 2 === 0 && (x === s.x0 || x === X1));
+        const post = (x === s.x0 || x === X1) && (z === s.z0 || z === Z1) || ((x - s.x0) % 3 === 0 && (z === s.z0 || z === Z1)) || ((z - s.z0) % 3 === 0 && (x === s.x0 || x === X1));
         if (post) for (let y = 1; y < s.h; y++) frame.F.set(x, y, z, M.frame);
-        frame.F.set(x, s.h - 1, z, M.frame); frame.F.set(x, 1, z, M.frame);
+        frame.F.set(x, s.h - 1, z, M.frame);
       }
       // services: a blue water pipe loop along the floor and up to the bathroom; yellow cables up every wall
-      for (let x = s.x0 + 1; x < X1; x++) { pipes.F.set(x, 1, s.z0 + 1, '#2f6fd8'); pipes.F.set(x, 2, s.z0 + 1, '#2f6fd8'); }
+      for (let x = s.x0 + 1; x < X1; x++) { pipes.F.set(x, 1, s.z0 + 1, '#2f6fd8'); pipes.F.set(x, 1, Z1 - 1, '#2f6fd8'); }
+      for (let z = s.z0 + 1; z < Z1; z++) { pipes.F.set(s.x0 + 1, 1, z, '#2f6fd8'); pipes.F.set(X1 - 1, s.h - 3, z, '#ffc83d'); }
       for (let y = 1; y < s.h - 1; y++) { pipes.F.set(s.x0 + 1, y, s.z0 + 1, '#2f6fd8'); pipes.F.set(X1 - 1, y, Z1 - 1, '#ffc83d'); pipes.F.set(s.x0 + 1, y, Z1 - 1, '#ffc83d'); }
       for (let x = s.x0 + 1; x < X1; x++) pipes.F.set(x, s.h - 2, Z1 - 1, '#ffc83d');
       pipes.F.set(X1 - 1, 1, s.z0 + 1, '#e8eef2'); pipes.F.set(X1 - 1, 2, s.z0 + 1, '#e8eef2');   // boiler / heat-pump unit
@@ -88,7 +89,7 @@ export function planStages(cell, vox, rec) {
     const isOpen = (x, z, c) => shells.some((s) => inShell(x, z, s) && s.open.includes('#' + c.getHexString()));
     for (const [x, y, z, c] of vox.F.m.values()) {
       const ry = roofY(x, z);
-      if (y >= ry) roof.F.set(x, y, z, c);
+      if (y >= ry) { roof.F.set(x, y, z, c); if (id !== 'concrete' && x % 2 === 0) rafters.F.set(x, y, z, '#a8743f'); }
       else if (isOpen(x, z, c)) open.F.set(x, y, z, c);
       else if (ry < 99) walls.F.set(x, y, z, c);
       else sys.F.set(x, y, z, c);
@@ -98,10 +99,11 @@ export function planStages(cell, vox, rec) {
     add(L('Clearing the site', 'Site cleared and levelled'), ground, { dir: 'x', w: 0.5 });
     add(L('Foundations', 'Foundations: a level base that spreads the weight'), found, { dir: 'x', w: 0.7, temp: true });
     add(L(M.j, M.s), frame, { w: 1, temp: true });
-    add(L('Water pipes and wires', 'Services: water pipes (blue) and electrical wiring (yellow)'), pipes, { w: 0.7, temp: true });
+    add(L('Water pipes and wires', 'Services: water pipes (blue) and electrical wiring (yellow)'), pipes, { w: 0.9, temp: true, xray: true });
     add(M.walls, walls, { w: 1.6 });
     add(L('Windows and doors', 'Double-glazed windows and doors'), open, { w: 0.7 });
-    add(L('Roof', id === 'concrete' ? 'Flat concrete roof' : 'Roof rafters, then tiles'), roof, { w: 1.1 });
+    if (rafters.F.size) add(L('Roof rafters', 'Roof rafters: the wooden skeleton of the roof'), rafters, { w: 0.8, temp: true });
+    add(L(id === 'concrete' ? 'Concrete roof' : id === 'straw' ? 'Thatched roof' : 'Roof tiles', id === 'concrete' ? 'Flat concrete roof' : 'Roof covering laid from the eaves up'), roof, { w: 1.1 });
     add(L(hasSolar ? 'Solar panels on the roof' : hasHP ? 'Heat pump connected' : 'Finishing touches', hasSolar ? 'Solar panels wired to the house' : 'Final fittings'), sys, { w: 0.6 });
     return st;
   }

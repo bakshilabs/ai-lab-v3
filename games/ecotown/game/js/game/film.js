@@ -97,13 +97,23 @@ export function createFilm(app) {
       world.setCell(hero, cells.get(hero), { build: { dur: heroDur, delay: 0.6, onStage } });
       const isTall = ['wind', 'concrete', 'school', 'hall'].includes(cells.get(hero)?.item);
       // look at the hero from outside the town, so nothing stands between the camera and the build
-      const out = heroP.clone().sub(centre).setY(0); const yawOut = out.lengthSq() > 4 ? Math.atan2(out.x, out.z) : rig.sky.yaw;
-      if (!this.skip) await rig.focus(heroP.clone().add(new THREE.Vector3(0, isTall ? 6 : 2, 0)), { dist: isTall ? 52 : levelId === 'food' || levelId === 'move' ? 34 : 24, pitch: levelId === 'food' || levelId === 'move' ? 0.95 : isTall ? 0.35 : 0.55, yaw: yawOut }, 1.4);
+      // choose the camera direction with the clearest line of sight to the build (fewest things in the way)
+      const ray = new THREE.Raycaster(); const dist0 = isTall ? 52 : 28; let yawOut = rig.sky.yaw, best = Infinity;
+      const tgt = heroP.clone().add(new THREE.Vector3(0, 3, 0));
+      for (let i = 0; i < 12; i++) {
+        const yaw = rig.sky.yaw + (i / 12) * Math.PI * 2, pitch = 0.6;
+        const cam = new THREE.Vector3(Math.sin(yaw) * Math.cos(pitch), Math.sin(pitch), Math.cos(yaw) * Math.cos(pitch)).multiplyScalar(dist0).add(tgt);
+        const dir = tgt.clone().sub(cam); const len = dir.length(); ray.set(cam, dir.normalize()); ray.far = len - 4;
+        const hits = ray.intersectObjects(world.root.children, true).filter((h) => h.object.visible).length + Math.abs(Math.sin((yaw - rig.sky.yaw) / 2)) * 0.5;
+        if (hits < best) { best = hits; yawOut = yaw; }
+      }
+      if (!this.skip) await rig.focus(heroP.clone().add(new THREE.Vector3(0, cells.get(hero)?.item === 'wind' ? 5 : isTall ? 6 : 2, 0)), { dist: cells.get(hero)?.item === 'wind' ? 64 : isTall ? 52 : levelId === 'food' || levelId === 'move' ? 34 : 24, pitch: levelId === 'food' || levelId === 'move' ? 0.95 : cells.get(hero)?.item === 'wind' ? 0.42 : isTall ? 0.35 : 0.55, yaw: yawOut }, 1.4);
       const t0 = performance.now();
       rig.startTurntable(0.04);
-      while (!this.skip && (world.builds.has(hero) || performance.now() - t0 < 1200) && performance.now() - t0 < 90000) await sleep(80);
+      while (!this.skip && (world.builds.has(hero) || performance.now() - t0 < 1200) && performance.now() - t0 < 300000) await sleep(80);
       rig.startTurntable(0);
       // finale: pull back, little celebration
+      if (!this.skip) await sleep(1500); // hold on the finished build
       // then the rest of this level's plan goes up quickly around it
       rig.startTurntable(0); if (!this.skip) await rig.focus(centre, { dist: 70, pitch: 0.7 }, 1.0);
       ordered.forEach((k, i) => { if (k !== hero) world.setCell(k, cells.get(k), { build: { dur: 1.8, delay: i * 0.1 } }); });
