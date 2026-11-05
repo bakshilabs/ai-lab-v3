@@ -92,11 +92,11 @@ st.onFrame((t) => {
   let ang, dist, hgt, fov = 30, look = [0, 0, 0];
   if (t < 4) { const k = prog(t, 0, 4); ang = lerp(0.9, 0.55, ease.inOut(k)); dist = lerp(100, 72, ease.out(k)); hgt = lerp(76, 58, k); }
   else if (t < 8.4) { ang = 0.5; dist = 72; hgt = 58; }
-  else if (t < 17.4) { const k = prog(t, 8.4, 17.4); ang = lerp(0.42, 0.28, k); dist = lerp(64, 58, k); hgt = lerp(52, 48, k); look = [1, 0, -1]; }
-  else if (t < 21) { ang = 0.25; dist = 58; hgt = 48; look = [1, 0, -1]; }
-  else if (t < 28) { const k = prog(t, 21, 28); ang = lerp(0.22, -0.1, k); dist = lerp(58, 62, k); hgt = lerp(48, 50, k); look = [1, 0, 0]; }
+  else if (t < 17.4) { const k = prog(t, 8.4, 17.4); ang = lerp(0.42, 0.28, k); dist = lerp(54, 46, k); hgt = lerp(44, 37, k); look = [1, 0, -1]; }
+  else if (t < 21) { ang = 0.25; dist = 46; hgt = 37; look = [1, 0, -1]; }
+  else if (t < 28) { const k = prog(t, 21, 28); ang = lerp(0.22, -0.1, k); dist = lerp(46, 54, k); hgt = lerp(37, 42, k); look = [1, 0, 0]; }
   else { const k = prog(t, 28, 38); ang = lerp(-0.12, -0.6, k); dist = lerp(80, 120, k); hgt = lerp(60, 84, k); }
-  camera.fov = fov; camera.updateProjectionMatrix(); camera.position.set(Math.sin(ang) * dist + look[0], hgt, Math.cos(ang) * dist + look[2]); camera.lookAt(look[0], look[1] - 4, look[2]);
+  camera.fov = fov; camera.updateProjectionMatrix(); camera.position.set(Math.sin(ang) * dist + look[0], hgt, Math.cos(ang) * dist + look[2]); camera.lookAt(look[0], look[1] - (t >= 8.4 && t < 28 ? lerp(4, 0.5, prog(t, 8.4, 10)) : 4), look[2]);
 });
 
 // ---------- UI (brochure game UI) ----------
