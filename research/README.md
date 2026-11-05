@@ -29,3 +29,7 @@ Deeper versions of the same topics, with full lab specs: all ten topics (01–10
 `NEXT-SESSION.md` has the instructions and topic briefs for round 3 (parallel subagents using the Exa deep research connector). `context.md` summarises the brochure image review.
 
 These are research notes, not legal advice. Check the Minecraft IP points with a lawyer before relying on them.
+
+## Eco Town redesign (November 2026)
+
+`eco-town-world-building.md`: reference city-builders, sustainable-community dimensions, a six-level Eco Town progression with AI-helper mistakes, and seven-gauge scoring. Written after the client rejected the earlier Eco Town design.
