@@ -191,7 +191,7 @@ By the end, learners can:
 - **Gentle consequences:** "Returned" is routine; no public scores.
 
 ## 12. Build notes
-- **Scenes and assets:** newsroom island, story card, AI colleague card, browser with three tabs and a trail bar, sign-off card, step strip, portfolio (Data brief, Model card, then the new Fact-check card), end title and pathway (all in the trailer). New: viral photo card and 2019 archive page; quote and press release page; triage cards; Fact-check card template.
+- **Scenes and assets:** newsroom island, story card, AI colleague card (which returns after the fix as "V2 · re-checked by Hana", 96% sure), browser with three tabs and a trail bar, sign-off card, step strip, portfolio (Hana's own new Fact-check card only), end title and pathway (all in the trailer). New: viral photo card and 2019 archive page; quote and press release page; triage cards; Fact-check card template.
 - **Scripted AI responses (VeriAssist):**
   1. "All three items low risk. Publish as drafted. (80% sure)"
   2. "Story drafted and ready to publish. The 80% figure is backed by a peer-reviewed study [1]. (94% sure) · Data I used: news sites, 2019–2024 · Citations: 1"

@@ -77,6 +77,8 @@
 .ai .hd b { font:800 28px 'Inter'; }
 .ai .hd .dr { margin-left:auto; font:800 19px 'Inter'; letter-spacing:.12em; background:#233544; color:#ffd36b; border-radius:999px; padding:8px 16px; }
 .ai .hd .dr.ret { background:var(--red); color:#fff; }
+.ai .hd .dr.v2 { background:var(--teal); color:#062a20; }
+.ai .sure.v2 { color:#9fe8d2; }
 .ai p { font:600 30px/1.3 'Inter'; margin:16px 0 0; }
 .ai p .del { color:#ffb3b5; background:rgba(229,72,77,.22); text-decoration-color:#ff6b70; }
 .ai .ftr { display:flex; align-items:center; gap:18px; margin-top:18px; }
@@ -118,7 +120,7 @@
 .path .top .tag { font:800 20px 'Inter'; letter-spacing:.14em; background:var(--teal); color:#062a20; border-radius:10px; padding:8px 14px; }
 .path .top h3 { font:800 32px 'Inter'; margin:0; }
 .path .row { display:grid; grid-template-columns:150px 1fr; align-items:center; gap:18px; padding:14px 0; border-top:2px solid var(--line); }
-.path .row span { font:800 20px 'Inter'; letter-spacing:.12em; text-transform:uppercase; color:var(--tealD); }
+.path .row span { font:800 21px 'Inter'; letter-spacing:.12em; text-transform:uppercase; color:#07513e; }
 .path .row b { font:700 29px/1.25 'Inter'; }
 .path .row b em { font-style:normal; color:var(--mut); font-weight:600; }
 .path .jobs { display:flex; gap:10px; flex-wrap:wrap; }
@@ -245,7 +247,12 @@ const MENTOR = add({ shirt: '#f6b53c', pants: '#2c3e66', skin: '#6b4026', hair: 
 const kids = [MAYA, P2, P3, P4, P5];
 
 const cloudU = clouds(scene, { n: 8, spread: 300, y: [50, 80], z: [-220, -90], seed: 3 });
-const birdU = birds(scene, { n: 6, center: [10, 34, -30], radius: 40, seed: 5 });
+const nBefore = scene.children.length;
+const birdU = birds(scene, { n: 6, center: [0, 22, -8], radius: 40, seed: 5 });
+const birdG = scene.children.slice(nBefore);
+const BV = new THREE.Vector3();
+// birds shrink away before they reach a frame edge, so none is ever cut off by it
+const birdEdge = () => birdG.forEach((g) => { BV.copy(g.position).project(camera); const x = (BV.x + 1) * 960, y = (1 - BV.y) * 540; const m = Math.min(x, 1920 - x, y, 1080 - y); g.scale.setScalar(clamp((m - 70) / 90)); });
 
 
 // ---------- camera ----------
@@ -268,7 +275,7 @@ function cam(t) {
   camera.setViewOffset(1920, 1080, c.ox, c.oy, 1920, 1080); camera.updateProjectionMatrix(); camera.updateMatrixWorld();
 }
 st.onFrame((t) => {
-  cam(t); cloudU(t); birdU(t);
+  cam(t); cloudU(t); birdU(t); birdEdge();
   kids.forEach((p, i) => { p.children[2].rotation.y = Math.sin(t * 0.9 + i * 1.7) * 0.12; p.children[2].position.y = Math.abs(Math.sin(t * 3 + i)) * 0.03; });
   MENTOR.children[2].rotation.y = Math.sin(t * 0.7) * 0.15;
 });
@@ -290,9 +297,9 @@ const COL = 1000; // left edge of the card column
 
 // opening title moment, then the header chip
 const otitle = el(`<div class="otitle"><span class="chip2">DeltaOps Learning · Future Skills</span><h1>Verification Desk</h1><h2>Trace every source before you sign it off.</h2></div>`, { x: 0, y: 70 });
-A(cue(otitle, 0.3, 2.5, { from: 'pop', dur: 0.6 }));
+A(cue(otitle, 0.3, 2.3, { from: 'pop', dur: 0.6 }));
 const labchip = el(`<div class="labchip"><span class="ic">${SVG.lens}</span><b>Verification Desk</b><span class="bar"></span><span class="r">DeltaOps Learning · Future Skills</span></div>`, { x: 44, y: 36 });
-A(cue(labchip, 2.6, 29.2, { from: 'left' }));
+A(cue(labchip, 2.7, 29.2, { from: 'fade', dur: 0.35 }));
 
 // brief
 const brief = el(`<div class="wcard brief"><span class="bic">${SVG.brief}</span>
@@ -365,7 +372,7 @@ A((t) => {
   const sg = Q('[data-sg]'), sb = Q('[data-sign]');
   sb.style.opacity = t >= T_ACCEPT ? 1 : 0.35; sb.style.transform = within(t, T_SIGN - 0.1, T_SIGN + 0.1) ? 'scale(.94)' : '';
   const sgt = t >= T_SIGN ? 'Reviewed by: Hana, age 13' : 'Reviewed by: not yet'; if (sg.textContent !== sgt) sg.textContent = sgt;
-  sg.style.color = t >= T_SIGN ? '#13202b' : ''; sb.style.display = t >= T_SIGN ? 'none' : '';
+  sg.style.color = t >= T_SIGN ? '#13202b' : ''; sb.style.visibility = t >= T_SIGN ? 'hidden' : '';
   // fly into the portfolio
   if (t >= 26.4) { const k = prog(t, 26.4, 27.2, ease.inOut); doc.style.transformOrigin = '50% 0'; doc.style.transform = `translate(${k * 0}px, ${k * 250}px) scale(${1 - k * 0.8})`; doc.style.opacity = 1 - prog(t, 26.9, 27.2); doc.style.visibility = t > 27.2 ? 'hidden' : 'visible'; }
 });
@@ -373,18 +380,26 @@ A((t) => {
 // AI colleague (bottom slot)
 const SLOT = 724;
 const ai = el(`<div class="ai"><div class="hd"><span class="bot"><i></i></span><b>AI colleague</b><span class="dr" data-dr>DRAFT</span></div>
- <p>Ready to publish. <span data-claim>The 80% figure comes from a peer-reviewed study [1].</span></p>
- <div class="ftr"><span class="sure" data-sure><span class="bar"><i data-b style="width:0%"></i></span><span data-p>0% sure</span></span><span class="data"><b>DATA I USED</b>news sites, 2019–2024</span></div></div>`, { x: COL, y: SLOT });
-A(cue(ai, 5.5, 12.2, { from: 'right' }));
+ <p><span data-pre>Ready to publish. </span><span data-claim>The 80% figure comes from a peer-reviewed study [1].</span></p>
+ <div class="ftr"><span class="sure" data-sure><span class="bar"><i data-b style="width:0%"></i></span><span data-p>94% sure</span></span><span class="data" data-data><b>DATA I USED</b>news sites, 2019–2024</span></div></div>`, { x: COL, y: SLOT });
+// first visit 5.5–11.95 (clean exit before the browser slides in); returns as V2 after the fix
+const aiIn1 = cue(ai, 5.5, 11.95, { from: 'right', outDur: 0.3 }), aiIn2 = cue(ai, 22.2, 24.4, { from: 'right', outDur: 0.3 });
+const T_V2 = T_ACCEPT;
+A((t) => (t < 17 ? aiIn1 : aiIn2)(t));
 A((t) => {
-  const drop = prog(t, 10.8, 11.4);
-  const p = Math.round(94 * prog(t, 6.0, 7.0, ease.out) * (1 - drop));
-  const lbl = t >= 10.8 ? 'Source not found' : p + '% sure';
+  const drop = prog(t, 10.8, 11.4), v2 = t >= T_V2;
+  // the number reads 94% from the first frame; only the bar fills, so no misleading low value is ever on screen
+  const p = v2 ? 96 : Math.round(94 * (1 - drop)), bw = v2 ? 96 * prog(t, T_V2, T_V2 + 0.4, ease.out) : 94 * prog(t, 5.8, 6.4, ease.out) * (1 - drop);
+  const lbl = v2 ? '96% sure' : t >= 10.8 ? 'Source not found' : '94% sure';
   const pn = ai.querySelector('[data-p]'); if (pn.textContent !== lbl) pn.textContent = lbl;
-  ai.querySelector('[data-b]').style.width = p + '%';
-  cls(ai.querySelector('[data-sure]'), 'low', t >= 10.8);
-  cls(ai.querySelector('[data-claim]'), 'del', t >= 10.8);
-  const dr = ai.querySelector('[data-dr]'); const dt = t >= 10.8 ? 'RETURNED' : 'DRAFT'; if (dr.textContent !== dt) dr.textContent = dt; cls(dr, 'ret', t >= 10.8);
+  ai.querySelector('[data-b]').style.width = bw + '%';
+  cls(ai.querySelector('[data-sure]'), 'low', t >= 10.8 && !v2); cls(ai.querySelector('[data-sure]'), 'v2', v2);
+  const cl = ai.querySelector('[data-claim]'); cls(cl, 'del', t >= 10.8 && !v2);
+  const ct = v2 ? 'Flooded homes fell from 42 to 9, says the council’s 2023 review, p. 4.' : 'The 80% figure comes from a peer-reviewed study [1].'; if (cl.textContent !== ct) cl.textContent = ct;
+  ai.querySelector('[data-pre]').style.display = v2 ? 'none' : '';
+  setH(ai.querySelector('[data-data]'), v2 ? '<b>DATA I USED</b>council report, 2023' : '<b>DATA I USED</b>news sites, 2019–2024');
+  const dr = ai.querySelector('[data-dr]'); const dt = v2 ? 'V2 · RE-CHECKED BY HANA' : t >= 10.8 ? 'RETURNED' : 'DRAFT'; if (dr.textContent !== dt) dr.textContent = dt; cls(dr, 'ret', t >= 10.8 && !v2); cls(dr, 'v2', v2);
+  ai.querySelector('[data-dr]').style.transform = within(t, T_V2, T_V2 + 0.3) ? 'scale(1.1)' : '';
 });
 
 // browser: lateral reading (bottom slot)
@@ -398,7 +413,7 @@ const brw = el(`<div class="wcard brw">
  </div>
  <div class="trail"><span class="lb">TRAIL</span><span class="s n">[1]</span><span class="ar">›</span><span class="s x">no journal</span><span class="ar">›</span><span class="s x">no publisher</span><span class="ar">›</span><span class="s o">council report ✓</span></div>
 </div>`, { x: COL, y: SLOT });
-A(cue(brw, 12.4, 19.9, { from: 'right' }));
+A(cue(brw, 12.3, 19.9, { from: 'right' }));
 const URLS = ['library search: “Bulletin of Small-Town Waterways”', 'who publishes “Bulletin of Small-Town Waterways”?', 'harbourside council: flood barrier review 2023'];
 const tabT = [13.0, 15.3, 17.6];
 A((t) => {
@@ -413,7 +428,7 @@ A((t) => {
 
 // sign-off card (bottom slot)
 const signC = el(`<div class="sign"><span class="tick">${SVG.tick}</span><span><small>SIGNED OFF · 3:42 PM</small><b>Reviewed by: Hana, age 13</b><em>Checks passed: 4 of 4</em></span></div>`, { x: COL, y: SLOT + 40 });
-A(cue(signC, 23.9, 29.0, { from: 'pop' }));
+A(cue(signC, 24.6, 29.0, { from: 'pop' }));
 
 // steps strip
 const steps = el(`<div class="steps"><span class="n" data-n></span><span class="d" data-d></span></div>`, { x: 44, y: 1000 });
@@ -423,8 +438,6 @@ A((t) => { let s = STEPS[0]; for (const x of STEPS) if (t >= x[0]) s = x; const 
 
 // portfolio folder (takes the story card's place; the sign-off card stays below it)
 const folder = el(`<div class="folder"><span class="tabf">PORTFOLIO · Hana</span><div class="body">
- <div class="it"><i></i><span>Data brief<small>Council Data Desk</small></span></div>
- <div class="it"><i></i><span>Model card<small>Model Test Lab</small></span></div>
  <div class="it nw" data-nw><i></i><span>Fact-check card<small>Verification Desk · flood-barrier story</small></span><span class="new">NEW</span></div></div></div>`, { x: COL, y: 150 });
 A(cue(folder, 26.9, 29.0, { from: 'up' }));
 A((t) => { const n = folder.querySelector('[data-nw]'); n.style.opacity = prog(t, 27.4, 27.7); n.style.transform = `scale(${t > 27.4 ? 1 + 0.06 * (1 - prog(t, 27.4, 27.9, ease.out)) : 0.9})`; });
@@ -432,13 +445,14 @@ A((t) => { const n = folder.querySelector('[data-nw]'); n.style.opacity = prog(t
 // cursor (parks in the gap left of the cards, never over text)
 const cur = el(SVG.cursor, { x: 0, y: 0 }); cur.style.zIndex = 5;
 const ring = el('<div class="ring"></div>', { x: 0, y: 0, anchor: 'c' });
-const R = (sel, root = doc) => () => { const r = root.querySelector(sel).getBoundingClientRect(); return [r.left + r.width * 0.5, r.top + r.height * 0.55]; };
+// a hidden target (the Sign off button once pressed) falls back to the right end of its row, so the cursor never flies to the corner
+const R = (sel, root = doc) => () => { const n = root.querySelector(sel); const r = n.getBoundingClientRect(); if (r.width > 0) return [r.left + r.width * 0.5, r.top + r.height * 0.55]; const q = n.parentElement.getBoundingClientRect(); return [q.right - 90, q.top + q.height * 0.55]; };
 const plusP = R('.plus', brw);
 const PARK = (y) => () => [940, y];
-const PATH = [[7.4, [820, 1100]], [8.25, R('[data-run]')], [8.6, R('[data-run]')], [9.4, PARK(560)], [12.6, PARK(760)], [12.95, plusP], [13.5, plusP], [14.2, PARK(860)], [14.8, PARK(860)], [15.25, plusP], [15.8, plusP], [16.5, PARK(860)], [17.1, PARK(860)], [17.55, plusP], [18.1, plusP], [18.8, PARK(600)], [19.6, PARK(600)], [20.15, R('[data-s1t]')], [20.5, R('[data-s1t]')], [21.2, PARK(560)], [23.0, PARK(640)], [23.35, () => { const [x, y] = R('[data-sign]')(); return [x, y + 110]; }], [23.65, R('[data-sign]')], [24.0, R('[data-sign]')], [24.8, () => [900, 1120]]];
+const PATH = [[7.4, [820, 1100]], [8.25, R('[data-run]')], [8.6, R('[data-run]')], [9.4, PARK(560)], [12.6, PARK(760)], [12.95, plusP], [13.5, plusP], [14.2, PARK(860)], [14.8, PARK(860)], [15.25, plusP], [15.8, plusP], [16.5, PARK(860)], [17.1, PARK(860)], [17.55, plusP], [18.1, plusP], [18.8, PARK(600)], [19.6, PARK(600)], [20.15, R('[data-s1t]')], [20.5, R('[data-s1t]')], [21.2, PARK(560)], [23.0, PARK(640)], [23.35, () => { const [x, y] = R('[data-sign]')(); return [x - 170, y + 14]; }], [23.65, R('[data-sign]')], [24.0, R('[data-sign]')], [24.8, R('[data-sign]')]]; // after the click the pointer fades out in place instead of crossing the cards
 const CLICKS = [T_RUN, 13.0, 15.3, 17.6, T_FIXCLICK, T_SIGN];
 A((t) => {
-  const on = within(t, 7.4, 24.8); cur.style.opacity = on ? 1 : 0;
+  const on = within(t, 7.4, 24.6); cur.style.opacity = on ? 1 - prog(t, 24.2, 24.5) : 0;
   if (on) { let i = 0; while (i < PATH.length - 2 && t > PATH[i + 1][0]) i++; const [ta, pa] = PATH[i], [tb, pb] = PATH[i + 1]; const a = typeof pa === 'function' ? pa() : pa, b = typeof pb === 'function' ? pb() : pb; const k = prog(t, ta, tb, ease.inOut); const x = lerp(a[0], b[0], k), y = lerp(a[1], b[1], k); cur.style.left = x + 'px'; cur.style.top = y + 'px'; ring.style.left = (x + 4) + 'px'; ring.style.top = (y + 4) + 'px'; }
   const c = CLICKS.find((x) => within(t, x, x + 0.45)); if (c != null && on) { const k = (t - c) / 0.45; ring.style.opacity = 1 - k; ring.style.transform = `translate(-50%,-50%) scale(${0.4 + k})`; } else ring.style.opacity = 0;
 });

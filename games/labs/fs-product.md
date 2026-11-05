@@ -41,7 +41,7 @@ By the end, learners can:
 | 6. Prototype and test | Paper-prototype the sign and form, test with personas | Test with one persona or all five? | "Prototype passes: all users served" (90%), untested | **Case:** the wheelchair user's test shows the form can't book the step-free PC | Add a "step-free desk" option | Form sketch gains a tick box |
 | 7. Decide and sign | Decision record for the client | Ship · revise | None: the team writes it | Peer check against the rubric | "We will build: a clear sign, a times web page, a simple booking form and a phone line. Small AI feature: translate the opening times into Polish; a librarian checks them. Why: times are fixed; a wrong booking costs someone their slot; a sign works for all 5 users." | "Reviewed by: Aisha, age 13 · Signed off Thu"; record to the portfolio |
 
-**Energy.** The lab's decision card asks "Is AI worth the energy here?" (the trailer's shorter card asks "Where does AI help?"). The [IEA](https://www.iea.org/news/ai-is-set-to-drive-surging-electricity-demand-from-data-centres-while-offering-the-potential-to-transform-how-the-energy-sector-works) projects data-centre electricity use more than doubling to about 945 TWh by 2030. The options table uses relative words (tiny, some, high), not invented figures.
+**Energy.** The lab's decision card asks "Is AI worth the energy here?" (the trailer's shorter task-by-task card shows "Translate to Polish: AI helps, librarian checks"). The [IEA](https://www.iea.org/news/ai-is-set-to-drive-surging-electricity-demand-from-data-centres-while-offering-the-potential-to-transform-how-the-energy-sector-works) projects data-centre electricity use more than doubling to about 945 TWh by 2030. The options table uses relative words (tiny, some, high), not invented figures.
 
 ## 6. Team roles
 
@@ -193,12 +193,12 @@ By the end, learners can:
 - **Gentle consequences:** a returned plan is normal design work; no rankings.
 
 ## 12. Build notes
-- **Scenes and assets:** library island, plan card (Users → Decision record), AI colleague card, AI-or-not card, sign-off card, step strip, portfolio (Data brief, Model card, Fact-check card, then the new Decision record), end title and pathway (all from the trailer). New: persona interview quotes; acceptance-test cards; paper prototype parts; objection card.
+- **Scenes and assets:** library island, plan card (Users → Decision record), AI colleague card (which returns after the fix as "V2 · re-checked by Aisha", 90% sure), AI-or-not card (task by task: opening times → a clear sign + web page; book a PC → simple booking form; translate to Polish → AI helps, librarian checks; a chatbot for everything? → not needed), sign-off card, step strip, portfolio (Aisha's own new Decision record only), end title and pathway (all from the trailer). New: persona interview quotes; acceptance-test cards; paper prototype parts; objection card.
 - **Scripted AI responses (PlanAssist):**
   1. "Requirement understood: build an AI chatbot. (93% sure)"
   2. "Product plan: an always-on AI chatbot for 100% of visitors. It answers questions and books computers. (92% sure) · Data I used: survey of smartphone users, in English"
   3. "Translating the opening times into Polish could help one group; a person should check it. (48% sure)"
   4. "Sample reply: 'Done! Your computer is booked for 4 pm.' (90% sure)"
   5. "Prototype passes: all users served. (90% sure)"
-- **Reuse from the trailer:** personas, decision questions and answers, decision record text ("Based on: all 5 users, asked at the desk and in Polish · We build: a clear sign, a times page, a booking form and a phone line · AI only for: Polish opening times, checked by a librarian"), sign-off and Tomasz's line. The options table is lab-only; the trailer skips it.
+- **Reuse from the trailer:** personas, the task-by-task AI-or-not verdicts (the lab's fuller decision questions stay lab-only), decision record text ("Based on: all 5 users, asked at the desk and in Polish · We build: a clear sign, a times page, a booking form and a phone line · AI only for: Polish opening times, checked by a librarian"), sign-off and Tomasz's line. The options table is lab-only; the trailer skips it.
 - **Open questions:** the trailer fails only Data (stage 3), while this doc also uses Case (stage 6) and Authority (stage 5); check they fit the trailer's story. Confirm the GDS Service Standard wording.

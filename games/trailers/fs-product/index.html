@@ -66,6 +66,7 @@
 .find { display:flex; align-items:center; gap:14px; padding:0 26px; font:700 24px/1.25 'Inter'; color:var(--redD); background:#fff5f5; border-top:2px solid #f6cfd0; overflow:hidden; height:0; }
 .find i { flex:none; width:36px; height:36px; border-radius:50%; background:var(--red); display:grid; place-items:center; } .find i svg { width:22px; height:22px; }
 .find.ok { color:#08694f; background:#effbf6; border-top-color:#cdeee2; } .find.ok i { background:var(--teal); }
+.find.rr { color:var(--ink); background:var(--soft); border-top-color:var(--line); } .find.rr i { background:#9aa8b4; }
 .doc .ft { display:flex; align-items:center; gap:16px; height:84px; padding:0 26px; border-top:2px solid var(--line); background:#fbfcfd; font:700 24px 'Inter'; color:#8a98a4; }
 .doc .ft .pass { margin-left:auto; font:800 22px 'Inter'; background:#eef2f5; border-radius:999px; padding:10px 18px; color:var(--mut); white-space:nowrap; }
 .doc .ft .pass.ok { background:var(--mint); color:#08694f; }
@@ -77,6 +78,8 @@
 .ai .hd b { font:800 28px 'Inter'; }
 .ai .hd .dr { margin-left:auto; font:800 19px 'Inter'; letter-spacing:.12em; background:#233544; color:#ffd36b; border-radius:999px; padding:8px 16px; }
 .ai .hd .dr.ret { background:var(--red); color:#fff; }
+.ai .hd .dr.v2 { background:var(--teal); color:#062a20; }
+.ai .sure.v2 { color:#9fe8d2; }
 .ai p { font:600 30px/1.3 'Inter'; margin:16px 0 0; }
 .ai p .del { color:#ffb3b5; background:rgba(229,72,77,.22); text-decoration-color:#ff6b70; }
 .ai .ftr { display:flex; align-items:center; gap:18px; margin-top:18px; }
@@ -114,16 +117,16 @@
 .etitle { width:876px; color:#fff; }
 .etitle h1 { font:800 92px/1 'Inter'; letter-spacing:-.035em; margin:20px 0 0; text-shadow:0 6px 30px rgba(0,30,60,.3); white-space:nowrap; }
 .etitle h2 { font:700 34px/1.25 'Inter'; margin:14px 0 0; text-shadow:0 3px 16px rgba(0,30,60,.35); }
-.path { width:876px; padding:28px 34px 26px; }
+.path { width:892px; padding:28px 30px 26px; }
 .path .top { display:flex; align-items:center; gap:16px; margin-bottom:8px; }
 .path .top .tag { font:800 20px 'Inter'; letter-spacing:.14em; background:var(--teal); color:#062a20; border-radius:10px; padding:8px 14px; }
-.path .top h3 { font:800 32px 'Inter'; margin:0; }
-.path .row { display:grid; grid-template-columns:150px 1fr; align-items:center; gap:18px; padding:14px 0; border-top:2px solid var(--line); }
-.path .row span { font:800 20px 'Inter'; letter-spacing:.12em; text-transform:uppercase; color:var(--tealD); }
-.path .row b { font:700 29px/1.25 'Inter'; }
+.path .top h3 { font:800 34px 'Inter'; margin:0; }
+.path .row { display:grid; grid-template-columns:146px 1fr; align-items:center; gap:14px; padding:14px 0; border-top:2px solid var(--line); }
+.path .row span { font:800 21px 'Inter'; letter-spacing:.1em; text-transform:uppercase; color:#07513e; }
+.path .row b { font:700 31px/1.25 'Inter'; }
 .path .row b em { font-style:normal; color:var(--mut); font-weight:600; }
-.path .jobs { display:flex; gap:10px; flex-wrap:wrap; }
-.path .jobs i { font:750 26px 'Inter'; font-style:normal; background:var(--mint); border-radius:999px; padding:8px 20px; }
+.path .jobs { display:flex; gap:8px; flex-wrap:nowrap; }
+.path .jobs i { font:750 25px 'Inter'; font-style:normal; background:var(--mint); border-radius:999px; padding:8px 14px; white-space:nowrap; }
 .path .lg { display:flex; justify-content:flex-end; padding-top:12px; border-top:2px solid var(--line); }
 .path .lg img { height:40px; }
 .cur { width:46px; height:56px; }
@@ -266,12 +269,17 @@ const MENTOR = add({ shirt: '#f6b53c', pants: '#2c3e66', skin: '#6b4026', hair: 
 const kids = [AISHA, P2, P3, P4, KID];
 
 const cloudU = clouds(scene, { n: 8, spread: 300, y: [50, 80], z: [-220, -90], seed: 4 });
-const birdU = birds(scene, { n: 6, center: [10, 34, -30], radius: 40, seed: 7 });
+const nBefore = scene.children.length;
+const birdU = birds(scene, { n: 6, center: [0, 22, -8], radius: 40, seed: 7 });
+const birdG = scene.children.slice(nBefore);
+const BV = new THREE.Vector3();
+// birds shrink away before they reach a frame edge, so none is ever cut off by it
+const birdEdge = () => birdG.forEach((g) => { BV.copy(g.position).project(camera); const x = (BV.x + 1) * 960, y = (1 - BV.y) * 540; const m = Math.min(x, 1920 - x, y, 1080 - y); g.scale.setScalar(clamp((m - 70) / 90)); });
 
 // ---------- camera ----------
 const orbit = (look, ang, dist, hgt, ox = 0, oy = 0) => ({ look, ang, dist, hgt, ox, oy });
 const WIDE = (t) => { const k = prog(t, 0, 5.2, (q) => q); return orbit([0, 0, -3], lerp(-0.62, -0.42, k), lerp(126, 108, k), lerp(66, 58, k), 0, 0); };
-const MED = (t) => { const k = prog(t, 5.0, 29.4, (q) => q); return orbit([0, 1, -1], lerp(0.30, 0.42, k), lerp(86, 80, k), lerp(52, 48, k), 470, 30); };
+const MED = (t) => { const k = prog(t, 5.0, 29.4, (q) => q); return orbit([0, 1, -1], lerp(0.30, 0.42, k), lerp(86, 80, k), lerp(52, 48, k), 470, -110); }; // framed low enough that the clock tower clears the header pill
 const END = (t) => { const k = prog(t, 29.4, DUR, (q) => q); return orbit([0, -1, -3], lerp(0.28, 0.52, k), lerp(150, 144, k), lerp(74, 70, k), 430, -40); };
 const mixO = (a, b, k) => ({ look: a.look.map((x, i) => lerp(x, b.look[i], k)), ang: lerp(a.ang, b.ang, k), dist: lerp(a.dist, b.dist, k), hgt: lerp(a.hgt, b.hgt, k), ox: lerp(a.ox, b.ox, k), oy: lerp(a.oy, b.oy, k) });
 function cam(t) {
@@ -287,7 +295,7 @@ function cam(t) {
   camera.setViewOffset(1920, 1080, c.ox, c.oy, 1920, 1080); camera.updateProjectionMatrix(); camera.updateMatrixWorld();
 }
 st.onFrame((t) => {
-  cam(t); cloudU(t); birdU(t);
+  cam(t); cloudU(t); birdU(t); birdEdge();
   kids.forEach((p, i) => { p.children[2].rotation.y = Math.sin(t * 0.9 + i * 1.7) * 0.12; p.children[2].position.y = Math.abs(Math.sin(t * 3 + i)) * 0.03; });
   MENTOR.children[2].rotation.y = Math.sin(t * 0.7) * 0.15; LIB.children[2].rotation.y = Math.sin(t * 0.6 + 1) * 0.2;
 });
@@ -311,9 +319,9 @@ const COL = 1000;
 
 // opening title moment, then the header chip
 const otitle = el(`<div class="otitle"><span class="chip2">DeltaOps Learning · Future Skills</span><h1>Should It Be AI?</h1><h2>Start with the user. Then decide if AI belongs.</h2></div>`, { x: 0, y: 70 });
-A(cue(otitle, 0.3, 2.5, { from: 'pop', dur: 0.6 }));
+A(cue(otitle, 0.3, 2.3, { from: 'pop', dur: 0.6 }));
 const labchip = el(`<div class="labchip"><span class="ic">${SVG.bulb}</span><b>Should It Be AI?</b><span class="bar"></span><span class="r">DeltaOps Learning · Future Skills</span></div>`, { x: 44, y: 36 });
-A(cue(labchip, 2.6, 29.2, { from: 'left' }));
+A(cue(labchip, 2.7, 29.2, { from: 'fade', dur: 0.35 }));
 
 // brief
 const brief = el(`<div class="wcard brief"><span class="bic">${SVG.brief}</span>
@@ -328,7 +336,7 @@ const tagE = el(`<div class="ntag m"><b>Tomasz Nowak</b><small>Service designer 
 const sayE = el(`<div class="say">“Clear reasons, Aisha. Send it to the library.”</div>`, { anchor: 'bc' });
 const V3 = new THREE.Vector3();
 const follow = (node, obj, dy, dx = 0, ddy = 0) => (t) => { V3.set(obj.position.x, obj.position.y + dy, obj.position.z); const p = toScreen(V3, camera); node.style.left = (p.x + dx) + 'px'; node.style.top = (p.y - 10 + ddy) + 'px'; };
-A(cue(tagM, 6.6, 24.2)); A(cue(tagE, 2.8, 4.9)); A(cue(sayE, 24.6, 28.9));
+A(cue(tagM, 6.6, 23.6, { outDur: 0.25 })); A(cue(tagE, 2.8, 4.9)); A(cue(sayE, 24.6, 28.9));
 A(follow(tagM, AISHA, 3.75)); A(follow(tagE, MENTOR, 3.95)); A(follow(sayE, MENTOR, 3.95, 40, 0));
 
 // the plan card
@@ -351,7 +359,7 @@ const doc = el(`<div class="wcard doc">
 A(cue(doc, 5.0, null, { from: 'right' }));
 const Q = (s) => doc.querySelector(s);
 const chks = [0, 1, 2, 3].map((i) => Q(`[data-c="${i}"]`));
-const T_RUN = 9.6, T_DFAIL = 10.8, T_DEC = 19.6, T_FIX = 23.0, T_SIGN = 23.7;
+const T_RUN = 9.6, T_DFAIL = 10.8, T_DEC = 19.6, T_RECHK = 22.9, T_FIX = 23.4, T_SIGN = 24.0;
 const chkT = [[9.8, T_DFAIL], [10.9, 11.3], [11.4, 11.8], [11.9, 12.3]];
 const typed = (n, s, t0, t1, t) => { const k = clamp((t - t0) / (t1 - t0)); const c = Math.round(s.length * k); setH(n, s.slice(0, c) + (k > 0 && k < 1 ? '<span class="caret"></span>' : '')); };
 const D = ['all 5 users, asked at the desk and in Polish', 'a clear sign, a times page, a booking form and a phone line', 'Polish opening times, checked by a librarian'];
@@ -366,19 +374,19 @@ A((t) => {
   const run = Q('[data-run]'); run.style.display = t < T_RUN + 0.15 ? '' : 'none'; run.style.transform = within(t, T_RUN - 0.05, T_RUN + 0.15) ? 'scale(.94)' : '';
   chks.forEach((c, i) => {
     c.style.display = t < T_RUN + 0.15 ? 'none' : '';
-    const [r, d] = chkT[i]; const bad = i === 0 && t < T_FIX; const done = t >= d;
-    cls(c, 'run', t >= r && !done); cls(c, 'ok', done && !bad); cls(c, 'bad', done && bad);
+    const [r, d] = chkT[i]; const rerun = i === 0 && within(t, T_RECHK, T_FIX); const bad = i === 0 && t < T_FIX; const done = t >= d && !rerun;
+    cls(c, 'run', (t >= r && !done) || rerun); cls(c, 'ok', done && !bad); cls(c, 'bad', done && bad);
     const ic = done ? (bad ? SVG.cross : SVG.tick) : SVG.dots; const ii = c.querySelector('i'); if (ii.dataset.s !== ic) { ii.innerHTML = ic; ii.dataset.s = ic; }
     c.style.transform = i === 0 && within(t, T_DFAIL, T_DFAIL + 0.4) ? `translateX(${Math.sin((t - T_DFAIL) * 60) * 5}px)` : (i === 0 && within(t, T_FIX, T_FIX + 0.3) ? 'scale(1.08)' : '');
   });
   const npass = chks.filter((c) => c.classList.contains('ok')).length;
   const ps = Q('[data-pass]'); setT(ps, `Checks passed: ${npass} of 4`); cls(ps, 'ok', npass === 4);
   const fd = Q('[data-find]'); fd.style.height = 66 * prog(t, T_DFAIL + 0.1, T_DFAIL + 0.45, ease.out) + 'px';
-  const ok = t >= T_FIX; cls(fd, 'ok', ok); setH(fd.querySelector('i'), ok ? SVG.tick : SVG.cross);
-  setT(fd.querySelector('[data-ft]'), ok ? 'Data: all 5 users now included ✓' : 'Data: survey only asked smartphone users, in English');
+  const ok = t >= T_FIX, rr = within(t, T_RECHK, T_FIX); cls(fd, 'ok', ok); cls(fd, 'rr', rr); setH(fd.querySelector('i'), ok ? SVG.tick : rr ? SVG.dots : SVG.cross);
+  setT(fd.querySelector('[data-ft]'), ok ? 'Data: all 5 users now included ✓' : rr ? 'Re-running Data with the new user list…' : 'Data: survey only asked smartphone users, in English');
   const sg = Q('[data-sg]'), sb = Q('[data-sign]');
   sb.style.opacity = t >= T_FIX ? 1 : 0.35; sb.style.transform = within(t, T_SIGN - 0.1, T_SIGN + 0.1) ? 'scale(.94)' : '';
-  setT(sg, t >= T_SIGN ? 'Reviewed by: Aisha, age 13' : 'Reviewed by: not yet'); sg.style.color = t >= T_SIGN ? '#13202b' : ''; sb.style.display = t >= T_SIGN ? 'none' : '';
+  setT(sg, t >= T_SIGN ? 'Reviewed by: Aisha, age 13' : 'Reviewed by: not yet'); sg.style.color = t >= T_SIGN ? '#13202b' : ''; sb.style.visibility = t >= T_SIGN ? 'hidden' : '';
   if (t >= 26.4) { const k = prog(t, 26.4, 27.2, ease.inOut); doc.style.transformOrigin = '50% 0'; doc.style.transform = `translateY(${k * 250}px) scale(${1 - k * 0.8})`; doc.style.opacity = 1 - prog(t, 26.9, 27.2); doc.style.visibility = t > 27.2 ? 'hidden' : 'visible'; }
 });
 
@@ -386,55 +394,59 @@ A((t) => {
 const SLOT = 700;
 const ai = el(`<div class="ai"><div class="hd"><span class="bot"><i></i></span><b>AI colleague</b><span class="dr" data-dr>DRAFT</span></div>
  <p><span data-claim>Build an always-on AI chatbot. It answers questions and books PCs.</span></p>
- <div class="ftr"><span class="sure" data-sure><span class="bar"><i data-b style="width:0%"></i></span><span data-p>0% sure</span></span><span class="data w" data-data><b>DATA I USED</b>survey of smartphone users, in English</span></div></div>`, { x: COL, y: SLOT });
-A(cue(ai, 6.8, 13.4, { from: 'right' }));
+ <div class="ftr"><span class="sure" data-sure><span class="bar"><i data-b style="width:0%"></i></span><span data-p>92% sure</span></span><span class="data w" data-data><b>DATA I USED</b>survey of smartphone users, in English</span></div></div>`, { x: COL, y: SLOT });
+const aiIn1 = cue(ai, 6.8, 13.3, { from: 'right', outDur: 0.3 }), aiIn2 = cue(ai, 21.0, 24.4, { from: 'right', outDur: 0.3 });
+A((t) => (t < 17 ? aiIn1 : aiIn2)(t));
 A((t) => {
-  const drop = prog(t, T_DFAIL, T_DFAIL + 0.6);
-  const p = Math.round(92 * prog(t, 7.3, 8.3, ease.out) * (1 - drop));
-  setT(ai.querySelector('[data-p]'), t >= T_DFAIL ? 'Data gap' : p + '% sure');
-  ai.querySelector('[data-b]').style.width = p + '%';
-  cls(ai.querySelector('[data-sure]'), 'low', t >= T_DFAIL); cls(ai.querySelector('[data-data]'), 'bad', t >= T_DFAIL);
-  cls(ai.querySelector('[data-claim]'), 'del', t >= T_DFAIL);
-  const dr = ai.querySelector('[data-dr]'); setT(dr, t >= T_DFAIL ? 'RETURNED' : 'DRAFT'); cls(dr, 'ret', t >= T_DFAIL);
+  const drop = prog(t, T_DFAIL, T_DFAIL + 0.6), v2 = t >= T_FIX;
+  // the number reads 92% from the first frame; only the bar fills, so no misleading low value is ever on screen
+  const bw = v2 ? 90 * prog(t, T_FIX, T_FIX + 0.4, ease.out) : 92 * prog(t, 7.0, 7.6, ease.out) * (1 - drop);
+  setT(ai.querySelector('[data-p]'), v2 ? '90% sure' : t >= T_DFAIL ? 'Data gap' : '92% sure');
+  ai.querySelector('[data-b]').style.width = bw + '%';
+  cls(ai.querySelector('[data-sure]'), 'low', t >= T_DFAIL && !v2); cls(ai.querySelector('[data-sure]'), 'v2', v2);
+  cls(ai.querySelector('[data-data]'), 'bad', t >= T_DFAIL && !v2);
+  setH(ai.querySelector('[data-data]'), v2 ? '<b>DATA I USED</b>all 5 users, at the desk and in Polish' : '<b>DATA I USED</b>survey of smartphone users, in English');
+  const cl = ai.querySelector('[data-claim]'); cls(cl, 'del', t >= T_DFAIL && !v2);
+  setT(cl, v2 ? 'Sign, times page and booking form. AI only for Polish times, checked by a librarian.' : 'Build an always-on AI chatbot. It answers questions and books PCs.');
+  const dr = ai.querySelector('[data-dr]'); setT(dr, v2 ? 'V2 · RE-CHECKED BY AISHA' : t >= T_DFAIL ? 'RETURNED' : 'DRAFT'); cls(dr, 'ret', t >= T_DFAIL && !v2); cls(dr, 'v2', v2);
+  dr.style.transform = within(t, T_FIX, T_FIX + 0.3) ? 'scale(1.1)' : '';
 });
 
-// AI-or-not questions (bottom slot)
-const qtree = el(`<div class="wcard tree"><div class="th"><span class="tag">AI OR NOT?</span>Four questions</div>
- <div class="q"><span>Who is missing from the data?</span><b class="x">2 of 5 users</b></div>
- <div class="q"><span>Do the answers change?</span><b class="o">No, fixed times</b></div>
- <div class="q"><span>Is there a simpler fix?</span><b class="o">Sign + form</b></div>
- <div class="q"><span>Where does AI help?</span><b class="a">Translation</b></div></div>`, { x: COL, y: SLOT });
-A(cue(qtree, 13.6, 22.9, { from: 'right' }));
-A((t) => qtree.querySelectorAll('.q').forEach((n, i) => { const t0 = 14.2 + i * 1.2; n.style.opacity = prog(t, t0, t0 + 0.3); n.style.transform = `translateX(${(1 - prog(t, t0, t0 + 0.4, ease.out)) * 30}px)`; }));
+// AI or not? task by task (bottom slot); the card grows a row at a time
+const qtree = el(`<div class="wcard tree"><div class="th"><span class="tag">AI OR NOT?</span>Task by task</div>
+ <div class="q"><span>Opening times</span><b class="o">A clear sign + web page</b></div>
+ <div class="q"><span>Book a PC</span><b class="o">Simple booking form</b></div>
+ <div class="q"><span>Translate to Polish</span><b class="a">AI helps, librarian checks</b></div>
+ <div class="q"><span>A chatbot for everything?</span><b class="x">Not needed</b></div></div>`, { x: COL, y: SLOT });
+A(cue(qtree, 13.6, 20.6, { from: 'right', outDur: 0.3 }));
+A((t) => qtree.querySelectorAll('.q').forEach((n, i) => { const t0 = 13.9 + i * 1.2; n.style.display = t >= t0 ? '' : 'none'; n.style.opacity = prog(t, t0, t0 + 0.3); n.style.transform = `translateX(${(1 - prog(t, t0, t0 + 0.4, ease.out)) * 30}px)`; }));
 
 // sign-off card (bottom slot)
 const signC = el(`<div class="sign"><span class="tick">${SVG.tick}</span><span><small>SIGNED OFF · THURSDAY</small><b>Reviewed by: Aisha, age 13</b><em>Checks passed: 4 of 4</em></span></div>`, { x: COL, y: SLOT + 40 });
-A(cue(signC, 24.1, 29.0, { from: 'pop' }));
+A(cue(signC, 24.6, 29.0, { from: 'pop' }));
 
 // steps strip
 const steps = el(`<div class="steps"><span class="n" data-n></span><span class="d" data-d></span></div>`, { x: 44, y: 1000 });
 A(cue(steps, 5.4, 29.0, { from: 'up' }));
-const STEPS = [[0, 'Step 1 of 6', 'Map the users and the real problem'], [9.4, 'Step 2 of 6', 'Check the AI colleague’s plan'], [13.6, 'Step 3 of 6', 'Ask: should it be AI?'], [19.6, 'Step 4 of 6', 'Write the decision record'], [23.5, 'Step 5 of 6', 'Sign it off'], [26.4, 'Step 6 of 6', 'File it in your portfolio']];
+const STEPS = [[0, 'Step 1 of 6', 'Map the users and the real problem'], [9.4, 'Step 2 of 6', 'Check the AI colleague’s plan'], [13.6, 'Step 3 of 6', 'Ask: AI or not, task by task'], [19.6, 'Step 4 of 6', 'Write the decision record'], [23.8, 'Step 5 of 6', 'Sign it off'], [26.4, 'Step 6 of 6', 'File it in your portfolio']];
 A((t) => { let s = STEPS[0]; for (const x of STEPS) if (t >= x[0]) s = x; setT(steps.querySelector('[data-n]'), s[1]); setT(steps.querySelector('[data-d]'), s[2]); });
 
 // portfolio folder
 const folder = el(`<div class="folder"><span class="tabf">PORTFOLIO · Aisha</span><div class="body">
- <div class="it"><i></i><span>Data brief<small>Council Data Desk</small></span></div>
- <div class="it"><i></i><span>Model card<small>Model Test Lab</small></span></div>
- <div class="it"><i></i><span>Fact-check card<small>Verification Desk</small></span></div>
- <div class="it nw" data-nw><i></i><span>Decision record<small>Should It Be AI? · library times</small></span><span class="new">NEW</span></div></div></div>`, { x: COL, y: 130 });
+ <div class="it nw" data-nw><i></i><span>Decision record<small>Should It Be AI? · library times</small></span><span class="new">NEW</span></div></div></div>`, { x: COL, y: 150 });
 A(cue(folder, 26.9, 29.0, { from: 'up' }));
 A((t) => { const n = folder.querySelector('[data-nw]'); n.style.opacity = prog(t, 27.4, 27.7); n.style.transform = `scale(${t > 27.4 ? 1 + 0.06 * (1 - prog(t, 27.4, 27.9, ease.out)) : 0.9})`; });
 
 // cursor (parks in the gap left of the cards)
 const cur = el(SVG.cursor, { x: 0, y: 0 }); cur.style.zIndex = 5;
 const ring = el('<div class="ring"></div>', { x: 0, y: 0, anchor: 'c' });
-const R = (sel, root = doc) => () => { const r = root.querySelector(sel).getBoundingClientRect(); return [r.left + r.width * 0.5, r.top + r.height * 0.55]; };
+// a hidden target (the Sign off button once pressed) falls back to the right end of its row, so the cursor never flies to the corner
+const R = (sel, root = doc) => () => { const n = root.querySelector(sel); const r = n.getBoundingClientRect(); if (r.width > 0) return [r.left + r.width * 0.5, r.top + r.height * 0.55]; const q = n.parentElement.getBoundingClientRect(); return [q.right - 90, q.top + q.height * 0.55]; };
 const PARK = (y) => () => [940, y];
-const PATH = [[8.6, [820, 1100]], [9.45, R('[data-run]')], [9.8, R('[data-run]')], [10.6, PARK(560)], [22.6, PARK(600)], [23.25, () => { const [x, y] = R('[data-sign]')(); return [x, y + 110]; }], [23.65, R('[data-sign]')], [24.0, R('[data-sign]')], [24.8, () => [900, 1120]]];
+const PATH = [[8.6, [820, 1100]], [9.45, R('[data-run]')], [9.8, R('[data-run]')], [10.6, PARK(560)], [22.9, PARK(600)], [23.55, () => { const [x, y] = R('[data-sign]')(); return [x - 170, y + 14]; }], [23.95, R('[data-sign]')], [24.25, R('[data-sign]')], [25.1, R('[data-sign]')]]; // after the click the pointer fades out in place instead of crossing the cards
 const CLICKS = [T_RUN, T_SIGN];
 A((t) => {
-  const on = within(t, 8.6, 24.8); cur.style.opacity = on ? 1 : 0;
+  const on = within(t, 8.6, 24.8); cur.style.opacity = on ? 1 - prog(t, 24.4, 24.7) : 0;
   if (on) { let i = 0; while (i < PATH.length - 2 && t > PATH[i + 1][0]) i++; const [ta, pa] = PATH[i], [tb, pb] = PATH[i + 1]; const a = typeof pa === 'function' ? pa() : pa, b = typeof pb === 'function' ? pb() : pb; const k = prog(t, ta, tb, ease.inOut); const x = lerp(a[0], b[0], k), y = lerp(a[1], b[1], k); cur.style.left = x + 'px'; cur.style.top = y + 'px'; ring.style.left = (x + 4) + 'px'; ring.style.top = (y + 4) + 'px'; }
   const c = CLICKS.find((x) => within(t, x, x + 0.45)); if (c != null && on) { const k = (t - c) / 0.45; ring.style.opacity = 1 - k; ring.style.transform = `translate(-50%,-50%) scale(${0.4 + k})`; } else ring.style.opacity = 0;
 });
