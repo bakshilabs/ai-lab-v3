@@ -40,8 +40,8 @@ export function createGame(app) {
   }
   function addStar(n = 1, why = '') { G.stars += n; G.levelStars[app.levelId] = (G.levelStars[app.levelId] || 0) + n; ui.setStars(G.stars); if (why) ui.caption(`★ ${why}`, 2200); }
   function flower(flash = true) { const s = sim(); ui.flower(s.petals, s.title, { flash }); }
-  function save() { try { localStorage.setItem(SAVE, JSON.stringify({ band: G.band, li: G.li, stars: G.stars, levelStars: G.levelStars, mistakes: G.mistakes, diary: G.diary, cells: [...G.cells], extra: G.extra, spent: G.spent, session: app.session })); } catch { /* storage off */ } }
-  G.load = (data) => { Object.assign(G, { li: data.li, stars: data.stars, levelStars: data.levelStars || {}, mistakes: data.mistakes || [], diary: data.diary || [], extra: data.extra || G.extra, spent: data.spent || 0 }); G.cells = new Map(data.cells); };
+  function save() { try { localStorage.setItem(SAVE, JSON.stringify({ band: G.band, li: G.li + 1, stars: G.stars, levelStars: G.levelStars, mistakes: G.mistakes, diary: G.diary, instructions: G.instructions, cells: [...G.cells], extra: G.extra, spent: G.spent, session: app.session })); } catch { /* storage off */ } }
+  G.load = (data) => { Object.assign(G, { li: data.li, stars: data.stars, levelStars: data.levelStars || {}, mistakes: data.mistakes || [], diary: data.diary || [], extra: data.extra || G.extra, spent: data.spent || 0, instructions: data.instructions || {} }); G.cells = new Map(data.cells); };
 
   // ---------------- input: word tiles (junior default), free text (senior default), cards (fallback)
   function instruct(id, heading) {

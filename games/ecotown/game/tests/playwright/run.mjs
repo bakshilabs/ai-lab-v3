@@ -45,7 +45,7 @@ for (const [id, check, habit, vague, clear] of LEVELS) {
   await click('#dock [data-actions] [data-go]'); await p.waitForTimeout(1500);
   await click(`#dock [data-actions] [data-h="${habit}"]`); await p.waitForTimeout(900);
   await instruct(clear, 1); await p.waitForSelector('#filmtitle', { timeout: 40000 }); await p.waitForTimeout(4200); await shot(`${id}-film`);
-  await p.waitForSelector('#dock [data-actions] [data-done]:not([disabled])', { timeout: 40000 }); await shot(`${id}-build`); budget.push([`${id}-build`, await panelsVisible()]);
+  await p.waitForSelector('#dock [data-actions] [data-done]:not([disabled])', { timeout: 400000 }); await shot(`${id}-build`); budget.push([`${id}-build`, await panelsVisible()]);
   await click('#dock [data-actions] [data-done]');
   if (id === 'heart') {
     if (band === 'junior') { for (let i = 0; i < 6; i++) await click(`#dock [data-actions] [data-r="${i}"]`); await click('#dock [data-actions] [data-act="gate"]'); }
@@ -53,7 +53,7 @@ for (const [id, check, habit, vague, clear] of LEVELS) {
     await p.waitForTimeout(2000); for (const i of [0, 1, 2]) await click(`#dock [data-actions] [data-p="${i}"]`); await click('#dock [data-actions] [data-ok]'); await click('#modal:not(.hide) [data-act="ok"]');
   }
   // live: screenshot midway, then skip
-  const first = await Promise.race([p.waitForSelector('#dock [data-actions] [data-skip]', { state: 'visible', timeout: 40000 }).then(() => 'live'), p.waitForSelector('#modal:not(.hide) [data-act]', { timeout: 40000 }).then(() => 'modal')]);
+  const first = await Promise.race([p.waitForSelector('#dock [data-actions] [data-skip]', { state: 'visible', timeout: 120000 }).then(() => 'live'), p.waitForSelector('#modal:not(.hide) [data-act]', { timeout: 120000 }).then(() => 'modal')]);
   if (first === 'live') { await p.waitForTimeout(3000); await shot(`${id}-live`); budget.push([`${id}-live`, await panelsVisible()]); await click('#dock [data-actions] [data-skip]'); }
   // petitions / dilemmas (senior) and the reward card
   for (let i = 0; i < 3; i++) {

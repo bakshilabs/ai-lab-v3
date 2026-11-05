@@ -96,7 +96,7 @@ async function start() {
     <label><input type="checkbox" data-facil ${app.settings.facilitator ? 'checked' : ''}> Facilitator notes</label></div>
     <p data-resume style="display:none"></p>
   </div></div>`);
-  $('#layer').appendChild(scr);
+  $('#layer').appendChild(scr); setTimeout(() => scr.querySelector('[data-band]')?.focus(), 100);
   scr.querySelector('[data-session]').onchange = (e) => (app.session = +e.target.value);
   scr.querySelector('[data-facil]').onchange = (e) => { app.settings.facilitator = e.target.checked; applySettings(); };
   const band = await new Promise((res) => scr.querySelectorAll('[data-band]').forEach((b) => (b.onclick = () => res(b.dataset.band))));
