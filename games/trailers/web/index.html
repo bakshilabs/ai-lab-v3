@@ -299,7 +299,7 @@ const cardHTML = (l) => `
     <span class="meta"><b>${l.title}</b><span>${l.tag}</span></span>
   </button>`;
 // Trailers with a finished video. The rest are still rendering and are listed as coming soon.
-const READY = new Set(['ecotown','tycoon2','mcquiz','dash','bloxel','city','kart','colony','robot','drone','eco','mission','museum','mars','robotaxi','pitcrew','blocks','tycoon','quiz','signal','rocket','fs-impact','fs-creative','fs-data']);
+const READY = new Set(['ecotown','tycoon2','mcquiz','dash','bloxel','city','kart','colony','robot','drone','eco','mission','museum','mars','robotaxi','pitcrew','blocks','tycoon','quiz','signal','rocket','fs-impact','fs-creative','fs-data','fs-model']);
 const ALL = LABS.slice();
 LABS.splice(0, LABS.length, ...ALL.filter((l) => READY.has(l.id)));
 groups.innerHTML = GROUPS.map((g) => {
