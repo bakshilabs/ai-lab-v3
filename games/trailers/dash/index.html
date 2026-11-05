@@ -132,7 +132,7 @@ function frame(t) {
     g.font = '800 34px Baloo'; g.textAlign = 'left'; g.fillStyle = '#c9d6ee'; g.fillText('CO-PILOT GUESS', bx + 150, by + 66); g.font = '800 56px Baloo'; g.fillStyle = '#fff'; g.fillText(line, bx + 150, by + 126);
     g.fillStyle = '#2a3a49'; g.fillRect(bx + 150, by + 152, 440, 16); g.fillStyle = col; g.fillRect(bx + 150, by + 152, 440 * sure, 16); g.font = '800 34px Baloo'; g.fillStyle = '#c9d6ee'; g.fillText(Math.round(sure * 100) + '% sure', bx + 610, by + 170); g.globalAlpha = 1; };
   copilot(13.9, 17.3, '“Jump on beat 3. I counted.”', 0.76, '#16ffc6');
-  if (t >= 12.3 && t < 13.9) { const a = prog(t, 12.3, 12.6) * (1 - prog(t, 13.6, 13.9)); g.globalAlpha = a; const bx = 360, by = 250; g.fillStyle = '#ffffff'; g.beginPath(); g.roundRect(bx, by, 1200, 150, 34); g.fill(); g.font = '800 30px Baloo'; g.textAlign = 'left'; g.fillStyle = '#7a3fb0'; g.fillText('YOU TELL THE CO-PILOT', bx + 40, by + 52); g.font = '800 52px Baloo'; g.fillStyle = '#13202b'; g.fillText('“Count along with the music first.”', bx + 40, by + 116); g.globalAlpha = 1; }
+  if (t >= 12.3 && t < 13.9) { const a = prog(t, 12.3, 12.6) * (1 - prog(t, 13.6, 13.9)); g.globalAlpha = a; const bx = 520, by = 250; g.fillStyle = '#ffffff'; g.beginPath(); g.roundRect(bx, by, 1100, 150, 34); g.fill(); g.font = '800 30px Baloo'; g.textAlign = 'left'; g.fillStyle = '#7a3fb0'; g.fillText('YOU TELL THE CO-PILOT', bx + 40, by + 52); g.font = '800 52px Baloo'; g.fillStyle = '#13202b'; g.fillText('“Count along with the music first.”', bx + 40, by + 116); g.globalAlpha = 1; }
   if (t >= 8.6 && t < 11.6 && false) {
     const a = prog(t, 8.6, 8.9) * (1 - prog(t, 11.3, 11.6));
     g.globalAlpha = a; const bx = 1180, by = 140;
