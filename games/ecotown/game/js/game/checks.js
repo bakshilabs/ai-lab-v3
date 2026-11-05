@@ -78,12 +78,12 @@ export function createChecks(app) {
       const nbr = [[0, -1], [-1, 0], [1, 0], [0, 1]].map(([dx, dz]) => terrain.tiles.get(`${tt.gx + dx},${tt.gz + dz}`)).filter(Boolean)
         .sort((a, b) => (ITEMS[cells.get(b.k)?.item]?.car ? 2 : cells.get(b.k)?.item ? 1 : 0) - (ITEMS[cells.get(a.k)?.item]?.car ? 2 : cells.get(a.k)?.item ? 1 : 0))[0] || tt;
       const p = world.tileTop(target), q = world.tileTop(nbr.k); const dir = p.clone().sub(q).setY(0).normalize();
-      const from = q.clone().sub(dir.clone().multiplyScalar(9)).add(new THREE.Vector3(dir.z * 2, 2.2, -dir.x * 2));
+      const from = q.clone().sub(dir.clone().multiplyScalar(11)).add(new THREE.Vector3(dir.z * 1.5, 2.6, -dir.x * 1.5));
       if (isMove) stage.setTime(8.75);
       // children waiting to cross, and cars rushing past, when the plan put cars at the gate
       if (isMove && sim.unsafeCrossings > 0) {
         kids = new THREE.Group(); stage.scene.add(kids);
-        for (let i = 0; i < 4; i++) { const k = person({ shirt: ['#ffd23f', '#16c79a', '#ff7eb6', '#2f6fd8'][i], s: 0.22 }); k.position.copy(q).add(new THREE.Vector3(-dir.x * 3.2 + (i - 1.5) * 0.9 * dir.z, 0, -dir.z * 3.2 - (i - 1.5) * 0.9 * dir.x)); k.rotation.y = Math.atan2(dir.x, dir.z); kids.add(k); }
+        for (let i = 0; i < 4; i++) { const k = person({ shirt: ['#ffd23f', '#16c79a', '#ff7eb6', '#2f6fd8'][i], s: 0.22 }); k.position.copy(q).add(new THREE.Vector3(dir.z * 4 + dir.x * (i * 1.1 - 1), 0, -dir.x * 4 + dir.z * (i * 1.1 - 1)));   // queued at the kerb, to the side of the view k.rotation.y = Math.atan2(dir.x, dir.z); kids.add(k); }
       }
       await rig.toStreet(from, p.clone().add(new THREE.Vector3(0, 2, 0)), 1.6);
       const labels = sim.unsafeKeys.slice(0, 3).map((uk) => ({ at: world.tileTop(uk).add(new THREE.Vector3(0, 2.5, 0)), text: 'Too many cars to cross', cls: 'bad' }));

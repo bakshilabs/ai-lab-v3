@@ -53,7 +53,7 @@ export function ask(level, text, ctx) {
   const r = read(level, text);
   if (r.isUnknown) return { unknown: true, read: r, hints: SCHEMA.hints[level] };
   const p = plan(level, r.active, { ...ctx, numbers: r.numbers });
-  const sure = Math.round(100 * Math.max(0.3, Math.min(0.99, r.conf * p.fit * p.experience)));
+  const sure = Math.round(100 * (0.48 + 0.44 * Math.max(0, Math.min(1, r.conf * p.fit * p.experience)))); // 48–92%: sure, never certain
   const after = applyPlacements(ctx.cells, p.placements);
   return { unknown: false, read: r, plan: p, after, sure, breakdown: { reading: Math.round(r.conf * 100), fit: Math.round(p.fit * 100), experience: Math.round(p.experience * 100) } };
 }
