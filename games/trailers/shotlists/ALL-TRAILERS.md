@@ -697,7 +697,7 @@ Future Skills · 0:38.0 · a floating grassy voxel island with a cut-away counci
 **Pathway card:** Next step: Experience AI ethics lessons (free, 11–14) and Elements of AI (free, 16+) · Award: DofE Bronze Skills section (debating or public speaking) · Route: Citizenship GCSE, then A-level Law or Politics, or an EPQ · Jobs: policy adviser, data protection officer, AI governance specialist.
 
 **Reviewer notes:**
-- **Render status:** Described from the current source; video re-rendering.
+- **Render status:** Described from the current source; video re-rendered and checked on a contact sheet.
 - **Checks now match the evidence:** the AI card's "Data I used: Council survey · adults 18+" is the flaw, so **Data** fails (under-18s missing). **Source** fails for the invented Act. Case and Authority pass, each with a one-line reason (Case uses the energy row; Authority says the panel recommends and councillors decide). Each AI claim is struck only when its own check fails. Failed checks re-run (spinner) before turning green, and fixed cards show a green "Done" line instead of the red action.
 - **Mentor and labels:** Priya stays by the wall screen. Name labels and the speech bubble snap on one at a time, fully opaque, so they never overlap or ghost.
 - **Framing:** medium-wide camera with the whole rounded island, its rocky underside and blue sky in view through the middle section; cards in a column on the left. The portfolio holds only Zainab's own piece from this trailer.
