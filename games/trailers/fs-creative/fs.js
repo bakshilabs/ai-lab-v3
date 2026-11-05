@@ -92,15 +92,32 @@ export const briefHTML = ({ from, task, due }) => `<div class="fs-card fs-brief"
   <div class="f due"><span class="fs-lbl">Due</span><b>${due}</b></div></div>`;
 export const briefChipHTML = (txt) => `<div class="fs-card fs-bchip"><span class="ic">${ICO.brief}</span>${txt}</div>`;
 export const aiHTML = ({ text, sure, data, state = 'DRAFT' }) => `<div class="fs-ai"><div class="hd"><span class="bot"><i></i></span><span class="who">AI colleague <em>· draft</em></span><span class="st">${state}</span></div>
-  <p>${text}</p><div class="ft"><span class="sure"><span class="bar"><i style="width:${sure}%"></i></span>${sure}% sure</span><span class="data"><b>DATA I USED</b>${data}</span></div></div>`;
-export const findHTML = (title, steps, ok = false) => `<div class="fs-card fs-find${ok ? ' ok' : ''}"><div class="hd"><i>${ok ? '✓' : '✕'}</i>${title}</div><div class="bd">${steps.map(([k, v]) => `<div class="fs-step"><span>${k}</span><b${v.cls ? ` class="${v.cls}"` : ''}>${v.t || v}</b></div>`).join('')}</div></div>`;
+  <p>${text}</p><div class="ft"><span class="sure"><span class="bar"><i style="width:${sure}%"></i></span><span data-sure>${sure}% sure</span></span><span class="data"><b>DATA I USED</b><span data-d>${data}</span></span></div></div>`;
+// AI card reacts once the review finds a flaw: claim struck, status "Returned", confidence drops
+export function aiReact(node, k, { sure = 94, to = 30 } = {}) {
+  const c = node.firstChild; const on = k > 0; c.classList.toggle('ret', on);
+  const st = c.querySelector('.st'); const lbl = on ? 'RETURNED' : 'DRAFT'; if (st.textContent !== lbl) st.textContent = lbl;
+  const v = Math.round(sure + (to - sure) * clamp(k)); c.querySelector('.sure .bar i').style.width = v + '%';
+  const sl = v + '% sure'; const se = c.querySelector('[data-sure]'); if (se.textContent !== sl) se.textContent = sl;
+}
+export const findHTML = (title, steps, ok = false) => `<div class="fs-card fs-find${ok ? ' ok' : ''}"><div class="hd"><i>${ok ? '✓' : '✕'}</i><span data-h>${title}</span></div><div class="bd">${steps.map(([k, v]) => `<div class="fs-step"><span>${k}</span><b${v.cls ? ` class="${v.cls}"` : ''}>${v.t || v}</b></div>`).join('')}</div></div>`;
+// finding card flips to FIXED at tFix: green header, and the red action line becomes a green "Done" line
+export const findFix = (n, tFix, title, okTitle, done) => {
+  const last = n.querySelector('.fs-step:last-child'); const k0 = last.firstChild.textContent, b = last.lastChild, t0 = b.textContent;
+  return (t) => { const ok = t > tFix; n.firstChild.classList.toggle('ok', ok);
+    const h = n.querySelector('[data-h]'), tt = ok ? okTitle : title; if (h.textContent !== tt) h.textContent = tt;
+    const ic = ok ? '✓' : '✕'; const i = n.querySelector('.hd i'); if (i.textContent !== ic) i.textContent = ic;
+    const kk = ok ? 'Done' : k0, bb = ok ? done : t0; if (last.firstChild.textContent !== kk) { last.firstChild.textContent = kk; b.textContent = bb; b.className = ok ? 'good' : 'bad'; } };
+};
 export const signHTML = (name, age) => `<div class="fs-sign"><span class="tick">${ICO.tick}</span><span><small>SIGNED OFF</small><b>Reviewed by: ${name}, age ${age}</b></span></div>`;
 export const folderHTML = (who, items) => `<div class="fs-folder"><div class="tab"></div><div class="back"></div><div class="paper" data-paper></div><div class="front"><b>Portfolio</b><small data-items>${who} · ${items} pieces</small></div></div>`;
-export const pathHTML = ({ next, award, route, jobs }) => `<div class="fs-card fs-path"><div class="top"><h3>Where this skill goes next</h3><span class="fs-strand">DeltaOps Learning · Future Skills</span></div>
+export const pathHTML = ({ next, award, route, jobs }) => `<div class="fs-card fs-path"><div class="top"><span class="tag">PATHWAY</span><h3>Where this skill goes next</h3></div>
   <div class="row"><span>Next step</span><b>${next}</b></div>
   <div class="row"><span>Award</span><b>${award}</b></div>
   <div class="row"><span>Route</span><b>${route}</b></div>
-  <div class="row"><span>→ Jobs</span><div class="jobs">${jobs.map((j) => `<i>${j}</i>`).join('')}</div></div></div>`;
+  <div class="row"><span>Jobs</span><div class="jobs">${jobs.map((j) => `<i>${j}</i>`).join('')}</div></div></div>`;
+// bright end title: a white card beside the island (no dark veil)
+export const endTitleHTML = (name, tagline) => `<div class="fs-card fs-end"><span class="fs-strand">DeltaOps Learning · Future Skills</span><h1>${name}</h1><h2>${tagline}</h2><img src="../assets/logo-learning.svg" alt=""></div>`;
 
 // review strip with four chips; set(t) drives states from a schedule [{i, run, res:'pass'|'fail', fix}]
 export function checkStrip(x, y, anchor = 'tr') {

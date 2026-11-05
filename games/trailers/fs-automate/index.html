@@ -4,20 +4,21 @@
 /* Future Skills work-tool UI: white cards, Inter, ink #13202b, accent teal #16c79a */
 :root { --ink:#13202b; --mute:#5b6b78; --teal:#16c79a; --teal-d:#0c8f6c; --teal-bg:#e3f7f0; --red:#e5483b; --red-bg:#fde9e6; --amber:#f2a516; --amber-bg:#fff3d9; --line:#e3e8ec; }
 .wc { background:#fff; border-radius:28px; color:var(--ink); font-family:'Inter',sans-serif; box-shadow:0 8px 0 rgba(10,30,40,.06), 0 18px 44px rgba(10,30,40,.18); }
-.hd3 { font:800 21px 'Inter'; letter-spacing:.14em; text-transform:uppercase; color:var(--mute); display:flex; align-items:center; gap:14px;  white-space:nowrap; }
+.hd3 { font:800 20px 'Inter'; letter-spacing:.14em; text-transform:uppercase; color:var(--mute); display:flex; align-items:center; gap:14px; white-space:nowrap; }
 .hd3 .t { color:var(--ink); letter-spacing:.02em; text-transform:none; font-size:30px; }
 .topbar { display:flex; gap:14px; align-items:center; }
 .topbar .app { background:#fff; border-radius:999px; padding:12px 28px 12px 14px; font:800 27px 'Inter'; color:var(--ink); display:flex; align-items:center; gap:14px; box-shadow:0 10px 26px rgba(10,30,40,.16); }
 .topbar .app i { width:40px; height:40px; border-radius:12px; background:var(--teal); display:grid; place-items:center; }
+.topbar .prod { background:#13202b; color:#fff; border-radius:999px; padding:14px 24px; font:800 21px 'Inter'; letter-spacing:.04em; box-shadow:0 10px 26px rgba(10,30,40,.16); }
 .status { border-radius:999px; padding:12px 24px; font:800 23px 'Inter'; letter-spacing:.06em; text-transform:uppercase; background:#fff; color:var(--mute); box-shadow:0 10px 26px rgba(10,30,40,.16); display:flex; align-items:center; gap:10px; }
 .status::before { content:''; width:14px; height:14px; border-radius:50%; background:currentColor; }
 .status.draft { color:#6b7a86; } .status.run { color:#2b7bd8; } .status.rev { color:#c98a00; } .status.ret { color:var(--red); } .status.ok { color:var(--teal-d); }
 /* brief */
-.brief { width:900px; padding:34px 42px 30px; }
-.brief .row { display:grid; grid-template-columns:200px 1fr; gap:20px; align-items:baseline; padding:16px 0; border-top:2px solid var(--line); }
+.brief { width:880px; padding:30px 40px 26px; }
+.brief .row { display:grid; grid-template-columns:190px 1fr; gap:20px; align-items:baseline; padding:14px 0; border-top:2px solid var(--line); }
 .brief .row:first-of-type { border-top:0; }
 .brief small { font:800 22px 'Inter'; letter-spacing:.1em; text-transform:uppercase; color:var(--mute); }
-.brief b { font:750 38px/1.2 'Inter'; }
+.brief b { font:750 36px/1.2 'Inter'; }
 .brief .due b { color:var(--red); }
 .tagt { background:var(--teal-bg); color:var(--teal-d); border-radius:999px; padding:6px 16px; font:800 20px 'Inter'; letter-spacing:.1em; }
 /* captions on 3D people */
@@ -26,72 +27,76 @@
 .cap::after { content:''; position:absolute; left:50%; bottom:-10px; margin-left:-10px; border:10px solid transparent; border-top-color:#fff; border-bottom:0; }
 .cap.mentor { background:#13202b; color:#fff; } .cap.mentor small { color:#9fb3c4; } .cap.mentor::after { border-top-color:#13202b; }
 /* workflow map */
-.map { width:1210px; height:572px; position:relative; }
-.map .hd3 { position:absolute; left:30px; top:24px; right:30px; }
-.lane { position:absolute; left:20px; width:1170px; height:150px; border-radius:20px; background:#f5f8f9; }
-.lane span { position:absolute; left:18px; top:50%; transform:translateY(-50%); font:800 20px 'Inter'; letter-spacing:.1em; color:var(--mute); width:120px; line-height:1.15; }
+.map { width:1080px; height:500px; position:relative; }
+.map .hd3 { position:absolute; left:28px; top:20px; right:28px; }
+.lane { position:absolute; left:16px; width:1048px; height:120px; border-radius:20px; background:#f5f8f9; }
+.lane span { position:absolute; left:14px; top:50%; transform:translateY(-50%); font:800 18px 'Inter'; letter-spacing:.03em; color:var(--mute); width:110px; line-height:1.15; }
 .lane.ai { background:#eef3fb; } .lane.hu { background:#fff8e9; }
-.box { position:absolute; width:160px; height:104px; border-radius:18px; background:#fff; border:3px solid #d5dde3; padding:10px 12px; font:750 21px/1.15 'Inter'; color:var(--ink); display:flex; flex-direction:column; justify-content:space-between; box-shadow:0 4px 10px rgba(10,30,40,.06); }
-.box em { font-style:normal; align-self:flex-start; border-radius:999px; padding:3px 10px; font:800 15px 'Inter'; letter-spacing:.04em; background:#eef1f3; color:#6b7a86; opacity:0; }
+.box { position:absolute; width:158px; height:104px; border-radius:18px; background:#fff; border:3px solid #d5dde3; padding:9px 10px; font:750 21px/1.12 'Inter'; color:var(--ink); display:flex; flex-direction:column; justify-content:space-between; box-shadow:0 4px 10px rgba(10,30,40,.06); }
+.box em { font-style:normal; align-self:flex-start; white-space:nowrap; border-radius:999px; padding:3px 9px; font:800 18px 'Inter'; background:#eef1f3; color:#6b7a86; opacity:0; }
 .box em.on { opacity:1; }
-.box em.ai { background:#e3ecfb; color:#2b62b8; } .box em.hu { background:#fff0cc; color:#9a6400; } .box em.mix { background:var(--teal-bg); color:var(--teal-d); }
+.box em.ai { background:#e3ecfb; color:#2b62b8; } .box em.hu { background:#fff0cc; color:#9a6400; } .box em.mix { background:var(--teal-bg); color:var(--teal-d); } .box em.bad { background:var(--red); color:#fff; }
 .box.hot { border-color:#2b7bd8; box-shadow:0 0 0 6px rgba(43,123,216,.18); }
 .box.bad { border-color:var(--red); box-shadow:0 0 0 6px rgba(229,72,59,.18); }
 .box.good { border-color:var(--teal); box-shadow:0 0 0 6px rgba(22,199,154,.2); }
-.ckpt { position:absolute; width:50px; height:50px; border-radius:50%; background:#f2a516; border:4px solid #fff; box-shadow:0 4px 12px rgba(120,80,0,.35); display:grid; place-items:center; transform:translate(-50%,-50%); }
-.ckpt svg { width:28px; height:28px; }
+.ckpt { position:absolute; width:48px; height:48px; border-radius:50%; background:#f2a516; border:4px solid #fff; box-shadow:0 4px 12px rgba(120,80,0,.35); display:grid; place-items:center; transform:translate(-50%,-50%); }
+.ckpt svg { width:26px; height:26px; }
 .token { position:absolute; width:26px; height:26px; border-radius:50%; background:#2b7bd8; border:4px solid #fff; box-shadow:0 2px 8px rgba(0,0,0,.3); transform:translate(-50%,-50%); }
 /* permissions */
-.perm { width:1210px; padding:26px 30px; }
-.perm .grid { display:flex; flex-wrap:wrap; gap:14px; margin-top:18px; }
+.perm { width:1080px; padding:24px 28px; }
+.perm .grid { display:flex; flex-wrap:wrap; gap:14px; margin-top:16px; }
 .sw { display:flex; align-items:center; gap:14px; background:#f5f8f9; border-radius:16px; padding:12px 18px; font:700 24px 'Inter'; }
 .sw i { width:54px; height:30px; border-radius:99px; background:#c9d2d9; position:relative; flex:none; }
 .sw i::after { content:''; position:absolute; top:4px; left:4px; width:22px; height:22px; border-radius:50%; background:#fff; }
 .sw.on i { background:var(--teal); } .sw.on i::after { left:28px; }
 .sw.flash { box-shadow:0 0 0 4px var(--amber); }
-.sw b { font-weight:800; color:var(--teal-d); }
-.sw.rule { background:var(--teal-bg); }
-.sw.rule.old { background:var(--red-bg); } .sw.rule.old b { color:var(--red); }
+.sw b { font-weight:800; color:#2b62b8; }
+.sw.rule { background:#eef3fb; }
 /* log */
-.log { width:1210px; padding:24px 30px; }
-.log .r { display:grid; grid-template-columns:92px 1fr auto; gap:18px; align-items:center; padding:9px 12px; border-radius:12px; font:650 25px 'Inter'; }
+.log { width:1080px; padding:22px 28px; }
+.log .r { display:grid; grid-template-columns:86px 1fr auto; gap:18px; align-items:center; padding:9px 12px; border-radius:12px; font:650 25px 'Inter'; }
 .log .r tt { font:700 22px 'Inter'; color:var(--mute); }
 .log .r .st { border-radius:999px; padding:4px 14px; font:800 19px 'Inter'; background:var(--teal-bg); color:var(--teal-d); }
-.log .r .st.w { background:var(--amber-bg); color:#9a6400; }
-.log .r.bad { background:var(--red-bg); } .log .r.bad .st { background:var(--red); color:#fff; }
 /* AI colleague */
-.aic { width:584px; background:#13202b; color:#fff; border-radius:28px; padding:28px 32px 26px; font-family:'Inter'; box-shadow:0 14px 0 rgba(0,0,0,.14), 0 22px 44px rgba(5,15,25,.3); }
-.aic .who { display:flex; align-items:center; gap:14px; font:800 24px 'Inter'; letter-spacing:.04em; color:#c9d6e2; }
-.aic .who i { width:44px; height:44px; border-radius:12px; background:#24384a; display:grid; place-items:center; }
-.aic .who em { font-style:normal; background:#ffc83d; color:#13202b; border-radius:999px; padding:3px 14px; font:800 18px 'Inter'; letter-spacing:.1em; }
-.aic p { font:600 32px/1.25 'Inter'; margin:16px 0 18px; }
-.aic .sure { display:flex; align-items:center; gap:18px; font:800 26px 'Inter'; }
+.aic { width:580px; background:#13202b; color:#fff; border-radius:28px; padding:26px 30px 24px; font-family:'Inter'; box-shadow:0 14px 0 rgba(0,0,0,.14), 0 22px 44px rgba(5,15,25,.3); }
+.aic .who { display:flex; align-items:center; gap:14px; font:800 23px 'Inter'; letter-spacing:.04em; color:#c9d6e2; white-space:nowrap; }
+.aic .who i { width:44px; height:44px; border-radius:12px; background:#24384a; display:grid; place-items:center; flex:none; }
+.aic .who em { font-style:normal; background:#ffc83d; color:#13202b; border-radius:999px; padding:4px 14px; font:800 19px 'Inter'; letter-spacing:.08em; }
+.aic .who em.ret { background:#ff6a5a; color:#fff; } .aic .who em.v2 { background:#16c79a; color:#06281f; }
+.aic p { font:600 29px/1.25 'Inter'; margin:14px 0 16px; }
+.aic s { color:#a9b8c6; text-decoration-color:#ff6a5a; text-decoration-thickness:4px; }
+.aic .new { display:block; margin-top:10px; background:#16c79a; color:#06281f; border-radius:12px; padding:8px 14px; font:700 25px/1.25 'Inter'; }
+.aic .sure { display:flex; align-items:center; gap:18px; font:800 25px 'Inter'; white-space:nowrap; }
 .aic .sure .bar { flex:1; height:14px; border-radius:99px; background:#2c3e50; overflow:hidden; }
-.aic .sure .bar i { display:block; height:100%; width:96%; border-radius:99px; background:linear-gradient(90deg,#ffc83d,#16c79a); }
-.aic .data { margin-top:18px; display:inline-flex; gap:12px; align-items:center; background:#22344a; border-radius:14px; padding:10px 16px; font:600 22px 'Inter'; color:#dce6ef; }
-.aic .data b { background:#16c79a; color:#13202b; border-radius:8px; padding:2px 10px; font:800 17px 'Inter'; letter-spacing:.06em; text-transform:uppercase; }
+.aic .sure .bar i { display:block; height:100%; border-radius:99px; background:linear-gradient(90deg,#ffc83d,#16c79a); }
+.aic .sure.off span { color:#ff8b7e; }
+.aic .data { margin-top:16px; display:flex; gap:10px; align-items:center; background:#22344a; border-radius:14px; padding:9px 12px; font:600 20px 'Inter'; color:#dce6ef; white-space:nowrap; border:3px solid transparent; }
+.aic .data b { flex:none; white-space:nowrap; background:#16c79a; color:#13202b; border-radius:8px; padding:3px 10px; font:800 18px 'Inter'; letter-spacing:.06em; text-transform:uppercase; }
+.aic .data.bad { border-color:#ff6a5a; } .aic .data.bad b { background:#ff6a5a; color:#fff; }
 /* review */
-.review { width:584px; padding:26px 28px; }
-.checks { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:16px; }
-.ck { display:flex; align-items:center; gap:14px; border-radius:16px; padding:12px 16px; font:800 27px 'Inter'; background:#f3f5f7; color:#8b98a3; border:3px dashed #d3dbe1; }
+.review { width:1080px; padding:22px 28px 24px; }
+.checks { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:14px; }
+.ck { display:flex; align-items:center; gap:14px; border-radius:16px; padding:11px 16px; font:800 27px 'Inter'; background:#f3f5f7; color:#8b98a3; border:3px dashed #d3dbe1; }
 .ck i { width:38px; height:38px; border-radius:50%; background:#dfe5ea; color:#fff; display:grid; place-items:center; font:900 22px 'Inter'; font-style:normal; flex:none; }
 .ck.ok { background:var(--teal-bg); color:var(--teal-d); border:3px solid transparent; } .ck.ok i { background:var(--teal); }
 .ck.bad { background:var(--red-bg); color:var(--red); border:3px solid var(--red); } .ck.bad i { background:var(--red); }
-.find { margin-top:16px; border-radius:16px; padding:14px 18px; font:650 23px/1.3 'Inter'; background:var(--red-bg); color:#7a1f17; }
+.finds { display:grid; gap:8px; margin-top:12px; }
+.find { border-radius:14px; padding:10px 16px; font:650 23px/1.3 'Inter'; background:var(--red-bg); color:#7a1f17; }
 .find.good { background:var(--teal-bg); color:#0b5a45; }
 .find b { font-weight:850; }
-.sign { margin-top:16px; display:flex; align-items:center; gap:16px; border-top:2px solid var(--line); padding-top:16px; font:800 27px 'Inter'; }
-.sign .tick { width:52px; height:52px; border-radius:50%; background:var(--teal); color:#fff; display:grid; place-items:center; font:900 30px 'Inter'; }
-.sign small { display:block; font:600 19px 'Inter'; color:var(--mute); }
+.sign { margin-top:14px; display:flex; align-items:center; gap:16px; border-top:2px solid var(--line); padding-top:14px; font:800 28px 'Inter'; }
+.sign .tick { width:52px; height:52px; border-radius:50%; background:var(--teal); color:#fff; display:grid; place-items:center; font:900 30px 'Inter'; flex:none; }
+.sign small { display:block; font:650 21px 'Inter'; color:var(--mute); margin-top:2px; }
+.sign .stamp { margin-left:auto; border:4px solid var(--teal); color:var(--teal-d); border-radius:14px; padding:6px 18px; font:900 26px 'Inter'; letter-spacing:.12em; transform:rotate(-4deg); }
 /* cursor */
 .cur { position:absolute; width:40px; height:40px; }
 .cur span { position:absolute; left:30px; top:30px; background:#16c79a; color:#13202b; border-radius:8px; padding:3px 10px; font:800 18px 'Inter'; white-space:nowrap; }
 .ring { position:absolute; width:70px; height:70px; border-radius:50%; border:5px solid #16c79a; transform:translate(-50%,-50%); }
 /* blueprint + portfolio */
-.doc { width:720px; padding:34px 40px; }
+.doc { width:700px; padding:32px 38px; }
 .doc h4 { font:850 40px 'Inter'; margin:8px 0 4px; }
 .doc .sub { font:600 22px 'Inter'; color:var(--mute); }
-.doc .thumb { margin:22px 0; height:120px; border-radius:16px; background:#f5f8f9; position:relative; overflow:hidden; }
+.doc .thumb { margin:20px 0; height:120px; border-radius:16px; background:#f5f8f9; position:relative; overflow:hidden; }
 .doc ul { list-style:none; display:grid; gap:10px; font:650 25px 'Inter'; }
 .doc li { display:flex; gap:12px; align-items:center; }
 .doc li::before { content:'✓'; width:30px; height:30px; border-radius:50%; background:var(--teal-bg); color:var(--teal-d); display:grid; place-items:center; font:900 17px 'Inter'; flex:none; }
@@ -100,25 +105,30 @@
 .folder .body { position:absolute; left:0; top:26px; width:420px; height:124px; border-radius:0 22px 22px 22px; background:#16c79a; box-shadow:0 14px 30px rgba(10,60,40,.3); display:flex; align-items:center; gap:18px; padding:0 28px; color:#06281f; }
 .folder .body b { font:850 34px 'Inter'; display:block; } .folder .body small { font:700 21px 'Inter'; }
 /* pathway */
-.path { width:1340px; padding:40px 48px; }
-.path .r { display:grid; grid-template-columns:240px 1fr; gap:26px; align-items:center; padding:20px 0; border-top:2px solid var(--line); }
+.path { width:1000px; padding:34px 42px; }
+.path .r { display:grid; grid-template-columns:190px 1fr; gap:24px; align-items:center; padding:17px 0; border-top:2px solid var(--line); }
 .path .r:first-of-type { border-top:0; }
-.path small { font:800 22px 'Inter'; letter-spacing:.1em; text-transform:uppercase; color:var(--mute); }
-.path b { font:750 36px/1.22 'Inter'; }
-.path .jobs { display:flex; gap:12px; flex-wrap:wrap; }
-.path .jobs span { background:var(--teal-bg); color:var(--teal-d); border-radius:999px; padding:8px 20px; font:800 28px 'Inter'; }
-.path .arrow { color:var(--teal); font-weight:900; }
+.path small { font:800 21px 'Inter'; letter-spacing:.1em; text-transform:uppercase; color:var(--mute); }
+.path b { font:750 31px/1.22 'Inter'; }
+.path .jobs { display:flex; gap:10px; flex-wrap:wrap; }
+.path .jobs span { background:var(--teal-bg); color:var(--teal-d); border-radius:999px; padding:7px 18px; font:800 25px 'Inter'; }
+/* bright end title */
+.endt { width:1920px; text-align:center; font-family:var(--display); }
+.endt .chip2 { display:inline-block; background:#13202b; color:#fff; border-radius:999px; padding:12px 26px; font:800 22px 'Inter'; letter-spacing:.06em; }
+.endt h1 { font-weight:800; font-size:124px; line-height:1; letter-spacing:-0.035em; color:#13202b; margin-top:20px; text-shadow:0 4px 0 rgba(255,255,255,.35); }
+.endt h1 span { color:#0c8f6c; }
+.endt h2 { font-weight:700; font-size:42px; color:#13202b; margin-top:14px; }
 </style>
 <script type="importmap">{"imports":{"three":"/three/three.module.js","three/addons/":"/three-addons/"}}</script></head>
 <body><div id="app"><div id="bg"></div><div id="ui"></div><div id="fx"></div></div>
 <script type="module">
 import * as THREE from 'three';
 import { createStage, prog, ease, lerp, clamp, within } from '../engine/stage.js';
-import { Vox, tree, house, person, rand, noise2, island } from '../engine/kit.js';
-import { el, cue, fader, titleCard, toScreen } from '../engine/ui.js';
+import { Vox, tree, house, person, rand, island } from '../engine/kit.js';
+import { el, cue, fader, toScreen } from '../engine/ui.js';
 import { clouds, birds } from '../engine/extras.js';
 
-const DUR = 42;
+const DUR = 38.4;
 const st = createStage({ sky: ['#5db6ff', '#d9efff'], post: false });
 const { scene, camera, sun, hemi, rim } = st;
 rim.intensity = 0.55; st.dome.visible = false; st.renderer.setClearColor(0x000000, 0);
@@ -126,325 +136,361 @@ document.getElementById('bg').style.background = 'linear-gradient(180deg, #58b4f
 sun.intensity = 2.8; sun.position.set(-60, 120, 70); hemi.intensity = 1.3; st.renderer.toneMappingExposure = 1.08;
 sun.shadow.camera.left = -50; sun.shadow.camera.right = 50; sun.shadow.camera.top = 50; sun.shadow.camera.bottom = -50; sun.shadow.camera.updateProjectionMatrix();
 
-// ---------- island ----------
+// ---------- island: Pedal Point Community Bike Repair ----------
 const v = new Vox(); v.jitter = 0.06;
-island(v, { rx: 31, rz: 22, top: 0, depth: 13, seed: 7, wobble: 4 });
-// road behind the workshop and a path in front
-for (let x = -34; x <= 34; x++) for (let z = -13; z <= -11; z++) if (v.has(x, 0, z)) v.set(x, 0, z, z === -12 && x % 4 === 0 ? '#e9e4d0' : '#646b72');
-for (let x = -6; x <= -3; x++) for (let z = 5; z <= 23; z++) if (v.has(x, 0, z)) v.set(x, 0, z, rand(x, 3, z) > .5 ? '#ded0a8' : '#d4c59b');
-// town behind
-const houses = [[-24, -20, '#d0573a', '#f1ebe0'], [-13, -20, '#5a6d80', '#efe2c9'], [-2, -20, '#e0a33a', '#f4efe6'], [9, -20, '#d0573a', '#e8eef2'], [20, -19, '#5a6d80', '#f1ebe0']];
-for (const [x, z, roof, wall] of houses) house(v, x, 0, z, { w: 7, d: 5, h: 4, roof, wall });
-// cafe on the right
-house(v, 14, 0, -6, { w: 9, d: 7, h: 4, roof: '#16a37f', wall: '#f6f1e6' });
-for (const [x, z] of [[-27, 6], [-27, 15], [8, 10], [14, 14], [22, 6], [25, -4], [-28, -4], [3, 17]]) tree(v, x, 0, z, { kind: rand(x, z) > 0.5 ? 'round' : 'pine' });
+island(v, { rx: 29, rz: 21, top: 0, depth: 13, seed: 7, wobble: 4 });
+// pavement and a blue cycle lane in front of the shop, a cycle path loop round the back
+for (let x = -34; x <= 34; x++) for (let z = 7; z <= 13; z++) if (v.has(x, 0, z)) {
+  let c = z <= 9 ? (((x + z) & 1) ? '#e6e0d2' : '#ddd6c6') : z === 10 ? '#c9c2b2' : '#4a8fc4';
+  if (z === 12 && x % 5 === 0) c = '#f4f4ee';
+  v.set(x, 0, z, c);
+}
+for (let x = -34; x <= 34; x++) for (let z = -15; z <= -13; z++) if (v.has(x, 0, z)) v.set(x, 0, z, z === -14 && x % 4 === 0 ? '#f4f4ee' : '#4a8fc4');
+for (let z = -13; z <= 7; z++) for (let x = 19; x <= 21; x++) if (v.has(x, 0, z)) v.set(x, 0, z, '#4a8fc4');
+for (let z = -13; z <= 7; z++) for (let x = -21; x <= -19; x++) if (v.has(x, 0, z)) v.set(x, 0, z, '#4a8fc4');
+// two small houses and a hedge behind the cycle path
+house(v, -12, 0, -21, { w: 7, d: 5, h: 4, roof: '#d0573a', wall: '#f1ebe0' });
+house(v, 3, 0, -21, { w: 7, d: 5, h: 4, roof: '#5a6d80', wall: '#efe2c9' });
+for (let x = -16; x <= 14; x++) if (v.has(x, 0, -11)) { v.set(x, 1, -11, '#3f9d4a'); if (x % 3) v.set(x, 2, -11, '#4caf50'); }
+for (const [x, z] of [[-26, 2], [-25, 10], [-24, -8], [25, -6], [26, 3], [24, 14], [-15, 17], [12, 17], [-4, -18], [16, -18]]) tree(v, x, 0, z, { kind: rand(x, z) > 0.55 ? 'pine' : 'round' });
+// community garden beds (left) and a picnic table (right)
+for (const [x0, z0] of [[-27, -4], [-27, 0]]) { v.box(x0, 1, z0, x0 + 4, 1, z0 + 2, '#8a5c38'); for (let x = x0 + 1; x <= x0 + 3; x++) v.set(x, 2, z0 + 1, rand(x, z0) > .5 ? '#5bbd5a' : '#e8573f'); }
+v.box(23, 1, 9, 26, 1, 9, '#9a6a42'); v.box(23, 1, 12, 26, 1, 12, '#9a6a42'); v.box(23, 2, 10, 26, 2, 11, '#b07a48');
 scene.add(v.mesh());
 
-// ---------- workshop building (half-scale voxels) ----------
+// ---------- shop + workshop (half-scale voxels) ----------
 const b = new Vox(); b.jitter = 0.04;
-const BX = -15, BZ = -9, BY = 1, S = 0.5;
+const BX = -14, BZ = -9, BY = 1, S = 0.5;
 const W = (i, j, k) => new THREE.Vector3(BX + (i + 0.5) * S, BY + (j + 0.5) * S, BZ + (k + 0.5) * S);
-// floor: office carpet left, workshop concrete right
-for (let i = 0; i <= 43; i++) for (let k = 0; k <= 27; k++) b.set(i, 0, k, i <= 23 ? ((i + k) % 2 ? '#d6e1e4' : '#cfdbdf') : (rand(i, 4, k) > .5 ? '#c9c4ba' : '#c1bcb1'));
-const WALL = '#f4f0e8', GLASS = '#a9d8f2', FRAME = '#e1dbcf';
 const inR = (x, a, c) => x >= a && x <= c;
-for (let i = 0; i <= 43; i++) for (let j = 1; j <= 12; j++) for (let k = 0; k <= 1; k++) {
-  const win = j >= 4 && j <= 9 && (inR(i, 2, 9) || inR(i, 25, 31) || inR(i, 34, 40));
-  b.set(i, j, k, win ? (k === 0 ? GLASS : null) : (j === 12 ? FRAME : WALL));
+const CREAM = '#f6efe2', FRAME = '#e1dbcf', GLASS = '#a9d8f2', TEAL = '#16a37f';
+// floor: workshop concrete with a blue rubber mat under the stands
+for (let i = 19; i <= 55; i++) for (let k = 0; k <= 30; k++) b.set(i, 0, k, inR(i, 24, 51) && inR(k, 9, 20) ? ((i + k) % 2 ? '#3b6a8c' : '#386484') : (rand(i, 4, k) > .5 ? '#d3cec4' : '#cbc6bb'));
+// --- shop front (closed building on the left) ---
+for (let i = 0; i <= 18; i++) for (let k = 0; k <= 30; k++) for (let j = 1; j <= 14; j++) {
+  const edgeI = i <= 1 || i >= 17, edgeK = k <= 1 || k >= 29;
+  if (!edgeI && !edgeK) continue;
+  let c = j === 14 ? FRAME : j === 1 ? '#9aa4ad' : CREAM;
+  if (k >= 29 && j >= 3 && j <= 9 && (inR(i, 3, 7) || inR(i, 12, 15))) c = k === 30 ? GLASS : null;
+  if (k >= 29 && j <= 8 && inR(i, 9, 10)) c = k === 30 ? TEAL : null;
+  if (i <= 1 && j >= 4 && j <= 9 && (inR(k, 6, 11) || inR(k, 17, 22))) c = i === 0 ? GLASS : null;
+  if (c) b.set(i, j, k, c);
 }
-for (let k = 0; k <= 27; k++) for (let j = 1; j <= 12; j++) for (let i = 42; i <= 43; i++) {
-  const win = j >= 4 && j <= 9 && inR(k, 14, 23);
-  b.set(i, j, k, win ? (i === 43 ? GLASS : null) : (j === 12 ? FRAME : WALL));
+for (let i = 0; i <= 18; i++) for (let k = 0; k <= 30; k++) b.set(i, 15, k, (i === 0 || i === 18 || k === 0 || k === 30) ? FRAME : '#d9dee2');
+for (let i = 0; i <= 18; i++) { b.set(i, 16, 0, FRAME); b.set(i, 16, 30, FRAME); } for (let k = 0; k <= 30; k++) { b.set(0, 16, k, FRAME); b.set(18, 16, k, FRAME); }
+b.box(4, 16, 8, 6, 17, 10, '#aeb6bc'); b.box(11, 16, 16, 13, 16, 22, '#2b3f73');
+// window displays: a bike in the left window, a helmet stand in the right
+b.box(3, 2, 28, 7, 2, 28, '#e1dbcf'); b.box(12, 2, 28, 15, 2, 28, '#e1dbcf'); b.box(13, 3, 28, 13, 4, 28, '#ffd23f'); b.box(14, 3, 28, 14, 3, 28, '#e8573f');
+// striped awning
+for (let i = 2; i <= 16; i++) { const c = (i >> 1) % 2 ? '#ffffff' : '#16c79a'; b.set(i, 11, 31, c); b.set(i, 10, 32, c); b.set(i, 10, 33, c); }
+// --- open workshop (cut-away) on the right ---
+for (let i = 19; i <= 55; i++) for (let j = 1; j <= 12; j++) for (let k = 0; k <= 1; k++) {
+  const win = j >= 8 && j <= 10 && inR(i, 40, 48);
+  b.set(i, j, k, win ? (k === 0 ? GLASS : null) : (j === 12 ? FRAME : CREAM));
 }
-for (let i = 0; i <= 43; i++) b.set(i, 1, 27, FRAME);
-for (let k = 0; k <= 27; k++) b.set(0, 1, k, FRAME);
-b.box(0, 1, 26, 0, 3, 27, WALL);
-// wall screen (workflow board) on back wall
-b.box(11, 3, 2, 22, 10, 2, '#2a3640');
-// desks: [desk i0, k0]
-const desks = [[6, 16], [18, 16], [6, 6], [18, 6]];
-const DESK = '#e8d3ad', LEG = '#8a95a0', CHAIR = '#3a4752';
-for (const [i0, k0] of desks) {
-  b.box(i0, 2, k0, i0 + 4, 2, k0 + 5, DESK);
-  for (const [a, c] of [[i0, k0], [i0 + 4, k0], [i0, k0 + 5], [i0 + 4, k0 + 5]]) b.set(a, 1, c, LEG);
-  b.box(i0 + 3, 3, k0 + 1, i0 + 3, 5, k0 + 4, '#2a3640'); // monitor
-  b.set(i0 + 3, 3, k0 + 2, '#2a3640');
-  b.box(i0 - 3, 1, k0 + 1, i0 - 1, 1, k0 + 4, CHAIR); b.box(i0 - 4, 2, k0 + 1, i0 - 4, 2, k0 + 4, '#56687a');
-  b.set(i0 + 1, 3, k0 + 4, '#ffffff'); // mug
+for (let k = 0; k <= 30; k++) for (let j = 1; j <= 12; j++) for (let i = 54; i <= 55; i++) {
+  const win = j >= 5 && j <= 9 && inR(k, 18, 24);
+  b.set(i, j, k, win ? (i === 55 ? GLASS : null) : (j === 12 ? FRAME : CREAM));
 }
-// plants
-for (const [i, k] of [[1, 1], [23, 2]]) { b.box(i, 1, k, i + 1, 2, k + 1, '#b0643a'); b.box(i - 1, 3, k - 1, i + 2, 5, k + 2, '#4caf50'); b.box(i, 6, k, i + 1, 6, k + 1, '#3f9d4a'); }
-// workshop: bench, pegboard, bikes, tyres
-b.box(38, 1, 3, 41, 2, 13, '#9a6a42'); b.box(38, 3, 4, 38, 3, 5, '#d0573a'); b.box(39, 3, 8, 40, 3, 9, '#5a6d80'); b.set(39, 3, 11, '#ffd23f');
-b.box(41, 4, 3, 41, 10, 12, '#d8b27a');
-for (const [j, k, c] of [[6, 4, '#5a6d80'], [8, 5, '#d0573a'], [5, 7, '#2a3640'], [9, 8, '#5a6d80'], [7, 10, '#16a37f'], [5, 11, '#2a3640']]) b.box(40, j, k, 40, j + 1, k, c);
+for (let i = 19; i <= 55; i++) if (!inR(i, 30, 41)) b.set(i, 1, 30, FRAME);
+// tool wall: pegboard with spanners, hammers and a pump
+b.box(21, 4, 2, 37, 10, 2, '#d8b27a');
+for (let n = 0; n < 8; n++) { const i = 22 + n * 2; const c = ['#7b8085', '#d0573a', '#7b8085', '#2b62b8', '#7b8085', '#ffd23f', '#7b8085', '#16a37f'][n]; b.box(i, 6, 3, i, 9 - (n % 3), 3, c); b.set(i, 9 - (n % 3) + 1, 3, '#9aa0a5'); }
+b.box(38, 2, 2, 39, 9, 3, '#2b62b8');
+// workbench under the tool wall
+b.box(21, 3, 2, 37, 3, 5, '#b07a48'); for (const [i, k] of [[21, 5], [37, 5], [21, 2], [37, 2]]) b.box(i, 1, k, i, 2, k, '#7a5232');
+b.box(24, 4, 3, 25, 5, 4, '#5a6d80'); b.box(30, 4, 3, 32, 5, 4, '#d0573a'); b.set(34, 4, 4, '#ffd23f');
+// quarter-scale detail (bikes, racks, wheels): same origin, quarter-size voxels
+const q = new Vox(); q.jitter = 0.03;
+const ringI = (ci, cj, k, col) => { for (let di = -3; di <= 3; di++) for (let dj = -3; dj <= 3; dj++) { const r = Math.hypot(di, dj); if (r > 2.2 && r < 3.5) q.set(ci + di, cj + dj, k, col); } };
+const ringK = (i, cj, ck, col) => { for (let dk = -3; dk <= 3; dk++) for (let dj = -3; dj <= 3; dj++) { const r = Math.hypot(dk, dj); if (r > 2.2 && r < 3.5) q.set(i, cj + dj, ck + dk, col); } };
+const line = (a, c, k, col) => { const n = Math.max(Math.abs(c[0] - a[0]), Math.abs(c[1] - a[1])); for (let s = 0; s <= n; s++) q.set(Math.round(lerp(a[0], c[0], s / n)), Math.round(lerp(a[1], c[1], s / n)), k, col); };
+// spare wheels hanging on the right wall
+for (const k of [12, 22, 56]) ringK(107, 16, k, '#22282e');
+// tyre stack
+for (let y = 1; y <= 4; y++) for (let di = -2; di <= 2; di++) for (let dk = -2; dk <= 2; dk++) { const r = Math.hypot(di, dk); if (r > 1 && r < 2.6) b.set(49 + di, y, 26 + dk, '#22282e'); }
+// bikes: side-on in the i/j plane (quarter scale)
 function bike(i0, j0, k0, frame) {
-  const wheel = (ci) => { for (let di = -3; di <= 3; di++) for (let dj = -3; dj <= 3; dj++) { const r = Math.hypot(di, dj); if (r > 2.2 && r < 3.5) b.set(ci + di, j0 + 3 + dj, k0, '#22282e'); } b.set(ci, j0 + 3, k0, '#9aa4ad'); };
-  wheel(i0); wheel(i0 + 8);
-  for (let s = 0; s <= 8; s++) { b.set(i0 + 2 + Math.round(s * 0.5), j0 + 3 + Math.round(s * 0.4), k0, frame); }
-  for (let s = 0; s <= 4; s++) b.set(i0 + 2 + s, j0 + 3, k0, frame);
-  b.box(i0 + 2, j0 + 3, k0, i0 + 6, j0 + 6, k0, null);
-  for (let s = 0; s <= 4; s++) { b.set(i0 + 1 + s, j0 + 3 + Math.round(s * 0.75), k0, frame); b.set(i0 + 3 + s, j0 + 6, k0, frame); b.set(i0 + 7 - Math.round(s * 0.25), j0 + 6 - s + 1, k0, frame); }
-  b.set(i0 + 3, j0 + 7, k0, '#22282e'); b.box(i0 + 2, j0 + 8, k0, i0 + 4, j0 + 8, k0, '#22282e');
-  b.set(i0 + 7, j0 + 8, k0, frame); b.box(i0 + 7, j0 + 9, k0 - 1, i0 + 7, j0 + 9, k0 + 1, '#22282e');
+  const R = [i0 + 3, j0 + 3], F = [i0 + 12, j0 + 3], BB = [i0 + 7, j0 + 3], SE = [i0 + 6, j0 + 8], H = [i0 + 11, j0 + 8];
+  ringI(R[0], R[1], k0, '#22282e'); ringI(F[0], F[1], k0, '#22282e');
+  for (const [a, c] of [[R, BB], [BB, SE], [SE, H], [BB, H], [H, F], [R, SE]]) line(a, c, k0, frame);
+  q.box(i0 + 5, j0 + 9, k0, i0 + 7, j0 + 9, k0, '#22282e'); q.box(i0 + 11, j0 + 9, k0, i0 + 11, j0 + 10, k0, frame); q.box(i0 + 11, j0 + 10, k0 - 1, i0 + 12, j0 + 10, k0 + 1, '#22282e');
 }
-bike(27, 0, 10, '#e8573f'); bike(27, 0, 19, '#2b7bd8');
-b.box(31, 1, 9, 31, 3, 9, '#5f6a73'); b.box(31, 1, 18, 31, 3, 18, '#5f6a73');
-for (let y = 1; y <= 4; y++) for (let di = -2; di <= 2; di++) for (let dk = -2; dk <= 2; dk++) { const r = Math.hypot(di, dk); if (r > 1 && r < 2.6) b.set(25 + di + 10, y, 24 + dk, '#22282e'); }
-// bike rack outside (front)
-for (let n = 0; n < 3; n++) bike(47, 0, 33 + n * 3, ['#ffd23f', '#16c79a', '#e8573f'][n]);
-b.box(45, 1, 32, 45, 4, 40, '#9aa4ad');
-// bench outside
-b.box(30, 1, 33, 38, 2, 34, '#9a6a42');
+// three repair stands with bikes lifted
+for (const [i0, k0, col] of [[50, 26, '#e8573f'], [78, 26, '#2b7bd8'], [64, 42, '#ffd23f']]) {
+  q.box(i0 + 7, 2, k0, i0 + 7, 15, k0, '#5f6a73'); q.box(i0 + 4, 2, k0 - 2, i0 + 10, 2, k0 + 2, '#5f6a73');
+  q.box(i0 + 6, 16, k0, i0 + 8, 16, k0, '#16c79a');
+  bike(i0, 7, k0, col);
+}
+// Nia's laptop desk at the front of the workshop
+b.box(22, 3, 22, 27, 3, 27, '#e8d3ad'); for (const [i, k] of [[22, 22], [27, 22], [22, 27], [27, 27]]) b.box(i, 1, k, i, 2, k, '#8a95a0');
+b.box(25, 4, 23, 26, 4, 26, '#2a3640'); b.box(26, 5, 23, 26, 7, 26, '#2a3640');
+b.box(19, 1, 24, 20, 2, 25, '#3a4752');
+// outside: Sheffield bike racks with parked bikes, an A-board
+for (const i0 of [40, 64, 88]) { q.box(i0 + 2, 2, 70, i0 + 2, 9, 70, '#9aa4ad'); q.box(i0 + 13, 2, 70, i0 + 13, 9, 70, '#9aa4ad'); q.box(i0 + 2, 10, 70, i0 + 13, 10, 70, '#9aa4ad'); }
+bike(40, 2, 72, '#16c79a'); bike(64, 2, 72, '#e8573f'); bike(88, 2, 72, '#6e5bf2'); bike(66, 2, 75, '#ffd23f');
+b.box(12, 1, 36, 14, 5, 36, '#13202b'); b.box(13, 6, 36, 13, 6, 36, '#13202b');
+const qm = q.mesh({ scale: S / 2 }); qm.position.set(BX, BY, BZ); scene.add(qm);
 const bm = b.mesh({ scale: S }); bm.position.set(BX, BY, BZ); scene.add(bm);
 
-// glowing screens
-const scrMat = new THREE.MeshBasicMaterial({ color: '#e9fbf4' });
-for (const [i0, k0] of desks) { const m = new THREE.Mesh(new THREE.PlaneGeometry(4 * S - 0.12, 3 * S - 0.12), scrMat); const p = W(i0 + 2, 4, k0 + 2.5); m.position.set(p.x + 0.27, p.y, p.z); m.rotation.y = -Math.PI / 2; scene.add(m); }
-{ // wall board canvas
-  const c = document.createElement('canvas'); c.width = 512; c.height = 320; const g = c.getContext('2d');
-  g.fillStyle = '#f7fafb'; g.fillRect(0, 0, 512, 320);
-  const lanes = ['#f0f3f5', '#e6eefb', '#fff6e2']; lanes.forEach((col, n) => { g.fillStyle = col; g.fillRect(14, 18 + n * 98, 484, 88); });
-  g.strokeStyle = '#9aa7b2'; g.lineWidth = 5; g.beginPath(); g.moveTo(70, 62); g.lineTo(70, 160); g.lineTo(440, 160); g.lineTo(440, 258); g.stroke();
-  for (const [x, y, col] of [[40, 40, '#fff'], [130, 138, '#fff'], [230, 138, '#fff'], [330, 138, '#fff'], [410, 236, '#fff']]) { g.fillStyle = col; g.fillRect(x, y, 70, 44); g.strokeStyle = '#c3ced6'; g.lineWidth = 4; g.strokeRect(x, y, 70, 44); }
-  g.fillStyle = '#f2a516'; g.beginPath(); g.arc(440, 205, 16, 0, 7); g.fill();
-  const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
-  const m = new THREE.Mesh(new THREE.PlaneGeometry(11 * S, 7 * S), new THREE.MeshBasicMaterial({ map: tex }));
-  const p = W(16.5, 6.5, 2); m.position.set(p.x, p.y, p.z + 0.27); scene.add(m);
+// laptop screen + fascia sign
+{ const m = new THREE.Mesh(new THREE.PlaneGeometry(4 * S - 0.1, 3 * S - 0.1), new THREE.MeshBasicMaterial({ color: '#e9fbf4' })); const p = W(25.5, 6, 24.5); m.position.set(p.x - 0.01, p.y, p.z); m.rotation.y = -Math.PI / 2; scene.add(m); }
+{
+  const c = document.createElement('canvas'); c.width = 1024; c.height = 200; const g = c.getContext('2d');
+  g.fillStyle = '#13202b'; g.beginPath(); g.roundRect(0, 0, 1024, 200, 30); g.fill();
+  g.strokeStyle = '#16c79a'; g.lineWidth = 12; for (const cx of [110, 230]) { g.beginPath(); g.arc(cx, 112, 46, 0, 7); g.stroke(); }
+  g.beginPath(); g.moveTo(110, 112); g.lineTo(160, 52); g.lineTo(230, 112); g.moveTo(150, 52); g.lineTo(180, 52); g.stroke();
+  g.fillStyle = '#ffffff'; g.font = '800 92px Inter, sans-serif'; g.textBaseline = 'middle'; g.fillText('PEDAL POINT', 300, 82);
+  g.fillStyle = '#8fdcd2'; g.font = '700 44px Inter, sans-serif'; g.fillText('COMMUNITY BIKE REPAIR', 304, 158);
+  const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 4;
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(15 * S, 3 * S), new THREE.MeshBasicMaterial({ map: tex }));
+  const p = W(9, 12.6, 30); m.position.set(p.x, p.y, p.z + 0.27); scene.add(m);
 }
 
 // ---------- people ----------
 function seat(p) { const [legL, legR] = p.children; legL.rotation.x = legR.rotation.x = Math.PI / 2; }
-function scarf(p, col) { const s = 0.32; const m = new THREE.Mesh(new THREE.BoxGeometry(2.3 * s, 2.5 * s, 2.3 * s), new THREE.MeshLambertMaterial({ color: col })); m.position.set(-0.5 * s + 0.16, 7.35 * s, -0.5 * s + 0.2); p.add(m); }
-const kids = [
-  { name: 'Nia', shirt: '#16c79a', skin: '#6b4430', hair: '#1a120d', d: 0 },
-  { name: 'Leo', shirt: '#ff8a2a', skin: '#f0c8a0', hair: '#c9862f', d: 1 },
-  { name: 'Yusuf', shirt: '#6e5bf2', skin: '#b07a52', hair: '#1e1410', d: 2 },
-  { name: 'Mei', shirt: '#e8573f', skin: '#e8c19a', hair: '#141010', d: 3, scarf: '#2b62b8' },
-].map((k) => {
-  const p = person({ shirt: k.shirt, skin: k.skin, hair: k.hair, pants: '#2c3e66' }); seat(p);
-  if (k.scarf) scarf(p, k.scarf);
-  const [i0, k0] = desks[k.d]; const w = W(i0 - 2, 0, k0 + 2.5);
-  p.position.set(w.x, 2.0 - 0.96, w.z); p.rotation.y = -Math.PI / 2; scene.add(p); return { ...k, p };
-});
+const nia = person({ shirt: '#16c79a', skin: '#6b4430', hair: '#1a120d', pants: '#2c3e66' }); seat(nia);
+{ const w = W(20, 0, 24.5); nia.position.set(w.x, 2.5 - 0.96, w.z); nia.rotation.y = -Math.PI / 2; scene.add(nia); }
 const mentor = person({ shirt: '#2b62b8', pants: '#3a3f4a', skin: '#4a2f22', hair: '#151010', s: 0.35 });
-{ const w = W(11.5, 0, 24); mentor.position.set(w.x, 1.5, w.z); mentor.rotation.y = Math.PI * 0.72; scene.add(mentor); }
+{ const w = W(22, 0, 29); mentor.position.set(w.x, BY, w.z); mentor.rotation.y = -Math.PI * 0.62; scene.add(mentor); }
 const vol = person({ shirt: '#f4f4f0', pants: '#5a4632', skin: '#d9a77c', hair: '#6b6b6b' });
-{ const apron = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.75, 0.12), new THREE.MeshLambertMaterial({ color: '#2b7bd8' })); apron.position.set(-0.16, 1.45, -0.42); vol.add(apron); const w = W(31, 0, 13.5); vol.position.set(w.x, 1.5, w.z); vol.rotation.y = 0; scene.add(vol); }
-const passer = person({ shirt: '#ffd23f', pants: '#2c3e66', skin: '#8d5a3b', hair: '#1e1410' }); scene.add(passer);
+{ const apron = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.75, 0.12), new THREE.MeshLambertMaterial({ color: '#2b7bd8' })); apron.position.set(-0.16, 1.45, -0.42); vol.add(apron); const w = W(31, 0, 16); vol.position.set(w.x, BY, w.z); scene.add(vol); }
+const vol2 = person({ shirt: '#ff8a2a', pants: '#2c3e66', skin: '#f0c8a0', hair: '#c9862f' });
+{ const w = W(46, 0, 16); vol2.position.set(w.x, BY, w.z); scene.add(vol2); }
+const cust = person({ shirt: '#e8573f', pants: '#2c3e66', skin: '#8d5a3b', hair: '#1e1410' });
+{ const w = W(10, 0, 33); cust.position.set(w.x, BY, w.z); cust.rotation.y = 0; scene.add(cust); }
+const passer = person({ shirt: '#ffd23f', pants: '#2c3e66', skin: '#e8c19a', hair: '#3a2a1a' }); scene.add(passer);
 
 const cl = clouds(scene, { n: 7, spread: 300, y: [40, 70], z: [-200, -110], scale: 2.4, seed: 4 });
 const bd = birds(scene, { n: 5, center: [0, 30, -10], radius: 46, seed: 3 });
 
-// ---------- camera ----------
-const AM = kids[0].p.position;
-const shots = (t) => {
-  // returns {ang, dist, hgt, look, off}
-  const wide = (k) => ({ ang: lerp(-0.78, -0.5, k), dist: lerp(118, 100, k), hgt: lerp(80, 66, k), look: [-2, -2, 0], off: 430 });
-  const desk = (k) => ({ ang: lerp(-0.42, -0.3, k), dist: lerp(23, 20, k), hgt: lerp(10, 8.5, k), look: [AM.x + 1.6, 2.4, AM.z - 0.6], off: 600 });
-  const bldg = (k) => ({ ang: lerp(-0.62, -0.48, k), dist: lerp(58, 64, k), hgt: lerp(40, 44, k), look: [-4, 1, -2], off: 0 });
-  const far = (k) => ({ ang: lerp(-0.4, -0.1, k), dist: lerp(104, 128, k), hgt: lerp(70, 86, k), look: [-2, -3, 0], off: 0 });
-  const mix = (a, c, k) => ({ ang: lerp(a.ang, c.ang, k), dist: lerp(a.dist, c.dist, k), hgt: lerp(a.hgt, c.hgt, k), look: a.look.map((x, n) => lerp(x, c.look[n], k)), off: lerp(a.off, c.off, k) });
-  if (t < 4.6) return wide(prog(t, 0, 4.6, ease.out));
-  if (t < 6.4) return mix(wide(1), desk(0), prog(t, 4.6, 6.4));
-  if (t < 26.4) return desk(prog(t, 6.4, 26.4, (k) => k));
-  if (t < 28.2) { const k = prog(t, 26.4, 28.2); const m = mix(desk(1), bldg(0), k); m.hgt += Math.sin(Math.PI * k) * 18; return m; }
-  if (t < 31) return bldg(prog(t, 28.2, 31, (k) => k));
-  if (t < 32.6) return mix(bldg(1), far(0), prog(t, 31, 32.6));
-  return far(prog(t, 32.6, DUR, (k) => k));
+// ---------- camera: the island always readable, framed beside the cards ----------
+// key: [t, ang, dist, hgt, lookX, lookZ, ox, oy]  (ox/oy = where the look point sits, in px from screen centre)
+const CK = [
+  [0, -0.66, 80, 50, 1, 0, 400, 80],
+  [4.4, -0.52, 76, 48, 1, 0, 440, 50],
+  [5.4, -0.46, 84, 52, 2, 0, 540, 30],
+  [15.4, -0.30, 86, 52, 2, 0, 540, 30],
+  [16.6, -0.28, 94, 58, 2, 0, 540, 210],
+  [28.2, -0.12, 94, 58, 2, 0, 540, 210],
+  [29.0, -0.16, 84, 52, 1, 0, 420, 60],
+  [32.2, -0.02, 84, 52, 1, 0, 460, 40],
+  [35.2, 0.06, 86, 54, 1, 0, 470, 40],
+  [36.0, 0.10, 112, 68, 1, 0, 0, 205],
+  [DUR, 0.24, 108, 66, 1, 0, 0, 205],
+];
+const camAt = (t) => {
+  let i = 0; while (i < CK.length - 2 && t > CK[i + 1][0]) i++;
+  const a = CK[i], c = CK[i + 1]; const long = c[0] - a[0] > 2;
+  const k = long ? clamp((t - a[0]) / (c[0] - a[0])) : ease.inOut(clamp((t - a[0]) / (c[0] - a[0])));
+  return a.map((x, n) => lerp(x, c[n], k));
 };
 st.onFrame((t) => {
-  const s = shots(t);
-  camera.fov = 30; camera.setViewOffset(1920, 1080, -s.off, 0, 1920, 1080); camera.updateProjectionMatrix();
-  camera.position.set(Math.sin(s.ang) * s.dist + s.look[0], s.hgt + s.look[1], Math.cos(s.ang) * s.dist + s.look[2]);
-  camera.lookAt(s.look[0], s.look[1], s.look[2]);
+  const [, ang, dist, hgt, lx, lz, ox, oy] = camAt(t);
+  camera.fov = 30; camera.setViewOffset(1920, 1080, -ox, -oy, 1920, 1080); camera.updateProjectionMatrix();
+  camera.position.set(Math.sin(ang) * dist + lx, hgt, Math.cos(ang) * dist + lz);
+  camera.lookAt(lx, 0, lz);
   cl(t); bd(t);
-  // small life: typing bob, passer-by on path
-  kids.forEach((k, n) => { k.p.children[2].rotation.x = Math.sin(t * 2 + n) * 0.03; });
-  vol.rotation.y = Math.sin(t * 0.6) * 0.3;
-  const u = (t * 0.06) % 1; passer.position.set(-4.5, 1, lerp(22, 6, u)); passer.rotation.y = 0; passer.userData.walk(t * 8);
+  nia.children[2].rotation.x = Math.sin(t * 2) * 0.03;
+  vol.rotation.y = Math.PI + Math.sin(t * 0.8) * 0.25; vol2.rotation.y = Math.PI + Math.sin(t * 0.6 + 1) * 0.3;
+  const u = (t * 0.05) % 1; passer.position.set(lerp(-24, 22, u), 1, 8.6); passer.rotation.y = -Math.PI / 2; passer.userData.walk(t * 8);
 });
 
 // ---------- UI ----------
 const ui = []; const A = (f) => ui.push(f);
 const show = (n, a, c, o = {}) => A(cue(n, a, c, o));
 const set = (node, html) => { if (node.dataset.h !== html) { node.innerHTML = html; node.dataset.h = html; } };
-const fade = fader(); A((t) => fade(t < 0.5 ? 1 - prog(t, 0, 0.5) : t > DUR - 0.6 ? prog(t, DUR - 0.6, DUR) : 0));
+const fade = fader(); A((t) => fade(t < 0.4 ? 1 - prog(t, 0, 0.4) : t > DUR - 0.5 ? prog(t, DUR - 0.5, DUR) : 0));
+const appRect = () => document.getElementById('app').getBoundingClientRect();
+const R = (node, fx = 0.5, fy = 0.5) => () => { const r = node.getBoundingClientRect(), a = appRect(); return [r.left - a.left + r.width * fx, r.top - a.top + r.height * fy]; };
 
-// top bar: app name + review status
+// top bar: app name + review status + product line
 const COG = '<svg viewBox="0 0 24 24" width="26" height="26"><path d="M4 6h6v5H4zM14 13h6v5h-6zM7 11v5h7" stroke="#fff" stroke-width="2.4" fill="none" stroke-linejoin="round"/></svg>';
-const top = el(`<div class="topbar"><div class="app"><i>${COG}</i>Automation Designer</div><div class="status draft" data-s>Draft</div></div>`, { x: 40, y: 40 });
-show(top, 0.8, 26.3, { from: 'down' });
-A((t) => { const s = top.querySelector('[data-s]'); const [c, txt] = t < 5 ? ['draft', 'New brief'] : t < 12.2 ? ['draft', 'Draft'] : t < 17 ? ['run', 'Test run'] : t < 19.4 ? ['rev', 'In review'] : t < 24 ? ['ret', 'Returned'] : t < 25.9 ? ['run', 'Re-test'] : ['ok', 'Approved']; s.className = 'status ' + c; s.textContent = txt; });
+const top = el(`<div class="topbar"><div class="app"><i>${COG}</i>Automation Designer</div><div class="status draft" data-s>Draft</div><div class="prod">DeltaOps Learning · Future Skills</div></div>`, { x: 40, y: 36 });
+show(top, 0.3, 28.2, { from: 'down' });
+A((t) => { const s = top.querySelector('[data-s]'); const [c, txt] = t < 4.6 ? ['draft', 'New brief'] : t < 12.2 ? ['draft', 'Draft'] : t < 17 ? ['run', 'Test run'] : t < 19.4 ? ['rev', 'In review'] : t < 24 ? ['ret', 'Returned'] : t < 25.8 ? ['run', 'Re-test'] : ['ok', 'Approved']; s.className = 'status ' + c; set(s, txt); });
 
 // 1. brief
-const brief = el(`<div class="wc brief"><div class="hd3" style="margin-bottom:10px"><span class="tagt">CLIENT BRIEF</span>Monday 9:00</div>
+const brief = el(`<div class="wc brief"><div class="hd3" style="margin-bottom:8px"><span class="tagt">CLIENT BRIEF</span>Monday 9:00</div>
   <div class="row"><small>Brief from</small><b>Pedal Point Community Bike Repair (charity)</b></div>
   <div class="row"><small>Task</small><b>Let an AI agent help with refund emails, safely</b></div>
   <div class="row due"><small>Due</small><b>Friday</b></div></div>`, { x: 40, y: 140 });
-show(brief, 1.1, 4.9, { from: 'left' });
+show(brief, 0.5, 4.3, { from: 'left' });
 
-// captions on 3D people
-const capA = el('<div class="cap">Nia, 15<small>Automation designer</small></div>', { cls: 'abs' });
-const capM = el('<div class="cap mentor">Ms Okafor<small>Mentor · operations analyst</small></div>', { cls: 'abs' });
-const capPos = (node, obj, dy, tIn, tOut) => { show(node, tIn, tOut, { from: 'fade' }); A((t) => { const p = toScreen(obj.position.clone().add(new THREE.Vector3(0, dy, 0)), camera); node.style.left = Math.min(p.x, 1740) + 'px'; node.style.top = p.y + 'px'; node.style.transform = 'translate(-50%,-100%)'; }); };
-capPos(capM, mentor, 3.6, 2.0, 4.6);
-capPos(capA, kids[0].p, 3.3, 6.6, 11.9);
-const capM2 = el('<div class="cap mentor">Ms Okafor<small>Mentor · operations analyst</small></div>', { cls: 'abs' });
-capPos(capM2, mentor, 3.5, 7.2, 11.9);
+// captions on 3D people (kept on the island side of the screen)
+const capPos = (node, obj, dy, tIn, tOut) => { show(node, tIn, tOut, { from: 'fade' }); A((t) => { const p = toScreen(obj.position.clone().add(new THREE.Vector3(0, dy, 0)), camera); node.style.left = clamp(p.x, 1260, 1760) + 'px'; node.style.top = p.y + 'px'; node.style.transform = 'translate(-50%,-100%)'; }); };
+capPos(el('<div class="cap mentor">Ms Okafor<small>Mentor · operations analyst</small></div>', { cls: 'abs' }), mentor, 3.4, 1.4, 4.3);
+capPos(el('<div class="cap">Nia, 15<small>Automation designer</small></div>', { cls: 'abs' }), nia, 2.6, 5.8, 11.9);
 
 // 2. workflow map
+const COLX = (c) => 146 + c * 184, BW = 158, LT = (l) => 66 + l * 140, BT = (l) => LT(l) + 8;
+const CX = (c) => COLX(c) + BW / 2, CY = (l) => BT(l) + 52;
 const BOXES = {
-  A: { x: 176, lane: 0, t: 'Refund request', tag: ['Customer', ''] },
-  B: { x: 380, lane: 1, t: 'Read and sort email', tag: ['AI', 'ai'], at: 7.3 },
-  C: { x: 584, lane: 1, t: 'Find the booking', tag: ['AI', 'ai'], at: 7.8 },
-  D: { x: 820, lane: 1, t: 'Send the refund', tag: ['AI · up to £20', 'ai'], at: 8.3 },
-  E: { x: 1020, lane: 1, t: 'Draft a reply', tag: ['AI drafts', 'mix'], at: 8.8 },
-  F: { x: 1020, lane: 2, t: 'Check and send reply', tag: ['Human only', 'hu'], at: 9.3 },
-  G: { x: 702, lane: 2, t: 'Approve refund', tag: ['Human only', 'hu'] },
+  A: { c: 0, l: 0, t: 'Refund request', tag: ['Customer', ''] },
+  B: { c: 1, l: 1, t: 'Read and sort email', tag: ['AI', 'ai'], at: 7.3 },
+  C: { c: 2, l: 1, t: 'Find the booking', tag: ['By name', 'ai'], at: 7.8 },
+  D: { c: 3, l: 1, t: 'Send the refund', tag: ['Up to £20', 'ai'], at: 8.3 },
+  E: { c: 4, l: 1, t: 'Draft a reply', tag: ['AI drafts', 'mix'], at: 8.8 },
+  F: { c: 4, l: 2, t: 'Check and send reply', tag: ['Human', 'hu'], at: 9.3 },
+  G: { c: 2.5, l: 2, t: 'Approve refund', tag: ['Human', 'hu'] },
 };
-const laneY = (l) => 76 + l * 160;
+const xCG = (Math.max(COLX(2), COLX(2.5)) + Math.min(COLX(2), COLX(2.5)) + BW) / 2;
+const xGD = (COLX(3) + COLX(2.5) + BW) / 2;
 const ARROW = (d, id, extra = '') => `<path data-a="${id}" d="${d}" fill="none" stroke="#8d9ba6" stroke-width="4" stroke-linejoin="round" marker-end="url(#ah)" ${extra}/>`;
-const mapHTML = `<div class="wc map"><div class="hd3"><span class="t">Workflow map</span>Refund requests · swimlanes</div>
-  ${['CUSTOMER', 'AI AGENT', 'HUMAN<br>VOLUNTEER'].map((n, l) => `<div class="lane ${['', 'ai', 'hu'][l]}" style="top:${laneY(l)}px"><span>${n}</span></div>`).join('')}
-  <svg width="1210" height="572" style="position:absolute;left:0;top:0"><defs><marker id="ah" markerWidth="10" markerHeight="10" refX="7" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#8d9ba6"/></marker></defs>
-  ${ARROW('M256,205 V311 H372', 'AB')}${ARROW('M540,311 H576', 'BC')}${ARROW('M744,311 H812', 'CD')}${ARROW('M980,311 H1012', 'DE')}${ARROW('M1100,363 V423', 'EF')}
-  ${ARROW('M664,363 V471 H694', 'CG', 'style="opacity:0"')}${ARROW('M862,471 H900 V371', 'GD', 'style="opacity:0"')}</svg>
-  ${Object.entries(BOXES).map(([k, bx]) => `<div class="box" data-b="${k}" style="left:${bx.x}px;top:${laneY(bx.lane) + 23}px">${bx.t}<em class="${bx.tag[1]}">${bx.tag[0]}</em></div>`).join('')}
-  <div class="ckpt" data-c1 style="left:1100px;top:393px">${'<svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="4" fill="#fff"/><path d="M4 22v-3a8 8 0 0 1 16 0v3z" fill="#fff"/></svg>'}</div>
-  <div class="ckpt" data-c2 style="left:702px;top:422px"><svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="4" fill="#fff"/><path d="M4 22v-3a8 8 0 0 1 16 0v3z" fill="#fff"/></svg></div>
+const mapHTML = `<div class="wc map"><div class="hd3"><span class="t">Workflow map</span>Refund requests</div>
+  ${['CUSTOMER', 'AI AGENT', 'HUMAN'].map((n, l) => `<div class="lane ${['', 'ai', 'hu'][l]}" style="top:${LT(l)}px"><span>${n}</span></div>`).join('')}
+  <svg width="1080" height="500" style="position:absolute;left:0;top:0"><defs><marker id="ah" markerWidth="10" markerHeight="10" refX="7" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#8d9ba6"/></marker></defs>
+  ${ARROW(`M${CX(0)},${BT(0) + 104} V${CY(1)} H${COLX(1) - 9}`, 'AB')}${ARROW(`M${COLX(1) + BW},${CY(1)} H${COLX(2) - 9}`, 'BC')}${ARROW(`M${COLX(2) + BW},${CY(1)} H${COLX(3) - 9}`, 'CD')}${ARROW(`M${COLX(3) + BW},${CY(1)} H${COLX(4) - 9}`, 'DE')}${ARROW(`M${CX(4)},${BT(1) + 104} V${BT(2) - 9}`, 'EF')}
+  ${ARROW(`M${xCG},${BT(1) + 104} V${BT(2) - 9}`, 'CG', 'style="opacity:0"')}${ARROW(`M${xGD},${BT(2)} V${BT(1) + 104 + 9}`, 'GD', 'style="opacity:0"')}</svg>
+  ${Object.entries(BOXES).map(([k, bx]) => `<div class="box" data-b="${k}" style="left:${COLX(bx.c)}px;top:${BT(bx.l)}px">${bx.t}<em class="${bx.tag[1]}">${bx.tag[0]}</em></div>`).join('')}
+  <div class="ckpt" data-c1><svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="4" fill="#fff"/><path d="M4 22v-3a8 8 0 0 1 16 0v3z" fill="#fff"/></svg></div>
+  <div class="ckpt" data-c2><svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="4" fill="#fff"/><path d="M4 22v-3a8 8 0 0 1 16 0v3z" fill="#fff"/></svg></div>
   <div class="token" data-tok></div></div>`;
-const map = el(mapHTML, { x: 40, y: 132 });
-show(map, 5.0, 26.2, { from: 'up' });
+const MX = 40, MY = 120;
+const map = el(mapHTML, { x: MX, y: MY });
+show(map, 4.6, 28.2, { from: 'up' });
 const bx = (k) => map.querySelector(`[data-b="${k}"]`);
 const arr = (k) => map.querySelector(`[data-a="${k}"]`);
 const c1 = map.querySelector('[data-c1]'), c2 = map.querySelector('[data-c2]'), tok = map.querySelector('[data-tok]');
-// box entrance stagger
+const C1 = [CX(4), (BT(1) + 104 + BT(2)) / 2], C2 = [COLX(2.5) + BW - 6, BT(2) + 4];
 const order = ['A', 'B', 'C', 'D', 'E', 'F'];
+const P1 = [[CX(0), CY(0)], [CX(0), CY(1)], [CX(1), CY(1)], [CX(2), CY(1)], [CX(3), CY(1)], [CX(4), CY(1)], [CX(4), CY(2)]];
+const P2 = [[CX(0), CY(0)], [CX(0), CY(1)], [CX(1), CY(1)], [CX(2), CY(1)], [xCG, CY(1)], [xCG, BT(2)], [CX(2.5), BT(2)], [xGD, BT(2)], [xGD, CY(1)], [CX(3), CY(1)], [CX(4), CY(1)], [CX(4), CY(2)]];
+const lens = (P) => { const L = [0]; for (let i = 1; i < P.length; i++) L.push(L[i - 1] + Math.hypot(P[i][0] - P[i - 1][0], P[i][1] - P[i - 1][1])); return L; };
+const along = (P, u) => { const L = lens(P); const d = clamp(u) * L[L.length - 1]; let i = 1; while (i < L.length - 1 && L[i] < d) i++; const q = (d - L[i - 1]) / (L[i] - L[i - 1] || 1); return [lerp(P[i - 1][0], P[i][0], q), lerp(P[i - 1][1], P[i][1], q)]; };
+const L2 = lens(P2), PAUSE = L2[6] / L2[L2.length - 1];
+// fixes: checkpoint 2 dragged 21.3-22.0 (Authority), match rule clicked at 23.2 (Data)
+const FIX_AUTH = 22.6, FIX_DATA = 23.3;
 A((t) => {
-  order.forEach((k, n) => { const a = prog(t, 5.4 + n * 0.22, 5.8 + n * 0.22, ease.back); bx(k).style.opacity = a; bx(k).style.transform = `scale(${0.7 + 0.3 * a})`; });
-  ['AB', 'BC', 'CD', 'DE', 'EF'].forEach((k, n) => { arr(k).style.opacity = prog(t, 5.8 + n * 0.22, 6.2 + n * 0.22); });
-  // G (fix) appears at 22.2
+  order.forEach((k, n) => { const a = prog(t, 4.9 + n * 0.2, 5.3 + n * 0.2, ease.back); bx(k).style.opacity = a; bx(k).style.transform = `scale(${0.7 + 0.3 * a})`; });
+  ['AB', 'BC', 'CD', 'DE', 'EF'].forEach((k, n) => { arr(k).style.opacity = prog(t, 5.3 + n * 0.2, 5.7 + n * 0.2); });
   const g = prog(t, 22.0, 22.5, ease.back); bx('G').style.opacity = g; bx('G').style.transform = `scale(${0.7 + 0.3 * g})`;
   arr('CG').style.opacity = arr('GD').style.opacity = prog(t, 22.3, 22.7);
-  arr('CD').style.opacity = t < 22.3 ? prog(t, 6.24, 6.64) : 1 - prog(t, 22.3, 22.6);
-  // tags
-  for (const [k, b0] of Object.entries(BOXES)) { const em = bx(k).querySelector('em'); em.classList.toggle('on', k === 'A' || k === 'G' || t > (b0.at || 99)); }
-  const dEm = bx('D').querySelector('em');
-  if (t > 22.6) { dEm.className = 'mix on'; dEm.textContent = 'After a human OK'; } else { dEm.className = 'ai' + (t > 8.3 ? ' on' : ''); dEm.textContent = 'AI · up to £20'; }
-  // checkpoint 1 dragged at 10.2-10.9; checkpoint 2 at 21.4-22.2
-  const k1 = prog(t, 10.1, 10.9, ease.out); c1.style.opacity = t > 10.1 ? 1 : 0; c1.style.left = lerp(560, 1100, k1) + 'px'; c1.style.top = lerp(560, 393, k1) + 'px'; c1.style.transform = `translate(-50%,-50%) scale(${t > 10.9 && t < 11.1 ? 1.25 : 1})`;
-  const k2 = prog(t, 21.3, 22.0, ease.out); c2.style.opacity = t > 21.3 ? 1 : 0; c2.style.left = lerp(300, 702, k2) + 'px'; c2.style.top = lerp(560, 422, k2) + 'px'; c2.style.transform = `translate(-50%,-50%) scale(${t > 22 && t < 22.2 ? 1.25 : 1})`;
+  arr('CD').style.opacity = t < 22.3 ? prog(t, 5.7, 6.1) : 1 - prog(t, 22.3, 22.6);
+  for (const [k, b0] of Object.entries(BOXES)) bx(k).querySelector('em').classList.toggle('on', k === 'A' || k === 'G' || t > (b0.at || 99));
+  const cEm = bx('C').querySelector('em'), dEm = bx('D').querySelector('em');
+  if (t > FIX_DATA) { cEm.className = 'mix on'; set(cEm, 'By booking #'); } else { cEm.className = (t > 17.6 ? 'bad' : 'ai') + (t > 7.8 ? ' on' : ''); set(cEm, 'By name'); }
+  if (t > FIX_AUTH) { dEm.className = 'mix on'; set(dEm, 'After OK'); } else { dEm.className = (t > 19.2 ? 'bad' : 'ai') + (t > 8.3 ? ' on' : ''); set(dEm, 'Up to £20'); }
+  // checkpoints
+  const k1 = prog(t, 10.1, 10.9, ease.out); c1.style.opacity = t > 10.1 ? 1 : 0; c1.style.left = lerp(560, C1[0], k1) + 'px'; c1.style.top = lerp(560, C1[1], k1) + 'px'; c1.style.transform = `translate(-50%,-50%) scale(${t > 10.9 && t < 11.1 ? 1.25 : 1})`;
+  const k2 = prog(t, 21.3, 22.0, ease.out); c2.style.opacity = t > 21.3 ? 1 : 0; c2.style.left = lerp(300, C2[0], k2) + 'px'; c2.style.top = lerp(560, C2[1], k2) + 'px'; c2.style.transform = `translate(-50%,-50%) scale(${t > 22 && t < 22.2 ? 1.25 : 1})`;
   // box states
-  const run1 = within(t, 12.6, 17), run2 = within(t, 24.1, 26.4);
   for (const k of order.concat('G')) bx(k).classList.remove('hot', 'bad', 'good');
-  // token
-  const P1 = [[256, 151], [256, 311], [460, 311], [664, 311], [900, 311], [1100, 311], [1100, 471]];
-  const P2 = [[256, 151], [256, 311], [460, 311], [664, 311], [664, 471], [782, 471], [900, 471], [900, 311], [1100, 311], [1100, 471]];
-  const along = (P, u) => { const L = [0]; for (let i = 1; i < P.length; i++) L.push(L[i - 1] + Math.hypot(P[i][0] - P[i - 1][0], P[i][1] - P[i - 1][1])); const d = clamp(u) * L[L.length - 1]; let i = 1; while (i < L.length - 1 && L[i] < d) i++; const q = (d - L[i - 1]) / (L[i] - L[i - 1] || 1); return [lerp(P[i - 1][0], P[i][0], q), lerp(P[i - 1][1], P[i][1], q)]; };
+  const run1 = within(t, 12.6, 17), run2 = within(t, 24.1, 28.4);
   let tp = null;
-  if (run1) { const u = prog(t, 12.6, 15.6, (k) => k); tp = along(P1, u); if (t > 14.1) bx('D').classList.add(t > 19.2 ? 'bad' : 'hot'); }
-  if (within(t, 17, 24)) { if (t > 19.2) bx('D').classList.add('bad'); }
+  if (run1) { tp = along(P1, prog(t, 12.6, 15.6, (k) => k)); if (t > 13.6) bx('C').classList.add('hot'); if (t > 14.1) bx('D').classList.add('hot'); if (t > 15.6) tp = null; }
+  if (t > 17.6 && t < FIX_DATA) { bx('C').classList.remove('hot'); bx('C').classList.add('bad'); }
+  if (t > 19.2 && t < FIX_AUTH) { bx('D').classList.remove('hot'); bx('D').classList.add('bad'); }
+  if (t > FIX_DATA && t < 24.1) bx('C').classList.add('good');
+  if (t > FIX_AUTH && t < 24.1) bx('G').classList.add('good');
   if (run2) {
-    // A..G (0-0.5) pause at G until 25.2, then on
-    const L1 = 0.5; const u = t < 24.9 ? L1 * prog(t, 24.1, 24.9, (k) => k) : t < 25.3 ? L1 : L1 + (1 - L1) * prog(t, 25.3, 26.0, (k) => k);
-    tp = along(P2, u); bx('G').classList.add(t < 25.3 ? 'hot' : 'good'); if (t > 25.5) bx('D').classList.add('good');
+    const u = t < 24.9 ? PAUSE * prog(t, 24.1, 24.9, (k) => k) : t < 25.3 ? PAUSE : PAUSE + (1 - PAUSE) * prog(t, 25.3, 26.0, (k) => k);
+    if (t < 26.1) tp = along(P2, u);
+    bx('G').classList.add(t < 25.3 && t > 24.8 ? 'hot' : 'good'); bx('C').classList.add('good'); if (t > 25.5) { bx('D').classList.add('good'); bx('F').classList.add('good'); }
   }
   tok.style.opacity = tp ? 1 : 0; if (tp) { tok.style.left = tp[0] + 'px'; tok.style.top = tp[1] + 'px'; tok.style.background = run2 && t > 24.8 && t < 25.3 ? '#f2a516' : '#2b7bd8'; }
 });
 
-// permissions card (5-12) and again for the fix (20.6-23.8)
-const permHTML = (fix) => `<div class="wc perm"><div class="hd3"><span class="t">Agent permissions</span>What the AI agent may do</div><div class="grid">
+// bottom-left cards: permissions (5.2-12), test-day log (12.2-16.8), review (17-28.2)
+const PY = 640;
+const perm = el(`<div class="wc perm"><div class="hd3"><span class="t">Agent permissions</span>What the AI agent may do</div><div class="grid">
   <div class="sw on"><i></i>Read inbox</div><div class="sw on"><i></i>Find bookings</div><div class="sw on"><i></i>Draft replies</div>
-  <div class="sw on" data-send><i></i>Send replies</div><div class="sw on" data-ref><i></i>Send refunds up to £20</div>
-  <div class="sw rule${fix ? '' : ' old'}" data-rule>Match customer by: <b>${fix ? 'Booking number' : 'Name'}</b></div></div></div>`;
-const perm1 = el(permHTML(false), { x: 40, y: 740 }); show(perm1, 5.6, 12.0, { from: 'up' });
-A((t) => { const s = perm1.querySelector('[data-send]'); s.classList.toggle('on', t < 11.4); s.classList.toggle('flash', within(t, 11.4, 11.9)); perm1.querySelector('[data-rule]').className = 'sw rule'; });
-const perm2 = el(permHTML(false), { x: 40, y: 740 }); show(perm2, 20.6, 23.8, { from: 'up' });
-A((t) => { perm2.querySelector('[data-send]').classList.remove('on'); const r = perm2.querySelector('[data-ref]'); r.classList.toggle('on', t < 22.9); r.classList.toggle('flash', within(t, 22.9, 23.5)); const rule = perm2.querySelector('[data-rule]'); const fixed = t > 23.2; rule.className = 'sw rule' + (fixed ? '' : ' old') + (within(t, 23.2, 23.7) ? ' flash' : ''); set(rule, `Match customer by: <b>${fixed ? 'Booking number' : 'Name'}</b>`); });
-
-// log (test run 1, re-run 2)
-const logHTML = (title, rows) => `<div class="wc log"><div class="hd3" style="margin-bottom:10px"><span class="t">Agent log</span>${title}</div>${rows.map(([tm, txt, st, cls], n) => `<div class="r" data-r="${n}"><tt>${tm}</tt><span>${txt}</span><span class="st ${cls || ''}">${st}</span></div>`).join('')}</div>`;
-const log1 = el(logHTML('Test day · 12 refund emails', [['09:02', 'Sorted 12 refund emails', 'Done'], ['09:04', 'Matched “Sam Taylor” to booking #2041', 'Done'], ['09:05', 'Sent £15 refund to booking #2041', 'Done'], ['09:06', 'Drafted reply · sent to a human to check', 'Done']]), { x: 40, y: 740 });
-show(log1, 12.2, 20.4, { from: 'up' });
-A((t) => { log1.querySelectorAll('.r').forEach((r, n) => { r.style.opacity = t > 12.7 + n * 0.75 ? 1 : 0; }); const r2 = log1.querySelector('[data-r="2"]'); r2.classList.toggle('bad', t > 19.3); set(r2.querySelector('.st'), t > 19.3 ? 'Wrong Sam Taylor' : 'Done'); const r1 = log1.querySelector('[data-r="1"]'); r1.classList.toggle('bad', t > 19.3); set(r1.querySelector('.st'), t > 19.3 ? 'Matched on name only' : 'Done'); });
-const log2 = el(logHTML('Re-run · same 12 emails', [['10:02', 'Sorted 12 refund emails', 'Done'], ['10:04', 'Matched booking number #2118', 'Done'], ['10:04', '£15 refund for #2118 is waiting for a human', 'Waiting', 'w'], ['10:05', 'Nia approved · £15 sent to #2118', 'Correct']]), { x: 40, y: 740 });
-show(log2, 24.0, 26.2, { from: 'up' });
-A((t) => { log2.querySelectorAll('.r').forEach((r, n) => { r.style.opacity = t > [24.2, 24.5, 24.9, 25.4][n] ? 1 : 0; }); });
+  <div class="sw on" data-send><i></i>Send replies</div><div class="sw on"><i></i>Send refunds up to £20</div>
+  <div class="sw rule"><i style="display:none"></i>Match customer by: <b>Name</b></div></div></div>`, { x: MX, y: PY });
+show(perm, 5.2, 11.9, { from: 'up' });
+A((t) => { const s = perm.querySelector('[data-send]'); s.classList.toggle('on', t < 11.4); s.classList.toggle('flash', within(t, 11.4, 11.9)); });
+const log1 = el(`<div class="wc log"><div class="hd3" style="margin-bottom:8px"><span class="t">Agent log</span>Test day · 12 refund emails</div>${[['09:02', 'Sorted 12 refund emails'], ['09:04', 'Matched “Sam Taylor” by name → booking #2041'], ['09:05', 'Sent £15 refund to booking #2041'], ['09:06', 'Drafted 12 replies for a human to check']].map(([tm, txt], n) => `<div class="r" data-r="${n}"><tt>${tm}</tt><span>${txt}</span><span class="st">Done</span></div>`).join('')}</div>`, { x: MX, y: PY });
+show(log1, 12.3, 16.65, { from: 'up' });
+A((t) => { log1.querySelectorAll('.r').forEach((r, n) => { r.style.opacity = t > 12.7 + n * 0.75 ? 1 : 0; }); });
 
 // 3. AI colleague
 const BOT = '<svg viewBox="0 0 24 24" width="28" height="28"><rect x="4" y="7" width="16" height="12" rx="4" fill="#16c79a"/><circle cx="9.5" cy="13" r="1.8" fill="#13202b"/><circle cx="14.5" cy="13" r="1.8" fill="#13202b"/><path d="M12 3v4" stroke="#16c79a" stroke-width="2.4"/></svg>';
-const ai = el(`<div class="aic"><div class="who"><i>${BOT}</i>AI colleague · draft <em>READY</em></div>
-  <p>Test day done. 12 of 12 refund emails handled. £15 refund sent to Sam Taylor.</p>
-  <div class="sure"><div class="bar"><i></i></div><span>96% sure</span></div>
-  <div class="data"><b>Data I used</b>Bookings sheet · matched by name</div></div>`, { x: 1296, y: 132 });
-show(ai, 15.8, 26.2, { from: 'right' });
-
-// review
-const CK = [['Data', 17.6], ['Case', 18.1], ['Source', 18.6], ['Authority', 19.2]];
-const rev = el(`<div class="wc review"><div class="hd3"><span class="t">Review</span>Four checks</div><div class="checks">${CK.map(([n]) => `<div class="ck" data-k="${n}"><i></i>${n}</div>`).join('')}</div>
-  <div class="find" data-f></div><div class="sign" data-sg style="opacity:0"><span class="tick">✓</span><span>Reviewed by: Nia, age 15<small>Signed off · checks passed 4 of 4</small></span></div></div>`, { x: 1296, y: 560 });
-show(rev, 17.0, 26.2, { from: 'right' });
+const CLAIM = 'Test day done. 12 of 12 refund emails handled. £15 refund sent to Sam Taylor.';
+const ai = el(`<div class="aic"><div class="who"><i>${BOT}</i>AI colleague · draft <em data-chip>READY</em></div>
+  <p data-p></p><div class="sure" data-sure><div class="bar"><i data-bar></i></div><span data-pc></span></div>
+  <div class="data" data-d><b>Data I used</b><span data-dt>Bookings sheet · matched by name</span></div></div>`, { x: 1300, y: 120 });
+show(ai, 15.6, 28.2, { from: 'right' });
 A((t) => {
-  CK.forEach(([n, at]) => { const c = rev.querySelector(`[data-k="${n}"]`); const bad = n === 'Authority' && t > at && t < 25.6; const ok = t > at && !bad; c.className = 'ck' + (bad ? ' bad' : ok ? ' ok' : ''); set(c.querySelector('i'), bad ? '✕' : ok ? '✓' : ''); });
-  const f = rev.querySelector('[data-f]');
-  if (t < 19.3) { f.style.opacity = 0; }
-  else if (t < 25.6) { f.style.opacity = 1; f.className = 'find'; set(f, '<b>Authority:</b> the agent moved money with no human check. Two customers are called Sam Taylor. The refund went to the wrong one.'); }
-  else { f.style.opacity = 1; f.className = 'find good'; set(f, '<b>Fixed:</b> a human approves every refund before money moves. Customers are matched by booking number.'); }
-  const sg = rev.querySelector('[data-sg]'); const k = prog(t, 25.8, 26.2, ease.back); sg.style.opacity = k; sg.style.transform = `scale(${0.8 + 0.2 * k})`;
+  const chip = ai.querySelector('[data-chip]'), p = ai.querySelector('[data-p]'), d = ai.querySelector('[data-d]');
+  if (t < 19.4) { chip.className = ''; set(chip, 'READY'); } else if (t < 25.6) { chip.className = 'ret'; set(chip, 'RETURNED'); } else { chip.className = 'v2'; set(chip, 'V2 · RE-TESTED'); }
+  set(p, t < 19.4 ? CLAIM : t < 25.6 ? `<s>${CLAIM}</s>` : `<s>${CLAIM}</s><span class="new">Re-test: 12 of 12 correct. Each refund waits for a human OK.</span>`);
+  const w = t < 19.4 ? 96 : t < 25.6 ? lerp(96, 0, prog(t, 19.4, 20.0)) : lerp(0, 100, prog(t, 25.6, 26.1));
+  ai.querySelector('[data-bar]').style.width = w + '%';
+  ai.querySelector('[data-sure]').classList.toggle('off', within(t, 19.4, 25.6));
+  set(ai.querySelector('[data-pc]'), t < 19.4 ? '96% sure' : t < 25.6 ? 'Not trusted' : 'Checked by Nia');
+  d.classList.toggle('bad', within(t, 17.6, FIX_DATA));
+  set(ai.querySelector('[data-dt]'), t > FIX_DATA ? 'Bookings sheet · booking number' : 'Bookings sheet · matched by name');
 });
 
-// Nia's cursor: tags (7.3-9.3), drags checkpoint (10.1-10.9), toggles (11.4), drags fix (21.3-22.0), toggles (22.9, 23.2), approves (25.2)
+// review: Data fails (name-only match), Authority fails (money moved with no human OK)
+const CKS = [['Data', 17.6], ['Case', 18.1], ['Source', 18.6], ['Authority', 19.2]];
+const rev = el(`<div class="wc review"><div class="hd3"><span class="t">Review</span>Four checks</div><div class="checks">${CKS.map(([n]) => `<div class="ck" data-k="${n}"><i></i>${n}</div>`).join('')}</div>
+  <div class="finds"><div class="find" data-f1></div><div class="find" data-f2></div></div>
+  <div class="sign" data-sg><span class="tick">✓</span><span>Reviewed by: Nia, age 15<small>Signed off · checks passed 4 of 4</small></span><span class="stamp">APPROVED</span></div></div>`, { x: MX, y: PY });
+show(rev, 17.05, 28.2, { from: 'up' });
+A((t) => {
+  const fixAt = { Data: FIX_DATA, Authority: FIX_AUTH };
+  CKS.forEach(([n, at]) => { const c = rev.querySelector(`[data-k="${n}"]`); const bad = fixAt[n] && t > at && t < fixAt[n]; const ok = t > at && !bad; c.className = 'ck' + (bad ? ' bad' : ok ? ' ok' : ''); set(c.querySelector('i'), bad ? '✕' : ok ? '✓' : ''); });
+  const f1 = rev.querySelector('[data-f1]'), f2 = rev.querySelector('[data-f2]');
+  f1.style.display = t > 17.6 ? 'block' : 'none'; f2.style.display = t > 19.2 ? 'block' : 'none';
+  f1.className = 'find' + (t > FIX_DATA ? ' good' : ''); set(f1, t > FIX_DATA ? '<b>Data fixed:</b> customers are matched by booking number.' : '<b>Data:</b> matched by name only. Two customers are called Sam Taylor, so £15 went to the wrong one.');
+  f2.className = 'find' + (t > FIX_AUTH ? ' good' : ''); set(f2, t > FIX_AUTH ? '<b>Authority fixed:</b> a human approves every refund before money moves.' : '<b>Authority:</b> the agent sent money with no human approval.');
+  const sg = rev.querySelector('[data-sg]'); sg.style.display = t > 25.8 ? 'flex' : 'none'; const k = prog(t, 25.8, 26.2, ease.back); sg.style.opacity = k; sg.style.transform = `scale(${0.85 + 0.15 * k})`; sg.style.transformOrigin = 'left center';
+});
+
+// Nia's cursor
 const CUR = '<svg viewBox="0 0 24 24" width="40" height="40"><path d="M3 2l17 9-7.5 1.8L9 20z" fill="#13202b" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>';
 const cur = el(`<div class="cur">${CUR}<span>Nia</span></div>`, { x: 0, y: 0 });
-const MX = 40, MY = 132, PY = 740;
+const MP = (x, y) => () => [MX + x, MY + y];
 const K = [
-  [6.6, 760, 760], [7.2, MX + 440, MY + 360], [7.7, MX + 640, MY + 360], [8.2, MX + 880, MY + 360], [8.7, MX + 1080, MY + 360], [9.2, MX + 1080, MY + 520], [9.9, MX + 560, MY + 560], [10.9, MX + 1100, MY + 393], [11.3, 650, PY + 150], [11.9, 700, PY + 170],
-  [20.9, 900, 700], [21.3, MX + 300, MY + 560], [22.0, MX + 702, MY + 422], [22.8, 780, PY + 150], [23.15, 1020, PY + 150], [23.7, 1060, PY + 180], [24.9, MX + 782, MY + 490], [25.25, MX + 782, MY + 471], [26.0, MX + 820, MY + 520],
+  [6.6, () => [760, 1000]], [7.2, MP(CX(1), CY(1) + 10)], [7.7, MP(CX(2), CY(1) + 10)], [8.2, MP(CX(3), CY(1) + 10)], [8.7, MP(CX(4), CY(1) + 10)], [9.2, MP(CX(4), CY(2) + 10)],
+  [9.9, MP(560, 560)], [10.9, MP(C1[0], C1[1])], [11.3, R(perm.querySelector('[data-send] i'))], [11.9, () => [1000, 1040]],
+  [20.8, () => [380, 1040]], [21.3, MP(300, 560)], [22.0, MP(C2[0], C2[1])], [22.6, MP(CX(2) + 30, CY(1) + 50)], [23.2, MP(CX(2) - 20, CY(1) + 40)], [23.9, MP(560, 470)],
+  [24.9, MP(COLX(2.5) + BW - 34, BT(2) + 70)], [25.25, MP(COLX(2.5) + BW - 34, BT(2) + 70)], [25.7, () => [1180, 1040]],
 ];
 const ring = el('<div class="ring"></div>', { x: 0, y: 0 });
-const CLICKS = [7.3, 7.8, 8.3, 8.8, 9.3, 10.1, 10.9, 11.4, 21.3, 22.0, 22.9, 23.2, 25.25];
+const CLICKS = [7.3, 7.8, 8.3, 8.8, 9.3, 10.1, 10.9, 11.4, 21.3, 22.0, 23.2, 25.25];
 A((t) => {
-  const vis = within(t, 6.6, 12.0) || within(t, 20.9, 26.0);
-  cur.style.opacity = vis ? 1 : 0;
-  let i = 0; while (i < K.length - 1 && t > K[i + 1][0]) i++;
-  const a = K[i], c = K[Math.min(i + 1, K.length - 1)]; const k = c === a ? 0 : ease.inOut(clamp((t - a[0]) / (c[0] - a[0])));
-  const x = lerp(a[1], c[1], k), y = lerp(a[2], c[2], k); cur.style.left = (x - 4) + 'px'; cur.style.top = (y - 2) + 'px';
+  const vis = within(t, 6.6, 11.95) || within(t, 20.8, 25.7);
+  cur.style.opacity = vis ? 1 : 0; if (!vis) { ring.style.opacity = 0; return; }
+  let i = 0; while (i < K.length - 2 && t > K[i + 1][0]) i++;
+  const a = K[i][1](), c = K[i + 1][1](); const k = ease.inOut(clamp((t - K[i][0]) / (K[i + 1][0] - K[i][0])));
+  const x = lerp(a[0], c[0], k), y = lerp(a[1], c[1], k); cur.style.left = (x - 4) + 'px'; cur.style.top = (y - 2) + 'px';
   const ck = CLICKS.find((c0) => t >= c0 && t < c0 + 0.5);
-  if (ck != null && vis) { const q = (t - ck) / 0.5; ring.style.opacity = 1 - q; ring.style.left = x + 'px'; ring.style.top = y + 'px'; ring.style.transform = `translate(-50%,-50%) scale(${0.4 + q})`; } else ring.style.opacity = 0;
+  if (ck != null) { const q = (t - ck) / 0.5; ring.style.opacity = 1 - q; ring.style.left = x + 'px'; ring.style.top = y + 'px'; ring.style.transform = `translate(-50%,-50%) scale(${0.4 + q})`; } else ring.style.opacity = 0;
 });
 
-// 4. portfolio
+// 4. portfolio (28.4-32.2): blueprint on the left, drops into the folder; island stays in view on the right
 const doc = el(`<div class="wc doc"><span class="tagt">ARTEFACT</span><h4>Automation Blueprint</h4><div class="sub">Pedal Point refund workflow · version 2</div>
   <div class="thumb"><div style="position:absolute;left:14px;right:14px;top:10px;height:30px;border-radius:8px;background:#eef1f3"></div><div style="position:absolute;left:14px;right:14px;top:45px;height:30px;border-radius:8px;background:#e3ecfb"></div><div style="position:absolute;left:14px;right:14px;top:80px;height:30px;border-radius:8px;background:#fff0cc"></div>
   ${[[30, 14], [115, 49], [200, 49], [285, 84], [370, 49], [455, 49], [540, 84]].map(([x, y]) => `<div style="position:absolute;left:${x}px;top:${y}px;width:70px;height:22px;border-radius:6px;background:#fff;border:2px solid #c9d3da"></div>`).join('')}
   <div style="position:absolute;left:273px;top:78px;width:22px;height:22px;border-radius:50%;background:#f2a516"></div><div style="position:absolute;left:528px;top:78px;width:22px;height:22px;border-radius:50%;background:#f2a516"></div></div>
-  <ul><li>7 steps mapped: human or AI</li><li>2 human checkpoints, one before money moves</li><li>Agent permissions kept to the minimum</li><li>Reviewed by: Nia, age 15</li></ul></div>`, { x: 960, y: 470, anchor: 'c' });
+  <ul><li>7 steps mapped: human or AI</li><li>Match by booking number, not name</li><li>A human approves money before it moves</li><li>Reviewed by: Nia, age 15</li></ul></div>`, { x: 410, y: 470, anchor: 'c' });
 const FOLD = '<svg viewBox="0 0 24 24" width="54" height="54"><path d="M3 6h7l2 2h9v11H3z" fill="#06281f" opacity=".85"/></svg>';
-const folder = el(`<div class="folder"><div class="tab"></div><div class="body">${FOLD}<span><b>Portfolio</b><small data-n>Nia · 3 pieces of work</small></span></div></div>`, { x: 960, y: 1010, anchor: 'bc' });
-show(folder, 27.4, 31.0, { from: 'up' });
+const folder = el(`<div class="folder"><div class="tab"></div><div class="body">${FOLD}<span><b>Portfolio</b><small data-n>Nia · 3 pieces of work</small></span></div></div>`, { x: 60, y: 1040, anchor: 'tl' });
+folder.style.top = '880px';
+show(folder, 29.0, 32.0, { from: 'up' });
 A((t) => {
-  const a = prog(t, 26.8, 27.3, ease.back), m = prog(t, 29.0, 29.8, ease.inOut);
-  const vis = t > 26.8 && t < 29.9; doc.style.opacity = vis ? Math.min(a, 1 - prog(t, 29.6, 29.85)) : 0; doc.style.visibility = vis ? 'visible' : 'hidden';
-  doc.style.transform = `translate(-50%,-50%) translate(0px, ${m * 420}px) scale(${(0.7 + 0.3 * a) * (1 - m * 0.86)})`;
-  set(folder.querySelector('[data-n]'), t > 29.8 ? 'Nia · 4 pieces of work' : 'Nia · 3 pieces of work');
-  folder.querySelector('.body').style.boxShadow = within(t, 29.8, 30.3) ? '0 0 0 8px rgba(255,255,255,.8), 0 14px 30px rgba(10,60,40,.3)' : '';
+  const a = prog(t, 28.4, 28.9, ease.back), m = prog(t, 30.9, 31.6, ease.inOut);
+  const vis = t > 28.4 && t < 31.7; doc.style.opacity = vis ? Math.min(a, 1 - prog(t, 31.45, 31.65)) : 0; doc.style.visibility = vis ? 'visible' : 'hidden';
+  doc.style.transform = `translate(-50%,-50%) translate(${m * -140}px, ${m * 480}px) scale(${(0.7 + 0.3 * a) * (1 - m * 0.86)})`;
+  set(folder.querySelector('[data-n]'), t > 31.6 ? 'Nia · 4 pieces of work' : 'Nia · 3 pieces of work');
+  folder.querySelector('.body').style.boxShadow = within(t, 31.6, 32.0) ? '0 0 0 8px rgba(255,255,255,.8), 0 14px 30px rgba(10,60,40,.3)' : '';
 });
 
-const dim = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:radial-gradient(ellipse at center, rgba(8,40,70,.35), rgba(8,30,55,.72))"></div>');
-show(dim, 31.0, null, { from: 'fade', dur: 0.8 });
-// 5. pathway
-const path = el(`<div class="wc path"><div class="hd3" style="margin-bottom:8px"><span class="tagt">YOUR PATHWAY</span>Where this skill can take you</div>
+// 5. pathway (bright sky, island on the right)
+const path = el(`<div class="wc path"><div class="hd3" style="margin-bottom:6px"><span class="tagt">PATHWAY</span>Where this skill goes next</div>
   <div class="r"><small>Next step</small><b>Elements of AI · free online course</b></div>
   <div class="r"><small>Award</small><b>iDEA digital skills badges (free)</b></div>
-  <div class="r"><small>Route</small><b>T Level in Digital Software Development <span class="arrow">→</span> Level 4 AI &amp; Automation Practitioner apprenticeship</b></div>
-  <div class="r"><small>Jobs</small><div class="jobs"><span>Automation specialist</span><span>Operations analyst</span><span>Business analyst</span></div></div></div>`, { x: 960, y: 520, anchor: 'c' });
-show(path, 31.2, 36.4, { from: 'up' });
+  <div class="r"><small>Route</small><b>T Level in Digital Software Development, then a Level 4 AI &amp; Automation Practitioner apprenticeship</b></div>
+  <div class="r"><small>Jobs</small><div class="jobs"><span>Automation specialist</span><span>Operations analyst</span><span>Business analyst</span></div></div></div>`, { x: 40, y: 540 });
+path.dataset.anchor = 'tl'; path.style.top = '160px';
+show(path, 32.4, 35.0, { from: 'left' });
 
-
-const title = titleCard('Automation <span class="hl">Designer</span>', 'Map the work. Decide what the AI may do. Check before money moves.', { chip: 'DeltaOps Learning · Future Skills' });
-title.querySelector('h2').style.fontSize = '46px';
-A(cue(title, 36.8, null, { from: 'pop', dur: 0.8 }));
+// 6. bright title over the whole island
+const endt = el(`<div class="endt"><span class="chip2">DeltaOps Learning · Future Skills</span><h1>Automation <span>Designer</span></h1><h2>Map the work. Decide what the AI may do. Check before money moves.</h2></div>`, { x: 0, y: 70 });
+show(endt, 35.5, null, { from: 'pop', dur: 0.7 });
+const logo = el('<img src="../assets/logo-learning.svg" style="height:44px">', { x: 960, y: 385, anchor: 'c' }); show(logo, 35.9, null, { from: 'fade' });
 
 st.onFrame((t) => ui.forEach((f) => f(t)));
 window.__duration = DUR;

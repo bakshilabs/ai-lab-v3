@@ -26,9 +26,9 @@ import * as THREE from 'three';
 import { createStage, prog, ease, lerp, clamp, within } from '../engine/stage.js';
 import { Vox, island, tree, house, person, particles, rand, noise2 } from '../engine/kit.js';
 import { el, cue, fader, titleCard } from '../engine/ui.js';
-import { Furn, table, chair, seated, standing, plant, screenPlane, monitor, laptop, draw, ICO, ui, briefHTML, briefChipHTML, aiHTML, findHTML, signHTML, folderHTML, pathHTML, checkStrip, pin, place, fadeIO, typed, setHTML } from './fs.js';
+import { Furn, table, chair, seated, standing, plant, screenPlane, monitor, laptop, draw, ICO, ui, briefHTML, briefChipHTML, aiHTML, findHTML, signHTML, folderHTML, pathHTML, endTitleHTML, aiReact, findFix, checkStrip, pin, place, fadeIO, typed, setHTML } from './fs.js';
 
-const DUR = 43;
+const DUR = 38.6;
 const st = createStage({ sky: ['#5db6ff', '#d9efff'], post: false });
 const { scene, camera, sun, hemi, rim } = st;
 rim.intensity = 0.5; st.dome.visible = false; st.renderer.setClearColor(0x000000, 0);
@@ -65,7 +65,7 @@ v.box(-30, 14, -6, -28, 16, -4, '#e9e2d3'); v.set(-29, 15, -3, '#ffd23f');
 // park on the right: paths, pond, trees, skate ramp, camera poles
 for (let x = 9; x <= 34; x++) for (let z = -9; z <= 22; z++) { if (isl.top(x, z) == null) continue; if (Math.abs(z - 4 - Math.sin(x / 4) * 2) < 1.1 || Math.abs(x - 19) < 1 && z > -9) v.set(x, 0, z, '#d9c9a0'); }
 for (let x = 23; x <= 31; x++) for (let z = 9; z <= 15; z++) if (Math.hypot((x - 27) / 4.2, (z - 12) / 3.2) < 1) v.set(x, 0, z, '#4fb6e8');
-for (const [x, z] of [[12, -5], [27, -4], [31, 3], [13, 13], [21, 18], [9, 20], [-22, 16], [-28, 8], [-14, 18], [-4, 19]]) if (isl.top(x, z) != null) tree(v, x, 0, z, { kind: 'round' });
+for (const [x, z] of [[12, -5], [27, -4], [31, 3], [13, 13], [21, 18], [9, 20], [-22, 16], [-28, 8], [-31, 12], [26, 19]]) if (isl.top(x, z) != null) tree(v, x, 0, z, { kind: 'round' });
 for (const [x, z] of [[33, -6], [-34, 2], [-25, -16], [16, -17]]) if (isl.top(x, z) != null) tree(v, x, 0, z, { kind: 'pine' });
 // skate ramp
 for (let x = 22; x <= 30; x++) for (let z = -5; z <= -1; z++) { const k = Math.abs(x - 26); const hh = k >= 3 ? Math.min(3, k - 1) : 0; for (let y = 1; y <= hh; y++) v.set(x, y, z, '#b8c0c8'); if (hh === 0) v.set(x, 0, z, '#9aa3ab'); }
@@ -131,16 +131,19 @@ const walkers = [['#e5484d', '#c68a5e'], ['#3a8de0', '#8a5a3a'], ['#ffd23f', '#e
 const skaters = [['#ff8a2a', '#7a4a2c'], ['#6e5bf2', '#e0b08a']].map(([shirt, skin]) => { const p = person({ shirt, skin, hair: '#1a120c', s: 0.34 }); scene.add(p); return p; });
 
 // ---------- motion + camera ----------
-const v3 = (a) => new THREE.Vector3(...a);
+// 0-2.8 brief | 3.0 form | 8.0 AI draft | 11.6 review: Data red (adults-only survey) | 17.6 Case ✓ | 18.2 Source red (invented Act) | 23.4 Authority ✓ | 25.6 sign-off | 28.6 portfolio | 32.6 pathway | 35.8 title
 const WIDE = (t) => ({ look: [-2, -2, 0], ang: lerp(-0.78, -0.5, t), dist: lerp(128, 104, ease.out(t)), hgt: lerp(84, 70, t), ox: 0, oy: 0 });
-const MED = (t) => ({ look: [-6.2, 2.6, -1.6], ang: lerp(-0.34, -0.2, t), dist: lerp(30, 27.5, t), hgt: lerp(18, 16.5, t), ox: 470, oy: 30 });
+const MED = (t) => ({ look: [-7.2, 2.0, -1.2], ang: lerp(-0.36, -0.24, t), dist: lerp(38, 35, t), hgt: lerp(23, 21, t), ox: 420, oy: 30 });
+const END = (t) => ({ look: [-2, -3, 0], ang: lerp(-0.66, -0.4, t), dist: 166, hgt: 104, ox: 440, oy: -10 });
+const mix = (a, b, k, ko = k) => { const c = {}; for (const key of ['ang', 'dist', 'hgt']) c[key] = lerp(a[key], b[key], k); for (const key of ['ox', 'oy']) c[key] = lerp(a[key], b[key], ko); c.look = a.look.map((q, i) => lerp(q, b.look[i], k)); return c; };
+const T_MED = 4.0, T_OUT = 28.6, T_END = 31.6;
 st.onFrame((t) => {
-  // camera blend
   let c;
-  if (t < 4.6) c = WIDE(prog(t, 0, 4.6, (k) => k));
-  else if (t < 8.6) { const a = WIDE(1), b = MED(0), k = prog(t, 4.6, 8.6); c = {}; for (const key of ['ang', 'dist', 'hgt', 'ox', 'oy']) c[key] = lerp(a[key], b[key], key === 'ox' || key === 'oy' ? prog(t, 7, 8.8) : k); c.look = a.look.map((q, i) => lerp(q, b.look[i], k)); }
-  else if (t < 30.6) c = MED(prog(t, 8.6, 30.6, (k) => k));
-  else { const a = MED(1), b = WIDE(0.15), k = prog(t, 30.6, 34.4); c = {}; for (const key of ['ang', 'dist', 'hgt', 'ox', 'oy']) c[key] = lerp(a[key], b[key], k); c.look = a.look.map((q, i) => lerp(q, b.look[i], k)); if (t > 34.4) { const q = prog(t, 34.4, DUR, (x) => x); c.ang = lerp(b.ang, b.ang + 0.42, q); c.dist = b.dist + q * 8; } }
+  if (t < 1.4) c = WIDE(prog(t, 0, 1.4, (k) => k) * 0.4);
+  else if (t < T_MED) c = mix(WIDE(0.4), MED(0), prog(t, 1.4, T_MED), prog(t, 2.2, T_MED + 0.2));
+  else if (t < T_OUT) c = MED(prog(t, T_MED, T_OUT, (k) => k));
+  else if (t < T_END) c = mix(MED(1), END(0), prog(t, T_OUT, T_END));
+  else c = END(prog(t, T_END, DUR, (k) => k));
   camera.fov = 30;
   if (c.ox || c.oy) camera.setViewOffset(1920, 1080, c.ox, c.oy, 1920, 1080); else camera.clearViewOffset();
   camera.updateProjectionMatrix();
@@ -148,10 +151,9 @@ st.onFrame((t) => {
   camera.lookAt(c.look[0], c.look[1], c.look[2]);
   // seated idle + Zainab leaning in to review
   panel.forEach((p, i) => { const b = p.userData.base; p.position.y = b.y + Math.max(0, Math.sin(t * 1.3 + i * 1.7)) * 0.05; p.rotation.x = 0; });
-  MAYA.rotation.x = -0.18 * prog(t, 18.8, 19.6) * (1 - prog(t, 28.4, 29.2));
-  // mentor: presents at the screen, then walks behind Zainab for the review
-  { const a = [-0.5, -6.5], b = [-6.6, -5.0]; const k = prog(t, 17.6, 19.6, (x) => x); const x = lerp(a[0], b[0], k), z = lerp(a[1], b[1], k);
-    mentor.position.set(x, F, z); const walking = k > 0 && k < 1; mentor.rotation.y = walking ? Math.atan2(b[0] - a[0], b[1] - a[1]) + Math.PI : Math.PI; mentor.userData.walk(walking ? t * 9 : 0); }
+  MAYA.rotation.x = -0.18 * prog(t, 12.0, 12.8) * (1 - prog(t, 25.0, 25.8));
+  // mentor stays by the wall screen (clear of Zainab)
+  mentor.position.set(-0.5, F, -6.5); mentor.rotation.y = Math.PI; mentor.userData.walk(0);
   // park visitors on loops
   walkers.forEach((p, i) => { const u = t * 0.035 + i * 0.25; const a = u * Math.PI * 2; const x = 21 + Math.cos(a) * 9, z = 5 + Math.sin(a) * 7; p.position.set(x, F, z); p.rotation.y = Math.atan2(-Math.sin(a), Math.cos(a)) + Math.PI; p.userData.walk(t * 8 + i); });
   skaters.forEach((p, i) => { const ph = t * 1.4 + i * Math.PI; const x = 26 + Math.cos(ph) * 3.2; p.position.set(x, F + Math.max(0, Math.abs(Math.cos(ph)) * 2.3 - 0.5), -3 + i * 1.6); p.rotation.y = Math.sin(ph) > 0 ? -Math.PI / 2 : Math.PI / 2; });
@@ -159,22 +161,22 @@ st.onFrame((t) => {
 
 // ---------- UI ----------
 const A = []; const on = (f) => A.push(f);
-const fade = fader(); on((t) => fade(t < 0.5 ? 1 - prog(t, 0, 0.5) : t > DUR - 0.6 ? prog(t, DUR - 0.6, DUR) : 0));
+const fade = fader(); on((t) => fade(t < 0.4 ? 1 - prog(t, 0, 0.4) : t > DUR - 0.5 ? prog(t, DUR - 0.5, DUR) : 0));
 
 // brief
 const brief = ui(briefHTML({ from: 'Harbourside Council', task: 'Impact assessment: AI cameras in Harbour Park', due: 'Friday' }), 46, 40);
-on(cue(brief, 0.7, 8.0, { from: 'down' }));
+on(cue(brief, 0.3, 2.6, { from: 'down' }));
 const bchip = ui(briefChipHTML('Harbourside Council · Due <em>Friday</em>'), 46, 40);
-on(cue(bchip, 8.4, 30.4, { from: 'left' }));
+on(cue(bchip, 3.0, T_OUT - 0.2, { from: 'left' }));
 
 // name tags
 const tagMaya = pin('<b>Zainab, age 15</b><small>Impact Panel · lead</small>');
 const tagMentor = pin('<b>Priya Shah</b><small>Mentor · data protection officer</small>', 'fs-tag mentor');
 const say = pin('“Start with who it affects.”', 'fs-say');
 on((t) => {
-  place(tagMaya, camera, [MAYA.position.x, MAYA.position.y + 4.2, MAYA.position.z], fadeIO(t, 5.6, 30.2), 0);
-  const mp = mentor.position; place(tagMentor, camera, [mp.x, mp.y + 4.3, mp.z], fadeIO(t, 6.2, 8.8) + fadeIO(t, 12.8, 17.2), 0);
-  place(say, camera, [mp.x, mp.y + 4.3, mp.z], fadeIO(t, 9.0, 12.6), 0);
+  place(tagMaya, camera, [MAYA.position.x, MAYA.position.y + 4.2, MAYA.position.z], fadeIO(t, 3.4, T_OUT - 0.4), 0);
+  const mp = mentor.position; place(tagMentor, camera, [mp.x, mp.y + 4.3, mp.z], fadeIO(t, 3.8, 5.0) + fadeIO(t, 8.4, 11.0), 0);
+  place(say, camera, [mp.x, mp.y + 4.3, mp.z], fadeIO(t, 5.2, 8.0), 0);
 });
 
 // impact form
@@ -183,78 +185,79 @@ const form = ui(`<div class="fs-card ip-form"><div class="hd"><div><span class="
   <div class="ip-sec"><span class="fs-lbl">Who is affected</span><div class="ip-stk">${stk.map(([n, c], i) => `<div class="ip-s" data-s="${i}"><i style="background:${c}22">${ICO.person(c)}</i>${n}</div>`).join('')}<div class="ip-s new" data-s="5"><i style="background:#16c79a33">${ICO.person('#0c8f6d')}</i>Young people (under 18)</div></div></div>
   <div class="ip-rows">
    <div class="ip-r"><span class="k">Privacy</span><span data-priv></span></div>
-   <div class="ip-r"><span class="k">Energy</span><span class="ip-en"><span class="bar"><i data-en></i></span><span><b data-kwh>0 kWh a year</b><small>4 cameras + cloud processing · about 40% of one home</small></span></span></div>
+   <div class="ip-r"><span class="k">Energy</span><span class="ip-en"><span class="bar"><i data-en></i></span><span><b data-kwh>0 kWh a year</b><small data-ens>4 cameras + cloud processing · about 40% of one home</small></span></span></div>
    <div class="ip-r"><span class="k">Decision</span><span data-dec></span></div>
-  </div></div>`, 1000, 150);
+  </div></div>`, 1000, 168);
 const fS = [...form.querySelectorAll('[data-s]')];
-const fPriv = form.querySelector('[data-priv]'), fDec = form.querySelector('[data-dec]'), fEn = form.querySelector('[data-en]'), fKwh = form.querySelector('[data-kwh]'), fSt = form.querySelector('[data-st]');
+const fPriv = form.querySelector('[data-priv]'), fDec = form.querySelector('[data-dec]'), fEn = form.querySelector('[data-en]'), fKwh = form.querySelector('[data-kwh]'), fEnS = form.querySelector('[data-ens]'), fSt = form.querySelector('[data-st]');
 const PRIV_AI = 'Allowed under the 2024 Park Privacy Act.';
 const PRIV_FIX = 'UK GDPR and the ICO’s video surveillance guidance apply. Check with our data protection officer.';
 const DEC_AI = 'Approve. All groups covered.';
 const DEC_FIX = 'Approve with conditions: count people, never identify them. Delete footage after 24 hours.';
-const FORM_IN = 9.0, PORT = 30.8;
+const FORM_IN = 3.0, AI_IN = 8.0, YP = 15.6, PRIV_T = 20.2, DEC_T = 23.6, SIGN = 25.6;
+const FX = 1440, FY = 560; // folder centre (beside the island in the end framing)
 on((t) => {
-  // entrance and portfolio drop (custom transform)
+  // entrance, then the form shrinks towards the portfolio and fades before it reaches the folder
   const a = prog(t, FORM_IN, FORM_IN + 0.5, ease.out);
-  const d = prog(t, PORT + 0.3, PORT + 1.5, ease.inOut);
-  const gone = t > PORT + 1.5;
-  form.style.opacity = gone ? 0 : a; form.style.visibility = a > 0 && !gone ? 'visible' : 'hidden';
-  // folder target centre (960, 640): form centre approx (1437, 560)
+  const d = prog(t, T_OUT, T_OUT + 1.0, ease.inOut);
+  const op = a * (1 - prog(t, T_OUT + 0.55, T_OUT + 1.0));
+  form.style.opacity = op; form.style.visibility = op > 0.001 ? 'visible' : 'hidden';
   form.style.transformOrigin = '50% 50%'; form.style.zIndex = 5;
-  form.style.transform = `translate(${(1 - a) * 120 + d * (960 - 1437)}px, ${d * (600 - 520)}px) scale(${1 - d * 0.7})`;
-  // stakeholder cards pop in
-  fS.forEach((c, i) => { const ti = i < 5 ? FORM_IN + 0.6 + i * 0.28 : 26.0; const k = prog(t, ti, ti + 0.35, ease.back); c.style.opacity = clamp(k); c.style.transform = `scale(${0.7 + 0.3 * k})`; });
-  // energy estimate (Zainab's own working)
-  const ek = prog(t, 11.4, 13.0, ease.out); fEn.style.width = ek * 40 + '%'; fKwh.textContent = `≈ ${Math.round(ek * 1100).toLocaleString('en-GB')} kWh a year`;
-  // privacy line
+  const cx = 1000 + form.offsetWidth / 2, cy = 168 + form.offsetHeight / 2;
+  form.style.transform = `translate(${(1 - a) * 120 + d * (FX - cx)}px, ${d * (FY - 140 - cy)}px) scale(${1 - d * 0.7})`;
+  // stakeholder cards pop in (young people added by the Data fix)
+  fS.forEach((c, i) => { const ti = i < 5 ? FORM_IN + 0.5 + i * 0.26 : YP; const k = prog(t, ti, ti + 0.35, ease.back); c.style.opacity = clamp(k); c.style.transform = `scale(${0.7 + 0.3 * k})`; });
+  // energy estimate (Zainab's own working); the explanation appears once the number lands
+  const ek = prog(t, 5.0, 6.4, ease.out); fEn.style.width = ek * 40 + '%'; fKwh.textContent = `≈ ${Math.round(ek * 1100).toLocaleString('en-GB')} kWh a year`;
+  fEnS.style.opacity = prog(t, 6.4, 6.8);
+  // privacy line: the AI's text arrives whole; Zainab's fix types in
   let ph;
-  if (t < 15.2) ph = '<span class="muted">Waiting for draft…</span>';
-  else if (t < 22.4) ph = `<span class="fs-aitxt"><span class="fs-aitag">AI</span>${typed(PRIV_AI, t, 15.2, 40)}</span>`;
-  else { const ty = typed(PRIV_FIX, t, 22.9, 34); ph = `<span class="fs-del">2024 Park Privacy Act</span>${t > 22.9 ? `<br><span class="fs-new">${ty}${ty.length < PRIV_FIX.length ? '<i class="fs-caret"></i>' : ''}</span>` : ''}`; }
+  if (t < AI_IN + 0.8) ph = '<span class="muted">Waiting for draft…</span>';
+  else if (t < PRIV_T - 0.3) ph = `<span class="fs-aitxt"><span class="fs-aitag">AI</span>${PRIV_AI}</span>`;
+  else { const ty = typed(PRIV_FIX, t, PRIV_T, 50); ph = `<span class="fs-del">2024 Park Privacy Act</span>${t > PRIV_T ? `<br><span class="fs-new">${ty}${ty.length < PRIV_FIX.length ? '<i class="fs-caret"></i>' : ''}</span>` : ''}`; }
   setHTML(fPriv, ph);
   let dh;
-  if (t < 15.8) dh = '<span class="muted">—</span>';
-  else if (t < 28.2) dh = `<span class="fs-aitxt"><span class="fs-aitag">AI</span>${typed(DEC_AI, t, 15.8, 40)}</span>`;
-  else { const ty = typed(DEC_FIX, t, 28.2, 130); dh = `<span class="fs-new">${ty}${ty.length < DEC_FIX.length ? '<i class="fs-caret"></i>' : ''}</span>`; }
+  if (t < AI_IN + 1.2) dh = '<span class="muted">—</span>';
+  else if (t < DEC_T) dh = `<span class="fs-aitxt"><span class="fs-aitag">AI</span>${DEC_AI}</span>`;
+  else { const ty = typed(DEC_FIX, t, DEC_T, 60); dh = `<span class="fs-new">${ty}${ty.length < DEC_FIX.length ? '<i class="fs-caret"></i>' : ''}</span>`; }
   setHTML(fDec, dh);
-  const sst = t < 15.2 ? ['', 'Draft'] : t < 19.0 ? ['ai', 'AI draft'] : t < 29.0 ? ['rev', 'In review'] : ['ok', 'Signed off'];
+  const sst = t < AI_IN + 0.8 ? ['', 'Draft'] : t < 11.6 ? ['ai', 'AI draft'] : t < SIGN ? ['rev', 'In review'] : ['ok', 'Signed off'];
   const cls = 'fs-status' + (sst[0] ? ' ' + sst[0] : ''); if (fSt.className !== cls) fSt.className = cls; if (fSt.textContent !== sst[1]) fSt.textContent = sst[1];
 });
 
-// AI colleague
-const ai = ui(aiHTML({ text: 'Draft ready. Cameras are <q>allowed under the 2024 Park Privacy Act</q>. All groups covered. Recommend: approve.', sure: 94, data: 'Council survey · adults 18+' }), 46, 600);
-on(cue(ai, 14.2, 19.4, { from: 'left' }));
+// AI colleague: reacts when Data fails
+const ai = ui(aiHTML({ text: 'Draft ready. Cameras are <q>allowed under the 2024 Park Privacy Act</q>. <q>All groups covered.</q> Recommend: approve.', sure: 94, data: 'Council survey · adults 18+' }), 46, 600);
+on(cue(ai, AI_IN, 13.6, { from: 'left' }));
+on((t) => aiReact(ai, prog(t, 12.45, 13.0), { sure: 94, to: 30 }));
 
-// review
-const chk = checkStrip(1874, 40, 'tr');
-on(cue(chk, 19.0, 30.4, { from: 'down' }));
-const PLAN = [{ run: 19.6, res: 'pass' }, { run: 20.1, res: 'pass' }, { run: 20.6, res: 'fail', fix: 24.4 }, { run: 24.8, res: 'fail', fix: 27.2 }];
+// review: Data ✕ → fixed, Case ✓, Source ✕ → fixed, Authority ✓
+const chk = checkStrip(1874, 26, 'tr');
+on(cue(chk, 11.4, T_OUT - 0.2, { from: 'down' }));
+const PLAN = [{ run: 12.0, res: 'fail', fix: 16.4 }, { run: 17.6, res: 'pass' }, { run: 18.2, res: 'fail', fix: 22.6 }, { run: 23.4, res: 'pass' }];
 on((t) => chk.drive(t, PLAN));
+const findData = ui(findHTML('DATA CHECK · UNDER-18s MISSING', [['Data used', 'Council survey · adults 18+'], ['Missing', 'Under-18s: the park’s main users'], ['Action', { t: 'Ask young people. Add them.', cls: 'bad' }]]), 46, 600);
+on(cue(findData, 13.8, 17.6, { from: 'left' }));
+on(findFix(findData, 16.4, 'DATA CHECK · UNDER-18s MISSING', 'DATA CHECK · FIXED', 'Young people added to the panel.'));
 const findSrc = ui(findHTML('SOURCE CHECK · CLAIM NOT FOUND', [['Claim', '“2024 Park Privacy Act”'], ['Searched', 'UK legislation database: 0 results'], ['Asked', 'Priya (DPO): “No such Act.”'], ['Action', { t: 'Invented law. Remove it.', cls: 'bad' }]]), 46, 560);
-on(cue(findSrc, 21.1, 24.6, { from: 'left' }));
-const findAuth = ui(findHTML('AUTHORITY CHECK · NOT ITS CALL', [['Draft says', '“All groups covered.”'], ['Missing', 'Young people use the park most'], ['Rule', 'It can’t speak for them. Ask them.'], ['Action', { t: 'Add young people to the panel.', cls: 'bad' }]]), 46, 560);
-on(cue(findAuth, 25.2, 28.4, { from: 'left' }));
-on((t) => { const ok = t > 27.2; findAuth.firstChild.classList.toggle('ok', ok); findAuth.querySelector('.hd').lastChild.textContent = ok ? 'AUTHORITY CHECK · FIXED' : 'AUTHORITY CHECK · NOT ITS CALL'; findAuth.querySelector('.hd i').textContent = ok ? '✓' : '✕'; });
-on((t) => { const ok = t > 24.4; findSrc.firstChild.classList.toggle('ok', ok); findSrc.querySelector('.hd').lastChild.textContent = ok ? 'SOURCE CHECK · FIXED' : 'SOURCE CHECK · CLAIM NOT FOUND'; findSrc.querySelector('.hd i').textContent = ok ? '✓' : '✕'; });
+on(cue(findSrc, 18.8, 23.8, { from: 'left' }));
+on(findFix(findSrc, 22.6, 'SOURCE CHECK · CLAIM NOT FOUND', 'SOURCE CHECK · FIXED', 'Replaced with UK GDPR + ICO guidance.'));
 const sign = ui(signHTML('Zainab', 15), 46, 820);
-on(cue(sign, 29.0, 30.4, { from: 'pop' }));
+on(cue(sign, SIGN, T_OUT, { from: 'pop' }));
 
-// portfolio
-const folder = ui(folderHTML('Zainab', 3), 960, 600, 'c');
-on(cue(folder, 31.0, 34.0, { from: 'up' }));
-on((t) => { const k = prog(t, PORT + 1.4, PORT + 1.8, ease.back); const p = folder.querySelector('[data-paper]'); p.style.transform = `translateY(${(1 - k) * -60}px)`; p.style.opacity = clamp(k); folder.querySelector('[data-items]').textContent = t > PORT + 1.5 ? 'Zainab · 4 pieces' : 'Zainab · 3 pieces'; });
+// portfolio (small, beside the island) with a preview of the assessment on its paper
+const folder = ui(folderHTML('Zainab', 3), FX, FY, 'c');
+folder.querySelector('[data-paper]').innerHTML = `<div style="padding:16px 16px"><div style="height:12px;width:96px;border-radius:6px;background:#5b6b78;opacity:.5"></div><div style="height:18px;width:150px;border-radius:6px;background:#13202b;margin-top:10px"></div>
+  <div style="display:flex;gap:6px;margin-top:14px">${['#3a8de0', '#ff8a2a', '#13202b', '#16c79a'].map((c) => `<i style="width:34px;height:22px;border-radius:7px;background:${c}33"></i>`).join('')}</div>
+  <div style="height:10px;width:160px;border-radius:5px;background:#e3f7f0;margin-top:14px"></div><div style="height:10px;width:130px;border-radius:5px;background:#e3f7f0;margin-top:8px"></div>
+  <div style="display:inline-block;margin-top:12px;font:800 13px Inter;letter-spacing:.1em;color:#0c8f6d;background:#e3f7f0;border-radius:99px;padding:5px 10px">SIGNED OFF</div></div>`;
+on(cue(folder, T_OUT + 0.6, 32.4, { from: 'up' }));
+on((t) => { const k = prog(t, T_OUT + 1.0, T_OUT + 1.4, ease.back); const p = folder.querySelector('[data-paper]'); p.style.transform = `translateY(${(1 - k) * -50}px)`; p.style.opacity = clamp(k); const s = t > T_OUT + 1.2 ? 'Zainab · 4 pieces' : 'Zainab · 3 pieces'; const n = folder.querySelector('[data-items]'); if (n.textContent !== s) n.textContent = s; });
 
-// pathway
-const veil = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:rgba(235,246,255,.55)"></div>');
-on(cue(veil, 34.0, 38.6, { from: 'fade', dur: 0.5 }));
-const path = ui(pathHTML({ next: 'Experience AI ethics lessons <em>(free, 11–14)</em> · Elements of AI <em>(free, 16+)</em>', award: 'DofE Skills section <em>(public speaking)</em> · Citizenship GCSE', route: 'EPQ → A-level Law, Politics or Philosophy', jobs: ['Policy adviser', 'Data protection officer', 'AI governance specialist'] }), 960, 540, 'c');
-on(cue(path, 34.2, 38.6, { from: 'up' }));
-
-// title
-const dimEnd = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:radial-gradient(ellipse at center, rgba(10,40,80,.3), rgba(10,40,80,.66))"></div>');
-on(cue(dimEnd, 38.8, null, { from: 'fade', dur: 0.8 }));
-const title = titleCard('Impact <span class="hl">Panel</span>', 'Check the AI’s draft before the council says yes.', { chip: 'DeltaOps Learning · Future Skills' });
-on(cue(title, 39.0, null, { from: 'pop', dur: 0.8 }));
+// pathway (beside the island, opaque), then a bright title card in the same place
+const path = ui(pathHTML({ next: 'Experience AI ethics lessons <em>(free, 11–14)</em> · Elements of AI <em>(free, 16+)</em>', award: 'DofE Bronze Skills section <em>(debating or public speaking)</em>', route: 'Citizenship GCSE, then A-level Law or Politics, or an EPQ', jobs: ['Policy adviser', 'Data protection officer', 'AI governance specialist'] }), 1430, 540, 'c');
+on(cue(path, 32.6, 35.6, { from: 'up' }));
+const title = ui(endTitleHTML('Impact <span class="hl">Panel</span>', 'Check the AI’s draft before the council says yes.'), 1430, 540, 'c');
+on(cue(title, 35.8, null, { from: 'pop', dur: 0.6 }));
 
 st.onFrame((t) => A.forEach((f) => f(t)));
 window.__duration = DUR;

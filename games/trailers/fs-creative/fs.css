@@ -39,10 +39,14 @@
 .fs-ai p { font: 600 34px/1.28 'Inter'; margin: 18px 0 18px; }
 .fs-ai p q { quotes: none; background: rgba(255,210,90,.18); color: #ffe29a; border-radius: 8px; padding: 0 6px; }
 .fs-ai .ft { display: flex; align-items: center; gap: 18px; }
-.fs-ai .sure { display: flex; align-items: center; gap: 14px; font: 800 30px 'Inter'; }
-.fs-ai .sure .bar { width: 160px; height: 14px; border-radius: 99px; background: #2c3e4e; overflow: hidden; }
+.fs-ai .sure { display: flex; align-items: center; gap: 12px; font: 800 27px 'Inter'; white-space: nowrap; }
+.fs-ai .sure .bar { width: 96px; height: 14px; border-radius: 99px; background: #2c3e4e; overflow: hidden; }
 .fs-ai .sure .bar i { display: block; height: 100%; background: linear-gradient(90deg, #ffc83d, var(--fs-teal)); border-radius: 99px; }
 .fs-ai .data { margin-left: auto; display: inline-flex; align-items: center; gap: 10px; background: #233544; border-radius: 999px; padding: 10px 20px 10px 12px; font: 650 24px 'Inter'; color: #dbe6ee; white-space: nowrap; }
+.fs-ai .st { transition: none; }
+.fs-ai.ret .st { background: var(--fs-red); color: #fff; }
+.fs-ai.ret p q { text-decoration: line-through; text-decoration-color: #ff6b70; text-decoration-thickness: 4px; background: rgba(229,72,77,.22); color: #ffb3b5; }
+.fs-ai.ret .data [data-d] { text-decoration: line-through; text-decoration-color: #ff6b70; text-decoration-thickness: 3px; }
 .fs-ai .data b { background: #3a5063; color: #fff; border-radius: 999px; padding: 3px 12px; font: 800 18px 'Inter'; letter-spacing: .1em; }
 
 /* review strip: Data · Case · Source · Authority */
@@ -91,25 +95,32 @@
 .fs-sign small { display: block; font: 800 19px 'Inter'; letter-spacing: .14em; color: var(--fs-teal-d); }
 .fs-sign b { display: block; font: 800 36px 'Inter'; }
 
-/* portfolio folder */
-.fs-folder { position: relative; width: 420px; height: 300px; }
-.fs-folder .tab { position: absolute; left: 0; top: 0; width: 170px; height: 50px; border-radius: 22px 22px 0 0; background: #0fa883; }
-.fs-folder .back { position: absolute; left: 0; top: 34px; right: 0; bottom: 0; border-radius: 0 26px 26px 26px; background: #0fa883; }
-.fs-folder .front { position: absolute; left: 0; top: 96px; right: 0; bottom: 0; border-radius: 26px; background: var(--fs-teal); box-shadow: 0 -4px 0 rgba(255,255,255,.25) inset, 0 20px 40px rgba(10,60,50,.3); color: #fff; padding: 30px 32px; }
-.fs-folder .front b { display: block; font: 800 44px 'Inter'; }
-.fs-folder .front small { display: block; font: 650 24px 'Inter'; opacity: .92; margin-top: 6px; }
-.fs-folder .paper { position: absolute; left: 50px; top: 46px; width: 320px; height: 120px; border-radius: 14px; background: #fff; box-shadow: 0 4px 10px rgba(0,0,0,.12); }
-.fs-folder .paper::before { content: ''; position: absolute; left: 24px; right: 60px; top: 24px; height: 12px; border-radius: 6px; background: #dfe6ea; box-shadow: 0 24px 0 #dfe6ea; }
+/* portfolio folder (small; sits beside the island) */
+.fs-folder { position: relative; width: 340px; height: 250px; }
+.fs-folder .tab { position: absolute; left: 0; top: 0; width: 140px; height: 44px; border-radius: 20px 20px 0 0; background: #0fa883; }
+.fs-folder .back { position: absolute; left: 0; top: 30px; right: 0; bottom: 0; border-radius: 0 24px 24px 24px; background: #0fa883; }
+.fs-folder .front { position: absolute; left: 0; top: 120px; right: 0; bottom: 0; border-radius: 24px; background: var(--fs-teal); box-shadow: 0 -4px 0 rgba(255,255,255,.25) inset, 0 20px 40px rgba(10,60,50,.3); color: #fff; padding: 18px 26px; }
+.fs-folder .front b { display: block; font: 800 38px/1.05 'Inter'; }
+.fs-folder .front small { display: block; font: 700 22px 'Inter'; margin-top: 6px; white-space: nowrap; }
+.fs-folder .paper { position: absolute; left: 70px; top: -70px; width: 200px; height: 200px; border-radius: 12px; background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,.18); overflow: hidden; }
 
-/* pathway card */
-.fs-path { width: 1460px; padding: 40px 50px 44px; }
-.fs-path .top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
-.fs-path h3 { font: 800 50px 'Inter'; letter-spacing: -0.01em; }
-.fs-path .row { display: grid; grid-template-columns: 220px 1fr; align-items: center; gap: 24px; padding: 20px 0; border-top: 3px solid var(--fs-line); }
-.fs-path .row span { font: 800 22px 'Inter'; letter-spacing: .14em; text-transform: uppercase; color: var(--fs-teal-d); }
-.fs-path .row b { font: 700 38px/1.25 'Inter'; }
+/* pathway card (beside the island, opaque) */
+.fs-path { width: 900px; padding: 34px 40px 30px; background: #fff; opacity: 1; }
+.fs-path .top { display: flex; align-items: center; gap: 18px; margin-bottom: 14px; }
+.fs-path .top .tag { font: 800 22px 'Inter'; letter-spacing: .14em; background: var(--fs-teal); color: #062a20; border-radius: 999px; padding: 8px 18px; }
+.fs-path h3 { font: 800 40px 'Inter'; letter-spacing: -0.01em; }
+.fs-path .row { display: grid; grid-template-columns: 170px 1fr; align-items: center; gap: 20px; padding: 16px 0; border-top: 3px solid var(--fs-line); }
+.fs-path .row span { font: 800 21px 'Inter'; letter-spacing: .12em; text-transform: uppercase; color: var(--fs-teal-d); }
+.fs-path .row b { font: 700 30px/1.25 'Inter'; }
 .fs-path .row b em { font-style: normal; color: var(--fs-muted); font-weight: 600; }
-.fs-path .jobs { display: flex; gap: 14px; flex-wrap: wrap; }
-.fs-path .jobs i { font: 750 34px 'Inter'; font-style: normal; background: var(--fs-mint); color: var(--fs-ink); border-radius: 999px; padding: 10px 26px; }
+.fs-path .jobs { display: flex; gap: 12px; flex-wrap: wrap; }
+.fs-path .jobs i { font: 750 27px 'Inter'; font-style: normal; background: var(--fs-mint); color: var(--fs-ink); border-radius: 999px; padding: 8px 20px; }
 .fs-strand { display: inline-flex; align-items: center; gap: 12px; background: var(--fs-ink); color: #fff; border-radius: 999px; padding: 10px 22px; font: 800 20px 'Inter'; letter-spacing: .12em; text-transform: uppercase; }
 .fs-strand::before { content: ''; width: 14px; height: 14px; border-radius: 50%; background: var(--fs-teal); }
+
+/* bright end title card */
+.fs-end { width: 900px; padding: 44px 50px 42px; background: #fff; }
+.fs-end h1 { font: 800 96px/0.98 'Bricolage Grotesque', 'Inter'; letter-spacing: -0.035em; color: var(--fs-ink); margin-top: 26px; }
+.fs-end h1 .hl { color: var(--fs-teal-d); }
+.fs-end h2 { font: 700 38px/1.2 'Inter'; color: var(--fs-muted); margin-top: 16px; }
+.fs-end img { display: block; height: 46px; margin-top: 34px; }

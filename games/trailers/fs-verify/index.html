@@ -1,148 +1,152 @@
 <!doctype html><html><head><meta charset="utf-8"><title>Verification Desk trailer</title>
 <link rel="stylesheet" href="../engine/ui.css">
 <style>
-:root { --ink:#13202b; --teal:#16c79a; --tealD:#0c9a74; --red:#e5484d; --mut:#5b6b78; --line:#e4e9ee; --soft:#f4f7f9; }
+:root { --ink:#13202b; --teal:#16c79a; --tealD:#0c8f6d; --mint:#e3f7f0; --red:#e5484d; --redD:#b4232a; --redBg:#fde3e3; --mut:#5b6b78; --line:#e4e9ee; --soft:#f4f7f9; }
 #ui, #ui * { font-family: 'Inter', sans-serif; }
-.wcard { background:#fff; border-radius:28px; color:var(--ink); box-shadow:0 22px 60px rgba(8,28,44,.25), 0 2px 0 rgba(0,0,0,.04); }
-/* top bar */
-.labchip { display:flex; align-items:center; gap:18px; background:#fff; border-radius:999px; padding:14px 30px 14px 16px; box-shadow:0 12px 30px rgba(8,28,44,.18); color:var(--ink); white-space:nowrap; }
-.labchip .ic { width:52px; height:52px; border-radius:50%; background:var(--teal); display:grid; place-items:center; }
+.wcard { background:#fff; border-radius:28px; color:var(--ink); box-shadow:0 10px 0 rgba(10,30,40,.06), 0 18px 40px rgba(10,30,40,.18); }
+/* opening title + header chip */
+.otitle { width:1920px; text-align:center; color:#fff; }
+.otitle .chip2, .etitle .chip2 { display:inline-flex; align-items:center; gap:12px; background:#fff; color:var(--ink); border-radius:999px; padding:12px 26px; font:800 24px 'Inter'; letter-spacing:.08em; box-shadow:0 10px 26px rgba(8,28,44,.18); }
+.otitle .chip2::before, .etitle .chip2::before { content:''; width:14px; height:14px; border-radius:50%; background:var(--teal); }
+.otitle h1 { font:800 104px/1 'Inter'; letter-spacing:-.035em; margin:22px 0 0; text-shadow:0 8px 34px rgba(0,30,60,.35); }
+.otitle h2 { font:700 38px 'Inter'; margin:16px 0 0; text-shadow:0 4px 18px rgba(0,30,60,.4); }
+.labchip { display:flex; align-items:center; gap:18px; background:#fff; border-radius:999px; padding:12px 30px 12px 14px; box-shadow:0 12px 30px rgba(8,28,44,.18); color:var(--ink); white-space:nowrap; }
+.labchip .ic { width:50px; height:50px; border-radius:50%; background:var(--teal); display:grid; place-items:center; }
 .labchip .ic svg { width:30px; height:30px; }
-.labchip b { font:800 32px 'Inter'; letter-spacing:-.01em; }
-.labchip span.r { font:600 24px 'Inter'; color:var(--mut); }
-.labchip span.bar { width:2px; height:34px; background:var(--line); }
-.status { display:flex; gap:8px; background:#fff; border-radius:999px; padding:10px; box-shadow:0 12px 30px rgba(8,28,44,.18); }
-.status span { font:700 23px 'Inter'; color:#8a98a4; padding:12px 22px; border-radius:999px; white-space:nowrap; }
-.status span.on { background:var(--ink); color:#fff; }
-.status span.on.ret { background:var(--red); }
-.status span.on.ok { background:var(--teal); color:#062a20; }
+.labchip b { font:800 30px 'Inter'; letter-spacing:-.01em; }
+.labchip span.r { font:700 22px 'Inter'; color:var(--mut); }
+.labchip span.bar { width:2px; height:32px; background:var(--line); }
 /* brief */
-.brief { width:1560px; padding:30px 40px 34px; }
-.brief .bh { display:flex; align-items:center; gap:18px; font:700 26px 'Inter'; color:var(--mut); }
-.tag { font:800 20px 'Inter'; letter-spacing:.14em; background:var(--ink); color:#fff; border-radius:10px; padding:8px 14px; }
-.brief .bg { display:grid; grid-template-columns: 1fr 1.45fr .7fr; gap:30px; margin-top:22px; }
-.brief .bg div { border-left:5px solid var(--teal); padding-left:20px; }
-.brief small { display:block; font:700 21px 'Inter'; letter-spacing:.12em; text-transform:uppercase; color:var(--mut); }
-.brief b { display:block; font:800 36px/1.18 'Inter'; margin-top:8px; }
-/* name tags in 3D */
-.ntag { background:#fff; border-radius:16px; padding:10px 18px 11px; box-shadow:0 10px 24px rgba(8,28,44,.25); white-space:nowrap; text-align:center; }
-.ntag b { display:block; font:800 26px 'Inter'; color:var(--ink); }
-.ntag small { display:block; font:600 19px 'Inter'; color:var(--mut); margin-top:2px; }
-.ntag.m { border:4px solid #f6b53c; }
+.brief { display:flex; align-items:stretch; padding:22px 30px; gap:0; }
+.brief .bic { flex:none; width:84px; height:84px; border-radius:22px; background:var(--teal); display:grid; place-items:center; margin-right:26px; align-self:center; }
+.brief .bic svg { width:50px; height:50px; }
+.brief .f { padding:2px 30px; border-left:3px solid var(--line); display:flex; flex-direction:column; justify-content:center; }
+.brief .f:first-of-type { border-left:0; padding-left:0; }
+.brief small { font:800 20px 'Inter'; letter-spacing:.14em; text-transform:uppercase; color:var(--mut); }
+.brief b { font:800 34px/1.15 'Inter'; margin-top:6px; white-space:nowrap; }
+.brief .due b { color:#c2410c; }
+/* 3D-anchored tags */
+.ntag { background:#fff; border-radius:16px; padding:10px 20px 11px; box-shadow:0 10px 24px rgba(8,28,44,.25); white-space:nowrap; text-align:center; }
+.ntag b { display:block; font:800 28px 'Inter'; color:var(--ink); }
+.ntag small { display:block; font:650 20px 'Inter'; color:var(--mut); margin-top:2px; }
+.ntag.m { background:var(--ink); } .ntag.m b { color:#fff; } .ntag.m small { color:#9fe8d2; }
 .ntag::after { content:''; position:absolute; left:50%; bottom:-12px; margin-left:-12px; border:12px solid transparent; border-top-color:#fff; border-bottom:0; }
-.say { background:var(--ink); color:#fff; border-radius:20px; padding:16px 24px; font:700 28px 'Inter'; white-space:nowrap; box-shadow:0 12px 26px rgba(8,28,44,.3); }
-/* document */
-.doc { width:1110px; height:800px; overflow:hidden; display:grid; grid-template-rows:84px 82px 1fr 92px; }
-.doc .tb { display:flex; align-items:center; gap:16px; padding:0 30px; border-bottom:2px solid var(--line); font:600 23px 'Inter'; color:var(--mut); }
-.doc .tb .fi { width:34px; height:40px; border-radius:6px; background:#3d7be0; position:relative; }
-.doc .tb .fi::after { content:''; position:absolute; left:8px; right:8px; top:12px; height:3px; background:#fff; box-shadow:0 7px 0 #fff, 0 14px 0 #fff; }
-.doc .tb b { color:var(--ink); font-weight:800; }
-.doc .tb .who { margin-left:auto; font:700 21px 'Inter'; background:#eef2f5; border-radius:999px; padding:8px 16px; color:var(--mut); }
-.doc .rv { display:flex; align-items:center; gap:12px; padding:0 30px; border-bottom:2px solid var(--line); background:#fbfcfd; }
-.doc .rv .lab { font:800 20px 'Inter'; letter-spacing:.12em; color:var(--mut); margin-right:6px; }
+.ntag.m::after { border-top-color:var(--ink); }
+.say { background:#fff; color:var(--ink); border-radius:22px; padding:16px 26px; font:700 30px/1.2 'Inter'; white-space:nowrap; box-shadow:0 12px 26px rgba(8,28,44,.3); }
+.say::after { content:''; position:absolute; left:50%; bottom:-12px; margin-left:-12px; border:12px solid transparent; border-top-color:#fff; border-bottom:0; }
+/* work card (right column) */
+.doc { width:876px; overflow:hidden; }
+.doc .tb { display:flex; align-items:center; gap:14px; height:74px; padding:0 26px; border-bottom:2px solid var(--line); font:650 22px 'Inter'; color:var(--mut); }
+.doc .tb .fi { flex:none; width:32px; height:38px; border-radius:6px; background:#3d7be0; position:relative; }
+.doc .tb .fi::after { content:''; position:absolute; left:7px; right:7px; top:11px; height:3px; background:#fff; box-shadow:0 7px 0 #fff, 0 14px 0 #fff; }
+.doc .tb b { color:var(--ink); font-weight:800; font-size:24px; }
+.stchip { margin-left:auto; display:inline-flex; align-items:center; gap:10px; font:800 20px 'Inter'; letter-spacing:.1em; text-transform:uppercase; border-radius:999px; padding:9px 18px; background:#fff2c6; color:#8a6400; white-space:nowrap; }
+.stchip::before { content:''; width:12px; height:12px; border-radius:50%; background:currentColor; }
+.stchip.rev { background:#fff0e0; color:#c2410c; } .stchip.ret { background:var(--redBg); color:var(--redD); } .stchip.ok { background:var(--mint); color:var(--tealD); }
+.doc .mn { padding:22px 30px 6px; }
+.doc h3 { font:800 36px/1.15 'Inter'; letter-spacing:-.015em; margin:0; }
+.doc p.tx { font:500 26px/1.45 'Inter'; margin:12px 0 0; }
+.doc .src { margin-top:12px; border-top:2px solid var(--line); padding-top:10px; }
+.doc .src small { font:800 19px 'Inter'; letter-spacing:.14em; color:var(--mut); }
+.doc .src p { font:500 22px/1.38 'Inter'; margin:4px 0 0; }
+.del { color:var(--redD); text-decoration:line-through; text-decoration-thickness:3px; background:var(--redBg); border-radius:4px; }
+.ins { color:#08694f; background:#d6f5e9; border-radius:4px; }
+.flag { background:var(--redBg); box-shadow:0 0 0 3px var(--red); border-radius:6px; }
+.caret { display:inline-block; width:3px; height:1.05em; background:var(--ink); vertical-align:-3px; margin-left:2px; }
+.doc .rv { display:flex; align-items:center; gap:10px; padding:14px 26px; border-top:2px solid var(--line); background:#fbfcfd; min-height:78px; }
+.doc .rv .lab { font:800 19px 'Inter'; letter-spacing:.12em; color:var(--mut); margin-right:4px; }
 .btn { font:800 24px 'Inter'; background:var(--ink); color:#fff; border-radius:999px; padding:12px 26px; white-space:nowrap; }
 .btn.t { background:var(--teal); color:#062a20; }
-.chk { display:flex; align-items:center; gap:10px; font:800 24px 'Inter'; padding:9px 20px 9px 10px; border-radius:999px; background:#eef2f5; color:#7d8b97; border:3px solid transparent; white-space:nowrap; }
-.chk i { width:32px; height:32px; border-radius:50%; background:#d5dde3; display:grid; place-items:center; }
-.chk i svg { width:20px; height:20px; }
+.chk { display:flex; align-items:center; gap:10px; font:800 24px 'Inter'; padding:8px 18px 8px 8px; border-radius:999px; background:#eef2f5; color:#7d8b97; border:3px solid transparent; white-space:nowrap; }
+.chk i { width:34px; height:34px; border-radius:50%; background:#d5dde3; display:grid; place-items:center; }
+.chk i svg { width:22px; height:22px; }
 .chk.run { border-color:var(--teal); color:var(--ink); background:#fff; }
-.chk.ok { background:#dcf6ec; color:#08694f; } .chk.ok i { background:var(--teal); }
-.chk.bad { background:#fde3e3; color:#b4232a; border-color:var(--red); } .chk.bad i { background:var(--red); }
-.doc .bd { display:grid; grid-template-columns: 1fr 330px; min-height:0; }
-.doc .mn { padding:30px 40px 0; overflow:hidden; }
-.doc h3 { font:800 44px/1.14 'Inter'; letter-spacing:-.015em; margin:0; }
-.doc .by { font:600 22px 'Inter'; color:var(--mut); margin:12px 0 18px; }
-.doc p.tx { font:500 29px/1.48 'Inter'; margin:0; }
-.doc .src { margin-top:14px; border-top:2px solid var(--line); padding-top:10px; }
-.doc .src small { font:800 19px 'Inter'; letter-spacing:.14em; color:var(--mut); }
-.doc .src p { font:500 25px/1.38 'Inter'; margin:6px 0 0; }
-.del { color:#b4232a; text-decoration:line-through; text-decoration-thickness:3px; background:#fde3e3; border-radius:4px; }
-.ins { color:#08694f; background:#d6f5e9; border-radius:4px; text-decoration:underline; text-decoration-thickness:2px; text-underline-offset:5px; }
-.flag { background:#fde3e3; box-shadow:0 0 0 3px var(--red); border-radius:6px; }
-.caret { display:inline-block; width:3px; height:1.05em; background:var(--ink); vertical-align:-3px; margin-left:2px; }
-.doc .rail { background:var(--soft); border-left:2px solid var(--line); padding:26px 22px; display:flex; flex-direction:column; gap:18px; }
-.doc .rail .hd { font:800 19px 'Inter'; letter-spacing:.14em; color:var(--mut); }
-.cmt { background:#fff; border-radius:20px; padding:18px 20px; box-shadow:0 6px 16px rgba(8,28,44,.1); border-left:7px solid var(--red); }
-.cmt.g { border-left-color:var(--teal); }
-.cmt b { display:block; font:800 22px 'Inter'; }
-.cmt p { font:500 22px/1.35 'Inter'; margin:6px 0 0; color:#33414d; }
-.doc .ft { display:flex; align-items:center; gap:18px; padding:0 30px; border-top:2px solid var(--line); background:#fbfcfd; font:700 26px 'Inter'; color:#8a98a4; }
-.doc .ft .tick { width:50px; height:50px; border-radius:50%; background:var(--teal); display:grid; place-items:center; }
-.doc .ft .tick svg { width:30px; height:30px; }
-.doc .ft .sg { color:var(--ink); }
-.doc .ft .sg em { font-style:normal; color:var(--mut); font-weight:600; font-size:22px; margin-left:10px; }
-.doc .ft .pass { margin-left:auto; font:800 23px 'Inter'; background:#eef2f5; border-radius:999px; padding:10px 20px; color:var(--mut); }
-.doc .ft .pass.ok { background:#dcf6ec; color:#08694f; }
+.chk.ok { background:var(--mint); color:#08694f; } .chk.ok i { background:var(--teal); }
+.chk.bad { background:var(--red); color:#fff; box-shadow:0 0 0 5px rgba(229,72,77,.22); } .chk.bad i { background:#fff; } .chk.bad i svg path { stroke:var(--red); }
+.find { display:flex; align-items:center; gap:14px; padding:0 26px; font:700 24px/1.25 'Inter'; color:var(--redD); background:#fff5f5; border-top:2px solid #f6cfd0; overflow:hidden; height:0; }
+.find i { flex:none; width:36px; height:36px; border-radius:50%; background:var(--red); display:grid; place-items:center; } .find i svg { width:22px; height:22px; }
+.find.ok { color:#08694f; background:#effbf6; border-top-color:#cdeee2; } .find.ok i { background:var(--teal); }
+.doc .ft { display:flex; align-items:center; gap:16px; height:84px; padding:0 26px; border-top:2px solid var(--line); background:#fbfcfd; font:700 24px 'Inter'; color:#8a98a4; }
+.doc .ft .pass { margin-left:auto; font:800 22px 'Inter'; background:#eef2f5; border-radius:999px; padding:10px 18px; color:var(--mut); white-space:nowrap; }
+.doc .ft .pass.ok { background:var(--mint); color:#08694f; }
 /* AI colleague */
-.ai { width:682px; background:#13202b; color:#fff; border-radius:28px; padding:30px 34px 32px; box-shadow:0 22px 60px rgba(8,28,44,.35); }
-.ai .hd { display:flex; align-items:center; gap:16px; }
-.ai .hd .ic { width:54px; height:54px; border-radius:16px; background:#2b3a48; display:grid; place-items:center; }
-.ai .hd .ic svg { width:32px; height:32px; }
+.ai { width:876px; background:var(--ink); color:#fff; border-radius:28px; padding:24px 30px 24px; box-shadow:0 14px 0 rgba(0,0,0,.14), 0 20px 40px rgba(5,15,25,.3); }
+.ai .hd { display:flex; align-items:center; gap:14px; }
+.ai .hd .bot { width:52px; height:52px; border-radius:16px; background:#233544; display:grid; place-items:center; }
+.ai .hd .bot i { display:block; width:28px; height:11px; border-radius:6px; background:var(--teal); box-shadow:0 0 12px rgba(22,199,154,.8); }
 .ai .hd b { font:800 28px 'Inter'; }
-.ai .hd .dr { font:800 18px 'Inter'; letter-spacing:.12em; background:#f6c343; color:#13202b; border-radius:8px; padding:5px 10px; }
-.ai .hd .nm { margin-left:auto; font:600 21px 'Inter'; color:#9fb0c0; }
-.ai p { font:600 31px/1.32 'Inter'; margin:22px 0 0; }
-.ai .sure { display:flex; align-items:center; gap:18px; margin-top:22px; }
-.ai .sure b { font:800 40px 'Inter'; color:#fff; white-space:nowrap; }
-.ai .sure .bar { flex:1; height:16px; border-radius:99px; background:#2c3a48; overflow:hidden; }
-.ai .sure .bar i { display:block; height:100%; border-radius:99px; background:linear-gradient(90deg,#f6c343,#16c79a); }
-.ai .chips { display:flex; gap:12px; margin-top:22px; flex-wrap:wrap; }
-.ai .chips span { font:700 22px 'Inter'; background:#24323f; color:#d6e1ea; border:2px solid #3a4b5b; border-radius:999px; padding:9px 18px; white-space:nowrap; }
-.ai .chips span em { font-style:normal; color:#8ea2b4; margin-right:8px; }
-/* browser */
-.brw { width:682px; height:440px; overflow:hidden; display:grid; grid-template-rows:62px 58px 1fr 78px; }
-.brw .tabs { display:flex; align-items:flex-end; gap:6px; background:#e3e9ee; padding:0 12px; border-radius:28px 28px 0 0; }
-.brw .tab { font:700 20px 'Inter'; color:var(--mut); background:#d3dbe2; border-radius:14px 14px 0 0; padding:12px 16px; white-space:nowrap; display:none; }
-.brw .tab.on { background:#fff; color:var(--ink); }
-.brw .plus { font:800 30px/1 'Inter'; color:var(--ink); width:44px; height:44px; border-radius:50%; display:grid; place-items:center; margin:0 0 8px 6px; }
-.brw .plus.hit { background:#c4ced6; }
-.brw .url { margin:10px 18px 4px; background:var(--soft); border-radius:999px; padding:0 22px; display:flex; align-items:center; font:600 21px 'Inter'; color:#33414d; white-space:nowrap; overflow:hidden; }
-.brw .pg { padding:12px 28px 0; position:relative; }
-.brw .pg > div { position:absolute; left:28px; right:28px; top:12px; display:none; }
-.brw .pg h4 { font:800 30px/1.2 'Inter'; margin:0; display:flex; align-items:center; gap:14px; }
-.brw .pg h4 i { flex:none; width:44px; height:44px; border-radius:50%; display:grid; place-items:center; background:var(--red); }
-.brw .pg h4 i.g { background:var(--teal); }
-.brw .pg h4 i svg { width:26px; height:26px; }
-.brw .pg p { font:500 24px/1.4 'Inter'; color:#33414d; margin:10px 0 0; }
-.brw .pg .kv { display:grid; grid-template-columns:auto 1fr; gap:4px 18px; margin-top:12px; font:600 23px 'Inter'; }
-.brw .pg .kv span:nth-child(odd) { color:var(--mut); } .brw .pg .kv span:nth-child(even) { color:#b4232a; font-weight:800; }
-.brw .pg .kv.g span:nth-child(even) { color:#08694f; }
-.brw .trail { display:flex; align-items:center; gap:4px; padding:0 14px; border-top:2px solid var(--line); background:#fbfcfd; }
-.brw .trail .lb { font:800 15px 'Inter'; letter-spacing:.08em; color:var(--mut); margin-right:4px; }
-.brw .trail span.s { font:800 17px 'Inter'; border-radius:999px; padding:6px 9px; white-space:nowrap; opacity:0; }
-.brw .trail span.s.x { background:#fde3e3; color:#b4232a; } .brw .trail span.s.o { background:#dcf6ec; color:#08694f; } .brw .trail span.s.n { background:#eef2f5; color:var(--ink); }
-.brw .trail span.ar { color:#9aa8b4; font:800 18px 'Inter'; opacity:0; }
+.ai .hd .dr { margin-left:auto; font:800 19px 'Inter'; letter-spacing:.12em; background:#233544; color:#ffd36b; border-radius:999px; padding:8px 16px; }
+.ai .hd .dr.ret { background:var(--red); color:#fff; }
+.ai p { font:600 30px/1.3 'Inter'; margin:16px 0 0; }
+.ai p .del { color:#ffb3b5; background:rgba(229,72,77,.22); text-decoration-color:#ff6b70; }
+.ai .ftr { display:flex; align-items:center; gap:18px; margin-top:18px; }
+.ai .sure { display:flex; align-items:center; gap:14px; font:800 30px 'Inter'; white-space:nowrap; }
+.ai .sure .bar { width:150px; height:14px; border-radius:99px; background:#2c3e4e; overflow:hidden; }
+.ai .sure .bar i { display:block; height:100%; border-radius:99px; background:linear-gradient(90deg,#ffc83d,var(--teal)); }
+.ai .sure.low { color:#ff8f93; }
+.ai .data { margin-left:auto; display:inline-flex; align-items:center; gap:10px; background:#233544; border-radius:999px; padding:9px 20px 9px 10px; font:650 23px 'Inter'; color:#dbe6ee; white-space:nowrap; }
+.ai .data b { background:#3a5063; color:#fff; border-radius:999px; padding:4px 12px; font:800 18px 'Inter'; letter-spacing:.1em; }
+.ai .data.bad { background:rgba(229,72,77,.25); color:#ffd0d1; } .ai .data.bad b { background:var(--red); }
+/* sign-off */
+.sign { display:inline-flex; align-items:center; gap:22px; background:#fff; border:4px solid var(--teal); border-radius:28px; padding:20px 34px 20px 20px; box-shadow:0 16px 36px rgba(10,60,50,.28); white-space:nowrap; color:var(--ink); }
+.sign .tick { width:80px; height:80px; border-radius:50%; background:var(--teal); display:grid; place-items:center; }
+.sign .tick svg { width:48px; height:48px; }
+.sign small { display:block; font:800 20px 'Inter'; letter-spacing:.14em; color:var(--tealD); }
+.sign b { display:block; font:800 40px 'Inter'; margin-top:2px; }
+.sign em { display:block; font-style:normal; font:700 24px 'Inter'; color:var(--mut); margin-top:4px; }
 /* step strip */
-.steps { display:flex; align-items:center; gap:16px; background:rgba(19,32,43,.88); color:#fff; border-radius:999px; padding:12px 30px 12px 14px; white-space:nowrap; }
-.steps .n { font:800 22px 'Inter'; background:var(--teal); color:#062a20; border-radius:999px; padding:7px 16px; }
-.steps .d { font:700 27px 'Inter'; }
+.steps { display:flex; align-items:center; gap:16px; background:rgba(19,32,43,.9); color:#fff; border-radius:999px; padding:10px 28px 10px 10px; white-space:nowrap; }
+.steps .n { font:800 22px 'Inter'; background:var(--teal); color:#062a20; border-radius:999px; padding:8px 16px; }
+.steps .d { font:700 26px 'Inter'; }
 /* portfolio */
-.folder { width:620px; }
+.folder { width:876px; }
 .folder .tabf { display:inline-block; background:var(--teal); color:#062a20; font:800 24px 'Inter'; letter-spacing:.06em; border-radius:20px 20px 0 0; padding:12px 30px 10px; margin-left:26px; }
-.folder .body { background:#fff; border-radius:28px; border-top:10px solid var(--teal); padding:22px 26px; box-shadow:0 22px 60px rgba(8,28,44,.28); }
-.folder .it { display:flex; align-items:center; gap:16px; padding:14px 8px; border-bottom:2px solid var(--line); font:700 25px 'Inter'; color:var(--ink); }
+.folder .body { background:#fff; border-radius:28px; border-top:10px solid var(--teal); padding:16px 24px; box-shadow:0 18px 40px rgba(8,28,44,.25); }
+.folder .it { display:flex; align-items:center; gap:18px; padding:14px 10px; border-bottom:2px solid var(--line); font:800 28px 'Inter'; color:var(--ink); }
 .folder .it:last-child { border-bottom:0; }
-.folder .it i { flex:none; width:44px; height:52px; border-radius:8px; background:#e8eef2; }
-.folder .it small { display:block; font:600 20px 'Inter'; color:var(--mut); margin-top:3px; }
+.folder .it i { flex:none; width:42px; height:50px; border-radius:8px; background:#e8eef2; }
+.folder .it small { display:block; font:650 22px 'Inter'; color:var(--mut); margin-top:3px; }
 .folder .it.nw { background:#ecfaf4; border-radius:16px; border-bottom:0; }
 .folder .it.nw i { background:var(--teal); }
-.folder .it .new { margin-left:auto; font:800 18px 'Inter'; letter-spacing:.1em; background:var(--ink); color:#fff; border-radius:8px; padding:6px 10px; }
+.folder .it .new { margin-left:auto; font:800 19px 'Inter'; letter-spacing:.1em; background:var(--ink); color:#fff; border-radius:8px; padding:6px 12px; }
 /* end */
-.endt { text-align:center; color:#fff; width:1920px; }
-.endt .chip2 { display:inline-flex; align-items:center; gap:12px; background:#fff; color:var(--ink); border-radius:999px; padding:12px 26px; font:800 24px 'Inter'; letter-spacing:.08em; }
-.endt .chip2::before { content:''; width:14px; height:14px; border-radius:50%; background:var(--teal); }
-.endt h1 { font:800 132px/1 'Inter'; letter-spacing:-.04em; margin:30px 0 0; text-shadow:0 8px 40px rgba(0,20,40,.35); }
-.endt h2 { font:700 44px 'Inter'; margin:22px 0 0; text-shadow:0 4px 20px rgba(0,20,40,.4); }
-.path { width:1640px; padding:30px 40px 34px; }
-.path .ph { display:flex; align-items:center; gap:16px; font:800 24px 'Inter'; letter-spacing:.12em; color:var(--mut); }
-.path .pg2 { display:grid; grid-template-columns: 1fr 1fr 1.25fr 64px 1.3fr; gap:24px; margin-top:20px; align-items:stretch; }
-.path .pg2 > div { background:var(--soft); border-radius:22px; padding:20px 24px; }
-.path .pg2 > div.arr { background:none; padding:0; display:grid; place-items:center; font:800 54px 'Inter'; color:var(--teal); }
-.path small { display:block; font:800 20px 'Inter'; letter-spacing:.12em; text-transform:uppercase; color:var(--tealD); }
-.path b { display:block; font:800 31px/1.2 'Inter'; margin-top:8px; }
-.path em { display:block; font-style:normal; font:600 21px 'Inter'; color:var(--mut); margin-top:6px; }
+.etitle { width:876px; color:#fff; }
+.etitle h1 { font:800 92px/1 'Inter'; letter-spacing:-.035em; margin:20px 0 0; text-shadow:0 6px 30px rgba(0,30,60,.3); white-space:nowrap; }
+.etitle h2 { font:700 34px/1.25 'Inter'; margin:14px 0 0; text-shadow:0 3px 16px rgba(0,30,60,.35); }
+.path { width:876px; padding:28px 34px 26px; }
+.path .top { display:flex; align-items:center; gap:16px; margin-bottom:8px; }
+.path .top .tag { font:800 20px 'Inter'; letter-spacing:.14em; background:var(--teal); color:#062a20; border-radius:10px; padding:8px 14px; }
+.path .top h3 { font:800 32px 'Inter'; margin:0; }
+.path .row { display:grid; grid-template-columns:150px 1fr; align-items:center; gap:18px; padding:14px 0; border-top:2px solid var(--line); }
+.path .row span { font:800 20px 'Inter'; letter-spacing:.12em; text-transform:uppercase; color:var(--tealD); }
+.path .row b { font:700 29px/1.25 'Inter'; }
+.path .row b em { font-style:normal; color:var(--mut); font-weight:600; }
+.path .jobs { display:flex; gap:10px; flex-wrap:wrap; }
+.path .jobs i { font:750 26px 'Inter'; font-style:normal; background:var(--mint); border-radius:999px; padding:8px 20px; }
+.path .lg { display:flex; justify-content:flex-end; padding-top:12px; border-top:2px solid var(--line); }
+.path .lg img { height:40px; }
 .cur { width:46px; height:56px; }
 .ring { width:70px; height:70px; border-radius:50%; border:5px solid var(--teal); }
+/* browser */
+.brw { width:876px; height:292px; overflow:hidden; display:grid; grid-template-rows:58px 52px 1fr 64px; }
+.brw .tabs { display:flex; align-items:flex-end; gap:6px; background:#e3e9ee; padding:0 12px; border-radius:28px 28px 0 0; }
+.brw .tab { font:700 21px 'Inter'; color:var(--mut); background:#d3dbe2; border-radius:14px 14px 0 0; padding:11px 18px; white-space:nowrap; display:none; }
+.brw .tab.on { background:#fff; color:var(--ink); }
+.brw .plus { font:800 30px/1 'Inter'; color:var(--ink); width:44px; height:44px; border-radius:50%; display:grid; place-items:center; margin:0 0 7px 6px; }
+.brw .plus.hit { background:#c4ced6; }
+.brw .url { margin:8px 18px 4px; background:var(--soft); border-radius:999px; padding:0 22px; display:flex; align-items:center; font:600 21px 'Inter'; color:#33414d; white-space:nowrap; overflow:hidden; }
+.brw .pg { padding:10px 28px 0; position:relative; }
+.brw .pg > div { position:absolute; left:28px; right:28px; top:10px; display:none; }
+.brw .pg h4 { font:800 30px/1.2 'Inter'; margin:0; display:flex; align-items:center; gap:14px; }
+.brw .pg h4 i { flex:none; width:42px; height:42px; border-radius:50%; display:grid; place-items:center; background:var(--red); }
+.brw .pg h4 i.g { background:var(--teal); }
+.brw .pg h4 i svg { width:26px; height:26px; }
+.brw .pg p { font:500 25px/1.35 'Inter'; color:#33414d; margin:8px 0 0 56px; }
+.brw .trail { display:flex; align-items:center; gap:6px; padding:0 18px; border-top:2px solid var(--line); background:#fbfcfd; }
+.brw .trail .lb { font:800 19px 'Inter'; letter-spacing:.1em; color:var(--mut); margin-right:6px; }
+.brw .trail span.s { font:800 21px 'Inter'; border-radius:999px; padding:6px 13px; white-space:nowrap; opacity:0; }
+.brw .trail span.s.x { background:var(--redBg); color:var(--redD); } .brw .trail span.s.o { background:var(--mint); color:#08694f; } .brw .trail span.s.n { background:#eef2f5; color:var(--ink); }
+.brw .trail span.ar { color:#9aa8b4; font:800 22px 'Inter'; opacity:0; }
 </style>
 <script type="importmap">{"imports":{"three":"/three/three.module.js","three/addons/":"/three-addons/"}}</script></head>
 <body><div id="app"><div id="bg"></div><div id="ui"></div><div id="fx"></div></div>
@@ -153,7 +157,7 @@ import { Vox, tree, house, person, island, rand, noise2 } from '../engine/kit.js
 import { el, cue, fader, toScreen } from '../engine/ui.js';
 import { clouds, birds } from '../engine/extras.js';
 
-const DUR = 42;
+const DUR = 37;
 const st = createStage({ post: false });
 const { scene, camera, sun, hemi, rim } = st;
 rim.intensity = 0.55; st.dome.visible = false; st.renderer.setClearColor(0x000000, 0);
@@ -243,27 +247,25 @@ const kids = [MAYA, P2, P3, P4, P5];
 const cloudU = clouds(scene, { n: 8, spread: 300, y: [50, 80], z: [-220, -90], seed: 3 });
 const birdU = birds(scene, { n: 6, center: [10, 34, -30], radius: 40, seed: 5 });
 
+
 // ---------- camera ----------
-const WIDE = (t, a0, a1, d0, d1, h0, h1, t0, t1) => { const k = prog(t, t0, t1, (q) => q); const a = lerp(a0, a1, k), d = lerp(d0, d1, k), h = lerp(h0, h1, k); return { pos: [Math.sin(a) * d, h, Math.cos(a) * d - 2], look: [0, 1, -3], off: [0, 0], fov: 30 }; };
-const CLOSE = (t) => { const k = prog(t, 6, 28, (q) => q); return { pos: [lerp(6.5, 5.6, k), lerp(12.5, 12, k), lerp(17.5, 16.5, k)], look: [-1.0, 2.6, 1.6], off: [575, 300], fov: 30 }; };
-const MED = (t) => { const k = prog(t, 28.4, 33.4, (q) => q); return { pos: [lerp(10, 6, k), lerp(19, 17, k), lerp(32, 30, k)], look: [lerp(-1, -2, k), 2.5, -1], off: [-300, 40], fov: 30 }; };
-const shots = [
-  [0, 5.6, (t) => WIDE(t, -0.75, -0.42, 118, 96, 66, 52, 0, 5.6)],
-  [5.6, 28.4, CLOSE],
-  [28.4, 33.4, MED],
-  [33.4, 99, (t) => WIDE(t, 0.35, 0.7, 120, 140, 70, 82, 33.4, 42)],
-];
-const blends = [[5.2, 6.6], [28.2, 29.6], [33.0, 34.4]];
-const mix = (a, b, k) => ({ pos: a.pos.map((x, i) => lerp(x, b.pos[i], k)), look: a.look.map((x, i) => lerp(x, b.look[i], k)), off: a.off.map((x, i) => lerp(x, b.off[i], k)), fov: lerp(a.fov, b.fov, k) });
+// orbit shot: look point, angle, distance, height, view offset (positive ox pushes the scene left)
+const orbit = (look, ang, dist, hgt, ox = 0, oy = 0) => ({ look, ang, dist, hgt, ox, oy });
+const WIDE = (t) => { const k = prog(t, 0, 5.2, (q) => q); return orbit([0, 0, -3], lerp(-0.62, -0.42, k), lerp(126, 108, k), lerp(66, 58, k), 0, 0); };
+const MED = (t) => { const k = prog(t, 5.0, 29.4, (q) => q); return orbit([1, 1, -1], lerp(0.30, 0.42, k), lerp(86, 80, k), lerp(52, 48, k), 470, 30); };
+const END = (t) => { const k = prog(t, 29.4, DUR, (q) => q); return orbit([0, -1, -3], lerp(0.28, 0.52, k), lerp(138, 132, k), lerp(68, 64, k), 450, -40); };
+const mixO = (a, b, k) => ({ look: a.look.map((x, i) => lerp(x, b.look[i], k)), ang: lerp(a.ang, b.ang, k), dist: lerp(a.dist, b.dist, k), hgt: lerp(a.hgt, b.hgt, k), ox: lerp(a.ox, b.ox, k), oy: lerp(a.oy, b.oy, k) });
 function cam(t) {
-  let i = shots.findIndex(([a, b]) => t >= a && t < b); if (i < 0) i = shots.length - 1;
-  let s = shots[i][2](t);
-  const bl = blends[i - 1];
-  if (bl && t < bl[1]) s = mix(shots[i - 1][2](t), s, prog(t, bl[0], bl[1]));
-  const bn = blends[i];
-  if (bn && t >= bn[0]) s = mix(s, shots[i + 1][2](t), prog(t, bn[0], bn[1]));
-  camera.fov = s.fov; camera.position.set(...s.pos); camera.lookAt(...s.look);
-  camera.setViewOffset(1920, 1080, -s.off[0], -s.off[1], 1920, 1080); camera.updateProjectionMatrix(); camera.updateMatrixWorld();
+  let c;
+  if (t < 4.2) c = WIDE(t);
+  else if (t < 6.2) c = mixO(WIDE(t), MED(t), prog(t, 4.2, 6.2));
+  else if (t < 29.2) c = MED(t);
+  else if (t < 31.0) c = mixO(MED(t), END(t), prog(t, 29.2, 31.0));
+  else c = END(t);
+  camera.fov = 30;
+  camera.position.set(Math.sin(c.ang) * c.dist + c.look[0], c.hgt + c.look[1], Math.cos(c.ang) * c.dist + c.look[2]);
+  camera.lookAt(...c.look);
+  camera.setViewOffset(1920, 1080, c.ox, c.oy, 1920, 1080); camera.updateProjectionMatrix(); camera.updateMatrixWorld();
 }
 st.onFrame((t) => {
   cam(t); cloudU(t); birdU(t);
@@ -273,166 +275,184 @@ st.onFrame((t) => {
 
 // ---------- UI ----------
 const ui = []; const A = (fn) => ui.push(fn);
-const fade = fader(); A((t) => fade(t < 0.6 ? 1 - prog(t, 0, 0.6) : t > DUR - 0.8 ? prog(t, DUR - 0.8, DUR) : 0));
+const fade = fader(); A((t) => fade(t < 0.5 ? 1 - prog(t, 0, 0.5) : t > DUR - 0.6 ? prog(t, DUR - 0.6, DUR) : 0));
 const SVG = {
   tick: '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.2 4.2L19 7" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   cross: '<svg viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round"/></svg>',
   dots: '<svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="2.2" fill="#fff"/><circle cx="12" cy="12" r="2.2" fill="#fff"/><circle cx="18" cy="12" r="2.2" fill="#fff"/></svg>',
-  ai: '<svg viewBox="0 0 24 24"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z" fill="#16c79a"/><path d="M18.5 15l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z" fill="#f6c343"/></svg>',
   lens: '<svg viewBox="0 0 24 24"><circle cx="10" cy="10" r="6" fill="none" stroke="#fff" stroke-width="3"/><path d="M14.5 14.5L20 20" stroke="#fff" stroke-width="3.4" stroke-linecap="round"/></svg>',
+  brief: '<svg viewBox="0 0 24 24"><path d="M8 4h8v3h4v13H4V7h4z" fill="#fff"/><path d="M10 5.6h4V7h-4z" fill="#16c79a"/><path d="M7 11h10M7 14.5h7" stroke="#16c79a" stroke-width="1.8"/></svg>',
   cursor: '<svg class="cur" viewBox="0 0 46 56"><path d="M4 3l36 24-15 3 9 18-8 4-9-18-13 10z" fill="#13202b" stroke="#fff" stroke-width="3.5" stroke-linejoin="round"/></svg>',
 };
 const cls = (n, c, on) => n.classList.toggle(c, !!on);
+const setH = (n, h) => { if (n._h !== h) { n.innerHTML = h; n._h = h; } };
+const COL = 1000; // left edge of the card column
 
-// top bar
-const labchip = el(`<div class="labchip"><span class="ic">${SVG.lens}</span><b>Verification Desk</b><span class="bar"></span><span class="r">Fact-checker · DeltaOps Future Skills</span></div>`, { x: 44, y: 32 });
-A(cue(labchip, 0.6, 32.6, { from: 'left' }));
-const status = el(`<div class="status"><span>Draft</span><span>In review</span><span>Returned</span><span>Approved</span></div>`, { x: 1876, y: 34, anchor: 'tr' });
-A(cue(status, 5.8, 32.6, { from: 'right' }));
-A((t) => { const s = t < 11 ? 0 : t < 14.1 ? 1 : t < 26.9 ? 2 : 3; status.querySelectorAll('span').forEach((n, i) => { cls(n, 'on', i === s); cls(n, 'ret', i === 2); cls(n, 'ok', i === 3); }); });
+// opening title moment, then the header chip
+const otitle = el(`<div class="otitle"><span class="chip2">DeltaOps Learning · Future Skills</span><h1>Verification Desk</h1><h2>Trace every source before you sign it off.</h2></div>`, { x: 0, y: 70 });
+A(cue(otitle, 0.3, 2.5, { from: 'pop', dur: 0.6 }));
+const labchip = el(`<div class="labchip"><span class="ic">${SVG.lens}</span><b>Verification Desk</b><span class="bar"></span><span class="r">DeltaOps Learning · Future Skills</span></div>`, { x: 44, y: 36 });
+A(cue(labchip, 2.6, 29.2, { from: 'left' }));
 
 // brief
-const brief = el(`<div class="wcard brief"><div class="bh"><span class="tag">BRIEF</span>A story goes live at 4 pm. Your desk checks it first.</div>
- <div class="bg"><div><small>Brief from</small><b>Desk Editor, Harbourside News</b></div><div><small>Task</small><b>Check the flood-barrier story before it is published</b></div><div><small>Due</small><b>Today, 4 pm</b></div></div></div>`, { x: 960, y: 840, anchor: 'c' });
-A(cue(brief, 1.2, 5.0, { from: 'up' }));
+const brief = el(`<div class="wcard brief"><span class="bic">${SVG.brief}</span>
+ <div class="f"><small>Brief from</small><b>Desk Editor, Harbourside News</b></div>
+ <div class="f"><small>Task</small><b>Check the flood-barrier story</b></div>
+ <div class="f due"><small>Goes live</small><b>Today, 4 pm</b></div></div>`, { x: 960, y: 1000, anchor: 'bc' });
+A(cue(brief, 2.4, 4.9, { from: 'up' }));
 
 // name tags (3D-anchored)
 const tagM = el(`<div class="ntag"><b>Hana, 13</b><small>Checker</small></div>`, { anchor: 'bc' });
 const tagE = el(`<div class="ntag m"><b>Amara Osei</b><small>Desk Editor · mentor</small></div>`, { anchor: 'bc' });
-const sayE = el(`<div class="say">Good catch, Hana. It can go live.</div>`, { anchor: 'bc' });
+const sayE = el(`<div class="say">“Good catch, Hana. It can go live.”</div>`, { anchor: 'bc' });
 const V3 = new THREE.Vector3();
 const follow = (node, obj, dy, dx = 0, ddy = 0) => (t) => { V3.set(obj.position.x, obj.position.y + dy, obj.position.z); const p = toScreen(V3, camera); node.style.left = (p.x + dx) + 'px'; node.style.top = (p.y - 10 + ddy) + 'px'; };
-const twoCue = (node, a, b) => { const c1 = cue(node, ...a), c2 = cue(node, ...b); return (t) => (t < (a[1] + b[0]) / 2 ? c1 : c2)(t); };
-A(cue(tagM, 7.0, 28.2)); A(twoCue(tagE, [1.8, 5.0], [29.4, 32.8])); A(cue(sayE, 30.4, 32.8));
-A(follow(tagM, MAYA, 3.75)); A(follow(tagE, MENTOR, 3.95)); A(follow(sayE, MENTOR, 3.95, 0, -112));
+A(cue(tagM, 6.6, 24.3)); A(cue(tagE, 2.8, 4.9)); A(cue(sayE, 24.6, 28.9));
+A(follow(tagM, MAYA, 3.75)); A(follow(tagE, MENTOR, 3.95)); A(follow(sayE, MENTOR, 3.95, 60, 0));
 
-// document
+// the story card
 const doc = el(`<div class="wcard doc">
- <div class="tb"><span class="fi"></span><b>flood-barrier-story.docx</b><span>· Harbourside News</span><span class="who">Written by: AI colleague</span></div>
+ <div class="tb"><span class="fi"></span><b>flood-barrier-story</b><span>· by AI colleague</span><span class="stchip" data-st>Draft</span></div>
+ <div class="mn">
+   <h3>New river barrier has cut town flooding</h3>
+   <p class="tx">Harbourside’s river barrier has cut <span data-o1>flooding in the town centre by 80%</span><span data-n1></span>, according to <span data-o2>a 2024 study</span><span data-n2></span> <span data-cite>[1]</span>. It opened in 2021, two years after the floods.</p>
+   <div class="src"><small>SOURCES</small><p data-s1><span data-s1t>[1] Pennethorne, J. (2024), <i>Bulletin of Small-Town Waterways</i></span></p><p data-s2 class="ins" style="display:none"></p></div>
+ </div>
  <div class="rv"><span class="lab">REVIEW</span><span data-run class="btn">Run the four checks</span>
    <span class="chk" data-c="0"><i>${SVG.dots}</i>Data</span><span class="chk" data-c="1"><i>${SVG.dots}</i>Case</span><span class="chk" data-c="2"><i>${SVG.dots}</i>Source</span><span class="chk" data-c="3"><i>${SVG.dots}</i>Authority</span></div>
- <div class="bd"><div class="mn">
-   <h3>New river barrier has cut town flooding</h3>
-   <div class="by">Draft · 3:12 pm · for the 4 pm edition</div>
-   <p class="tx">Harbourside’s river barrier has cut <span data-o1>flooding in the town centre by 80%</span><span data-n1 class="ins"></span>, according to <span data-o2>a 2024 study</span><span data-n2 class="ins"></span> <span data-cite>[1]</span>. It opened in 2021, two years after the floods.</p>
-   <div class="src"><small>SOURCES</small><p data-s1><span data-s1t>[1] Pennethorne, J. (2024) ‘River barriers in small towns’, <i>Bulletin of Small-Town Waterways</i> 12(3).</span></p><p data-s2 class="ins" style="display:none"></p></div>
- </div><div class="rail"><span class="hd">COMMENTS</span>
-   <div class="cmt" data-k1><b>Source check failed</b><p>Citation [1] can’t be traced. Find the original before this goes live.</p></div>
-   <div class="cmt g" data-k2><b>Hana · 3:41 pm</b><p>[1] doesn’t exist. Swapped in the council’s own report and matched the claim to its figures.</p></div>
- </div></div>
- <div class="ft"><span data-sg>Reviewed by: not yet reviewed</span><span data-pass class="pass">Checks passed: 0 of 4</span><span data-sign class="btn t">Sign off</span></div>
-</div>`, { x: 44, y: 142 });
-A(cue(doc, 5.5, 28.5, { from: 'up' }));
+ <div class="find" data-find><i>${SVG.cross}</i><span data-ft>Source: citation [1] can’t be traced</span></div>
+ <div class="ft"><span data-sg>Reviewed by: not yet</span><span data-pass class="pass">Checks passed: 0 of 4</span><span data-sign class="btn t">Sign off</span></div>
+</div>`, { x: COL, y: 124 });
+A(cue(doc, 5.0, null, { from: 'right' }));
 const Q = (s) => doc.querySelector(s);
 const chks = [0, 1, 2, 3].map((i) => Q(`[data-c="${i}"]`));
-const chkT = [[11.5, 12.0], [12.1, 12.6], [12.8, 13.9], [14.0, 14.4]]; // run start, result
-const typed = (n, s, t0, t1, t) => { const k = clamp((t - t0) / (t1 - t0)); const c = Math.round(s.length * k); const txt = s.slice(0, c); if (n.dataset.v !== txt + (k > 0 && k < 1)) { n.dataset.v = txt + (k > 0 && k < 1); n.innerHTML = txt + (k > 0 && k < 1 ? '<span class="caret"></span>' : ''); } };
+const T_RUN = 8.4, T_SFAIL = 10.6, T_FIXCLICK = 20.2, T_ACCEPT = 23.0, T_SIGN = 23.7;
+const chkT = [[8.6, 9.0], [9.1, 9.5], [9.6, T_SFAIL], [10.7, 11.1]];
+const typed = (n, s, t0, t1, t) => { const k = clamp((t - t0) / (t1 - t0)); const c = Math.round(s.length * k); const txt = s.slice(0, c); setH(n, txt + (k > 0 && k < 1 ? '<span class="caret"></span>' : '')); };
 const NEW1 = 'the number of flooded homes from 42 to 9', NEW2 = 'the council’s 2023 review';
-const NEWS = '[1] Harbourside Council (2023) Flood Barrier Review, p. 4. Checked 5 Nov 2026.';
+const NEWS = '[1] Harbourside Council (2023), Flood Barrier Review, p. 4';
 A((t) => {
-  const run = Q('[data-run]'); run.style.display = t < 11.2 ? '' : 'none'; cls(run, 'hit', within(t, 10.9, 11.15));
-  run.style.transform = within(t, 10.95, 11.15) ? 'scale(.94)' : '';
+  const st = t < T_RUN ? ['', 'Draft'] : t < T_SFAIL ? ['rev', 'In review'] : t < T_ACCEPT ? ['ret', 'Returned'] : t < T_SIGN ? ['rev', 'In review'] : ['ok', 'Approved'];
+  const sc = Q('[data-st]'); const c2 = 'stchip' + (st[0] ? ' ' + st[0] : ''); if (sc.className !== c2) sc.className = c2; if (sc.textContent !== st[1]) sc.textContent = st[1];
+  const run = Q('[data-run]'); run.style.display = t < T_RUN + 0.15 ? '' : 'none';
+  run.style.transform = within(t, T_RUN - 0.05, T_RUN + 0.15) ? 'scale(.94)' : '';
   chks.forEach((c, i) => {
-    c.style.display = t < 11.2 ? 'none' : '';
-    const [r, d] = chkT[i]; const bad = i === 2 && t < 25.8; const done = i === 2 ? (t >= d) : t >= d;
+    c.style.display = t < T_RUN + 0.15 ? 'none' : '';
+    const [r, d] = chkT[i]; const bad = i === 2 && t < T_ACCEPT; const done = t >= d;
     cls(c, 'run', t >= r && !done); cls(c, 'ok', done && !bad); cls(c, 'bad', done && bad);
     const ic = done ? (bad ? SVG.cross : SVG.tick) : SVG.dots; const ii = c.querySelector('i'); if (ii.dataset.s !== ic) { ii.innerHTML = ic; ii.dataset.s = ic; }
-    c.style.transform = i === 2 && within(t, 13.9, 14.3) ? `translateX(${Math.sin((t - 13.9) * 60) * 5}px)` : (i === 2 && within(t, 25.8, 26.1) ? 'scale(1.08)' : '');
+    c.style.transform = i === 2 && within(t, T_SFAIL, T_SFAIL + 0.4) ? `translateX(${Math.sin((t - T_SFAIL) * 60) * 5}px)` : (i === 2 && within(t, T_ACCEPT, T_ACCEPT + 0.3) ? 'scale(1.08)' : '');
   });
   const npass = chks.filter((c) => c.classList.contains('ok')).length;
-  const ps = Q('[data-pass]'); ps.textContent = `Checks passed: ${npass} of 4`; cls(ps, 'ok', npass === 4);
-  cls(Q('[data-cite]'), 'flag', within(t, 13.9, 25.8)); cls(Q('[data-s1t]'), 'flag', within(t, 13.9, 23.3));
-  // fix: strike old source, type new one, tracked edits in the claim
-  cls(Q('[data-s1t]'), 'del', t >= 23.3); Q('[data-s1]').style.display = t >= 25.0 ? 'none' : ''; // struck source leaves once the new one is typed, so the tracked edits fit
-  Q('[data-s2]').style.display = t >= 23.6 ? '' : 'none'; typed(Q('[data-s2]'), NEWS, 23.7, 25.0, t);
-  cls(Q('[data-o1]'), 'del', t >= 25.0); cls(Q('[data-o2]'), 'del', t >= 25.0);
-  Q('[data-o1]').style.display = t >= 26.4 ? 'none' : ''; Q('[data-o2]').style.display = t >= 26.4 ? 'none' : '';
-  Q('[data-n1]').textContent = t >= 25.0 ? (t >= 26.4 ? '' : ' ') + NEW1 : ''; Q('[data-n2]').textContent = t >= 25.0 ? (t >= 26.4 ? '' : ' ') + NEW2 : '';
-  cls(Q('[data-n1]'), 'ins', t < 26.4); cls(Q('[data-n2]'), 'ins', t < 26.4); cls(Q('[data-s2]'), 'ins', t < 26.4);
-  const k1 = Q('[data-k1]'), k2 = Q('[data-k2]');
-  k1.style.opacity = t >= 14.1 ? 1 : 0; k1.style.transform = `translateX(${(1 - prog(t, 14.1, 14.5, ease.out)) * 40}px)`;
-  k2.style.opacity = t >= 25.3 ? 1 : 0; k2.style.transform = `translateX(${(1 - prog(t, 25.3, 25.7, ease.out)) * 40}px)`;
+  const ps = Q('[data-pass]'); const pt = `Checks passed: ${npass} of 4`; if (ps.textContent !== pt) ps.textContent = pt; cls(ps, 'ok', npass === 4);
+  // finding line: red when Source fails, green once fixed
+  const fd = Q('[data-find]'); const fh = 66 * prog(t, T_SFAIL + 0.1, T_SFAIL + 0.45, ease.out); fd.style.height = fh + 'px';
+  const ok = t >= T_ACCEPT; cls(fd, 'ok', ok);
+  setH(fd.querySelector('i'), ok ? SVG.tick : SVG.cross);
+  const ft = fd.querySelector('[data-ft]'); const ftx = ok ? 'Source: council report, page 4 ✓' : 'Source: citation [1] can’t be traced'; if (ft.textContent !== ftx) ft.textContent = ftx;
+  cls(Q('[data-cite]'), 'flag', within(t, T_SFAIL, T_ACCEPT)); cls(Q('[data-s1t]'), 'flag', within(t, T_SFAIL, T_FIXCLICK));
+  // fix: strike old source, type new one, then tracked edits in the claim, then accept
+  cls(Q('[data-s1t]'), 'del', t >= T_FIXCLICK); Q('[data-s1]').style.display = t >= 21.8 ? 'none' : '';
+  Q('[data-s2]').style.display = t >= 20.4 ? '' : 'none'; typed(Q('[data-s2]'), NEWS, 20.5, 21.6, t); cls(Q('[data-s2]'), 'ins', t < T_ACCEPT);
+  const tr = t >= 21.8 && t < T_ACCEPT, done = t >= T_ACCEPT;
+  cls(Q('[data-o1]'), 'del', tr); cls(Q('[data-o2]'), 'del', tr);
+  Q('[data-o1]').style.display = done ? 'none' : ''; Q('[data-o2]').style.display = done ? 'none' : '';
+  const n1 = Q('[data-n1]'), n2 = Q('[data-n2]');
+  const t1 = tr ? ' ' + NEW1 : done ? NEW1 : '', t2 = tr ? ' ' + NEW2 : done ? NEW2 : '';
+  if (n1.textContent !== t1) n1.textContent = t1; if (n2.textContent !== t2) n2.textContent = t2;
+  cls(n1, 'ins', tr); cls(n2, 'ins', tr);
+  // sign-off
   const sg = Q('[data-sg]'), sb = Q('[data-sign]');
-  sb.style.display = t >= 26.9 ? 'none' : ''; sb.style.opacity = t >= 25.8 ? 1 : 0.35; sb.style.transform = within(t, 26.7, 26.9) ? 'scale(.94)' : '';
-  const sgH = t >= 26.9 ? `<span class="tick">${SVG.tick}</span><span class="sg">Reviewed by: Hana, age 13<em>Signed off 3:42 pm</em></span>` : 'Reviewed by: not yet reviewed';
-  if (sg.dataset.v !== sgH) { sg.dataset.v = sgH; sg.innerHTML = sgH; sg.style.display = 'flex'; sg.style.alignItems = 'center'; sg.style.gap = '16px'; }
-  sg.style.transform = t >= 26.9 ? `scale(${1 + 0.08 * (1 - prog(t, 26.9, 27.3, ease.out))})` : ''; sg.style.transformOrigin = 'left center';
-  // portfolio flight
-  if (t >= 29.0) { const k = prog(t, 29.0, 30.0, ease.inOut); doc.style.transformOrigin = 'center'; doc.style.transform = `translate(${k * 1000}px, ${k * 300}px) scale(${1 - k * 0.86}) rotate(${k * 4}deg)`; doc.style.opacity = 1 - prog(t, 29.75, 30.0); doc.style.visibility = t > 30.0 ? 'hidden' : 'visible'; }
+  sb.style.opacity = t >= T_ACCEPT ? 1 : 0.35; sb.style.transform = within(t, T_SIGN - 0.1, T_SIGN + 0.1) ? 'scale(.94)' : '';
+  const sgt = t >= T_SIGN ? 'Reviewed by: Hana, age 13' : 'Reviewed by: not yet'; if (sg.textContent !== sgt) sg.textContent = sgt;
+  sg.style.color = t >= T_SIGN ? '#13202b' : ''; sb.style.display = t >= T_SIGN ? 'none' : '';
+  // fly into the portfolio
+  if (t >= 26.6) { const k = prog(t, 26.6, 27.5, ease.inOut); doc.style.transformOrigin = '50% 0'; doc.style.transform = `translate(${k * 0}px, ${k * 250}px) scale(${1 - k * 0.8})`; doc.style.opacity = 1 - prog(t, 27.2, 27.5); doc.style.visibility = t > 27.5 ? 'hidden' : 'visible'; }
 });
 
-// AI colleague
-const ai = el(`<div class="ai"><div class="hd"><span class="ic">${SVG.ai}</span><b>AI colleague</b><span class="dr">DRAFT</span><span class="nm">VeriAssist</span></div>
- <p>Story drafted and ready to publish. The 80% figure is backed by a peer-reviewed study [1].</p>
- <div class="sure"><b data-p>0% sure</b><div class="bar"><i data-b style="width:0%"></i></div></div>
- <div class="chips"><span><em>Data I used</em>news sites, 2019–2024</span><span><em>Citations</em>1</span></div></div>`, { x: 1876, y: 142, anchor: 'tr' });
-A(cue(ai, 6.0, 15.3, { from: 'right' }));
-A((t) => { const p = Math.round(94 * prog(t, 6.6, 8.2, ease.out)); ai.querySelector('[data-p]').textContent = p + '% sure'; ai.querySelector('[data-b]').style.width = p + '%'; });
+// AI colleague (bottom slot)
+const SLOT = 724;
+const ai = el(`<div class="ai"><div class="hd"><span class="bot"><i></i></span><b>AI colleague</b><span class="dr" data-dr>DRAFT</span></div>
+ <p>Ready to publish. <span data-claim>The 80% figure comes from a peer-reviewed study [1].</span></p>
+ <div class="ftr"><span class="sure" data-sure><span class="bar"><i data-b style="width:0%"></i></span><span data-p>0% sure</span></span><span class="data"><b>DATA I USED</b>news sites, 2019–2024</span></div></div>`, { x: COL, y: SLOT });
+A(cue(ai, 5.5, 12.2, { from: 'right' }));
+A((t) => {
+  const drop = prog(t, 10.8, 11.4);
+  const p = Math.round(94 * prog(t, 6.0, 7.0, ease.out) * (1 - drop));
+  const lbl = t >= 10.8 ? 'Source not found' : p + '% sure';
+  const pn = ai.querySelector('[data-p]'); if (pn.textContent !== lbl) pn.textContent = lbl;
+  ai.querySelector('[data-b]').style.width = p + '%';
+  cls(ai.querySelector('[data-sure]'), 'low', t >= 10.8);
+  cls(ai.querySelector('[data-claim]'), 'del', t >= 10.8);
+  const dr = ai.querySelector('[data-dr]'); const dt = t >= 10.8 ? 'RETURNED' : 'DRAFT'; if (dr.textContent !== dt) dr.textContent = dt; cls(dr, 'ret', t >= 10.8);
+});
 
-// browser: lateral reading
+// browser: lateral reading (bottom slot)
 const brw = el(`<div class="wcard brw">
- <div class="tabs"><span class="tab" data-t="0">Journal search</span><span class="tab" data-t="1">Who is behind it?</span><span class="tab" data-t="2">Council report</span><span class="plus">+</span></div>
+ <div class="tabs"><span class="tab" data-t="0">Journal search</span><span class="tab" data-t="1">Who publishes it?</span><span class="tab" data-t="2">Council report</span><span class="plus">+</span></div>
  <div class="url" data-u></div>
  <div class="pg">
-  <div data-p="0"><h4><i>${SVG.cross}</i>0 results</h4><p>No journal called <b>Bulletin of Small-Town Waterways</b>. No 2024 article by J. Pennethorne in any library index.</p></div>
-  <div data-p="1"><h4><i>${SVG.cross}</i>Nobody stands behind it</h4><div class="kv"><span>Publisher</span><span>none found</span><span>Editors</span><span>none found</span><span>ISSN number</span><span>none found</span></div></div>
-  <div data-p="2"><h4><i class="g">${SVG.tick}</i>Real, named and checkable</h4><div class="kv g"><span>Published by</span><span>Harbourside Council, 2023</span><span>Page 4</span><span>Homes flooded: 42 → 9</span></div></div>
+  <div data-p="0"><h4><i>${SVG.cross}</i>0 results for that journal</h4><p>No 2024 article by J. Pennethorne in any library index.</p></div>
+  <div data-p="1"><h4><i>${SVG.cross}</i>Nobody stands behind it</h4><p>No publisher, no editors, no ISSN.</p></div>
+  <div data-p="2"><h4><i class="g">${SVG.tick}</i>Harbourside Council, 2023</h4><p>Page 4: homes flooded fell from <b>42 to 9</b>.</p></div>
  </div>
- <div class="trail"><span class="lb">TRAIL</span><span class="s n">[1] Pennethorne</span><span class="ar">›</span><span class="s x">no journal</span><span class="ar">›</span><span class="s x">no publisher</span><span class="ar">›</span><span class="s o">council report ✓</span></div>
-</div>`, { x: 1876, y: 142, anchor: 'tr' });
-A(cue(brw, 15.6, 28.3, { from: 'right' }));
-const URLS = ['library search: “Bulletin of Small-Town Waterways” Pennethorne 2024', 'who publishes “Bulletin of Small-Town Waterways”?', 'harbourside.gov.example/flood-barrier-review-2023.pdf'];
-const tabT = [16.3, 18.6, 20.9];
+ <div class="trail"><span class="lb">TRAIL</span><span class="s n">[1]</span><span class="ar">›</span><span class="s x">no journal</span><span class="ar">›</span><span class="s x">no publisher</span><span class="ar">›</span><span class="s o">council report ✓</span></div>
+</div>`, { x: COL, y: SLOT });
+A(cue(brw, 12.4, 19.9, { from: 'right' }));
+const URLS = ['library search: “Bulletin of Small-Town Waterways”', 'who publishes “Bulletin of Small-Town Waterways”?', 'harbourside council: flood barrier review 2023'];
+const tabT = [13.0, 15.3, 17.6];
 A((t) => {
   const n = tabT.filter((x) => t >= x).length, cur = n - 1;
   brw.querySelectorAll('.tab').forEach((x, i) => { x.style.display = i < n ? 'block' : 'none'; cls(x, 'on', i === cur); });
   cls(brw.querySelector('.plus'), 'hit', tabT.some((x) => within(t, x - 0.25, x)));
   const u = brw.querySelector('[data-u]'); const us = cur >= 0 ? URLS[cur] : 'New tab'; if (u.textContent !== us) u.textContent = us;
-  brw.querySelectorAll('[data-p]').forEach((x, i) => { const on = i === cur && t >= tabT[i] + 0.45; x.style.display = on ? 'block' : 'none'; x.style.opacity = prog(t, tabT[i] + 0.45, tabT[i] + 0.8); });
-  const ss = brw.querySelectorAll('.trail .s, .trail .ar'); const at = [15.9, 16.9, 16.9, 19.2, 19.2, 21.5, 21.5];
+  brw.querySelectorAll('[data-p]').forEach((x, i) => { const on = i === cur && t >= tabT[i] + 0.4; x.style.display = on ? 'block' : 'none'; x.style.opacity = prog(t, tabT[i] + 0.4, tabT[i] + 0.7); });
+  const ss = brw.querySelectorAll('.trail .s, .trail .ar'); const at = [12.6, 13.6, 13.6, 15.9, 15.9, 18.2, 18.2];
   ss.forEach((x, i) => { x.style.opacity = prog(t, at[i], at[i] + 0.3); });
 });
 
-// steps strip
-const steps = el(`<div class="steps"><span class="n" data-n></span><span class="d" data-d></span></div>`, { x: 44, y: 962 });
-A(cue(steps, 5.9, 32.6, { from: 'up' }));
-const STEPS = [[5.9, 'Step 2 of 6', 'The AI colleague hands over a confident draft'], [11.0, 'Step 3 of 6', 'Run the four checks before anything goes live'], [15.6, 'Step 4 of 6', 'Trace the source: open new tabs, check who is behind it'], [23.0, 'Step 5 of 6', 'Fix the citation on the page, then sign it off'], [28.4, 'Step 6 of 6', 'File the Fact-Check Card in your portfolio']];
-A((t) => { let s = STEPS[0]; for (const x of STEPS) if (t >= x[0]) s = x; const n = steps.querySelector('[data-n]'), d = steps.querySelector('[data-d]'); if (n.textContent !== s[1]) { n.textContent = s[1]; d.textContent = s[2]; } d.style.opacity = prog(t, s[0], s[0] + 0.35); });
+// sign-off card (bottom slot)
+const signC = el(`<div class="sign"><span class="tick">${SVG.tick}</span><span><small>SIGNED OFF · 3:42 PM</small><b>Reviewed by: Hana, age 13</b><em>Checks passed: 4 of 4</em></span></div>`, { x: COL, y: SLOT + 40 });
+A(cue(signC, 23.9, 29.0, { from: 'pop' }));
 
-// portfolio folder
+// steps strip
+const steps = el(`<div class="steps"><span class="n" data-n></span><span class="d" data-d></span></div>`, { x: 44, y: 1000 });
+A(cue(steps, 5.4, 29.0, { from: 'up' }));
+const STEPS = [[0, 'Step 1 of 6', 'Read the AI colleague’s draft'], [8.2, 'Step 2 of 6', 'Run the four checks'], [12.4, 'Step 3 of 6', 'Trace the source in new tabs'], [19.8, 'Step 4 of 6', 'Fix the citation on the page'], [23.5, 'Step 5 of 6', 'Sign it off'], [26.4, 'Step 6 of 6', 'File it in your portfolio']];
+A((t) => { let s = STEPS[0]; for (const x of STEPS) if (t >= x[0]) s = x; const n = steps.querySelector('[data-n]'), d = steps.querySelector('[data-d]'); if (n.textContent !== s[1]) n.textContent = s[1]; if (d.textContent !== s[2]) d.textContent = s[2]; });
+
+// portfolio folder (takes the story card's place; the sign-off card stays below it)
 const folder = el(`<div class="folder"><span class="tabf">PORTFOLIO · Hana</span><div class="body">
  <div class="it"><i></i><span>Data brief<small>Council Data Desk</small></span></div>
  <div class="it"><i></i><span>Model card<small>Model Test Lab</small></span></div>
- <div class="it nw" data-nw><i></i><span>Fact-Check Card<small>Flood-barrier story · reviewed</small></span><span class="new">NEW</span></div></div></div>`, { x: 1250, y: 520 });
-A(cue(folder, 28.7, 32.8, { from: 'right' }));
-A((t) => { const n = folder.querySelector('[data-nw]'); n.style.opacity = prog(t, 29.9, 30.2); n.style.transform = `scale(${t > 29.9 ? 1 + 0.06 * (1 - prog(t, 29.9, 30.4, ease.out)) : 0.9})`; });
+ <div class="it nw" data-nw><i></i><span>Fact-check card<small>Verification Desk · flood-barrier story</small></span><span class="new">NEW</span></div></div></div>`, { x: COL, y: 150 });
+A(cue(folder, 26.5, 29.0, { from: 'up' }));
+A((t) => { const n = folder.querySelector('[data-nw]'); n.style.opacity = prog(t, 27.4, 27.7); n.style.transform = `scale(${t > 27.4 ? 1 + 0.06 * (1 - prog(t, 27.4, 27.9, ease.out)) : 0.9})`; });
 
-// cursor
+// cursor (parks in the gap left of the cards, never over text)
 const cur = el(SVG.cursor, { x: 0, y: 0 }); cur.style.zIndex = 5;
 const ring = el('<div class="ring"></div>', { x: 0, y: 0, anchor: 'c' });
-const R = (sel, root = doc) => () => { const r = (typeof sel === 'string' ? root.querySelector(sel) : sel).getBoundingClientRect(); return [r.left + r.width * 0.55, r.top + r.height * 0.6]; };
+const R = (sel, root = doc) => () => { const r = root.querySelector(sel).getBoundingClientRect(); return [r.left + r.width * 0.5, r.top + r.height * 0.55]; };
 const plusP = R('.plus', brw);
-const PATH = [[9.9, [1500, 1060]], [10.8, R('[data-run]')], [11.3, R('[data-run]')], [12.2, () => [820, 560]], [15.9, () => [1500, 360]], [16.25, plusP], [17.4, () => [1500, 380]], [18.55, plusP], [19.6, () => [1480, 400]], [20.85, plusP], [22.4, () => [1500, 420]], [23.25, R('[data-s1t]')], [25.2, () => [700, 700]], [26.75, R('[data-sign]')], [27.4, R('[data-sign]')], [28.2, () => [900, 1100]]];
-const CLICKS = [11.0, 16.3, 18.6, 20.9, 23.3, 26.8];
+const PARK = (y) => () => [940, y];
+const PATH = [[7.4, [820, 1100]], [8.25, R('[data-run]')], [8.6, R('[data-run]')], [9.4, PARK(560)], [12.6, PARK(760)], [12.95, plusP], [13.5, plusP], [14.2, PARK(860)], [14.8, PARK(860)], [15.25, plusP], [15.8, plusP], [16.5, PARK(860)], [17.1, PARK(860)], [17.55, plusP], [18.1, plusP], [18.8, PARK(600)], [19.6, PARK(600)], [20.15, R('[data-s1t]')], [20.5, R('[data-s1t]')], [21.2, PARK(560)], [23.0, PARK(640)], [23.65, R('[data-sign]')], [24.0, R('[data-sign]')], [24.8, () => [900, 1120]]];
+const CLICKS = [T_RUN, 13.0, 15.3, 17.6, T_FIXCLICK, T_SIGN];
 A((t) => {
-  const on = within(t, 9.9, 28.2); cur.style.opacity = on ? 1 : 0;
+  const on = within(t, 7.4, 24.8); cur.style.opacity = on ? 1 : 0;
   if (on) { let i = 0; while (i < PATH.length - 2 && t > PATH[i + 1][0]) i++; const [ta, pa] = PATH[i], [tb, pb] = PATH[i + 1]; const a = typeof pa === 'function' ? pa() : pa, b = typeof pb === 'function' ? pb() : pb; const k = prog(t, ta, tb, ease.inOut); const x = lerp(a[0], b[0], k), y = lerp(a[1], b[1], k); cur.style.left = x + 'px'; cur.style.top = y + 'px'; ring.style.left = (x + 4) + 'px'; ring.style.top = (y + 4) + 'px'; }
   const c = CLICKS.find((x) => within(t, x, x + 0.45)); if (c != null && on) { const k = (t - c) / 0.45; ring.style.opacity = 1 - k; ring.style.transform = `translate(-50%,-50%) scale(${0.4 + k})`; } else ring.style.opacity = 0;
 });
 
-// end: title then pathway
-const dim = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:linear-gradient(180deg, rgba(8,40,70,.55), rgba(8,40,70,.35) 55%, rgba(8,40,70,.6))"></div>'); A(cue(dim, 33.0, null, { from: 'fade', dur: 0.8 }));
-const endt = el(`<div class="endt"><span class="chip2">DeltaOps Learning · Future Skills</span><h1>Verification Desk</h1><h2>Trace every source before you sign it off.</h2></div>`, { x: 0, y: 0 });
-A(cue(endt, 33.3, null, { from: 'pop', dur: 0.8 }));
-A((t) => { const k = prog(t, 37.0, 37.8, ease.inOut); endt.style.top = lerp(330, 110, k) + 'px'; });
-const logo = el('<img src="../assets/logo-learning-white.svg" style="height:56px">', { x: 960, y: 1010, anchor: 'c' }); A(cue(logo, 33.8, null, { from: 'fade' }));
-const path = el(`<div class="wcard path"><div class="ph"><span class="tag" style="background:#16c79a;color:#062a20">PATHWAY</span>Where this skill goes next</div><div class="pg2">
- <div><small>Next step</small><b>Civic Online Reasoning lessons</b><em>Free, in school or at home</em></div>
- <div><small>Award</small><b>Arts Award</b><em>Journalism or media project</em></div>
- <div><small>Route</small><b>GCSE Media Studies → A-level History or Politics</b></div>
- <div class="arr">→</div>
- <div><small>Jobs</small><b>Fact-checker · OSINT analyst · Librarian</b></div></div></div>`, { x: 960, y: 660, anchor: 'c' });
-A(cue(path, 37.5, null, { from: 'up' }));
+// end: whole island on the left in daylight; title and pathway on the right
+const etitle = el(`<div class="etitle"><span class="chip2">DeltaOps Learning · Future Skills</span><h1>Verification Desk</h1><h2>Trace every source before you sign it off.</h2></div>`, { x: COL, y: 70 });
+A(cue(etitle, 31.0, null, { from: 'up', dur: 0.6 }));
+const path = el(`<div class="wcard path"><div class="top"><span class="tag">PATHWAY</span><h3>Where this skill goes next</h3></div>
+ <div class="row"><span>Next step</span><b>Civic Online Reasoning lessons <em>(free)</em></b></div>
+ <div class="row"><span>Award</span><b>Arts Award <em>(journalism project)</em></b></div>
+ <div class="row"><span>Route</span><b>GCSE Media Studies, then A-level History or Politics</b></div>
+ <div class="row"><span>Jobs</span><div class="jobs"><i>Fact-checker</i><i>Journalist</i><i>Librarian</i></div></div>
+ <div class="lg"><img src="../assets/logo-learning.svg"></div></div>`, { x: COL, y: 400 });
+A(cue(path, 31.3, null, { from: 'up', dur: 0.6 }));
 
 st.onFrame((t) => ui.forEach((fn) => fn(t)));
 window.__duration = DUR;
