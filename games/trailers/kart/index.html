@@ -47,6 +47,17 @@ const road = new THREE.Mesh(roadGeo, new THREE.MeshToonMaterial({ vertexColors: 
 // ground + meadow
 const ground = new THREE.Mesh(new THREE.CircleGeometry(320, 48), toon('#5fd04a')); ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
 const meadow = new THREE.Mesh(new THREE.CircleGeometry(40, 32), toon('#7fe05a')); meadow.rotation.x = -Math.PI / 2; meadow.position.set(8, 0.03, 4); meadow.receiveShadow = true; scene.add(meadow);
+// trackside props: tyre stacks, cones, flags (outer edge only, every few metres)
+{ const tyreG = new THREE.CylinderGeometry(0.9, 0.9, 0.55, 14), coneG = new THREE.ConeGeometry(0.45, 1.1, 10), poleG = new THREE.CylinderGeometry(0.08, 0.08, 4.2, 6), flagG = new THREE.BoxGeometry(1.4, 0.9, 0.05);
+  const tyreM = toon('#23262c'), tyreR = toon('#ff4a3a'), coneM = toon('#ff8a1a'), poleM = toon('#e8eef5'), FL = ['#ffd23f', '#3a8fe0', '#ff6a4a', '#16c79a', '#a46cf0'].map((c) => toon(c));
+  const nT = 70, tyres = new THREE.InstancedMesh(tyreG, tyreM, nT * 3), tyresR = new THREE.InstancedMesh(tyreG, tyreR, nT), cones = new THREE.InstancedMesh(coneG, coneM, 60), poles = new THREE.InstancedMesh(poleG, poleM, 40);
+  const d = new THREE.Object3D(); let ti = 0, ri = 0, ci = 0, pi = 0;
+  for (let i = 0; i < NS; i += 1) { const [p, tg, n] = frames[i]; const side = Math.sign(n.x * p.x + n.z * p.z) || 1; // outward side
+    if (i % 9 === 0 && ti < nT * 3) { const b = p.clone().addScaledVector(n, side * (RW / 2 + 3.4)); for (let k = 0; k < 3; k++) { d.position.set(b.x, 0.3 + k * 0.55, b.z); d.rotation.set(0, 0, 0); d.scale.setScalar(1); d.updateMatrix(); if (k === 1 && ri < nT) tyresR.setMatrixAt(ri++, d.matrix); else if (ti < nT * 3) tyres.setMatrixAt(ti++, d.matrix); } }
+    if (i % 10 === 5 && ci < 60) { const b = p.clone().addScaledVector(n, -side * (RW / 2 + 1.6)); d.position.set(b.x, 0.55, b.z); d.updateMatrix(); cones.setMatrixAt(ci++, d.matrix); }
+    if (i % 15 === 7 && pi < 40) { const b = p.clone().addScaledVector(n, side * (RW / 2 + 5.4)); d.position.set(b.x, 2.1, b.z); d.updateMatrix(); poles.setMatrixAt(pi, d.matrix); const f = new THREE.Mesh(flagG, FL[pi % 5]); f.position.set(b.x + tg.x * 0.7, 3.7, b.z + tg.z * 0.7); f.rotation.y = Math.atan2(tg.x, tg.z) + Math.PI / 2; scene.add(f); pi++; } }
+  for (const m of [tyres, tyresR, cones, poles]) { m.castShadow = true; m.frustumCulled = false; scene.add(m); }
+  tyres.count = ti; tyresR.count = ri; cones.count = ci; poles.count = pi; }
 // kerbs
 const kerbGeo = new THREE.BoxGeometry(1.4, 0.35, 2.4);
 const kerbs = new THREE.InstancedMesh(kerbGeo, toon('#ffffff'), NS * 2); kerbs.receiveShadow = true; const d3 = new THREE.Object3D(); let kk = 0;
@@ -86,7 +97,19 @@ function kart(body, helmet, robot = false) {
   const wheels = []; for (const [x, z] of [[-1.55, 1.5], [1.55, 1.5], [-1.6, -1.5], [1.6, -1.5]]) { const w = mesh(new THREE.CylinderGeometry(0.7, 0.7, 0.7, 16), '#23262c'); w.rotation.z = Math.PI / 2; w.position.set(x, 0.7, z); g.add(w); wheels.push(w); }
   const torso = mesh(new THREE.SphereGeometry(0.75, 14, 12), robot ? '#e8eef5' : body); torso.position.set(0, 1.9, -0.4); g.add(torso);
   const head = mesh(robot ? new RoundedBoxGeometry(1.3, 1.1, 1.2, 3, 0.25) : new THREE.SphereGeometry(0.8, 16, 14), robot ? '#f4f6f8' : helmet); head.position.set(0, 2.95, -0.3); g.add(head);
-  if (robot) { const eye = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.3, 0.05), new THREE.MeshBasicMaterial({ color: '#16ffc6' })); eye.position.set(0, 3.0, 0.31); g.add(eye); const ant = new THREE.Mesh(new THREE.SphereGeometry(0.22, 10, 8), new THREE.MeshStandardMaterial({ color: '#16ffc6', emissive: '#16ffc6', emissiveIntensity: 2 })); ant.position.set(0, 3.85, -0.3); g.add(ant); }
+  if (robot) {
+    torso.visible = false;
+    const body2 = mesh(new RoundedBoxGeometry(1.5, 1.2, 1.1, 3, 0.3), '#2f6fd8'); body2.position.set(0, 1.95, -0.45); g.add(body2);
+    const chest = mesh(new RoundedBoxGeometry(0.9, 0.5, 0.1, 2, 0.05), '#13202b'); chest.position.set(0, 2.0, 0.12); g.add(chest);
+    const back = mesh(new RoundedBoxGeometry(0.9, 0.7, 0.2, 2, 0.08), '#ffc83d'); back.position.set(0, 2.0, -1.05); g.add(back);
+    for (const x of [-1, 1]) { const arm = mesh(new THREE.CylinderGeometry(0.16, 0.16, 1.2, 8), '#2f6fd8'); arm.rotation.x = Math.PI / 2.6; arm.position.set(x * 0.75, 1.95, 0.3); g.add(arm); const hand = mesh(new THREE.SphereGeometry(0.2, 8, 6), '#13202b'); hand.position.set(x * 0.6, 1.75, 0.85); g.add(hand); }
+    const wheel = mesh(new THREE.TorusGeometry(0.42, 0.08, 6, 16), '#13202b'); wheel.position.set(0, 1.8, 0.95); wheel.rotation.x = -0.5; g.add(wheel);
+    const band = mesh(new THREE.BoxGeometry(1.36, 0.36, 1.26), '#13202b'); band.position.set(0, 3.0, -0.3); g.add(band);
+    const eye = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.22, 0.05), new THREE.MeshBasicMaterial({ color: '#16ffc6' })); eye.position.set(0, 3.0, 0.34); g.add(eye);
+    for (const x of [-1, 1]) { const ear = mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.16, 12), '#16c7a6'); ear.rotation.z = Math.PI / 2; ear.position.set(x * 0.72, 3.0, -0.3); g.add(ear); }
+    const stalk = mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.5, 6), '#13202b'); stalk.position.set(0.3, 3.75, -0.3); g.add(stalk);
+    const tip = mesh(new THREE.SphereGeometry(0.12, 8, 6), '#ff6a4a'); tip.position.set(0.3, 4.05, -0.3); g.add(tip);
+  }
   else { const visor = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.35, 0.1), new THREE.MeshBasicMaterial({ color: '#13202b' })); visor.position.set(0, 3.0, 0.42); g.add(visor); }
   g.userData.wheels = wheels; scene.add(g); return g;
 }
@@ -129,7 +152,7 @@ st.onFrame((t) => {
   let cp, cl, fov = 52;
   if (t < 3.8) { cp = p.clone().addScaledVector(fwd, 9).add(new THREE.Vector3(3, 2.6, 0)); cl = p.clone().add(new THREE.Vector3(-3, 1.6, -4)); fov = 48; }
   else if (t < 10 || t >= 22 && t < 29) { cp = p.clone().addScaledVector(fwd, -10 - boost * 2).add(new THREE.Vector3(0, 4.2, 0)); cl = p.clone().addScaledVector(fwd, 8).add(new THREE.Vector3(0, 1.5, 0)); fov = 52 + boost * 10; }
-  else if (t < 13.4) { cp = new THREE.Vector3(-30, 34, 30); cl = p.clone(); fov = 46; }
+  else if (t < 13.4) { cp = p.clone().add(new THREE.Vector3(-16, 13, 16)); cl = p.clone(); fov = 46; }
   else if (t < 19.6) { cp = CP1.clone().add(new THREE.Vector3(6, 13, 19)); cl = CP1.clone().add(new THREE.Vector3(6, 0, 0)); fov = 46; }
   else if (t < 22) { cp = new THREE.Vector3(0, 120, 140); cl = new THREE.Vector3(0, 0, 0); fov = 40; }
   else if (t < 31.6) { cp = p.clone().add(new THREE.Vector3(9, 4, -9)); cl = p.clone().add(new THREE.Vector3(0, 2.5, 0)); fov = 46; }

@@ -87,7 +87,7 @@ function frame(t) {
   for (let y = 0; y < H; y += 2) { const k = y / H; px(0, y, W, 2, `rgb(${Math.round(lerp(64, 150, k))},${Math.round(lerp(146, 212, k))},${Math.round(lerp(240, 255, k))})`); }
   for (let k = 0; k < 6; k++) { const xx = ((k * 97 + t * 6) % (W + 80)) - 40, yy = 20 + (k * 37) % 70; px(xx, yy, 34, 6, '#ffffff'); px(xx + 6, yy - 4, 20, 4, '#ffffff'); px(xx + 2, yy + 6, 30, 2, '#dfe9f5'); }
   const pathSet = new Set(edgePath);
-  const cutOn = t >= 8 && t < 19.5, cutK = prog(t, 8.2, 10.4);
+  const cutOn = t >= 8 && t < 22.4, cutK = t < 22 ? prog(t, 8.2, 10.4) : 1;
   if (cutOn) cutPath.forEach(([i, j], k) => { if (k / cutPath.length < cutK) pathSet.add(i + ',' + j); });
   for (let s2 = 0; s2 < 2 * N; s2++) for (let i = 0; i < N; i++) {
     const j = s2 - i; if (j < 0 || j >= N || !inside(i, j)) continue;
@@ -108,7 +108,7 @@ function frame(t) {
   const objs = [];
   trees0.forEach(([i, j], k) => objs.push([i + j, () => { const [x, y] = iso(i, j); tree(x + ox, y + oy, 1, Math.round(Math.sin(t * 2 + i) * 0.6), hash(k, 3) > 0.55); }]));
   treesNew.forEach(([i, j], k) => { const gk = prog(t, 22.6 + k * 0.35, 23.3 + k * 0.35); if (gk > 0) objs.push([i + j, () => { const [x, y] = iso(i, j); tree(x + ox, y + oy, gk < 1 ? gk : 1, 0, k % 2 === 1); }]); });
-  kiosks.forEach(([i, j, c], k) => { const on = t >= 14.2 + k * 0.4 && (t < 22 || k < 2); if (on) objs.push([i + j, () => { const [x, y] = iso(i, j); kiosk(x + ox, y + oy, c); if (t >= 22.4 && k < 2) bin(x + ox + 20, y + oy + 2); }]); });
+  kiosks.forEach(([i, j, c], k) => { const on = k < 2; if (on) objs.push([i + j, () => { const [x, y] = iso(i, j); kiosk(x + ox, y + oy, c); if (k < 2) bin(x + ox + 20, y + oy + 2); }]); });
   coaster.forEach(([i, j, h], k) => objs.push([i + j - 0.2, () => { const [x, y] = iso(i, j, h); const [, yb] = iso(i, j, 0); if (k % 2 === 0) { px(x + ox, y + oy + 6, 1, yb - y - 2, '#7a5232'); for (let b = 8; b < yb - y; b += 8) px(x + ox - 3, y + oy + 6 + b, 7, 1, '#6b4424'); } const [x2, y2] = iso(...coaster[(k + 1) % 48].slice(0, 2), coaster[(k + 1) % 48][2]); g.lineWidth = 2; g.strokeStyle = '#b0302a'; g.beginPath(); g.moveTo(x + ox, y + oy + 2); g.lineTo(x2 + ox, y2 + oy + 2); g.stroke(); g.strokeStyle = '#e85a4a'; g.beginPath(); g.moveTo(x + ox, y + oy + 6); g.lineTo(x2 + ox, y2 + oy + 6); g.stroke(); px(x + ox - 1, y + oy + 2, 2, 5, '#5a3a20'); }]));
   for (let c = 0; c < 5; c++) { const u = (t * 0.25 + c * 0.022) % 1; const [i, j, h] = coaster[Math.floor(u * 48)]; objs.push([i + j + 0.1, () => { const [x, y] = iso(i, j, h); px(x + ox - 6, y + oy - 4, 12, 7, ['#ffc83d', '#3aa0f0', '#ff5a4a', '#16c79a', '#a46cf0'][c]); px(x + ox - 3, y + oy - 8, 3, 4, '#e8b88a'); px(x + ox + 1, y + oy - 8, 3, 4, '#a8714b'); }]); }
   const crowd = t < 8 ? 14 : t < 25 ? Math.round(lerp(14, 60, prog(t, 9, 13))) : 52;
@@ -129,7 +129,7 @@ function frame(t) {
   EP.forEach(([i, j], k) => { if (k % 3 === 1) objs.push([i + j + 0.9, () => { const [x, y] = iso(i + 0.85, j + 0.15); bench(x + ox, y + oy); }]); if (k % 4 === 2) objs.push([i + j + 0.95, () => { const [x, y] = iso(i + 0.1, j + 0.9); lamp(x + ox, y + oy); }]); });
   for (let k = 0; k < 26; k++) { const i = 10 + hash(k, 41) * 7, j = 3 + hash(k, 42) * 9; if (Math.abs(i - 12.5) < 1 && cutOn) continue; objs.push([i + j, () => { const [x, y] = iso(i, j); flowers(x + ox, y + oy, k); }]); }
   objs.sort((a, b) => a[0] - b[0]).forEach(([, f]) => f());
-  if (t >= 15 && t < 21.5) { const n = Math.round(180 * prog(t, 15, 18.5)) * (t > 20.6 ? 1 - prog(t, 20.6, 21.4) : 1); for (let k = 0; k < n; k++) { const kk = kiosks[k % 4]; const i = kk[0] + (hash(k, 4) - 0.5) * 3.5, j = kk[1] + (hash(k, 5) - 0.5) * 3.5; const [x, y] = iso(i + 0.5, j + 0.5); litter(x + ox, y + oy - 2, ['#ff5a4a', '#fff', '#ffc83d', '#3aa0f0'][k % 4]); }
+  if (false) { const n = Math.round(180 * prog(t, 15, 18.5)) * (t > 20.6 ? 1 - prog(t, 20.6, 21.4) : 1); for (let k = 0; k < n; k++) { const kk = kiosks[k % 4]; const i = kk[0] + (hash(k, 4) - 0.5) * 3.5, j = kk[1] + (hash(k, 5) - 0.5) * 3.5; const [x, y] = iso(i + 0.5, j + 0.5); litter(x + ox, y + oy - 2, ['#ff5a4a', '#fff', '#ffc83d', '#3aa0f0'][k % 4]); }
     for (let k = 0; k < 7; k++) { const a = t * 1.5 + k; const [x, y] = iso(12 + Math.cos(a) * 3, 10 + Math.sin(a) * 3, 9 + (k % 3)); gull(x + ox, y + oy, Math.sin(t * 12 + k) > 0); } }
 
   // ---------- HUD ----------
@@ -138,7 +138,7 @@ function frame(t) {
   const ic = (k, f) => f(6 + k * 16, 3); ic(0, (x, y) => { px(x + 2, y + 1, 4, 2, '#2e8a2e'); px(x + 1, y + 3, 6, 3, '#3fae3f'); px(x + 3, y + 6, 2, 2, '#6b4424'); }); ic(1, (x, y) => { px(x, y + 5, 8, 3, '#d8c08a'); px(x, y + 5, 8, 1, '#b89c62'); }); ic(2, (x, y) => { px(x, y + 6, 8, 1, '#c03a2a'); px(x + 1, y + 3, 2, 3, '#c03a2a'); px(x + 3, y + 1, 2, 2, '#c03a2a'); px(x + 5, y + 3, 2, 3, '#c03a2a'); }); ic(3, (x, y) => { px(x, y + 2, 8, 2, '#ff5a4a'); px(x + 2, y + 2, 2, 2, '#fff'); px(x + 6, y + 2, 2, 2, '#fff'); px(x + 1, y + 4, 6, 4, '#c9a06a'); }); ic(4, (x, y) => { px(x + 2, y + 2, 4, 6, '#6a7078'); px(x + 1, y + 1, 6, 1, '#4a4f56'); }); ic(5, (x, y) => { px(x, y + 3, 8, 4, '#3a8fe0'); px(x + 1, y + 4, 2, 1, '#9fd4ff'); px(x + 5, y + 5, 2, 1, '#9fd4ff'); }); ic(6, (x, y) => { px(x, y + 4, 6, 3, '#ffc83d'); px(x + 6, y + 2, 2, 5, '#e0a21a'); px(x + 1, y + 7, 2, 1, '#333'); px(x + 4, y + 7, 2, 1, '#333'); }); ic(7, (x, y) => { txt('£', x + 1, y + 7, '#1f7a2a', 'P2P', 8); });
   const guests = t < 8 ? 12 : Math.round(lerp(12, 84, prog(t, 9, 14)));
   const wild = t < 9 ? 0.72 : t < 22.4 ? lerp(0.72, 0.28, prog(t, 9.5, 18)) : lerp(0.28, 0.93, prog(t, 22.6, 25.5));
-  const tidy = t < 15 ? 0.85 : t < 22.4 ? lerp(0.85, 0.3, prog(t, 15.5, 18.5)) : lerp(0.3, 0.9, prog(t, 22.4, 24));
+  const tidy = 0.88;
   const money = Math.round(t < 14 ? 4200 + t * 40 : t < 20.5 ? 4760 + (t - 14) * 300 : 6700 + (t - 20.5) * 120);
   txt('£' + money.toLocaleString('en-GB'), W - 150, 10, '#fff', 'Silk', 8); txt('GUESTS ' + guests, W - 92, 10, '#fff', 'Silk', 8);
   txt('SUMMER, YEAR 1', 140, 10, '#fff', 'Silk', 8);
@@ -154,7 +154,7 @@ function frame(t) {
   
   if (t >= 10.5 && t < 14) { news = 'RABBIT: "MY BURROW IS UNDER THAT PATH!"'; red = true; }
   
-  if (t >= 16.5 && t < 19.5) { news = 'GUEST 23: "THE LITTER HERE IS REALLY BAD"'; red = true; }
+  if (t >= 16.5 && t < 19.5) { news = 'GUEST 23: "WHERE DID ALL THE DEER GO?"'; red = true; }
   
   px(0, H - 14, W, 14, '#8d929a'); px(0, H - 14, W, 1, '#c4c9d0'); txt('£' + money.toLocaleString('en-GB') + '   GUESTS ' + guests, 6, H - 4, '#fff', 'P2P', 8); txt('PARK RATING', W - 200, H - 4, '#fff', 'P2P', 8); bar(W - 108, H - 10, 100, (wild + tidy) / 2, '#2fbf6a');
   if (news) { px(0, H - 14, W, 14, red ? '#7a1a12' : '#1d2a48'); px(0, H - 14, W, 1, '#fff3'); const sx = W - ((t * 120) % (W + g.measureText(news).width + 200)); txt(news, Math.max(6, Math.min(6, sx)), H - 4, red ? '#ffd0c8' : '#ffe680', 'Silk', 8); }
@@ -164,13 +164,12 @@ function frame(t) {
     txt(l1, wx + 58, wy + 30, '#111', 'P2P', 8); txt(l2, wx + 58, wy + 44, '#111', 'P2P', 8);
     px(wx + 58, wy + 54, 200, 8, '#4a4f56'); px(wx + 59, wy + 55, Math.round(198 * sure * prog(t, a + 0.2, a + 0.8)), 6, sure > 0.9 ? '#ff8a3a' : '#2fbf6a'); txt(Math.round(sure * 100) + '% SURE', wx + 266, wy + 62, '#7a1a12', 'P2P', 8); };
   advisor('FASTEST WAY TO 50 GUESTS:', 'A PATH STRAIGHT THROUGH THE MEADOW!', 0.92, 6.3, 10.4);
-  advisor('MORE GUESTS NEED SNACKS.', 'SIX KIOSKS. NO BINS NEEDED!', 0.95, 13.4, 16.2);
-  advisor('GOT IT: PATH ROUND THE MEADOW,', 'BINS BY KIOSKS, TREES FOR SHADE.', 0.88, 22.9, 26, true);
+  advisor('GOT IT: PATH ROUND THE MEADOW.', 'MEADOW STAYS WILD. 50 GUESTS.', 0.88, 22.9, 26.4, true);
   // clearer instruction (the fix)
-  if (t >= 21.3 && t < 23) { const k = eio(prog(t, 21.3, 21.6)); const wx = 160, wy = Math.round(lerp(H, 96, k)); win(wx, wy, 320, 52, 'NEW INSTRUCTION FOR MANAGER BOT', '#7a3fb0'); button(wx + 8, wy + 22, 304, 18, 'GET 50 GUESTS. KEEP THE MEADOW WILD AND TIDY.', t > 21.9, false); if (t > 21.8 && t < 22.3) { const r = (t - 21.8) * 40; g.strokeStyle = '#fff'; g.lineWidth = 1; g.beginPath(); g.arc(wx + 60, wy + 28, r, 0, Math.PI * 2); g.stroke(); } }
+  if (t >= 21.3 && t < 23) { const k = eio(prog(t, 21.3, 21.6)); const wx = 160, wy = Math.round(lerp(H, 96, k)); win(wx, wy, 320, 52, 'NEW INSTRUCTION FOR MANAGER BOT', '#7a3fb0'); button(wx + 8, wy + 22, 304, 18, 'GET 50 GUESTS. KEEP THE MEADOW WILD.', t > 21.9, false); if (t > 21.8 && t < 22.3) { const r = (t - 21.8) * 40; g.strokeStyle = '#fff'; g.lineWidth = 1; g.beginPath(); g.arc(wx + 60, wy + 28, r, 0, Math.PI * 2); g.stroke(); } }
   // harm alert
   if (t >= 10.6 && t < 12.4) { const k = eio(prog(t, 10.6, 10.9)); const wx = 190, wy = Math.round(lerp(-60, 22, k)); win(wx, wy, 260, 46, 'PARK ALERT', '#b0281a'); txt('WILDLIFE FALLING:', wx + 10, wy + 26, '#7a1a12', 'P2P', 8); txt(Math.round(lerp(72, 40, prog(t, 10.6, 12.2))) + '%  ↓', wx + 170, wy + 38, '#b0281a', 'P2P', 8); }
-  if (t >= 16.6 && t < 19.4) { const k = eio(prog(t, 16.6, 16.9)); const wx = 190, wy = Math.round(lerp(-60, 22, k)); win(wx, wy, 260, 46, 'PARK ALERT', '#b0281a'); txt('LITTER EVERYWHERE:', wx + 10, wy + 26, '#7a1a12', 'P2P', 8); txt('TIDY 30%  ↓', wx + 150, wy + 38, '#b0281a', 'P2P', 8); }
+  if (t >= 16.6 && t < 19.4) { const k = eio(prog(t, 16.6, 16.9)); const wx = 190, wy = Math.round(lerp(-60, 22, k)); win(wx, wy, 260, 46, 'PARK ALERT', '#b0281a'); txt('DEER LEAVING THE PARK:', wx + 10, wy + 26, '#7a1a12', 'P2P', 8); txt('WILDLIFE 30%  ↓', wx + 120, wy + 38, '#b0281a', 'P2P', 8); }
   // ride window (hook)
   if (t >= 0.8 && t < 3.4) { const wx = W - 150, wy = 20; win(wx, wy, 142, 62, 'TWISTER COASTER', '#b0402a'); txt('STATUS: OPEN', wx + 8, wy + 26, '#1a6a2a'); txt('RIDERS TODAY: 412', wx + 8, wy + 39, '#111'); txt('EXCITEMENT: HIGH', wx + 8, wy + 52, '#111'); }
   // scenario + instruction window
@@ -190,7 +189,7 @@ function frame(t) {
   // thought bubbles
   const bub = (i, j, h, s, a, b, red) => { if (t >= a && t < b) { const [x, y] = iso(i, j, h); bubble(x + ox, y + oy, s, red); } };
   bub(12.5, 13.5, 1.4, 'WOW, FREE!', 9.6, 12.5); bub(11.4, 6.8, 0.8, 'MY BURROW!', 9.0, 10.6, true); bub(12.6, 11, 1.4, 'WHERE ARE THE FLOWERS?', 11, 12.5);
-  bub(12, 12.5, 1.4, 'THE LITTER HERE IS REALLY BAD', 16.2, 19.4, true); bub(5.5, 12.5, 0.6, 'CRISPS... I FEEL SICK', 17, 19.4, true);
+  bub(12, 12.5, 1.4, 'I CAME TO SEE THE DEER', 16.2, 19.4, true); bub(5.5, 12.5, 0.6, 'TOO NOISY HERE', 17, 19.4, true);
   bub(14.5, 8, 2, 'SHADE AT LAST', 24.5, 29.5); bub(8, 15.5, 1.4, 'I SAW A DEER!', 25, 29.5);
   // thought tally window
   if (false) {
@@ -201,8 +200,8 @@ function frame(t) {
     txt('VS', wx + 120, wy + 52, '#555', 'P2P', 8, 'center'); txt('"MORE RIDES!"', wx + 50, wy + 80, '#333', 'Silk', 8, 'center'); txt('"SHADE, PLEASE"', wx + 190, wy + 80, '#333', 'Silk', 8, 'center');
   }
   // award
-  if (t >= 25 && t < 30) {
-    const k = eio(prog(t, 25, 25.5)); const wx = 210, wy = lerp(H, 80, k);
+  if (t >= 26.6 && t < 30) {
+    const k = eio(prog(t, 26.6, 27.1)); const wx = 8, wy = lerp(-120, 20, k);
     win(wx, wy, 220, 110, 'PARK AWARD', '#b08a1a');
     // trophy
     const tx = wx + 40, ty = wy + 30; px(tx - 10, ty, 20, 4, '#ffd23f'); px(tx - 8, ty + 4, 16, 12, '#ffc83d'); px(tx - 3, ty + 16, 6, 8, '#e0a21a'); px(tx - 9, ty + 24, 18, 4, '#b08a1a'); px(tx - 6, ty + 6, 3, 8, '#fff6');

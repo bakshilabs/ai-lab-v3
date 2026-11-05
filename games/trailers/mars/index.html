@@ -22,7 +22,7 @@ import { el, cue, fader, titleCard } from '../engine/ui.js';
 import { burst } from '../engine/extras.js';
 import { makeLab, ICONS } from '../engine/lab.js';
 
-const DUR = 37;
+const DUR = 35;
 const st = createStage({ sky: ['#1a1060', '#3a2a9a'], post: false });
 const { scene, camera, sun, hemi, rim } = st;
 rim.intensity = 1.3; rim.color.set('#9a7aff'); st.dome.visible = false; st.renderer.setClearColor(0x000000, 0);
@@ -35,7 +35,7 @@ sun.intensity = 3.0; sun.color.set('#fff1dc'); sun.position.set(-60, 110, 70); h
 const v = new Vox(); v.jitter = 0.05;
 const RX = 38, RZ = 25; const H = new Map(); const K = (x, z) => x + ',' + z;
 const crater = (x, z) => Math.hypot((x - 23) / 8, (z - 5) / 6.5);
-const sand = (x, z) => Math.hypot((x + 1) / 8, (z + 1) / 5.5);
+const sand = (x, z) => Math.hypot((x - 1) / 11, (z + 1) / 7);
 const inside = (x, z) => { const a = Math.atan2(z / RZ, x / RX); const w = 1 + (noise2(Math.cos(a) * 2 + 3, Math.sin(a) * 2 + 3, 8) - 0.5) * 0.18; return Math.hypot(x / RX, z / RZ) < w; };
 const SH = ['#d9743a', '#cc6a33', '#e0844a', '#c4602c'];
 for (let x = -RX - 4; x <= RX + 4; x++) for (let z = -RZ - 4; z <= RZ + 4; z++) {
@@ -47,7 +47,7 @@ for (let x = -RX - 4; x <= RX + 4; x++) for (let z = -RZ - 4; z <= RZ + 4; z++) 
   const cr = crater(x, z); if (cr < 1) h = 2 - Math.round(3.5 * (1 - cr * cr)); else if (cr < 1.35) h = Math.max(h, 4);
   H.set(K(x, z), h);
   const r = Math.hypot(x / RX, z / RZ); const under = Math.round(10 * (1 - r * r * 0.7) + noise2(x / 3, z / 3, 4) * 3);
-  for (let y = h - under; y <= h; y++) { let c; if (y === h) { c = pad ? ((x + z) % 2 ? '#a9a9b0' : '#9a9aa2') : sd < 1 ? (sd < 0.7 ? '#f2b884' : '#e8a06a') : cr < 1 ? '#b0522a' : SH[Math.floor(clamp(noise2(x / 5, z / 5, 9) * 1.4 - 0.2) * 3.99)]; } else { const b = Math.floor((y + noise2(x / 5, z / 5, 2) * 2) / 2); c = ['#c4602c', '#a84a24', '#d9743a', '#8a3a1e', '#e8a06a'][((b % 5) + 5) % 5]; } v.set(x, y, z, c); }
+  for (let y = h - under; y <= h; y++) { let c; if (y === h) { c = pad ? ((x + z) % 2 ? '#a9a9b0' : '#9a9aa2') : sd < 1 ? (sd < 0.75 ? (rand(x, 3, z) > .5 ? '#fbe2bd' : '#f6d6a8') : '#f0c08a') : cr < 1 ? '#b0522a' : SH[Math.floor(clamp(noise2(x / 5, z / 5, 9) * 1.4 - 0.2) * 3.99)]; } else { const b = Math.floor((y + noise2(x / 5, z / 5, 2) * 2) / 2); c = ['#c4602c', '#a84a24', '#d9743a', '#8a3a1e', '#e8a06a'][((b % 5) + 5) % 5]; } v.set(x, y, z, c); }
   if (!pad && sd > 1.1 && cr > 1.4 && !isBase && rand(x, 5, z) > 0.988) v.set(x, h + 1, z, rand(x, 6, z) > .5 ? '#7a2e1a' : '#8a3a22');
 }
 const hAt = (x, z) => H.get(K(Math.round(x), Math.round(z))) ?? 2;
@@ -74,8 +74,8 @@ const RB = [[-17, -6], [-12, -12], [-2, -15], [9, -13], [15, -6], [17.5, -1], [1
 const segL = (R) => { const L = [0]; for (let i = 1; i < R.length; i++) L.push(L[i - 1] + Math.hypot(R[i][0] - R[i - 1][0], R[i][1] - R[i - 1][1])); return L; };
 const LA = segL(RA), LB = segL(RB);
 const at = (R, L, u) => { const d = clamp(u) * L[L.length - 1]; let i = 1; while (i < L.length - 1 && L[i] < d) i++; const k = (d - L[i - 1]) / (L[i] - L[i - 1]); return [lerp(R[i - 1][0], R[i][0], k), lerp(R[i - 1][1], R[i][1], k), Math.atan2(R[i][1] - R[i - 1][1], R[i][0] - R[i - 1][0])]; };
-const dotsA = particles(80, { size: 0.6, emissive: '#ff8a2a' }); dotsA.material.color.set('#ffa040'); scene.add(dotsA);
-const dotsB = particles(100, { size: 0.6, emissive: '#7a6aff' }); dotsB.material.color.set('#a090ff'); scene.add(dotsB);
+const dotsA = particles(80, { size: 0.42, emissive: '#ff8a2a' }); dotsA.material.color.set('#ffa040'); scene.add(dotsA);
+const dotsB = particles(100, { size: 0.42, emissive: '#7a6aff' }); dotsB.material.color.set('#a090ff'); scene.add(dotsB);
 const dust = particles(40, { size: 0.5 }); dust.material = new THREE.MeshLambertMaterial({ color: '#f0b884', transparent: true, opacity: 0.85 }); scene.add(dust);
 const tracks = particles(160, { size: 1 }); tracks.geometry = new THREE.BoxGeometry(0.3, 0.06, 0.3); tracks.material.color.set('#8a3a1e'); scene.add(tracks);
 const flash = el('<div style="position:absolute;inset:0;background:#fff;opacity:0"></div>');
@@ -83,8 +83,8 @@ const conf = burst(scene, { at: [FX + 1, hAt(FX, FZ) + 6, FZ], t0: 26.4, n: 70, 
 
 st.onFrame((t) => {
   const showA = t >= 8.6 && t < 19.4, showB = t >= 20.4;
-  for (let i = 0; i < 80; i++) { const [x, z] = at(RA, LA, i / 79); dotsA.setAt(i, x, hSm(x, z) + 1.2, z, 0, t, showA && i / 79 < prog(t, 8.6, 10) ? (i % 2 ? .7 : 1) : 0); } dotsA.done();
-  for (let i = 0; i < 100; i++) { const [x, z] = at(RB, LB, i / 99); dotsB.setAt(i, x, hSm(x, z) + 1.2, z, 0, t, showB && i / 99 < prog(t, 20.4, 21.8) ? (i % 2 ? .7 : 1) : 0); } dotsB.done();
+  for (let i = 0; i < 80; i++) { const [x, z] = at(RA, LA, i / 79); dotsA.setAt(i, x, hSm(x, z) + 1.2, z, 0, t, showA && i / 79 < prog(t, 8.6, 10) ? (i % 3 ? 0 : 1) : 0); } dotsA.done();
+  for (let i = 0; i < 100; i++) { const [x, z] = at(RB, LB, i / 99); dotsB.setAt(i, x, hSm(x, z) + 1.2, z, 0, t, showB && i / 99 < prog(t, 20.4, 21.8) ? (i % 3 ? 0 : 1) : 0); } dotsB.done();
   let x, z, a, sink = 0, spin = 0, sp = 0;
   if (t < 10 || (t >= 19.4 && t < 21.2)) { [x, z, a] = at(RA, LA, 0); spin = 0; }
   else if (t < 19.4) { const u = 0.47 * prog(t, 10, 12.8, ease.out); [x, z, a] = at(RA, LA, u); sp = 1; spin = t * (t > 12.8 ? 14 : 9); sink = prog(t, 12.6, 14); }
