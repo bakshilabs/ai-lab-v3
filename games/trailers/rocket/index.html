@@ -425,7 +425,7 @@ st.onFrame((t) => {
       if (t < TG) { const k = prog(t, SEA, TG); camAt(sx, 2.4, O3.z, lerp(-0.7, -0.6, k), lerp(34, 29, ease.out(k)), lerp(8, 7, k), lerp(0, 3.2, prog(t, 4.6, 6.6)), lerp(1.5, 2.6, k)); }
       else { const k = prog(t, TG, ROOM); camAt(sx, 2.2, O3.z, lerp(-0.6, -0.5, ease.inOut(k)), lerp(29, 24, ease.inOut(k)), lerp(7, 6, k), 3.2, lerp(2.6, 1.4, prog(t, 12.6, 13.6))); }
     } else if (t < TLD + 0.8) { const k = prog(t, BACK, TLD + 0.8); camAt(sx, lerp(3.4, 2.4, k), O3.z, lerp(-0.42, -0.3, k), lerp(30, 24, ease.inOut(k)), lerp(4.6, 4.0, k), lerp(-0.6, 0, k), 1.2); }
-    else { const k = prog(t, TLD + 0.8, DUR, (q) => q); camAt(sx, 2.4, O3.z, lerp(-0.3, 0.95, ease.inOut(k)), lerp(24, 22.5, k), lerp(4.0, 4.3, k), 0, lerp(1.2, 1.9, prog(t, HERO - 0.5, HERO + 1.5))); }
+    else { const k = prog(t, TLD + 0.8, DUR, (q) => q); camAt(sx, 2.4, O3.z, lerp(-0.3, 0.8, ease.inOut(k)), lerp(24, 23.5, k), lerp(4.0, 4.3, k), 0, lerp(1.2, 1.9, prog(t, HERO - 0.5, HERO + 1.5))); }
   }
   drawFlame(emit.length ? emit : [new THREE.Vector3(0, -999, 0)], emit.length ? power : 0, t, 1.7);
   drawSmoke(smokeAt || new THREE.Vector3(0, -999, 0), smokeAt ? smokeAmt : 0, t, smokeSpread);
@@ -492,7 +492,7 @@ A((t) => { if (!within(t, 6.9, 16.5)) return; const g = g4; g.clearRect(0, 0, 72
   if (gust > 0) { const gx = x0 + 45 / 60 * w; g.globalAlpha = gust; g.strokeStyle = '#e8573f'; g.lineWidth = 3; g.beginPath(); g.moveTo(gx, 40); g.lineTo(gx, y0 + h - 45 / 50 * h - 14); g.stroke(); g.globalAlpha = 1; } });
 follow('<div class="bub ghost" style="font-size:28px">DRY RUN · NAV’S PLAN</div>', TG + 0.1, TD - 0.1, () => ship.localToWorld(simPivot.position.clone().add(new THREE.Vector3(-1.18, -0.6, 0))), 'c');
 follow('<div class="bub" style="background:#e8573f;color:#fff;font-size:30px">GUST 45 km/h →</div>', TT, TF + 0.3, () => ship.localToWorld(new THREE.Vector3(2.8, 4.4, 0)));
-{ const n = el('<div class="alertx"><span class="x">✕</span>A 45 km/h gust tipped it over</div>', { x: 1180, y: 700, anchor: 'c' }); A(cue(n, TFE + 0.05, 13.2, { dur: 0.35, outDur: 0.3 })); }
+{ const n = el('<div class="alertx"><span class="x">✕</span>A 45 km/h gust tipped it over</div>', { x: 1440, y: 300, anchor: 'c' }); A(cue(n, TFE + 0.05, 13.2, { dur: 0.35, outDur: 0.3 })); }
 cards('TRY A CLEARER CARD', C4, 13.5, 16.0, 15.0, 1);
 
 // ---- MISSION CONTROL (16.8–21.6): the HOLD call ----
