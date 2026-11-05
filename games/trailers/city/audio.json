@@ -15,8 +15,8 @@
   {"t": 3.0, "type": "pop"}, {"t": 4.6, "type": "tap"},
   {"t": 5.6, "type": "riser", "len": 0.5}, {"t": 6.2, "type": "blip"}, {"t": 6.6, "type": "blip"}, {"t": 7.0, "type": "blip"},
   {"t": 9.6, "type": "whoosh"}, {"t": 10.8, "type": "blip"},
-  {"t": 11.6, "type": "brake"}, {"t": 12.15, "type": "error"},
+  {"t": 11.6, "type": "brake", "vol": 1.3}, {"t": 12.15, "type": "error"},
   {"t": 14.2, "type": "pop"}, {"t": 15.8, "type": "tap"},
   {"t": 17.0, "type": "whoosh"}, {"t": 17.8, "type": "brake", "vol": 0.4}, {"t": 19.3, "type": "blip"},
-  {"t": 19.6, "type": "brake", "vol": 0.6}, {"t": 20.95, "type": "success"},
-  {"t": 23.4, "type": "pop"}, {"t": 25.9, "type": "riser", "len": 0.6}, {"t": 26.5, "type": "boom"}]}
+  {"t": 19.6, "type": "brake", "vol": 0.6}, {"t": 20.95, "type": "success"}, {"t": 21.3, "type": "coin"},
+  {"t": 23.3, "type": "pop"}, {"t": 25.9, "type": "riser", "len": 0.6}, {"t": 26.5, "type": "boom"}]}
