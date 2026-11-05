@@ -244,7 +244,7 @@ for (const [i0, k0] of desks) { const m = new THREE.Mesh(new THREE.PlaneGeometry
 function seat(p) { const [legL, legR] = p.children; legL.rotation.x = legR.rotation.x = Math.PI / 2; }
 function scarf(p, col) { const s = 0.32; const m = new THREE.Mesh(new THREE.BoxGeometry(2.3 * s, 2.5 * s, 2.3 * s), new THREE.MeshLambertMaterial({ color: col })); m.position.set(-0.5 * s + 0.16, 7.35 * s, -0.5 * s + 0.2); p.add(m); }
 const kids = [
-  { name: 'Kofi', shirt: '#16c79a', skin: '#5a3a26', hair: '#141010', d: 0 },
+  { name: 'Leon', shirt: '#16c79a', skin: '#5a3a26', hair: '#141010', d: 0 },
   { name: 'Ella', shirt: '#ff8a2a', skin: '#f0c8a0', hair: '#b5532a', d: 1 },
   { name: 'Priya', shirt: '#6e5bf2', skin: '#a8714a', hair: '#1e1410', d: 2 },
   { name: 'Sam', shirt: '#e8573f', skin: '#e8c19a', hair: '#3a2a1a', d: 3 },
@@ -310,12 +310,12 @@ const brief = el(`<div class="wc brief"><div class="hd3" style="margin-bottom:10
   <div class="row due"><small>Due</small><b>Friday</b></div></div>`, { x: 40, y: 140 });
 show(brief, 1.1, 4.9, { from: 'left' });
 
-const capA = el('<div class="cap">Kofi, 13<small>AI safety tester</small></div>', { cls: 'abs' });
-const capM = el('<div class="cap mentor">Rana Begum<small>Mentor · security tester</small></div>', { cls: 'abs' });
+const capA = el('<div class="cap">Leon, 15<small>AI safety tester</small></div>', { cls: 'abs' });
+const capM = el('<div class="cap mentor">Dee Marsh<small>Mentor · security tester</small></div>', { cls: 'abs' });
 const capPos = (node, obj, dy, tIn, tOut) => { show(node, tIn, tOut, { from: 'fade' }); A((t) => { const p = toScreen(obj.position.clone().add(new THREE.Vector3(0, dy, 0)), camera); node.style.left = Math.min(p.x, 1740) + 'px'; node.style.top = p.y + 'px'; node.style.transform = 'translate(-50%,-100%)'; }); };
 capPos(capM, mentor, 3.6, 2.0, 4.6);
 capPos(capA, kids[0].p, 3.3, 6.6, 13.4);
-const capM2 = el('<div class="cap mentor">Rana Begum<small>Mentor · security tester</small></div>', { cls: 'abs' });
+const capM2 = el('<div class="cap mentor">Dee Marsh<small>Mentor · security tester</small></div>', { cls: 'abs' });
 capPos(capM2, mentor, 3.5, 7.2, 13.4);
 
 // 2. test log
@@ -346,7 +346,7 @@ const chat = el(chatHTML('Test version · scripted answers'), { x: 40, y: 740 })
 const chat2 = el(chatHTML('Fixed version · re-test'), { x: 40, y: 740 }); show(chat2, 23.0, 26.2, { from: 'up' });
 const fillChat = (node, n, phase, fixed) => {
   const r = TESTS[n]; const q = node.querySelector('[data-q]'), a = node.querySelector('[data-a]');
-  set(q, `<small>Kofi · test ${n + 1}</small>${r[1]}`); q.style.opacity = phase >= 0 ? 1 : 0;
+  set(q, `<small>Leon · test ${n + 1}</small>${r[1]}`); q.style.opacity = phase >= 0 ? 1 : 0;
   set(a, phase >= 1 ? `<small>Archie</small>${fixed ? r[6] : r[3]}` : '<small>Archie</small>…'); a.style.opacity = phase >= 0 ? 1 : 0;
   a.className = 'bub bot' + (phase >= 2 ? (fixed || r[4] === 'pass' ? ' good' : ' bad') : '');
 };
@@ -361,7 +361,7 @@ A((t) => {
 const BOT = '<svg viewBox="0 0 24 24" width="28" height="28"><rect x="4" y="7" width="16" height="12" rx="4" fill="#16c79a"/><circle cx="9.5" cy="13" r="1.8" fill="#13202b"/><circle cx="14.5" cy="13" r="1.8" fill="#13202b"/><path d="M12 3v4" stroke="#16c79a" stroke-width="2.4"/></svg>';
 const ai = el(`<div class="aic"><div class="who"><i>${BOT}</i>AI colleague · draft <em>READY</em></div><p data-p></p>
   <div class="sure"><div class="bar"><i style="width:97%"></i></div><span>97% sure</span></div>
-  <div class="data"><b>Data I used</b>Archie’s own answers, self-marked</div><div class="cm" data-cm style="display:none">Kofi: the test log shows 2 fails. Report rewritten.</div></div>`, { x: 1296, y: 132 });
+  <div class="data"><b>Data I used</b>Archie’s own answers, self-marked</div><div class="cm" data-cm style="display:none">Leon: the test log shows 2 fails. Report rewritten.</div></div>`, { x: 1296, y: 132 });
 show(ai, 13.6, 26.2, { from: 'right' });
 A((t) => {
   set(ai.querySelector('[data-p]'), t < 19.8 ? 'Self-test report: Archie passed all 5 tests. No safety issues found. Ready to launch.' : 'Self-test report: <s>No safety issues found. Ready to launch.</s> <ins>2 fails: fix before launch.</ins>');
@@ -371,7 +371,7 @@ A((t) => {
 // review
 const CK = [['Data', 16.4], ['Case', 16.9], ['Source', 17.6], ['Authority', 18.2]];
 const rev = el(`<div class="wc review"><div class="hd3"><span class="t">Review</span>Four checks</div><div class="checks">${CK.map(([n]) => `<div class="ck" data-k="${n}"><i></i>${n}</div>`).join('')}</div>
-  <div class="find" data-f></div><div class="sign" data-sg style="opacity:0"><span class="tick">✓</span><span>Reviewed by: Kofi, age 13<small>Signed off · checks passed 4 of 4</small></span></div></div>`, { x: 1296, y: 596 });
+  <div class="find" data-f></div><div class="sign" data-sg style="opacity:0"><span class="tick">✓</span><span>Reviewed by: Leon, age 15<small>Signed off · checks passed 4 of 4</small></span></div></div>`, { x: 1296, y: 596 });
 show(rev, 15.8, 26.2, { from: 'right' });
 A((t) => {
   CK.forEach(([n, at]) => { const c = rev.querySelector(`[data-k="${n}"]`); const bad = n === 'Source' && t > at && t < 25.5; const ok = t > at && !bad; c.className = 'ck' + (bad ? ' bad' : ok ? ' ok' : ''); set(c.querySelector('i'), bad ? '✕' : ok ? '✓' : ''); });
@@ -383,7 +383,7 @@ A((t) => {
 });
 
 // report editor (fix, 19.4-23.0)
-const rep = el(`<div class="wc rep"><div class="hd3"><span class="t">Pre-launch test report</span>Kofi is editing</div><div class="cols">
+const rep = el(`<div class="wc rep"><div class="hd3"><span class="t">Pre-launch test report</span>Leon is editing</div><div class="cols">
   <div><h5>Findings</h5><div class="it" data-i="0"><span class="sev hi">High</span>#3 Reveals a staff-only note when asked politely</div><div class="it" data-i="1"><span class="sev md">Medium</span>#1 Gives the wrong Sunday closing time, confidently</div></div>
   <div><h5>Fix before launch</h5><div class="it" data-i="2">1. Remove staff notes from what Archie can read</div><div class="it" data-i="3">2. Take opening times from the museum timetable</div><div class="dec no" data-dec>Decision: don’t launch yet</div></div></div></div>`, { x: 40, y: 740 });
 show(rep, 19.2, 22.9, { from: 'up' });
@@ -393,7 +393,7 @@ show(fixed, 22.9, 24.3, { from: 'pop' });
 
 // cursor
 const CUR = '<svg viewBox="0 0 24 24" width="40" height="40"><path d="M3 2l17 9-7.5 1.8L9 20z" fill="#13202b" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>';
-const cur = el(`<div class="cur">${CUR}<span>Kofi</span></div>`, { x: 0, y: 0 });
+const cur = el(`<div class="cur">${CUR}<span>Leon</span></div>`, { x: 0, y: 0 });
 const K = [
   [5.6, 400, 1040], [6.0, 470, 1000], [13.0, 470, 1000],
   [19.4, 900, 900], [20.6, 1180, 380], [21.2, 1180, 230], [21.8, 900, 900], [22.4, 1000, 960], [25.6, 1500, 1000], [26.0, 1420, 960],
@@ -413,15 +413,15 @@ A((t) => {
 // 4. portfolio
 const doc = el(`<div class="wc doc"><span class="tagt">ARTEFACT</span><h4>Pre-launch Test Report</h4><div class="sub">Ask Archie · Harbour Museum · version 2</div>
   <div class="thumb">${[0, 1, 2, 3, 4].map((n) => `<div style="position:absolute;left:14px;right:120px;top:${8 + n * 22}px;height:16px;border-radius:6px;background:#e6ebee"></div><div style="position:absolute;right:14px;width:90px;top:${8 + n * 22}px;height:16px;border-radius:8px;background:${n === 0 || n === 2 ? '#16c79a' : '#bfeedd'}"></div>`).join('')}</div>
-  <ul><li>5 safe test cases across 5 categories</li><li>2 fails found, rated High and Medium</li><li>Both fixed and passed the re-test</li><li>Reviewed by: Kofi, age 13</li></ul></div>`, { x: 960, y: 470, anchor: 'c' });
+  <ul><li>5 safe test cases across 5 categories</li><li>2 fails found, rated High and Medium</li><li>Both fixed and passed the re-test</li><li>Reviewed by: Leon, age 15</li></ul></div>`, { x: 960, y: 470, anchor: 'c' });
 const FOLD = '<svg viewBox="0 0 24 24" width="54" height="54"><path d="M3 6h7l2 2h9v11H3z" fill="#06281f" opacity=".85"/></svg>';
-const folder = el(`<div class="folder"><div class="tab"></div><div class="body">${FOLD}<span><b>Portfolio</b><small data-n>Kofi · 3 pieces of work</small></span></div></div>`, { x: 960, y: 1010, anchor: 'bc' });
+const folder = el(`<div class="folder"><div class="tab"></div><div class="body">${FOLD}<span><b>Portfolio</b><small data-n>Leon · 3 pieces of work</small></span></div></div>`, { x: 960, y: 1010, anchor: 'bc' });
 show(folder, 27.4, 31.0, { from: 'up' });
 A((t) => {
   const a = prog(t, 26.8, 27.3, ease.back), m = prog(t, 29.0, 29.8, ease.inOut);
   const vis = t > 26.8 && t < 29.9; doc.style.opacity = vis ? Math.min(a, 1 - prog(t, 29.6, 29.85)) : 0; doc.style.visibility = vis ? 'visible' : 'hidden';
   doc.style.transform = `translate(-50%,-50%) translate(0px, ${m * 420}px) scale(${(0.7 + 0.3 * a) * (1 - m * 0.86)})`;
-  set(folder.querySelector('[data-n]'), t > 29.8 ? 'Kofi · 4 pieces of work' : 'Kofi · 3 pieces of work');
+  set(folder.querySelector('[data-n]'), t > 29.8 ? 'Leon · 4 pieces of work' : 'Leon · 3 pieces of work');
   folder.querySelector('.body').style.boxShadow = within(t, 29.8, 30.3) ? '0 0 0 8px rgba(255,255,255,.8), 0 14px 30px rgba(10,60,40,.3)' : '';
 });
 

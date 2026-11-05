@@ -16,12 +16,12 @@ Over six days on Kestrel Isle, as a storm builds, a drone team works with a Flig
 - By the end, learners can name three drone jobs and the real first step for flying legally in the UK, with a grown-up.
 
 **Curriculum links**
-- KS2: geography, compass points, four- and six-figure grid references, OS maps, digital mapping, fieldwork ([DfE geography](https://www.gov.uk/government/publications/national-curriculum-in-england-geography-programmes-of-study/national-curriculum-in-england-geography-programmes-of-study)); maths, Y6 coordinates, percentages, time; computing, sequences and debugging.
-- KS3: geography, OS maps, aerial and satellite photographs and GIS (exact wording to verify); maths, speed, distance and time, compound units; computing, algorithms and data.
-- KS4 (age 14 stretch): GCSE geography fieldwork and geospatial data; GCSE maths compound measures (to verify against specifications).
-- NGSS: 3-5-ETS1-1, MS-ETS1-1 and -2 (criteria and constraints) ([NGSS](https://nextgenscience.org/topic-arrangement/msengineering-design)); 3-ESS2-1 and MS-LS1 codes from memory (to verify).
-- UNESCO AI competency framework for students: human-centred mindset (pilot in command), ethics of AI (privacy, consent, wildlife), AI techniques and applications (detectors, crop maps, route planners).
-- AI4K12 Big Ideas: 1 Perception (thermal and NDVI detection), 3 Learning (detector trained on people standing on grass), 5 Societal impact (privacy, rescue, law).
+- **KS2:** geography, compass points, four- and six-figure grid references, OS and digital maps, fieldwork ([DfE geography](https://www.gov.uk/government/publications/national-curriculum-in-england-geography-programmes-of-study/national-curriculum-in-england-geography-programmes-of-study)); maths, Y6 coordinates, percentages, time; computing, sequences and debugging.
+- **KS3:** geography, OS maps, aerial photographs and GIS (wording to verify); maths, speed, distance and time; computing, algorithms and data.
+- **KS4 (age 14 stretch):** GCSE geography geospatial data; maths compound measures (to verify).
+- **NGSS:** 3-5-ETS1-1, MS-ETS1-1 and -2 ([NGSS](https://nextgenscience.org/topic-arrangement/msengineering-design)); 3-ESS2-1 and MS-LS1 (to verify).
+- **UNESCO AI competencies:** human-centred mindset (pilot in command); ethics of AI (privacy, consent, wildlife); AI techniques and applications (detectors, crop maps, route planners).
+- **AI4K12 Big Ideas:** 1 Perception (thermal, NDVI); 3 Learning (a detector trained on people standing on grass); 5 Societal impact (privacy, rescue, law).
 
 ## 3. Real-world connection and careers
 **Jobs this mirrors**
@@ -54,14 +54,7 @@ Over six days on Kestrel Isle, as a storm builds, a drone team works with a Flig
 | Flight Assistant | AI tool | Generic; low risk |
 
 ## 5. Core loop and structure
-**Acts in every level**
-1. **Call-in:** a client call (harbourmaster, farmer, technician, rescue controller, clinic), goal, deliverable icon, day dots.
-2. **AI plan:** map view; the team gives an instruction card; ghost route, "% sure", "Data I used".
-3. **Check:** evidence lenses (airspace, notices, wind at height, people, boundary, battery, thermal, colour); challenge-and-response pre-flight checklist ("Propellers?" "No chips." "GPS?" "Locked, 14 satellites.").
-4. **Fix:** clearer card plus the team's own choices from 3–4 real options; the AI re-plans, sometimes less sure.
-5. **Go/no-go and fly:** the pilot in command calls it; mostly automated flight with 20–40 seconds of assisted hand-flying; the observer watches the sky.
-6. **Review:** AI flags on the images; the image analyst confirms or rejects each with evidence.
-7. **Log:** mission log page stamped, practice skill badge, weather moves on.
+**Acts in every level:** (1) **Call-in** from a client, with the goal and day dots; (2) **AI plan** in map view: ghost route, % sure and a "Data I used" chip; (3) **Check**: evidence lenses and a challenge-and-response pre-flight checklist ("Propellers?" "No chips." "GPS?" "Locked, 14 satellites."); (4) **Fix**: clearer card plus 3–4 real planning options; (5) **Go/no-go and fly**: mostly automated, with 20–40 seconds of assisted hand-flying while the observer watches the sky; (6) **Review**: the image analyst confirms or rejects each AI flag; (7) **Log**: logbook stamp and practice badge.
 
 **Levels**
 | Level | Goal | Real decisions | AI's confident mistake | How children catch it | Clearer instruction or better data | What changes on screen |
@@ -93,42 +86,17 @@ Roles rotate each day; standard calls are printed on the role cards.
 Three children: planner + comms; observer + analyst; pilot. Four: the planner reads the checklist.
 
 ## 7. Session plans
-**45 minutes** (Levels 1 short, 5, 6)
-| Minutes | Activity |
-| --- | --- |
-| 0–6 | Warm-up: practice Drone Code quiz (4 questions, open book); say the Flight Assistant is scripted; practise calls |
-| 6–14 | Level 1 First Flight |
-| 14–24 | Level 5 Night Search |
-| 24–34 | Level 6 Medicine Run |
-| 34–44 | Discussion (10 min) |
-| 44–45 | Exit check and practice badges |
+Minutes for each phase. Every version starts by saying the Flight Assistant is scripted and practising the standard calls.
 
-**60 minutes** (Levels 1, 2 + 3 merged, 5, 6)
-| Minutes | Activity |
-| --- | --- |
-| 0–7 | Warm-up: practice Flyer card quiz (8 questions, open book, retake freely) |
-| 7–15 | Level 1 |
-| 15–25 | Levels 2 and 3 merged (map, then crop map) |
-| 25–35 | Level 5 |
-| 35–45 | Level 6 with permission cards |
-| 45–57 | Discussion (12 min) |
-| 57–60 | Exit check, logbook |
+| Phase | 45 min (Levels 1 short, 5, 6) | 60 min (1, 2 + 3 merged, 5, 6) | 90 min (all six, bonus catches) |
+| --- | --- | --- | --- |
+| Warm-up: practice Drone Code quiz (open book, retake freely) | 0–6 (4 questions) | 0–7 (8 questions) | 0–8 (8 questions) |
+| Play: Levels 1–3 | 6–14 | 7–25 | 8–35 |
+| Play: Levels 4–6 | 14–34 | 25–45 (Level 6 with permission cards) | 35–66, then 66–70 transfer task (seal count, no lenses on: "Which lens first?") |
+| Discussion (section 9) | 34–43 | 45–57 | 70–88 |
+| Wrap-up: exit check, logbook, take-home age card | 43–45 | 57–60 | 88–90 |
 
-**90 minutes** (all six days, bonus catches, transfer task)
-| Minutes | Activity |
-| --- | --- |
-| 0–8 | Warm-up quiz and role calls |
-| 8–17 | Level 1 with cable bonus |
-| 17–26 | Level 2 |
-| 26–35 | Level 3 |
-| 35–45 | Level 4 with coverage bonus |
-| 45–56 | Level 5 |
-| 56–66 | Level 6 |
-| 66–70 | Transfer task: a wildlife count near seals, no lenses on; "Which lens first?" |
-| 70–88 | Discussion (18 min) |
-| 88–90 | Exit check, logbook, take-home card |
-
-**If short of time:** drop bonus catches, then Levels 2–4 (keep the arc: first flight, rescue, medicine). Never drop the Drone Code warm-up, the helicopter call in Level 5 or the take-home age message.
+**If short of time:** drop bonus catches, then Levels 2–4 (the arc still lands: first flight, rescue, medicine). Never drop the Drone Code warm-up, the helicopter call in Level 5 or the take-home age message.
 
 ## 8. Assessment
 - **Stars:** for catches justified with evidence and for good go/no-go calls, including a correct no-go. Not for speed or flashy flying.
@@ -254,29 +222,9 @@ Three children: planner + comms; observer + analyst; pilot. Four: the planner re
 - **Gentle consequences:** nobody is hurt. Bad plans lead to auto-return, holes in the map, the bees leaving, the helicopter circling or the parcel reaching only the halfway pad. Hand-flying "crashes" only into trees or water, with an "Insurance claim!" log entry. Wildlife distances are respected (take-off 50 m or more from seabird colonies, [Oxford](https://www.biology.ox.ac.uk/node/3551346)).
 
 ## 12. Build notes
-**Scenes and assets:** Kestrel Isle with village, airfield, farm, turbines, moor, lighthouse and clinic island; airspace rings and restriction zone; NDVI overlay; wind arrows and wind-at-height chart; thermal and colour-lens materials; drone model; helicopter; parcel and clinic pad. Reuse brochure `obj-turbine`, `obj-pin`, `obj-shield`, `obj-chest`, `obj-bot`.
-
-**Scripted AI responses (minimum set)**
-- L1: vague 88% (Map from 2024); clear 79%; cable bonus "safe to fly low under the cable, 92%".
-- L2: vague 86%; clear re-plan; bonus "Map complete, 95%" with a smeared corner.
-- L3: vague 84%; clear 86%.
-- L4: vague 91% (ground forecast); clear; bonus "No damage found, 93%"; "crack, 71%" gull dropping.
-- L5: "Person found!" 94%; sheep 89% and warm rock 77%; Ellie tile "no person, 96%"; clear 71% with 14 flags including Ellie at 38%.
-- L6: vague 90% (wind not included); "with the headwind: arrives with 3%"; clear 82%, "Lands with 46%".
-
-**Reuse from the trailer:** island terrain and drone, checklist pop-ups, practice Drone Code card, role strip, airspace lens and restriction zone, NDVI map and "walk the field" view, thermal and zoom frames, colour lens, sheep tags, grid-reference call, battery bar with headwind re-run, careers card and the fine print "Practice badges only: real UK drone IDs have age rules."
-
-**Trailer alignment:** trailer roles are Pilot in command, Visual observer, Mission planner, Image analyst and Comms lead; use these. The trailer shows Mon, Wed, Fri and Sat; Levels 2 and 4 need new scenes. Rename "Little Holm" in the code comments when the clinic island is renamed.
-
-**Open questions and items to verify**
-- 2026 UK thresholds, class marks and Remote ID, from secondary sources (to verify on caa.co.uk).
-- A1/A2/A3 renaming in 2026 (to verify).
-- Part 107 test format (60 questions, 70%) and the 400 ft and 100 mph limits (to verify on eCFR).
-- Cold-weather flight-time reductions (to verify).
-- KS3 geography wording; NGSS codes 3-ESS2-1 and MS-LS1 (to verify).
-- Tello EDU discontinued; CoDrone EDU weight (to verify).
-- Wing's "up to 15 drones per supervising pilot" (to verify).
-- Whether the GSTT/Apian/Wing trial continued and whether the Orkney route became permanent (to verify).
-- Vendor accuracy claims for turbine AI and NDVI: not used; never quote to children.
-- No UK-specific study of sheep thermal false positives (to verify).
-- No UK CAA classroom pack found; link it in Level 1 if one exists (to verify).
+- **Scenes and assets:** Kestrel Isle with village, airfield, farm, turbines, moor, lighthouse and the clinic island; airspace rings and restriction zone; NDVI overlay; wind arrows and wind-at-height chart; thermal and colour-lens materials; helicopter; parcel and clinic pad. Reuse brochure `obj-turbine`, `obj-pin`, `obj-shield`, `obj-chest`, `obj-bot`.
+- **Scripted AI responses:** every vague and clear line in the section 5 table, plus: L1 cable bonus ("safe to fly low under the cable, 92%"); L2 bonus ("Map complete, 95%" with a smeared corner); L4 bonus ("No damage found, 93%"; "crack, 71%" is a gull dropping); L5 sheep 89%, warm rock 77%, Ellie's tile "no person, 96%", Ellie's flag 38% after the fix; L6 "With the headwind: arrives with 3%".
+- **Reuse from the trailer:** terrain and drone, checklist pop-ups, practice Drone Code card, role strip, airspace lens, NDVI map and "walk the field", thermal and zoom frames, colour lens, sheep tags, grid-reference call, battery bar with headwind re-run, careers card, and the fine print "Practice badges only: real UK drone IDs have age rules."
+- **Trailer alignment:** use the trailer's role names (Pilot in command, Visual observer, Mission planner, Image analyst, Comms lead). The trailer shows Monday, Wednesday, Friday and Saturday; Levels 2 and 4 need new scenes. Rename "Little Holm" in the code comments.
+- **Open questions:** link a UK CAA classroom pack in Level 1 if one exists (none found); frame accepted and rejected flags as "teaching the detector for next time" (links to round-3 report 09).
+- **To verify:** 2026 UK thresholds, class marks and Remote ID (secondary sources); A1/A2/A3 renaming; Part 107 test format and limits; cold-weather flight-time cuts; KS3 geography and NGSS codes; Tello EDU status and CoDrone EDU weight; Wing's "up to 15 drones per pilot"; whether the GSTT/Apian/Wing trial and the Orkney route continued; no UK-specific study of sheep thermal false positives. Vendor accuracy claims for turbine AI and NDVI are not used and must never be quoted to children.

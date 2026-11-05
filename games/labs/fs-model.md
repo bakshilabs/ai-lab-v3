@@ -3,7 +3,7 @@
 > Strand: Future Skills · Ages: 11–16 (Core 11–13, Pro 14–16) · Session: 45 / 60 / 90 min · Trailer: `games/trailers/fs-model/` (`out/fs-model.mp4`, not yet rendered)
 
 ## 1. Summary
-Learners join the test bench at Northgate Recycling as model testers. A camera on sorting Line 2 must tell Metal, Carton and Film apart before it goes live. Learners write labelling rules, lock away a held-back test set and review the AI colleague's claim: "Trained and tested: accuracy 98%. The sorter is ready to go live on Line 2" (97% sure). The claim fails the **Case check**: the 98% came from photos the model trained on. On the 48 held-back photos, including night-shift light, it scores 71%, and the confusion matrix shows cartons under orange light read as Film. Learners fix the data, re-test on a new held-back set (90%) and sign off a Model Card. The lesson: **a score only counts on data the model has never seen.**
+Learners join the test bench at Tallowmere Recycling as model testers. A camera on sorting Line 2 must tell Metal, Carton and Film apart before it goes live. Learners write labelling rules, lock away a held-back test set and review the AI colleague's claim: "Trained and tested: accuracy 98%. The sorter is ready to go live on Line 2" (97% sure). The claim fails the **Case check**: the 98% came from photos the model trained on. On the 48 held-back photos, including night-shift light, it scores 71%, and the confusion matrix shows cartons under orange light read as Film. Learners fix the data, re-test on a new held-back set (90%) and sign off a Model Card. The lesson: **a score only counts on data the model has never seen.**
 
 ## 2. Learning outcomes
 By the end, learners can:
@@ -26,7 +26,7 @@ By the end, learners can:
 - **Visual style:** a voxel diorama: a cut-away test office (five desks, a wall screen) beside a recycling hall with a conveyor, three bins (grey Metal, tan Carton, blue Film) and a camera gantry over Line 2. During the review the hall dims to orange "night-shift" light and the wall screen switches to "Held-back test set · 71%". Full-screen tools: a labelling tool (20 photos, "Agree: 14 / 20"), a dataset split bar (192 training, 48 test, locked), a confusion matrix and a Model Card. Status chips and "Checks passed" replace meters and stars.
 - **AI colleague:** **TestAssist** (working name; the trailer card says "AI colleague"). Confidence bar, "% sure", "Data I used: Training photos · 192". Process language only ("matched", "predicted").
 - **People:** **Sofia**, ML engineer and team lead (the facilitator). **Kofi, 13**, model tester. **Zara**, second labeller. A line operator in a hi-vis tabard.
-- **Fictional names to check:** Northgate Recycling, Line 2, TestAssist, Sofia, Kofi, Zara. **A web search found a real business trading as "Northgate Recycling" in Massachusetts and UK companies named Northgate Waste Services Ltd and Northgate Corporation.** Rename before production (suggestion: "Eastmoor Sorting Works", to verify) and update the trailer.
+- **Fictional names to check:** Tallowmere Recycling, Line 2, TestAssist, Sofia, Kofi, Zara. **A web search found a real business trading as "Tallowmere Recycling" in Massachusetts and UK companies named Tallowmere Waste Services Ltd and Tallowmere Corporation.** Rename before production (suggestion: "Eastmoor Sorting Works", to verify) and update the trailer.
 
 ## 5. Core loop and structure
 **Act structure in every work stage:** *Brief* (Quality Lead's need) → *Do the work* (label, split, train, test) → *Hand-over* (TestAssist reports with a confidence score) → *Review* (Four Checks; approve or return) → *Fix and log* (Model Card updated).
@@ -38,7 +38,7 @@ By the end, learners can:
 | 3. Train | Train the sorter | Core: Teachable Machine on real objects or the scripted run. Pro: Teachable Machine plus a written test plan | "Trained and tested: accuracy 98%. Ready to go live on Line 2." (97%) | **Case:** "Data I used: Training photos · 192". The 98% is on photos it trained on | "Run it on the 48 held-back photos" | Review card: Case ✕; verdict "1 check failed" |
 | 4. Test | Measure on unseen photos | Count by hand · read the matrix · both | *(unsure but right)* a foil carton under orange light: "Carton (54% sure)", correct | **Matrix:** 71%; Carton row: 2 → Metal, 7 → Film | Caption: "Cartons under orange night light are read as Film" | Score falls 98% → 71%; Carton→Film cell glows; hall turns orange |
 | 5. Fix | Choose a fix that addresses the cause | A train longer · B add 40 night-shift carton photos labelled with Rule 2 · C send low-confidence items to a person | "Train for 10× more epochs" (78%) | **Data:** more training on the same photos repeats the gap | Option B, plus C as a safeguard; re-test on a *new* held-back set | "90% on a new held-back set" |
-| 6. Ship | A Model Card the plant can trust | What goes in "Do not use for"? | None: the team writes it | Peer check against the rubric | Known failure: dim orange light. Do not use for: batteries or hazardous waste | "Signed off · sent to Northgate Recycling"; card flies to the portfolio |
+| 6. Ship | A Model Card the plant can trust | What goes in "Do not use for"? | None: the team writes it | Peer check against the rubric | Known failure: dim orange light. Do not use for: batteries or hazardous waste | "Signed off · sent to Tallowmere Recycling"; card flies to the portfolio |
 
 **The held-back matrix (48 photos; rows are what the item really was).** Metal: 15 · 1 · 0. Carton: 2 · 7 · 7. Film: 0 · 4 · 12. Correct: 34 of 48 ≈ 71%.
 
@@ -200,4 +200,4 @@ Two learners act as labellers (Kofi and Zara) in stage 1 whatever their role. Wi
   5. "Recommend 10× more training epochs. (78% sure)"
   6. On return: "Noted. Go-live paused pending re-test."
 - **Reuse from the trailer:** tiles and rules text, split numbers (192 / 48), matrix values, captions, Model Card fields and wording, `fs-ui.js` components.
-- **Open questions:** rename Northgate Recycling; product name TestAssist or "AI colleague"; whether to ship a photo set or rely on live object photography; Kofi also appears as product designer in `fs-product` (keep as a recurring portfolio character, or rename).
+- **Open questions:** rename Tallowmere Recycling; product name TestAssist or "AI colleague"; whether to ship a photo set or rely on live object photography; Kofi also appears as product designer in `fs-product` (keep as a recurring portfolio character, or rename).

@@ -131,7 +131,7 @@ screens.forEach((s, i) => {
 const wallTex = screenTex(512, 288, (g, w, h) => { g.fillStyle = '#fff'; g.fillRect(0, 0, w, h); g.fillStyle = '#13202b'; g.font = '800 28px Inter, sans-serif'; g.fillText('Line 2 sorter · training', 24, 44); g.strokeStyle = '#16c79a'; g.lineWidth = 8; g.beginPath(); g.moveTo(30, 260); g.quadraticCurveTo(120, 80, 480, 76); g.stroke(); g.fillStyle = '#5b6b78'; g.font = '700 22px Inter, sans-serif'; g.fillText('training accuracy 98%', 270, 120); });
 const wallScr = new THREE.Mesh(new THREE.PlaneGeometry(9, 5.06), new THREE.MeshBasicMaterial({ map: wallTex, toneMapped: false })); wallScr.position.set(-22, 4.8, -15.8); scene.add(wallScr);
 const wf = new THREE.Mesh(new THREE.BoxGeometry(9.6, 5.6, 0.3), new THREE.MeshLambertMaterial({ color: '#1d2731' })); wf.position.set(-22, 4.8, -15.98); scene.add(wf);
-const signTex = screenTex(512, 64, (g, w, h) => { g.fillStyle = '#13202b'; g.fillRect(0, 0, w, h); g.fillStyle = '#16c79a'; g.fillRect(16, 22, 20, 20); g.fillStyle = '#fff'; g.font = '800 30px Inter, sans-serif'; g.fillText('Northgate Recycling · Quality Lab', 50, 43); });
+const signTex = screenTex(512, 64, (g, w, h) => { g.fillStyle = '#13202b'; g.fillRect(0, 0, w, h); g.fillStyle = '#16c79a'; g.fillRect(16, 22, 20, 20); g.fillStyle = '#fff'; g.font = '800 30px Inter, sans-serif'; g.fillText('Tallowmere Recycling · Quality Lab', 50, 43); });
 const sign = new THREE.Mesh(new THREE.PlaneGeometry(10, 1.25), new THREE.MeshBasicMaterial({ map: signTex, toneMapped: false })); sign.position.set(4, 6.4, -15.9); scene.add(sign);
 // bin labels
 ['METAL', 'CARTON', 'FILM'].forEach((n, i) => { const tx = screenTex(256, 64, (g, w, h) => { g.fillStyle = '#13202b'; g.fillRect(0, 0, w, h); g.fillStyle = '#fff'; g.font = '800 36px Inter, sans-serif'; g.textAlign = 'center'; g.fillText(n, w / 2, 45); }); const m = new THREE.Mesh(new THREE.PlaneGeometry(3.2, 0.8), new THREE.MeshBasicMaterial({ map: tx, toneMapped: false })); m.position.set(25.5, 2.4, BINS[i][1] + 1.52); scene.add(m); });
@@ -220,7 +220,7 @@ const dimT = el('<div class="dim" style="background:radial-gradient(ellipse 60% 
 const title = titleCard('Model <span class="hl">Test Lab</span>', 'Hold back a test set. Read the matrix.', { chip: 'DeltaOps Learning · Future Skills' }); A(cue(title, 0.4, 3.5, { from: 'pop', dur: 0.7 }));
 FS.appbar('Model Test Lab', 3.9, 37.4, SVG.mark);
 
-FS.brief({ from: 'Northgate Recycling · Quality Lead', task: 'Test the sorting camera before it goes live on Line 2', deliver: 'A model card the plant can trust', due: 'Friday' }, 4.2, 8.4, { x: 1000, y: 150 });
+FS.brief({ from: 'Tallowmere Recycling · Quality Lead', task: 'Test the sorting camera before it goes live on Line 2', deliver: 'A model card the plant can trust', due: 'Friday' }, 4.2, 8.4, { x: 1000, y: 150 });
 FS.caption('<b>Sofia</b>ML engineer', () => new THREE.Vector3(-12.4, 5.6, -0.6), 4.8, 13.2);
 FS.caption('<b>Kofi, 13</b>model tester', () => new THREE.Vector3(-16.6, 3.9, -1.25), 9.6, 13.2, { cls: 'teal' });
 
@@ -285,7 +285,7 @@ const card = FS.card(`<div class="fs-top"><span class="ttl"><span class="ic">${S
   <div>Held-back test</div><div data-acc2 style="opacity:0"><del>98%</del> <span style="color:#c0392b">71%</span> → <ins>90% on a new held-back set</ins></div>
   <div>Known failure</div><div data-kf style="opacity:0">Dim orange light</div>
   <div>Do not use for</div><div data-dn style="opacity:0">Batteries or hazardous waste</div></div>
-  <div data-sign style="opacity:0;margin-top:18px">${FS.signHTML('Kofi', 13, 'Signed off · sent to Northgate Recycling')}</div></div>`, 30.2, null, { x: 1000, y: 150, w: 874, from: 'right' });
+  <div data-sign style="opacity:0;margin-top:18px">${FS.signHTML('Kofi', 13, 'Signed off · sent to Tallowmere Recycling')}</div></div>`, 30.2, null, { x: 1000, y: 150, w: 874, from: 'right' });
 const FIXT = 'Add 40 night-shift carton photos, label with Rule 2, retrain.';
 A((t) => {
   card.querySelector('[data-fix]').textContent = typed(FIXT, t, 30.8, 32.0);

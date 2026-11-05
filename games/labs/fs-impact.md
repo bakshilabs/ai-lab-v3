@@ -38,14 +38,14 @@ By the end, learners can…
 
 - **Visual style:** a house-style floating voxel island: a council office cutaway (no roof, no front wall) with desks, a water cooler and a wall screen showing a park map; a street and houses behind; a civic tower on the left; Harbour Park on the right with paths, a pond, trees, a skate ramp, benches, camera poles with domes, visitors and skaters. The camera moves to the **impact assessment form**: "Who is affected" stakeholder chips, rows for Privacy, Energy and Decision, and a status pill (*Draft · AI draft · In review · Signed off*). AI-written text carries a small "AI" tag; struck-through text shows what the team removed.
 - **The AI colleague:** a faceless bot card with a confidence bar ("94% sure") and a **Data used** field ("Council survey · adults 18+"). Process language only.
-- **Characters:** Maya (learner avatar, "Impact Panel · lead") and Priya Shah (mentor, DPO). Panel role cards: residents, park manager, DPO, environment officer, finance officer, and the young people's representative added during the lab.
+- **Characters:** Zainab (learner avatar, "Impact Panel · lead") and Priya Shah (mentor, DPO). Panel role cards: residents, park manager, DPO, environment officer, finance officer, and the young people's representative added during the lab.
 
 | Fictional name | Status |
 |---|---|
 | Harbourside Council, Harbour Park | Check no real council or park uses these names or branding (research §10, item 28) (to verify) |
 | Priya Shah | Common name. Check no well-known DPO or public figure shares it (to verify) |
 | "2024 Park Privacy Act" | Deliberately invented. The lab always labels it "Claim not found" and the facilitator says it is fictional |
-| Maya | First name only; fine |
+| Zainab | First name only; fine |
 
 ## 5. Core loop and structure
 
@@ -55,10 +55,10 @@ By the end, learners can…
 |---|---|---|---|---|---|---|
 | 1. Purpose and people | Fix the purpose; map who is affected | Which groups to put on the map; which purposes are in scope | "Summarise the proposal" → "Purpose: improve park safety and stop litter. 90% sure" | **Authority check:** the brief says *count visitors* and *spot litter-dropping*. "Safety" widens the purpose and could justify identifying people | Purpose copied exactly from the brief: "count visitors; spot litter-dropping; nothing else" | Five stakeholder chips pop in (residents, park manager, DPO, environment officer, finance officer) |
 | 2. Evidence and impact grid | Each role reads a one-page pack; fill the grid | Benefit or harm, how big, for whom; alternatives (more bins, litter pickers, signs, people-counting sensors that record no images) | None here; this is where the unsure-but-right note appears (below) | Role cards cross-check each other's claims | Each claim in the grid names its evidence page | Grid rows fill, each tagged with a role |
-| 3. Energy (Maya's own working) | Estimate yearly electricity | Which inputs to include; what to flag as missing | "Energy impact: negligible. 90% sure" | **Source check:** no figures, no method | Worksheet: 6 cameras × 10 W × 8,760 h ≈ 530 kWh, plus the pack's estimate for cloud processing and storage ≈ 570 kWh, total ≈ 1,100 kWh a year. A typical UK home uses about 2,700 kWh (illustrative scenario figures; the home figure from Ofgem's typical consumption values (to verify)) | Bar fills: "≈ 1,100 kWh a year · 6 cameras + cloud processing · about 40% of one home" |
+| 3. Energy (Zainab's own working) | Estimate yearly electricity | Which inputs to include; what to flag as missing | "Energy impact: negligible. 90% sure" | **Source check:** no figures, no method | Worksheet: 6 cameras × 10 W × 8,760 h ≈ 530 kWh, plus the pack's estimate for cloud processing and storage ≈ 570 kWh, total ≈ 1,100 kWh a year. A typical UK home uses about 2,700 kWh (illustrative scenario figures; the home figure from Ofgem's typical consumption values (to verify)) | Bar fills: "≈ 1,100 kWh a year · 6 cameras + cloud processing · about 40% of one home" |
 | 4. Review the AI draft (trailer) | Sign off or return the draft | Approve / return with notes | "Draft ready. Cameras are allowed under the 2024 Park Privacy Act. All groups covered. Recommend: approve. 94% sure." Data used: "Council survey · adults 18+" | **Source check:** UK legislation database, 0 results; Priya (DPO): "No such Act." **Authority check:** "All groups covered" is not its call; young people use the park most and the survey was adults only | Privacy line becomes "UK GDPR applies. Check with our data protection officer." "Young people (under 18)" is added to the panel | Act struck through; Source and Authority chips go red ✕, then green ✓ |
 | 5. Decide | Vote and set conditions | *Approve / approve with conditions / reject*; record a minority view | "Condition: delete footage when no longer needed. 85% sure" | **Case check:** could anyone check this later? "When no longer needed" can't be audited | "Count people, never identify them. Delete footage after 24 hours. Review in 6 months." | Decision line types in; status turns *Signed off* |
-| 6. Letter | Write the recommendation letter | What to put first; how to report disagreement | None: the team writes it | Peer swap: another team runs the Four Checks on the letter | Letter with conditions and a minority view | Approval stamp; the assessment drops into Maya's portfolio ("3 pieces" becomes "4") |
+| 6. Letter | Write the recommendation letter | What to put first; how to report disagreement | None: the team writes it | Peer swap: another team runs the Four Checks on the letter | Letter with conditions and a minority view | Approval stamp; the assessment drops into Zainab's portfolio ("3 pieces" becomes "4") |
 
 **The AI was unsure but right (stage 2).** The colleague adds a note: "Night-time litter spotting: not sure it works (52%). Supplier tested in daylight only." The supplier sheet in the evidence pack confirms the daylight-only test. The low confidence was accurate and useful, and it becomes a condition ("no night-time enforcement until tested").
 
@@ -189,7 +189,7 @@ Plan 10 minutes (45-minute session), 15 minutes (60) or 20 minutes (90).
 - **Scripted AI responses:** the trailer draft exactly ("Draft ready. Cameras are allowed under the 2024 Park Privacy Act. All groups covered. Recommend: approve." 94% sure; Data used: "Council survey · adults 18+"); the stage 1 purpose line; "Energy impact: negligible. 90% sure"; the stage 2 unsure-but-right note; the stage 5 condition line.
 - **Open questions**
   - **Accuracy fix for the trailer:** the corrected privacy line reads "UK GDPR and the ICO Children's Code apply." The Children's Code covers online services, so it does not directly apply to park cameras (to verify). Suggest: "UK GDPR and the Data Protection Act 2018 apply. Check with our data protection officer."
-  - The trailer labels Maya "age 13", but this lab defaults to 14–18. Change the tag or present the trailer as the scripted Core variant.
+  - The trailer labels Zainab "age 15", but this lab defaults to 14–18. Change the tag or present the trailer as the scripted Core variant.
   - Check the fictional names in section 4.
   - Confirm the energy inputs and the typical-home figure, and keep them labelled as illustrative.
   - Render `out/fs-impact.mp4`.

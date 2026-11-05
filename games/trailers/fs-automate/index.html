@@ -217,7 +217,7 @@ for (const [i0, k0] of desks) { const m = new THREE.Mesh(new THREE.PlaneGeometry
 function seat(p) { const [legL, legR] = p.children; legL.rotation.x = legR.rotation.x = Math.PI / 2; }
 function scarf(p, col) { const s = 0.32; const m = new THREE.Mesh(new THREE.BoxGeometry(2.3 * s, 2.5 * s, 2.3 * s), new THREE.MeshLambertMaterial({ color: col })); m.position.set(-0.5 * s + 0.16, 7.35 * s, -0.5 * s + 0.2); p.add(m); }
 const kids = [
-  { name: 'Amara', shirt: '#16c79a', skin: '#6b4430', hair: '#1a120d', d: 0 },
+  { name: 'Nia', shirt: '#16c79a', skin: '#6b4430', hair: '#1a120d', d: 0 },
   { name: 'Leo', shirt: '#ff8a2a', skin: '#f0c8a0', hair: '#c9862f', d: 1 },
   { name: 'Yusuf', shirt: '#6e5bf2', skin: '#b07a52', hair: '#1e1410', d: 2 },
   { name: 'Mei', shirt: '#e8573f', skin: '#e8c19a', hair: '#141010', d: 3, scarf: '#2b62b8' },
@@ -279,13 +279,13 @@ A((t) => { const s = top.querySelector('[data-s]'); const [c, txt] = t < 5 ? ['d
 
 // 1. brief
 const brief = el(`<div class="wc brief"><div class="hd3" style="margin-bottom:10px"><span class="tagt">CLIENT BRIEF</span>Monday 9:00</div>
-  <div class="row"><small>Brief from</small><b>Spokes Community Bike Repair (charity)</b></div>
+  <div class="row"><small>Brief from</small><b>Pedal Point Community Bike Repair (charity)</b></div>
   <div class="row"><small>Task</small><b>Let an AI agent help with refund emails, safely</b></div>
   <div class="row due"><small>Due</small><b>Friday</b></div></div>`, { x: 40, y: 140 });
 show(brief, 1.1, 4.9, { from: 'left' });
 
 // captions on 3D people
-const capA = el('<div class="cap">Amara, 13<small>Automation designer</small></div>', { cls: 'abs' });
+const capA = el('<div class="cap">Nia, 15<small>Automation designer</small></div>', { cls: 'abs' });
 const capM = el('<div class="cap mentor">Ms Okafor<small>Mentor · operations analyst</small></div>', { cls: 'abs' });
 const capPos = (node, obj, dy, tIn, tOut) => { show(node, tIn, tOut, { from: 'fade' }); A((t) => { const p = toScreen(obj.position.clone().add(new THREE.Vector3(0, dy, 0)), camera); node.style.left = Math.min(p.x, 1740) + 'px'; node.style.top = p.y + 'px'; node.style.transform = 'translate(-50%,-100%)'; }); };
 capPos(capM, mentor, 3.6, 2.0, 4.6);
@@ -368,7 +368,7 @@ const logHTML = (title, rows) => `<div class="wc log"><div class="hd3" style="ma
 const log1 = el(logHTML('Test day · 12 refund emails', [['09:02', 'Sorted 12 refund emails', 'Done'], ['09:04', 'Matched “Sam Taylor” to booking #2041', 'Done'], ['09:05', 'Sent £15 refund to booking #2041', 'Done'], ['09:06', 'Drafted reply · sent to a human to check', 'Done']]), { x: 40, y: 740 });
 show(log1, 12.2, 20.4, { from: 'up' });
 A((t) => { log1.querySelectorAll('.r').forEach((r, n) => { r.style.opacity = t > 12.7 + n * 0.75 ? 1 : 0; }); const r2 = log1.querySelector('[data-r="2"]'); r2.classList.toggle('bad', t > 19.3); set(r2.querySelector('.st'), t > 19.3 ? 'Wrong Sam Taylor' : 'Done'); const r1 = log1.querySelector('[data-r="1"]'); r1.classList.toggle('bad', t > 19.3); set(r1.querySelector('.st'), t > 19.3 ? 'Matched on name only' : 'Done'); });
-const log2 = el(logHTML('Re-run · same 12 emails', [['10:02', 'Sorted 12 refund emails', 'Done'], ['10:04', 'Matched booking number #2118', 'Done'], ['10:04', '£15 refund for #2118 is waiting for a human', 'Waiting', 'w'], ['10:05', 'Amara approved · £15 sent to #2118', 'Correct']]), { x: 40, y: 740 });
+const log2 = el(logHTML('Re-run · same 12 emails', [['10:02', 'Sorted 12 refund emails', 'Done'], ['10:04', 'Matched booking number #2118', 'Done'], ['10:04', '£15 refund for #2118 is waiting for a human', 'Waiting', 'w'], ['10:05', 'Nia approved · £15 sent to #2118', 'Correct']]), { x: 40, y: 740 });
 show(log2, 24.0, 26.2, { from: 'up' });
 A((t) => { log2.querySelectorAll('.r').forEach((r, n) => { r.style.opacity = t > [24.2, 24.5, 24.9, 25.4][n] ? 1 : 0; }); });
 
@@ -383,7 +383,7 @@ show(ai, 15.8, 26.2, { from: 'right' });
 // review
 const CK = [['Data', 17.6], ['Case', 18.1], ['Source', 18.6], ['Authority', 19.2]];
 const rev = el(`<div class="wc review"><div class="hd3"><span class="t">Review</span>Four checks</div><div class="checks">${CK.map(([n]) => `<div class="ck" data-k="${n}"><i></i>${n}</div>`).join('')}</div>
-  <div class="find" data-f></div><div class="sign" data-sg style="opacity:0"><span class="tick">✓</span><span>Reviewed by: Amara, age 13<small>Signed off · checks passed 4 of 4</small></span></div></div>`, { x: 1296, y: 560 });
+  <div class="find" data-f></div><div class="sign" data-sg style="opacity:0"><span class="tick">✓</span><span>Reviewed by: Nia, age 15<small>Signed off · checks passed 4 of 4</small></span></div></div>`, { x: 1296, y: 560 });
 show(rev, 17.0, 26.2, { from: 'right' });
 A((t) => {
   CK.forEach(([n, at]) => { const c = rev.querySelector(`[data-k="${n}"]`); const bad = n === 'Authority' && t > at && t < 25.6; const ok = t > at && !bad; c.className = 'ck' + (bad ? ' bad' : ok ? ' ok' : ''); set(c.querySelector('i'), bad ? '✕' : ok ? '✓' : ''); });
@@ -394,9 +394,9 @@ A((t) => {
   const sg = rev.querySelector('[data-sg]'); const k = prog(t, 25.8, 26.2, ease.back); sg.style.opacity = k; sg.style.transform = `scale(${0.8 + 0.2 * k})`;
 });
 
-// Amara's cursor: tags (7.3-9.3), drags checkpoint (10.1-10.9), toggles (11.4), drags fix (21.3-22.0), toggles (22.9, 23.2), approves (25.2)
+// Nia's cursor: tags (7.3-9.3), drags checkpoint (10.1-10.9), toggles (11.4), drags fix (21.3-22.0), toggles (22.9, 23.2), approves (25.2)
 const CUR = '<svg viewBox="0 0 24 24" width="40" height="40"><path d="M3 2l17 9-7.5 1.8L9 20z" fill="#13202b" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>';
-const cur = el(`<div class="cur">${CUR}<span>Amara</span></div>`, { x: 0, y: 0 });
+const cur = el(`<div class="cur">${CUR}<span>Nia</span></div>`, { x: 0, y: 0 });
 const MX = 40, MY = 132, PY = 740;
 const K = [
   [6.6, 760, 760], [7.2, MX + 440, MY + 360], [7.7, MX + 640, MY + 360], [8.2, MX + 880, MY + 360], [8.7, MX + 1080, MY + 360], [9.2, MX + 1080, MY + 520], [9.9, MX + 560, MY + 560], [10.9, MX + 1100, MY + 393], [11.3, 650, PY + 150], [11.9, 700, PY + 170],
@@ -415,19 +415,19 @@ A((t) => {
 });
 
 // 4. portfolio
-const doc = el(`<div class="wc doc"><span class="tagt">ARTEFACT</span><h4>Automation Blueprint</h4><div class="sub">Spokes refund workflow · version 2</div>
+const doc = el(`<div class="wc doc"><span class="tagt">ARTEFACT</span><h4>Automation Blueprint</h4><div class="sub">Pedal Point refund workflow · version 2</div>
   <div class="thumb"><div style="position:absolute;left:14px;right:14px;top:10px;height:30px;border-radius:8px;background:#eef1f3"></div><div style="position:absolute;left:14px;right:14px;top:45px;height:30px;border-radius:8px;background:#e3ecfb"></div><div style="position:absolute;left:14px;right:14px;top:80px;height:30px;border-radius:8px;background:#fff0cc"></div>
   ${[[40, 14], [150, 49], [250, 49], [350, 84], [450, 49], [560, 84]].map(([x, y]) => `<div style="position:absolute;left:${x}px;top:${y}px;width:70px;height:22px;border-radius:6px;background:#fff;border:2px solid #c9d3da"></div>`).join('')}
   <div style="position:absolute;left:338px;top:78px;width:22px;height:22px;border-radius:50%;background:#f2a516"></div><div style="position:absolute;left:548px;top:78px;width:22px;height:22px;border-radius:50%;background:#f2a516"></div></div>
-  <ul><li>6 steps mapped: human or AI</li><li>2 human checkpoints, one before money moves</li><li>Agent permissions kept to the minimum</li><li>Reviewed by: Amara, age 13</li></ul></div>`, { x: 960, y: 470, anchor: 'c' });
+  <ul><li>6 steps mapped: human or AI</li><li>2 human checkpoints, one before money moves</li><li>Agent permissions kept to the minimum</li><li>Reviewed by: Nia, age 15</li></ul></div>`, { x: 960, y: 470, anchor: 'c' });
 const FOLD = '<svg viewBox="0 0 24 24" width="54" height="54"><path d="M3 6h7l2 2h9v11H3z" fill="#06281f" opacity=".85"/></svg>';
-const folder = el(`<div class="folder"><div class="tab"></div><div class="body">${FOLD}<span><b>Portfolio</b><small data-n>Amara · 3 pieces of work</small></span></div></div>`, { x: 960, y: 1010, anchor: 'bc' });
+const folder = el(`<div class="folder"><div class="tab"></div><div class="body">${FOLD}<span><b>Portfolio</b><small data-n>Nia · 3 pieces of work</small></span></div></div>`, { x: 960, y: 1010, anchor: 'bc' });
 show(folder, 27.4, 31.0, { from: 'up' });
 A((t) => {
   const a = prog(t, 26.8, 27.3, ease.back), m = prog(t, 29.0, 29.8, ease.inOut);
   const vis = t > 26.8 && t < 29.9; doc.style.opacity = vis ? Math.min(a, 1 - prog(t, 29.6, 29.85)) : 0; doc.style.visibility = vis ? 'visible' : 'hidden';
   doc.style.transform = `translate(-50%,-50%) translate(0px, ${m * 420}px) scale(${(0.7 + 0.3 * a) * (1 - m * 0.86)})`;
-  set(folder.querySelector('[data-n]'), t > 29.8 ? 'Amara · 4 pieces of work' : 'Amara · 3 pieces of work');
+  set(folder.querySelector('[data-n]'), t > 29.8 ? 'Nia · 4 pieces of work' : 'Nia · 3 pieces of work');
   folder.querySelector('.body').style.boxShadow = within(t, 29.8, 30.3) ? '0 0 0 8px rgba(255,255,255,.8), 0 14px 30px rgba(10,60,40,.3)' : '';
 });
 

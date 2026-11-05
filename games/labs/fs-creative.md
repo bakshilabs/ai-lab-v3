@@ -42,18 +42,18 @@ By the end, learners can…
   | Crediting someone falsely | Don't label work as made by someone who didn't make it (false attribution, s.84 CDPA) (to verify) |
   | AI-use statements | There is no general UK legal duty for an individual to label AI-assisted images (to verify). Clients, platforms and exam boards set their own rules. The ASA's advertising rules apply to ads however they were made (to verify) |
 
-- **Mentor video:** Sam Okafor, graphic designer: "Every picture needs a credit." It counts as an employer encounter only if a real designer records it ([Gatsby](https://gatsbybenchmarks.org.uk/?p=777)).
+- **Mentor video:** Sam Oyelaran, graphic designer: "Every picture needs a credit." It counts as an employer encounter only if a real designer records it ([Gatsby](https://gatsbybenchmarks.org.uk/?p=777)).
 
 ## 4. Setting, look and characters
 
 - **Visual style:** a house-style floating voxel island. A design studio cutaway (drawing tablet, pinboard of mini posters, easel with a proof, printer, sofa) looks out on Harbour Green: a harbour pool with a boat, a stage, striped stalls and lantern strings. The camera moves to the **poster card** (status *Sketch · AI draft · In review · Signed off*) and the **Credits & licences** panel. Problem areas on the poster get labelled boxes ("Copies Mira Kell's style", "Licence: non-commercial only") that turn to ticks when fixed. A before/after pair closes the work.
 - **The AI colleague:** a faceless bot card with a confidence bar ("93% sure") and a **Data used** field ("Mira Kell's portfolio · 40 images"). Process language only. AI-written text carries an "AI" tag.
-- **Characters:** Leo (learner avatar, "Creative producer"), Sam Okafor (mentor, graphic designer), Mira Kell (a fictional living illustrator, never shown).
+- **Characters:** Leo (learner avatar, "Creative producer"), Sam Oyelaran (mentor, graphic designer), Mira Kell (a fictional living illustrator, never shown).
 
 | Fictional name | Status |
 |---|---|
 | Mira Kell | **Check carefully** that no real illustrator uses this name, because the story says her style was copied (to verify). Her "portfolio" must be DeltaOps-made art |
-| Sam Okafor | Same surname as the Automation Designer mentor. Change one |
+| Sam Oyelaran | Same surname as the Automation Designer mentor. Change one |
 | Harbourside Lantern Festival, Harbour Green, Harbourside Archive | Check no real festival, venue or archive uses these names or branding (to verify) |
 | Leo | First name only; fine |
 
@@ -203,6 +203,6 @@ Plan 10 minutes (45-minute session), 15 minutes (60) or 20 minutes (90).
 - **Scripted AI responses:** the trailer handover exactly ("Poster finished. Lanterns redrawn in the style of Mira Kell. Harbour photo is royalty-free." 93% sure; Data used: "Mira Kell's portfolio · 40 images"); the stage 1 rights line; the stage 4 date line; the unsure-but-right contrast flag.
 - **Open questions**
   - Expand the trailer's short poster credit ("Photo: Harbourside Archive, CC BY 4.0") into a complete credit on the credits sheet (title, source link, licence link, changes).
-  - Check "Mira Kell" and the other names (section 4); change one Okafor.
+  - Check "Mira Kell" and the other names (section 4); change one Oyelaran.
   - Have a UK IP lawyer review the facilitator rights table before print; every "(to verify)" item stays marked until then.
   - Render `out/fs-creative.mp4`.

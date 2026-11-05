@@ -16,12 +16,12 @@ A crate lands on the Robot Workshop island and out rolls Rivet, a chunky robot a
 - By the end, learners can say when a robot should hand over to a human, and name three jobs that train, test or supervise robots.
 
 **Curriculum links**
-- KS2: computing, "controlling or simulating physical systems", "detect and correct errors", decomposing problems ([DfE computing](https://www.gov.uk/government/publications/national-curriculum-in-england-computing-programmes-of-study/national-curriculum-in-england-computing-programmes-of-study)); DT, evaluating "against their own design criteria" ([DfE DT](https://www.gov.uk/government/publications/national-curriculum-in-england-design-and-technology-programmes-of-study/national-curriculum-in-england-design-and-technology-programmes-of-study)); maths statistics, interpreting tables (exact statement to verify).
-- KS3: computing, abstractions that model physical systems; DT, "test, evaluate and refine… against a specification", products that respond to sensor inputs.
-- KS4 (age 14 stretch): GCSE computer science testing and DT systems (to verify against specifications).
-- NGSS: 3-5-ETS1-1 and -3 (criteria, fair tests, failure points) ([NGSS](https://www.nextgenscience.org/topic-arrangement/3-5engineering-design)); MS-ETS1-1, -3, -4 (wording to verify).
-- UNESCO AI competency framework for students: human-centred mindset (robots support people), ethics of AI (fairness in who is in the data), AI techniques and applications (learning from demonstration), AI system design (test plans and sign-off).
-- AI4K12 Big Ideas: 1 Perception (what Rivet's camera notices), 3 Learning (demonstrations as data, shortcuts, sim-to-real), 5 Societal impact (safety, care, jobs).
+- **KS2:** computing, "controlling or simulating physical systems", "detect and correct errors", decomposition ([DfE computing](https://www.gov.uk/government/publications/national-curriculum-in-england-computing-programmes-of-study/national-curriculum-in-england-computing-programmes-of-study)); DT, evaluating "against their own design criteria" ([DfE DT](https://www.gov.uk/government/publications/national-curriculum-in-england-design-and-technology-programmes-of-study/national-curriculum-in-england-design-and-technology-programmes-of-study)); maths statistics, interpreting tables (statement to verify).
+- **KS3:** computing, abstractions that model physical systems; DT, "test, evaluate and refine… against a specification", products that respond to sensors.
+- **KS4 (age 14 stretch):** GCSE computer science testing; DT systems (to verify).
+- **NGSS:** 3-5-ETS1-1 and -3 ([NGSS](https://www.nextgenscience.org/topic-arrangement/3-5engineering-design)); MS-ETS1-1, -3, -4 (wording to verify).
+- **UNESCO AI competencies:** human-centred mindset (robots support people); ethics of AI (who is in the data); AI techniques and applications (learning from demonstration); AI system design (test plans, sign-off).
+- **AI4K12 Big Ideas:** 1 Perception; 3 Learning (demos as data, shortcuts, sim-to-real); 5 Societal impact (safety, care, jobs).
 
 ## 3. Real-world connection and careers
 **Jobs this mirrors**
@@ -55,14 +55,7 @@ A crate lands on the Robot Workshop island and out rolls Rivet, a chunky robot a
 | Island grocery warehouse, quarry tunnels | Generic places | No check needed |
 
 ## 5. Core loop and structure
-**Acts in every level**
-1. **Job ticket:** job, "done when" goal, a 20-second true-story card.
-2. **Specify:** the Task Writer picks an instruction card (one vague; positions shuffled) and the team makes one real decision.
-3. **Demonstrate:** the Demonstrator drags the gripper or draws the route (capped at 6 demos); each demo leaves a coloured ghost trail; the Data Curator keeps or removes demos.
-4. **Plan and predict:** the Assistant shows a ghost run, "% sure" and its reasoning line.
-5. **Test Bench:** the Tester picks 3–4 of 8 test cards; ten trials fill as ticks and crosses; tap one for slow-motion replay with a red highlight. **PREDICTED** sits beside **MEASURED**.
-6. **Fix:** name the cause from four chips (*demos too similar*, *wrong clue*, *simulator too tidy*, *instruction unclear*), then pick a clearer card or change the demos. Retrain and retest.
-7. **Go live and sign off:** Rivet does the job; people react in short bubbles; the Safety Officer signs off.
+**Acts in every level:** (1) **Job ticket** with a "done when" goal and a 20-second true story; (2) **Specify**: the Task Writer picks a card (one vague; positions shuffled) and the team makes one real decision; (3) **Demonstrate**: the Demonstrator drags the gripper (capped at 6 demos, each leaving a ghost trail) and the Data Curator keeps or removes demos; (4) **Plan and predict**: ghost run, % sure, reasoning line; (5) **Test Bench**: the Tester picks 3–4 of 8 test cards, ten trials fill as ✓ and ✕, a tap gives a slow-motion replay, and **PREDICTED** sits beside **MEASURED**; (6) **Fix**: name the cause chip (*demos too similar*, *wrong clue*, *simulator too tidy*, *instruction unclear*), change the card or demos, retest; (7) **Go live and sign off** by the Safety Officer.
 
 **Levels**
 | Level | Goal | Real decisions | AI's confident mistake | How children catch it | Clearer instruction or better data | What changes on screen |
@@ -93,43 +86,17 @@ Roles rotate every level; the role pill moves on, bottom right.
 Three children: Task Writer + Safety Officer; Demonstrator + Data Curator; Tester. Four: merge Task Writer and Data Curator. Pressing E-STOP freezes the scene with no penalty and earns a "Good stop" sticker if there was a real hazard.
 
 ## 7. Session plans
-**45 minutes** (Levels 1, 2, 4 and a short 6; 3 test cards out of 6)
-| Minutes | Activity |
-| --- | --- |
-| 0–4 | Warm-up: "Copy me exactly" (one child copies a pick-up at a new spot); say the Assistant is scripted |
-| 4–13 | Level 1 Sort It |
-| 13–20 | Level 2 Tidy Up |
-| 20–28 | Level 4 Rush Hour |
-| 28–35 | Level 6 Storm Rescue (short) |
-| 35–45 | Discussion (10 min) and exit check |
+Minutes for each phase. Every version starts by saying the Assistant is scripted.
 
-**60 minutes** (Levels 1, 2, 3, 4, 6; Level 5 as a 3-minute facilitator story with the by-person grid)
-| Minutes | Activity |
-| --- | --- |
-| 0–5 | Warm-up and roles |
-| 5–13 | Level 1 |
-| 13–19 | Level 2 |
-| 19–26 | Level 3 |
-| 26–33 | Level 4 |
-| 33–36 | Level 5 story and by-person grid |
-| 36–45 | Level 6 |
-| 45–57 | Discussion (12 min) |
-| 57–60 | Exit check, Robot Training Logbook |
+| Phase | 45 min (Levels 1, 2, 4, short 6) | 60 min (1, 2, 3, 4, 6; Level 5 as a 3-minute story) | 90 min (all six, plus Level 3 camera-check bonus) |
+| --- | --- | --- | --- |
+| Warm-up: "Copy me exactly" (copy a pick-up at a new spot); roles | 0–4 | 0–5 | 0–8 unplugged "Be the Robot" (beanbags, no blindfolds, no running) |
+| Play: Levels 1–3 | 4–20 (L1, L2; 3 test cards of 6) | 5–26 | 8–35 |
+| Play: Levels 4–6 | 20–35 | 26–45 | 35–68 |
+| Discussion (section 9) | 35–43 | 45–57 | 68–86 |
+| Wrap-up: exit check, Robot Training Logbook | 43–45 | 57–60 | 86–90 |
 
-**90 minutes** (all levels, the Level 3 camera-check bonus, unplugged warm-up)
-| Minutes | Activity |
-| --- | --- |
-| 0–8 | Unplugged "Be the Robot" (soft beanbags, no blindfolds, no running) |
-| 8–17 | Level 1 |
-| 17–25 | Level 2 |
-| 25–35 | Level 3 with camera-check bonus |
-| 35–45 | Level 4 |
-| 45–55 | Level 5 |
-| 55–68 | Level 6 with hand-over twist |
-| 68–86 | Discussion (18 min) |
-| 86–90 | Exit check and logbook |
-
-**If short of time:** cap demos at 6 and replays at one tap per child; drop Level 3, then show Level 5 as the story version. Keep at least one PREDICTED-against-MEASURED moment, the by-person grid and a hand-over.
+**If short of time:** cap demos at 6 and replays at one tap per child; drop Level 3, then show Level 5 as the story. Keep at least one PREDICTED-against-MEASURED moment, the by-person grid and a hand-over.
 
 ## 8. Assessment
 - **Stars (up to 3 per level):** naming the right cause chip; adding a test the Assistant's list missed; fixing with better data or a clearer card. Nothing for speed.
@@ -251,31 +218,9 @@ Three children: Task Writer + Safety Officer; Demonstrator + Data Curator; Teste
 - **Gentle consequences:** no injuries ever. Near misses freeze with a yellow "!"; spills and cracked eggs are the worst outcome; campers are always fine. No combat or weapons. No "robots will take your job" framing.
 
 ## 12. Build notes
-**Scenes and assets:** workshop island (belt, bins, hopper, pegboard, crate); home interior with toy box and medicine shelf; warehouse floor with aisles, workers, second robot and zone painter; care-home lounge with residents of varied height and wheelchairs; quarry tunnel with mud, dust and puddle plus a tidy simulator twin; Test Bench grid with slow-motion replay; person filter view.
-
-**Scripted AI responses (minimum set)**
-- L1: vague 94%; card B 85%; card A "same demo 20 more times" stays 4/10; card C "be more careful" (no change).
-- L2: vague 88%; clear 79%; card C "tidy it like a hotel" (beds made, toys still on the floor).
-- L3: vague 96% with "red sticker" clue; clear 83%; force-sensor route; bonus camera check (overhead says picked, side camera shows hovering, from DeepMind's grasping example, [DeepMind](https://deepmind.google/discover/blog/specification-gaming-the-flip-side-of-ai-ingenuity/)).
-- L4: vague 90%; clear 88%; card C "be careful" (on time 60%).
-- L5: vague 93%; clear 86%; asleep resident 52% and the ask line.
-- L6: vague 98%; clear 80%; amber "I'm not sure. Human, please take over."
-- Assistant track record tally: "Predictions vs tests: ✓✓✕✕".
-
-**Reuse from the trailer:** Rivet model and crate, workshop, home, warehouse and care-home islands, demo trails and counter, Test Bench results card (PREDICTED/MEASURED), cause lens, fix cards with hand cursor, safety lens and zone painting, by-person results card, role pill and five-role strip, careers card. The rescue island (Level 6) and Level 3 warehouse picking are new.
-
-**Trailer alignment:** the trailer uses 3 initial demos then 7 varied ones (the research said 5); keep the trailer numbers. Fix cards in the trailer are A "same demo 20 more times", B "show it lots of ways", C "tell the robot to be more careful". The trailer ends on the care-home hand-over, not the rescue.
-
-**Open questions and items to verify**
-- Rename the care home (real "Harbour View" exists) and check the new name.
-- OpenAI Rubik's Cube success rates (60% and 20%) from a secondary summary (to verify).
-- Tesla Optimus pivot to camera-only data (to verify).
-- Gemini Robotics 1.5 demos and ASIMOV update from secondary coverage (to verify).
-- ISO/TS 15066 body-region values (130 N, 140 N) against Annex A (to verify).
-- ISO 13482 current edition (to verify).
-- SRT-H details (17 hours, 41% slower) from news coverage (to verify).
-- Teleoperator pay ranges: never use in product (to verify if ever needed).
-- Dogtooth figures are company-stated (to verify).
-- NGSS MS-ETS1 wording and the KS2 maths statistics statement (to verify).
-- No study found on children's intuitions about precision and recall.
-- Optional "Ripe or Not?" strawberry level for rural venues ([Ingenia](https://ingenia.org.uk/articles/robots-in-the-field/)).
+- **Scenes and assets:** workshop island (belt, bins, hopper, pegboard, crate); home with toy box and medicine shelf; warehouse floor with aisles, workers, a second robot and the zone painter; care-home lounge with residents of varied heights and wheelchairs; quarry tunnel with mud, dust and a puddle, plus a tidy simulator twin; Test Bench grid with replay; person filter.
+- **Scripted AI responses:** every vague, clear and distractor line in the section 5 table, plus: L1 card A "same demo 20 more times" (still 4/10) and card C "be more careful" (no change); L2 card C "tidy it like a hotel" (beds made, toys still on the floor); L3 camera-check bonus (overhead says picked, side camera shows hovering, from [DeepMind](https://deepmind.google/discover/blog/specification-gaming-the-flip-side-of-ai-ingenuity/)); L4 card C "be careful" (on time 60%); L5 asleep resident (52%); L6 amber "I'm not sure. Human, please take over."; a track-record tally "Predictions vs tests: ✓✓✕✕".
+- **Reuse from the trailer:** Rivet and crate; workshop, home, warehouse and care-home islands; demo trails and counter; PREDICTED/MEASURED card; cause lens; fix cards and hand; safety lens and zones; by-person card; role pill and five-role strip; careers card. Level 3 and the rescue island are new.
+- **Trailer alignment:** keep the trailer's 3 initial demos, then 7 varied ones (the research said 5); the trailer ends on the care-home hand-over, not the rescue.
+- **Open questions:** rename the care home and check the new name; an optional "Ripe or Not?" strawberry level for rural venues ([Ingenia](https://ingenia.org.uk/articles/robots-in-the-field/)).
+- **To verify:** OpenAI Rubik's Cube rates (60%, 20%); Tesla Optimus camera-only pivot; Gemini Robotics 1.5 demos and ASIMOV update; ISO/TS 15066 values (130 N, 140 N) against Annex A; ISO 13482 edition; SRT-H details (17 hours, 41% slower); teleoperator pay (never use in product); Dogtooth figures (company-stated); NGSS MS-ETS1 and KS2 maths wording. No study was found on children's intuitions about precision and recall.

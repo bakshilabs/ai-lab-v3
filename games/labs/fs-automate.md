@@ -34,13 +34,13 @@ By the end, learners can…
 
 - **Visual style:** a house-style floating voxel island with a town, road and café. The charity's building is a cutaway: office carpet on the left; workshop on the right with bench, pegboard, bikes and tyres; a workflow board on the wall. The camera then moves to the **work tool**, which fills the screen: white cards, Inter type, teal `#16c79a` accent, and a status pill (*Draft · Test run · In review · Returned · Approved*).
 - **The AI colleague:** no face and no personal name. It is a teal rounded-square bot glyph on a card labelled "AI colleague · draft READY". It shows a confidence bar ("96% sure") and a **Data I used** field. It speaks in process language: "Sorted", "Matched", "Sent", "Drafted". It never says "I think" or "I feel".
-- **Characters:** Amara (the learner's on-screen avatar, first name only), Ms Okafor (mentor, operations analyst), and two customers, both called Sam Taylor (bookings #2041 and #2118).
+- **Characters:** Nia (the learner's on-screen avatar, first name only), Ms Okafor (mentor, operations analyst), and two customers, both called Sam Taylor (bookings #2041 and #2118).
 
 | Fictional name | Status |
 |---|---|
-| Spokes Community Bike Repair | **Rename before production.** "Spokes" is the name of a long-standing cycling campaign group in Edinburgh (to verify). Suggest a checked alternative such as "Chainline Community Bike Repair" (to verify) |
+| Pedal Point Community Bike Repair | **Rename before production.** "Pedal Point" is the name of a long-standing cycling campaign group in Edinburgh (to verify). Suggest a checked alternative such as "Chainline Community Bike Repair" (to verify) |
 | Ms Okafor | Same surname as the Creative Producer mentor (Sam Okafor). Give one mentor a different surname |
-| Sam Taylor ×2, Amara, bookings #2041/#2118/#2203 | Deliberately common or generic; keep |
+| Sam Taylor ×2, Nia, bookings #2041/#2118/#2203 | Deliberately common or generic; keep |
 
 ## 5. Core loop and structure
 
@@ -51,7 +51,7 @@ By the end, learners can…
 | 1. Map the work | Build today's refund process from 8 sample emails | Which lane each step goes in; whether a safety report belongs here (*in this flow / separate branch / out of scope*) | "Sort this week's emails into the refund workflow" → "40 emails sorted: all refunds or bookings. 91% sure" | **Case check:** read the lowest-confidence emails and two random ones. One is a brake-failure report | "Any email about brakes, injury or safety goes to a human the same day" | A red *Safety* branch appears |
 | 2. Human or AI? | Tag all 6 steps | Per step: *Automate / AI drafts, human approves / Human only* | The colleague suggests "Send the refund: Automate, up to £20 (low value). 90% sure" | Risk questions card: hard to reverse, moves money. The facilitator does **not** correct a team that keeps it automated; stage 4 shows the consequence | Teams record their reason in the blueprint | Tags light up on each box |
 | 3. Permissions | Give the agent the minimum it needs | Toggles: read inbox, find bookings, draft replies, send replies, send refunds up to £20; *Match customer by: Name / Booking number / Email* | "Recommended: all permissions on, so I can finish faster. 88% sure" | **Authority check:** does the task need this permission? | "Send replies" goes off; checkpoint 1 is dragged onto "Check and send reply" | Toggle flicks off; a checkpoint marker drops onto the map |
-| 4. Test day (trailer) | Replay 12 refund emails | Approve the run, or return it with a note | "Test day done. 12 of 12 refund emails handled. £15 refund sent to Sam Taylor. 96% sure." Data I used: "Bookings sheet · matched by name" | **Authority check:** money moved with no human check. Log line 09:04 shows a name-only match, and there are two Sam Taylors (teams may also log this under **Data**) | Checkpoint 2, "Approve refund (Human only)", goes before money moves; refunds now say "After a human OK"; match by booking number | Log rows turn red ("Wrong Sam Taylor"). Re-run: "£15 refund for #2118 is waiting for a human", then "Amara approved · £15 sent to #2118". "Checks passed 4 of 4" |
+| 4. Test day (trailer) | Replay 12 refund emails | Approve the run, or return it with a note | "Test day done. 12 of 12 refund emails handled. £15 refund sent to Sam Taylor. 96% sure." Data I used: "Bookings sheet · matched by name" | **Authority check:** money moved with no human check. Log line 09:04 shows a name-only match, and there are two Sam Taylors (teams may also log this under **Data**) | Checkpoint 2, "Approve refund (Human only)", goes before money moves; refunds now say "After a human OK"; match by booking number | Log rows turn red ("Wrong Sam Taylor"). Re-run: "£15 refund for #2118 is waiting for a human", then "Nia approved · £15 sent to #2118". "Checks passed 4 of 4" |
 | 5. Exceptions | Write escalation rules for awkward emails | For each email: *agent handles / agent drafts / human only / pause the agent* | The colleague drafts a reply to a volunteer that includes a customer's home address "so you can collect the bike". 92% sure | **Authority check:** personal data goes only to people who need it. **Data check:** is the address needed at all? | "Never share a customer's contact details in a draft; a human arranges collection" | Escalation list fills; a **stop button** appears on the blueprint |
 | 6. Ship | Finish Automation Blueprint v2 | Who owns the process? What do we monitor? | None: the team writes it | Peer swap: another team runs the Four Checks | Monitoring line, e.g. "Every week a volunteer checks 5 random refunds; one wrong-customer refund pauses the agent" | Approval stamp; blueprint drops into the portfolio |
 
@@ -173,7 +173,7 @@ Plan 10 minutes (45-minute session), 15 minutes (60) or 20 minutes (90).
 
 ## 11. Safety, ethics and data
 
-- **Data collected:** none. No child accounts. The blueprint is printed or saved locally; the on-screen "Reviewed by: Amara, age 13" uses the avatar's name, not the learner's. Badge codes are anonymous until a school or parent redeems them.
+- **Data collected:** none. No child accounts. The blueprint is printed or saved locally; the on-screen "Reviewed by: Nia, age 15" uses the avatar's name, not the learner's. Badge codes are anonymous until a school or parent redeems them.
 - **Synthetic data only:** all emails, customers and bookings are invented.
 - **Rules on age and real AI tools:** the default lab uses the scripted DeltaOps agent at every age. The Pro extension (14+ only) uses a real no-code automation sandbox **only** inside the school's own managed accounts, with dummy data, the DSL's agreement and logging on, meeting the DfE *Generative AI: product safety expectations* ([gov.uk](https://www.gov.uk/government/publications/generative-ai-product-safety-expectations/generative-ai-product-safety-expectations)). It never connects to a real inbox or payment system. Museums and holiday camps without a school DSL run the scripted version only.
 - **Gentle consequences:** the wrong refund is shown as a red log line and a "Returned" status, never as an angry customer or a cost to the team. Retrying costs seconds.
@@ -184,8 +184,8 @@ Plan 10 minutes (45-minute session), 15 minutes (60) or 20 minutes (90).
 - **Scripted AI responses (minimum set):** the stage lines in section 5 (stages 1, 2, 3 and 5, plus the stage 5 unsure-but-right line "No exact booking match. Possible #2203, 41% sure. Sent to a human."); the stage 4 handover and both agent logs exactly as in the trailer; and a variant for teams that put a human checkpoint on refunds from the start, where the wrong match surfaces at the approval screen ("Approve £15 to #2041 Sam Taylor?") for the Checker to catch.
 - **Reuse from the trailer:** the brief card, swimlane map with its box positions and tags, the permission toggles and match rule, both logs, the review card and its "Authority" finding, the blueprint artefact, the portfolio and pathway cards, and the end title ("Map the work. Decide what the AI may do. Check before money moves.").
 - **Open questions**
-  - The trailer labels Amara "age 13", but this lab defaults to 14–18. Either change the tag to 14 or 15, or present the trailer explicitly as the scripted Core (11–13) variant.
-  - Rename "Spokes" and one of the two Okafor mentors (section 4).
+  - The trailer labels Nia "age 15", but this lab defaults to 14–18. Either change the tag to 14 or 15, or present the trailer explicitly as the scripted Core (11–13) variant.
+  - Rename "Pedal Point" and one of the two Okafor mentors (section 4).
   - Choose and vet the Pro sandbox tool against school-managed account terms (to verify).
   - Confirm the ST1512 details and the Elements of AI recommended age (research §10, items 6 and 15).
   - Render `out/fs-automate.mp4`.

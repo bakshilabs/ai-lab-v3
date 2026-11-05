@@ -336,9 +336,9 @@ const brief = el(`<div class="wcard brief"><div class="bh"><span class="tag">BRI
 A(cue(brief, 1.2, 5.0, { from: 'up' }));
 
 // name tags (3D-anchored)
-const tagM = el(`<div class="ntag"><b>Kofi, 13</b><small>Product designer</small></div>`, { anchor: 'bc' });
+const tagM = el(`<div class="ntag"><b>Aisha, 13</b><small>Product designer</small></div>`, { anchor: 'bc' });
 const tagE = el(`<div class="ntag m"><b>Tomasz Nowak</b><small>Service designer · mentor</small></div>`, { anchor: 'bc' });
-const sayE = el(`<div class="say">Clear reasons, Kofi. Send it to the library.</div>`, { anchor: 'bc' });
+const sayE = el(`<div class="say">Clear reasons, Aisha. Send it to the library.</div>`, { anchor: 'bc' });
 const V3 = new THREE.Vector3();
 const follow = (node, obj, dy, dx = 0, ddy = 0) => (t) => { V3.set(obj.position.x, obj.position.y + dy, obj.position.z); const p = toScreen(V3, camera); node.style.left = (p.x + dx) + 'px'; node.style.top = (p.y - 10 + ddy) + 'px'; };
 const twoCue = (node, a, b) => { const c1 = cue(node, ...a), c2 = cue(node, ...b); return (t) => (t < (a[1] + b[0]) / 2 ? c1 : c2)(t); };
@@ -365,7 +365,7 @@ const doc = el(`<div class="wcard doc">
    <div class="dl"><small>Why</small><span data-d2></span></div></section>
  </div><div class="rail"><span class="hd">COMMENTS</span>
    <div class="cmt" data-k1><b>Case check failed</b><p>The plan assumes everyone has a smartphone and reads English. 2 of 5 users are left out.</p></div>
-   <div class="cmt g" data-k2><b>Kofi · Thu 2:15 pm</b><p>Compared 4 options. Kept AI only where it helps, with a person checking it.</p></div>
+   <div class="cmt g" data-k2><b>Aisha · Thu 2:15 pm</b><p>Compared 4 options. Kept AI only where it helps, with a person checking it.</p></div>
  </div></div>
  <div class="ft"><span data-sg>Reviewed by: not yet reviewed</span><span data-pass class="pass">Checks passed: 0 of 4</span><span data-sign class="btn t">Sign off</span></div>
 </div>`, { x: 44, y: 142 });
@@ -399,7 +399,7 @@ A((t) => {
   k2.style.opacity = t >= 27.4 ? 1 : 0; k2.style.transform = `translateX(${(1 - prog(t, 27.4, 27.8, ease.out)) * 40}px)`;
   const sg = Q('[data-sg]'), sb = Q('[data-sign]');
   sb.style.display = t >= 28.5 ? 'none' : ''; sb.style.opacity = t >= 27.9 ? 1 : 0.35; sb.style.transform = within(t, 28.3, 28.5) ? 'scale(.94)' : '';
-  const sgH = t >= 28.5 ? `<span class="tick">${SVG.tick}</span><span class="sg">Reviewed by: Kofi, age 13<em>Signed off Thu</em></span>` : 'Reviewed by: not yet reviewed';
+  const sgH = t >= 28.5 ? `<span class="tick">${SVG.tick}</span><span class="sg">Reviewed by: Aisha, age 13<em>Signed off Thu</em></span>` : 'Reviewed by: not yet reviewed';
   if (sg.dataset.v !== sgH) { sg.dataset.v = sgH; sg.innerHTML = sgH; sg.style.display = 'flex'; sg.style.alignItems = 'center'; sg.style.gap = '16px'; }
   sg.style.transform = t >= 28.5 ? `scale(${1 + 0.08 * (1 - prog(t, 28.5, 28.9, ease.out))})` : ''; sg.style.transformOrigin = 'left center';
   if (t >= 30.0) { const k = prog(t, 30.0, 31.0, ease.inOut); doc.style.transformOrigin = 'center'; doc.style.transform = `translate(${k * 1000}px, ${k * 300}px) scale(${1 - k * 0.86}) rotate(${k * 4}deg)`; doc.style.opacity = 1 - prog(t, 30.75, 31.0); doc.style.visibility = t > 31.0 ? 'hidden' : 'visible'; }
@@ -430,7 +430,7 @@ const STEPS = [[5.9, 'Step 2 of 7', 'Map the users and the real problem'], [10.2
 A((t) => { let s = STEPS[0]; for (const x of STEPS) if (t >= x[0]) s = x; const n = steps.querySelector('[data-n]'), d = steps.querySelector('[data-d]'); if (n.textContent !== s[1]) { n.textContent = s[1]; d.textContent = s[2]; } d.style.opacity = prog(t, s[0], s[0] + 0.35); });
 
 // portfolio folder
-const folder = el(`<div class="folder"><span class="tabf">PORTFOLIO · Kofi</span><div class="body">
+const folder = el(`<div class="folder"><span class="tabf">PORTFOLIO · Aisha</span><div class="body">
  <div class="it"><i></i><span>Data brief<small>Council Data Desk</small></span></div>
  <div class="it"><i></i><span>Fact-Check Card<small>Verification Desk</small></span></div>
  <div class="it nw" data-nw><i></i><span>AI Decision Record<small>Library times and booking · reviewed</small></span><span class="new">NEW</span></div></div></div>`, { x: 1250, y: 520 });

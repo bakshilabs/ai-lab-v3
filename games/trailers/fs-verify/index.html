@@ -297,9 +297,9 @@ const brief = el(`<div class="wcard brief"><div class="bh"><span class="tag">BRI
 A(cue(brief, 1.2, 5.0, { from: 'up' }));
 
 // name tags (3D-anchored)
-const tagM = el(`<div class="ntag"><b>Maya, 13</b><small>Checker</small></div>`, { anchor: 'bc' });
+const tagM = el(`<div class="ntag"><b>Hana, 13</b><small>Checker</small></div>`, { anchor: 'bc' });
 const tagE = el(`<div class="ntag m"><b>Amara Osei</b><small>Desk Editor · mentor</small></div>`, { anchor: 'bc' });
-const sayE = el(`<div class="say">Good catch, Maya. It can go live.</div>`, { anchor: 'bc' });
+const sayE = el(`<div class="say">Good catch, Hana. It can go live.</div>`, { anchor: 'bc' });
 const V3 = new THREE.Vector3();
 const follow = (node, obj, dy, dx = 0, ddy = 0) => (t) => { V3.set(obj.position.x, obj.position.y + dy, obj.position.z); const p = toScreen(V3, camera); node.style.left = (p.x + dx) + 'px'; node.style.top = (p.y - 10 + ddy) + 'px'; };
 const twoCue = (node, a, b) => { const c1 = cue(node, ...a), c2 = cue(node, ...b); return (t) => (t < (a[1] + b[0]) / 2 ? c1 : c2)(t); };
@@ -315,10 +315,10 @@ const doc = el(`<div class="wcard doc">
    <h3>New river barrier has cut town flooding</h3>
    <div class="by">Draft · 3:12 pm · for the 4 pm edition</div>
    <p class="tx">Harbourside’s river barrier has cut <span data-o1>flooding in the town centre by 80%</span><span data-n1 class="ins"></span>, according to <span data-o2>a 2024 study</span><span data-n2 class="ins"></span> <span data-cite>[1]</span>. It opened in 2021, two years after the floods.</p>
-   <div class="src"><small>SOURCES</small><p data-s1><span data-s1t>[1] Okafor, J. (2024) ‘River barriers in small towns’, <i>Journal of Coastal Resilience</i> 12(3).</span></p><p data-s2 class="ins" style="display:none"></p></div>
+   <div class="src"><small>SOURCES</small><p data-s1><span data-s1t>[1] Pennethorne, J. (2024) ‘River barriers in small towns’, <i>Bulletin of Small-Town Waterways</i> 12(3).</span></p><p data-s2 class="ins" style="display:none"></p></div>
  </div><div class="rail"><span class="hd">COMMENTS</span>
    <div class="cmt" data-k1><b>Source check failed</b><p>Citation [1] can’t be traced. Find the original before this goes live.</p></div>
-   <div class="cmt g" data-k2><b>Maya · 3:41 pm</b><p>[1] doesn’t exist. Swapped in the council’s own report and matched the claim to its figures.</p></div>
+   <div class="cmt g" data-k2><b>Hana · 3:41 pm</b><p>[1] doesn’t exist. Swapped in the council’s own report and matched the claim to its figures.</p></div>
  </div></div>
  <div class="ft"><span data-sg>Reviewed by: not yet reviewed</span><span data-pass class="pass">Checks passed: 0 of 4</span><span data-sign class="btn t">Sign off</span></div>
 </div>`, { x: 44, y: 142 });
@@ -354,7 +354,7 @@ A((t) => {
   k2.style.opacity = t >= 25.3 ? 1 : 0; k2.style.transform = `translateX(${(1 - prog(t, 25.3, 25.7, ease.out)) * 40}px)`;
   const sg = Q('[data-sg]'), sb = Q('[data-sign]');
   sb.style.display = t >= 26.9 ? 'none' : ''; sb.style.opacity = t >= 25.8 ? 1 : 0.35; sb.style.transform = within(t, 26.7, 26.9) ? 'scale(.94)' : '';
-  const sgH = t >= 26.9 ? `<span class="tick">${SVG.tick}</span><span class="sg">Reviewed by: Maya, age 13<em>Signed off 3:42 pm</em></span>` : 'Reviewed by: not yet reviewed';
+  const sgH = t >= 26.9 ? `<span class="tick">${SVG.tick}</span><span class="sg">Reviewed by: Hana, age 13<em>Signed off 3:42 pm</em></span>` : 'Reviewed by: not yet reviewed';
   if (sg.dataset.v !== sgH) { sg.dataset.v = sgH; sg.innerHTML = sgH; sg.style.display = 'flex'; sg.style.alignItems = 'center'; sg.style.gap = '16px'; }
   sg.style.transform = t >= 26.9 ? `scale(${1 + 0.08 * (1 - prog(t, 26.9, 27.3, ease.out))})` : ''; sg.style.transformOrigin = 'left center';
   // portfolio flight
@@ -374,14 +374,14 @@ const brw = el(`<div class="wcard brw">
  <div class="tabs"><span class="tab" data-t="0">Journal search</span><span class="tab" data-t="1">Who is behind it?</span><span class="tab" data-t="2">Council report</span><span class="plus">+</span></div>
  <div class="url" data-u></div>
  <div class="pg">
-  <div data-p="0"><h4><i>${SVG.cross}</i>0 results</h4><p>No journal called <b>Journal of Coastal Resilience</b>. No 2024 article by J. Okafor in any library index.</p></div>
+  <div data-p="0"><h4><i>${SVG.cross}</i>0 results</h4><p>No journal called <b>Bulletin of Small-Town Waterways</b>. No 2024 article by J. Pennethorne in any library index.</p></div>
   <div data-p="1"><h4><i>${SVG.cross}</i>Nobody stands behind it</h4><div class="kv"><span>Publisher</span><span>none found</span><span>Editors</span><span>none found</span><span>ISSN number</span><span>none found</span></div></div>
   <div data-p="2"><h4><i class="g">${SVG.tick}</i>Real, named and checkable</h4><div class="kv g"><span>Published by</span><span>Harbourside Council, 2023</span><span>Page 4</span><span>Homes flooded: 42 → 9</span></div></div>
  </div>
- <div class="trail"><span class="lb">TRAIL</span><span class="s n">[1] Okafor</span><span class="ar">›</span><span class="s x">no journal</span><span class="ar">›</span><span class="s x">no publisher</span><span class="ar">›</span><span class="s o">council report ✓</span></div>
+ <div class="trail"><span class="lb">TRAIL</span><span class="s n">[1] Pennethorne</span><span class="ar">›</span><span class="s x">no journal</span><span class="ar">›</span><span class="s x">no publisher</span><span class="ar">›</span><span class="s o">council report ✓</span></div>
 </div>`, { x: 1876, y: 142, anchor: 'tr' });
 A(cue(brw, 15.6, 28.3, { from: 'right' }));
-const URLS = ['library search: “Journal of Coastal Resilience” Okafor 2024', 'who publishes “Journal of Coastal Resilience”?', 'harbourside.gov.example/flood-barrier-review-2023.pdf'];
+const URLS = ['library search: “Bulletin of Small-Town Waterways” Pennethorne 2024', 'who publishes “Bulletin of Small-Town Waterways”?', 'harbourside.gov.example/flood-barrier-review-2023.pdf'];
 const tabT = [16.3, 18.6, 20.9];
 A((t) => {
   const n = tabT.filter((x) => t >= x).length, cur = n - 1;
@@ -400,7 +400,7 @@ const STEPS = [[5.9, 'Step 2 of 6', 'The AI colleague hands over a confident dra
 A((t) => { let s = STEPS[0]; for (const x of STEPS) if (t >= x[0]) s = x; const n = steps.querySelector('[data-n]'), d = steps.querySelector('[data-d]'); if (n.textContent !== s[1]) { n.textContent = s[1]; d.textContent = s[2]; } d.style.opacity = prog(t, s[0], s[0] + 0.35); });
 
 // portfolio folder
-const folder = el(`<div class="folder"><span class="tabf">PORTFOLIO · Maya</span><div class="body">
+const folder = el(`<div class="folder"><span class="tabf">PORTFOLIO · Hana</span><div class="body">
  <div class="it"><i></i><span>Data brief<small>Council Data Desk</small></span></div>
  <div class="it"><i></i><span>Model card<small>Model Test Lab</small></span></div>
  <div class="it nw" data-nw><i></i><span>Fact-Check Card<small>Flood-barrier story · reviewed</small></span><span class="new">NEW</span></div></div></div>`, { x: 1250, y: 520 });

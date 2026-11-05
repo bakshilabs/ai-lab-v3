@@ -112,7 +112,7 @@ const S = 0.36;
 const P = (shirt, skin, hair, pants = '#2c3e66') => ({ shirt, skin, hair, pants, s: S });
 const panel = [
   seated(P('#3a8de0', '#e0b08a', '#3b2a1a'), seatsFar[0], FAR, 's', F),
-  seated(P('#16c79a', '#8a5a3a', '#1a120c', '#34405a'), seatsFar[1], FAR, 's', F), // Maya
+  seated(P('#16c79a', '#8a5a3a', '#1a120c', '#34405a'), seatsFar[1], FAR, 's', F), // Zainab
   seated(P('#ff8a2a', '#c68a5e', '#d8a040'), seatsFar[2], FAR, 's', F),
   seated(P('#6e5bf2', '#f0c8a0', '#6b3a1e'), seatsFar[3], FAR, 's', F),
   seated(P('#e5484d', '#a0683f', '#2b1d14'), -13, 0, 'e', F),
@@ -146,10 +146,10 @@ st.onFrame((t) => {
   camera.updateProjectionMatrix();
   camera.position.set(Math.sin(c.ang) * c.dist + c.look[0], c.hgt + c.look[1], Math.cos(c.ang) * c.dist + c.look[2]);
   camera.lookAt(c.look[0], c.look[1], c.look[2]);
-  // seated idle + Maya leaning in to review
+  // seated idle + Zainab leaning in to review
   panel.forEach((p, i) => { const b = p.userData.base; p.position.y = b.y + Math.max(0, Math.sin(t * 1.3 + i * 1.7)) * 0.05; p.rotation.x = 0; });
   MAYA.rotation.x = -0.18 * prog(t, 18.8, 19.6) * (1 - prog(t, 28.4, 29.2));
-  // mentor: presents at the screen, then walks behind Maya for the review
+  // mentor: presents at the screen, then walks behind Zainab for the review
   { const a = [-0.5, -6.5], b = [-6.6, -5.0]; const k = prog(t, 17.6, 19.6, (x) => x); const x = lerp(a[0], b[0], k), z = lerp(a[1], b[1], k);
     mentor.position.set(x, F, z); const walking = k > 0 && k < 1; mentor.rotation.y = walking ? Math.atan2(b[0] - a[0], b[1] - a[1]) + Math.PI : Math.PI; mentor.userData.walk(walking ? t * 9 : 0); }
   // park visitors on loops
@@ -168,7 +168,7 @@ const bchip = ui(briefChipHTML('Harbourside Council · Due <em>Friday</em>'), 46
 on(cue(bchip, 8.4, 30.4, { from: 'left' }));
 
 // name tags
-const tagMaya = pin('<b>Maya, age 13</b><small>Impact Panel · lead</small>');
+const tagMaya = pin('<b>Zainab, age 15</b><small>Impact Panel · lead</small>');
 const tagMentor = pin('<b>Priya Shah</b><small>Mentor · data protection officer</small>', 'fs-tag mentor');
 const say = pin('“Start with who it affects.”', 'fs-say');
 on((t) => {
@@ -189,7 +189,7 @@ const form = ui(`<div class="fs-card ip-form"><div class="hd"><div><span class="
 const fS = [...form.querySelectorAll('[data-s]')];
 const fPriv = form.querySelector('[data-priv]'), fDec = form.querySelector('[data-dec]'), fEn = form.querySelector('[data-en]'), fKwh = form.querySelector('[data-kwh]'), fSt = form.querySelector('[data-st]');
 const PRIV_AI = 'Allowed under the 2024 Park Privacy Act.';
-const PRIV_FIX = 'UK GDPR and the ICO Children’s Code apply. Check with our data protection officer.';
+const PRIV_FIX = 'UK GDPR and the ICO’s video surveillance guidance apply. Check with our data protection officer.';
 const DEC_AI = 'Approve. All groups covered.';
 const DEC_FIX = 'Approve with conditions: count people, never identify them. Delete footage after 24 hours.';
 const FORM_IN = 9.0, PORT = 30.8;
@@ -204,7 +204,7 @@ on((t) => {
   form.style.transform = `translate(${(1 - a) * 120 + d * (960 - 1437)}px, ${d * (600 - 520)}px) scale(${1 - d * 0.7})`;
   // stakeholder cards pop in
   fS.forEach((c, i) => { const ti = i < 5 ? FORM_IN + 0.6 + i * 0.28 : 26.0; const k = prog(t, ti, ti + 0.35, ease.back); c.style.opacity = clamp(k); c.style.transform = `scale(${0.7 + 0.3 * k})`; });
-  // energy estimate (Maya's own working)
+  // energy estimate (Zainab's own working)
   const ek = prog(t, 11.4, 13.0, ease.out); fEn.style.width = ek * 40 + '%'; fKwh.textContent = `≈ ${Math.round(ek * 1100).toLocaleString('en-GB')} kWh a year`;
   // privacy line
   let ph;
@@ -236,13 +236,13 @@ const findAuth = ui(findHTML('AUTHORITY CHECK · NOT ITS CALL', [['Draft says', 
 on(cue(findAuth, 25.2, 28.4, { from: 'left' }));
 on((t) => { const ok = t > 27.2; findAuth.firstChild.classList.toggle('ok', ok); findAuth.querySelector('.hd').lastChild.textContent = ok ? 'AUTHORITY CHECK · FIXED' : 'AUTHORITY CHECK · NOT ITS CALL'; findAuth.querySelector('.hd i').textContent = ok ? '✓' : '✕'; });
 on((t) => { const ok = t > 24.4; findSrc.firstChild.classList.toggle('ok', ok); findSrc.querySelector('.hd').lastChild.textContent = ok ? 'SOURCE CHECK · FIXED' : 'SOURCE CHECK · CLAIM NOT FOUND'; findSrc.querySelector('.hd i').textContent = ok ? '✓' : '✕'; });
-const sign = ui(signHTML('Maya', 13), 46, 820);
+const sign = ui(signHTML('Zainab', 13), 46, 820);
 on(cue(sign, 29.0, 30.4, { from: 'pop' }));
 
 // portfolio
-const folder = ui(folderHTML('Maya', 3), 960, 600, 'c');
+const folder = ui(folderHTML('Zainab', 3), 960, 600, 'c');
 on(cue(folder, 31.0, 34.0, { from: 'up' }));
-on((t) => { const k = prog(t, PORT + 1.4, PORT + 1.8, ease.back); const p = folder.querySelector('[data-paper]'); p.style.transform = `translateY(${(1 - k) * -60}px)`; p.style.opacity = clamp(k); folder.querySelector('[data-items]').textContent = t > PORT + 1.5 ? 'Maya · 4 pieces' : 'Maya · 3 pieces'; });
+on((t) => { const k = prog(t, PORT + 1.4, PORT + 1.8, ease.back); const p = folder.querySelector('[data-paper]'); p.style.transform = `translateY(${(1 - k) * -60}px)`; p.style.opacity = clamp(k); folder.querySelector('[data-items]').textContent = t > PORT + 1.5 ? 'Zainab · 4 pieces' : 'Zainab · 3 pieces'; });
 
 // pathway
 const veil = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:rgba(235,246,255,.55)"></div>');

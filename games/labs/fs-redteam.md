@@ -34,14 +34,14 @@ By the end, learners can…
 
 - **Visual style:** a house-style floating voxel island. The cutaway building is half office (carpet, desks, glowing screens, a wall board) and half museum gallery (dinosaur skeleton, display cases, columns, a visitor kiosk running Archie, a banner). The camera moves to the **test desk** tool: a test log table (#, category, test, expected, result, severity), the Ask Archie chat console labelled "Test version · scripted answers", and a report editor. White cards, Inter type, teal accent; result chips PASS / FAIL / RE-TEST PASS; severity chips High / Medium / None.
 - **The AI colleague:** a faceless teal bot glyph labelled "AI colleague · draft READY", with a confidence bar ("97% sure") and a **Data I used** field ("Archie's own answers, self-marked"). Process language only. Archie itself is the *system under test*, shown only as a chat console, never as a character.
-- **Characters:** Kofi (learner avatar, first name only) and the mentor, a security tester.
+- **Characters:** Leon (learner avatar, first name only) and the mentor, a security tester.
 
 | Fictional name | Status |
 |---|---|
-| Rana Begum (mentor in the trailer) | **Rename before production.** Rana Begum is a well-known British artist. Choose a checked fictional name |
+| Dee Marsh (mentor in the trailer) | **Rename before production.** Dee Marsh is a well-known British artist. Choose a checked fictional name |
 | Harbour Museum | Generic, but check for real museums with this exact name (to verify) |
 | Ask Archie | Check no real museum or education chatbot uses the name (to verify) |
-| PELICAN (code word), Gallery 2, Kofi | Fine. Mary Anning is a real historical figure, used accurately (Dorset fossil collector) |
+| PELICAN (code word), Gallery 2, Leon | Fine. Mary Anning is a real historical figure, used accurately (Dorset fossil collector) |
 
 ## 5. Core loop and structure
 
@@ -176,7 +176,7 @@ Plan 10 minutes (45-minute session), 15 minutes (60) or 20 minutes (90).
 
 ## 11. Safety, ethics and data
 
-- **Data collected:** none. No child accounts. The on-screen "Reviewed by: Kofi" uses the avatar name. Badge codes are anonymous.
+- **Data collected:** none. No child accounts. The on-screen "Reviewed by: Leon" uses the avatar name. Badge codes are anonymous.
 - **Rules on age and real AI tools**
   - Explorer and Core (and any museum or holiday-camp session without a school DSL): scripted Archie only.
   - Pro (14+ only): real generative AI **only** inside the school's own managed accounts, meeting the DfE *Generative AI: product safety expectations* ([gov.uk](https://www.gov.uk/government/publications/generative-ai-product-safety-expectations/generative-ai-product-safety-expectations)), with filtering and logging on and the DSL's agreement. DeltaOps supplies a test persona with museum FAQs and a harmless code word. Learners run only the approved test cards and approved rephrasings. No free-form attack prompts. Learners never test public or third-party chatbots.
@@ -188,7 +188,7 @@ Plan 10 minutes (45-minute session), 15 minutes (60) or 20 minutes (90).
 - **Scenes and assets:** reuse the trailer's island, office and museum gallery cutaway, test log, chat console, AI colleague card, review card, report editor, "Fixes applied · re-testing" pill, artefact card, portfolio and pathway card. New: test card bank (12 cards), rules-of-engagement card, severity guide, repeat-and-rephrase tally.
 - **Scripted AI responses:** the five trailer tests exactly (questions, expected results, Archie's answers, results and re-test answers); the self-test report before ("Archie passed all 5 tests. No safety issues found. Ready to launch.") and after ("No safety issues found. Ready to launch." struck through, with "2 fails: fix before launch"); the stage 1 plan line; the stage 6 fairness line; and five varied answers for the fairness repeats.
 - **Open questions**
-  - The trailer labels Kofi "age 13", but this lab defaults to 14–18. Change the tag to 14 or 15, or present the trailer as the scripted Core variant.
+  - The trailer labels Leon "age 15", but this lab defaults to 14–18. Change the tag to 14 or 15, or present the trailer as the scripted Core variant.
   - Rename the mentor (section 4).
   - Confirm the CREST Bronze project framing, the current CyberFirst/TechFirst offer and the AI Security Institute description (to verify).
   - Render `out/fs-redteam.mp4`.
