@@ -8,13 +8,13 @@
 .pal .pc i { flex: none; width: 30px; height: 30px; border-radius: 8px; display: block; }
 .pal .pc.on { background: #e2f5ef; border-color: #1f9d55; }
 .pal .pc.bad { background: #fde8e4; border-color: #e5533d; }
-.lvl { display: inline-flex; align-items: center; gap: 28px; background: #13202b; color: #fff; border-radius: 40px; padding: 26px 50px; box-shadow: 0 14px 40px rgba(0,0,0,.3); }
+.lvl { white-space: nowrap; display: inline-flex; align-items: center; gap: 28px; background: #13202b; color: #fff; border-radius: 40px; padding: 26px 50px; box-shadow: 0 14px 40px rgba(0,0,0,.3); }
 .lvl b { font: 800 40px 'Inter'; color: #ffd23f; letter-spacing: .06em; }
 .lvl span { font: 800 64px 'Inter'; }
 .dots { display: flex; gap: 10px; } .dots i { width: 22px; height: 22px; border-radius: 50%; background: #3a4752; display: block; } .dots i.on { background: #16c79a; }
-.flower { width: 400px; background: #fff; border-radius: 30px; padding: 16px 18px; box-shadow: 0 8px 0 rgba(0,0,0,.08), 0 14px 30px rgba(0,0,0,.12); }
+.flower { width: 430px; background: #fff; border-radius: 30px; padding: 16px 18px; box-shadow: 0 8px 0 rgba(0,0,0,.08), 0 14px 30px rgba(0,0,0,.12); }
 .flower small { display: block; font: 800 20px 'Inter'; letter-spacing: .12em; color: #46596a; margin-left: 4px; }
-.lens { display: inline-flex; align-items: center; gap: 14px; background: #2f6fd8; color: #fff; border-radius: 999px; padding: 12px 28px; font: 800 30px 'Inter'; letter-spacing: .08em; box-shadow: 0 8px 24px rgba(0,0,0,.25); }
+.lens { white-space: nowrap; display: inline-flex; align-items: center; gap: 14px; background: #2f6fd8; color: #fff; border-radius: 999px; padding: 12px 28px; font: 800 30px 'Inter'; letter-spacing: .08em; box-shadow: 0 8px 24px rgba(0,0,0,.25); }
 .view { display: inline-flex; gap: 8px; background: rgba(19,32,43,.85); border-radius: 999px; padding: 8px; }
 .view span { font: 800 22px 'Inter'; color: #9fb0c0; padding: 8px 18px; border-radius: 999px; letter-spacing: .06em; }
 .view span.on { background: #16c79a; color: #13202b; }
@@ -32,7 +32,7 @@ import { el, cue, fader, titleCard, toScreen } from '../engine/ui.js';
 import { burst, birds } from '../engine/extras.js';
 import { makeLab, ICONS } from '../engine/lab.js';
 
-const DUR = 88;
+const DUR = 95;
 const st = createStage({ sky: ['#5db6ff', '#d9efff'], post: false, shadowSize: 2048 });
 const { scene, camera, sun, hemi, rim } = st;
 rim.intensity = 0.5; st.dome.visible = false; st.renderer.setClearColor(0x000000, 0);
@@ -98,7 +98,9 @@ const LOTS = [[-6, -12], [2, -12], [22, -12], [30, -12], [-6, 5], [2, 5], [22, 5
 LOTS.forEach(([x, z], i) => piece((pv) => { pv.box(x, 1, z, x + 6, 9, z + 6, '#9aa0a6'); pv.box(x, 10, z, x + 6, 10, z + 6, '#7d838a'); for (let y = 3; y <= 8; y += 3) for (let k = 1; k < 6; k += 2) { pv.set(x + k, y, z - 0, '#3b4a5a'); pv.set(x + k, y, z + 6, '#3b4a5a'); } }, 32.2 + i * 0.08, 36.6));
 const HOMES = LOTS.map(([x, z], i) => home(x, z, 36.8 + i * 0.12, 999, { roof: i % 2 ? '#c8a050' : '#7a5232', wall: i % 2 ? '#efe0b8' : '#e9d3b0', green: i % 3 === 0 }));
 // second ring of homes appears in level 6 (the town grows)
-const LOTS2 = [[-6, -22], [2, -22], [22, -22], [30, 15], [-6, 15], [30, -22]];
+const LOTS2 = [[-6, -22], [2, -22], [22, -22], [-6, 15]];
+const LOTS3 = [[-6, -30], [2, -30], [10, -30], [22, -30], [-12, 28], [-4, 28], [4, 28], [12, 28], [20, 28]];
+const HOMES3 = LOTS3.map(([x, z], i) => home(x, z, 74.9 + i * 0.22, 999, { roof: ['#7a5232', '#c8a050', '#3f7a4a', '#a8703e'][i % 4], wall: i % 2 ? '#efe0b8' : '#e9d3b0', green: i % 3 === 1, d: 5 }));
 LOTS2.forEach(([x, z], i) => home(x, z, 69.4 + i * 0.12, 999, { roof: ['#7a5232', '#c8a050', '#3f7a4a'][i % 3], wall: '#efe0b8', green: i % 2 === 0, d: 5 }));
 // interior set: a cutaway timber home (walls only, roof hidden) used for the "inside" shot
 const IX = 22, IZ = 5;
@@ -106,7 +108,7 @@ const IX = 22, IZ = 5;
 piece((pv) => { for (let x = -34; x <= -16; x++) for (let z = -34; z <= 34; z++) { if (!isl.inside(x, z) || inRiver(x, z)) continue; pv.set(x, 0, z, (z % 3 === 0) ? '#6e4a2a' : '#8a5c38'); } }, 44.6, 48.6, { from: 'paint' });
 piece((pv) => { for (let i = 0; i < 18; i++) { const x = 40 + (i % 6) * 2.5, z = -18 + Math.floor(i / 6) * 5; const xi = Math.round(x), zi = Math.round(z); pv.box(xi, 1, zi, xi, 2, zi, '#7a5232'); pv.box(xi - 1, 3, zi - 1, xi + 1, 4, zi + 1, i % 2 ? '#4caf50' : '#5bbd5a'); pv.set(xi, 5, zi, '#4caf50'); if (i % 3 === 0) pv.set(xi + 1, 4, zi, '#e8573f'); } }, 48.8, 999);
 piece((pv) => { const C = ['#7a5232', '#5fb446', '#8a5c38', '#9be27a', '#6e4a2a', '#ffd23f']; for (let i = 0; i < 4; i++) for (let j = 0; j < 3; j++) pv.box(-6 + i * 4, 0, 14 + j * 3, -4 + i * 4, 1, 15 + j * 3, C[(i + j * 2) % 6]); }, 49.2, 999);
-piece((pv) => { for (let z = -34; z <= 34; z += 1) if (isl.inside(-14, z) && rand(z, 3) > 0.15) pv.box(-14, 1, z, -14, 2, z, rand(z, 5) > .5 ? '#2f8a43' : '#3f9d4a'); for (let x = -12; x <= 28; x++) if (rand(x, 4) > 0.2) pv.box(x, 1, -30, x, 2, -30, '#2f8a43'); }, 49.6, 999, { from: 'paint' });
+piece((pv) => { for (let z = -34; z <= 24; z += 1) if (isl.inside(-14, z) && rand(z, 3) > 0.15) pv.box(-14, 1, z, -14, 2, z, rand(z, 5) > .5 ? '#2f8a43' : '#3f9d4a'); for (let x = -12; x <= 20; x++) if (rand(x, 4) > 0.2) pv.box(x, 1, -35, x, 2, -35, '#2f8a43'); }, 49.6, 999, { from: 'paint' });
 piece((pv) => { for (let i = 0; i < 3; i++) { pv.box(38 + i * 3, 1, -24, 39 + i * 3, 2, -23, '#f2c14e'); pv.box(38 + i * 3, 3, -24, 39 + i * 3, 3, -23, '#8a5c38'); } }, 49.8, 999);
 const marketStalls = piece((pv) => { const C = ['#e8573f', '#2f6fd8', '#f2b632', '#2f9a4f']; for (let i = 0; i < 4; i++) { const x = 8 + (i % 2) * 4, z = 6 + Math.floor(i / 2) * 4; for (const [dx, dz] of [[0, 0], [2, 0], [0, 2], [2, 2]]) pv.box(x + dx, 1, z + dz, x + dx, 2, z + dz, '#6e4024'); pv.box(x, 3, z, x + 2, 3, z + 2, C[i]); pv.set(x + 1, 2, z + 1, ['#e8573f', '#ffd23f', '#8fd96a', '#ff8a2a'][i]); } }, 50.2, 999);
 // --- level 5: solar roofs (AI), then wind, battery, rain gardens, wetland, repair café (fix)
@@ -119,7 +121,7 @@ piece((pv) => house(pv, 8, 0, -22, { w: 7, d: 5, h: 4, roof: '#16a37f', wall: '#
 // --- level 6: AI's school in the wetland (ghost), the real school, town heart, nature corridor, bunting
 piece((pv) => { pv.box(-34, 1, -6, -22, 7, 6, '#ffffff'); }, 68.4, 71.2, { ghost: true });
 const school = piece((pv) => { house(pv, 22, 0, 15, { w: 14, d: 8, h: 5, roof: '#e8573f', wall: '#f4e6c8' }); pv.box(22, 0, 24, 35, 0, 26, '#d9c9a0'); pv.box(36, 1, 15, 36, 6, 15, '#7a5232'); pv.box(37, 5, 15, 39, 6, 15, '#16c79a'); }, 71.6, 999);
-piece((pv) => { for (let z = -30; z <= -6; z += 2) { pv.box(44, 1, z, 45, 2, z, '#2f8a43'); } for (let x = -12; x <= 44; x += 2) pv.box(x, 1, 30, x, 2, 30, '#3f9d4a'); }, 72.0, 999, { from: 'paint' });
+piece((pv) => { for (let z = -30; z <= -6; z += 2) { pv.box(44, 1, z, 45, 2, z, '#2f8a43'); } for (let x = 28; x <= 44; x += 2) pv.box(x, 1, 27, x, 2, 27, '#3f9d4a'); }, 72.0, 999, { from: 'paint' });
 const bunting = particles(60, { size: 0.5 }); scene.add(bunting);
 // ================= living town: residents, cyclists, cars (AI road), bees, wildlife =================
 const PEOPLE = [];
@@ -137,22 +139,22 @@ const ring = new THREE.Mesh(new THREE.TorusGeometry(26, 0.5, 6, 64), new THREE.M
 const ring2 = new THREE.Mesh(new THREE.TorusGeometry(26, 0.5, 6, 64), new THREE.MeshBasicMaterial({ color: '#16c79a' })); ring2.rotation.x = Math.PI / 2; ring2.position.set(26, 1.2, 19); scene.add(ring2);
 const cursor = new THREE.Mesh(new THREE.TorusGeometry(2.2, 0.35, 6, 24), new THREE.MeshBasicMaterial({ color: '#ffffff' })); cursor.rotation.x = Math.PI / 2; scene.add(cursor);
 const gulls = birds(scene, { n: 9, center: [0, 34, 0], radius: 60 });
-const conf = burst(scene, { at: [12, 10, 8], t0: 79.8, n: 120, colors: ['#ffd23f', '#16c7a6', '#ff6a4a', '#ffffff', '#6e5bf2'], size: 0.6, speed: 12, up: 10, life: 2.4 });
+const conf = burst(scene, { at: [12, 10, 8], t0: 85.0, n: 120, colors: ['#ffd23f', '#16c7a6', '#ff6a4a', '#ffffff', '#6e5bf2'], size: 0.6, speed: 12, up: 10, life: 2.4 });
 
 // walking routes (x, z) along the footpaths
 const routeMain = (u, side) => [lerp(-6, 44, u), side ? 0.6 : -0.6];
 const routeCross = (u) => [17.4, lerp(-24, 24, u)];
 const L = [4, 16, 28.5, 41, 53, 65]; // level start times
-const nightK = (t) => within(t, 56.6, 59.4) ? Math.min(prog(t, 56.6, 57.2), 1 - prog(t, 59.0, 59.4)) : within(t, 62.4, 64.6) ? Math.min(prog(t, 62.4, 62.9), 1 - prog(t, 64.2, 64.6)) : 0;
+const nightK = (t) => within(t, 84.0, 87.4) ? Math.min(prog(t, 84.0, 84.6), 1 - prog(t, 87.0, 87.4)) : within(t, 56.6, 59.4) ? Math.min(prog(t, 56.6, 57.2), 1 - prog(t, 59.0, 59.4)) : within(t, 62.4, 64.6) ? Math.min(prog(t, 62.4, 62.9), 1 - prog(t, 64.2, 64.6)) : 0;
 const sunDay = new THREE.Color('#ffffff'), sunNight = new THREE.Color('#b8ccff'), hemiNight = new THREE.Color('#8fa8f0'), white = new THREE.Color('#ffffff');
 
 st.onFrame((t) => {
   // pieces pop / paint in, and are removed when replaced
-  for (const p of pieces) { const on = t >= p.t0 && t < p.t1 + 0.4; p.m.visible = on; if (!on) continue; const k = p.from === 'paint' ? prog(t, p.t0, p.t0 + 1.2, (q) => q) : prog(t, p.t0, p.t0 + p.dur, ease.back); const out = t > p.t1 ? 1 - prog(t, p.t1, p.t1 + 0.4) : 1; if (p.from === 'paint') { p.m.scale.set(1, Math.max(0.01, out), 1); p.m.visible = on && k > 0; p.m.material.clippingPlanes = null; p.m.scale.x = Math.max(0.001, k); } else p.m.scale.set(1, Math.max(0.001, Math.min(k, out)), 1); }
+  for (const p of pieces) { const on = t >= p.t0 && t < p.t1 + 0.4; p.m.visible = on; if (!on) continue; const k = p.from === 'paint' ? prog(t, p.t0, p.t0 + 1.2, (q) => q) : prog(t, p.t0, p.t0 + p.dur, ease.back); const out = t > p.t1 ? 1 - prog(t, p.t1, p.t1 + 0.4) : 1; if (p.from === 'paint') { p.m.scale.set(1, Math.max(0.01, out), 1); p.m.visible = on && k > 0; p.m.material.clippingPlanes = null; p.m.scale.x = Math.max(0.001, k); } else { const kk = prog(t, p.t0, p.t0 + p.dur, (q) => q); p.m.position.y = (1 - ease.out(kk)) * 14; const sq = kk >= 1 ? 1 : 0.7 + 0.3 * kk; p.m.scale.set(1, Math.max(0.001, Math.min(sq, out)), 1); } }
   // night (level 5 tests)
   const n = nightK(t); night.style.opacity = n;
   sun.intensity = lerp(2.7, 1.2, n); sun.color.copy(sunDay).lerp(sunNight, n); hemi.intensity = lerp(1.25, 0.95, n); hemi.color.copy(white).lerp(hemiNight, n);
-  let lit = 0; if (within(t, 56.6, 59.4)) lit = t < 57.6 ? 1 : (Math.sin(t * 40) > 0 && t < 58.2 ? 1 : 0); if (within(t, 62.4, 64.6)) lit = 1;
+  let lit = 0; if (within(t, 56.6, 59.4)) lit = t < 57.6 ? 1 : (Math.sin(t * 40) > 0 && t < 58.2 ? 1 : 0); if (within(t, 62.4, 64.6) || within(t, 84.0, 87.4)) lit = 1;
   lights.forEach(([p, t0, t1], i) => lightsI.setAt(i, p[0], p[1], p[2], 0, 0, lit && t > t0 && t < t1 ? 1 : 0)); lightsI.done();
   // solar panels (level 5)
   { const d = new THREE.Object3D(); HOMES.forEach((h, i) => [1.8, 4.6].forEach((dx, k) => { const s = t > 55.6 + i * 0.05 ? prog(t, 55.6 + i * 0.05, 56 + i * 0.05, ease.back) : 0; d.position.set(h.x + dx, h.h + 3.1, h.z + 1.6); d.rotation.set(Math.PI / 4, 0, 0); d.scale.setScalar(Math.max(s, 0.001)); d.updateMatrix(); solar.setMatrixAt(i * 2 + k, d.matrix); })); solar.instanceMatrix.needsUpdate = true; }
@@ -164,7 +166,9 @@ st.onFrame((t) => {
   ring2.visible = within(t, 72.0, 74.6); ring2.scale.setScalar(prog(t, 72.0, 72.8, ease.out));
   // painting cursor on the map during each fix
   const cur = [[12.8, 14.4, [-6, -24], [38, 24]], [24.6, 26.0, [-8, 0], [46, 0]], [36.8, 38.0, [-6, -12], [36, 8]], [48.8, 50.4, [40, -18], [-6, 18]], [60.8, 62.0, [46, 12], [-30, 22]], [71.6, 72.8, [22, 15], [44, -10]]].find(([a, b]) => within(t, a, b));
-  cursor.visible = !!cur; if (cur) { const k = prog(t, cur[0], cur[1], (q) => q); cursor.position.set(lerp(cur[2][0], cur[3][0], k), 1.4, lerp(cur[2][1], cur[3][1], k)); cursor.scale.setScalar(1 + 0.15 * Math.sin(t * 10)); }
+  const lotSeq = within(t, 36.8, 38.0) ? [LOTS, 36.8, 0.12] : within(t, 74.8, 77.0) ? [LOTS3, 74.9, 0.22] : null;
+  if (lotSeq) { const [lots, t0, dt] = lotSeq; const i = clamp(Math.floor((t - t0) / dt), 0, lots.length - 1); const [lx, lz] = lots[i]; cursor.visible = true; cursor.position.set(lx + 3.5, 1.4, lz + 3); cursor.scale.setScalar(1.4 + 0.2 * Math.sin(t * 12)); }
+  else cursor.visible = !!cur; if (cur && !lotSeq) { const k = prog(t, cur[0], cur[1], (q) => q); cursor.position.set(lerp(cur[2][0], cur[3][0], k), 1.4, lerp(cur[2][1], cur[3][1], k)); cursor.scale.setScalar(1 + 0.15 * Math.sin(t * 10)); }
   // meadow flowers: ploughed in level 4 (AI), back after
   MF.forEach(([x, z], i) => meadowFl.setAt(i, x, 0.9, z, 0, 0, within(t, 45, 48.8) ? 0 : 1)); meadowFl.done();
   // deer: in the meadow, flee when the AI ploughs, return later
@@ -176,14 +180,14 @@ st.onFrame((t) => {
   // cyclists after the fix (level 2 onward) - families arrive by cargo bike in level 3
   CYC.forEach((g, i) => { const on = t > 25.2 + i * 0.25; g.visible = on; const u = ((t - 25 + i * 3.1) * 0.05) % 1; const dir = i % 2 ? 1 : -1; const [x] = routeMain(dir > 0 ? u : 1 - u, 0); g.position.set(x, 0.55, dir > 0 ? 2.5 : -2.5); g.rotation.y = dir > 0 ? Math.PI / 2 : -Math.PI / 2; g.userData.p.userData.walk(0); });
   // residents: move in after the homes are built (level 3), then live their day
-  PEOPLE.forEach((p, i) => { const tIn = 37.6 + (i % 13) * 0.15 + (i > 12 ? 32.6 : 0); p.visible = t > tIn || (within(t, 20.6, 24.6) && i < 4); if (!p.visible) return; let x, z, a;
+  PEOPLE.forEach((p, i) => { const tIn = 37.6 + (i % 13) * 0.15 + (i > 12 ? 38.2 : 0); p.visible = t > tIn || (within(t, 20.6, 24.6) && i < 4); if (!p.visible) return; let x, z, a;
     if (within(t, 21.0, 24.6) && i < 4) { x = 10 + i * 1.4; z = -4.6; a = 0; }
     else if (t > 50 && t < 53 && i % 2 === 0) { const ang = i * 0.7 + t * 0.2; x = 12 + Math.cos(ang) * 6; z = 10 + Math.sin(ang) * 4; a = -ang; }
-    else if (t > 76 && i % 3 === 0) { const ang = i * 0.5 + t * 0.15; x = 12 + Math.cos(ang) * 7; z = 10 + Math.sin(ang) * 5; a = -ang; }
+    else if (t > 80 && i % 3 === 0) { const ang = i * 0.5 + t * 0.15; x = 12 + Math.cos(ang) * 7; z = 10 + Math.sin(ang) * 5; a = -ang; }
     else { const r = i % 2; const u = ((t * 0.035 + i * 0.137) % 1); [x, z] = r ? routeMain(i % 4 < 2 ? u : 1 - u, i % 4 < 2) : routeCross(i % 4 < 2 ? u : 1 - u); a = r ? (i % 4 < 2 ? Math.PI / 2 : -Math.PI / 2) : (i % 4 < 2 ? 0 : Math.PI); }
     p.position.set(x, 0.55, z); p.rotation.y = a + Math.PI; p.userData.walk(t * 7 + i); });
   // festival bunting over the town heart (level 6)
-  for (let i = 0; i < 60; i++) { const u = i / 59; bunting.setColor(i, ['#ff6a4a', '#ffd23f', '#16c79a', '#2f6fd8', '#ff7eb6'][i % 5]); bunting.setAt(i, lerp(4, 18, u), 7 - Math.sin(u * Math.PI) * 1.5, 6 + (i % 2) * 6, 0, t, t > 76 ? 1 : 0); } bunting.done();
+  for (let i = 0; i < 60; i++) { const u = i / 59; bunting.setColor(i, ['#ff6a4a', '#ffd23f', '#16c79a', '#2f6fd8', '#ff7eb6'][i % 5]); bunting.setAt(i, lerp(4, 18, u), 7 - Math.sin(u * Math.PI) * 1.5, 6 + (i % 2) * 6, 0, t, t > 80 ? 1 : 0); } bunting.done();
   conf(t);
 
   // ================= cameras: sky (orbit), street (eye level), inside (cutaway) =================
@@ -203,9 +207,11 @@ st.onFrame((t) => {
   else if (t < 53) { street(11, -13, 11, 9, 9); }
   else if (t < 65) { const k = prog(t, 53, 65); sky(lerp(0.55, 0.8, k), lerp(130, 120, k), lerp(92, 86, k), [lerp(4, 10, k), 0, 6]); }
   else if (t < 74.5) { const k = prog(t, 65, 74.5); sky(lerp(-0.4, -0.15, k), lerp(150, 136, k), lerp(110, 100, k), [0, 0, 4]); }
-  else if (t < 77.5) { street(6, 30, 20, 12, 7); }
-  else if (t < 80) { street(12, -15, 11, 9, 10); }
-  else { const k = prog(t, 80, 88); sky(lerp(-0.2, 0.6, k), lerp(130, 190, k), lerp(96, 140, k), [4, 0, 0]); }
+  else if (t < 77.6) { const k = prog(t, 74.5, 77.6); sky(lerp(-0.15, 0.25, k), lerp(124, 108, k), lerp(92, 78, k), [6, 0, 0]); }
+  else if (t < 80.6) { street(19.5, -9, 17, 14, 5); }
+  else if (t < 83.8) { street(12, -15, 11, 9, 10); }
+  else if (t < 87.4) { const k = prog(t, 83.8, 87.4); sky(lerp(0.3, 0.6, k), lerp(118, 132, k), lerp(86, 94, k), [6, 0, 2]); }
+  else { const k = prog(t, 87.4, 95); sky(lerp(-0.2, 0.5, k), lerp(140, 190, k), lerp(104, 140, k), [4, 0, 0]); }
   camera.fov = fov; camera.updateProjectionMatrix(); camera.position.set(...pos); camera.lookAt(...look);
   // interior cutaway: hide the roof of the inside house by clipping (simple: hide its piece during the inside shot)
   
@@ -245,12 +251,14 @@ const LV = [
   ['Complete the town', 'Finish the town your way'],
 ];
 LV.forEach(([name, task], i) => {
-  const t0 = L[i], t1 = (L[i + 1] ?? 82) - 0.2;
+  const t0 = L[i], t1 = (L[i + 1] ?? 88) - 0.2;
   LB.header({ name: 'Eco Town', sub: 'SCHOOL CLUB', color: '#1f9d55', shade: '#157a40', icon: ICONS.leaf, tag: `L${i + 1}/6`, task, tIn: t0 + 0.4, tOut: t1, size: 32 });
   const b = el(`<div class="lvl"><b>LEVEL ${i + 1} OF 6</b><span>${name}</span><div class="dots">${[0, 1, 2, 3, 4, 5].map((k) => `<i class="${k <= i ? 'on' : ''}"></i>`).join('')}</div></div>`, { x: 960, y: 540, anchor: 'c' });
   A(cue(b, t0 - 0.1, t0 + 1.4));
 });
-LB.pills({ stars: 2, xp: 300, starsAfter: 14, xpAfter: 2400, tAfter: 80, tIn: 4.4, tOut: 81.8 });
+{ const STARSV = '<svg width="44" height="44" viewBox="0 0 24 24"><path d="M12 2.6l2.8 5.7 6.3.9-4.6 4.4 1.1 6.2L12 16.9l-5.6 2.9 1.1-6.2-4.6-4.4 6.3-.9z" fill="#ffc83d"/></svg>';
+  const n = el(`<div class="b-pills"><span>${STARSV}<b data-s></b></span><span><em class="xp">XP</em><b data-x></b></span></div>`, { x: 1874, y: 40, anchor: 'tr' }); A(cue(n, 4.4, 87.8, { from: 'right' }));
+  A((t) => { const fx = ST.map((q) => q[6] + 1.3); let k = 0; fx.forEach((f) => { if (t > f) k++; }); const part = k < 6 ? prog(t, fx[k] ?? 999, (fx[k] ?? 999) + 0.6) : 0; n.querySelector('[data-s]').textContent = 2 + k * 2; n.querySelector('[data-x]').textContent = Math.round(300 + k * 350); }); }
 // build palette (different real options each level)
 const PAL = [
   ['WHERE TO START', [['River meadow', '#9be27a'], ['Sunny slope', '#ffd23f'], ['Wood edge', '#2f8a43'], ['By the coast', '#59c7fc']], 0, 1],
@@ -260,7 +268,7 @@ const PAL = [
   ['RUN THE TOWN', [['Solar roofs', '#2b4fb8'], ['Wind', '#f2f2ee'], ['Battery', '#19f0c0'], ['Rain gardens', '#3a9bd4'], ['Wetland', '#4f9a3a'], ['Repair café', '#16a37f']], 0, 1],
   ['TOWN HEART', [['School', '#e8573f'], ['Market square', '#f2b632'], ['Nature links', '#2f8a43'], ['Festival', '#ff7eb6']], 0, 0],
 ];
-const PALT = [[5.2, 12.6, 15.6], [17.2, 24.4, 28.1], [29.6, 36.6, 40.6], [42.2, 48.6, 52.6], [54.2, 60.6, 64.6], [66.2, 71.4, 81.6]];
+const PALT = [[5.2, 12.6, 15.6], [17.2, 24.4, 28.1], [29.6, 36.6, 40.6], [42.2, 48.6, 52.6], [54.2, 60.6, 64.6], [66.2, 71.4, 74.4]];
 PAL.forEach(([head, chips, bad, good], i) => { const [tA, tB, tC] = PALT[i]; const n = el(`<div class="pal"><small>BUILD PALETTE · ${head}</small><div class="grid">${chips.map(([c, col]) => `<div class="pc"><i style="background:${col}"></i>${c}</div>`).join('')}</div></div>`, { x: 46, y: 290 }); A(cue(n, tA, tC, { from: 'left' }));
   A((t) => n.querySelectorAll('.pc').forEach((c, k) => { c.classList.toggle('bad', k === bad && t > tA + 2.2 && t < tB); c.classList.toggle('on', (k === good || (i === 4 && k < 5) || (i === 3 && k > 0 && k !== 3) || (i === 2 && (k === 1 || k === 5)) || (i === 5)) && t >= tB); })); });
 // per-level AI story: vague card, wrong guess, reveal, clearer card, fix
@@ -279,25 +287,25 @@ STORY.forEach((s, i) => { const [cIn, pickA, aiIn, alertIn, c2In, pickB, fixAt] 
   const lens = el(`<div class="lens">● ${s.lens}</div>`, { x: 960, y: 130, anchor: 'c' }); A(cue(lens, alertIn - 0.5, c2In - 0.2, { from: 'down' }));
   LB.alert(s.alert, alertIn, c2In - 0.1, { y: 640 });
   LB.cards('TRY A CLEARER CARD', s.cards[1], c2In, fixAt + 0.6, pickB, 1);
-  LB.saved(s.saved, fixAt + 2.4, (L[i + 1] ?? 82) - 0.4, { y: 780 });
+  LB.saved(s.saved, fixAt + 2.4, (L[i + 1] ?? 74.4) - 0.4, { y: 780 });
 });
 // after-fix helper lines
-LB.helper('Town on the dry, sunny slope. Meadow and wood kept wild.', 90, 13.0, 15.6);
-LB.helper('Cycle lanes and footpaths. Cars park at the edge.', 88, 24.8, 28.1);
-LB.helper('Timber and straw homes, green roofs. Carbon down 70%.', 86, 37.0, 40.6);
-LB.helper('Orchard, allotments and hedges. The bees are back.', 88, 49.0, 52.6);
-LB.helper('Wind, battery and rain gardens. Lights on all winter.', 87, 61.0, 64.6);
-LB.helper('School next to the homes: an 8-minute walk.', 92, 71.8, 74.4);
+LB.helper('Town on the dry, sunny slope. Meadow and wood kept wild.', 90, 13.0, 15.6, { tag: 'PLAN CHECKED', tagColor: '#16c79a' });
+LB.helper('Cycle lanes and footpaths. Cars park at the edge.', 88, 24.8, 28.1, { tag: 'PLAN CHECKED', tagColor: '#16c79a' });
+LB.helper('Timber and straw homes, green roofs. Carbon down 70%.', 86, 37.0, 40.6, { tag: 'PLAN CHECKED', tagColor: '#16c79a' });
+LB.helper('Orchard, allotments and hedges. The bees are back.', 88, 49.0, 52.6, { tag: 'PLAN CHECKED', tagColor: '#16c79a' });
+LB.helper('Wind, battery and rain gardens. Lights on all winter.', 87, 61.0, 64.6, { tag: 'PLAN CHECKED', tagColor: '#16c79a' });
+LB.helper('School next to the homes: an 8-minute walk.', 92, 71.8, 74.4, { tag: 'PLAN CHECKED', tagColor: '#16c79a' });
 // camera view switcher
-const view = el('<div class="view"><span data-v="0">SKY</span><span data-v="1">STREET</span><span data-v="2">INSIDE</span></div>', { x: 1874, y: 1010, anchor: 'tr' }); A(cue(view, 4.6, 81.6, { from: 'up' }));
+const view = el('<div class="view"><span data-v="0">SKY</span><span data-v="1">STREET</span><span data-v="2">INSIDE</span></div>', { x: 1874, y: 1010, anchor: 'tr' }); A(cue(view, 4.6, 87.4, { from: 'up' }));
 A((t) => { const busy = ST.some((q) => within(t, q[0] - 0.2, q[2]) || within(t, q[4] - 0.2, q[6] + 1.0)); if (busy) { view.style.opacity = 0; } });
-A((t) => { const vv = within(t, 20.6, 22.8) || within(t, 25.8, 28.5) || within(t, 50.5, 53) || within(t, 74.5, 80) ? 1 : within(t, 39, 41) ? 2 : 0; view.querySelectorAll('span').forEach((s, k) => s.classList.toggle('on', k === vv)); });
+A((t) => { const vv = within(t, 20.6, 22.8) || within(t, 25.8, 28.5) || within(t, 50.5, 53) || within(t, 77.6, 83.8) ? 1 : within(t, 39, 41) ? 2 : 0; view.querySelectorAll('span').forEach((s, k) => s.classList.toggle('on', k === vv)); });
 // inside meter
 const warm = el('<div class="bub" style="font-size:30px">🌡 21°C inside · heating off · timber and straw walls</div>', { x: 960, y: 900, anchor: 'c' }); A(cue(warm, 39.2, 40.9));
 // town flower: seven petals with an "enough" line
 const PET = [['Homes', '#e8573f'], ['Food', '#f2b632'], ['Nature', '#2f9a4f'], ['Health', '#ff7eb6'], ['Energy', '#2f6fd8'], ['Community', '#a46cf0'], ['Carbon', '#5a6168']];
-const flower = el(`<div class="flower"><small>TOWN FLOWER</small><svg width="364" height="300" viewBox="-155 -118 310 236"><circle r="62" fill="none" stroke="#c9d6dd" stroke-width="2" stroke-dasharray="5 5"/>${PET.map(([n, c], i) => { const a = i / 7 * Math.PI * 2 - Math.PI / 2; return `<g transform="rotate(${a * 180 / Math.PI + 90})"><ellipse data-p="${i}" cx="0" cy="-40" rx="17" ry="40" fill="${c}" opacity=".9"/></g><text x="${Math.cos(a) * 104}" y="${Math.sin(a) * 100 + 6}" font-size="20" font-weight="800" font-family="Inter" text-anchor="middle" fill="#13202b">${n}</text>`; }).join('')}<circle r="12" fill="#ffd23f"/></svg></div>`, { x: 1874, y: 470, anchor: 'tr' });
-A(cue(flower, 13.6, 81.6, { from: 'right' }));
+const flower = el(`<div class="flower"><small>TOWN FLOWER</small><svg width="394" height="300" viewBox="-175 -118 350 236"><circle r="62" fill="none" stroke="#c9d6dd" stroke-width="2" stroke-dasharray="5 5"/>${PET.map(([n, c], i) => { const a = i / 7 * Math.PI * 2 - Math.PI / 2; return `<g transform="rotate(${a * 180 / Math.PI + 90})"><ellipse data-p="${i}" cx="0" cy="-40" rx="17" ry="40" fill="${c}" opacity=".9"/></g><text x="${Math.cos(a) * 104}" y="${Math.sin(a) * 100 + 6}" font-size="20" font-weight="800" font-family="Inter" text-anchor="middle" fill="#13202b">${n}</text>`; }).join('')}<circle r="12" fill="#ffd23f"/></svg></div>`, { x: 1874, y: 470, anchor: 'tr' });
+A(cue(flower, 13.6, 87.8, { from: 'right' }));
 const petal = (i, t) => { const g = [0.15, 0.1, 0.9, 0.3, 0.1, 0.15, 0.95]; const steps = [[0.9, 0.45, 2], [0.9, 0.45, 3], [0.8, 0.8, 0.5, 0.7, 0.3], [0.85, 0.45, 0.85, 0.5], [0.85, 0.85], [0.9, 0.9, 0.9]];
   const table = [ // value after each level's fix (Homes, Food, Nature, Health, Energy, Community, Carbon-ok)
     [0.15, 0.1, 0.95, 0.3, 0.1, 0.15, 0.95], [0.2, 0.1, 0.9, 0.6, 0.15, 0.3, 0.92], [0.85, 0.15, 0.85, 0.65, 0.3, 0.5, 0.85], [0.85, 0.85, 0.95, 0.75, 0.35, 0.65, 0.85], [0.88, 0.88, 0.95, 0.8, 0.95, 0.7, 0.92], [0.95, 0.9, 1, 0.92, 0.95, 0.98, 0.95]];
@@ -309,13 +317,16 @@ A((t) => PET.forEach((p, i) => { const e = flower.querySelector(`[data-p="${i}"]
 const BUBS = [
   [21.2, 22.7, 'Too many cars to cross!', true, () => [11, 2, -4.6]], [26.0, 28.2, 'I can cycle to school!', false, () => [CYC[0].position.x, 3.2, CYC[0].position.z]],
   [38.0, 39.0, 'We moved in!', false, () => [HOMES[1].x + 3, 9, HOMES[1].z]], [46.0, 48.6, 'Where did the deer go?', true, () => [10, 3.5, 0]], [51.0, 52.8, 'Apples from our orchard!', false, () => [12, 4, 8]],
-  [58.0, 59.3, 'It’s dark and cold!', true, () => [HOMES[4].x + 3, 9, HOMES[4].z]], [63.0, 64.5, 'Lights on, all night', false, () => [HOMES[4].x + 3, 9, HOMES[4].z]], [75.0, 77.4, 'I walk to school in 8 minutes', false, () => [24, 3.5, 22]], [78.0, 79.8, 'Best festival ever!', false, () => [10, 4, 8]],
+  [58.0, 59.3, 'It’s dark and cold!', true, () => [HOMES[4].x + 3, 9, HOMES[4].z]], [63.0, 64.5, 'Lights on, all night', false, () => [HOMES[4].x + 3, 9, HOMES[4].z]], [75.6, 77.4, 'We moved in!', false, () => [HOMES3[4].x + 3, 9, HOMES3[4].z]], [78.2, 80.4, 'I walk to school in 8 minutes', false, () => [17.4, 3.5, -8]], [81.2, 83.6, 'Market day! Apples from our orchard', false, () => [10, 4, 8]], [84.6, 87.2, 'Best festival ever!', false, () => [12, 6, 8]],
 ];
-BUBS.forEach(([a, b, txt, bad, at]) => { const n = el(`<div class="bub${bad ? ' bad' : ''}">${txt}</div>`, { x: 0, y: 0, anchor: 'bc' }); A(cue(n, a, b)); A((t) => { if (!within(t, a - 0.1, b + 0.5)) return; const p = toScreen(new THREE.Vector3(...at()), camera); n.style.left = clamp(p.x, 200, 1720) + 'px'; n.style.top = clamp(p.y, 300, 980) + 'px'; }); });
-const live = el('<div class="lens" style="background:#16c79a;color:#13202b">● LEVEL 6 · WATCH YOUR TOWN LIVE</div>', { x: 960, y: 130, anchor: 'c' }); A(cue(live, 74.6, 81.6, { from: 'down' }));
-const award = el('<div class="b-saved" style="background:#ffd23f;color:#13202b">Your town: <b>Cycle Town · Orchard Valley</b></div>', { x: 960, y: 520, anchor: 'c' }); A(cue(award, 80.0, 81.8));
-const dimEnd = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:radial-gradient(ellipse at center, rgba(5,15,50,.3), rgba(5,15,50,.65))"></div>'); A(cue(dimEnd, 82, null, { from: 'fade', dur: 0.8 }));
-const title = titleCard('Eco <span class="hl">Town</span>', 'Six levels. Your decisions. A whole town that lives.', { chip: 'A DeltaOps Learning AI lab · Schools' }); A(cue(title, 82.2, null, { from: 'pop', dur: 0.8 }));
+BUBS.forEach(([a, b, txt, bad, at]) => { const n = el(`<div class="bub${bad ? ' bad' : ''}">${txt}</div>`, { x: 0, y: 0, anchor: 'bc' }); A(cue(n, a, b)); A((t) => { if (!within(t, a - 0.1, b + 0.5)) return; const p = toScreen(new THREE.Vector3(...at()), camera); n.style.left = clamp(p.x, 560, 1380) + 'px'; n.style.top = clamp(p.y, 300, 980) + 'px'; }); });
+const live = el('<div class="lens" style="background:#16c79a;color:#13202b">● LEVEL 6 · WATCH YOUR TOWN LIVE</div>', { x: 960, y: 130, anchor: 'c' }); A(cue(live, 74.6, 87.6, { from: 'down' }));
+const award = el('<div class="b-saved" style="background:#ffd23f;color:#13202b">Your town: <b>Cycle Town · Orchard Valley</b></div>', { x: 960, y: 470, anchor: 'c' }); A(cue(award, 87.6, 89.4));
+const others = el('<div class="pal" style="width:760px"><small>OTHER CLUBS BUILT VERY DIFFERENT TOWNS</small><div class="grid" style="grid-template-columns:1fr 1fr 1fr"><div class="pc"><i style="background:#e8573f"></i>Tram Town</div><div class="pc"><i style="background:#2f8a43"></i>Forest Village</div><div class="pc"><i style="background:#59c7fc"></i>Harbour Market</div></div></div>', { x: 960, y: 640, anchor: 'c' }); A(cue(others, 88.0, 89.4, { from: 'up' }));
+const moveIn = el('<div class="lens" style="background:#ffd23f;color:#13202b">48 more families move in</div>', { x: 960, y: 900, anchor: 'c' }); A(cue(moveIn, 75.0, 77.4, { from: 'up' }));
+const nightTag = el('<div class="lens" style="background:#13202b">● EVENING FESTIVAL · LIGHTS FROM YOUR WIND AND BATTERY</div>', { x: 960, y: 900, anchor: 'c' }); A(cue(nightTag, 84.4, 87.2, { from: 'up' }));
+const dimEnd = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:radial-gradient(ellipse at center, rgba(5,15,50,.3), rgba(5,15,50,.65))"></div>'); A(cue(dimEnd, 89.6, null, { from: 'fade', dur: 0.8 }));
+const title = titleCard('Eco <span class="hl">Town</span>', 'Six levels. Your decisions. A whole town that lives.', { chip: 'A DeltaOps Learning AI lab · Schools' }); A(cue(title, 89.8, null, { from: 'pop', dur: 0.8 }));
 st.onFrame((t) => ui.forEach((f) => f(t)));
 window.__duration = DUR;
 document.fonts.ready.then(() => { window.__ready = true; });

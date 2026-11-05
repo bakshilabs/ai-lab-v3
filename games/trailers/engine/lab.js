@@ -25,8 +25,8 @@ export function makeLab(A) {
       A(cue(n, tIn, tOut, { from: 'right' }));
       A((t) => { n.querySelector('[data-s]').textContent = t > tAfter ? starsAfter : stars; n.querySelector('[data-x]').textContent = t > tAfter ? Math.round(lerp(xp, xpAfter, prog(t, tAfter, tAfter + 1))) : xp; });
     },
-    helper(text, sure, tIn, tOut, { x = 1874, y = 176 } = {}) {
-      const n = el(`<div class="b-helper"><div class="bot"><i></i><i></i></div><div class="who">AI helper <em>GUESS</em></div><p>${text}</p><div class="sure"><div class="bar"><i style="width:${sure}%"></i></div><span>${sure}% sure</span></div></div>`, { x, y, anchor: 'tr' });
+    helper(text, sure, tIn, tOut, { x = 1874, y = 176, tag = 'GUESS', tagColor = '#ffc83d' } = {}) {
+      const n = el(`<div class="b-helper"><div class="bot"><i></i><i></i></div><div class="who">AI helper <em style="background:${tagColor}">${tag}</em></div><p>${text}</p><div class="sure"><div class="bar"><i style="width:${sure}%"></i></div><span>${sure}% sure</span></div></div>`, { x, y, anchor: 'tr' });
       A(cue(n, tIn, tOut, { from: 'right' }));
     },
     facil(text, tIn, tOut, { color = '#f6c343', ink = '#13202b', x = 1874, y = 760 } = {}) {
