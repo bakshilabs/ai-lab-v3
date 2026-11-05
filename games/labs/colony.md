@@ -122,7 +122,7 @@ Minutes for each phase. Every version starts by saying the Planner is scripted.
 - **Room:** chairs in a horseshoe facing the facilitator, or teams standing round one shared screen showing the final colony and the catch log.
 - **Materials:** printed Colony Charters (one per team); three large question cards ("What did you assume?", "What data did you use?", "Worst day?"); the printed sign-off checklist; sticky notes and pens; a "Mars ↔ Earth jobs" card set (six cards: life-support engineer, water treatment operator, mission planner, hospital estates engineer, plant scientist, safety officer).
 - **Bringing the class back:** the Safety officer holds up the STOP card and says "All crews, stop. Hands off." Screens dim to the finished colony turntable. The facilitator starts only when every hand is off the device.
-- **Timing:** 10 minutes (45-min session), 12 (60), 18 (90).
+- **Timing:** 8–10 minutes (45-min session), 12 (60), 18 (90).
 
 **Structure (18-minute version; trim in brackets)**
 | Minutes | Step |

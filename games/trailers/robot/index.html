@@ -351,7 +351,7 @@ const picker2 = person({ shirt: '#ffd23f', skin: '#c68a5e', s: 0.32 }); picker2.
 const stopRing = ring(2.4, '#ff3b30', 0.16);
 const stopFill = new THREE.Mesh(new THREE.CircleGeometry(1, 40), new THREE.MeshBasicMaterial({ color: '#ff3b30', transparent: true, opacity: 0.18, depthWrite: false })); stopFill.rotation.x = -Math.PI / 2; scene.add(stopFill);
 
-// ======================= ISLAND 4: Harbour View care home =======================
+// ======================= ISLAND 4: Seaglass House care home =======================
 scene.add(fine((B) => {
   B(-11, 0, -6.4, 8, 3.4, -6.0, '#d7efe6'); B(-11, 0, -6.0, 8, 0.4, -5.8, '#a8703e'); B(-11, 3.4, -6.4, 8, 3.6, -5.8, '#bfe0d4');
   for (const x of [-9, -4.6, -0.2, 4.2]) { B(x, 1.2, -6.0, x + 2.2, 2.8, -5.9, '#9fd8f5'); B(x - 0.2, 1.0, -6.0, x + 2.4, 1.2, -5.8, '#ffffff'); B(x + 1.0, 1.2, -6.0, x + 1.2, 2.8, -5.8, '#ffffff'); }

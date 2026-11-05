@@ -51,7 +51,7 @@ A crate lands on the Robot Workshop island and out rolls Rivet, a chunky robot a
 | Rivet | The robot | No robotics company of this name found; "Rivet" is used by unrelated software firms and a crypto project; low risk (to verify trademark) |
 | Training Assistant | AI tool | Generic; low risk |
 | The Okafor family, Gran | Level 2 home | Common surname used generically; low risk |
-| Harbour View care home | Level 5 (research name; trailer code comment only) | **Real**: a Harbour View Care Home exists in Whitehaven, Cumbria ([CQC listing](https://www.cqc.org.uk/location/1-24034057019)). Rename. Proposed: "Seaglass House" (to verify) |
+| Seaglass House care home | Level 5 (research name; trailer code comment only) | **Real**: a Seaglass House Care Home exists in Whitehaven, Cumbria ([CQC listing](https://www.cqc.org.uk/location/1-24034057019)). Rename. Proposed: "Seaglass House" (to verify) |
 | Island grocery warehouse, quarry tunnels | Generic places | No check needed |
 
 ## 5. Core loop and structure
@@ -122,7 +122,7 @@ Minutes for each phase. Every version starts by saying the Assistant is scripted
 - **Room:** a circle of chairs or a semicircle round one screen showing the six logbook stamps and the last PREDICTED/MEASURED card.
 - **Materials:** printed logbooks; a large "PREDICTED __% · MEASURED __/10" card with a dry-wipe pen; a set of eight test cards; five role badges with one-line job descriptions; a soft object (beanbag) as a talking token.
 - **Bringing the class back:** the Safety Officer from the last level says "E-STOP!" and everyone freezes with hands up, like Rivet. Screens pause on the final stamp. The facilitator starts when every hand is off the device.
-- **Timing:** 10 minutes (45-min), 12 (60), 18 (90).
+- **Timing:** 8–10 minutes (45-min), 12 (60), 18 (90).
 
 **Structure (18-minute version; trim in brackets)**
 | Minutes | Step |

@@ -47,7 +47,7 @@ Over six days on Kestrel Isle, as a storm builds, a drone team works with a Flig
 | Name | Use | Check |
 | --- | --- | --- |
 | Kestrel Isle | The main island | No real place found; "Kestrel Island" exists in Alaska and "Kestrel Isles" in a fiction wiki; low risk |
-| Little Holm | Clinic island (research name; trailer code comment only) | **Real**: two islands called Little Holm in Shetland, one with a lighthouse ([Wikipedia](https://en.wikipedia.org/wiki/Little_Holm,_Yell_Sound)). Rename; proposed "Wren Holm" (to verify) |
+| Wren Holm | Clinic island (research name; trailer code comment only) | **Real**: two islands called Wren Holm in Shetland, one with a lighthouse ([Wikipedia](https://en.wikipedia.org/wiki/Little_Holm,_Yell_Sound)). Rename; proposed "Wren Holm" (to verify) |
 | Heather Crag | Moor feature | Not checked (to verify) |
 | Farmer Ade, Ellie | Characters | First names only; low risk |
 | Sky Authority | In-game regulator | Not checked (to verify); always say "the real CAA" in facilitator talk |
@@ -122,7 +122,7 @@ Minutes for each phase. Every version starts by saying the Flight Assistant is s
 - **Room:** an "operations centre" semicircle facing a screen showing the island at sunrise and the open logbook.
 - **Materials:** printed logbooks; four "AI rule" cards (*old or incomplete data*, *assumes the typical case*, *optimises one word*, *can't see what it wasn't shown*); a two-column "False alarm / Missed it" board with sticky notes; career cards for the six jobs; the take-home "Want to fly for real?" card.
 - **Bringing the class back:** the visual observer calls "Aircraft! All drones land." Everyone answers "Landing!", puts hands flat on the table and turns to the front. Screens show the logbook only.
-- **Timing:** 10 minutes (45-min), 12 (60), 18 (90).
+- **Timing:** 8–10 minutes (45-min), 12 (60), 18 (90).
 
 **Structure (18-minute version; trim in brackets)**
 | Minutes | Step |
@@ -164,11 +164,7 @@ Minutes for each phase. Every version starts by saying the Flight Assistant is s
    - *Purpose:* the Drone Code rule for emergencies; safety over finishing the job.
    - *Strong answer:* "The rule says stop flying for emergency services unless they say you can carry on. A helicopter matters more."
    - *Probe:* "Where else do you stop what you're doing for safety, even if you're nearly finished?"
-8. **"The battery plan said 22%. What did the Assistant forget, and how did you know?"** (reasoning: typical case)
-   - *Purpose:* still-air assumptions; numbers both ways.
-   - *Strong answer:* "The wind. Into a 9 m/s headwind it would arrive with 3% and couldn't get back."
-   - *Probe:* "If the drone flies at 15 m/s through the air into a 9 m/s wind, how fast does it go over the sea?"
-9. **"Which drone job would you choose, and what would you check that the AI can't?"** (careers)
+8. **"Which drone job would you choose, and what would you check that the AI can't?"** (careers)
    - *Purpose:* link roles to real jobs and the human judgement in each.
    - *Strong answer:* "Image analyst. I'd look at every flag at full size and decide if it's a sheep or a person."
    - *Probe:* "Agronomists, mapping technicians and rescue teams all use drones. Which surprised you?"
@@ -194,7 +190,7 @@ Minutes for each phase. Every version starts by saying the Flight Assistant is s
 - *Younger or less confident:* sort sticky-note pictures (sheep, rock, person, deer) onto the "False alarm / Missed it" board; choose a matching AI rule card; say the standard call instead of a full sentence.
 - *Older or confident:* "Write the four permission questions for a drone delivering to your school"; "Who is responsible when software stops warning about no-fly zones: the maker, the regulator or the pilot?"; the headwind calculation as a speed-distance-time problem.
 
-**Connecting to real life:** from October 2024 to spring 2025 Guy's and St Thomas' NHS Foundation Trust ran a trial with Apian and Wing, flying blood samples between London hospitals in under two minutes against more than 30 minutes by road ([GSTT](https://www.guysandstthomas.nhs.uk/news/nhs-blood-samples-be-delivered-drones-london-first); [Wing](https://wing.com/news/nhs-blood-delivery)). In Orkney in 2023, Royal Mail and Skyports trialled mail flights routed "over the sea to minimise the surface risk" ([The Engineer](https://www.theengineer.co.uk/content/news/royal-mail-launches-drone-mail-deliveries-in-orkney)), just like your Saturday route. Ask: "What would those teams check before every flight?" Whether either service continued is not confirmed (to verify), so do not say they are running now. With older groups only, the Monviso find can show "AI flags, humans decide"; note that it found a climber who had died, so do not use it with younger groups.
+**Connecting to real life:** from October 2024 to spring 2025 Guy's and St Thomas' NHS Foundation Trust ran a trial with Apian and Wing, flying blood samples between London hospitals in under two minutes against more than 30 minutes by road ([GSTT](https://www.guysandstthomas.nhs.uk/news/nhs-blood-samples-be-delivered-drones-london-first); [Wing](https://wing.com/news/nhs-blood-delivery)). In Orkney in 2023, Royal Mail and Skyports trialled mail flights routed "over the sea to minimise the surface risk" ([The Engineer](https://www.theengineer.co.uk/content/news/royal-mail-launches-drone-mail-deliveries-in-orkney)), just like your Saturday route. Ask: "What would those teams check before every flight, and what did your Assistant forget on Saturday?" Whether either service continued is not confirmed (to verify), so do not say they are running now. With older groups only, the Monviso find can show "AI flags, humans decide"; note that it found a climber who had died, so do not use it with younger groups.
 
 **Closing ritual**
 - Each child finishes "Before I trust a flight plan, I'll check…" and adds it to the logbook page.
@@ -214,17 +210,17 @@ Minutes for each phase. Every version starts by saying the Flight Assistant is s
 - **No devices at home:** printable logbook, a paper Drone Code quiz, a grid-reference treasure map and the headwind maths card.
 
 ## 11. Safety, ethics and data
-- **Data collected:** none. No accounts, names or photos; team nickname only. **Never** let children take the real CAA Flyer ID test during a session: under-13s need a parent present, and personal data would be collected.
-- **Age and law (UK):** state these accurately ([CAA](https://www.caa.co.uk/drones/getting-started-with-drones-and-model-aircraft/children-and-parent-guidance/)): under-13s need a Flyer ID and a parent or guardian with them for the test; under-12s fly only when supervised by someone 16 or over; 13–17s can take the test alone and fly unsupervised; Operator ID requires age 18. From 1 January 2026 the Flyer ID threshold is reported as 100 g and Operator ID as 100 g with a camera or 250 g without, with UK class marks and Remote ID (to verify against caa.co.uk). The A1/A2/A3 sub-category renaming in 2026 is unconfirmed (to verify). US venues: FAA Part 107 remote pilots must be at least 16 ([14 CFR 107.61](https://www.law.cornell.edu/cfr/text/14/107.61)); test format and limits (to verify).
+- **Data collected:** none. No accounts, names or photos; team nickname only. **Never** let children take the real CAA Flyer ID test in a session: under-13s need a parent present, and personal data would be collected.
+- **UK age rules, stated accurately** ([CAA](https://www.caa.co.uk/drones/getting-started-with-drones-and-model-aircraft/children-and-parent-guidance/)): under-13s need a Flyer ID and a parent or guardian with them for the test; under-12s fly only when supervised by someone 16 or over; 13–17s can take the test alone and fly unsupervised; you must be 18 to register as an operator. The 2026 thresholds (Flyer ID from 100 g; Operator ID at 100 g with a camera or 250 g without), class marks, Remote ID and any A1/A2/A3 renaming come from secondary sources (to verify on caa.co.uk). For US venues, Part 107 remote pilots must be at least 16 ([14 CFR 107.61](https://www.law.cornell.edu/cfr/text/14/107.61)).
 - **Practice badges only:** every badge and the logbook say "Practice badge only. Not a real Flyer ID." Children have practised professional tasks; they are not licensed.
-- **Real AI tools:** the Flight Assistant is scripted. No live AI tools. Many consumer AI tools have minimum ages of 13 or 18 (to verify per tool).
-- **Simulation and real flight:** the core lab is simulation only. An optional indoor extension uses sub-100 g classroom drones with propeller guards in a sports hall, at 1:1 or 2:1 children per drone ([Robolink](https://robolink.com/products/codrone-edu-set-of-10-kits)), under the venue's risk assessment (check with the venue's insurer). No outdoor flying as part of the lab.
-- **Gentle consequences:** nobody is hurt. Bad plans lead to auto-return, holes in the map, the bees leaving, the helicopter circling or the parcel reaching only the halfway pad. Hand-flying "crashes" only into trees or water, with an "Insurance claim!" log entry. Wildlife distances are respected (take-off 50 m or more from seabird colonies, [Oxford](https://www.biology.ox.ac.uk/node/3551346)).
+- **Real AI tools:** the Flight Assistant is scripted; no live AI tools. Many consumer AI tools have minimum ages of 13 or 18 (to verify per tool).
+- **Simulation first:** the core lab is simulation only. An optional indoor extension uses sub-100 g classroom drones with propeller guards in a sports hall, at 1:1 or 2:1 ([Robolink](https://robolink.com/products/codrone-edu-set-of-10-kits)), under the venue's risk assessment and insurer. No outdoor flying.
+- **Gentle consequences:** nobody is hurt. Bad plans lead to auto-return, map holes, the bees leaving, the helicopter circling or the parcel reaching only the halfway pad. Practice "crashes" only into trees or water ("Insurance claim!"). Wildlife distances respected (take-off 50 m or more from seabird colonies, [Oxford](https://www.biology.ox.ac.uk/node/3551346)).
 
 ## 12. Build notes
 - **Scenes and assets:** Kestrel Isle with village, airfield, farm, turbines, moor, lighthouse and the clinic island; airspace rings and restriction zone; NDVI overlay; wind arrows and wind-at-height chart; thermal and colour-lens materials; helicopter; parcel and clinic pad. Reuse brochure `obj-turbine`, `obj-pin`, `obj-shield`, `obj-chest`, `obj-bot`.
 - **Scripted AI responses:** every vague and clear line in the section 5 table, plus: L1 cable bonus ("safe to fly low under the cable, 92%"); L2 bonus ("Map complete, 95%" with a smeared corner); L4 bonus ("No damage found, 93%"; "crack, 71%" is a gull dropping); L5 sheep 89%, warm rock 77%, Ellie's tile "no person, 96%", Ellie's flag 38% after the fix; L6 "With the headwind: arrives with 3%".
 - **Reuse from the trailer:** terrain and drone, checklist pop-ups, practice Drone Code card, role strip, airspace lens, NDVI map and "walk the field", thermal and zoom frames, colour lens, sheep tags, grid-reference call, battery bar with headwind re-run, careers card, and the fine print "Practice badges only: real UK drone IDs have age rules."
-- **Trailer alignment:** use the trailer's role names (Pilot in command, Visual observer, Mission planner, Image analyst, Comms lead). The trailer shows Monday, Wednesday, Friday and Saturday; Levels 2 and 4 need new scenes. Rename "Little Holm" in the code comments.
+- **Trailer alignment:** use the trailer's role names (Pilot in command, Visual observer, Mission planner, Image analyst, Comms lead). The trailer shows Monday, Wednesday, Friday and Saturday; Levels 2 and 4 need new scenes. Rename "Wren Holm" in the code comments.
 - **Open questions:** link a UK CAA classroom pack in Level 1 if one exists (none found); frame accepted and rejected flags as "teaching the detector for next time" (links to round-3 report 09).
 - **To verify:** 2026 UK thresholds, class marks and Remote ID (secondary sources); A1/A2/A3 renaming; Part 107 test format and limits; cold-weather flight-time cuts; KS3 geography and NGSS codes; Tello EDU status and CoDrone EDU weight; Wing's "up to 15 drones per pilot"; whether the GSTT/Apian/Wing trial and the Orkney route continued; no UK-specific study of sheep thermal false positives. Vendor accuracy claims for turbine AI and NDVI are not used and must never be quoted to children.

@@ -116,7 +116,7 @@ function wx(t) {
   return o;
 }
 
-// ---------- terrain: Kestrel Isle and Little Holm on a brochure diorama slab ----------
+// ---------- terrain: Kestrel Isle and Wren Holm on a brochure diorama slab ----------
 const v = new Vox(); v.jitter = 0.06;
 const X0 = -54, X1 = 54, Z0 = -30, Z1 = 30, BED = -6, BOT = -15;
 const H = new Map(); const K = (x, z) => x + ',' + z;
@@ -180,7 +180,7 @@ const LX = 15, LZ = -2, LG = hAt(LX, LZ);
 for (let y = LG + 1; y <= LG + 16; y++) for (let dx = -3; dx <= 3; dx++) for (let dz = -3; dz <= 3; dz++) { const d = Math.hypot(dx, dz), R = 2.6 - (y - LG) * 0.03; if (d <= R) v.set(LX + dx, y, LZ + dz, Math.floor((y - LG - 1) / 3) % 2 ? '#f4f1ea' : '#d8342c'); }
 for (let dx = -3; dx <= 3; dx++) for (let dz = -3; dz <= 3; dz++) { const d = Math.hypot(dx, dz); if (d <= 3.2) v.set(LX + dx, LG + 17, LZ + dz, '#22262b'); if (d <= 1.6) v.set(LX + dx, LG + 20, LZ + dz, '#d8342c'); }
 v.set(LX, LG + 21, LZ, '#d8342c'); for (const [dx, dz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) { v.set(LX + dx, LG + 18, LZ + dz, '#22262b'); v.set(LX + dx, LG + 19, LZ + dz, '#22262b'); }
-// Little Holm: island clinic with a green cross
+// Wren Holm: island clinic with a green cross
 house(v, 37, 1, 4, { w: 7, d: 5, h: 4, roof: '#16a37f', wall: '#f4f1ea', wins });
 for (const [dx, dy] of [[0, 0], [0, 1], [0, -1], [1, 0], [-1, 0]]) v.set(40 + dx, 3 + dy, 9, '#16c79a');
 for (const [x, z] of [[47, 6]]) tree(v, x, hAt(x, z), z, { kind: 'round', s: 1 });

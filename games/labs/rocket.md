@@ -116,7 +116,7 @@ Minutes for each phase. Every version starts by saying NAV is scripted and pract
 - **Room:** "mission control" layout: chairs in a row facing the facilitator as Flight Director, or teams round the shared screen showing the mission patch.
 - **Materials:** printed flight logs; the five "NAV rules" poster (*takes you literally, plans for the average, only knows what's on its map, trusts every number, does not ask about units*); GO, HOLD and SCRUB cards (one set per child); a printed alarm card; the career cards for each console.
 - **Bringing the class back:** the facilitator says "All consoles, this is Flight. Hands off for the review." Everyone answers "Copy" and turns away from the screen. Screens show the patch only.
-- **Timing:** 10 minutes (45-min), 12 (60), 18 (90).
+- **Timing:** 8–10 minutes (45-min), 12 (60), 18 (90).
 
 **Structure (18-minute version; trim in brackets)**
 | Minutes | Step |

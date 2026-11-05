@@ -3,7 +3,7 @@
 > Strand: Client request · Ages: 8–14 · Session: 45 / 60 / 90 min · Trailer: `games/trailers/tycoon2/` (`out/tycoon2.mp4`)
 
 ## 1. Summary
-Children run a small island nature park with a fun fair corner. Their job is to give **Manager Bot**, a pretend AI park manager, its instructions for each season. Manager Bot does exactly what the card says and nothing more. Told "Get 50 guests", it is 92% sure that the fastest way is a path straight through the meadow. The guests arrive and the deer leave. Children read the guests' and animals' thought bubbles and the Wildlife meter, see the side effect, and rewrite the goal as **target + "never" + check** ("Get 50 guests. Keep the meadow wild."). They learn that an AI optimises what you say, not what you mean, and that one number never tells the whole story.
+Children give **Manager Bot**, a pretend AI park manager, its instruction for each season of an island nature park. Told "Get 50 guests", it is 92% sure the fastest way is a path straight through the meadow: the guests arrive and the deer leave. Children catch the side effect in the thought bubbles and the Wildlife meter, then rewrite the goal as **target + "never" + check** ("Get 50 guests. Keep the meadow wild."). They learn that an AI optimises what you say, not what you mean, and that one number never tells the whole story.
 
 ## 2. Learning outcomes
 - By the end, learners can point to the words on an instruction card that led the AI to its plan, and say what it assumed.
@@ -14,23 +14,19 @@ Children run a small island nature park with a fun fair corner. Their job is to 
 - By the end (ages 11+), learners can explain how counting only the loudest voices changes the AI's answer.
 
 **Curriculum and framework links**
-- **England, KS2 computing:** "detect and correct errors in algorithms"; "be discerning in evaluating digital content" ([National Curriculum computing](https://www.gov.uk/government/publications/national-curriculum-in-england-computing-programmes-of-study/national-curriculum-in-england-computing-programmes-of-study)).
-- **KS3 computing:** using computational abstractions that model the state and behaviour of real-world systems (same source).
-- **KS2 science (living things and their habitats) and KS3 geography (human and physical interactions):** habitats, needs and how human activity changes environments (to verify exact statement wording before publishing).
-- **KS4:** systems thinking and stakeholder trade-offs, for older groups in clubs.
-- **NGSS:** MS-LS2-5 (evaluate competing design solutions for maintaining biodiversity); 3-5-ETS1-2 and MS-ETS1-2 (compare solutions against criteria and constraints).
-- **UNESCO AI Competency Framework for Students** ([UNESCO](https://www.unesco.org/en/articles/ai-competency-framework-students)): human-centred mindset and ethics of AI, at the Understand and Apply levels.
-- **AI4K12 Big Ideas** ([Raspberry Pi Foundation summary](https://www.raspberrypi.org/blog/ai-education-ai4k12-big-ideas-ai-thinking/)): 2 (representation and reasoning: the objective) and 5 (societal impact: who pays for a goal).
-- **OECD/EC AILit Framework** ([OECD](https://www.oecd.org/en/publications/empowering-learners-for-the-age-of-ai_65cd27d4-en.html)): "Shape AI", evaluating a system against defined criteria.
+- **KS2 computing:** "detect and correct errors in algorithms"; "be discerning in evaluating digital content". **KS3 computing:** abstractions that model real-world systems ([National Curriculum computing](https://www.gov.uk/government/publications/national-curriculum-in-england-computing-programmes-of-study/national-curriculum-in-england-computing-programmes-of-study)).
+- **KS2 science (habitats) and KS3 geography (human and physical interaction)** (to verify statement wording). **KS4:** systems thinking for older club groups.
+- **NGSS:** MS-LS2-5 (design solutions for maintaining biodiversity); MS-ETS1-2 (evaluate solutions against criteria).
+- **Frameworks:** UNESCO AI Competency Framework, human-centred mindset and ethics of AI ([UNESCO](https://www.unesco.org/en/articles/ai-competency-framework-students)); AI4K12 Big Ideas 2 and 5 ([summary](https://www.raspberrypi.org/blog/ai-education-ai4k12-big-ideas-ai-thinking/)); OECD/EC AILit "Shape AI" ([OECD](https://www.oecd.org/en/publications/empowering-learners-for-the-age-of-ai_65cd27d4-en.html)).
 
 ## 3. Real-world connection and careers
-- **Park and zoo managers** balance visitor numbers, income, animal welfare and staff time every day. **Rangers and ecologists** survey wildlife, decide where paths go and close nesting areas in season. **Visitor-experience staff** design signs, trails and hides. **Data analysts** in attractions track visitor numbers and turn them into decisions.
-- **How professionals use AI:** conservation teams use AI to sort camera-trap photos, and some tools only accept a label above a confidence threshold, sending the rest to a person ([Wildlife Insights](https://www.wildlifeinsights.org/blog/wildlife-insights-sharpens-its-vision-updated-ai-model)). Attractions also use software forecasts for staffing and queues (to verify a specific UK example before citing one). In every case a person chooses what the system is asked to optimise.
-- **The design lesson matches a real critique.** Reviewers of zoo games have noted that the games reward money and fame even when they claim to be about welfare (see research `08-tycoon.md`, §3.2). Manager Bot makes that critique the game.
+- **Park and zoo managers** balance visitors, income, welfare and staff time. **Rangers and ecologists** survey wildlife, route paths and close nesting areas. **Visitor-experience staff** design signs, trails and hides. **Data analysts** turn visitor numbers into decisions.
+- **How professionals use AI:** conservation teams use AI to sort camera-trap photos; some tools accept a label only above a confidence threshold and send the rest to a person ([Wildlife Insights](https://www.wildlifeinsights.org/blog/wildlife-insights-sharpens-its-vision-updated-ai-model)). A person always chooses what the system optimises.
+- **A real critique:** reviewers note that zoo games reward money and fame even when they claim to be about welfare (research `08-tycoon.md`, §3.2). Manager Bot makes that critique the game.
 
 ## 4. Setting, look and characters
-- **Visual style:** a 1990s-style isometric pixel park sim, drawn on a 640×360 canvas and scaled up (as in the trailer): bevelled windows, a news ticker along the bottom, a £ counter, guest thought bubbles, one coaster ("Twister Coaster") and a Ferris wheel beside a pond, meadow, woodland edge and gate. All sprites, fonts and window chrome are original. Nothing is copied from RollerCoaster Tycoon or Zoo Tycoon.
-- **AI helper:** **Manager Bot**, a square teal-and-white robot head in an "AI ADVISOR" window. Its voice is cheerful and literal. It says "I guess…" and "Fastest way…", never "I feel". Its confidence shows as a bar plus "92% SURE", with the bar orange when the plan has a hidden cost and green after a checked plan.
+- **Visual style:** a 1990s-style isometric pixel park sim on a 640×360 canvas, scaled up (as in the trailer): bevelled windows, a news ticker, a £ counter, thought bubbles, one coaster ("Twister Coaster") and a Ferris wheel beside a pond, meadow, woodland and gate. All sprites, fonts and window chrome are original; nothing is copied from RollerCoaster Tycoon or Zoo Tycoon.
+- **AI helper:** **Manager Bot**, a teal-and-white robot head in an "AI ADVISOR" window. Cheerful and literal; says "I guess…", never "I feel". Confidence is a bar plus "92% SURE": orange when the plan has a hidden cost, green after a checked plan.
 - **Residents:** about 20 guests; otters, ducks, hedgehogs, deer, an owl, frogs, rabbits, bees and one comic gull.
 - **Fictional names (all to be checked against real organisations and people before release):** Island Park, Manager Bot, Twister Coaster, Opening Summer (scenario), the awards "Greenest Park on the Island" and "Tidiest Island in the Sky". "Manager Bot" is a generic phrase; check app stores for a product of that name. Team names (Otters, Foxes, Hawks, Badgers) are animal words.
 
@@ -94,12 +90,11 @@ Rotate every season. With three children, merge Wildlife Warden and Tally Keeper
 
 | Min | Activity |
 |---|---|
-| 0–8 | Warm-up, plus "Be Manager Bot": one child follows a written goal literally while the others try to stop the side effects |
-| 8–12 | Demo |
-| 12–55 | Seasons 1–6 with full retries and the zoo-venue alternative card in Season 5 ("Teach visitors about the animals") |
-| 55–65 | Charter writing: groups swap charters and test each other's |
+| 0–12 | Warm-up, "Be Manager Bot" (one child follows a written goal literally), demo |
+| 12–55 | Seasons 1–6, full retries; zoo-venue card in Season 5 ("Teach visitors about the animals") |
+| 55–65 | Groups swap and test each other's charters |
 | 65–85 | Discussion session (20 min) |
-| 85–90 | Exit check, awards, Charter |
+| 85–90 | Exit check, awards |
 
 **Short of time:** cut Season 5 first, then Season 3. Never cut Season 1, Season 6 or the discussion. Shorten the discussion to opening question, four core questions (1, 3, 5, 8) and the closing ritual.
 
@@ -211,22 +206,21 @@ In October 2026 the charity Born Free criticised the zoo game Planet Zoo 2. It a
 - **Money:** do not praise the £ total. If children ask, say "Manager Bot made money. What did it cost?"
 
 ## 10. Accessibility and inclusion
-- **Reading level:** card text at about age 8 reading level; bubbles are 10 words or fewer and are read aloud by a tap or by the Guest Reporter.
-- **Audio and captions:** all Manager Bot lines are voiced and captioned; sound effects (gate, thud, gull) have visual equivalents.
-- **Colour-blind-safe signals:** bubble status uses colour plus an icon (✔, !, ✘) and a border style. The confidence bar shows the percentage in text. Meter arrows have "+" and "−" symbols.
-- **Motor-friendly controls:** big tap targets (at least 44 px), no drag-only actions, no time limit on choices; keyboard and switch access to cards.
-- **Pixel font:** offer a "clear text" toggle that swaps the pixel font for a plain sans at larger size.
-- **No devices:** run it unplugged with a printed A3 park map, card deck, bubble cards and a facilitator "season reveal" sheet showing each outcome. Children move tokens (guests, deer) on and off the map.
+- **Reading level:** cards at about age 8 level; bubbles of 10 words or fewer, read aloud on tap or by the Guest Reporter. A "clear text" toggle swaps the pixel font for a larger plain sans.
+- **Audio and captions:** Manager Bot is voiced and captioned; sounds (gate, thud, gull) have visual equivalents.
+- **Colour-blind-safe:** bubble status is colour plus icon (✔ ! ✘) and border style; "% SURE" is in text; arrows carry "+" and "−".
+- **Motor-friendly:** tap targets of at least 44 px, no drag-only actions, no time limits, keyboard and switch access.
+- **No devices:** an A3 park map, card deck, bubble cards and a facilitator "season reveal" sheet; children move guest and animal tokens.
 
 ## 11. Safety, ethics and data
-- **Data collected:** none. No accounts, no names, no camera. Group names are optional and chosen from a list. Stars are held only for the session.
-- **Age and real AI tools:** Manager Bot is scripted, not a live AI. Staff do not use live AI tools with children in this lab. If children ask about real chatbots, staff note that most have minimum ages in their terms (check each tool's terms; to verify) and that children should use them with a trusted adult.
-- **Gentle consequences:** animals leave and come back; nobody is hurt; there is no fail screen. Stars are per season, so a bad early choice never blocks later stars.
-- **No dark patterns:** no money purchases, no streaks, no random rewards, team-only scores (ICO Children's Code Standards 5 and 13, as summarised in research `05-replayability.md`, §4).
+- **Data collected:** none: no accounts, names or camera; optional group names from a list; stars held only for the session.
+- **Age and real AI tools:** Manager Bot is scripted. Staff don't use live AI tools with children. If real chatbots come up, staff note that most have minimum ages (check each tool's terms; to verify) and should be used with a trusted adult.
+- **Gentle consequences:** animals leave and come back; no fail screen; stars are per season, so an early bad choice never blocks later stars.
+- **No dark patterns:** no purchases, streaks or random rewards; team-only scores (ICO Children's Code Standards 5 and 13; research `05-replayability.md`, §4).
 
 ## 12. Build notes
 - **Scenes:** the isometric park in six states (meadow path, kiosks without bins, feeding-only, open nesting area, zip-line, charter celebration), each with a fix state; Goal Check, scenario and charter-builder windows; needs panel; news ticker.
-- **Scripted AI responses (Manager Bot):** "Fastest way to 50 guests: a path straight through the meadow!" (92%) · "Got it: path round the meadow. Meadow stays wild." (88%) · "Popular means loud and fun? I'll guess a bouncy castle!" (61%) · "Maximum snacks! Six kiosks, no bins." (95%) · "Happy = fed. Feeding everyone every hour!" (80%) · "Checking four needs for every species." (78%) · "Opening every gate, including the nesting area." (90%) · "Biggest bubbles want a zip-line!" (73%) · "11 bubbles: 3 zip-line, 8 shade. Planting trees." (88%) · "Just a goal? Whatever reaches it fastest!" (90%) · "Clear goal, clear limits. I can do this." (85–95%).
-- **Bubble bank:** reuse the 44 lines in research `08-tycoon.md`, §7.5 (original lines, plus RCT-pattern lines rewritten in our own words).
+- **Scripted AI responses:** all lines in the section 5 table, plus "Got it: path round the meadow. Meadow stays wild." (88%), "Popular means loud and fun? A bouncy castle!" (61%), "11 bubbles: 3 zip-line, 8 shade. Planting trees." (88%) and "Clear goal, clear limits. I can do this." (85–95%). B-card lines as in research `08-tycoon.md`, §7.4.
+- **Bubble bank:** the 44 lines in `08-tycoon.md`, §7.5, with RCT-pattern lines rewritten in our own words.
 - **Reuse from the trailer:** isometric renderer, window chrome, ticker, Goal Check, builder cursor, typed-instruction window, thought bubbles, award window.
 - **Open questions:** the trailer uses "guests" and the research spec uses "visitors"; pick one. Should the £ counter stay (it fits the genre, but children may chase it)? Confirm the ecology with an ecologist. Run all 729 routes through the star script before release.
