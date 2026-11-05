@@ -37,7 +37,7 @@
 .jobs { text-align: center; }
 .jobs h3 { font: 800 76px 'Bricolage Grotesque', 'Inter'; color: #fff; letter-spacing: -0.02em; text-shadow: 0 6px 30px rgba(0,20,40,.45); }
 .jobs .list { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; margin-top: 26px; max-width: 1500px; }
-.jobs .list span { display: inline-flex; align-items: center; gap: 12px; border-radius: 999px; padding: 12px 30px 12px 14px; font: 800 36px 'Inter'; color: #13202b; background: #fff; box-shadow: 0 8px 0 rgba(0,0,0,.1), 0 14px 30px rgba(0,0,0,.2); }
+.jobs .list span { white-space: nowrap; display: inline-flex; align-items: center; gap: 12px; border-radius: 999px; padding: 12px 30px 12px 14px; font: 800 36px 'Inter'; color: #13202b; background: #fff; box-shadow: 0 8px 0 rgba(0,0,0,.1), 0 14px 30px rgba(0,0,0,.2); }
 .jobs .list span i { width: 32px; height: 32px; border-radius: 50%; display: block; }
 </style>
 <script type="importmap">{"imports":{"three":"/three/three.module.js","three/addons/":"/three-addons/"}}</script></head>
@@ -218,7 +218,7 @@ const [wallCv, wg, wallTex] = mkCanvas(1280, 660);
   const skins = ['#c68a5e', '#8d5a3b', '#e0b08a', '#6b4430', '#d9a27a', '#b07a52', '#e8c09a', '#7a4a32', '#c68a5e'], hair = ['#2b1d14', '#13100c', '#d8a040', '#3a2a1a', '#7a4a2c', '#1a1410', '#c0502a', '#2b1d14', '#5a3a20'];
   const SEATS = [];
   CONS.forEach(([sx, b, pz, col], i) => { (i < 3 ? [-1.4, 1.4] : [0]).forEach((dx) => SEATS.push([sx + dx, b, pz, col])); });
-  SEATS.forEach(([sx, b, pz, col], i) => { const p = person({ shirt: col, pants: '#2c3e66', skin: skins[i], hair: hair[i], s: 0.36 }); p.position.set(sx + 0.2, b, pz); const hs = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.18, 0.9), new THREE.MeshLambertMaterial({ color: '#2a2f3a' })); hs.position.set(-0.18, 3.15, -0.18); p.add(hs); G2.add(p); KIDS.push([p, b]); });
+  SEATS.forEach(([sx, b, pz, col], i) => { const p = person({ shirt: col, pants: '#2c3e66', skin: skins[i], hair: hair[i], s: 0.36 }); p.position.set(sx + 0.2, b, pz); const hs = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.18, 0.9), new THREE.MeshLambertMaterial({ color: '#2a2f3a' })); hs.position.set(-0.18, 3.15, -0.18); G2.add(p); KIDS.push([p, b]); });
   // Flight Director standing at the back
   const fd = person({ shirt: '#ffd23f', pants: '#2c3e66', skin: '#8d5a3b', hair: '#13100c', s: 0.42 }); fd.position.set(-0.6, 2, 7); G2.add(fd); KIDS.push([fd, 2]);
 }
@@ -260,6 +260,10 @@ function drawWall(t) {
   g.fillText('UPRIGHT', 380, 365);
   g.fillStyle = '#7fe9ff'; g.font = '800 46px Inter'; g.fillText('in the same 45 km/h gust', 384, 460);
   g.fillStyle = '#0a1238'; g.beginPath(); g.roundRect(40, 540, 1200, 84, 42); g.fill(); g.fillStyle = '#ffd23f'; g.font = '800 42px Inter'; g.textAlign = 'center'; g.fillText('NAV’s plan: aim upwind · engine power in reserve', 640, 584);
+  // booster standing on the deck, right of the headline
+  g.save(); g.translate(1130, 470); g.fillStyle = '#2a3f78'; g.fillRect(-100, 0, 200, 22); g.fillStyle = '#ffd23f'; g.fillRect(-100, -6, 200, 8);
+  g.strokeStyle = '#c9d6ee'; g.lineWidth = 8; g.beginPath(); g.moveTo(-18, -70); g.lineTo(-48, -6); g.moveTo(18, -70); g.lineTo(48, -6); g.stroke();
+  g.fillStyle = '#f4f5f8'; g.fillRect(-22, -230, 44, 170); g.fillStyle = '#5b4ce0'; g.fillRect(-22, -150, 44, 20); g.fillStyle = '#2a2f3a'; g.fillRect(-22, -230, 44, 24); g.restore();
   wallTex.needsUpdate = true;
 }
 
@@ -321,7 +325,7 @@ const whitecaps = particles(110, { size: 1 }); whitecaps.geometry = new THREE.Bo
 const foam = particles(64, { size: 1 }); foam.geometry = new THREE.BoxGeometry(0.42, 0.22, 0.42); foam.material = new THREE.MeshLambertMaterial({ color: '#ffffff', emissive: '#ffffff', emissiveIntensity: 0.3 }); G3.add(foam);
 const streaks = particles(40, { size: 1 }); streaks.geometry = new THREE.BoxGeometry(2.2, 0.035, 0.035); streaks.material = new THREE.MeshBasicMaterial({ color: '#ffffff', transparent: true, opacity: 0.45, depthWrite: false }); G3.add(streaks);
 // thruster puffs: cold-gas bursts from the booster's downwind side during the real gust
-const puffs = particles(36, { size: 1 }); puffs.material = new THREE.MeshLambertMaterial({ color: '#ffffff', emissive: '#ffffff', emissiveIntensity: 0.4 }); G3.add(puffs);
+const puffs = particles(36, { size: 1 }); puffs.material = new THREE.MeshLambertMaterial({ color: '#ffffff', emissive: '#ffffff', emissiveIntensity: 0.4 }); scene.add(puffs);
 const PUFF_T = [TGU + 0.15, TGU + 0.45, TGU + 0.75, TGU + 1.1];
 const gullG = new THREE.Group(); scene.add(gullG);
 const gulls = birds(gullG, { n: 6, center: [O3.x - 8, 13, O3.z - 14], radius: 12, seed: 5 });
@@ -366,7 +370,7 @@ st.onFrame((t) => {
   }
   if (seg === 'room') {
     // close on the wall screen from behind the back row; slow push-in
-    const k = prog(t, ROOM, HERO, (q) => q); camAt(O2.x, 7.6, O2.z - 9.5, lerp(0.05, 0.0, k), lerp(25.5, 23.5, ease.out(k)), lerp(1.6, 1.4, k), 0, 0.2);
+    const k = prog(t, ROOM, HERO, (q) => q); camAt(O2.x, 7.0, O2.z - 9.5, lerp(0.06, 0.0, k), lerp(31, 28.5, ease.out(k)), 3.0, 0, -0.5);
     KIDS.forEach(([p, b], i) => { p.userData.walk(0); const on = t > ROOM + 0.25 + (i % 3) * 0.08; p.position.y = b + (on ? Math.abs(Math.sin((t - ROOM) * 6.5 + i * 1.3)) * 0.4 : 0); });
     if (Math.abs(t - lastWall) > 0.001) { drawWall(t); lastWall = t; }
   }
@@ -374,7 +378,7 @@ st.onFrame((t) => {
     const S = STORM(t);
     const shY = 0.1 + heave(t), rx = (0.04 * S + 0.006) * Math.sin(t * 0.9), rz = (0.07 * S + 0.008) * Math.sin(t * 1.1 + 0.6);
     ship.position.set(SHIPX, shY, 0); ship.rotation.set(rx, 0, rz);
-    tug.position.set(SHIPX - 15, 0.15 + 0.45 * S * Math.sin(t * 1.3 + 1), -12); tug.rotation.set(0.05 * S * Math.sin(t * 1.1), -0.25, 0.06 * S * Math.sin(t * 1.4));
+    if (t < HERO) tug.position.set(SHIPX - 15, 0.15 + 0.45 * S * Math.sin(t * 1.3 + 1), -12); else tug.position.set(SHIPX - 12, 0.15 + 0.45 * S * Math.sin(t * 1.3 + 1), 5); tug.rotation.set(0.05 * S * Math.sin(t * 1.1), -0.25, 0.06 * S * Math.sin(t * 1.4));
     tug2.position.set(SHIPX + 19, 0.1 + 0.4 * S * Math.sin(t * 1.2 + 2), 6); tug2.rotation.set(0.05 * S * Math.sin(t * 1.3), 2.6, 0.06 * S * Math.sin(t * 1.2));
     G3.children.forEach((m) => { if (m.userData.buoy) { m.position.y = -0.5 + 0.35 * S * Math.sin(t * 1.6 + m.position.x); m.rotation.z = 0.15 * S * Math.sin(t * 1.3 + m.position.z); } });
     for (let i = 0; i < seaPos.count; i++) { const x = seaPos.getX(i), z = seaPos.getZ(i); let wave = S * 0.45 * (Math.sin(x * 0.38 + t * 2.0) + 0.6 * Math.sin(z * 0.55 - t * 1.4 + x * 0.1)) + 0.08 * Math.sin(x * 0.9 + z * 0.7 + t * 2.6);
@@ -401,14 +405,14 @@ st.onFrame((t) => {
     // the real booster, flying NAV's checked plan: comes in upwind, the gust pushes it over the target, thrusters fight the tilt
     const bv = t >= REAL; booster4.visible = bv; let pk = 0;
     if (bv) {
-      const y = 0.5 + 12.5 * Math.pow(1 - prog(t, REAL, TLD), 1.6), x = -2.4 + 2.4 * prog(t, TGU, TGU + 1.5, ease.inOut);
+      const y = 0.5 + 10.5 * Math.pow(1 - prog(t, REAL, TLD), 1.6), x = -2.4 + 2.4 * prog(t, TGU, TGU + 1.5, ease.inOut);
       const gq = prog(t, TGU, TGU + 1.3, (q) => q), tilt = -0.2 * Math.sin(gq * Math.PI) + 0.045 * Math.sin(prog(t, TGU + 1.3, TGU + 1.9, (q) => q) * Math.PI) + Math.sin((t - TGU) * 14) * 0.025 * gk(TGU, TGU + 0.6);
       booster4.position.set(x, y, 0); booster4.rotation.set(0, 0.5, tilt); booster4.userData.setLegs(prog(t, TLD - 1.3, TLD - 0.6));
       const boost = gk(TGU, TGU + 1.5); power = t < TLD + 0.05 ? 1 + 0.45 * boost : 1 - prog(t, TLD + 0.05, TLD + 0.3, (q) => q); flameLen = 1.7 + 1.2 * boost;
-      emit = [booster4.localToWorld(_v.set(0, 0.15, 0)).clone()]; smokeAt = ship.localToWorld(new THREE.Vector3(x, 0.5, 0)); smokeAmt = 0.45 * power * clamp(1 - (y - 0.5) / 5);
+      emit = [booster4.localToWorld(_v.set(0, 0.15, 0)).clone()]; smokeAt = ship.localToWorld(new THREE.Vector3(x, 0.5, 0)); smokeAmt = 0.35 * Math.min(1, power) * clamp(1 - (y - 0.5) / 4);
       const top = booster4.localToWorld(new THREE.Vector3(0, 2.55, 0));
       for (let i = 0; i < 36; i++) { const pt = PUFF_T[i % 4], age = t - pt, on = age > 0 && age < 0.55; const j = Math.floor(i / 4);
-        puffs.setAt(i, top.x + 0.5 + age * (2.6 + rand(i, 41)), top.y + (rand(i, 42) - 0.5) * 0.5 + age * 0.4, top.z + (rand(i, 43) - 0.5) * 0.7, i, i, on ? (0.16 + age * 0.9) * (1 - age / 0.55) * (0.6 + 0.08 * j) : 0); pk = 1; }
+        puffs.setAt(i, top.x + 0.5 + age * (2.6 + rand(i, 41)), top.y + (rand(i, 42) - 0.5) * 0.5 + age * 0.4, top.z + (rand(i, 43) - 0.5) * 0.7, i, i, on ? (0.3 + age * 1.6) * (1 - age / 0.55) * (0.7 + 0.06 * j) : 0); pk = 1; }
     }
     if (!pk) for (let i = 0; i < 36; i++) puffs.setAt(i, 0, -999, 0, 0, 0, 0);
     puffs.done();
@@ -417,8 +421,8 @@ st.onFrame((t) => {
       if (t < TG) { const k = prog(t, SEA, TG); camAt(sx, 2.4, O3.z, lerp(-0.7, -0.6, k), lerp(30, 26, ease.out(k)), lerp(8, 7, k), lerp(0, 2.6, prog(t, 4.6, 6.6)), lerp(1.5, 2.6, k)); }
       else { const k = prog(t, TG, REAL); camAt(sx, 2.2, O3.z, lerp(-0.6, -0.5, ease.inOut(k)), lerp(26, 22, ease.inOut(k)), lerp(7, 6, k), 2.6, lerp(2.6, 1.4, prog(t, 12.6, 13.6))); }
     } else if (t < HERO) { const k = prog(t, REAL, TLD + 0.4, ease.inOut), k2 = prog(t, TLD + 0.4, ROOM, (q) => q);
-      camAt(sx - 0.6, lerp(6.4, 1.3, k), O3.z, lerp(-0.22, -0.12, k) + 0.12 * k2, lerp(29, 21, k) - 0.8 * k2, lerp(1.4, 4.4, k), 0, lerp(0.4, 1.0, k)); }
-    else { const k = prog(t, HERO, DUR, (q) => q); const a = lerp(-0.35, 0.25, k), R = lerp(25, 23, k); camera.fov = 30; camera.updateProjectionMatrix(); camera.position.set(sx + Math.sin(a) * R, lerp(31, 30, k), O3.z + Math.cos(a) * R); camera.lookAt(sx - Math.sin(a) * 7, 0, O3.z - Math.cos(a) * 7); }
+      camAt(sx - 0.8, lerp(7.6, 1.4, k), O3.z, lerp(-0.24, -0.14, k) + 0.12 * k2, lerp(34, 25, k) - 0.8 * k2, lerp(0.6, 4.6, k), 0, lerp(0.4, 1.0, k)); }
+    else { const k = prog(t, HERO, DUR, (q) => q); const a = lerp(-0.35, 0.2, k), R = lerp(19, 17.5, k); camera.fov = 30; camera.updateProjectionMatrix(); camera.position.set(sx + Math.sin(a) * R, lerp(21, 20, k), O3.z + Math.cos(a) * R); camera.lookAt(sx - Math.sin(a) * 6.5, 0, O3.z - Math.cos(a) * 6.5); }
   }
   gullG.visible = seg === 'sea' && t < HERO;
   drawFlame(emit.length ? emit : [new THREE.Vector3(0, -999, 0)], emit.length ? power : 0, t, flameLen);
@@ -461,7 +465,7 @@ pill('<div class="liftoff">LIFT-OFF!</div>', 620, 430, LT, 2.25, 'pop', { dur: 0
 pill('<div class="kick">What goes up has to come back down.</div>', 960, 960, 2.3, 3.2, 'up', { outDur: 0.25 });
 
 // ---- persistent game HUD ----
-const HUD0 = SEA + 0.2, HUD1 = HERO - 0.3;
+const HUD0 = SEA + 0.2, HUD1 = ROOM - 0.15;
 { const b = el(`<div class="b-badge" style="background:${PURPLE};box-shadow:0 8px 0 ${PSHADE},0 14px 30px rgba(0,0,0,.18)"><span class="ic">${ROCKET(PURPLE)}</span><span><b>Land a Rocket</b><small>STEM CLUB</small></span></div>`, { x: 46, y: 40 }); A(cue(b, HUD0, HUD1, { from: 'left' }));
   const tk = el(`<div class="b-task" style="width:auto;max-width:1100px;font-size:33px"><span class="lv" style="background:#ff8a2a;color:#13202b;width:auto;padding:0 16px;box-shadow:none">MISSION</span>Bring the booster home: land it on the ship</div>`, { x: 46, y: 176 }); A(cue(tk, HUD0 + 0.2, ROOM - 0.3, { from: 'left', outDur: 0.3 })); }
 // XP only moves when a reward is on screen: +10 for the clearer card, then +1 star and +20 XP for each landing star
@@ -490,7 +494,7 @@ follow('<div class="bub" style="background:#e8573f;color:#fff;font-size:30px">GU
 { const n = el('<div class="alertx"><span class="x">✕</span>A 45 km/h gust tipped it over</div>', { x: 1440, y: 300, anchor: 'c' }); A(cue(n, TFE + 0.05, 13.2, { dur: 0.35, outDur: 0.3 })); }
 cards('TRY A CLEARER CARD', C4, 13.5, 16.0, 15.0, 1);
 chip('+10 XP · clearer instruction', 1500, 740, 15.15, 16.3);
-nav('Worst gust 45 km/h: aim upwind, keep engine power in reserve.', 94, 15.4, 20.2, { tag: 'PLAN CHECKED', tagColor: '#16c79a' });
+nav('Worst gust 45 km/h: aim upwind, keep engine power in reserve.', 94, 15.4, 19.0, { tag: 'PLAN CHECKED', tagColor: '#16c79a' });
 
 // ---- LIVE: the real booster flies the checked plan in the same wind (16.6–24.2) ----
 pill('<div class="lens"><i style="width:18px;height:18px;border-radius:50%;background:#ff5d4a;display:block"></i>LIVE · THE REAL BOOSTER</div>', 960, 84, REAL + 0.1, TLD + 0.2, 'down');
@@ -501,7 +505,7 @@ pill('<div class="lens"><i style="width:18px;height:18px;border-radius:50%;backg
     const fix = within(t, TGU + 0.1, TGU + 1.6); const nb = n.querySelector('[data-nb]'); nb.style.background = fix ? '#ffd23f' : ''; nb.style.color = fix ? '#13202b' : ''; n.querySelector('[data-n]').textContent = t > TLD ? 'LANDED' : fix ? 'CORRECTING' : 'ON TRACK'; }); }
 follow('<div class="bub" style="background:#e8573f;color:#fff;font-size:30px">GUST 45 km/h →</div>', TGU, TGU + 1.3, () => ship.localToWorld(booster4.position.clone().add(new THREE.Vector3(-3.6, 2.2, 0))), 'c');
 follow('<div class="bub ghost" style="font-size:28px">THRUSTERS · TILT FIXED</div>', TGU + 0.5, TGU + 1.9, () => ship.localToWorld(booster4.position.clone().add(new THREE.Vector3(0, 4.0, 0))));
-L.saved('✓ Upright, in the same 45 km/h gust!', TLD + 0.35, ROOM - 0.15, { x: 960, y: 960 });
+L.saved('✓ Upright, in the same 45 km/h gust!', TLD + 0.5, ROOM - 0.15, { x: 960, y: 960 });
 { const big = STAR.replace('width="44" height="44"', ''); STAR_T.forEach((ts, i) => { const s = el(`<div class="bigstars">${big}</div>`, { x: 960 + (i - 1) * 136, y: i === 1 ? 300 : 326, anchor: 'c' }); A(cue(s, ts, ROOM - 0.15, { from: 'pop', dur: 0.3 })); }); }
 chip('+3 stars · +60 XP', 960, 450, TLD + 1.2, ROOM - 0.15);
 
@@ -511,7 +515,7 @@ pill('<div class="lens">MISSION CONTROL · BOOSTER HOME ✓</div>', 960, 1000, R
 // ---- TITLE over the ship, camera still orbiting (27.4–32.4) ----
 { const s = el('<div class="scrim" style="background:linear-gradient(180deg, rgba(8,30,90,.42) 0%, rgba(8,30,90,.18) 55%, rgba(8,30,90,0) 80%)"></div>'); A(cue(s, HERO, null, { from: 'fade', dur: 0.5 })); }
 const title = titleCard('Land a <span class="hl">Rocket</span>', 'Give the AI clear instructions. Check its plan like a pro.', { chip: 'A DeltaOps Learning AI lab · Schools, clubs and museums' }); title.style.placeItems = 'start center'; title.style.paddingTop = '70px'; A(cue(title, HERO + 0.15, null, { from: 'pop', dur: 0.7 }));
-{ const J = ['Flight controller', 'Weather officer', 'Guidance engineer']; const n = el(`<div class="jobs"><div class="list" style="margin-top:0">${J.map((j, i) => `<span><i style="background:${['#6e5bf2', '#3fbf5a', '#16c7a6'][i]}"></i>${j}</span>`).join('')}</div></div>`, { x: 960, y: 985, anchor: 'c' }); A(cue(n, HERO + 0.8, null, { from: 'up', dur: 0.4 })); }
+{ const J = ['Flight controller', 'Weather officer', 'Guidance engineer']; const n = el(`<div class="jobs"><div class="list" style="margin-top:0;flex-wrap:nowrap;max-width:none;align-items:center"><b style="white-space:nowrap;font:800 36px Inter;color:#fff;text-shadow:0 3px 14px rgba(0,20,40,.5)">Real jobs:</b>${J.map((j, i) => `<span><i style="background:${['#6e5bf2', '#3fbf5a', '#16c7a6'][i]}"></i>${j}</span>`).join('')}</div></div>`, { x: 960, y: 985, anchor: 'c' }); A(cue(n, HERO + 0.8, null, { from: 'up', dur: 0.4 })); }
 A((t) => { if (t > HERO + 0.85) title.style.transform += ` scale(${1 + 0.01 * (t - HERO - 0.85)})`; });
 st.onFrame((t) => ui.forEach((f) => f(t)));
 window.__duration = DUR;
