@@ -137,7 +137,7 @@ const houses = [[-24, -20, '#d0573a', '#f1ebe0'], [-13, -20, '#5a6d80', '#efe2c9
 for (const [x, z, roof, wall] of houses) house(v, x, 0, z, { w: 7, d: 5, h: 4, roof, wall });
 // cafe on the right
 house(v, 14, 0, -6, { w: 9, d: 7, h: 4, roof: '#16a37f', wall: '#f6f1e6' });
-for (const [x, z] of [[-26, 6], [-22, 13], [-14, 15], [8, 10], [14, 14], [22, 6], [25, -4], [-28, -4], [3, 17]]) tree(v, x, 0, z, { kind: rand(x, z) > 0.5 ? 'round' : 'pine' });
+for (const [x, z] of [[-27, 6], [-27, 15], [8, 10], [14, 14], [22, 6], [25, -4], [-28, -4], [3, 17]]) tree(v, x, 0, z, { kind: rand(x, z) > 0.5 ? 'round' : 'pine' });
 scene.add(v.mesh());
 
 // ---------- workshop building (half-scale voxels) ----------
@@ -248,7 +248,7 @@ const shots = (t) => {
   if (t < 4.6) return wide(prog(t, 0, 4.6, ease.out));
   if (t < 6.4) return mix(wide(1), desk(0), prog(t, 4.6, 6.4));
   if (t < 26.4) return desk(prog(t, 6.4, 26.4, (k) => k));
-  if (t < 28.2) { const k = prog(t, 26.4, 28.2); const m = mix(desk(1), bldg(0), k); m.hgt += Math.sin(Math.PI * k) * 14; return m; }
+  if (t < 28.2) { const k = prog(t, 26.4, 28.2); const m = mix(desk(1), bldg(0), k); m.hgt += Math.sin(Math.PI * k) * 18; return m; }
   if (t < 31) return bldg(prog(t, 28.2, 31, (k) => k));
   if (t < 32.6) return mix(bldg(1), far(0), prog(t, 31, 32.6));
   return far(prog(t, 32.6, DUR, (k) => k));

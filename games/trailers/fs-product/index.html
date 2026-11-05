@@ -414,14 +414,14 @@ A(cue(ai, 10.2, 18.0, { from: 'right' }));
 A((t) => { const p = Math.round(92 * prog(t, 10.8, 12.3, ease.out)); ai.querySelector('[data-p]').textContent = p + '% sure'; ai.querySelector('[data-b]').style.width = p + '%'; });
 
 // AI-or-not decision tree
-const tree = el(`<div class="wcard tree"><div class="th"><span class="tag" style="background:#16c79a;color:#062a20">AI OR NOT?</span>Decision questions</div>
+const qtree = el(`<div class="wcard tree"><div class="th"><span class="tag" style="background:#16c79a;color:#062a20">AI OR NOT?</span>Decision questions</div>
  <div class="q"><span>Is the answer fixed or does it change?</span><b class="o">Fixed times</b></div>
  <div class="q"><span>What does a mistake cost?</span><b class="x">A lost PC slot</b></div>
  <div class="q"><span>Can every user reach a screen?</span><b class="x">No: 1 in 5</b></div>
  <div class="q"><span>Is there a simpler fix?</span><b class="o">Sign + form</b></div>
  <div class="q"><span>Is AI worth the energy here?</span><b class="a">Only for translation</b></div></div>`, { x: 1876, y: 142, anchor: 'tr' });
-A(cue(tree, 18.2, 29.3, { from: 'right' }));
-A((t) => tree.querySelectorAll('.q').forEach((n, i) => { const t0 = 18.8 + i * 0.6; n.style.opacity = prog(t, t0, t0 + 0.3); n.style.transform = `translateX(${(1 - prog(t, t0, t0 + 0.4, ease.out)) * 30}px)`; }));
+A(cue(qtree, 18.2, 29.3, { from: 'right' }));
+A((t) => qtree.querySelectorAll('.q').forEach((n, i) => { const t0 = 18.8 + i * 0.6; n.style.opacity = prog(t, t0, t0 + 0.3); n.style.transform = `translateX(${(1 - prog(t, t0, t0 + 0.4, ease.out)) * 30}px)`; }));
 
 // steps strip
 const steps = el(`<div class="steps"><span class="n" data-n></span><span class="d" data-d></span></div>`, { x: 44, y: 962 });

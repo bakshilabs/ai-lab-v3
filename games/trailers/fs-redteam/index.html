@@ -171,7 +171,7 @@ const houses = [[-24, -20, '#d0573a', '#f1ebe0'], [-13, -20, '#5a6d80', '#efe2c9
 for (const [x, z, roof, wall] of houses) house(v, x, 0, z, { w: 7, d: 5, h: 4, roof, wall });
 // cafe on the right
 house(v, 14, 0, -6, { w: 9, d: 7, h: 4, roof: '#16a37f', wall: '#f6f1e6' });
-for (const [x, z] of [[-26, 6], [-22, 13], [-14, 15], [8, 10], [14, 14], [22, 6], [25, -4], [-28, -4], [3, 17]]) tree(v, x, 0, z, { kind: rand(x, z) > 0.5 ? 'round' : 'pine' });
+for (const [x, z] of [[-27, 6], [-27, 15], [8, 10], [14, 14], [22, 6], [25, -4], [-28, -4], [3, 17]]) tree(v, x, 0, z, { kind: rand(x, z) > 0.5 ? 'round' : 'pine' });
 scene.add(v.mesh());
 
 // ---------- workshop building (half-scale voxels) ----------
@@ -275,7 +275,7 @@ const shots = (t) => {
   if (t < 4.6) return wide(prog(t, 0, 4.6, ease.out));
   if (t < 6.4) return mix(wide(1), desk(0), prog(t, 4.6, 6.4));
   if (t < 26.4) return desk(prog(t, 6.4, 26.4, (k) => k));
-  if (t < 28.2) { const k = prog(t, 26.4, 28.2); const m = mix(desk(1), bldg(0), k); m.hgt += Math.sin(Math.PI * k) * 14; return m; }
+  if (t < 28.2) { const k = prog(t, 26.4, 28.2); const m = mix(desk(1), bldg(0), k); m.hgt += Math.sin(Math.PI * k) * 18; return m; }
   if (t < 31) return bldg(prog(t, 28.2, 31, (k) => k));
   if (t < 32.6) return mix(bldg(1), far(0), prog(t, 31, 32.6));
   return far(prog(t, 32.6, DUR, (k) => k));
@@ -388,14 +388,14 @@ const rep = el(`<div class="wc rep"><div class="hd3"><span class="t">Pre-launch 
   <div><h5>Fix before launch</h5><div class="it" data-i="2">1. Remove staff notes from what Archie can read</div><div class="it" data-i="3">2. Take opening times from the museum timetable</div><div class="dec no" data-dec>Decision: don’t launch yet</div></div></div></div>`, { x: 40, y: 740 });
 show(rep, 19.2, 22.9, { from: 'up' });
 A((t) => { [20.6, 21.2, 21.8, 22.2].forEach((at, i) => { rep.querySelector(`[data-i="${i}"]`).style.opacity = t > at ? 1 : 0; }); rep.querySelector('[data-dec]').style.opacity = t > 22.5 ? 1 : 0; });
-const fixed = el('<div style="white-space:nowrap;background:#13202b;color:#fff;border-radius:999px;padding:14px 30px;font:800 28px Inter;box-shadow:0 12px 30px rgba(5,15,25,.3)">Museum team applied both fixes · re-testing now</div>', { x: 645, y: 722, anchor: 'c' });
-show(fixed, 22.9, 24.2, { from: 'pop' });
+const fixed = el('<div style="white-space:nowrap;background:#13202b;color:#fff;border-radius:999px;padding:14px 30px;font:800 24px Inter;box-shadow:0 12px 30px rgba(5,15,25,.3)">Fixes applied · re-testing</div>', { x: 1226, y: 748, anchor: 'tr' });
+show(fixed, 22.9, 24.3, { from: 'pop' });
 
 // cursor
 const CUR = '<svg viewBox="0 0 24 24" width="40" height="40"><path d="M3 2l17 9-7.5 1.8L9 20z" fill="#13202b" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>';
 const cur = el(`<div class="cur">${CUR}<span>Kofi</span></div>`, { x: 0, y: 0 });
 const K = [
-  [5.6, 400, 1000], [6.0, 360, 830], [7.2, 360, 830], [7.45, 360, 830], [8.65, 360, 830], [10.1, 360, 830], [11.5, 360, 830], [13.0, 360, 830],
+  [5.6, 400, 1040], [6.0, 470, 1000], [13.0, 470, 1000],
   [19.4, 900, 900], [20.6, 1180, 380], [21.2, 1180, 230], [21.8, 900, 900], [22.4, 1000, 960], [25.6, 1500, 1000], [26.0, 1420, 960],
 ];
 const ring = el('<div class="ring"></div>', { x: 0, y: 0 });
