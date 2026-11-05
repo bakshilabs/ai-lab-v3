@@ -1,7 +1,7 @@
 <!doctype html><html><head><meta charset="utf-8"><title>Land a Rocket trailer</title>
 <link rel="stylesheet" href="../engine/ui.css"><link rel="stylesheet" href="../engine/brochure.css">
 <style>
-.cd { font: 800 260px/1 'Bricolage Grotesque', 'Inter'; color: #fff; text-shadow: 0 10px 0 rgba(19,32,43,.25), 0 20px 60px rgba(0,30,80,.35); letter-spacing: -0.04em; }
+.cd { font: 800 260px/1 'Bricolage Grotesque', 'Inter'; color: #fff; text-shadow: 0 6px 28px rgba(0,30,80,.45); letter-spacing: -0.04em; }
 .cd.sm { font-size: 150px; }
 .cdlab { font: 800 34px 'Inter'; letter-spacing: .2em; color: #13202b; background: #fff; border-radius: 999px; padding: 10px 30px; box-shadow: 0 8px 0 rgba(0,0,0,.08); }
 .lvl { white-space: nowrap; display: inline-flex; align-items: center; gap: 28px; background: #13202b; color: #fff; border-radius: 40px; padding: 26px 50px; box-shadow: 0 14px 40px rgba(0,0,0,.3); }
@@ -55,7 +55,7 @@ import { el, cue, fader, titleCard, toScreen } from '../engine/ui.js';
 import { burst } from '../engine/extras.js';
 import { makeLab } from '../engine/lab.js';
 
-const DUR = 54;
+const DUR = 44.4;
 // ---------- timeline (seconds, final video time) ----------
 // 0-8.0 hook: countdown, lift-off, booster falls back to the island pad, badge
 // 8.0-13.6 mission control: role pills, go/no-go poll
@@ -64,9 +64,11 @@ const DUR = 54;
 // 38.4-48.6 L5 Mars: rules written in advance, NAV trusts the −200 m glitch, rule blocks it, sky-crane landing
 // 48.6-51.0 careers | 51.0-54 title
 // Each section is authored in its own "scene time" u; final time t = u + OFF.
-const SECS = [[0, 0], [8.0, -0.6], [13.6, -1.3], [24.9, 0.5], [38.4, 0.2]];
+// Cut-down edit (44 s): [final start, final − scene]. Hook jumps from lift-off to touchdown, the crew poll is a
+// quick GO cascade, L1 is a fast beat (jumps from the clearer card to the relit touchdown), L4 is the main story.
+const SECS = [[0, 0], [3.3, -1.8], [5.0, -4.2], [7.4, -9.7], [11.9, -12.1], [13.7, -10.7], [28.1, -10.1]];
 const OFF = (t) => { let o = 0; for (const [s, d] of SECS) if (t >= s) o = d; return o; };
-const SEG = (t) => t < 8.0 ? 'test' : t < 13.6 ? 'room' : t < 24.9 ? 'test' : t < 38.4 ? 'sea' : 'mars';
+const SEG = (t) => t < 5.0 ? 'test' : t < 7.4 ? 'room' : t < 13.7 ? 'test' : t < 28.1 ? 'sea' : 'mars';
 
 const st = createStage({ sky: ['#3f9fff', '#c9ebff'], post: false, shadowSize: 2048 });
 const { scene, camera, sun, hemi, rim } = st;
@@ -200,7 +202,7 @@ const ship = new THREE.Group();
   const wat = new THREE.Mesh(new THREE.BoxGeometry(SX1 - SX0 + 1, -BED - 0.6, SZ1 - SZ0 + 1), new THREE.MeshPhongMaterial({ color: '#2f9be8', transparent: true, opacity: 0.55, shininess: 60, depthWrite: false }));
   wat.position.set(0.5, (BED + 1 - 0.6) / 2, 0.5); wat.renderOrder = 2; G3.add(wat);
   seaGeo = new THREE.PlaneGeometry(SX1 - SX0 + 1, SZ1 - SZ0 + 1, 52, 34); seaGeo.rotateX(-Math.PI / 2); seaPos = seaGeo.attributes.position;
-  const sea = new THREE.Mesh(seaGeo, new THREE.MeshPhongMaterial({ color: '#2a8fe6', flatShading: true, transparent: true, opacity: 0.9, shininess: 90, specular: '#cfefff' }));
+  const sea = new THREE.Mesh(seaGeo, new THREE.MeshPhongMaterial({ color: '#2389e2', flatShading: true, shininess: 70, specular: '#e8f7ff' }));
   sea.position.set(0.5, -0.4, 0.5); sea.renderOrder = 3; sea.receiveShadow = true; G3.add(sea);
   // drone ship (voxel scale 0.25): deck 10 x 6 units
   const s = new Vox(); s.jitter = 0.04;
@@ -217,7 +219,8 @@ const whitecaps = particles(70, { size: 1 }); whitecaps.geometry = new THREE.Box
 const streaks = particles(40, { size: 1 }); streaks.geometry = new THREE.BoxGeometry(3.2, 0.09, 0.09); streaks.material = new THREE.MeshBasicMaterial({ color: '#ffffff', transparent: true, opacity: 0.8 }); G3.add(streaks);
 const STORM = (t) => t < 34.2 ? 1 : lerp(1, 0.1, prog(t, 34.2, 35.4));
 const heave = (t) => (0.55 * STORM(t) + 0.06) * Math.sin(t * 1.5);
-const SHIPX = 2;
+const SHIPX = 2; const GHOST_RED = new THREE.Color('#ff3b2a');
+const ghostSplash = burst(scene, { at: [O3.x + SHIPX + 6.6, 0.4, O3.z], t0: 30.95, n: 40, colors: ['#ffffff', '#cfefff', '#9fdcff'], size: 0.4, speed: 5, up: 6, life: 1.1, gravity: 12 });
 const shipLand = burst(scene, { at: [O3.x + SHIPX, 0.1 + heave(36.9) + 0.6, O3.z], t0: 36.9, n: 40, colors: ['#ffffff', '#e8ecf0', '#dfe5ec'], size: 0.4, speed: 5, up: 2, life: 1.3, gravity: 3 });
 const shipConf = burst(scene, { at: [O3.x + SHIPX, 6, O3.z], t0: 37.1, n: 80, colors: ['#ffd23f', '#16c7a6', '#ff6a4a', '#ffffff', '#6e5bf2'], size: 0.4, speed: 9, up: 9, life: 1.8 });
 
@@ -318,7 +321,7 @@ st.onFrame((T) => {
     } else { const k = prog(t, 14.9, 26.2); camAt(0, 6.5, 0, lerp(-0.5, -0.36, k), lerp(46, 41, k), lerp(9, 8, k), -1.2, 0); }
   }
   if (seg === 'room') { const k = prog(t, 8.6, 14.9); camAt(O2.x - 0.5, 2.5, O2.z - 1.5, lerp(0.34, 0.2, k), lerp(44, 37, ease.out(k)), lerp(28, 23, k), 0, 0);
-    KIDS.forEach((p, i) => { p.userData.walk(0); p.position.y = 1 + (t > 10.4 + i * 0.5 && t < 11 + i * 0.5 ? Math.sin((t - 10.4 - i * 0.5) * Math.PI / 0.6) * 0.5 : 0) + (t > 12.9 && t < 14.5 ? Math.abs(Math.sin((t - 12.9) * 7 + i)) * 0.5 : 0); }); }
+    KIDS.forEach((p, i) => { p.userData.walk(0); p.position.y = 1 + (t > 9.7 + i * 0.25 && t < 10.2 + i * 0.25 ? Math.sin((t - 9.7 - i * 0.25) * Math.PI / 0.5) * 0.5 : 0) + (t > 10.9 && t < 12 ? Math.abs(Math.sin((t - 10.9) * 7 + i)) * 0.5 : 0); }); }
   if (seg === 'sea') {
     const S = STORM(t);
     const shY = 0.1 + heave(t), rx = (0.04 * S + 0.006) * Math.sin(t * 0.9), rz = (0.07 * S + 0.008) * Math.sin(t * 1.1 + 0.6);
@@ -331,8 +334,13 @@ st.onFrame((T) => {
     for (let i = 0; i < 70; i++) { const x = SX0 + 2 + rand(i, 1) * 48, z = SZ0 + 2 + rand(i, 2) * 30; const ph = (t * 0.6 + rand(i, 3)) % 1; const ok = Math.abs(x - SHIPX) > 6 || Math.abs(z) > 4; whitecaps.setAt(i, x + ph * 2, -0.1 + S * 0.7, z, 0, 0.3, ok ? S * Math.sin(ph * Math.PI) : 0); } whitecaps.done();
     for (let i = 0; i < 40; i++) { const ph = (t * 0.9 + rand(i, 4)) % 1; streaks.setAt(i, SX0 - 4 + ph * 60, 2 + rand(i, 5) * 13, SZ0 + rand(i, 6) * 34, 0, 0, S > 0.3 && t < 34.2 ? Math.sin(ph * Math.PI) : 0); } streaks.done();
     // ghost dry run (NAV's average-wind plan): drifts in a gust and tips over
-    const gv = within(t, 28.3, 31.4); ghost.visible = gv;
-    if (gv) { const k = prog(t, 28.3, 29.6, ease.out); const tip = prog(t, 29.6, 30.3, ease.in); ghost.position.set(lerp(-1.5, 1.6, k), lerp(10, 0.5, k), 0); ghost.rotation.set(0, 0, -1.15 * tip); ghost.userData.setLegs(prog(t, 28.8, 29.3)); ghost.traverse((o) => { if (o.isMesh) o.material.opacity = 0.85 * (1 - prog(t, 30.9, 31.4)); }); }
+    // lands on the heaving deck, wobbles in the gust, tips over, slides off the edge and drops into the sea
+    const gv = within(t, 27.8, 31.4); ghost.visible = gv;
+    if (gv) { const k = prog(t, 27.8, 29.0, ease.out); const wob = t > 29.0 && t < 29.7 ? Math.sin((t - 29.0) * 16) * 0.14 * prog(t, 29.0, 29.3) : 0;
+      const a = 1.4 * prog(t, 29.6, 30.15, ease.in), r = 1.1, slide = 3.4 * prog(t, 30.15, 30.75, ease.in), fall = prog(t, 30.6, 31.25, ease.in);
+      ghost.position.set(lerp(-1.5, 1.6, k) + r * (1 - Math.cos(a)) + slide, lerp(10, 0.5, k) + r * Math.sin(a) * 0.35 - fall * 5, 0);
+      ghost.rotation.set(0, 0, -(a + wob) - fall * 0.7); ghost.userData.setLegs(prog(t, 28.3, 28.8));
+      const red = prog(t, 29.65, 29.95); ghost.traverse((o) => { if (o.isMesh) { o.material.color.set('#00e1ff').lerp(GHOST_RED, red); o.material.opacity = 0.88 * (1 - prog(t, 31.05, 31.4)); } }); }
     // the real landing after the hold
     const bv = t > 34.9; booster4.visible = bv;
     if (bv) { const k = prog(t, 35.0, 36.9, ease.out); booster4.position.set(0, lerp(16, 0.5, k), 0); booster4.rotation.set(0, 0.5, 0); booster4.userData.setLegs(prog(t, 35.8, 36.4)); power = t < 36.95 ? 1 : 1 - prog(t, 36.95, 37.2, (q) => q); emit = [booster4.localToWorld(_v.set(0, 0.15, 0)).clone()]; smokeAt = ship.localToWorld(new THREE.Vector3(0, 0.5, 0)); smokeAmt = 0.45 * power * clamp(1 - (booster4.position.y - 0.5) / 5); }
@@ -364,14 +372,15 @@ st.onFrame((T) => {
   drawFlame(emit.length ? emit : [new THREE.Vector3(0, -999, 0)], emit.length ? power : 0, t, seg === 'mars' ? 1.0 : 1.7);
   drawSmoke(smokeAt || new THREE.Vector3(0, -999, 0), smokeAt ? smokeAmt : 0, t, { spread: seg === 'mars' ? 5 : 4.5, col: seg === 'mars' ? '#f0b884' : '#ffffff' });
   const tT = seg === 'test' ? t : -99, tS = seg === 'sea' ? t : -99, tM = seg === 'mars' ? t : -99;
-  bounceCrush(tT); hookPuff(tT); softPuff(tT); shipLand(tS); shipConf(tS); roverDust(tM); cutSpark(tM); marsConf(tM);
+  bounceCrush(tT); hookPuff(tT); softPuff(tT); shipLand(tS); shipConf(tS); ghostSplash(tS); roverDust(tM); cutSpark(tM); marsConf(tM);
 });
 
 // ================= UI =================
 // Each section is written in its scene time; SH (final − scene) shifts it onto the final timeline.
-const ui = []; let SH = 0; const A = (f) => { const d = SH; ui.push(d ? (t) => f(t - d) : f); };
+// SH maps final time to the section's scene time (a number = constant shift, or a function for sections with a cut).
+const ui = []; let SH = 0; const A = (f) => { const d = SH; ui.push(typeof d === 'function' ? (t) => f(d(t)) : d ? (t) => f(t - d) : f); };
 const L = makeLab(A);
-const fade = fader(); A((t) => fade(t < 0.4 ? 1 - prog(t, 0, 0.4) : t > DUR - 0.7 ? prog(t, DUR - 0.7, DUR) : 0));
+const fade = fader(); ui.push((t) => fade(t < 0.4 ? 1 - prog(t, 0, 0.4) : t > DUR - 0.7 ? prog(t, DUR - 0.7, DUR) : 0));
 const ROCKET = (c) => `<svg viewBox="0 0 24 24"><path d="M12 2c3 2.4 4.4 6 4.4 10.2V16H7.6v-3.8C7.6 8 9 4.4 12 2z" fill="${c}"/><circle cx="12" cy="9.6" r="1.9" fill="#fff"/><path d="M7.6 12.6L4.6 16v2.4h3zM16.4 12.6l3 3.4v2.4h-3z" fill="${c}"/><path d="M10 17.4h4l-.6 3.6h-2.8z" fill="#ff8a2a"/></svg>`;
 const nav = (text, sure, a, b, o = {}) => { L.helper(text, sure, a, b, o); const all = document.querySelectorAll('.b-helper'); all[all.length - 1].querySelector('.who').firstChild.textContent = 'NAV · AI helper '; };
 // STEM purple, as in the brochure's game-stem screenshot
@@ -379,8 +388,8 @@ const PURPLE = '#5b4ce0', PSHADE = '#3a2aa8';
 const HEAD = { name: 'Land a Rocket', sub: 'STEM CLUB', color: PURPLE, shade: PSHADE, icon: ROCKET, tagColor: '#ff8a2a', tagText: '#13202b', size: 33 };
 const STAR = '<svg width="44" height="44" viewBox="0 0 24 24"><path d="M12 2.6l2.8 5.7 6.3.9-4.6 4.4 1.1 6.2L12 16.9l-5.6 2.9 1.1-6.2-4.6-4.4 6.3-.9z" fill="#ffc83d"/></svg>';
 // stars + XP (final time): +1 star only when the children catch a mistake or run a fair poll; landings add XP
-{ const n = el(`<div class="b-pills"><span>${STAR}<b data-s></b></span><span><em class="xp" style="background:${PURPLE}">XP</em><b data-x></b></span></div>`, { x: 1874, y: 40, anchor: 'tr' }); A(cue(n, 8.4, 48.4, { from: 'right' }));
-  const gains = [[12.6, 1, 40], [23.8, 1, 60], [34.1, 1, 60], [37.5, 0, 40], [42.3, 1, 60], [45.8, 0, 60]];
+{ const n = el(`<div class="b-pills"><span>${STAR}<b data-s></b></span><span><em class="xp" style="background:${PURPLE}">XP</em><b data-x></b></span></div>`, { x: 1874, y: 40, anchor: 'tr' }); A(cue(n, 5.2, 37.6, { from: 'right' }));
+  const gains = [[6.8, 1, 40], [13.0, 1, 60], [22.9, 1, 60], [26.8, 0, 40], [32.0, 1, 60], [35.5, 0, 60]];
   A((t) => { let s = 4, x = 520; gains.forEach(([g, ds, dx]) => { if (t > g) { s += ds; x += Math.round(dx * prog(t, g, g + 0.8)); } }); n.querySelector('[data-s]').textContent = s; n.querySelector('[data-x]').textContent = x; }); }
 const lvlCard = (n, name, a, b) => { const c = el(`<div class="lvl"><b>LEVEL ${n} OF 6</b><span>${name}</span><div class="dots">${[1, 2, 3, 4, 5, 6].map((k) => `<i class="${k <= n ? 'on' : ''}"></i>`).join('')}</div></div>`, { x: 960, y: 540, anchor: 'c' }); A(cue(c, a, b)); };
 const STARS3 = (x, y, a, b) => { const big = STAR.replace('width="44" height="44"', ''); const s = el(`<div class="bigstars" style="display:flex;gap:26px;align-items:flex-end">${big}<span style="transform:translateY(-26px)">${big}</span>${big}</div>`, { x, y, anchor: 'c' }); A(cue(s, a, b)); };
@@ -389,31 +398,32 @@ const follow = (html, a, b, pos, anchor = 'bc') => { const n = el(html, { x: 0, 
 function tele(title, w, h, x, y, a, b, dot = '#e8573f') { const n = el(`<div class="tele"><small><i style="background:${dot}"></i>${title}</small><canvas width="${w}" height="${h}"></canvas></div>`, { x, y }); A(cue(n, a, b, { from: 'left' })); return n.querySelector('canvas').getContext('2d'); }
 
 // ---- HOOK (0–8.0) ----
-SH = 0;
+SH = (T) => T < 3.3 ? T : T + 1.8;
 ['3', '2', '1'].forEach((d, i) => { const n = el(`<div class="cd">${d}</div>`, { x: 960, y: 330, anchor: 'c' }); A(cue(n, 0.3 + i * 0.7, 0.85 + i * 0.7, { dur: 0.3, outDur: 0.15 })); });
-{ const n = el('<div class="cd sm">LIFT-OFF</div>', { x: 960, y: 300, anchor: 'c' }); A(cue(n, 2.4, 3.6, { dur: 0.35 })); }
+{ const n = el('<div class="cd sm">LIFT-OFF</div>', { x: 960, y: 300, anchor: 'c' }); A(cue(n, 2.3, 3.0, { dur: 0.25, outDur: 0.25 })); }
 { const n = el('<div class="cdlab">HOP TEST · COUNTDOWN</div>', { x: 960, y: 120, anchor: 'c' }); A(cue(n, 0.2, 2.4, { from: 'down' })); }
-{ const n = el('<div class="kicker" style="font-size:54px;background:rgba(19,32,43,.86);border-radius:999px;padding:14px 48px 20px;text-shadow:none;white-space:nowrap;box-shadow:0 12px 30px rgba(0,0,0,.25)">What goes up has to come back down. Gently.</div>', { x: 960, y: 930, anchor: 'c' }); A(cue(n, 4.2, 6.2, { from: 'up' })); }
-{ const n = el(`<div class="bigbadge"><div class="b-badge" style="background:${PURPLE};box-shadow:0 8px 0 ${PSHADE},0 14px 30px rgba(0,0,0,.18)"><span class="ic">${ROCKET(PURPLE)}</span><span><b>Land a Rocket</b><small>A DELTAOPS LEARNING AI LAB</small></span></div></div>`, { x: 960, y: 250, anchor: 'c' }); A(cue(n, 6.5, 7.9, { dur: 0.5 })); }
-{ const n = el('<div class="b-saved" style="background:#16c79a;color:#13202b">Landed on the pad!</div>', { x: 960, y: 900, anchor: 'c' }); A(cue(n, 6.4, 7.9)); }
+{ const n = el('<div class="kicker" style="font-size:54px;background:rgba(19,32,43,.86);border-radius:999px;padding:14px 48px 20px;text-shadow:none;white-space:nowrap;box-shadow:0 12px 30px rgba(0,0,0,.25)">What goes up has to come back down. Gently.</div>', { x: 960, y: 930, anchor: 'c' }); A(cue(n, 5.15, 6.8, { from: 'up', dur: 0.3 })); }
+if (0) { const n = el(`<div class="bigbadge"><div class="b-badge" style="background:${PURPLE};box-shadow:0 8px 0 ${PSHADE},0 14px 30px rgba(0,0,0,.18)"><span class="ic">${ROCKET(PURPLE)}</span><span><b>Land a Rocket</b><small>A DELTAOPS LEARNING AI LAB</small></span></div></div>`, { x: 960, y: 250, anchor: 'c' }); A(cue(n, 6.5, 7.9, { dur: 0.5 })); }
+
 
 // ---- MISSION CONTROL (final 8.0–13.6) ----
-SH = -0.6;
-L.header({ ...HEAD, tag: 'CREW', task: 'Every console must say GO', tIn: 8.8, tOut: 14.0 });
-{ const n = el('<div class="lens" style="background:#13202b">● GO / NO-GO POLL · HOP TEST</div>', { x: 960, y: 100, anchor: 'c' }); A(cue(n, 9.2, 14.0, { from: 'down' })); }
-ROLES.forEach(([name, c], i) => { const n = el(`<div class="role" style="--c:${c}"><i></i>${name}<em>GO</em></div>`, { x: 0, y: 0, anchor: 'bc' }); A(cue(n, 9.4 + i * 0.15, 14.0)); const head = new THREE.Vector3();
-  A((t) => { if (!within(t, 9.2, 14.4)) return; n.classList.toggle('go', t > 10.4 + i * 0.5); KIDS[i].getWorldPosition(head); head.y += 3.9 + (i % 2 ? 0 : 2.4); const p = toScreen(head, camera); n.style.left = p.x + 'px'; n.style.top = p.y + 'px'; }); });
-{ const n = el('<div class="b-saved">Flight Director: “We are GO for the hop!”</div>', { x: 960, y: 960, anchor: 'c' }); A(cue(n, 12.9, 14.0)); }
-chip('+1 star: everyone had a say', 960, 850, 13.2, 14.0);
+SH = -4.2;
+L.header({ ...HEAD, tag: 'CREW', task: 'Every console must say GO', tIn: 9.2, tOut: 11.6 });
+{ const n = el('<div class="lens" style="background:#13202b">● GO / NO-GO POLL · HOP TEST</div>', { x: 960, y: 100, anchor: 'c' }); A(cue(n, 9.2, 11.6, { from: 'down', dur: 0.3 })); }
+ROLES.forEach(([name, c], i) => { const n = el(`<div class="role" style="--c:${c}"><i></i>${name}<em>GO</em></div>`, { x: 0, y: 0, anchor: 'bc' }); A(cue(n, 9.25 + i * 0.06, 11.6, { dur: 0.3 })); const head = new THREE.Vector3();
+  A((t) => { if (!within(t, 9.2, 12.0)) return; n.classList.toggle('go', t > 9.7 + i * 0.25); KIDS[i].getWorldPosition(head); head.y += 3.9 + (i % 2 ? 0 : 2.4); const p = toScreen(head, camera); n.style.left = p.x + 'px'; n.style.top = p.y + 'px'; }); });
+{ const n = el('<div class="b-saved">Flight Director: “We are GO for the hop!”</div>', { x: 960, y: 960, anchor: 'c' }); A(cue(n, 10.85, 11.6, { dur: 0.3 })); }
+chip('+1 star: everyone had a say', 960, 850, 11.0, 11.6);
 
 // ---- LEVEL 1: HOP TEST (final 13.6–24.9) ----
-SH = -1.3;
-L.header({ ...HEAD, tag: 'L1', task: 'Hop test: up 50 m and back down', tIn: 15.2, tOut: 26.0 });
-lvlCard(1, 'Hop Test', 14.95, 15.9);
+// fast beat: scene 17.1–21.6, then a jump cut to the relit touchdown (scene 24.0–25.8)
+SH = (T) => T < 11.9 ? T + 9.7 : T + 12.1;
+L.header({ ...HEAD, tag: 'L1', task: 'Hop test: up 50 m and back down', tIn: 17.1, tOut: 25.8 });
+lvlCard(1, 'Hop Test', 17.1, 17.75);
 const C1 = [['A', 'Go up to 50 m and come back down'], ['B', 'Hop to 50 m, land slower than 2 m/s'], ['C', 'Fly as high as the fuel allows']];
-L.cards('GIVE NAV AN INSTRUCTION', C1, 15.6, 17.5, 16.7, 0);
-nav('Up at full power, then engine off to come down. Quickest way!', 88, 17.2, 20.8);
-const g1 = tele('TELEMETRY · SPEED (m/s)', 660, 330, 46, 310, 18.0, 26.0);
+L.cards('GIVE NAV AN INSTRUCTION', C1, 17.2, 18.4, 17.85, 0);
+nav('Up at full power, then engine off to come down. Quickest way!', 88, 17.9, 20.4);
+const g1 = tele('TELEMETRY · SPEED (m/s)', 660, 330, 46, 310, 18.3, 25.8);
 { const W = 660, H = 330, P = { l: 64, r: 20, t: 20, b: 46 }; const X = (s) => P.l + s / 3.4 * (W - P.l - P.r), Y = (v) => H - P.b - v / 35 * (H - P.t - P.b);
   A((t) => { if (!within(t, 17.9, 26.4)) return; const g = g1; g.clearRect(0, 0, W, H); g.font = '700 22px Inter'; g.fillStyle = '#e2f5ef'; g.fillRect(P.l, Y(2), W - P.l - P.r, Y(0) - Y(2));
     g.strokeStyle = '#e6ebee'; g.lineWidth = 2; for (const v of [10, 20, 30]) { g.beginPath(); g.moveTo(P.l, Y(v)); g.lineTo(W - P.r, Y(v)); g.stroke(); g.fillStyle = '#8a98a6'; g.fillText(v, 18, Y(v) + 8); }
@@ -431,49 +441,43 @@ const g1 = tele('TELEMETRY · SPEED (m/s)', 660, 330, 46, 310, 18.0, 26.0);
         const k = (t - 25.0) / 0.7; if (k > 0 && k < 1) { g.strokeStyle = `rgba(22,166,138,${1 - k})`; g.lineWidth = 5; g.beginPath(); g.arc(X(2.4), Y(1.5), 14 + k * 40, 0, 7); g.stroke(); } } }
   }); }
 follow('<div class="bub ghost">ENGINE OFF</div>', 19.3, 20.3, () => booster1.localToWorld(new THREE.Vector3(0, 3.8, 0)));
-follow('<div class="bub bad">Boing! 31 m/s: crush pads squashed</div>', 20.45, 21.9, () => new THREE.Vector3(0, 6.6, 0));
-L.facil('NAV did exactly what you said. What did you forget to tell it?', 21.0, 22.25, { color: '#ffd23f', y: 200 });
-L.cards('TRY A CLEARER CARD', C1, 21.4, 23.0, 22.2, 1);
-nav('New plan: relight the engine on the way down. Touchdown under 2 m/s.', 76, 22.35, 26.0, { tag: 'NEW PLAN', tagColor: '#16c79a' });
+follow('<div class="bub bad">Boing! 31 m/s: crush pads squashed</div>', 20.45, 21.6, () => new THREE.Vector3(0, 6.6, 0));
+L.cards('TRY A CLEARER CARD', C1, 20.55, 21.6, 21.1, 1);
+nav('New plan: relight the engine on the way down. Touchdown under 2 m/s.', 76, 23.95, 25.8, { tag: 'NEW PLAN', tagColor: '#16c79a' });
 follow('<div class="bub" style="background:#16c79a">ENGINE RELIT</div>', 24.0, 24.9, () => booster1.localToWorld(new THREE.Vector3(0, 3.8, 0)));
-L.saved('Soft landing: 1.5 m/s', 25.0, 26.1, { x: 960, y: 960 });
-chip('+1 star: you added the missing rule', 960, 850, 25.1, 26.1);
+L.saved('Soft landing: 1.5 m/s', 25.0, 25.8, { x: 960, y: 960 });
+chip('+1 star: you added the missing rule', 960, 850, 25.1, 25.8);
 
 // ---- LEVEL 4: DRONE SHIP IN THE WIND (final 24.9–38.4) ----
-SH = 0.5;
-L.header({ ...HEAD, tag: 'L4', task: 'Land the booster on the drone ship', tIn: 24.8, tOut: 37.8 });
+SH = -10.7;
+L.header({ ...HEAD, tag: 'L4', task: 'Land the booster on the drone ship', tIn: 24.8, tOut: 38.2 });
 lvlCard(4, 'Drone Ship in the Wind', 24.45, 25.6);
 const C4 = [['A', 'Check the weather and land on the ship'], ['B', 'Plan for the worst gust, and hold'], ['C', 'Land now, but aim upwind']];
 L.cards('GIVE NAV AN INSTRUCTION', C4, 25.0, 26.9, 26.1, 0);
-nav('Average wind is 12 km/h. Well within limits. Landing now!', 89, 26.6, 32.1);
+nav('Average wind is 12 km/h. Well within limits. Landing now!', 89, 26.6, 31.9);
 const g4 = tele('WIND AND DECK · LAST HOUR', 660, 400, 46, 300, 27.3, 35.9, '#2f6fd8');
 const wind = (m) => { let w = 11 + 3 * Math.sin(m * 0.9) + 2 * Math.sin(m * 2.3); if (m < 63) { const ph = ((m % 10) + 10) % 10; w += 33 * Math.exp(-Math.pow(ph - 5, 2) / 0.35); } else w = lerp(w, 8 + 1.5 * Math.sin(m * 1.3), clamp((m - 63) / 5)); return w; };
 const deck = (m) => (m < 63 ? 3 : lerp(3, 0.6, clamp((m - 63) / 6))) * Math.sin(m * 1.9);
 { const W = 660, H = 400; const w0f = (t) => 25 * prog(t, 34.2, 35.4);
-  A((t) => { if (!within(t, 27.2, 36.3)) return; const g = g4; g.clearRect(0, 0, W, H); const w0 = w0f(t); const reveal = prog(t, 27.4, 28.8, (k) => k); const X = (m) => 64 + (m - w0) / 60 * (W - 84);
-    g.font = '700 22px Inter'; g.lineCap = 'round'; g.lineJoin = 'round'; g.textAlign = 'left';
+  // kid-sized: one big gust line over a red TOO WINDY band, one deck-heave line
+  A((t) => { if (!within(t, 27.2, 36.3)) return; const g = g4; g.clearRect(0, 0, W, H); const w0 = w0f(t); const reveal = prog(t, 27.4, 28.8, (k) => k); const X = (m) => 30 + (m - w0) / 60 * (W - 50);
+    g.lineCap = 'round'; g.lineJoin = 'round'; g.textAlign = 'left';
     const calm = w0 > 20, shown = reveal > 0.95 && w0 < 5;
-    // header + legend rows sit above the plot, so nothing collides with the lines
-    g.fillStyle = '#46596a'; g.fillText('WIND km/h', 64, 22);
-    g.textAlign = 'right'; g.font = '800 24px Inter';
-    if (shown) { g.fillStyle = '#e8573f'; g.fillText('gusts to 45 km/h!', W - 20, 22); } else if (calm) { g.fillStyle = '#1f9d55'; g.fillText('lull: 8 km/h, deck calm', W - 20, 22); }
-    g.textAlign = 'left'; g.font = '700 21px Inter';
-    g.setLineDash([10, 8]); g.strokeStyle = '#e8573f'; g.lineWidth = 3; g.beginPath(); g.moveTo(64, 44); g.lineTo(104, 44); g.stroke(); g.fillStyle = '#e8573f'; g.fillText('limit 30', 112, 51);
-    if (!calm) { g.setLineDash([4, 7]); g.strokeStyle = '#13202b'; g.beginPath(); g.moveTo(230, 44); g.lineTo(270, 44); g.stroke(); g.fillStyle = '#13202b'; g.fillText('NAV used the average: 12', 278, 51); }
-    g.setLineDash([]);
-    const Yw = (v) => 236 - v / 50 * 160; g.strokeStyle = '#e6ebee'; g.lineWidth = 2; g.font = '700 22px Inter'; for (const v of [0, 25, 50]) { g.beginPath(); g.moveTo(64, Yw(v)); g.lineTo(W - 20, Yw(v)); g.stroke(); g.fillStyle = '#8a98a6'; g.fillText(v, 14, Yw(v) + 8); }
-    g.setLineDash([12, 10]); g.strokeStyle = '#e8573f'; g.lineWidth = 3; g.beginPath(); g.moveTo(64, Yw(30)); g.lineTo(W - 20, Yw(30)); g.stroke(); g.setLineDash([]);
-    if (!calm) { g.setLineDash([4, 8]); g.strokeStyle = '#13202b'; g.lineWidth = 3; g.beginPath(); g.moveTo(64, Yw(12)); g.lineTo(64 + (W - 84) * reveal, Yw(12)); g.stroke(); g.setLineDash([]); }
-    g.lineWidth = 5; g.strokeStyle = '#2f6fd8'; g.beginPath(); const mEnd = w0 + 60 * reveal; for (let m = w0; m <= mEnd; m += 0.25) { const y = Yw(wind(m)); m === w0 ? g.moveTo(X(m), y) : g.lineTo(X(m), y); } g.stroke();
-    if (shown) { g.fillStyle = '#e8573f'; g.beginPath(); g.arc(X(45), Yw(wind(45)), 10, 0, 7); g.fill(); }
-    // deck strip
-    const Yd = (v) => 338 - v / 3.4 * 50; g.font = '700 22px Inter'; g.fillStyle = '#46596a'; g.fillText('DECK HEIGHT m', 64, 274);
-    g.fillStyle = '#e2f5ef'; g.fillRect(64, Yd(1), W - 84, Yd(-1) - Yd(1)); g.fillStyle = '#7fd8b4'; g.fillRect(250, 258, 22, 16); g.fillStyle = '#1f9d55'; g.font = '700 21px Inter'; g.fillText('safe ±1 m', 280, 274);
-    if (shown) { g.textAlign = 'right'; g.fillStyle = '#e8573f'; g.font = '800 24px Inter'; g.fillText('heaves ±3 m!', W - 20, 274); g.textAlign = 'left'; }
-    g.lineWidth = 5; g.strokeStyle = '#16a68a'; g.beginPath(); for (let m = w0; m <= mEnd; m += 0.2) { const y = Yd(deck(m)); m === w0 ? g.moveTo(X(m), y) : g.lineTo(X(m), y); } g.stroke();
+    const Yw = (v) => 214 - v / 50 * 170;
+    g.fillStyle = '#46596a'; g.font = '800 26px Inter'; g.fillText('GUSTS', 30, 30);
+    g.fillStyle = calm ? '#eef1f3' : '#ffe1db'; g.fillRect(30, Yw(50), W - 50, Yw(30) - Yw(50)); g.fillStyle = calm ? '#eef1f3' : '#ffc9bf'; g.fillRect(W - 222, 10, 26, 24); g.fillStyle = calm ? '#a0aab4' : '#e8573f'; g.font = '800 28px Inter'; g.textAlign = 'right'; g.fillText('TOO WINDY', W - 32, 32); g.textAlign = 'left';
+    g.strokeStyle = '#d5dce2'; g.lineWidth = 3; g.beginPath(); g.moveTo(30, Yw(0)); g.lineTo(W - 20, Yw(0)); g.stroke();
+    g.lineWidth = 8; g.strokeStyle = '#2f6fd8'; g.beginPath(); const mEnd = w0 + 60 * reveal; for (let m = w0; m <= mEnd; m += 0.25) { const y = Yw(Math.min(50, wind(m))); m === w0 ? g.moveTo(X(m), y) : g.lineTo(X(m), y); } g.stroke();
+    if (shown) { g.fillStyle = '#e8573f'; g.beginPath(); g.arc(X(45), Yw(wind(45)), 13, 0, 7); g.fill(); }
+    if (calm) { g.fillStyle = '#1f9d55'; g.font = '800 30px Inter'; g.fillText('✓ calm now', 30, Yw(20)); }
+    const Yd = (v) => 330 - v / 3.4 * 52;
+    g.fillStyle = '#46596a'; g.font = '800 26px Inter'; g.fillText('DECK HEAVE', 30, 262);
+    if (shown || calm) { g.textAlign = 'right'; g.fillStyle = calm ? '#1f9d55' : '#e8573f'; g.font = '800 26px Inter'; g.fillText(calm ? 'steady ✓' : 'up and down 3 m!', W - 32, 262); g.textAlign = 'left'; }
+    g.lineWidth = 8; g.strokeStyle = '#16a68a'; g.beginPath(); for (let m = w0; m <= mEnd; m += 0.2) { const y = Yd(deck(m)); m === w0 ? g.moveTo(X(m), y) : g.lineTo(X(m), y); } g.stroke();
   }); }
-{ const n = el('<div class="bub ghost">DRY RUN · NAV’S PLAN</div>', { x: 0, y: 0, anchor: 'c' }); A(cue(n, 28.4, 31.2)); A((t) => { if (!within(t, 28.3, 31.6)) return; const p = toScreen(ship.localToWorld(ghost.position.clone().add(new THREE.Vector3(0, -2.2, 0))), camera); n.style.left = p.x + 'px'; n.style.top = p.y + 'px'; }); }
-L.alert('Dry run: a 45 km/h gust tips it over', 30.0, 30.95, { x: 1100, y: 960 });
+{ const n = el('<div class="bub ghost" style="font-size:30px">DRY RUN · NAV’S PLAN</div>', { x: 0, y: 0, anchor: 'c' }); A(cue(n, 27.9, 29.6)); A((t) => { if (!within(t, 27.8, 30.0)) return; const p = toScreen(ship.localToWorld(ghost.position.clone().add(new THREE.Vector3(0, -2.2, 0))), camera); n.style.left = p.x + 'px'; n.style.top = p.y + 'px'; }); }
+{ const n = el('<div class="bub bad" style="font-size:58px;padding:14px 36px;border-radius:24px;box-shadow:0 10px 30px rgba(0,0,0,.3)">✗ tips over</div>', { x: 1580, y: 540, anchor: 'c' }); A(cue(n, 29.7, 31.1, { dur: 0.3 })); }
+L.alert('Dry run: a 45 km/h gust knocks it over', 30.0, 31.0, { x: 1150, y: 990 });
 L.cards('TRY A CLEARER CARD', C4, 31.15, 32.85, 32.0, 1);
 nav('Worst gust 45 km/h is over the limit. I recommend we HOLD.', 72, 32.25, 37.6, { tag: 'PLAN CHECKED', tagColor: '#16c79a' });
 const PX = 1480, PY = 910;
@@ -481,17 +485,18 @@ const PX = 1480, PY = 910;
 { const tapR = el('<div style="width:90px;height:90px;border-radius:50%;border:6px solid #fff;box-shadow:0 0 0 4px rgba(19,32,43,.4)"></div>', { x: PX, y: PY + 26, anchor: 'c' }); A((t) => { const k = (t - 33.45) / 0.6; tapR.style.visibility = k > 0 && k < 1 ? 'visible' : 'hidden'; tapR.style.opacity = 1 - k; tapR.style.transform = `translate(-50%,-50%) scale(${0.4 + k})`; }); }
 chip('+1 star: good call to HOLD', PX, PY - 150, 33.6, 35.0);
 { const n = el('<div class="lens" style="background:#13202b">⏸ HOLDING… 20 MINUTES LATER</div>', { x: 960, y: 100, anchor: 'c' }); A(cue(n, 34.2, 36.0, { from: 'down' })); }
-L.saved('Booster upright on a moving ship!', 37.0, 37.85, { x: 960, y: 960 });
+L.saved('Booster upright on a moving ship!', 37.0, 38.1, { x: 960, y: 960 });
 
 // ---- LEVEL 5: MARS (final 38.4–48.6) ----
-SH = 0.2;
-L.header({ ...HEAD, tag: 'L5', task: 'Land the rover on Mars', tIn: 38.6, tOut: 48.2 });
-lvlCard(5, 'Seven Minutes on Mars', 38.25, 39.4);
+SH = -10.1;
+const uiRoot = document.getElementById('ui'), marsStart = uiRoot.children.length;
+L.header({ ...HEAD, tag: 'L5', task: 'Land the rover on Mars', tIn: 38.6, tOut: 47.7 });
+lvlCard(5, 'Seven Minutes on Mars', 38.25, 39.3);
 { const n = el('<div class="radio">Radio delay 14 min · no live steering<div class="rb"><i data-r></i></div></div>', { x: 1874, y: 1010, anchor: 'tr' }); A(cue(n, 39.4, 41.2, { from: 'down' })); A((t) => { n.querySelector('[data-r]').style.width = 100 * prog(t, 39.4, 46, (k) => k) + '%'; }); }
-{ const n = el('<div class="prog"><small>YOUR RULES · WRITTEN BEFORE LAUNCH</small><div class="blk" style="background:#6e5bf2"><span class="k">IF</span>sensors disagree, trust the two that agree</div><div class="blk" data-ig style="background:#ff8a2a"><span class="k">IGNORE</span>impossible values, like below zero</div><div class="blk" style="background:#16a68a"><span class="k">CUT</span>cables only when the wheels touch</div></div>', { x: 46, y: 290 }); A(cue(n, 39.5, 48.0, { from: 'left' }));
+{ const n = el('<div class="prog"><small>YOUR RULES · WRITTEN BEFORE LAUNCH</small><div class="blk" style="background:#6e5bf2"><span class="k">IF</span>sensors disagree, trust the two that agree</div><div class="blk" data-ig style="background:#ff8a2a"><span class="k">IGNORE</span>impossible values, like below zero</div><div class="blk" style="background:#16a68a"><span class="k">CUT</span>cables only when the wheels touch</div></div>', { x: 46, y: 290 }); A(cue(n, 39.75, 47.7, { from: 'left' }));
   const ig = n.querySelector('[data-ig]'); A((t) => { const on = within(t, 42.0, 43.8); ig.classList.toggle('hit', on); ig.style.transform = on ? `scale(${1.03 + 0.02 * Math.sin((t - 42) * 9) * Math.exp(-(t - 42) * 2)})` : ''; }); }
 { const n = el('<div class="bub bad" style="font-size:28px;padding:10px 22px">✋ Your IGNORE rule blocked it</div>', { x: 395, y: 640, anchor: 'c' }); A(cue(n, 42.0, 43.8, { dur: 0.25 })); }
-const g5 = tele('ALTITUDE SENSORS (m)', 700, 250, 46, 710, 39.8, 48.0, '#6e5bf2');
+const g5 = tele('ALTITUDE SENSORS (m)', 700, 250, 46, 710, 39.8, 47.7, '#6e5bf2');
 { const W = 700, H = 250, P = { l: 70, r: 20, t: 12, b: 16 }; const X = (g) => P.l + g * (W - P.l - P.r), Y = (v) => P.t + (140 - v) / 360 * (H - P.t - P.b);
   const GL = 0.273, GH = 0.795; const alt = (g) => g < GL ? lerp(120, 40, ease.out(g / GL)) : g < GH ? lerp(40, 30, (g - GL) / (GH - GL)) : lerp(30, 0, (g - GH) / (1 - GH));
   A((t) => { if (!within(t, 39.7, 48.2)) return; const c = g5; c.clearRect(0, 0, W, H); c.font = '700 22px Inter'; c.lineCap = 'round'; c.lineJoin = 'round';
@@ -505,15 +510,18 @@ const g5 = tele('ALTITUDE SENSORS (m)', 700, 250, 46, 710, 39.8, 48.0, '#6e5bf2'
       for (const t0 of [41.3, 42.0]) { const k = (t - t0) / 0.7; if (k > 0 && k < 1) { c.strokeStyle = `rgba(232,87,63,${1 - k})`; c.lineWidth = 5; c.beginPath(); c.arc(sx, sy, 14 + k * 40, 0, 7); c.stroke(); } } }
     c.font = '700 20px Inter'; [['radar', '#16a68a'], ['camera', '#6e5bf2'], ['leg sensor', '#ff8a2a']].forEach(([n, col], i) => { c.fillStyle = col; c.fillRect(W - 400 + i * 120, 26, 18, 18); c.fillStyle = '#46596a'; c.fillText(n, W - 376 + i * 120, 43); });
   }); }
-nav('Leg sensor reads −200 m, so we’ve landed! Cut the engine?', 95, 41.3, 42.25);
-nav('Recalculating… radar and camera agree: still 40 m up. Engine stays on.', 93, 42.4, 43.55, { tag: 'YOUR RULE', tagColor: '#16c79a' });
-chip('+1 star: your rule caught it', 1300, 900, 42.1, 43.8);
+nav('Leg sensor reads −200 m, so we’ve landed! Cut the engine?', 95, 41.3, 42.25, { y: 690 });
+nav('Recalculating… radar and camera agree: still 40 m up. Engine stays on.', 93, 42.4, 43.55, { y: 690, tag: 'YOUR RULE', tagColor: '#16c79a' });
+chip('+1 star: your rule caught it', 1480, 630, 42.1, 43.8);
 { const n = el('<div class="b-saved" style="background:#16c79a;color:#13202b">Wheels down · cables cut</div>', { x: 1300, y: 990, anchor: 'c' }); A(cue(n, 44.5, 45.8, { dur: 0.3 })); }
-STARS3(1400, 420, 45.6, 48.2);
-L.saved('Rover landed safely. Your rules flew it.', 45.7, 48.2, { x: 1400, y: 560 });
+STARS3(1400, 420, 45.6, 47.7);
+L.saved('Rover landed safely. Your rules flew it.', 45.7, 47.7, { x: 1400, y: 560 });
 const pola = el('<div class="pola"><img data-i>First photo from Mars</div>', { x: 1874, y: 1040, anchor: 'tr' }); pola.style.transformOrigin = 'center';
-{ let snapped = false; A((t) => { if (t >= 46.0 && !snapped) { pola.querySelector('[data-i]').src = st.renderer.domElement.toDataURL('image/jpeg', 0.8); snapped = true; } const k = prog(t, 46.2, 46.9, ease.back); pola.style.opacity = t > 46.2 && t < 48.3 ? 1 : 0; pola.style.visibility = t > 46.2 && t < 48.3 ? 'visible' : 'hidden'; pola.style.transform = `translate(-100%,-100%) rotate(${lerp(-14, 4, k)}deg) scale(${lerp(1.5, 1, k)})`; }); }
+{ let snapped = false; A((t) => { if (t >= 46.0 && !snapped) { pola.querySelector('[data-i]').src = st.renderer.domElement.toDataURL('image/jpeg', 0.8); snapped = true; } const k = prog(t, 46.2, 46.9, ease.back); pola.style.opacity = t > 46.2 && t < 47.7 ? 1 : 0; pola.style.visibility = t > 46.2 && t < 47.7 ? 'visible' : 'hidden'; pola.style.transform = `translate(-100%,-100%) rotate(${lerp(-14, 4, k)}deg) scale(${lerp(1.5, 1, k)})`; }); }
 
+// Mars HUD leaves with a quick slide (no half-transparent hold) as the camera pulls out
+{ const hud = [...uiRoot.children].slice(marsStart).concat(document.querySelector('.b-pills').parentElement);
+  ui.push((T) => { const t = T + 10.1, k = prog(t, 47.7, 47.95, ease.in); if (k <= 0) return; hud.forEach((n) => { if (n.style.visibility === 'hidden') return; const left = parseFloat(n.style.left) < 960; n.style.opacity = k < 1 ? 1 : 0; n.style.visibility = k < 1 ? 'visible' : 'hidden'; n.style.transform += ` translateX(${(left ? -1 : 1) * k * 900}px)`; }); }); }
 // ---- CAREERS + TITLE (final 48.6–54) ----
 const dim = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:radial-gradient(ellipse at center, rgba(10,8,40,.35), rgba(10,8,40,.65))"></div>'); A(cue(dim, 48.4, null, { from: 'fade', dur: 0.6 }));
 { const J = [['Flight controller', '#6e5bf2'], ['GNC engineer', '#16c7a6'], ['Launch director', '#2f6fd8'], ['Propulsion engineer', '#ff8a2a'], ['Data analyst', '#e8573f'], ['Weather officer', '#3fbf5a']];
