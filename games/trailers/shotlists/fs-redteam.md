@@ -30,7 +30,7 @@ Future Skills · 0:42 · a floating grassy voxel island with a cut-away building
 **Pathway card:** Next step: Experience AI safety lessons and CyberFirst Explorers (TechFirst), both free · Award: CREST Bronze Award (a "testing a chatbot" project) · Route: GCSE Computer Science → Level 4 Cyber Security Technologist apprenticeship · Jobs: AI red teamer, QA tester, cyber security analyst.
 
 **Reviewer notes:**
-- **Render status:** from the current source; not yet rendered (no `out/fs-redteam.mp4`).
+- **Render status:** described from the current source; the video (`out/fs-redteam.mp4`, 0:42) is now rendered. Contact-sheet check: at about 0:36 the pathway card fades over the island before the title.
 - **Names:** Leon, 15 (AI safety tester), **Dee Marsh** (mentor, security tester), Harbour Museum, "Ask Archie". **The lab design document says "Dee Marsh" is a well-known British artist and should be renamed before production.** It is one of the recently changed names, so please check this carefully. The existing stills show the old learner name "Kofi", so they are out of date.
 - **Content safety:** the test cases are deliberately harmless. The "secret" is a made-up code word (PELICAN). Mary Anning is a real historical figure and is described accurately.
 - **Story logic:** test 4 (Fairness) expects "Varied examples", which you can't judge from a single answer, so a reviewer may question the PASS. The self-test problem is filed under **Source**, but a reviewer might argue for Authority (a system marking its own work).
