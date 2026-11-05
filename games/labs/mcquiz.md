@@ -225,9 +225,9 @@ The Department for Education's guidance on generative AI in education says that 
 - **No devices:** a printed question deck, A/B/C cards and Hunch's lines read from a script.
 
 ## 11. Safety, ethics and data
-- **Data collected:** none. No accounts, no names on screen (team names only), no camera.
-- **Age and real AI tools:** Hunch is scripted. No live AI tools are used with children; if real chatbots come up, staff note that most have minimum ages and terms (check each tool; to verify) and should be used with an adult.
-- **Gentle consequences:** pad "drops" are cartoon effects; everyone rejoins straight away; no elimination.
+- **Data collected:** none: team names only, no accounts or camera.
+- **Age and real AI tools:** Hunch is scripted; no live AI tools with children. If real chatbots come up, staff note minimum ages (check each tool's terms; to verify) and adult supervision.
+- **Gentle consequences:** pad drops are cartoon effects; everyone rejoins at once; no elimination.
 - **IP and brand:** disclaimer always visible; no Mojang assets; no "Minecraft-style" marketing; run the derivative-risk checklist (research `10-minecraft.md`, §9) and the "what game is this?" test on all art.
 
 ## 12. Build notes

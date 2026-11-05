@@ -204,12 +204,12 @@ Weather forecasts are predictions made from patterns in past data, and they are 
 - **Dominant voices:** the button attracts the most confident child. The role rotation after every full run is non-negotiable; use "Beat Counter speaks first" in discussion.
 
 ## 10. Accessibility and inclusion
-- **Reading level:** cue cards of 8 words or fewer, with icons; Tempo's lines read aloud.
-- **Audio and captions:** the beat is shown visually too (pulse rings, ruler ticks, a flashing beat number), so deaf and hard-of-hearing children can play. Tempo's lines are captioned.
-- **Colour-blind-safe:** obstacles differ by shape and outline style, not just colour; legend cards show shapes.
-- **Motor-friendly:** any big button, space bar, switch or a "clap" input; the assist tempo; generous timing windows; no double-tap requirement.
-- **Photosensitivity:** a "calm mode" with no flashes or shake.
-- **No devices:** play it unplugged as a body-percussion game: a floor ruler, spike counters, a facilitator reading Tempo's call card, children jumping on the beat.
+- **Reading level:** cue cards of 8 words or fewer, with icons; Tempo read aloud and captioned.
+- **Deaf and hard-of-hearing players:** the beat is also visual (pulse rings, ruler ticks, flashing beat number).
+- **Colour-blind-safe:** obstacles differ by shape and outline, not just colour.
+- **Motor-friendly:** any big button, space bar, switch or clap input; assist tempo; generous timing; no double taps.
+- **Photosensitivity:** "calm mode" with no flashes or shake.
+- **No devices:** a body-percussion version with a floor ruler, spike counters and Tempo's calls read aloud.
 
 ## 11. Safety, ethics and data
 - **Data collected:** none; attempts and best % live only in the session; no accounts, names or camera.
@@ -219,6 +219,6 @@ Weather forecasts are predictions made from patterns in past data, and they are 
 
 ## 12. Build notes
 - **Scenes:** six short levels with music, beat ruler, progress bar, attempt counter, practice mode with checkpoints, crash replay with slow motion, montage, level builder for Level 6.
-- **Scripted AI responses (Tempo):** "Beat 4 each bar." (85%) · "Jump on the 4th beat!" (92%) · "Jump on beat 3. I counted." (76%) · "Same gaps as before." (88%) · "Drums changed. New count." (80%) · "Spike shape! Jump!" (90%) · "No beat. Waiting…" (70%) · "Can't hear the beat. I'll keep your count: jump on 3." (48%) · Level 6 guesses (85%).
+- **Scripted AI responses:** all Tempo lines are in the section 5 table; Level 6 needs a guess for each tile pattern (rule-generated: "same as bars 1–2", 85%).
 - **Reuse from the trailer:** runner renderer, crash and restart, attempt counter, practice-mode banner, montage ghosts, the guess card, the "Count along with the music first" instruction card, title card.
 - **Open questions:** rename "Co-pilot" to Tempo in the trailer and lab; commission or synthesise original music; test the timing windows with 8-year-olds; decide whether Level 6's builder is on screen or on a paper 8-step strip.
