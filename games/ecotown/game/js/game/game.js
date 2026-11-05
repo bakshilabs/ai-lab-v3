@@ -12,6 +12,8 @@ import { bubblesFor } from './bubbles.js';
 import { esc, h } from '../ui/ui.js';
 import { renderReport } from './report.js';
 import { createFilm } from './film.js';
+import * as Teach from '../ai/teach.js';
+import { getModel } from '../ai/plotter.js';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const SAVE = 'ecotown.save.v1';
@@ -281,14 +283,40 @@ export function createGame(app) {
   }
 
   // ---------------- Level 6 extras: residents' summary check (sampling bias) and the charter
+  // 13–17: Plotter really learns a residents'-feedback classifier from examples, in the browser.
+  async function teachPlotter(shareWalk) {
+    const nWalk = Math.round(30 * shareWalk / 100), town = [...Teach.WALKER, ...Teach.DRIVER, ...Teach.WALKER].slice(0, 30);
+    const all = [...Teach.WALKER.slice(0, nWalk % 21), ...Teach.DRIVER].slice(0, 30); void all;
+    const truthShare = Math.max(0.1, Math.min(0.9, 1 - shareWalk / 100));
+    const comments = [...Teach.DRIVER.slice(0, Math.round(30 * truthShare)), ...Teach.WALKER.slice(0, 30 - Math.round(30 * truthShare))]; void town;
+    let examples = Teach.DRIVER.slice(0, 8).map((t) => ({ text: t, y: 1, src: 'car-park box' }));
+    for (;;) {
+      ui.helper({ name: G.C.helperName, tag: 'LEARNING', html: '<p>Training on the examples…</p>', thinking: true }); await sleep(250);
+      const clf = Teach.train(examples); const sm = Teach.summarise(clf, comments);
+      const real = Math.round(100 * truthShare), saw = Math.round(100 * sm.share);
+      const fair = Math.abs(saw - real) <= 20 && examples.some((e) => !e.y) && examples.some((e) => e.y);
+      ui.helper({ name: G.C.helperName, tag: fair ? 'TESTED' : 'SUMMARY', tagCls: fair ? 'ok' : '', html: `<p>“${esc(sm.text)}.”</p><p class="why">I read all ${comments.length} residents' comments with a model I trained on <b>${examples.length}</b> examples (${examples.filter((e) => e.y).length} 🚗 · ${examples.filter((e) => !e.y).length} 🚶). I think <b>${saw}%</b> want parking.</p>`, sure: sm.sure, sureLabel: G.C.ui.sure });
+      if (fair) { audio.good(); ui.alert(`Balanced data: ${saw}% vs ${real}% really`, true, 2600); await sleep(2600); return; }
+      const a = await new Promise((resolve) => ui.tray(`<h3>Plotter learned from ${examples.length} examples. Look at them: is the training data fair?</h3>
+        <div class="tiles" style="max-height:6.5em;overflow:auto">${examples.map((e) => `<span class="tile" title="${esc(e.src)}">${e.y ? '🚗' : '🚶'} ${esc(e.text)}</span>`).join('')}</div>
+        <div class="row"><button class="choice" data-act="gate">📍 Add 12 comments from the school gate</button><button class="choice" data-act="own">✍ Write your own example</button></div>`, (tr) => tr.querySelectorAll('[data-act]').forEach((b) => (b.onclick = () => resolve(b.dataset.act)))));
+      if (a === 'gate') { const have = new Set(examples.map((e) => e.text)); examples = examples.concat(Teach.WALKER.filter((t) => !have.has(t)).slice(0, 10).map((t) => ({ text: t, y: 0, src: 'school gate' })), Teach.DRIVER.slice(8, 10).map((t) => ({ text: t, y: 1, src: 'school gate' }))); }
+      else {
+        const own = await new Promise((resolve) => ui.tray(`<h3>Write a resident's comment and label it</h3><div class="textin"><div class="field"><input data-in maxlength="100" placeholder="e.g. I want a safe way to cycle to the market"></div></div><div class="row" style="margin-top:6px"><button class="btn alt" data-y="1">🚗 wants parking</button><button class="btn alt" data-y="0">🚶 wants paths</button></div>`, (tr) => { const i = tr.querySelector('[data-in]'); i.focus(); tr.querySelectorAll('[data-y]').forEach((b) => (b.onclick = () => i.value.trim() && resolve({ text: i.value.trim().slice(0, 100), y: +b.dataset.y, src: 'you' }))); }));
+        examples = examples.concat([own]);
+      }
+      audio.tap();
+    }
+  }
   async function heartExtras() {
     const s = sim(); const cycle = [...G.cells.values()].filter((c) => ['cycle', 'path', 'tram'].includes(c.item)).length; const cars = s.cars;
     const shareWalk = Math.round(100 * (cycle + 1) / (cycle + cars + 1.5));
     const sample = (where) => (where === 'carpark' ? { drivers: 9, walkers: 1 } : where === 'gate' ? { drivers: Math.round(10 * (100 - shareWalk) / 100), walkers: Math.round(10 * shareWalk / 100) } : { drivers: Math.round(30 * (100 - shareWalk) / 100), walkers: Math.round(30 * shareWalk / 100) });
     const summary = (smp) => (smp.drivers > smp.walkers ? 'Residents want more car parks' : 'Residents want safe paths and cycle lanes');
     const sure = (smp) => Math.round(100 * Math.max(smp.drivers, smp.walkers) / (smp.drivers + smp.walkers));
-    let where = 'carpark';
-    for (;;) {
+    if (!G.j && getModel()) { await teachPlotter(shareWalk); G.mistakes.push({ level: 'heart', habit: 'missing', note: 'summary model trained only on drivers' }); await sleep(800); }
+    let where = G.j || !getModel() ? 'carpark' : 'done';
+    for (; where !== 'done';) {
       const smp = sample(where);
       ui.helper({ name: G.C.helperName, tag: 'SUMMARY', html: `<p>“${esc(summary(smp))}.”</p>${!G.j ? `<p class="why">I read ${smp.drivers + smp.walkers} comments from the ${where === 'carpark' ? 'car-park survey box' : where === 'gate' ? 'school gate' : 'whole town'}.</p>` : ''}`, sure: sure(smp), sureLabel: G.C.ui.sure });
       if (where === 'everyone' || (where === 'gate' && G.j)) break;
@@ -301,8 +329,7 @@ export function createGame(app) {
       }));
       where = a; audio.good();
     }
-    G.mistakes.push({ level: 'heart', habit: 'missing', note: 'residents summary counted only drivers' });
-    await sleep(1600);
+    if (G.j || !getModel()) { G.mistakes.push({ level: 'heart', habit: 'missing', note: 'residents summary counted only drivers' }); await sleep(1600); }
     // the charter: three promises, checked against the simulation
     const PROMISES = [
       ['Every home within 15 minutes’ walk of school', (x) => x.walkMax <= 15], ['Carbon under the town ceiling', (x) => x.carbon <= TARGETS.carbonCeiling], ['Lights on through a still winter night', (x) => x.power.winterOK],

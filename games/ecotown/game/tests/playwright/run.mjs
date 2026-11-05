@@ -49,7 +49,7 @@ for (const [id, check, habit, vague, clear] of LEVELS) {
   await click('#dock [data-actions] [data-done]');
   if (id === 'heart') {
     if (band === 'junior') { for (let i = 0; i < 6; i++) await click(`#dock [data-actions] [data-r="${i}"]`); await click('#dock [data-actions] [data-act="gate"]'); }
-    else { await click('#dock [data-actions] [data-act="gate"]'); await p.waitForTimeout(600); await click('#dock [data-actions] [data-act="everyone"]'); }
+    else { await click('#dock [data-actions] [data-act="gate"]', 40000); await p.waitForTimeout(1500); const ev = await p.$('#dock [data-actions] [data-act="everyone"]'); if (ev && await ev.isVisible()) await ev.click(); }
     await p.waitForTimeout(2000); for (const i of [0, 1, 2]) await click(`#dock [data-actions] [data-p="${i}"]`); await click('#dock [data-actions] [data-ok]'); await click('#modal:not(.hide) [data-act="ok"]');
   }
   // live: screenshot midway, then skip

@@ -57,3 +57,4 @@ export function ask(level, text, ctx) {
   const after = applyPlacements(ctx.cells, p.placements);
   return { unknown: false, read: r, plan: p, after, sure, breakdown: { reading: Math.round(r.conf * 100), fit: Math.round(p.fit * 100), experience: Math.round(p.experience * 100) } };
 }
+export const getModel = () => model;
