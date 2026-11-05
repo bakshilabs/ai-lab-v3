@@ -5,7 +5,7 @@
 ## 1. Summary
 Children run a nature park on a floating island with Manager Bot, a pretend AI manager that "does exactly what the card says". Told "Get 50 visitors", it is 92% sure the fastest way is "free entry and a path straight through the meadow!". The crowds pour in, the rabbits flee ("My burrow's under that path!") and Wildlife falls. The children catch the side effect by reading the meters' in and out arrows and the animals' thought bubbles, then write a better objective ("Get 50 visitors, and keep the meadow wild"). By the end they write a Park Charter with a goal, a "never" rule and a check. They learn that an AI optimises the one number it is given, that pushing one number moves others, and that who you count changes the answer.
 
-**Overlap with a client-request lab.** This substantially overlaps the **pixel Island Park Tycoon** (`games/trailers/tycoon2/`, the Zoo / RollerCoaster Tycoon request). Both use Manager Bot, the meadow path ("FASTEST WAY TO 50 GUESTS: A PATH STRAIGHT THROUGH THE MEADOW!"), fleeing rabbits and deer, and the fix of a path round the meadow.
+**Overlap with a client-request lab.** This substantially overlaps the **pixel Island Park Tycoon** (`games/trailers/tycoon2/`, the Zoo / RollerCoaster Tycoon request; design doc `games/labs/tycoon2.md`). Both use Manager Bot, the meadow path ("FASTEST WAY TO 50 GUESTS: A PATH STRAIGHT THROUGH THE MEADOW!"), fleeing rabbits and deer, and the fix of a path round the meadow.
 
 | | Island Park Tycoon (voxel, this doc) | Island Park Tycoon (pixel) |
 |---|---|---|

@@ -7,7 +7,7 @@
 ## 1. Summary
 Groups design an eco town on a paper mat of coloured tiles (yellow solar, blue wind, purple battery, grey houses, green trees, red factory), copy it onto a screen grid, and watch the voxel island rise from it block by block. The AI helper then reads the design. Shown lots of solar and no batteries, it says "Sunny Power Town! Lights on all night." at 88% sure. At sunset the houses go dark. The children catch the mistake by watching the night test, then change exactly three tiles to batteries, and the lights stay on. They learn that an AI labels what it sees using simple patterns (the biggest colour, daytime only), that it can be very sure and wrong, and that testing in the real conditions reveals what the label missed.
 
-**Overlap with a client-request lab.** This overlaps with **Block Quest** (`games/trailers/bloxel/`, the Bloxels request): a 13×13 board becomes a pixel platformer; "Make it harder" becomes "Harder = more spikes! 89% sure", an impossible level, then "One tricky jump, still fair". Both are "children build on a physical grid, then the AI reads it".
+**Overlap with a client-request lab.** This overlaps with **Block Quest** (`games/trailers/bloxel/`, the Bloxels request; design doc `games/labs/bloxel.md`): a 13×13 board becomes a pixel platformer; "Make it harder" becomes "Harder = more spikes! 89% sure", an impossible level, then "One tricky jump, still fair". Both are "children build on a physical grid, then the AI reads it".
 
 | | Block Builders | Block Quest |
 |---|---|---|

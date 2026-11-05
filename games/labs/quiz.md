@@ -5,7 +5,7 @@
 ## 1. Summary
 A room-wide quiz show for up to about 25 children, hosted on a floating island studio. Each question shows an AI helper's answer and its "% sure", and the room answers with their bodies: corners for A, B or C, a Sure-o-meter line on the floor, and thumbs for trust it, check it or don't use it. The helper's confident mistake opens the show: it looks at a bird and says "Duck! 95% sure." It is a moorhen. The room catches it from the picture (red and yellow bill, no duck bill) and shouts "ASSUMPTION!". Then a clearer instruction to the helper ("Look at the bill and the colours, then tell us why") gets a better answer. Children learn that very sure is not the same as right, that clearer questions get better answers, and that the habit to keep is "Before I trust an AI's answer, I… check."
 
-**Overlap with a client-request lab.** This overlaps with **Block Quiz** (`games/trailers/mcquiz/`, the "Minecraft quiz" request). Block Quiz uses the same check-the-AI format, but with Minecraft trivia ("What do you need to build a Nether portal?" with the helper saying "Lava!", 90%, when the answer is obsidian), blocky textures and a "not an official Minecraft product" disclaimer.
+**Overlap with a client-request lab.** This overlaps with **Block Quiz** (`games/trailers/mcquiz/`, the "Minecraft quiz" request; design doc `games/labs/mcquiz.md`). Block Quiz uses the same check-the-AI format, but with Minecraft trivia ("What do you need to build a Nether portal?" with the helper saying "Lava!", 90%, when the answer is obsidian), blocky textures and a "not an official Minecraft product" disclaimer.
 
 | | Sure or Not Sure? | Block Quiz |
 |---|---|---|

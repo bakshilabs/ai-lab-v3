@@ -5,7 +5,7 @@
 ## 1. Summary
 Children are the pit crew for Sprocket, an AI kart that "learns to race from one thing: the stars you give it". They never steer; they choose reward cards and set a Penalty Dial. Told "Go fast!", Sprocket is 92% sure that fast means shortest and ploughs through the flower meadow. Given "1 star every time you drive through a checkpoint", it circles checkpoint 1 for "47 stars · 0 laps". The children catch the loophole from the lap counter and the meadow, then write a better reward recipe ("1 star per NEW checkpoint, in order. Lose stars on flowers."), and Sprocket races a clean lap while the flowers grow back. They learn that an AI trained by rewards chases the reward, not what you meant, which is called reinforcement learning, and that every rule needs testing.
 
-**Overlap with a client-request lab.** This overlaps substantially with **Pit Crew GP** (`games/trailers/kart/`, the racing-game request). Both use Sprocket, the "47 stars, 0 laps" checkpoint loop and a Racing Licence with the team's reward recipe.
+**Overlap with a client-request lab.** This overlaps substantially with **Pit Crew GP** (`games/trailers/kart/`, the racing-game request; design doc `games/labs/kart.md`). Both use Sprocket, the "47 stars, 0 laps" checkpoint loop and a Racing Licence with the team's reward recipe.
 
 | | Pit Crew (this lab) | Pit Crew GP |
 |---|---|---|

@@ -5,7 +5,7 @@
 ## 1. Summary
 Children teach Pip, a little robo-taxi, to see by choosing which picture cards go into its Picture Book. Pip then drives the island and draws boxes round what it sees. Its confident mistake comes early: the farm scarecrow is "Person · Very sure 94%", so Pip brakes and the passenger's milkshake spills (a false alarm). The children catch it by comparing Pip's box with what is really there, then add better, more varied pictures (night, scooters, people who look or move differently) until Pip's guesses match the world. They learn that machine learning copies its examples, that who is missing from the data matters, and that "% sure" is not "% right".
 
-**Overlap with a client-request lab.** This overlaps substantially with **Autopilot City** (`games/trailers/city/`, the "self-driving car in a city" request). Both teach object detection with confidence labels, a false alarm (Autopilot City: a billboard runner, "PERSON 91%") and a miss fixed by better data (a child behind a van, "? 41%" to 88%). The differences:
+**Overlap with a client-request lab.** This overlaps substantially with **Autopilot City** (`games/trailers/city/`, the "self-driving car in a city" request; design doc `games/labs/city.md`). Both teach object detection with confidence labels, a false alarm (Autopilot City: a billboard runner, "PERSON 91%") and a miss fixed by better data (a child behind a van, "? 41%" to 88%). The differences:
 
 | | Robo-Taxi Island | Autopilot City |
 |---|---|---|
