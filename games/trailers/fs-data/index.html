@@ -1,0 +1,324 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Council Data Desk trailer</title>
+<link rel="stylesheet" href="../engine/ui.css"><link rel="stylesheet" href="fs-ui.css">
+<style>
+.sheet { width: 100%; border-collapse: collapse; font: 600 25px 'Inter'; }
+.sheet th { text-align: left; font: 800 19px 'Inter'; letter-spacing: .1em; text-transform: uppercase; color: #5b6b78; padding: 12px 14px; background: #f4f7f8; }
+.sheet td { padding: 12px 14px; border-top: 2px solid #edf1f3; white-space: nowrap; }
+.sheet tr.hot td { background: #e9fbf5; }
+.sheet tr.dup td { color: #c0392b; text-decoration: line-through; text-decoration-thickness: 3px; background: #fff3f1; }
+.sheet .fix { color: #0b6e55; font-weight: 800; }
+.sheet .bad { color: #c0392b; font-weight: 800; background: #ffe4df; border-radius: 8px; padding: 2px 8px; }
+.sheet .blank { color: #9a5b00; font-weight: 800; background: #fff1d6; border-radius: 8px; padding: 2px 8px; }
+.log { display: flex; flex-wrap: wrap; gap: 10px; padding: 16px 26px 22px; }
+.log .fs-pill { font-size: 22px; padding: 8px 16px; }
+.bars { padding: 16px 32px 24px; display: grid; gap: 14px; }
+.bars .r { display: grid; grid-template-columns: 210px 1fr 70px; align-items: center; gap: 16px; font: 700 27px 'Inter'; }
+.bars .r .t { height: 34px; background: #f1f4f6; border-radius: 10px; overflow: hidden; }
+.bars .r .t i { display: block; height: 100%; border-radius: 10px; background: #16c79a; }
+.bars .r b { text-align: right; font-weight: 800; }
+.bars .r.q { color: #13202b; }
+.bars .r.q .t i { background: #f2a31b; }
+.dim { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; background: linear-gradient(180deg, rgba(8,30,50,.55), rgba(8,30,50,.25) 45%, rgba(8,30,50,.55)); }
+</style>
+<script type="importmap">{"imports":{"three":"/three/three.module.js","three/addons/":"/three-addons/"}}</script></head>
+<body><div id="app"><div id="bg"></div><div id="ui"></div><div id="fx"></div></div>
+<script type="module">
+import * as THREE from 'three';
+import { createStage, prog, ease, lerp, clamp, within } from '../engine/stage.js';
+import { Vox, tree, house, person, particles, rand, noise2 } from '../engine/kit.js';
+import { el, cue, fader, titleCard } from '../engine/ui.js';
+import { clouds } from '../engine/extras.js';
+import { makeFS, SVG, typed, screenTex } from './fs-ui.js';
+
+const DUR = 42;
+const st = createStage({ sky: ['#5db6ff', '#d9efff'], post: false });
+const { scene, camera, sun, hemi, rim } = st;
+rim.intensity = 0.55; st.dome.visible = false; st.renderer.setClearColor(0x000000, 0);
+document.getElementById('bg').style.background = 'linear-gradient(180deg, #4fb0ff 0%, #8fcdff 55%, #dcf1ff 100%)';
+sun.intensity = 2.8; sun.position.set(-50, 120, 70); hemi.intensity = 1.3; st.renderer.toneMappingExposure = 1.1;
+
+// ---------- diorama slab ----------
+const v = new Vox(); v.jitter = 0.05;
+const X0 = -34, X1 = 33, Z0 = -20, Z1 = 19, BOT = -8;
+const STRATA = ['#c9a86a', '#a88458', '#d8bf86', '#8f7a5e', '#b99764'];
+const inOffice = (x, z) => x >= -32 && x <= -6 && z >= -16 && z <= 6;
+const isWater = (x, z) => x >= 28 && z <= -2;
+const roadH = (x, z) => z >= 1 && z <= 3 && x >= -4;
+const roadV = (x, z) => x >= 13 && x <= 15;
+for (let x = X0; x <= X1; x++) for (let z = Z0; z <= Z1; z++) {
+  const edge = x === X0 || x === X1 || z === Z0 || z === Z1;
+  for (let y = BOT; y < 0; y++) if (edge || y === BOT) { const b = Math.floor((y - BOT + noise2(x / 4, z / 4, 3) * 2.2) / 2.2); v.set(x, y, z, STRATA[((b % 5) + 5) % 5]); }
+  if (isWater(x, z)) { v.set(x, -3, z, '#2f86b8'); if (edge) for (let y = -3; y <= -1; y++) v.set(x, y, z, '#8b8f93'); continue; }
+  let c;
+  if (inOffice(x, z)) c = (Math.floor(x / 2) + z) % 2 ? '#eadcbf' : '#e2d2b0';
+  else if (roadH(x, z) || roadV(x, z)) c = ((roadH(x, z) && z === 2 && ((x + 40) % 4) < 2) || (roadV(x, z) && !roadH(x, z) && x === 14 && ((z + 40) % 4) < 2)) ? '#f2f2ea' : '#5b6168';
+  else if ((z === 0 || z === 4) && x >= -4 || (x === 12 || x === 16)) c = rand(x, 5, z) > .5 ? '#d3d7da' : '#c7ccd0';
+  else if (x === 27 && z <= -1) c = '#a9a59b';
+  else { const p = Math.sin(x * 0.4) + Math.cos(z * 0.33) + rand(x, 7, z) * 0.9; c = p > 1.2 ? '#8fd96a' : p > 0.2 ? '#73c74f' : p > -0.8 ? '#62b846' : '#53a83d'; }
+  v.set(x, 0, z, c);
+}
+// quay wall
+for (let z = Z0; z <= -1; z++) for (let y = -3; y <= 0; y++) v.set(27, y, z, y === 0 ? '#bdb7aa' : '#8b8f93');
+for (let x = 28; x <= X1; x++) for (let y = -3; y <= 0; y++) v.set(x, y, -1, y === 0 ? '#bdb7aa' : '#8b8f93');
+// boat
+v.box(30, -1, -12, 31, -1, -7, '#e8573f'); v.box(30, 0, -12, 31, 0, -12, '#e8573f'); v.box(30, 0, -11, 31, 0, -8, '#f6f1e6'); v.set(30, 1, -9, '#7a5233'); v.box(30, 2, -9, 30, 3, -9, '#ffffff');
+
+// ---------- office (cutaway, no roof, no front wall) ----------
+const WALL = '#f4f1ea', GLASS = '#a9dcf2', ACC = '#16c79a';
+for (let x = -33; x <= -5; x++) for (let y = 1; y <= 7; y++) { // back wall z=-17
+  const win = y >= 3 && y <= 5 && ((x + 33) % 5) >= 1 && ((x + 33) % 5) <= 3 && !(x >= -27 && x <= -17);
+  v.set(x, y, -17, y === 7 ? ACC : win ? GLASS : WALL);
+}
+for (let z = -17; z <= 7; z++) for (let y = 1; y <= 7; y++) { // side walls
+  const winL = y >= 3 && y <= 5 && ((z + 17) % 5) >= 1 && ((z + 17) % 5) <= 3;
+  v.set(-33, y, z, y === 7 ? ACC : winL ? GLASS : WALL);
+  const winR = y >= 2 && y <= 6 && z > -16 && z < 6 && ((z + 17) % 6) !== 0;
+  v.set(-5, y, z, y === 7 ? ACC : winR ? GLASS : WALL);
+}
+for (let x = -33; x <= -5; x++) v.set(x, 1, 7, x % 3 === 0 ? '#4caf50' : '#d9d2c2'); // low front planter edge
+for (let x = -32; x <= -6; x += 3) { v.set(x, 2, 7, '#3f9d4a'); }
+// plants in corners
+for (const [x, z] of [[-31, -15], [-7, -15], [-31, 4]]) { v.box(x, 1, z, x, 1, z, '#b06a3a'); v.box(x, 2, z, x, 3, z, '#3f9d4a'); v.set(x + 1, 3, z, '#4caf50'); v.set(x, 4, z, '#5bbd5a'); }
+
+// ---------- town ----------
+const houses = [
+  // Mill Lane (front middle)
+  [-2, 6, { w: 6, d: 5, h: 4, roof: '#d0573a', wall: '#f1ebe0' }], [6, 6, { w: 5, d: 5, h: 3, roof: '#c9603d', wall: '#efe2c9' }],
+  [-2, 12, { w: 6, d: 5, h: 3, roof: '#5a6d80', wall: '#f1ebe0' }], [6, 12, { w: 5, d: 5, h: 4, roof: '#d0573a', wall: '#e8d9c0' }],
+  // Harbourside (front right)
+  [18, 6, { w: 6, d: 5, h: 4, roof: '#d0573a', wall: '#f6efe2' }], [26, 6, { w: 5, d: 5, h: 3, roof: '#e07a3a', wall: '#efe2c9' }], [19, 12, { w: 9, d: 5, h: 5, roof: '#5a6d80', wall: '#f1ebe0' }],
+  // Castle Hill (back middle)
+  [-2, -9, { w: 6, d: 5, h: 4, roof: '#c9603d', wall: '#efe2c9' }], [6, -9, { w: 5, d: 5, h: 3, roof: '#d0573a', wall: '#f1ebe0' }], [0, -17, { w: 10, d: 4, h: 5, roof: '#5a6d80', wall: '#e8d9c0' }],
+  // Old Quay (back right): terrace with slate roofs
+  [17, -9, { w: 4, d: 5, h: 3, roof: '#4e5d6c', wall: '#e9d7b8' }], [21, -9, { w: 4, d: 5, h: 3, roof: '#55677a', wall: '#f0e2c6' }],
+  [17, -17, { w: 4, d: 5, h: 3, roof: '#4e5d6c', wall: '#efdcbc' }], [21, -17, { w: 5, d: 5, h: 3, roof: '#55677a', wall: '#e3cfae' }],
+];
+for (const [x, z, o] of houses) house(v, x, 0, z, o);
+for (const [x, z] of [[11, 17], [-3, 18], [31, 17], [10, -2], [-3, -3], [24, 17], [11, -13]]) tree(v, x, 0, z, { kind: 'round', s: 1 });
+// lamp posts: [x,z,ward,faulty]
+const LAMPS = [[-1, 5, 'm', 0], [8, 5, 'm', 1], [3, 17, 'm', 0], [19, 5, 'h', 1], [27, 5, 'h', 0], [24, 11, 'h', 1],
+  [-1, -1, 'c', 1], [8, -1, 'c', 0], [4, -12, 'c', 0], [18, -1, 'q', 1], [24, -1, 'q', 1], [17, -11, 'q', 1], [26, -12, 'q', 0], [21, -18, 'q', 1]];
+for (const [x, z, , bad] of LAMPS) { v.box(x, 1, z, x, 4, z, '#3d4650'); v.set(x, 5, z, bad ? '#6b7178' : '#fff1b8'); }
+// bench on Old Quay
+v.box(24, 1, -6, 26, 1, -6, '#8a5a32'); v.box(24, 2, -7, 26, 2, -7, '#8a5a32');
+scene.add(v.mesh());
+// water
+const wat = new THREE.Mesh(new THREE.BoxGeometry(X1 - 28 + 1, 2.4, -1 - Z0), new THREE.MeshPhongMaterial({ color: '#43a9e6', transparent: true, opacity: 0.7, shininess: 80, specular: '#bfe6ff', depthWrite: false }));
+wat.position.set((28 + X1) / 2 + 0.5, -1.4, (Z0 - 1) / 2 + 0.5 - 0.5); wat.renderOrder = 2; scene.add(wat);
+const updClouds = clouds(scene, { n: 7, spread: 260, y: [40, 70], z: [-200, -90], scale: 2.2, seed: 4 });
+
+// ---------- office furniture (half-size voxels) ----------
+const f = new Vox(); f.jitter = 0.03; const F = 2; // fine units per world unit
+const screens = [];
+function desk(wx, wz, face) { // face: 'n' person looks -z (screen faces +z), 's' person looks +z
+  const x = Math.round(wx * F), z = Math.round(wz * F);
+  f.box(x - 3, 2, z - 1, x + 2, 2, z + 1, '#ffffff'); // top
+  for (const [a, b] of [[x - 3, z - 1], [x + 2, z - 1], [x - 3, z + 1], [x + 2, z + 1]]) f.box(a, 0, b, a, 1, b, '#9aa4ad');
+  const mz = face === 'n' ? z - 1 : z + 1;
+  f.set(x - 1, 3, mz, '#2b3640'); f.set(x, 3, mz, '#2b3640');
+  f.box(x - 2, 4, mz, x + 1, 5, mz, '#1d2731');
+  // chair
+  const cz = face === 'n' ? z + 3 : z - 3;
+  f.box(x - 1, 1, cz, x, 1, cz, '#13202b'); f.set(x - 1, 0, cz, '#4a5560');
+  screens.push({ x: wx, y: 1 + 4.6 / F + 0.25, z: mz / F + (face === 'n' ? 0.5 + 0.02 : -0.02), face });
+}
+const DESKS = [[-27, -10, 's'], [-21, -10, 's'], [-27, -3, 'n'], [-21, -3, 'n'], [-15, -3, 'n'], [-11, -10, 's']];
+for (const [x, z, d] of DESKS) desk(x, z, d);
+// meeting table
+f.box(-24 * F, 2, 2 * F, -18 * F, 2, 4 * F, '#d7b98a'); for (const [a, b] of [[-24, 2], [-18, 2], [-24, 4], [-18, 4]]) f.box(a * F, 0, b * F, a * F, 1, b * F, '#8a6a48');
+f.box(-21 * F, 3, 3 * F, -21 * F + 1, 3, 3 * F, '#f6c343');
+// tall display stand by the wall screen
+const fm = f.mesh({ scale: 1 / F, offset: [0, 1, 0] }); scene.add(fm);
+
+// screen textures (mini spreadsheets / charts)
+const sheetDraw = (accent) => (g, w, h) => { g.fillStyle = '#ffffff'; g.fillRect(0, 0, w, h); g.fillStyle = accent; g.fillRect(0, 0, w, 22); g.fillStyle = '#dfe6ea'; for (let r = 0; r < 7; r++) g.fillRect(8, 32 + r * 18, w - 16, 3); g.fillStyle = '#c3ccd2'; for (let c = 1; c < 4; c++) g.fillRect(c * w / 4, 26, 3, h - 30); };
+const chartDraw = (g, w, h) => { g.fillStyle = '#ffffff'; g.fillRect(0, 0, w, h); g.fillStyle = '#13202b'; g.fillRect(0, 0, w, 22); const v = [0.9, 0.85, 0.8, 0.1]; v.forEach((k, i) => { g.fillStyle = i === 3 ? '#f2a31b' : '#16c79a'; g.fillRect(14, 34 + i * 30, (w - 40) * k, 20); }); };
+const heroTex = screenTex(256, 160, sheetDraw('#16c79a'));
+screens.forEach((s, i) => {
+  const isHero = s.x === -15 && s.face === 'n';
+  const tex = isHero ? heroTex : screenTex(256, 160, i % 2 ? chartDraw : sheetDraw(i % 3 ? '#5a8dee' : '#16c79a'));
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(1.8, 0.85), new THREE.MeshBasicMaterial({ map: tex, toneMapped: false }));
+  m.position.set(s.x, s.y, s.z); if (s.face === 's') m.rotation.y = Math.PI; scene.add(m);
+});
+// big wall screen on the back wall
+const wallTex = screenTex(512, 288, (g, w, h) => {
+  g.fillStyle = '#ffffff'; g.fillRect(0, 0, w, h); g.fillStyle = '#13202b'; g.font = '800 28px Inter, sans-serif'; g.fillText('Fault reports by ward', 24, 44);
+  const rows = [['Harbourside', 38], ['Mill Lane', 36], ['Castle Hill', 34], ['Old Quay', 4]];
+  rows.forEach(([n, k], i) => { g.fillStyle = '#5b6b78'; g.font = '700 20px Inter, sans-serif'; g.fillText(n, 24, 92 + i * 50); g.fillStyle = i === 3 ? '#f2a31b' : '#16c79a'; g.fillRect(170, 74 + i * 50, 300 * k / 38, 26); });
+});
+const wallScr = new THREE.Mesh(new THREE.PlaneGeometry(9, 5.06), new THREE.MeshBasicMaterial({ map: wallTex, toneMapped: false }));
+wallScr.position.set(-21.5, 4.6, -16.45); scene.add(wallScr);
+const wallFrame = new THREE.Mesh(new THREE.BoxGeometry(9.6, 5.6, 0.3), new THREE.MeshLambertMaterial({ color: '#1d2731' })); wallFrame.position.set(-21.5, 4.6, -16.65); scene.add(wallFrame);
+// council sign above
+const signTex = screenTex(512, 64, (g, w, h) => { g.fillStyle = '#13202b'; g.fillRect(0, 0, w, h); g.fillStyle = '#16c79a'; g.fillRect(16, 22, 20, 20); g.fillStyle = '#ffffff'; g.font = '800 30px Inter, sans-serif'; g.fillText('Harbourside Council · Insight Team', 50, 43); });
+const sign = new THREE.Mesh(new THREE.PlaneGeometry(10, 1.25), new THREE.MeshBasicMaterial({ map: signTex, toneMapped: false })); sign.position.set(-12.5, 6.2, -16.45); scene.add(sign);
+
+// ---------- people ----------
+const seat = (p, x, z, face) => { p.children[0].rotation.x = p.children[1].rotation.x = Math.PI / 2; p.position.set(x, 1 - 0.06, z); p.rotation.y = face === 'n' ? 0 : Math.PI; scene.add(p); return p; };
+const S = 0.36;
+const maya = seat(person({ shirt: '#6e5bf2', pants: '#2c3e66', skin: '#8a5a3a', hair: '#1c120c', s: S }), -15, -3 + 1.75, 'n');
+const crew = [
+  seat(person({ shirt: '#ff8a2a', skin: '#e0b08a', hair: '#7a4a2c', s: S }), -27, -10 - 1.75, 's'),
+  seat(person({ shirt: '#16c7a6', skin: '#c68a5e', hair: '#2b1d14', s: S }), -21, -10 - 1.75, 's'),
+  seat(person({ shirt: '#e8573f', skin: '#f0c8a0', hair: '#d8a040', s: S }), -27, -3 + 1.75, 'n'),
+  seat(person({ shirt: '#3a7fd8', skin: '#6b4430', hair: '#141414', s: S }), -11, -10 - 1.75, 's'),
+];
+const amara = person({ shirt: '#0f8f74', pants: '#1d2731', skin: '#5a3a26', hair: '#141414', s: 0.38 });
+amara.position.set(-12.2, 1, -0.6); amara.rotation.y = 2.2; scene.add(amara);
+// town folk
+const elders = [person({ shirt: '#9b7bd0', pants: '#4a4a5a', skin: '#e8c0a0', hair: '#e6e8ea', s: 0.34 }), person({ shirt: '#c0504d', pants: '#3a3a44', skin: '#8a5a3a', hair: '#d9dde0', s: 0.34 })];
+elders[0].position.set(24.6, 1, -5.6); elders[0].rotation.y = Math.PI; elders[0].children[0].rotation.x = elders[0].children[1].rotation.x = Math.PI / 2; elders[0].position.y = 1.0 + 0.0; scene.add(elders[0]);
+elders[1].position.set(20, 1, -2.4); scene.add(elders[1]);
+const walkers = [person({ shirt: '#ffd23f', skin: '#c68a5e', s: 0.34 }), person({ shirt: '#3fb8e8', skin: '#e0b08a', hair: '#7a4a2c', s: 0.34 }), person({ shirt: '#e85f9a', skin: '#6b4430', s: 0.34 })];
+walkers.forEach((p) => scene.add(p));
+
+// report pins
+function pinMesh(color) { const p = new Vox(); p.jitter = 0.02; p.box(-1, 3, -1, 1, 5, 1, color); p.set(0, 6, 0, color); p.set(0, 2, 0, color); p.set(0, 1, 0, color); p.set(0, 4, -2, '#ffffff'); const m = p.mesh({ scale: 0.32, offset: [-0.16, 0, -0.16] }); m.material.emissive = new THREE.Color(color); m.material.emissiveIntensity = 0.35; return m; }
+const pins = []; const qPins = [];
+for (const [x, z, w, bad] of LAMPS) {
+  if (w !== 'q') { const m = pinMesh('#16c79a'); m.position.set(x + 0.5, 6.2, z + 0.5); scene.add(m); pins.push(m); }
+  else if (bad) { const m = pinMesh('#ff5d4a'); m.position.set(x + 0.5, 6.2, z + 0.5); scene.add(m); qPins.push(m); }
+}
+const qOk = pinMesh('#16c79a'); qOk.position.set(26.5, 6.2, -11.5); scene.add(qOk);
+
+// ---------- timeline ----------
+// 0-3.8 title | 3.8-8.6 brief | 8.6-14.8 clean the data | 14.8-19.6 chart + AI colleague | 19.6-27.4 review (Case, Data red) | 27.4-32.6 fix + sign-off | 32.6-35.8 portfolio | 35.8-42 pathway
+const K = [
+  { t: 0, ang: -0.75, dist: 150, hgt: 105, look: [0, -2, 0], ox: 0 },
+  { t: 3.6, ang: -0.5, dist: 118, hgt: 82, look: [-2, -2, 0], ox: 0 },
+  { t: 5.0, ang: -0.42, dist: 72, hgt: 50, look: [-17, 1, -4], ox: 430 },
+  { t: 8.4, ang: -0.36, dist: 64, hgt: 45, look: [-17, 1, -4], ox: 430 },
+  { t: 9.6, ang: -0.22, dist: 34, hgt: 23, look: [-14.5, 2, -2.5], ox: 470 },
+  { t: 14.6, ang: -0.16, dist: 31, hgt: 21, look: [-14.5, 2, -2.5], ox: 470 },
+  { t: 15.8, ang: -0.08, dist: 42, hgt: 22, look: [-20, 3.5, -10], ox: 440 },
+  { t: 19.4, ang: -0.02, dist: 40, hgt: 21, look: [-20, 3.5, -10], ox: 440 },
+  { t: 21.4, ang: 0.42, dist: 60, hgt: 42, look: [21, 1, -9], ox: 440 },
+  { t: 27.0, ang: 0.5, dist: 54, hgt: 38, look: [21, 1, -9], ox: 440 },
+  { t: 28.4, ang: -0.22, dist: 34, hgt: 23, look: [-14.5, 2, -2.5], ox: 470 },
+  { t: 32.4, ang: -0.18, dist: 31, hgt: 21, look: [-14.5, 2, -2.5], ox: 470 },
+  { t: 34.4, ang: -0.3, dist: 90, hgt: 62, look: [-6, 0, -2], ox: 320 },
+  { t: 36.2, ang: 0.0, dist: 130, hgt: 90, look: [0, -3, 0], ox: 0 },
+  { t: 42, ang: 0.25, dist: 140, hgt: 96, look: [0, -3, 0], ox: 0 },
+];
+function camAt(t) {
+  let i = 0; while (i < K.length - 2 && t > K[i + 1].t) i++;
+  const a = K[i], b = K[i + 1]; const k = ease.inOut(clamp((t - a.t) / (b.t - a.t)));
+  const L = (p) => lerp(a[p], b[p], k);
+  return { ang: L('ang'), dist: L('dist'), hgt: L('hgt'), ox: L('ox'), look: a.look.map((q, j) => lerp(q, b.look[j], k)) };
+}
+const heroStates = [sheetDraw('#16c79a'), chartDraw];
+let heroState = -1;
+st.onFrame((t) => {
+  updClouds(t);
+  const hs = t < 14.8 ? 0 : 1; if (hs !== heroState) { heroState = hs; heroTex.redraw(heroStates[hs]); }
+  // pins bob; Old Quay red pins appear during the data check
+  pins.forEach((m, i) => { m.position.y = 6.2 + Math.sin(t * 2 + i) * 0.25; m.rotation.y = t * 0.8 + i; m.visible = t > 2 && !(t > 35.8); });
+  qOk.position.y = 6.2 + Math.sin(t * 2 + 9) * 0.25; qOk.rotation.y = t * 0.8; qOk.visible = t > 2 && t < 35.8;
+  qPins.forEach((m, i) => { const k = prog(t, 23.0 + i * 0.25, 23.5 + i * 0.25, ease.back); m.visible = k > 0 && t < 35.8; m.scale.setScalar(Math.max(k, 0.001)); m.position.y = 6.2 + Math.sin(t * 2 + i * 1.7) * 0.25; m.rotation.y = t * 0.8 + i; });
+  // Maya typing, Amara gesturing
+  maya.children[2].rotation.x = Math.sin(t * 6) * 0.03;
+  amara.children[2].rotation.z = Math.sin(t * 1.5) * 0.04;
+  crew.forEach((p, i) => { p.children[2].rotation.x = Math.sin(t * 3 + i * 2) * 0.04; });
+  // walkers along the main road
+  walkers.forEach((p, i) => { const u = ((t * 0.045 + i * 0.33) % 1); const x = lerp(-3, 30, u); const z = i === 1 ? 4.5 : 0.4; p.position.set(i === 1 ? 30 - (x + 3) : x, 1, z); p.rotation.y = i === 1 ? Math.PI / 2 : -Math.PI / 2; p.userData.walk(t * 7 + i); });
+  // camera
+  const c = camAt(t);
+  camera.fov = 30; camera.setViewOffset(1920, 1080, c.ox, 0, 1920, 1080); camera.updateProjectionMatrix();
+  camera.position.set(Math.sin(c.ang) * c.dist + c.look[0], c.hgt + c.look[1], Math.cos(c.ang) * c.dist + c.look[2]);
+  camera.lookAt(c.look[0], c.look[1], c.look[2]);
+});
+
+// ---------- UI ----------
+const ui = []; const A = (f) => ui.push(f);
+const FS = makeFS(A, camera);
+const fade = fader(); A((t) => fade(t < 0.5 ? 1 - prog(t, 0, 0.5) : t > DUR - 0.6 ? prog(t, DUR - 0.6, DUR) : 0));
+// title
+const dimT = el('<div class="dim"></div>'); A(cue(dimT, 0, 3.5, { from: 'fade', dur: 0.3 }));
+const title = titleCard('Council <span class="hl">Data Desk</span>', 'Clean the data. Question the conclusion.', { chip: 'DeltaOps Learning · Future Skills' }); A(cue(title, 0.4, 3.5, { from: 'pop', dur: 0.7 }));
+FS.appbar('Council Data Desk', 3.9, 35.6, SVG.mark);
+
+// brief
+FS.brief({ from: 'Harbourside Council · Head of Insight', task: 'Which wards need more streetlight repairs?', deliver: 'A one-page Data Brief for councillors', due: 'Friday' }, 4.2, 8.6, { x: 1000, y: 150 });
+FS.caption('<b>Amara</b>council data analyst', () => new THREE.Vector3(-12.2, 4.6, -0.6), 4.8, 14.6);
+FS.caption('<b>Maya, 13</b>junior analyst', () => new THREE.Vector3(-14.75, 4.3, -1.25), 5.4, 14.6, { cls: 'teal' });
+
+// cleaning the spreadsheet
+const sheet = FS.card(`<div class="fs-top"><span class="ttl"><span class="ic">${SVG.grid()}</span>fault-reports.csv</span><span class="fs-pill grey" data-rows>120 rows</span></div>
+  <table class="sheet"><tr><th>Ref</th><th>Ward</th><th>Street</th><th>Reported</th><th>Faults</th></tr><tbody data-body></tbody></table>
+  <div style="padding:14px 26px 0" class="fs-eyebrow">Data-quality log</div><div class="log" data-log></div>`, 8.8, 14.8, { x: 1000, y: 150, w: 874, from: 'right' });
+const body = sheet.querySelector('[data-body]'), log = sheet.querySelector('[data-log]'), rowsN = sheet.querySelector('[data-rows]');
+const FIX = [9.8, 11.0, 12.2, 13.4];
+const LOG = ['8 duplicates removed', 'Ward names matched', 'One date format', 'Blank is not 0'];
+A((t) => {
+  const d = FIX.map((x) => t >= x);
+  const hot = FIX.findIndex((x) => t >= x - 0.5 && t < x + 0.6);
+  const rows = [
+    ['F-031', 'Harbourside', 'Quay Road', '03/09/2026', '1', -1],
+    ['F-032', d[1] ? '<span class="fix">Harbourside</span>' : '<span class="bad">Harbr side</span>', 'Quay Road', d[2] ? '<span class="fix">03/09/2026</span>' : '<span class="bad">3 Sept 26</span>', '1', 1],
+    ['F-032', 'Harbr side', 'Quay Road', '3 Sept 26', '1', 0, 'dup'],
+    ['F-047', 'Mill Lane', 'Ash Street', '05/09/2026', d[3] ? '<span class="blank">blank</span>' : '0', 3],
+    ['F-052', 'Castle Hill', 'Keep Lane', '06/09/2026', '2', -1],
+    ['F-058', 'Old Quay', 'Net Loft Row', '07/09/2026', '1', -1],
+  ];
+  const html = rows.filter((r) => !(r[6] === 'dup' && t > FIX[0] + 0.7)).map((r) => `<tr class="${r[6] === 'dup' && d[0] ? 'dup' : ''}${r[5] === hot || (r[6] === 'dup' && hot === 0) ? ' hot' : ''}"><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td></tr>`).join('');
+  if (body.dataset.h !== html) { body.innerHTML = html; body.dataset.h = html; }
+  const lg = LOG.map((s, i) => d[i] ? `<span class="fs-pill teal">✓ ${s}</span>` : '').join('') + (d.every(Boolean) ? '' : '');
+  if (log.dataset.h !== lg) { log.innerHTML = lg || '<span class="fs-pill grey">Checking…</span>'; log.dataset.h = lg; }
+  rowsN.textContent = t > FIX[0] + 0.7 ? '112 clean rows' : '120 rows';
+  rowsN.className = 'fs-pill ' + (t > FIX[0] + 0.7 ? 'teal' : 'grey');
+});
+
+// chart + AI colleague
+const chart = FS.card(`<div class="fs-top"><span class="ttl"><span class="ic">${SVG.chart()}</span>Fault reports by ward</span><span class="fs-pill grey">112 reports</span></div>
+  <div class="bars">${[['Harbourside', 38], ['Mill Lane', 36], ['Castle Hill', 34], ['Old Quay', 4]].map(([n, k], i) => `<div class="r${i === 3 ? ' q' : ''}"><span>${n}</span><div class="t"><i data-b="${k}"></i></div><b>${k}</b></div>`).join('')}</div>`, 15.0, 19.6, { x: 1000, y: 150, w: 874, from: 'right' });
+A((t) => chart.querySelectorAll('[data-b]').forEach((b, i) => { b.style.width = (Number(b.dataset.b) / 38 * 100 * prog(t, 15.3 + i * 0.12, 16.3 + i * 0.12, ease.out)) + '%'; }));
+FS.ai({ text: 'Old Quay has the fewest faults, so its streetlights are in the best condition. Repairs can wait there.', sure: 94, data: 'Fault-report app · 112 rows' }, 16.6, 19.6, { x: 1000, y: 530, w: 874 });
+
+// review
+const rev = FS.card(`<div class="fs-top"><span class="ttl"><span class="ic">${SVG.check()}</span>Review the draft</span><span class="fs-pill grey" data-verdict>Checking</span></div>
+  <div style="padding:20px 30px 6px"><div style="font:600 27px/1.3 Inter;color:#5b6b78;margin-bottom:18px">“Old Quay has the fewest faults, so its streetlights are in the best condition.” <b style="color:#13202b">AI colleague · 94% sure</b></div>${FS.checksHTML()}</div>
+  <div style="padding:6px 30px 18px" data-notes></div>`, 19.8, 27.4, { x: 1000, y: 150, w: 874, from: 'right' });
+const CH = { case: 20.8, caseR: 21.8, data: 22.4, dataR: 23.2, src: 25.0, auth: 25.6 };
+FS.bindChecks(rev, (t) => [t < CH.data ? 'idle' : t < CH.dataR ? 'run' : 'bad', t < CH.case ? 'idle' : t < CH.caseR ? 'run' : 'warn', t < CH.src ? 'idle' : t < CH.src + 0.4 ? 'run' : 'ok', t < CH.auth ? 'idle' : t < CH.auth + 0.4 ? 'run' : 'ok']);
+const notes = rev.querySelector('[data-notes]'), verdict = rev.querySelector('[data-verdict]');
+A((t) => {
+  let h = '';
+  if (t >= CH.caseR) h += `<div class="fs-note"><i style="background:#f2a31b">!</i><span><b>Case:</b> Old Quay is the odd one out. 4 reports, against 34 to 38 everywhere else.</span></div>`;
+  if (t >= CH.dataR) h += `<div class="fs-note"><i style="background:#ff5d4a">✕</i><span><b>Data:</b> app reports only. Most Old Quay residents are over 65 and few use the app. <b>9 streets sent no reports at all.</b></span></div>`;
+  if (t >= CH.auth + 0.4) h += `<div class="fs-note"><i style="background:#13202b">→</i><span><b>Few reports is not the same as few faults.</b> Send it back and fix the finding.</span></div>`;
+  if (notes.dataset.h !== h) { notes.innerHTML = h; notes.dataset.h = h; }
+  const vd = t >= CH.auth + 0.4 ? ['red', 'Send back'] : t >= CH.dataR ? ['red', '1 check failed'] : ['grey', 'Checking'];
+  verdict.className = 'fs-pill ' + vd[0]; verdict.textContent = vd[1];
+});
+FS.caption('<b>Old Quay</b>4 reports', () => new THREE.Vector3(21.5, 9.5, -12), 21.6, 27.2);
+FS.caption('<b>Fault, not reported</b>no app user on this street', () => new THREE.Vector3(18.5, 8.6, -0.5), 23.6, 27.2, { cls: 'red' });
+
+// fix: the Data Brief with tracked changes, then sign-off
+const NEW = 'Old Quay has the fewest reports, not the fewest faults. Most residents there do not use the app.';
+const doc = FS.card(`<div class="fs-top"><span class="ttl"><span class="ic">${SVG.doc()}</span>Data Brief · Streetlights</span><span class="fs-pill amber" data-st>Editing</span></div>
+  <div class="fs-doc"><div class="meta">For: Harbourside councillors · Finding 1 of 3</div>
+  <p><del>Old Quay has the fewest faults, so its streetlights are in the best condition.</del><br><ins data-new></ins></p>
+  <div class="fs-box" data-box style="opacity:0"><small>What this data can't tell us</small>Faults that nobody reported.</div>
+  <div class="fs-box" data-next style="opacity:0;border-color:#16c79a"><small>Better data</small>Door-knock survey on Old Quay's 9 quiet streets</div>
+  <div data-sign style="opacity:0;margin-top:14px">${FS.signHTML('Maya', 13)}</div></div>`, 27.8, null, { x: 1000, y: 150, w: 874, from: 'right' });
+A((t) => {
+  doc.querySelector('[data-new]').textContent = typed(NEW, t, 28.4, 30.0);
+  doc.querySelector('[data-box]').style.opacity = prog(t, 30.1, 30.4);
+  doc.querySelector('[data-next]').style.opacity = prog(t, 30.5, 30.8);
+  const s = doc.querySelector('[data-sign]'); const k = prog(t, 31.1, 31.5, ease.back); s.style.opacity = clamp(k); s.style.transform = `scale(${0.8 + 0.2 * k})`;
+  const p = doc.querySelector('[data-st]'); const done = t > 31.2; p.className = 'fs-pill ' + (done ? 'teal' : 'amber'); p.textContent = done ? 'Signed off' : 'Editing';
+});
+// portfolio: the brief flies into the folder
+const folder = FS.folder('Portfolio', 'Maya · 1 piece', 32.4, 35.6, { x: 1500, y: 760 });
+FS.fly(doc, 33.0, 34.2, { dx: 1560 - 1000, dy: 790 - 150, s: 0.22, fadeAt: 0.8 });
+A((t) => { folder.querySelector('[data-sub]').textContent = t > 34.1 ? 'Data Brief added' : 'Maya · 0 pieces'; folder.style.transform = (folder.style.transform || '') + (t > 34.1 && t < 34.4 ? ' scale(1.06)' : ''); });
+
+// pathway
+const dimE = el('<div class="dim"></div>'); A(cue(dimE, 35.6, null, { from: 'fade', dur: 0.6 }));
+FS.pathway({ lab: 'Council Data Desk', next: 'MEI Introduction to Data Science', nextSub: 'Free · or a Code Club data project', award: 'CREST Discovery', awardSub: 'Data project', route: 'T Level Digital Data Analytics', routeSub: 'or Level 3 Data Technician apprenticeship', jobs: ['Data technician', 'Data analyst', 'Policy researcher'] }, 36.0, null);
+const logo = el('<img src="../assets/logo-learning-white.svg" style="height:58px">', { x: 960, y: 900, anchor: 'c' }); A(cue(logo, 36.8, null, { from: 'up' }));
+
+st.onFrame((t) => ui.forEach((fn) => fn(t)));
+window.__duration = DUR;
+document.fonts.ready.then(() => { window.__ready = true; });
+</script></body></html>
