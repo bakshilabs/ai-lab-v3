@@ -298,7 +298,15 @@ const cardHTML = (l) => `
     <span class="thumb"><img src="posters/${l.id}.jpg" alt="" loading="lazy"><span class="len">${l.len}</span></span>
     <span class="meta"><b>${l.title}</b><span>${l.tag}</span></span>
   </button>`;
-groups.innerHTML = GROUPS.map((g) => `<div><div class="list-head"><h3>${g.title}</h3><p>1080p · sound on</p></div><p class="group-note">${g.note}</p><div class="grid" style="margin-top:18px">${LABS.filter((l) => l.g === g.id).map(cardHTML).join('')}</div></div>`).join('');
+// Trailers with a finished video. The rest are still rendering and are listed as coming soon.
+const READY = new Set(['ecotown','tycoon2','mcquiz','dash','bloxel','city','kart','colony','robot','drone','eco','mission','museum','mars','robotaxi','pitcrew','blocks','tycoon','quiz','signal','rocket']);
+const ALL = LABS.slice();
+LABS.splice(0, LABS.length, ...ALL.filter((l) => READY.has(l.id)));
+groups.innerHTML = GROUPS.map((g) => {
+  const ready = LABS.filter((l) => l.g === g.id), later = ALL.filter((l) => l.g === g.id && !READY.has(l.id));
+  const soon = later.length ? `<p class="group-note">Rendering now: ${later.map((l) => l.title).join(', ')}.</p>` : '';
+  return `<div><div class="list-head"><h3>${g.title}</h3><p>1080p · sound on</p></div><p class="group-note">${g.note}</p>${soon}${ready.length ? `<div class="grid" style="margin-top:18px">${ready.map(cardHTML).join('')}</div>` : ''}</div>`;
+}).join('');
 
 function show(id, play) {
   const l = LABS.find((x) => x.id === id) || LABS[0];
