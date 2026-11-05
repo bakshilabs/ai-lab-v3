@@ -3,7 +3,7 @@
 > Strand: Future Skills · Ages: 11–16 (Core 11–13, Pro 14–16) · Session: 45 / 60 / 90 min · Trailer: `games/trailers/fs-verify/` (`out/fs-verify.mp4`, not yet rendered)
 
 ## 1. Summary
-Learners work on the verification desk at Harbourside News. A story about the town's river barrier goes live at 4 pm, and the AI colleague, VeriAssist, has drafted it: the barrier "has cut flooding in the town centre by 80%, according to a 2024 study [1]" (94% sure). The **Source check** fails. Lateral reading in three new tabs shows the journal and the article don't exist, and the council's own 2023 review says homes flooded fell from 42 to 9. Learners fix the claim and the citation, check a viral photo and a quote, sign off at 3:42 pm and file a Fact-Check Card. The lesson: **a citation is a claim too; trace every source before you sign it off.**
+Learners work on the verification desk at Harbourside News. A story about the town's river barrier goes live at 4 pm, and the AI colleague, VeriAssist, has drafted it: the barrier "has cut flooding in the town centre by 80%, according to a 2024 study [1]" (94% sure). The **Source check** fails. Lateral reading in three new tabs shows the journal and the article don't exist, and the council's own 2023 review says homes flooded fell from 42 to 9. Learners fix the claim and the citation, check a viral photo and a quote, sign off at 3:42 pm and file a Fact-check card. The lesson: **a citation is a claim too; trace every source before you sign it off.**
 
 ## 2. Learning outcomes
 By the end, learners can:
@@ -25,7 +25,7 @@ By the end, learners can:
 - **Mentor video:** a real fact-checker or verification journalist: "What I do; how AI changed my job; the mistake I catch."
 
 ## 4. Setting, look and characters
-- **Visual style:** a voxel newsroom on a floating island: six desks, a bookshelf, a wall screen ("LIVE · 16:00 edition · 3 stories in review"), the sign "Harbourside News · Verification Desk", and a town behind. Full-screen tools: the document `flood-barrier-story.docx` with a comments rail, a browser with tabs and a trail bar (`[1] Pennethorne › no journal › no publisher › council report ✓`), and a status strip *Draft · In review · Returned · Approved*. A step strip reads "Step 2 of 6…". "Checks passed: 0 of 4" rises to 4 of 4 at sign-off.
+- **Visual style:** a voxel newsroom on a floating island: six desks, a bookshelf, a wall screen ("LIVE · 16:00 edition · 3 stories in review"), the sign "Harbourside News · Verification Desk", and a town behind. Work tools sit as cards beside the island, never full-screen: the story card `flood-barrier-story` with its review row, finding line and status chip (*Draft · In review · Returned · Approved*), the AI colleague card (which is struck and marked "Returned" once Source fails), a browser with tabs and a trail bar (`[1] › no journal › no publisher › council report ✓`), and a sign-off card. A step strip reads "Step 3 of 6…". "Checks passed: 0 of 4" rises to 4 of 4 at sign-off.
 - **AI colleague:** **VeriAssist**: card with "DRAFT", confidence bar, "Data I used: news sites, 2019–2024" and "Citations: 1". Process language only.
 - **People:** **Amara Osei**, Desk Editor and mentor (the facilitator; "Good catch, Hana. It can go live."). **Hana, 13**, Checker. Four colleagues at desks.
 - **Fictional names to check:** Harbourside News, Harbourside Council, VeriAssist, Amara Osei, Hana, the cited author "J. Pennethorne" and the *Bulletin of Small-Town Waterways*. A web search found no journal of that exact title, but a real journal, *Coastal Resilience & Sustainability*, exists, and "J. Pennethorne" could match a real researcher. Change the fake citation to something unmistakably fictional (to verify). The example URL uses the reserved `.example` domain, which is safe. "Amara" is also the analyst in `fs-data`.
@@ -40,7 +40,7 @@ By the end, learners can:
 | 3. Trace the source | Lateral reading | Read the article more closely · open new tabs | (VeriAssist offers: "Journal appears reputable", 87%) | Tab 1: 0 results in the library index. Tab 2: no publisher, editors or ISSN. Tab 3: council review, 2023 | Trail bar records each step | Tabs open with a "+" click; trail fills |
 | 4. Fix the claim | Make the text say what the source measured | A keep "80%" (42→9 is about 79%) · B "cut the number of flooded homes from 42 to 9" · C "Can't verify yet" | "42 to 9 is about 80%, so the sentence is fine" (88%) | **Data:** the report counts *homes*, not town-centre flooding | Option B; new citation "[1] Harbourside Council (2023) Flood Barrier Review, p. 4. Checked 5 Nov 2026." | Tracked deletion and insertion; Hana's comment, 3:41 pm |
 | 5. The photo | Is the "flooded high street, last week" photo current? | Look for tell-tale signs · search for its earliest appearance | "Likely authentic (82% sure)" | **Case:** archive search (scripted) finds the same photo in Harbourside News, 2019, before the barrier opened in 2021 | Verdict: Misleading: a real photo with the wrong date | Photo gets a "2019" provenance stamp |
-| 6. Quote and sign-off | Check the quote; publish safely | Publish now · hold · editor decides | *(unsure but right)* "Quote matches a council press release; full text not found (61% sure)." Then: "Auto-publish when checks pass: ON" (90%) | Quote found on the council site: True. **Authority:** only the editor publishes | Turn auto-publish off; send to the Desk Editor | "Reviewed by: Hana, age 13 · Signed off 3:42 pm"; status "Approved"; Fact-Check Card to the portfolio |
+| 6. Quote and sign-off | Check the quote; publish safely | Publish now · hold · editor decides | *(unsure but right)* "Quote matches a council press release; full text not found (61% sure)." Then: "Auto-publish when checks pass: ON" (90%) | Quote found on the council site: True. **Authority:** only the editor publishes | Turn auto-publish off; send to the Desk Editor | "Reviewed by: Hana, age 13 · Signed off 3:42 pm"; status "Approved"; Fact-check card to the portfolio |
 
 ## 6. Team roles
 
@@ -49,7 +49,7 @@ By the end, learners can:
 | **Lead** | Watches the 4 pm deadline and decides check order | Brief card and the story pack |
 | **Maker** | Drives the browser: opens tabs, runs searches | Search sheet (scripted pages, or a teacher-operated search for Core) |
 | **Checker** | Runs the Four Checks on every hand-over | Four Checks card and "Who is behind it?" prompt card (publisher, editors, ISSN, date) |
-| **Recorder** | Keeps the verification log and writes the Fact-Check Card | Log sheet and card template |
+| **Recorder** | Keeps the verification log and writes the Fact-check card | Log sheet and card template |
 | **Spokesperson** | Briefs the Desk Editor at 3:45 pm | "Can it go live?" card |
 
 ## 7. Session plans
@@ -59,7 +59,7 @@ By the end, learners can:
 | Warm-up and brief | 0–4 | 0–5 | 0–8 | Mentor clip; Amara: "A story goes live at 4 pm. Your desk checks it first." |
 | Tool onboarding | 4–7 | 5–10 | 8–15 | Comments, tabs, trail bar; model one lateral read on a harmless example |
 | Work stages | 7–27 (1 as a class, 2–5) | 10–38 (1–6) | 15–55 (1–6; Pro extension) | Core work and review |
-| Fix and ship | 27–33 | 38–45 | 55–64 | Fact-Check Card with "how we checked" and the "three questions before you share" strip |
+| Fix and ship | 27–33 | 38–45 | 55–64 | Fact-check card with "how we checked" and the "three questions before you share" strip |
 | Present | none | none | 64–68 | 60-second verdict to the Desk Editor |
 | Discussion | 33–43 | 45–58 | 68–88 | §9 |
 | Wrap-up | 43–45 | 58–60 | 88–90 | Pathway card, badge code |
@@ -69,7 +69,7 @@ By the end, learners can:
 **Short of time:** run stage 1 as a class, skip stage 6's quote and keep the photo. Never cut stages 2–4 or the discussion.
 
 ## 8. Assessment
-- **Artefact quality and catches:** the Fact-Check Card is judged on verdicts, evidence trail, "how we checked" and the corrected sentence. Catches: up to 5 (risk triage, fake citation, "reputable journal", homes vs town centre, old photo, plus the auto-publish overreach as a bonus).
+- **Artefact quality and catches:** the Fact-check card is judged on verdicts, evidence trail, "how we checked" and the corrected sentence. Catches: up to 5 (risk triage, fake citation, "reputable journal", homes vs town centre, old photo, plus the auto-publish overreach as a bonus).
 - **Exit check:**
   1. An AI answer cites "Smith (2023), *Journal of X*". What do you do first? *(Leave the page and check the journal and article exist.)*
   2. A photo is real. Why might sharing it still be misleading? *(It may be old or from somewhere else.)*
@@ -170,7 +170,7 @@ By the end, learners can:
 - **Next free course:** Civic Online Reasoning lessons, free, in school or at home ([Stanford](https://ed.stanford.edu/news/it-doesn-t-take-long-learn-how-spot-misinformation-online-stanford-study-finds); the lessons may now be hosted by the Digital Inquiry Group, to verify). A school newspaper or radio club.
 - **Award:** Arts Award, journalism or media project ([Arts Award](https://www.artsaward.org.uk/resource/?id=4880)); or [iDEA](https://idea.org.uk/about) badges.
 - **Qualification route:** GCSE Media Studies, then A-level History or Politics. Journalism apprenticeships (Level 3 Junior Journalist, to verify).
-- **Jobs:** fact-checker, OSINT analyst, librarian.
+- **Jobs:** fact-checker, journalist, librarian.
 - **Your data:** "We searched made-up pages about a made-up town. Nothing about you was saved."
 
 **Facilitator notes.**
@@ -191,7 +191,7 @@ By the end, learners can:
 - **Gentle consequences:** "Returned" is routine; no public scores.
 
 ## 12. Build notes
-- **Scenes and assets:** newsroom island, document with comments rail, browser with three tabs and a trail bar, status strip, step strip, portfolio folder, end card and pathway (all in the trailer). New: viral photo card and 2019 archive page; quote and press release page; triage cards; Fact-Check Card template.
+- **Scenes and assets:** newsroom island, story card, AI colleague card, browser with three tabs and a trail bar, sign-off card, step strip, portfolio (Data brief, Model card, then the new Fact-check card), end title and pathway (all in the trailer). New: viral photo card and 2019 archive page; quote and press release page; triage cards; Fact-check card template.
 - **Scripted AI responses (VeriAssist):**
   1. "All three items low risk. Publish as drafted. (80% sure)"
   2. "Story drafted and ready to publish. The 80% figure is backed by a peer-reviewed study [1]. (94% sure) · Data I used: news sites, 2019–2024 · Citations: 1"

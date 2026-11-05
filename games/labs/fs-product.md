@@ -3,7 +3,7 @@
 > Strand: Future Skills · Ages: 11–16 (Core 11–13, Pro 14–16) · Session: 45 / 60 / 90 min · Trailer: `games/trailers/fs-product/` (`out/fs-product.mp4`, not yet rendered)
 
 ## 1. Summary
-Learners join the product team at Harbourside Studio. Their client, Harbourside Community Library, says: "We want an AI chatbot so people can check opening times and book computers." Learners map five users, then review the AI colleague's plan: "an always-on AI chatbot for 100% of visitors. It answers questions and books computers" (92% sure). The plan fails the **Case check**: it assumes everyone has a smartphone and reads English, so 2 of 5 users are left out. Learners ask the AI-or-not questions, compare four options and write a signed decision record: a clear sign, a times web page, a simple booking form and a phone line, with AI kept only for translating the times into Polish, checked by a librarian. The lesson: **start with the user, then decide whether AI belongs.**
+Learners work as product designers for their client, Harbourside Library, which says: "We want an AI chatbot so people can check opening times and book computers." Learners map five users, then review the AI colleague's plan: "an always-on AI chatbot for 100% of visitors. It answers questions and books computers" (92% sure). The plan fails the **Data check**: its only data was a survey of smartphone users, in English, so the older visitor without a smartphone and the Polish speaker are missing, and 2 of 5 users are left out. Case, Source and Authority pass. Learners ask the AI-or-not questions, compare four options and write a signed decision record: a clear sign, a times web page, a simple booking form and a phone line, with AI kept only for translating the times into Polish, checked by a librarian. The lesson: **start with the user, then decide whether AI belongs.**
 
 ## 2. Learning outcomes
 By the end, learners can:
@@ -23,10 +23,10 @@ By the end, learners can:
 - **Mentor video:** a real service or UX designer: "What I do; how AI changed my job; the mistake I catch."
 
 ## 4. Setting, look and characters
-- **Visual style:** a voxel product studio on a floating island ("Harbourside Studio · Product Team"), with a sticky-note wall and a blue LIBRARY sign across the road. Full-screen tools: a three-tab document `library-product-brief` (*1 · Users*, *2 · Options*, *3 · Decision*), a comments rail, the "AI OR NOT?" decision card, the status strip (*Draft · In review · Returned · Approved*) and a step strip ("Step 4 of 7…"). "Checks passed: 4 of 4" appears at sign-off.
+- **Visual style:** the library itself on a floating island: a red-brick building with a copper-roofed clock tower, a "HARBOURSIDE LIBRARY" sign, tall bookshelves, reading tables with green lamps, a teal returns desk, two public PCs, a kids' corner with a rug, beanbags and a paper tree, and an opening-times board and red book drop outside. Work tools sit as cards beside the island (never full-screen): a `library-plan` card (*Users*, then *Decision record*) with its review row and status chip (*Draft · In review · Returned · Approved*), the AI colleague card, the "AI OR NOT?" card, a sign-off card and a step strip ("Step 3 of 6…"). "Checks passed: 4 of 4" appears at sign-off.
 - **AI colleague:** **PlanAssist**: card with "DRAFT", a confidence bar and "Data I used: survey of smartphone users, in English". Process language only.
 - **People:** **Tomasz Nowak**, service designer and mentor (the facilitator; "Clear reasons, Aisha. Send it to the library."). **Aisha, 13**, product designer. Four colleagues. Five persona cards: parent with a buggy, older visitor, teenager, Polish speaker, wheelchair user.
-- **Fictional names to check:** Harbourside Studio, Harbourside Community Library, PlanAssist, Tomasz Nowak, Aisha. A web search found no "Harbourside Community Library", though many real libraries have similar names. "Tomasz Nowak" is a very common Polish name; check there's no public figure in UX or library services with that name before release (to verify). Aisha also appears in `fs-model`.
+- **Fictional names to check:** Harbourside Library, PlanAssist, Tomasz Nowak, Aisha. Many real libraries have names like "Harbourside Library"; check before release (to verify). "Tomasz Nowak" is a very common Polish name; check there's no public figure in UX or library services with that name before release (to verify). Aisha also appears in `fs-model`.
 
 ## 5. Core loop and structure
 **Act structure in every work stage:** *Brief* (the client's ask) → *Do the work* (map users, compare options, prototype) → *Hand-over* (PlanAssist's confident plan or verdict) → *Review* (Four Checks; approve or return) → *Fix and log* (decision record updated).
@@ -35,13 +35,13 @@ By the end, learners can:
 |---|---|---|---|---|---|---|
 | 1. Reframe | Turn the ask into a problem | A build the chatbot · B restate the problem · C ask the client for evidence | "Requirement understood: build an AI chatbot" (93%) | **Data:** "What do we know about the users? Nothing yet." | Problem: "Visitors can't easily find opening times or book a library computer." | "THE PROBLEM" box fills |
 | 2. Map users | Hear five users | Which needs matter most? | None: personas come from scripted interview quotes | Each persona's need is written on its card | Needs: times at the door; no smartphone, books at the desk; books a PC on a phone; reads best in Polish; step-free PC | Five persona cards appear |
-| 3. Review the plan | Run the Four Checks | Approve · send back | "An always-on AI chatbot for 100% of visitors. It answers questions and books computers." (92%) | **Case:** test the plan against each persona; the older visitor and the Polish speaker are not served | Comment: "2 of 5 users are left out." | Case ✕; two cards marked NOT SERVED; status "Returned" |
+| 3. Review the plan | Run the Four Checks | Approve · send back | "An always-on AI chatbot for 100% of visitors. It answers questions and books computers." (92%) | **Data:** the plan's only data was a survey of smartphone users, in English, so two personas are missing from it | "Data: survey only asked smartphone users, in English." Fix: ask all 5 users, at the desk and in Polish | Data ✕; two cards marked NOT IN DATA; AI card struck and "Returned"; status "Returned" |
 | 4. AI or not? | Compare options | Chatbot · sign and web page · booking form and phone line · AI translation | *(unsure but right)* "Translating the times into Polish could help one group; a person should check it (48%)" | Decision questions: fixed times; a mistake costs a PC slot; 1 in 5 can't reach a screen; a simpler fix exists; AI is worth the energy only for translation | Options table: chatbot serves 3 of 5, high energy; sign, form and phone serve 5 of 5 | Chatbot row struck out; three rows ticked |
 | 5. Spec | Write what it must and must not do | Which acceptance tests? | PlanAssist's sample reply: "Done! Your computer is booked for 4 pm." (90%), with no link to the booking system | **Authority:** it promises an action it can't perform | Test: "Given a visitor without a smartphone, when they want a PC, then they can book at the desk or by phone." | Acceptance tests listed |
 | 6. Prototype and test | Paper-prototype the sign and form, test with personas | Test with one persona or all five? | "Prototype passes: all users served" (90%), untested | **Case:** the wheelchair user's test shows the form can't book the step-free PC | Add a "step-free desk" option | Form sketch gains a tick box |
 | 7. Decide and sign | Decision record for the client | Ship · revise | None: the team writes it | Peer check against the rubric | "We will build: a clear sign, a times web page, a simple booking form and a phone line. Small AI feature: translate the opening times into Polish; a librarian checks them. Why: times are fixed; a wrong booking costs someone their slot; a sign works for all 5 users." | "Reviewed by: Aisha, age 13 · Signed off Thu"; record to the portfolio |
 
-**Energy.** The decision card asks "Is AI worth the energy here?" The [IEA](https://www.iea.org/news/ai-is-set-to-drive-surging-electricity-demand-from-data-centres-while-offering-the-potential-to-transform-how-the-energy-sector-works) projects data-centre electricity use more than doubling to about 945 TWh by 2030. The options table uses relative words (tiny, some, high), not invented figures.
+**Energy.** The lab's decision card asks "Is AI worth the energy here?" (the trailer's shorter card asks "Where does AI help?"). The [IEA](https://www.iea.org/news/ai-is-set-to-drive-surging-electricity-demand-from-data-centres-while-offering-the-potential-to-transform-how-the-energy-sector-works) projects data-centre electricity use more than doubling to about 945 TWh by 2030. The options table uses relative words (tiny, some, high), not invented figures.
 
 ## 6. Team roles
 
@@ -109,9 +109,9 @@ By the end, learners can:
    - *Strong answer:* "A chatbot for 100% of visitors, 92% sure. It left out the older visitor without a smartphone and the Polish speaker."
    - *Probe:* "Where did its '100%' come from?"
 2. **Reasoning: "Why did a confident plan miss two users?"**
-   - *Purpose:* the Data check behind the Case failure.
+   - *Purpose:* the Data check: who is missing from the data.
    - *Strong answer:* "It used a survey of smartphone users in English, so it could only see people like them."
-   - *Probe:* "Which check would have caught it first: Data or Case?"
+   - *Probe:* "If the data had included everyone, would Case have caught anything else?"
 3. **AI or not: "When would a chatbot have been the right answer?"**
    - *Purpose:* judgement, not anti-AI.
    - *Strong answer:* "When answers vary a lot, mistakes are cheap, users can reach a screen and there's no simpler fix, like searching a big catalogue."
@@ -168,8 +168,8 @@ By the end, learners can:
 **Connecting to real life.** In 2024, a Canadian tribunal ruled against Air Canada in *Moffatt v. Air Canada*. The airline's website chatbot had told a customer he could claim a bereavement discount after travelling, which did not match the airline's policy. The tribunal decided the airline was responsible for what its chatbot said. Ask: "Which of the Four Checks failed? What should the product team have written in the spec?" Keep to these facts; don't quote amounts.
 
 **Closing ritual.** Each learner writes "Before I build with AI, I'll ask…" on their pathway card and reads it aloud (passing allowed). Then the 60-second pathway talk:
-- **Next free course:** [Technovation Girls](https://technovationchallenge.org/program-overview/), free, ages 8–18, build for your community. For learners of any gender, the [Big Bang Competition](https://thebigbang.org.uk/the-big-bang-competition/2026-winners/) (11–18).
-- **Award:** [iDEA](https://idea.org.uk/about) enterprise badges, free and online.
+- **Next free course:** [Apps for Good](https://www.appsforgood.org/), a UK schools programme in which mixed teams design an app or product for a real problem; free for schools and run by teachers (to verify current cost, age range and how a school signs up). Also open to any gender: the [Big Bang Competition](https://thebigbang.org.uk/) (11–18).
+- **Award:** [iDEA](https://idea.org.uk/about) Bronze Award, free and online.
 - **Qualification route:** GCSE Design and Technology and Computing, then T Level Digital Software Development ([T Levels](https://www.tlevels.gov.uk/students/subjects/digital-production-design-development)).
 - **Jobs:** UX designer, product manager, service designer.
 - **Your data:** "The library and its users are made up. Nothing about you was saved."
@@ -184,7 +184,7 @@ By the end, learners can:
 - **Audio and captions:** captions and read-aloud; persona interview quotes also recorded as audio.
 - **Colour-blind-safe:** NOT SERVED uses a label and a cross; options table uses ✓/✕ and words.
 - **Motor:** large tabs and buttons; the prototype is drawn on paper or assembled from printed parts.
-- **No devices at home:** fully runnable as a printed pack (brief, personas, options table, decision record). Technovation and iDEA can be done in school or library sessions.
+- **No devices at home:** fully runnable as a printed pack (brief, personas, options table, decision record). Apps for Good and iDEA can be done in school or library sessions.
 
 ## 11. Safety, ethics and data
 - **Data collected:** none; anonymous badge code.
@@ -193,12 +193,12 @@ By the end, learners can:
 - **Gentle consequences:** a returned plan is normal design work; no rankings.
 
 ## 12. Build notes
-- **Scenes and assets:** studio island, three-tab document, comments rail, decision card, status and step strips, portfolio, end card and pathway (all from the trailer). New: persona interview quotes; acceptance-test cards; paper prototype parts; objection card.
+- **Scenes and assets:** library island, plan card (Users → Decision record), AI colleague card, AI-or-not card, sign-off card, step strip, portfolio (Data brief, Model card, Fact-check card, then the new Decision record), end title and pathway (all from the trailer). New: persona interview quotes; acceptance-test cards; paper prototype parts; objection card.
 - **Scripted AI responses (PlanAssist):**
   1. "Requirement understood: build an AI chatbot. (93% sure)"
   2. "Product plan: an always-on AI chatbot for 100% of visitors. It answers questions and books computers. (92% sure) · Data I used: survey of smartphone users, in English"
   3. "Translating the opening times into Polish could help one group; a person should check it. (48% sure)"
   4. "Sample reply: 'Done! Your computer is booked for 4 pm.' (90% sure)"
   5. "Prototype passes: all users served. (90% sure)"
-- **Reuse from the trailer:** personas and needs, options table, decision questions and answers, decision text, comments, sign-off and Tomasz's line.
-- **Open questions:** the trailer fails only Case, while the strand research also names Authority; this doc adds Authority in stage 5, so check it fits the trailer's story. Confirm the GDS Service Standard wording. Consider whether the Data chip in the trailer's review should show amber, since PlanAssist's data was a smartphone survey.
+- **Reuse from the trailer:** personas, decision questions and answers, decision record text ("Based on: all 5 users, asked at the desk and in Polish · We build: a clear sign, a times page, a booking form and a phone line · AI only for: Polish opening times, checked by a librarian"), sign-off and Tomasz's line. The options table is lab-only; the trailer skips it.
+- **Open questions:** the trailer fails only Data (stage 3), while this doc also uses Case (stage 6) and Authority (stage 5); check they fit the trailer's story. Confirm the GDS Service Standard wording.

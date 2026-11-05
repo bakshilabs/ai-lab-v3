@@ -229,7 +229,7 @@ fb(6, FL + 1.25, 5, 12, FL + 1.5, 7.5, '#d9b98a'); fb(8.5, FL, 6, 9.5, FL + 1.25
 scene.add(f.mesh({ scale: 0.5 }));
 // sign on back wall
 const sign = tex(1024, 96, (g, w, h) => { rr(g, 0, 0, w, h, 20, '#13202b'); g.fillStyle = '#16c79a'; g.beginPath(); g.arc(52, 48, 16, 0, 7); g.fill(); g.fillStyle = '#fff'; g.font = '800 52px Inter'; g.textBaseline = 'middle'; g.fillText('HARBOURSIDE NEWS · VERIFICATION DESK', 90, 50); });
-plane(18, 1.7, sign, [0, 9.2, OZ0 + 0.52]);
+plane(18, 1.7, sign, [0, 9.0, OZ0 + 1.04]);
 const wallTv = tex(512, 288, (g, w, h) => { g.fillStyle = '#13202b'; g.fillRect(0, 0, w, h); g.fillStyle = '#e5484d'; rr(g, 24, 24, 120, 44, 10, '#e5484d'); g.fillStyle = '#fff'; g.font = '800 30px Inter'; g.fillText('LIVE', 50, 57); g.font = '800 44px Inter'; g.fillText('16:00 edition', 24, 150); g.fillStyle = '#9fb0c0'; g.font = '600 30px Inter'; g.fillText('3 stories in review', 24, 205); });
 plane(5.6, 3.15, wallTv, [OX0 + 0.52, 6.5, 5.2], Math.PI / 2);
 
@@ -435,7 +435,7 @@ const ring = el('<div class="ring"></div>', { x: 0, y: 0, anchor: 'c' });
 const R = (sel, root = doc) => () => { const r = root.querySelector(sel).getBoundingClientRect(); return [r.left + r.width * 0.5, r.top + r.height * 0.55]; };
 const plusP = R('.plus', brw);
 const PARK = (y) => () => [940, y];
-const PATH = [[7.4, [820, 1100]], [8.25, R('[data-run]')], [8.6, R('[data-run]')], [9.4, PARK(560)], [12.6, PARK(760)], [12.95, plusP], [13.5, plusP], [14.2, PARK(860)], [14.8, PARK(860)], [15.25, plusP], [15.8, plusP], [16.5, PARK(860)], [17.1, PARK(860)], [17.55, plusP], [18.1, plusP], [18.8, PARK(600)], [19.6, PARK(600)], [20.15, R('[data-s1t]')], [20.5, R('[data-s1t]')], [21.2, PARK(560)], [23.0, PARK(640)], [23.65, R('[data-sign]')], [24.0, R('[data-sign]')], [24.8, () => [900, 1120]]];
+const PATH = [[7.4, [820, 1100]], [8.25, R('[data-run]')], [8.6, R('[data-run]')], [9.4, PARK(560)], [12.6, PARK(760)], [12.95, plusP], [13.5, plusP], [14.2, PARK(860)], [14.8, PARK(860)], [15.25, plusP], [15.8, plusP], [16.5, PARK(860)], [17.1, PARK(860)], [17.55, plusP], [18.1, plusP], [18.8, PARK(600)], [19.6, PARK(600)], [20.15, R('[data-s1t]')], [20.5, R('[data-s1t]')], [21.2, PARK(560)], [23.0, PARK(640)], [23.35, () => { const [x, y] = R('[data-sign]')(); return [x, y + 110]; }], [23.65, R('[data-sign]')], [24.0, R('[data-sign]')], [24.8, () => [900, 1120]]];
 const CLICKS = [T_RUN, 13.0, 15.3, 17.6, T_FIXCLICK, T_SIGN];
 A((t) => {
   const on = within(t, 7.4, 24.8); cur.style.opacity = on ? 1 : 0;
