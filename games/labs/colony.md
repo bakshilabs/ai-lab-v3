@@ -25,19 +25,19 @@ A crew of four lands on a red floating island, and a planning AI called the Plan
 
 ## 3. Real-world connection and careers
 **Jobs this mirrors**
-- **Life-support (ECLSS) engineer:** designs, tests and operates air, water, temperature and waste systems; staffs the ISS life-support console ([NASA profile](https://www.nasa.gov/?p=96770)).
-- **Space architect:** designs habitats, builds mock-ups, tests them in analogue sites ([Vault](https://legacy.vault.com/industries-professions/professions/s/space-habitat-designers/the-job)).
+- **Life-support (ECLSS) engineer:** designs, tests and runs air, water and waste systems; staffs the ISS life-support console ([NASA profile](https://www.nasa.gov/?p=96770)).
+- **Space architect:** designs habitats and tests mock-ups in analogue sites ([Vault](https://legacy.vault.com/industries-professions/professions/s/space-habitat-designers/the-job)).
 - **Mission planner:** builds daily plans with tools such as MAPGEN and Playbook ([NASA NTRS](https://ntrs.nasa.gov/api/citations/20050184145/downloads/20050184145.pdf)).
-- **Systems engineer:** runs trade studies on digital models, such as the Gateway ventilation digital twin ([NASA NTRS](https://ntrs.nasa.gov/citations/20240014472)).
-- **Plant scientist:** runs growth chambers such as EDEN ISS, which grew 268 kg of food on 12.5 m² in 9.5 months ([DLR](https://www.dlr.de/en/latest/news/2018/2/20180625_rich-harvest-in-the-antarctic-eden-iss-greenhouse-tomatoes-and-cucumbers-in-the-polar-night_28538)).
-- **Health and safety officer:** at the Mars Desert Research Station the HSO's safety call must be followed, even by the commander ([MDRS roles](https://sites.google.com/a/marssociety.org/mdrs2013/crew-roles)).
-- **On Earth**, the same skills run water companies, hospitals, farms, data centres and power grids. The UK Space Agency found 52% of space organisations report skills gaps in their workforce ([GOV.UK](https://www.gov.uk/government/publications/space-sector-skills-survey-2023/space-sector-skills-survey-2023-report)).
+- **Systems engineer:** runs trade studies on digital models, such as a Gateway ventilation digital twin ([NASA NTRS](https://ntrs.nasa.gov/citations/20240014472)).
+- **Plant scientist:** runs growth chambers; EDEN ISS grew 268 kg of food on 12.5 m² in 9.5 months ([DLR](https://www.dlr.de/en/latest/news/2018/2/20180625_rich-harvest-in-the-antarctic-eden-iss-greenhouse-tomatoes-and-cucumbers-in-the-polar-night_28538)).
+- **Health and safety officer:** at the Mars Desert Research Station even the commander defers to the HSO on safety ([MDRS roles](https://sites.google.com/a/marssociety.org/mdrs2013/crew-roles)).
+- **On Earth** the same skills run water companies, hospitals, farms and power grids. 52% of UK space organisations report workforce skills gaps ([GOV.UK](https://www.gov.uk/government/publications/space-sector-skills-survey-2023/space-sector-skills-survey-2023-report)).
 
-**How professionals use AI here today**
-- **Mixed-initiative planning:** MAPGEN drafted each Mars rover's daily plan and people checked and approved it. This is the model for the Planner.
-- **Anomaly detection:** NASA's Inductive Monitoring System learns "normal" from sensor archives and flags deviations ([NASA spinoff](https://spinoff.nasa.gov/node/10539)). Its current status on ISS is unknown (to verify). Models trained on "normal" can raise false alarms when conditions change.
-- **Generative design:** Goddard's evolved structures; humans set constraints and judge results, because "left to itself, the algorithm can sometimes make structures too thin" ([Popular Science](https://www.popsci.com/?p=512885)).
-- **How they check AI:** trend reviews, worst-case tests, a second sensor, written assumptions and a sign-off before anything goes live.
+**How professionals use AI here today, and how they check it**
+- **Mixed-initiative planning:** MAPGEN drafted each Mars rover's daily plan; people checked and approved it. This is the model for the Planner.
+- **Anomaly detection:** NASA's Inductive Monitoring System learns "normal" from sensor archives and flags deviations ([NASA spinoff](https://spinoff.nasa.gov/node/10539); current ISS status to verify). Models trained on "normal" can raise false alarms when conditions change.
+- **Generative design:** humans set constraints and judge results, because "left to itself, the algorithm can sometimes make structures too thin" ([Popular Science](https://www.popsci.com/?p=512885)).
+- **Checks:** trend reviews, worst-case tests, a second sensor, written assumptions and a sign-off before anything goes live.
 
 ## 4. Setting, look and characters
 - **Style:** one floating voxel Mars diorama in the brochure style (`island-mars.png`): rust plateau, crater rim with a pale ice scarp, a lava-tube mouth, a dusty equatorial plain, deep indigo sky with Earth as a small blue dot. The colony grows visibly: survey pegs, inflatable module, regolith mound, ice drill and pipes, gold battery bank, glowing greenhouse.
@@ -93,44 +93,17 @@ Based on MDRS crew roles and Challenger Center teams. Roles rotate every level.
 With three children: Commander + Safety; Life-support + Scientist; Engineer. HI-SEAS crews decided by consensus ([Auckland repository](https://researchspace.auckland.ac.nz/handle/2292/28650)), so the Commander calls the vote and only breaks ties on time.
 
 ## 7. Session plans
-**45 minutes** (Levels 1, 3, 4 and 6; shelter and food set as defaults the team can inspect)
-| Minutes | Activity |
-| --- | --- |
-| 0–4 | Warm-up: "Sure or not sure?" hands-up on two Mars facts; say the Planner is scripted |
-| 4–8 | Roles handed out; Level 1 |
-| 8–17 | Level 3 (air and water, 10-sol trend) |
-| 17–27 | Level 4 (storm test) |
-| 27–35 | Level 6 (schedule and false-alarm finale) |
-| 35–45 | Discussion (10 min, short version of section 9) and exit check |
+Minutes for each phase. Every version starts by saying the Planner is scripted.
 
-**60 minutes** (all six levels; Levels 2 and 5 choose from cards, no paint-and-place)
-| Minutes | Activity |
-| --- | --- |
-| 0–5 | Warm-up and roles |
-| 5–11 | Level 1 |
-| 11–16 | Level 2 (short) |
-| 16–24 | Level 3 |
-| 24–32 | Level 4 |
-| 32–37 | Level 5 (short, includes the 55% moment) |
-| 37–45 | Level 6 and finale |
-| 45–57 | Discussion (12 min) |
-| 57–60 | Exit check and Colony Charter |
+| Phase | 45 min (Levels 1, 3, 4, 6) | 60 min (all six; Levels 2 and 5 from cards) | 90 min (all six in full) |
+| --- | --- | --- | --- |
+| Warm-up: "Sure or not sure?" on two Mars facts; roles | 0–4 | 0–5 | 0–8 (adds a Biosphere 2 picture story) |
+| Play: Levels 1–3 | 4–17 (L1, L3) | 5–24 | 8–36, then 36–40 unplugged loop diagram on paper |
+| Play: Levels 4–6 | 17–35 (L4, L6) | 24–45 | 40–70, with a Challenger-style role swap after Level 4 |
+| Discussion (section 9) | 35–43 | 45–57 | 70–88 |
+| Wrap-up: exit check, Colony Charter, next steps | 43–45 | 57–60 | 88–90 |
 
-**90 minutes** (all levels in full, midpoint role swap, unplugged loop diagram)
-| Minutes | Activity |
-| --- | --- |
-| 0–8 | Warm-up: "Sure or not sure?" plus a 2-minute Biosphere 2 picture story |
-| 8–16 | Level 1 |
-| 16–25 | Level 2 with paint-and-place |
-| 25–36 | Level 3 |
-| 36–40 | Unplugged: draw the colony loop on paper |
-| 40–50 | Level 4; then midpoint swap ("mission control" against "habitat", Challenger style) |
-| 50–60 | Level 5 |
-| 60–70 | Level 6 and full finale ("watch your colony live") |
-| 70–88 | Discussion (18 min, full section 9) |
-| 88–90 | Exit check, Charter, next steps |
-
-**If short of time:** cut Level 2 and Level 5 first (show their default choices on the loop diagram), then the role swap, then the "run a sol" time-lapses. Never cut the storm test, the finale's false alarm or the discussion's closing ritual.
+**If short of time:** cut Levels 2 and 5 first (show their default choices on the loop diagram), then the role swap, then the "run a sol" time-lapses. Never cut the storm test, the finale's false alarm or the discussion's closing ritual.
 
 ## 8. Assessment
 - **Stars:** one for each confident mistake caught with evidence, one for each "unsure but right" warning taken seriously, one for a well-used STOP card. No stars for high Planner confidence.
@@ -252,29 +225,9 @@ With three children: Commander + Safety; Life-support + Scientist; Engineer. HI-
 - **Gentle consequences:** nobody is hurt. The crew hunkers down, plants wilt, the wellbeing meter dips or Earth sends an expensive resupply. There is no fail screen. Fact cards are tagged **real** (ISS, MDRS, EDEN ISS), **planned** (Mars bases, fission units) or **game simplification**. No humans have lived on Mars; MELiSSA has not yet supported people; Kilopower-style reactors are not deployed. The "famous story" is never named on screen.
 
 ## 12. Build notes
-**Scenes and assets:** Mars island with five zones; ghost-colony effect; ice radar sweep; radiation dots; 10-sol trend graph; dust-storm wall and sky grade; soil-test tray with wilting seedlings; greenhouse glow; night alarm scene with two sensors and a fault light; call-home booth; blue-sunset turntable (blue Martian sunset to verify).
-
-**Scripted AI responses (minimum set)**
-- L1 vague 88%; L1 clear 71% ("drill a test hole first"); L1 distractor ("Next to the biggest crater").
-- L2 vague 84% (steel, Earth codes); L2 clear 76%.
-- L3 vague 91%; L3 after data tiles 68% ("There may be others").
-- L4 vague 90%; L4 clear 79% plus load-priority list; distractor ("Ship power packs from Earth").
-- L5 vague 86% (FICTION chip); L5 clear 74%; tomatoes against peppers 55%.
-- L6 vague 83%; L6 clear 77%; alarm 95%; leak 52%.
-- Re-plan lines for each wrong option chosen, so all routes are written.
-
-**Reuse from the trailer:** island build, build pieces, Planner card with USED/ASSUMED chips, cards and hand, evidence panels (ice radar, storm test, soil test), seven-segment colony ring, role strip with the STOP card, colony-name card, careers card.
-
-**Trailer alignment:** the ring's seventh segment is "Self-reliance" in the trailer (the research called it "Earth dependence"); keep "Self-reliance" and show resupply flights inside it. The trailer shows Levels 1, 4, 5 and 6 in detail and 2–3 as a montage.
-
-**Open questions and items to verify**
-- Biosphere 2 mechanism from secondary sources; Severinghaus et al. 1994 not retrieved (to verify).
-- 98% ISS water recovery from secondary coverage (to verify).
-- MELiSSA compartment count (4 or 5) and crew-test status (to verify).
-- Kilopower or Fission Surface Power status in 2026; COMPASS figures are 2016 estimates (to verify).
-- Regolith thickness, 1–3 m against "several metres" (to verify).
-- Blue sunset, 668-sol year, lunar 14-day night, polar ice, parastronaut John McFall (to verify).
-- Mars Horizon school edition; CHAPEA later crews; IMS status on ISS (to verify).
-- Automation-bias "up to half" figure from an abstract (to verify).
-- KS3 science and computing wording (to verify).
-- Possible partnership or signposting with SIMOC and ESA Moon Camp.
+- **Scenes and assets:** Mars island with five zones; ghost-colony effect; ice radar; radiation dots; 10-sol trend graph; dust-storm wall and sky grade; soil-test tray; greenhouse glow; night alarm scene with two sensors and a fault light; call-home booth; sunset turntable (blue Martian sunset, to verify).
+- **Scripted AI responses:** every vague, clear and distractor line in the section 5 table, plus the 55% tomato line, the 95% alarm, the 52% leak and a re-plan line for every wrong option, so all routes are written. Distractor cards: "Next to the biggest crater" (L1), "Ship power packs from Earth" (L4), "Ship all our food from Earth" (L5).
+- **Reuse from the trailer:** island and build pieces, the Planner card with USED/ASSUMED chips, cards and hand, evidence panels (ice radar, storm test, soil test), seven-segment colony ring, role strip with the STOP card, colony-name card, careers card. The trailer shows Levels 1, 4, 5 and 6 in detail and 2–3 as a montage.
+- **Trailer alignment:** the ring's seventh segment is "Self-reliance" in the trailer (the research called it "Earth dependence"); keep "Self-reliance" and show resupply flights inside it.
+- **Open questions:** signposting or partnership with SIMOC and ESA Moon Camp; a Moon variant later (lunar night and polar ice, to verify).
+- **To verify:** Biosphere 2 mechanism (Severinghaus et al. 1994 not retrieved); 98% ISS water recovery (secondary coverage); MELiSSA compartment count and crew-test status; Kilopower or Fission Surface Power status in 2026 (COMPASS figures are 2016 estimates); regolith thickness (1–3 m against "several metres"); blue sunset, 668-sol year, parastronaut John McFall; Mars Horizon school edition; later CHAPEA crews; IMS status on ISS; the automation-bias "up to half" figure; KS3 science and computing wording.
