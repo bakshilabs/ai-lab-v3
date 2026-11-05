@@ -1,0 +1,131 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Eco Town trailer</title>
+<link rel="stylesheet" href="../engine/ui.css"><link rel="stylesheet" href="../engine/brochure.css">
+<style>
+.clock { display: flex; align-items: center; gap: 20px; background: #fff; border-radius: 999px; padding: 14px 40px 14px 18px; font: 800 42px 'Inter'; color: #13202b; box-shadow: 0 8px 0 rgba(0,0,0,.08), 0 14px 30px rgba(0,0,0,.12); white-space: nowrap; }
+.clock .ic { width: 62px; height: 62px; border-radius: 50%; display: grid; place-items: center; }
+#night { position: absolute; inset: 0; opacity: 0; background: linear-gradient(180deg, #071640 0%, #12307a 60%, #1f4aa8 100%); }
+</style>
+<script type="importmap">{"imports":{"three":"/three/three.module.js","three/addons/":"/three-addons/"}}</script></head>
+<body><div id="app"><div id="bg"><div id="night"></div></div><div id="ui"></div><div id="fx"></div></div>
+<script type="module">
+import * as THREE from 'three';
+import { createStage, prog, ease, lerp, clamp, within } from '../engine/stage.js';
+import { Vox, island, tree, house, particles, rand, noise2 } from '../engine/kit.js';
+import { el, cue, fader, titleCard } from '../engine/ui.js';
+import { burst } from '../engine/extras.js';
+import { makeLab, ICONS } from '../engine/lab.js';
+
+const DUR = 37;
+const st = createStage({ sky: ['#5db6ff', '#d9efff'], post: false });
+const { scene, camera, sun, hemi, rim } = st;
+rim.intensity = 0.5; st.dome.visible = false; st.renderer.setClearColor(0x000000, 0);
+const bg = document.getElementById('bg'); bg.style.background = 'linear-gradient(180deg, #5fb8ff 0%, #93cfff 55%, #d8efff 100%)';
+const night = document.getElementById('night');
+{ const c = document.createElement('canvas'); c.width = 1920; c.height = 1080; c.style.cssText = 'position:absolute;inset:0'; const g = c.getContext('2d'); for (let i = 0; i < 220; i++) { g.fillStyle = `rgba(255,255,255,${0.5 + rand(i, 4) * 0.5})`; const r = rand(i, 3) > 0.9 ? 2.4 : 1.2; g.fillRect(rand(i, 1) * 1920, rand(i, 2) * 700, r * 2, r * 2); } g.fillStyle = '#fffbe8'; g.beginPath(); g.arc(1500, 300, 44, 0, 7); g.fill(); g.fillStyle = '#12307a'; g.beginPath(); g.arc(1522, 288, 40, 0, 7); g.fill(); night.appendChild(c); }
+sun.intensity = 2.7; sun.position.set(-60, 120, 60); hemi.intensity = 1.25; st.renderer.toneMappingExposure = 1.08;
+
+// ---------- island (brochure island-town-day) ----------
+const v = new Vox(); v.jitter = 0.06;
+const isl = island(v, { rx: 34, rz: 27, depth: 14, seed: 31, flat: true, wobble: 3 });
+const cells = []; for (const [, c] of v.m) if (c[1] === 0) cells.push([c[0], c[2]]);
+const H = new Map(); const K = (x, z) => x + ',' + z;
+const inPond = (x, z) => Math.hypot((x + 25) / 7, (z - 6) / 6) < 1;
+for (const [x, z] of cells) {
+  let h = z < -6 ? Math.min(4, Math.floor((-z - 6 + noise2(x / 6, 1, 3) * 3) / 3) + 1) : 0;
+  if (inPond(x, z)) { v.set(x, 0, z, null); v.set(x, -1, z, '#d6c08a'); H.set(K(x, z), -1); continue; }
+  for (let y = 1; y <= h; y++) v.set(x, y, z, '#7a4f2e');
+  const patch = Math.sin(x * 0.4) + Math.cos(z * 0.33) + rand(x, 7, z) * 0.9;
+  let c = patch > 1.1 ? '#8fd96a' : patch > 0.1 ? '#78cc52' : patch > -0.9 ? '#66bd48' : '#58b03f';
+  if (Math.hypot((x + 25) / 8.4, (z - 6) / 7.2) < 1) c = '#efdca6';
+  const road = (h === 0 && x > -18 && x < 22 && z > -6 && z < 22) && ((((z + 40) % 9) === 0 || ((z + 40) % 9) === 1) || (((x + 40) % 13) === 0 || ((x + 40) % 13) === 1));
+  if (road) c = rand(x, 2, z) > .5 ? '#6a7078' : '#62686f';
+  v.set(x, h, z, c); H.set(K(x, z), h);
+}
+for (const [, c] of v.m) { const [x, y, z] = c; if (y < 0 && y > -6 && rand(x, y, z) > 0.5) v.set(x, y, z, '#9a6a42'); }
+const hAt = (x, z) => H.get(K(Math.round(x), Math.round(z))) ?? 0;
+// houses with solar panels; collect window positions for night lights
+const wins = []; const HOUSES = [[-16, -4, '#e45a3c'], [-6, -4, '#3f5f8f'], [-16, 5, '#60666e'], [-5, 5, '#e45a3c'], [8, 5, '#e45a3c'], [16, 5, '#60666e'], [-6, 14, '#60666e'], [3, 14, '#e45a3c'], [12, 14, '#3f5f8f']];
+for (const [x, z, r] of HOUSES) house(v, x, 0, z, { w: 8, d: 6, h: 4, roof: r, wall: '#f1ebe0', solar: true, wins });
+// battery (teal block) and the town hall with chimney
+const BX = 4, BZ = -4; v.box(BX, 1, BZ, BX + 4, 5, BZ + 4, '#1d2a3a');
+v.box(19, 1, 15, 26, 6, 21, '#c9ccd0'); v.box(23, 7, 16, 25, 13, 18, '#e6e6e6'); v.box(23, 14, 16, 25, 15, 18, '#e0483c');
+for (const [x, z, k] of [[-28, -6, 'pine'], [-20, -16, 'round'], [-8, -18, 'round'], [26, -2, 'pine'], [-14, 22, 'pine'], [27, 8, 'round'], [17, 23, 'round']]) tree(v, x, hAt(x, z), z, { kind: k, s: 2 });
+scene.add(v.mesh());
+const pondW = (() => { const w = new Vox(); w.jitter = 0.03; for (const [x, z] of cells) if (inPond(x, z)) w.set(x, 0, z, '#58b8ec'); const m = w.mesh({ castShadow: false }); m.material.transparent = true; m.material.opacity = 0.75; m.position.y = -0.3; return m; })(); scene.add(pondW);
+const batTop = new THREE.Mesh(new THREE.BoxGeometry(5.02, 0.6, 5.02), new THREE.MeshBasicMaterial({ color: '#19f0c0' })); batTop.position.set(BX + 2.5, 6.0, BZ + 2.5); scene.add(batTop);
+const batFill = new THREE.Mesh(new THREE.BoxGeometry(5.06, 1, 0.2), new THREE.MeshBasicMaterial({ color: '#19f0c0' })); batFill.geometry.translate(0, 0.5, 0); batFill.position.set(BX + 2.5, 1, BZ + 5.05); scene.add(batFill);
+// turbines on the back hill
+const turbines = [[-10, -20], [-1, -21], [8, -20], [17, -18], [25, -14]].map(([x, z], i) => { const g = new THREE.Group(); const m = new THREE.MeshLambertMaterial({ color: '#f2f2ee' }); const tw = new THREE.Mesh(new THREE.BoxGeometry(0.7, 22, 0.7), m); tw.position.y = 11; const hub = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.2, 1.6), m); hub.position.set(0, 22, 0.4); const rot = new THREE.Group(); rot.position.set(0, 22, 1.3); for (let b = 0; b < 3; b++) { const bl = new THREE.Mesh(new THREE.BoxGeometry(0.45, 9, 0.2), m); bl.geometry.translate(0, 4.5, 0); bl.rotation.z = b * Math.PI * 2 / 3; rot.add(bl); } g.add(tw, hub, rot); g.position.set(x, hAt(x, z) + 0.5, z); g.rotation.y = 0.35; g.userData.rot = rot; scene.add(g); return g; });
+// window + street lights
+const lights = particles(wins.length + 12, { size: 0.95 }); lights.material = new THREE.MeshBasicMaterial({ color: '#ffd66b' }); scene.add(lights);
+const LAMPS = []; for (let i = 0; i < 12; i++) { const x = -16 + (i % 6) * 7, z = i < 6 ? 2 : 11; LAMPS.push([x, z]); v; }
+const lampPosts = particles(12, { size: 1 }); lampPosts.geometry = new THREE.BoxGeometry(0.25, 3, 0.25); lampPosts.material.color.set('#3a4048'); scene.add(lampPosts); LAMPS.forEach(([x, z], i) => lampPosts.setAt(i, x + 0.5, 1.5, z + 0.5)); lampPosts.done();
+const glow = new THREE.PointLight('#ffcf70', 0, 60, 1.4); glow.position.set(0, 7, 10); scene.add(glow);
+const panelsGlow = particles(HOUSES.length, { size: 1 }); panelsGlow.geometry = new THREE.BoxGeometry(5, 0.1, 0.9); panelsGlow.material = new THREE.MeshBasicMaterial({ color: '#8fd0ff', transparent: true, opacity: 0.0 }); scene.add(panelsGlow);
+const sparks = particles(30, { size: 0.35 }); sparks.material = new THREE.MeshBasicMaterial({ color: '#19f0c0' }); scene.add(sparks);
+const conf = burst(scene, { at: [BX + 2.5, 9, BZ + 2.5], t0: 26.3, n: 80, colors: ['#ffd23f', '#19f0c0', '#ff6a4a', '#ffffff'], size: 0.5, speed: 9, up: 9, life: 2 });
+
+// time of day: 0 day, 1 night
+const nightK = (t) => t < 10.6 ? 0 : t < 19.4 ? prog(t, 10.6, 11.4) : t < 22.6 ? 0 : prog(t, 22.6, 23.4);
+const DAY = { sun: 2.7, hemi: 1.25, exp: 1.08 }, NIGHT = { sun: 1.25, hemi: 1.0, exp: 1.05 };
+const sunDay = new THREE.Color('#ffffff'), sunNight = new THREE.Color('#b8ccff'), hemiDay = new THREE.Color('#ffffff'), hemiNight = new THREE.Color('#8fa8f0');
+st.onFrame((t) => {
+  const n = nightK(t); night.style.opacity = n;
+  sun.intensity = lerp(DAY.sun, NIGHT.sun, n); sun.color.copy(sunDay).lerp(sunNight, n); hemi.intensity = lerp(DAY.hemi, NIGHT.hemi, n); hemi.color.copy(hemiDay).lerp(hemiNight, n); st.renderer.toneMappingExposure = lerp(DAY.exp, NIGHT.exp, n);
+  sun.position.set(lerp(-60, 40, n), lerp(120, 90, n), lerp(60, -40, n));
+  // lights: A = solar only -> on then blackout; B = battery -> stay on
+  let on = 0; if (t >= 10.8 && t < 19.4) { on = t < 12.2 ? 1 : t < 13.2 ? (Math.sin(t * 40) > 0 ? 1 - prog(t, 12.2, 13.2) : 0) : 0; } else if (t >= 22.8) on = prog(t, 22.8, 23.6);
+  wins.forEach(([x, y, z], i) => lights.setAt(i, x, y, z, 0, 0, on * n > 0.05 && rand(i, 3) < 0.15 + on * 0.85 ? on : 0));
+  LAMPS.forEach(([x, z], i) => lights.setAt(wins.length + i, x + 0.5, 3.3, z + 0.5, 0, 0, on * n > 0.05 ? 0.8 : 0)); lights.done();
+  glow.intensity = 0;
+  // battery charge: 0 in A; in B charges 20.6-22.6 then drains slowly through the night
+  const charge = t < 20.6 ? (t < 9 ? 0.15 : 0.15) : t < 22.6 ? lerp(0.15, 1, prog(t, 20.6, 22.6)) : lerp(1, 0.62, prog(t, 23, 30));
+  batFill.scale.set(1, Math.max(0.01, charge * 4.6), 1); batTop.material.color.set(t > 20.6 ? '#19f0c0' : '#2a8a78');
+  for (let i = 0; i < 30; i++) { const ph = (t * 1.2 + i / 30) % 1; const [hx, hz] = HOUSES[i % HOUSES.length]; const toB = t >= 20.6 && t < 22.6; const fromB = t >= 23.4 && t < 31; const sx = toB ? lerp(hx + 4, BX + 2.5, ph) : lerp(BX + 2.5, hx + 4, ph), sz = toB ? lerp(hz + 3, BZ + 2.5, ph) : lerp(BZ + 2.5, hz + 3, ph); sparks.setAt(i, sx, 7 + Math.sin(ph * Math.PI) * 4, sz, t, t, toB || fromB ? 1 : 0); } sparks.done();
+  HOUSES.forEach(([x, z], i) => panelsGlow.setAt(i, x + 4, 7.2, z + 0.6)); panelsGlow.done(); panelsGlow.material.opacity = (t > 8.8 && t < 10.6) || (t > 20.6 && t < 22.6) ? 0.6 + 0.3 * Math.sin(t * 8) : 0;
+  const spinOn = t < 8.6 || t > 20.4; turbines.forEach((g, i) => { g.userData.rot.rotation.z = (spinOn ? t : Math.min(t, 8.6 + 0.5)) * (1.6 + i * 0.1) + i; });
+  conf(t);
+  // camera
+  let ang, dist, hgt, look = [0, 0, 2], dy = -1.5;
+  if (t < 4.2) { const k = prog(t, 0, 4.2); ang = lerp(-0.85, -0.45, ease.inOut(k)); dist = lerp(140, 112, ease.out(k)); hgt = lerp(100, 80, k); look = [0, 4, 0]; dy = 0; }
+  else if (t < 8.4) { const k = prog(t, 4.2, 8.4); ang = lerp(-0.45, -0.36, k); dist = lerp(86, 78, k); hgt = lerp(62, 56, k); look = [0, 2, 2]; dy = -4; }
+  else if (t < 16.2) { const k = prog(t, 8.4, 16.2); ang = lerp(-0.36, -0.12, k); dist = lerp(74, 58, ease.inOut(k)); hgt = lerp(54, 42, ease.inOut(k)); look = [lerp(0, 2, k), 2, lerp(2, 6, k)]; dy = -3; }
+  else if (t < 20.4) { const k = prog(t, 16.2, 20.4); ang = lerp(-0.12, -0.3, k); dist = lerp(58, 74, ease.inOut(k)); hgt = lerp(42, 54, ease.inOut(k)); look = [2, 2, 4]; dy = -3; }
+  else if (t < 26.4) { const k = prog(t, 20.4, 26.4); ang = lerp(-0.3, 0.12, ease.inOut(k)); dist = lerp(70, 56, k); hgt = lerp(52, 40, k); look = [lerp(4, 2, k), 2, lerp(0, 5, k)]; dy = -3; }
+  else if (t < 31) { const k = prog(t, 26.4, 31); ang = lerp(0.12, 0.36, k); dist = lerp(58, 72, k); hgt = lerp(40, 50, k); look = [2, 2, 4]; dy = -3; }
+  else { const k = prog(t, 31, 37); ang = lerp(0.36, 0.75, k); dist = lerp(100, 145, k); hgt = lerp(72, 104, k); look = [0, 4, 0]; dy = 0; }
+  camera.fov = 30; camera.updateProjectionMatrix(); camera.position.set(Math.sin(ang) * dist + look[0], hgt + look[1], Math.cos(ang) * dist + look[2]); camera.lookAt(look[0], look[1] + dy, look[2]);
+});
+
+// ---------- UI ----------
+const ui = []; const A = (f) => ui.push(f);
+const L = makeLab(A);
+const fade = fader(); A((t) => fade(t < 0.5 ? 1 - prog(t, 0, 0.5) : t > DUR - 0.7 ? prog(t, DUR - 0.7, DUR) : 0));
+L.header({ name: 'Eco Town', sub: 'SCHOOL CLUB', color: '#1f9d55', shade: '#157a40', icon: ICONS.bolt, tag: 'L3', task: 'Keep the lights on after dark', tOut: 30.8 });
+L.pills({ stars: 4, xp: 860, starsAfter: 7, xpAfter: 980, tAfter: 26.4, tOut: 30.8 });
+const SUN = '<svg width="40" height="40" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5" fill="#ffb020"/><g stroke="#ffb020" stroke-width="2.4" stroke-linecap="round"><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/></g></svg>';
+const MOON = '<svg width="40" height="40" viewBox="0 0 24 24"><path d="M15 3a9 9 0 1 0 6 15A8 8 0 0 1 15 3z" fill="#fff"/></svg>';
+const clock = el(`<div class="clock"><span class="ic" data-i></span><span data-t>2:00 pm</span></div>`, { x: 960, y: 88, anchor: 'c' }); A(cue(clock, 1.3, 30.8, { from: 'down' }));
+const hour = (t) => t < 8.8 ? 14 : t < 19.4 ? lerp(14, 22, prog(t, 8.8, 13.6, (k) => k)) : t < 20.6 ? 14 : lerp(14, 23.5, prog(t, 20.6, 26, (k) => k));
+A((t) => { const h = hour(t), hh = Math.floor(h), mm = Math.floor((h - hh) * 6) * 10; clock.querySelector('[data-t]').textContent = `${((hh + 11) % 12) + 1}:${String(mm).padStart(2, '0')} ${hh >= 12 ? 'pm' : 'am'}`; const n = nightK(t) > 0.5; const ic = clock.querySelector('[data-i]'); ic.innerHTML = n ? MOON : SUN; ic.style.background = n ? '#12307a' : '#fff4d6'; });
+const CARDS = [['A', 'Use the cleanest power you can'], ['B', 'Charge the battery by day for tonight'], ['C', 'Build more wind turbines']];
+L.cards('TELL THE AI HELPER HOW TO POWER THE TOWN', CARDS, 4.2, 8.6, 6.3, 0);
+L.helper('Cleanest means solar, so I switched the whole town to solar panels only.', 68, 8.8, 16.2);
+const plug = '<svg width="34" height="34" viewBox="0 0 24 24"><path d="M5 19C5 9 11 4 20 4c0 9-5 15-15 15z" fill="#1f9d55"/></svg>';
+const bulb = '<svg width="34" height="34" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2zM9 19h6v2H9z" fill="#ffb020"/></svg>';
+const batt = '<svg width="34" height="34" viewBox="0 0 24 24"><rect x="3" y="7" width="16" height="10" rx="2" fill="none" stroke="#16a68a" stroke-width="2.4"/><rect x="5.5" y="9.5" width="8" height="5" fill="#16a68a"/><rect x="19.5" y="10" width="2" height="4" fill="#16a68a"/></svg>';
+const lightsOn = (t) => t < 12.2 ? 100 : t < 19.4 ? 100 - 85 * prog(t, 12.2, 13.2) : 100;
+const clean = (t) => t < 9 ? 70 : t < 19.4 ? 70 + 26 * prog(t, 9, 10) : t < 20.6 ? 70 : 70 + 22 * prog(t, 20.6, 22);
+const bat = (t) => t < 20.6 ? 15 : t < 22.6 ? lerp(15, 100, prog(t, 20.6, 22.6)) : lerp(100, 62, prog(t, 23, 30));
+L.meters([{ icon: plug, label: 'Clean', fn: clean, badBelow: 50 }, { icon: bulb, label: 'Lights', fn: lightsOn, badBelow: 50 }, { icon: batt, label: 'Battery', fn: bat, badBelow: 30 }], 9.4, 30.8, { x: 46, y: 820 });
+L.alert('Blackout at 8 pm', 13.4, 16.3, { y: 620 });
+L.facil('Solar is clean. But what happens when the sun goes down?', 16.4, 20.6, { color: '#f6c343', y: 560 });
+L.cards('TRY A CLEARER CARD', CARDS, 18.4, 21.4, 19.9, 1);
+L.helper('Charging the battery while it is sunny, then using it tonight. The turbines help too.', 90, 21.6, 26.2);
+L.saved('Lights on all night · 92% clean power', 26.4, 30.6, { y: 470 });
+const dimEnd = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:radial-gradient(ellipse at center, rgba(5,15,50,.15), rgba(5,15,50,.5))"></div>'); A(cue(dimEnd, 31.2, null, { from: 'fade', dur: 0.8 }));
+const title = titleCard('Eco <span class="hl">Town</span>', 'Power a town with the AI. Keep the lights on after dark.', { chip: 'A DeltaOps Learning AI lab · Schools' }); A(cue(title, 31.4, null, { from: 'pop', dur: 0.8 }));
+st.onFrame((t) => ui.forEach((f) => f(t)));
+window.__duration = DUR;
+document.fonts.ready.then(() => { window.__ready = true; });
+</script></body></html>

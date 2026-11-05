@@ -1,0 +1,169 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Mission AI trailer</title>
+<link rel="stylesheet" href="../engine/ui.css"><link rel="stylesheet" href="../engine/brochure.css">
+<style>
+.lb { width: 400px; background: #13202b; border-radius: 30px; padding: 24px 22px 18px; color: #fff; box-shadow: 0 10px 0 rgba(0,0,0,.18); }
+.lb small { display: block; font: 800 24px 'Inter'; letter-spacing: .1em; color: #c9d6ee; margin: 0 0 12px 8px; }
+.lb .row { display: grid; grid-template-columns: 34px 1fr auto; gap: 16px; align-items: center; padding: 10px 14px; border-radius: 14px; font: 700 31px 'Inter'; transition: none; }
+.lb .row i { width: 30px; height: 30px; border-radius: 8px; display: block; }
+.lb .row.me { background: #2c3a48; }
+.timer { display: flex; align-items: center; gap: 22px; background: #fff; border-radius: 999px; padding: 14px 40px 14px 18px; font: 800 42px 'Inter'; color: #13202b; box-shadow: 0 8px 0 rgba(0,0,0,.08), 0 14px 30px rgba(0,0,0,.12); }
+.timer svg { width: 62px; height: 62px; }
+.timer.hot { color: #d8342c; }
+</style>
+<script type="importmap">{"imports":{"three":"/three/three.module.js","three/addons/":"/three-addons/"}}</script></head>
+<body><div id="app"><div id="bg"></div><div id="ui"></div><div id="fx"></div></div>
+<script type="module">
+import * as THREE from 'three';
+import { createStage, prog, ease, lerp, clamp, within } from '../engine/stage.js';
+import { Vox, tree, house, person, particles, rand, noise2 } from '../engine/kit.js';
+import { el, cue, fader, titleCard } from '../engine/ui.js';
+import { burst } from '../engine/extras.js';
+import { makeLab, ICONS } from '../engine/lab.js';
+
+const DUR = 37;
+const st = createStage({ sky: ['#5db6ff', '#d9efff'], post: false });
+const { scene, camera, sun, hemi, rim } = st;
+rim.intensity = 0.5; st.dome.visible = false; st.renderer.setClearColor(0x000000, 0);
+document.getElementById('bg').style.background = 'linear-gradient(180deg, #5fb8ff 0%, #8fcdff 50%, #d6eeff 100%)';
+sun.intensity = 2.7; sun.position.set(-60, 120, 60); hemi.intensity = 1.25; st.renderer.toneMappingExposure = 1.08;
+
+// ---------- diorama slab (brochure island-island) ----------
+const v = new Vox(); v.jitter = 0.06;
+const X0 = -30, X1 = 29, Z0 = -22, Z1 = 21, BED = -6, BOT = -15;
+const H = new Map(); const K = (x, z) => x + ',' + z;
+const inIsl = (x, z) => { const a = Math.atan2(z / 15, x / 22); const w = 1 + (noise2(Math.cos(a) * 2.5 + 7, Math.sin(a) * 2.5 + 7, 5) - 0.5) * 0.22; return Math.hypot(x / 22, z / 15) / w; };
+const ridge = (x, z) => { const dx = x - 1, dz = z; const c = Math.cos(0.5), s = Math.sin(0.5); const u = (dx * c + dz * s) / 11.5, w = (-dx * s + dz * c) / 5.2; return Math.hypot(u, w); };
+const STRATA = ['#c9a86a', '#a88458', '#d8bf86', '#8f7a5e', '#b99764'];
+for (let x = X0; x <= X1; x++) for (let z = Z0; z <= Z1; z++) {
+  const edge = x === X0 || x === X1 || z === Z0 || z === Z1;
+  for (let y = BOT; y < BED; y++) if (edge || y === BED - 1 || y === BOT) { const b = Math.floor((y - BOT + noise2(x / 4, z / 4, 3) * 2.2) / 2.2); v.set(x, y, z, STRATA[((b % 5) + 5) % 5]); }
+  const r = inIsl(x, z);
+  if (r >= 1) { v.set(x, BED, z, rand(x, 1, z) > .5 ? '#e3cf9a' : '#d6c08a'); H.set(K(x, z), 0); continue; }
+  if (r > 0.86) { for (let y = BED; y <= 0; y++) v.set(x, y, z, y === 0 ? (rand(x, 2, z) > .5 ? '#f0dca6' : '#e6d096') : '#d6c08a'); H.set(K(x, z), 0); continue; }
+  let h = 1 + (noise2(x / 7, z / 7, 11) > 0.62 ? 1 : 0) + (r < 0.6 && z < -4 ? 1 : 0);
+  for (let y = BED; y < h; y++) v.set(x, y, z, y >= h - 2 ? '#7a4f2e' : '#8a6a48');
+  const patch = Math.sin(x * 0.4) + Math.cos(z * 0.33) + rand(x, 7, z) * 0.9;
+  v.set(x, h, z, patch > 1.2 ? '#8fd96a' : patch > 0.2 ? '#73c74f' : patch > -0.8 ? '#62b846' : '#53a83d');
+  const rd = ridge(x, z);
+  if (rd < 1) { const rh = Math.round(8.5 * (1 - rd * rd) + noise2(x / 2, z / 2, 4) * 1.5); for (let y = h + 1; y <= h + rh; y++) { const fromTop = h + rh - y; v.set(x, y, z, fromTop <= 1 ? (rand(x, y, z) > .3 ? '#f4f5f6' : '#e3e6e9') : fromTop < 3 && rh > 3 ? '#c9ced3' : y > h + 2 ? (rand(x, y, z) > .5 ? '#8d949b' : '#7a8188') : '#5f666d'); } h += Math.max(rh, 0); }
+  H.set(K(x, z), h);
+}
+const hAt = (x, z) => H.get(K(Math.round(x), Math.round(z))) ?? 0;
+const hSm = (x, z) => { const x0 = Math.floor(x), z0 = Math.floor(z), fx = x - x0, fz = z - z0; const g = (a, b) => H.get(K(a, b)) ?? 0; return lerp(lerp(g(x0, z0), g(x0 + 1, z0), fx), lerp(g(x0, z0 + 1), g(x0 + 1, z0 + 1), fx), fz); };
+// lodge, pines, camp, dock, boat
+house(v, -6, hAt(-6, -13), -14, { w: 11, d: 6, h: 4, roof: '#8e3324', wall: '#7a5233' });
+for (const [x, z] of [[-16, -8], [-11, -10], [-13, -4], [8, -10], [14, -6], [11, -2]]) tree(v, x, hAt(x, z), z, { kind: 'pine', s: 2 });
+tree(v, 4, hAt(4, 8), 8, { kind: 'round', s: 2 });
+{ const g = hAt(-20, -2); v.box(-22, g + 1, -3, -19, g + 2, -1, '#f07a3a'); v.box(-22, g + 3, -3, -19, g + 3, -2, '#d85f22'); }
+{ const g = hAt(-19, 6); v.box(-21, g + 1, 5, -18, g + 2, 7, '#3a7fd8'); v.box(-21, g + 3, 6, -18, g + 3, 7, '#2a63b4'); }
+{ const g = hAt(-13, 1); v.box(-14, g + 1, 0, -12, g + 1, 1, '#4fae6a'); v.box(-14, g + 2, 1, -12, g + 2, 1, '#3f9a5a'); }
+{ const g = hAt(-17, 3); v.set(-17, g + 1, 3, '#6a4428'); v.set(-16, g + 1, 3, '#6a4428'); v.set(-17, g + 1, 2, '#5a3a20'); }
+v.box(-29, 0, 2, -23, 0, 4, '#9a6a3e'); for (let x = -29; x <= -23; x += 2) v.set(x, -1, 2, '#6a4428');
+v.box(-28, 0, -5, -25, 1, -3, '#f6f6f2'); v.set(-27, 2, -4, '#7a5233'); v.box(-27, 3, -4, -27, 5, -4, '#7a5233'); v.box(-26, 3, -4, -26, 5, -4, '#ffffff');
+// lighthouse
+const LX = 18, LZ = 1, LG = hAt(LX, LZ);
+for (let y = LG + 1; y <= LG + 16; y++) for (let dx = -3; dx <= 3; dx++) for (let dz = -3; dz <= 3; dz++) { const d = Math.hypot(dx, dz), R = 2.6 - (y - LG) * 0.03; if (d <= R) v.set(LX + dx, y, LZ + dz, Math.floor((y - LG - 1) / 3) % 2 ? '#f4f1ea' : '#d8342c'); }
+for (let dx = -3; dx <= 3; dx++) for (let dz = -3; dz <= 3; dz++) { const d = Math.hypot(dx, dz); if (d <= 3.2) v.set(LX + dx, LG + 17, LZ + dz, '#22262b'); if (d <= 1.6) v.set(LX + dx, LG + 20, LZ + dz, '#d8342c'); }
+v.set(LX, LG + 21, LZ, '#d8342c'); for (const [dx, dz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) { v.set(LX + dx, LG + 18, LZ + dz, '#22262b'); v.set(LX + dx, LG + 19, LZ + dz, '#22262b'); }
+scene.add(v.mesh());
+const lamp = new THREE.Mesh(new THREE.BoxGeometry(1.6, 2, 1.6), new THREE.MeshBasicMaterial({ color: '#f6e7b0' })); lamp.position.set(LX + 0.5, LG + 19, LZ + 0.5); scene.add(lamp);
+const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 4, 30, 16, 1, true), new THREE.MeshBasicMaterial({ color: '#fff3b0', transparent: true, opacity: 0.28, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide })); beam.geometry.translate(0, 15, 0); beam.geometry.rotateZ(-Math.PI / 2); beam.position.copy(lamp.position); scene.add(beam);
+// water slab (transparent block)
+const wGeo = new THREE.BoxGeometry(X1 - X0 + 1, -BED + 0.6, Z1 - Z0 + 1);
+const wat = new THREE.Mesh(wGeo, new THREE.MeshPhongMaterial({ color: '#43a9e6', transparent: true, opacity: 0.62, shininess: 80, specular: '#bfe6ff', depthWrite: false }));
+wat.position.set((X0 + X1) / 2 + 0.5, (BED + 0.6) / 2 - 0.2, (Z0 + Z1) / 2 + 0.5); wat.renderOrder = 2; scene.add(wat);
+const ripples = particles(70, { size: 1 }); ripples.geometry = new THREE.BoxGeometry(1.6, 0.05, 0.25); ripples.material = new THREE.MeshBasicMaterial({ color: '#d8f2ff', transparent: true, opacity: 0.7 }); scene.add(ripples);
+const rip = []; for (let i = 0; i < 70; i++) { const x = X0 + 1 + rand(i, 1) * 57, z = Z0 + 1 + rand(i, 2) * 41; if (inIsl(x, z) > 1.06) rip.push([x, z]); }
+// campfire flames + smoke
+const flames = particles(10, { size: 0.5, emissive: '#ff7a1a' }); flames.material.color.set('#ffb03a'); scene.add(flames);
+const fireG = hAt(-17, 3) + 1.4;
+const fireLight = new THREE.PointLight('#ff9a3a', 30, 14, 2); fireLight.position.set(-16.5, fireG + 1, 3.5); scene.add(fireLight);
+
+// ---------- team (Otters) ----------
+const team = [['#16c7a6', '#e0b08a', '#7a4a2c'], ['#ff8a2a', '#8a5a3a', '#2b1d14'], ['#6e5bf2', '#c68a5e', '#d8a040']].map(([shirt, skin, hair]) => { const p = person({ shirt, skin, hair, s: 0.36 }); const hat = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.4, 1.1), new THREE.MeshLambertMaterial({ color: '#16a68a' })); hat.position.set(-0.15, 3.25, -0.2); p.add(hat); scene.add(p); return p; });
+const RA = [[-15.5, 3.5], [-10, 2.5], [-5, 1], [0, 0], [5, 1.5], [10, 3], [15, 3]];
+const RB = [[-15.5, 3.5], [-15, 9], [-10, 12.5], [-2, 13.6], [6, 12.6], [12, 9.5], [15.5, 5]];
+const segLen = (R) => { const L = [0]; for (let i = 1; i < R.length; i++) L.push(L[i - 1] + Math.hypot(R[i][0] - R[i - 1][0], R[i][1] - R[i - 1][1])); return L; };
+const LA = segLen(RA), LB = segLen(RB);
+const at = (R, L, u) => { const d = clamp(u) * L[L.length - 1]; let i = 1; while (i < L.length - 1 && L[i] < d) i++; const k = (d - L[i - 1]) / (L[i] - L[i - 1]); return [lerp(R[i - 1][0], R[i][0], k), lerp(R[i - 1][1], R[i][1], k), Math.atan2(R[i][0] - R[i - 1][0], R[i][1] - R[i - 1][1])]; };
+const dotsA = particles(90, { size: 0.7, emissive: '#ff7a1a' }); dotsA.material.color.set('#ff8a2a'); scene.add(dotsA);
+const dotsB = particles(90, { size: 0.7, emissive: '#16c7a6' }); dotsB.material.color.set('#16e0b8'); scene.add(dotsB);
+const sweat = particles(6, { size: 0.3 }); sweat.material = new THREE.MeshBasicMaterial({ color: '#9fdcff' }); scene.add(sweat);
+const conf = burst(scene, { at: [LX + 0.5, LG + 18, LZ + 0.5], t0: 25.9, n: 90, colors: ['#ffd23f', '#16c7a6', '#ff6a4a', '#ffffff', '#6e5bf2'], size: 0.55, speed: 9, up: 9, life: 2.2 });
+const gulls = [0, 1, 2, 3].map(() => { const g = new THREE.Group(); const m = new THREE.MeshLambertMaterial({ color: '#ffffff' }); const b = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.4, 1.2), m); const w1 = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.1, 0.5), m); const w2 = w1.clone(); w1.position.x = -0.9; w2.position.x = 0.9; g.add(b, w1, w2); g.userData.w = [w1, w2]; scene.add(g); return g; });
+
+// ---------- timeline ----------
+// 0-4 hook | 4-8.4 cards, tap A | 8.4-16 AI route over the ridge, energy drains | 16-20.4 facilitator, rewind, tap B | 20.4-26 beach route | 26-30 lighthouse reached | 31-37 title
+st.onFrame((t) => {
+  // route dots
+  const showA = t >= 8.6 && t < 19.4, showB = t >= 20.4;
+  for (let i = 0; i < 90; i++) { const [x, z] = at(RA, LA, i / 89); const on = showA && i / 89 < prog(t, 8.6, 10.2) ? 1 : 0; dotsA.setAt(i, x + 0.5, hSm(x, z) + 1.25, z + 0.5, 0, t, on * (i % 2 ? 0.75 : 1)); } dotsA.done();
+  for (let i = 0; i < 90; i++) { const [x, z] = at(RB, LB, i / 89); const on = showB && i / 89 < prog(t, 20.4, 21.8) ? 1 : 0; dotsB.setAt(i, x + 0.5, hSm(x, z) + 1.25, z + 0.5, 0, t, on * (i % 2 ? 0.75 : 1)); } dotsB.done();
+  // team
+  team.forEach((p, i) => {
+    let x, z, a, walk = 0, tired = 0;
+    if (t < 9.8 || (t >= 19.4 && t < 20.8)) { const ang = i * 2.1 + 0.6; x = -17 + Math.cos(ang) * 2.2; z = 3 + Math.sin(ang) * 2.2; a = Math.atan2(-17 - x, 3 - z); }
+    else if (t < 19.4) { const u = 0.56 * prog(t, 9.8, 16, ease.out) - i * 0.035; [x, z, a] = at(RA, LA, Math.max(u, 0)); walk = t < 15.6 ? 1 : 0; tired = prog(t, 12, 15.6); }
+    else { const u = prog(t, 20.8, 25.8, (k) => k) - i * 0.035; [x, z, a] = at(RB, LB, Math.max(u, 0)); walk = u < 1 ? 1.6 : 0; if (t > 25.9) { a = Math.PI * 0.2; } }
+    const y = hSm(x, z) + 0.95 + (t > 26 ? Math.max(0, Math.sin((t - 26) * 9 + i)) * 0.6 * (t < 29 ? 1 : 0) : 0);
+    p.position.set(x + 0.5, y, z + 0.5); p.rotation.y = a + Math.PI; p.rotation.x = tired * 0.25;
+    p.userData.walk(walk ? t * 8 * walk * (1 - tired * 0.6) + i : 0);
+    if (i === 0) for (let k = 0; k < 6; k++) { const ph = (t * 1.6 + k / 6) % 1; sweat.setAt(k, x + 0.5 + (k % 2 ? 0.6 : -0.6), y + 3.2 + ph * 0.8, z + 0.5, 0, 0, t > 13 && t < 19.4 ? (1 - ph) : 0); }
+  }); sweat.done();
+  // fire + lighthouse
+  for (let i = 0; i < 10; i++) { const ph = (t * 1.8 + i / 10) % 1; flames.setAt(i, -16.5 + Math.sin(i * 2.3) * 0.4, fireG + ph * 1.8, 3.5 + Math.cos(i * 1.7) * 0.4, t + i, t * 2, (1 - ph) * 1.1); } flames.done();
+  fireLight.intensity = 26 + Math.sin(t * 13) * 6;
+  const lit = t > 25.8; lamp.material.color.set(lit ? '#fff6c8' : '#e8d9a0'); beam.visible = lit; beam.rotation.y = t * 1.6; beam.material.opacity = 0.3 * prog(t, 25.8, 26.4);
+  conf(t);
+  ripples.material.opacity = 0.6; rip.forEach(([x, z], i) => ripples.setAt(i, x, 0.42, z + Math.sin(t * 0.8 + i) * 0.4, 0, 0, 0.6 + 0.4 * Math.sin(t * 1.5 + i))); ripples.done();
+  gulls.forEach((g, i) => { const a = t * 0.3 + i * 1.6; g.position.set(Math.cos(a) * (32 + i * 3), 22 + i * 2 + Math.sin(t + i) * 1.2, Math.sin(a) * (24 + i * 2)); g.rotation.y = -a; const f = Math.sin(t * 8 + i) * 0.5; g.userData.w[0].rotation.z = f; g.userData.w[1].rotation.z = -f; });
+  // camera: brochure angle (front-left, high); closer during play
+  let ang, dist, hgt, look = [0, 0, 0];
+  if (t < 4.2) { const k = prog(t, 0, 4.2); ang = lerp(-0.85, -0.42, ease.inOut(k)); dist = lerp(135, 108, ease.out(k)); hgt = lerp(100, 78, k); look = [0, -3, 0]; }
+  else if (t < 8.4) { const k = prog(t, 4.2, 8.4); ang = lerp(-0.42, -0.36, k); dist = lerp(74, 66, k); hgt = lerp(54, 48, k); look = [-2, 0, 2]; }
+  else if (t < 16.2) { const k = prog(t, 8.4, 16.2); const [kx, kz] = at(RA, LA, 0.56 * prog(t, 9.8, 16, ease.out)); ang = lerp(-0.36, -0.2, k); dist = lerp(60, 36, ease.inOut(k)); hgt = lerp(46, 28, ease.inOut(k)); const q = prog(t, 9.6, 12); look = [lerp(-4, kx + 3, q), lerp(1, hSm(kx, kz) - 1, q), lerp(2, kz, q)]; }
+  else if (t < 20.4) { const k = prog(t, 16.2, 20.4); ang = lerp(-0.2, -0.3, k); dist = lerp(36, 64, ease.inOut(k)); hgt = lerp(28, 48, ease.inOut(k)); const [ex, ez] = at(RA, LA, 0.56); look = [lerp(ex + 3, -2, ease.inOut(k)), lerp(hSm(ex, ez) - 1, 0, ease.inOut(k)), lerp(ez, 3, ease.inOut(k))]; }
+  else if (t < 26.4) { const k = prog(t, 20.4, 26.4); const [kx, kz] = at(RB, LB, prog(t, 20.8, 25.8, (q) => q)); ang = lerp(-0.3, 0.12, ease.inOut(k)); dist = lerp(62, 44, k); hgt = lerp(48, 34, k); look = [lerp(-2, kx + 3, prog(t, 20.6, 22)), 0, lerp(3, kz - 4, prog(t, 20.6, 22))]; }
+  else if (t < 31) { const k = prog(t, 26.4, 31); ang = lerp(0.12, 0.38, k); dist = lerp(48, 62, k); hgt = lerp(36, 44, k); look = [lerp(15, 10, k), lerp(4, 2, k), lerp(3, 1, k)]; }
+  else { const k = prog(t, 31, 37); ang = lerp(0.38, 0.75, k); dist = lerp(90, 140, k); hgt = lerp(64, 104, k); look = [0, -3, 0]; }
+  camera.fov = 30; camera.updateProjectionMatrix(); camera.position.set(Math.sin(ang) * dist + look[0], hgt + look[1], Math.cos(ang) * dist + look[2]); const dy = (t < 8.4 || t > 31) ? -7 : -1.5; camera.lookAt(look[0], look[1] + dy, look[2]);
+});
+
+// ---------- UI ----------
+const ui = []; const A = (f) => ui.push(f);
+const L = makeLab(A);
+const fade = fader(); A((t) => fade(t < 0.5 ? 1 - prog(t, 0, 0.5) : t > DUR - 0.7 ? prog(t, DUR - 0.7, DUR) : 0));
+L.header({ name: 'Mission AI', sub: 'HOLIDAY CAMP', color: '#f26b2a', shade: '#c24d16', icon: ICONS.compass, tag: 'Day 3', tagColor: '#16c7a6', tagText: '#13202b', task: 'Get your team to the lighthouse before sunset', tOut: 30.8 });
+L.pills({ stars: 3, xp: 640, xpColor: '#f26b2a', starsAfter: 6, xpAfter: 760, tAfter: 26.2, tOut: 30.8 });
+// sunset timer
+const timer = el('<div class="timer"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="15" fill="none" stroke="#eef1f3" stroke-width="6"/><circle data-r cx="20" cy="20" r="15" fill="none" stroke="#f26b2a" stroke-width="6" stroke-linecap="round" stroke-dasharray="94.2" transform="rotate(-90 20 20)"/></svg><span>Sunset in&nbsp; <b data-t>1:18</b></span></div>', { x: 960, y: 88, anchor: 'c' });
+A(cue(timer, 1.3, 30.8, { from: 'down' }));
+const secs = (t) => t < 9.8 ? 78 : t < 19.4 ? 78 - 56 * prog(t, 9.8, 16, ease.out) : t < 20.8 ? 78 : 78 - 37 * prog(t, 20.8, 25.8, (k) => k);
+A((t) => { const s = Math.round(secs(t)); timer.querySelector('[data-t]').textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; timer.querySelector('[data-r]').setAttribute('stroke-dashoffset', 94.2 * (1 - s / 120)); timer.classList.toggle('hot', s < 30); });
+// leaderboard
+const lb = el('<div class="lb"><small>CAMP LEADERBOARD</small><div data-rows></div></div>', { x: 46, y: 300 }); A(cue(lb, 1.8, 8.2, { from: 'left' })); 
+const lb2 = el('<div class="lb"><small>CAMP LEADERBOARD</small><div data-rows></div></div>', { x: 46, y: 300 }); A(cue(lb2, 26.6, 30.8, { from: 'left' }));
+const rows = (list) => list.map(([n, c, s, me]) => `<div class="row${me ? ' me' : ''}"><i style="background:${c}"></i><span>${n}</span><b>${s}</b></div>`).join('');
+lb.querySelector('[data-rows]').innerHTML = rows([['Foxes', '#ff8a2a', 420], ['Otters', '#16c7a6', 390, 1], ['Hawks', '#7a5af0', 360], ['Badgers', '#5a6670', 300]]);
+A((t) => { const s = Math.round(lerp(390, 470, prog(t, 27.2, 28.2))); lb2.querySelector('[data-rows]').innerHTML = rows(s > 420 ? [['Otters', '#16c7a6', s, 1], ['Foxes', '#ff8a2a', 420], ['Hawks', '#7a5af0', 360], ['Badgers', '#5a6670', 300]] : [['Foxes', '#ff8a2a', 420], ['Otters', '#16c7a6', s, 1], ['Hawks', '#7a5af0', 360], ['Badgers', '#5a6670', 300]]); });
+const CARDS = [['A', 'Find the quickest way there'], ['B', 'Find a flat path we can walk fast'], ['C', 'Stay on the shore so we can see the sea']];
+L.cards('ASK THE AI HELPER FOR A ROUTE', CARDS, 4.2, 8.6, 6.3, 0);
+L.helper('Quickest means shortest, so I sent you straight over the ridge.', 70, 8.6, 16.2);
+const clock = '<svg width="34" height="34" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="#13202b" stroke-width="2.6"/><path d="M12 7v5l3 2" stroke="#13202b" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg>';
+const bolt = '<svg width="34" height="34" viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7z" fill="#f26b2a"/></svg>';
+const timeLeft = (t) => t < 9.8 ? 81 : t < 19.4 ? 81 - 46 * prog(t, 9.8, 16, ease.out) : 81 - 22 * prog(t, 20.8, 25.8, (k) => k);
+const energy = (t) => t < 9.8 ? 80 : t < 19.4 ? 80 - 50 * prog(t, 10, 15.6) : 80 - 8 * prog(t, 20.8, 25.8);
+L.meters([{ icon: clock, label: 'Time left', fn: timeLeft, badBelow: 40 }, { icon: bolt, label: 'Energy', fn: energy, badBelow: 50 }], 9.4, 18.2, { x: 46, y: 860 });
+L.alert('The team is worn out', 14.4, 16.3, { y: 560 });
+L.facil('Shortest is not always quickest. What else matters?', 16.4, 20.6, { color: '#1fc7b0', ink: '#13202b', y: 520 });
+L.cards('TRY A CLEARER CARD', CARDS, 18.4, 21.4, 19.9, 1);
+L.panel('<div class="b-saved" style="background:#16c7a6;color:#13202b">↺ Back to camp. Same time, new plan.</div>', 19.4, 20.8, { x: 960, y: 470, anchor: 'c', from: 'pop' });
+L.helper('Flat means the beach. It is longer, but you can walk it fast.', 92, 21.4, 25.6);
+L.meters([{ icon: clock, label: 'Time left', fn: timeLeft, badBelow: 40 }, { icon: bolt, label: 'Energy', fn: energy, badBelow: 50 }], 21.6, 30.8, { x: 46, y: 860 });
+L.saved('Lighthouse reached with 0:41 to spare', 26.4, 30.6, { y: 470 });
+const dimEnd = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:radial-gradient(ellipse at center, rgba(10,40,80,.25), rgba(10,40,80,.6))"></div>'); A(cue(dimEnd, 31.2, null, { from: 'fade', dur: 0.8 }));
+const title = titleCard('Mission <span class="hl">AI</span>', 'Plan the route. Check what the AI thinks you meant.', { chip: 'A DeltaOps Learning AI lab · Holiday camps' }); A(cue(title, 31.4, null, { from: 'pop', dur: 0.8 }));
+st.onFrame((t) => ui.forEach((f) => f(t)));
+window.__duration = DUR;
+document.fonts.ready.then(() => { window.__ready = true; });
+</script></body></html>
