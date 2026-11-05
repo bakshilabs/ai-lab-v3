@@ -44,25 +44,25 @@ The ☰ menu has these settings:
 2. **Plan.** The player instructs Plotter with word tiles (default for 8–12), free text (default for 13–17) or a card. Plotter flies over, beams down a see-through plan and shows its reading and its "% sure".
 3. **Check.** The player chooses a lens or view. The island turns to pale clay and the honest simulation shows what the plan would really do.
 4. **Fix.** The player names Plotter's habit, writes a clearer instruction and builds.
-   - When the plan is accepted, a short letterboxed **film** shows it being made, then the player can adjust it. Each film is skippable and replaced by a cut when Reduce motion is on.
+   - When the plan is accepted, a short letterboxed **construction film** shows how it is built, **system by system and layer by layer**. A numbered step strip follows along, read aloud for ages 8–12 and in more technical wording for 13–17. One featured tile is built slowly, then the rest of the plan goes up around it. Each film can be skipped, and with Reduce motion on it becomes a quick cut.
 
-     | Level | Film |
+     | Level | Steps in the film |
      |---|---|
-     | 1 | Surveyors stake out the land |
-     | 2 | A road roller lays paths and lanes |
-     | 3 | A crane, scaffolding and builders raise the homes layer by layer |
-     | 4 | A tractor ploughs and sows; hives and orchards go in |
-     | 5 | The turbine tower rises, its blades drop into place, and panels go on the roofs |
-     | 6 | The school and square are built and the ribbon is cut |
+     | 1 | Surveyors peg out the town land |
+     | 2 | Digging the trench, gravel base rolled flat, surface, then lines, lamps and crossings |
+     | 3 | Clearing the site, foundations, frame (timber, or steel and concrete for concrete flats), water pipes and wires (shown through a see-through frame), walls (straw bale, rammed earth, reclaimed brick…), windows and doors, roof rafters, roof covering, then solar panels or a heat pump |
+     | 4 | Ploughing, sowing, crops growing, fences and sheds |
+     | 5 | Turbine foundation, tower sections, generator housing, blades fitted, then a glowing cable to the town |
+     | 6 | The school built step by step, then the ribbon is cut |
 
-   - Plotter re-tests every new plan.
-   - The player can paint and adjust tiles. The 13–17 version also has a budget.
 5. **Move in.** The followed family arrives on the sky-ferry.
 6. **Live.** A day passes, with thought bubbles from residents. In the 13–17 version, "What residents said" lists the comments and repeated complaints can become a petition.
 7. **Celebrate.** The level's builds replay as a time-lapse from the same angle, then the reward card appears. The 13–17 version adds a town-meeting dilemma.
 
 Level 6 adds three things before the final day:
-- a check of the AI's summary of residents' views (sampling bias);
+- a check of the AI's summary of residents' views (sampling bias):
+  - **8–12:** tap residents at the school gate to see how they travel;
+  - **13–17:** **Teach Plotter**. Plotter trains a real classifier in the browser on residents' comments, first from the car-park survey box only (drivers), and its summary says "Residents want more car parks". Students inspect the training data, add comments from the school gate or write and label their own, and retrain until the summary matches the town;
 - a three-promise town charter;
 - a printable town report at the end.
 
@@ -71,9 +71,9 @@ Level 6 adds three things before the final day:
 | Folder | What it does |
 |---|---|
 | `engine/` | Renderer and post-processing (tilt-shift, bloom, grade), sky and time of day (`stage.js`); voxel mesher (`voxel.js`); kit and extras; residents, wildlife and the ferry (`life.js`); Plotter's drone (`bot.js`); WebAudio synth (`audio.js`) |
-| `world/` | Terrain grid and zones (`terrain.js`), build catalogue and placement rules (`catalog.js`), voxel builders (`builders.js`), the island in three.js (`world.js`), dollhouse rooms (`inside.js`) |
+| `world/` | Terrain grid, zones, rim, mesas and canyons (`terrain.js`), construction stages (`construct.js`), build catalogue and placement rules (`catalog.js`), voxel builders (`builders.js`), the island in three.js (`world.js`), dollhouse rooms (`inside.js`) |
 | `sim/` | The honest simulation (`sim.js`) and Plotter's literal planner (`planner.js`) |
-| `ai/` | `plotter.js` reads the instruction (small language model, falling back to keywords), plans, and replies from templates. `model.js` and `tokenizer.js` run the model; see `../model/README.md` |
+| `ai/` | `teach.js` trains the residents'-feedback classifier in the browser. `plotter.js` reads the instruction (small language model, falling back to keywords), plans, and replies from templates. `model.js` and `tokenizer.js` run the model; see `../model/README.md` |
 | `game/` | The level flow (`game.js`), level rules (`levels.js`), text for both versions (`content.js`), checks and lenses (`checks.js`), bubbles, the report |
 | `camera/rig.js` | Sky orbit, flights, street rails, follow and turntable shots |
 | `ui/ui.js` | The frame: town card, icon strip, Plotter dock, cards, labels and bubbles, read-aloud |
@@ -85,7 +85,7 @@ From `games/ecotown/game`:
 - Simulation and planner. This checks that each level's vague instruction produces its intended mistake and that the clear one fixes it:
 
   ```bash
-  node --test tests/sim.test.mjs
+  node --test tests/sim.test.mjs tests/model.test.mjs tests/teach.test.mjs
   ```
 
 - End-to-end play-through of both versions with screenshots. It checks for no errors, no external requests and the on-screen panel limits. The server must be running first:

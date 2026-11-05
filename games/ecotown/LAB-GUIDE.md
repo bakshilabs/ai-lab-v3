@@ -245,6 +245,11 @@ Goldsmith Street in Norwich is a street of about 100 council homes built to a ve
 - **Gentle consequences:** people queue, shiver or move away; nobody is harmed; no fail screen (DESIGN.md).
 - **Accuracy:** every real-world environmental claim on screen (carbon, flooding, materials) needs a source or an expert check before release.
 
+## 11A. Facilitator notes for the game build
+- **Construction films.** Each film is a natural pause point. Ask: "Why does the frame go up before the walls? Why do pipes and wires go in before the walls close?" For 13–17: "Which step carries most of the carbon?" (Foundations and the frame for concrete; the walls store carbon for timber and straw.)
+- **Free text (13–17).** Students type their own instructions. Plotter highlights the words it picked up and explains its "% sure". Off-topic or unsafe text gets "I can't map that to a plan for this level." Nothing typed is stored or sent.
+- **Teach Plotter (13–17, Level 6).** Let the group look at the training examples before they fix anything: "Who is missing from this data?" A strong answer: "Only people who drove to the car-park box." Then retrain with the school-gate comments, or with examples students write and label themselves, and compare the new summary.
+
 ## 12. Build notes
 - **From DESIGN.md:** scenes, levels, cameras, the living town and scoring.
 - **Additional assets:** acetate-style lens overlays for print; four-habit poster; level-debrief prompt cards for the facilitator device; town report and family diary templates; lens role cards.

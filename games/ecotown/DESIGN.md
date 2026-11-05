@@ -170,3 +170,27 @@ The playable game is in `game/`; see `README.md`. It differs from the trailer in
 - one dock where Plotter speaks next to the current action (bottom).
 
 The limits from the review are tested automatically: at most two panels while the town is living and at most four while planning, and no XP. Lenses turn the island to pale clay and paint one variable, with a pattern or number backup.
+
+### Look and construction (update)
+
+**The island.** The island follows the brochure and website style: a compact floating diorama with stepped terraces.
+- Around the buildable tiles is a wild rim, never built on, with:
+  - terracotta mesas and canyons in the colours of the AI Inventor Lab rover scene;
+  - small tiered pines and two-tone oaks;
+  - an old windmill, a spring waterfall and a lively beach.
+- The underside is warm streaked earth with hanging roots.
+- The meadow, wetland and coast stay flat, so "best land = flattest land" still leads Plotter to the floodplain.
+
+**Construction is taught, not just shown.** Every build is broken into real stages (`game/js/world/construct.js`).
+- Each stage sweeps in over its own time. Temporary layers (trench, gravel, frame, pipes, rafters) disappear once the layer that covers them is complete.
+- Materials change the steps:
+  - a timber home gets a timber frame;
+  - concrete flats get "steel rebar and concrete (high embodied carbon)";
+  - the wall step names straw bales, rammed earth or reclaimed brick.
+- The film camera picks the angle with the clearest line of sight to the build.
+
+**Teach Plotter (13–17).** The Level 6 residents'-feedback summary comes from a real logistic-regression classifier trained in the browser (`game/js/ai/teach.js`).
+- Its inputs are what Plotter's language model reads in each comment, plus its sentence embedding.
+- Trained only on the car-park survey box, it claims most residents want car parks.
+- With a balanced sample from the school gate, or students' own labelled examples, its estimate moves to within about 15–20 points of the truth.
+- `tests/teach.test.mjs` checks both outcomes.
