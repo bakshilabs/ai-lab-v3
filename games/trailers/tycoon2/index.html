@@ -57,7 +57,7 @@ function heart(x, y) { const q = S(x, y); q(0, 0, 2, 1, '#ff5a7a'); q(3, 0, 2, 1
 function kiosk(x, y, c) { const q = S(x, y); q(-6, -8, 12, 7, '#f1ebe0'); q(-7, -13, 14, 5, c); for (let k = 0; k < 4; k++) q(-7 + k * 4, -13, 2, 5, '#fff'); q(-2, -6, 4, 5, '#3a2a1a'); q(-5, -7, 2, 2, '#ffd23f'); }
 function bin(x, y) { const q = S(x, y); q(-1, -5, 3, 5, '#2f8a43'); q(-1, -5, 3, 1, '#7ad04e'); }
 function wheel(x, y, t) { const q = S(x, y); q(-1, -30, 2, 30, '#8a8f96'); q(-9, -2, 18, 2, '#6b7078'); const R = 18; for (let k = 0; k < 24; k++) { const a = k / 24 * Math.PI * 2; px(x + Math.cos(a) * R * Z, y - 30 * Z + Math.sin(a) * R * Z, 2, 2, '#d0d6dc'); } for (let k = 0; k < 8; k++) { const a = k / 8 * Math.PI * 2 + t * 0.6; const cx = x + Math.cos(a) * R * Z, cy = y - 30 * Z + Math.sin(a) * R * Z; g.strokeStyle = '#aeb6be'; g.lineWidth = 1; g.beginPath(); g.moveTo(x, y - 30 * Z); g.lineTo(cx, cy); g.stroke(); px(cx - 5, cy, 10, 7, ['#ff5a4a', '#ffc83d', '#3aa0f0', '#16c79a'][k % 4]); px(cx - 4, cy + 1, 8, 2, '#ffffffaa'); } }
-function gate(x, y) { const q = S(x, y); q(-16, -20, 3, 20, '#7a5232'); q(13, -20, 3, 20, '#7a5232'); q(-18, -26, 36, 7, '#16a37f'); q(-14, -24, 28, 3, '#fff'); }
+function gate(x, y) { const q = S(x, y); q(-16, -20, 3, 20, '#7a5232'); q(13, -20, 3, 20, '#7a5232'); q(-18, -26, 36, 7, '#16a37f'); q(-14, -24, 28, 3, '#fff'); for (let k = 0; k < 6; k++) q(-12 + k * 4.4, -24, 2, 3, '#16a37f'); }
 function bench(x, y) { const q = S(x, y); q(-3, -3, 7, 1, '#8a5a32'); q(-3, -5, 7, 1, '#8a5a32'); q(-3, -2, 1, 2, '#5a3a20'); q(3, -2, 1, 2, '#5a3a20'); }
 function lamp(x, y) { const q = S(x, y); q(0, -12, 1, 12, '#3a3f46'); q(-1, -14, 3, 2, '#ffe680'); }
 function flowers(x, y, k) { const q = S(x, y); for (let f = 0; f < 5; f++) q(-3 + f * 1.5, -1 - (f % 2), 1, 1, ['#ff5a7a', '#ffd23f', '#ffffff', '#b28cff', '#ff8a4a'][(f + k) % 5]); }
@@ -111,6 +111,9 @@ function frame(t) {
   kiosks.forEach(([i, j, c], k) => { const on = k < 2; if (on) objs.push([i + j, () => { const [x, y] = iso(i, j); kiosk(x + ox, y + oy, c); if (k < 2) bin(x + ox + 20, y + oy + 2); }]); });
   coaster.forEach(([i, j, h], k) => objs.push([i + j - 0.2, () => { const [x, y] = iso(i, j, h); const [, yb] = iso(i, j, 0); if (k % 2 === 0) { px(x + ox, y + oy + 6, 1, yb - y - 2, '#7a5232'); for (let b = 8; b < yb - y; b += 8) px(x + ox - 3, y + oy + 6 + b, 7, 1, '#6b4424'); } const [x2, y2] = iso(...coaster[(k + 1) % 48].slice(0, 2), coaster[(k + 1) % 48][2]); g.lineWidth = 2; g.strokeStyle = '#b0302a'; g.beginPath(); g.moveTo(x + ox, y + oy + 2); g.lineTo(x2 + ox, y2 + oy + 2); g.stroke(); g.strokeStyle = '#e85a4a'; g.beginPath(); g.moveTo(x + ox, y + oy + 6); g.lineTo(x2 + ox, y2 + oy + 6); g.stroke(); px(x + ox - 1, y + oy + 2, 2, 5, '#5a3a20'); }]));
   for (let c = 0; c < 5; c++) { const u = (t * 0.25 + c * 0.022) % 1; const [i, j, h] = coaster[Math.floor(u * 48)]; objs.push([i + j + 0.1, () => { const [x, y] = iso(i, j, h); px(x + ox - 6, y + oy - 4, 12, 7, ['#ffc83d', '#3aa0f0', '#ff5a4a', '#16c79a', '#a46cf0'][c]); px(x + ox - 3, y + oy - 8, 3, 4, '#e8b88a'); px(x + ox + 1, y + oy - 8, 3, 4, '#a8714b'); }]); }
+  // coaster station + queue, and a carousel (more rides, like RCT)
+  objs.push([9.6 + 5.0, () => { const [x, y] = iso(9.6, 5.0); const q = S(x + ox, y + oy); q(-10, -8, 20, 6, '#c9a06a'); q(-10, -12, 20, 4, '#b0302a'); q(-9, -11, 18, 1, '#ffd23f'); q(-12, -2, 24, 2, '#8a5a32'); for (let k = 0; k < 4; k++) q(-10 + k * 6, -14, 2, 4, '#7a5232'); }]);
+  objs.push([2.6 + 8.6, () => { const [x, y] = iso(2.6, 8.6); const q = S(x + ox, y + oy); q(-9, -2, 18, 3, '#e8d8b8'); q(-1, -16, 2, 14, '#7a5232'); const r = Math.floor(t * 6) % 4; for (let k = 0; k < 4; k++) q(-8 + k * 4, -10 + ((k + r) % 2), 3, 4, ['#ff5a4a', '#ffd23f', '#3aa0f0', '#16c79a'][(k + r) % 4]); q(-10, -18, 20, 3, '#ff7eb6'); q(-6, -21, 12, 3, '#ffd23f'); q(-1, -23, 2, 2, '#fff'); }]);
   const crowd = t < 8 ? 14 : t < 25 ? Math.round(lerp(14, 60, prog(t, 9, 13))) : 52;
   for (let k = 0; k < crowd; k++) {
     let i, j;
@@ -201,7 +204,7 @@ function frame(t) {
   }
   // award
   if (t >= 26.6 && t < 30) {
-    const k = eio(prog(t, 26.6, 27.1)); const wx = 8, wy = lerp(-120, 20, k);
+    const k = eio(prog(t, 26.6, 27.1)); const wx = 8, wy = lerp(-120, 34, k);
     win(wx, wy, 220, 110, 'PARK AWARD', '#b08a1a');
     // trophy
     const tx = wx + 40, ty = wy + 30; px(tx - 10, ty, 20, 4, '#ffd23f'); px(tx - 8, ty + 4, 16, 12, '#ffc83d'); px(tx - 3, ty + 16, 6, 8, '#e0a21a'); px(tx - 9, ty + 24, 18, 4, '#b08a1a'); px(tx - 6, ty + 6, 3, 8, '#fff6');
