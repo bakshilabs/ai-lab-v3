@@ -67,7 +67,7 @@ for (let dx = -3; dx <= 3; dx++) for (let dz = -3; dz <= 3; dz++) { const d = Ma
 v.set(LX, LG + 21, LZ, '#d8342c'); for (const [dx, dz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) { v.set(LX + dx, LG + 18, LZ + dz, '#22262b'); v.set(LX + dx, LG + 19, LZ + dz, '#22262b'); }
 scene.add(v.mesh());
 const lamp = new THREE.Mesh(new THREE.BoxGeometry(1.6, 2, 1.6), new THREE.MeshBasicMaterial({ color: '#f6e7b0' })); lamp.position.set(LX + 0.5, LG + 19, LZ + 0.5); scene.add(lamp);
-const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 4, 30, 16, 1, true), new THREE.MeshBasicMaterial({ color: '#fff3b0', transparent: true, opacity: 0.28, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide })); beam.geometry.translate(0, 15, 0); beam.geometry.rotateZ(-Math.PI / 2); beam.position.copy(lamp.position); scene.add(beam);
+const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 2.2, 12, 16, 1, true), new THREE.MeshBasicMaterial({ color: '#fff3b0', transparent: true, opacity: 0.28, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide })); beam.geometry.translate(0, 6, 0); beam.geometry.rotateZ(-Math.PI / 2); beam.position.copy(lamp.position); scene.add(beam);
 // water slab (transparent block)
 const wGeo = new THREE.BoxGeometry(X1 - X0 + 1, -BED + 0.6, Z1 - Z0 + 1);
 const wat = new THREE.Mesh(wGeo, new THREE.MeshPhongMaterial({ color: '#43a9e6', transparent: true, opacity: 0.62, shininess: 80, specular: '#bfe6ff', depthWrite: false }));
@@ -113,7 +113,7 @@ st.onFrame((t) => {
   // fire + lighthouse
   for (let i = 0; i < 10; i++) { const ph = (t * 1.8 + i / 10) % 1; flames.setAt(i, -16.5 + Math.sin(i * 2.3) * 0.4, fireG + ph * 1.8, 3.5 + Math.cos(i * 1.7) * 0.4, t + i, t * 2, (1 - ph) * 1.1); } flames.done();
   fireLight.intensity = 26 + Math.sin(t * 13) * 6;
-  const lit = t > 25.8; lamp.material.color.set(lit ? '#fff6c8' : '#e8d9a0'); beam.visible = lit; beam.rotation.y = t * 1.6; beam.material.opacity = 0.3 * prog(t, 25.8, 26.4);
+  const lit = t > 25.8; lamp.material.color.set(lit ? '#fff6c8' : '#e8d9a0'); beam.visible = lit; beam.rotation.y = t * 1.6; beam.material.opacity = 0.18 * prog(t, 25.8, 26.4);
   conf(t);
   ripples.material.opacity = 0.6; rip.forEach(([x, z], i) => ripples.setAt(i, x, 0.42, z + Math.sin(t * 0.8 + i) * 0.4, 0, 0, 0.6 + 0.4 * Math.sin(t * 1.5 + i))); ripples.done();
   gulls.forEach((g, i) => { const a = t * 0.3 + i * 1.6; g.position.set(Math.cos(a) * (32 + i * 3), 22 + i * 2 + Math.sin(t + i) * 1.2, Math.sin(a) * (24 + i * 2)); g.rotation.y = -a; const f = Math.sin(t * 8 + i) * 0.5; g.userData.w[0].rotation.z = f; g.userData.w[1].rotation.z = -f; });
@@ -124,7 +124,7 @@ st.onFrame((t) => {
   else if (t < 16.2) { const k = prog(t, 8.4, 16.2); const [kx, kz] = at(RA, LA, 0.56 * prog(t, 9.8, 16, ease.out)); ang = lerp(-0.36, -0.2, k); dist = lerp(60, 36, ease.inOut(k)); hgt = lerp(46, 28, ease.inOut(k)); const q = prog(t, 9.6, 12); look = [lerp(-4, kx + 3, q), lerp(1, hSm(kx, kz) - 1, q), lerp(2, kz, q)]; }
   else if (t < 20.4) { const k = prog(t, 16.2, 20.4); ang = lerp(-0.2, -0.3, k); dist = lerp(36, 64, ease.inOut(k)); hgt = lerp(28, 48, ease.inOut(k)); const [ex, ez] = at(RA, LA, 0.56); look = [lerp(ex + 3, -2, ease.inOut(k)), lerp(hSm(ex, ez) - 1, 0, ease.inOut(k)), lerp(ez, 3, ease.inOut(k))]; }
   else if (t < 26.4) { const k = prog(t, 20.4, 26.4); const [kx, kz] = at(RB, LB, prog(t, 20.8, 25.8, (q) => q)); ang = lerp(-0.3, 0.12, ease.inOut(k)); dist = lerp(62, 44, k); hgt = lerp(48, 34, k); look = [lerp(-2, kx + 3, prog(t, 20.6, 22)), 0, lerp(3, kz - 4, prog(t, 20.6, 22))]; }
-  else if (t < 31) { const k = prog(t, 26.4, 31); ang = lerp(0.12, 0.38, k); dist = lerp(48, 62, k); hgt = lerp(36, 44, k); look = [lerp(15, 10, k), lerp(4, 2, k), lerp(3, 1, k)]; }
+  else if (t < 31) { const k = prog(t, 26.4, 31); ang = lerp(0.05, 0.3, k); dist = lerp(64, 74, k); hgt = lerp(30, 36, k); look = [lerp(12, 9, k), lerp(9, 8, k), lerp(2, 1, k)]; }
   else { const k = prog(t, 31, 37); ang = lerp(0.38, 0.75, k); dist = lerp(90, 140, k); hgt = lerp(64, 104, k); look = [0, -3, 0]; }
   camera.fov = 30; camera.updateProjectionMatrix(); camera.position.set(Math.sin(ang) * dist + look[0], hgt + look[1], Math.cos(ang) * dist + look[2]); const dy = (t < 8.4 || t > 31) ? -7 : -1.5; camera.lookAt(look[0], look[1] + dy, look[2]);
 });
