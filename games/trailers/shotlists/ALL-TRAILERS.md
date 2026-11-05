@@ -731,7 +731,7 @@ Future Skills · 0:38.0 · a floating grassy voxel island with a cut-away design
 **Pathway card:** Next step: iDEA creative badges (free, online) · Award: Arts Award (Explore or Bronze) · Route: GCSE Art & Design or Media Studies, then a creative and digital apprenticeship · Jobs: content producer, graphic designer, marketing assistant.
 
 **Reviewer notes:**
-- **Render status:** Described from the current source; video re-rendering.
+- **Render status:** Described from the current source; video re-rendered and checked on a contact sheet.
 - **Checks now match the evidence:** the licence problem is a **Source** failure (the photo's source licence doesn't allow a ticketed event); copying a living artist's style without permission is an **Authority** failure. The AI card's data line is "Leo’s sketch · web image search" and Data passes (it is never struck). Data and Case each show a one-line reason. Each AI claim is struck only when its own check fails. Failed checks re-run (spinner) before turning green; Authority turns green after the AI-use statement finishes. Fixed cards show a green "Done" line.
 - **Mentor and labels:** Sam stays by the easel. Name labels and the speech bubble snap on one at a time, fully opaque, so they never overlap or ghost. The "Before" card enters only after the poster has slid clear (no double exposure).
 - **Framing:** medium-wide camera with the whole rounded island, its rocky underside and blue sky in view through the middle section; cards in a column on the left. The portfolio holds only Leo's own piece from this trailer.
