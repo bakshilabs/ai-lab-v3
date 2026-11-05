@@ -4,7 +4,8 @@
 export const T = 6;            // voxels per tile side
 export const GW = 14, GH = 11; // grid size in tiles (compact, dense island)
 export const X0 = -42, Z0 = -33;
-export const RX = 41, RZ = 32; // island radii in voxels
+export const TRX = 41, TRZ = 32; // tile area radii in voxels (where the town can be built)
+export const RX = 49, RZ = 39;   // full island outline radii (tile area + the wild rim belt)
 
 export const ZONES = {
   river:   { label: 'River',              top: '#5bbcf0' },
@@ -30,11 +31,30 @@ export function noise2(x, z, seed = 1) {
   return a + (b - a) * s(xf) + (c - a) * s(zf) + (a - b - c + d) * s(xf) * s(zf);
 }
 
-// Voxel-level island outline (wobbly ellipse). Used for the mesh and for tile membership.
-export function insideVoxel(x, z) {
-  const a = Math.atan2(z / RZ, x / RX), r = Math.hypot(x / RX, z / RZ);
+// Tile area: the buildable part of the island. Tile membership uses this, so the game grid never changes.
+export function insideTileArea(x, z) {
+  const a = Math.atan2(z / TRZ, x / TRX), r = Math.hypot(x / TRX, z / TRZ);
   const w = 1 + (noise2(Math.cos(a) * 3 + 10, Math.sin(a) * 3 + 10, 77) - 0.5) * 0.12;
   return r <= w;
+}
+// Full island outline for the mesh: bigger and more ragged, with a few notches.
+export function insideVoxel(x, z) {
+  const a = Math.atan2(z / RZ, x / RX), r = Math.hypot(x / RX, z / RZ);
+  const w = 1 + (noise2(Math.cos(a) * 4 + 3, Math.sin(a) * 4 + 3, 91) - 0.5) * 0.2 + (noise2(Math.cos(a) * 11, Math.sin(a) * 11, 13) - 0.5) * 0.07;
+  return r <= w || insideTileArea(x, z);
+}
+// Height of the wild rim belt (0 inside the tile area): hills and terraces, higher at the back (north/east)
+// and low at the front (south coast), so the town stays in view from the default camera.
+export function rimHeight(x, z) {
+  if (insideTileArea(x, z)) return 0;
+  // distance outward from the tile area, roughly 0..1 across the belt
+  const rIn = Math.hypot(x / TRX, z / TRZ), rOut = Math.hypot(x / RX, z / RZ);
+  const t = Math.max(0, Math.min(1, (rIn - 1) / Math.max(0.05, (RX / TRX) - 1)));
+  const back = Math.max(0, Math.min(1, 0.55 - z / 40 + x / 140));       // 1 at the north, ~0 at the south
+  const hills = noise2(x / 9, z / 9, 5) * 0.7 + noise2(x / 4, z / 4, 6) * 0.3;
+  const h = (1.2 + back * 6.5) * hills * Math.min(1, t * 2.2) + back * 1.5 * t;
+  void rOut;
+  return Math.max(0, Math.round(h));
 }
 export const riverX = (z) => -27 + 1.4 * Math.sin(z / 7);
 export const inRiverVoxel = (x, z) => Math.abs(x + 0.5 - riverX(z)) < 1.8;
@@ -56,7 +76,7 @@ export function zoneAt(cx, cz) {
 function zoneOf(gx, gz) {
   const [cx, cz] = tileCenter(gx, gz);
   const [x0, z0] = tileOrigin(gx, gz);
-  for (const [x, z] of [[x0, z0], [x0 + T - 1, z0], [x0, z0 + T - 1], [x0 + T - 1, z0 + T - 1]]) if (!insideVoxel(x, z)) return null;
+  for (const [x, z] of [[x0, z0], [x0 + T - 1, z0], [x0, z0 + T - 1], [x0 + T - 1, z0 + T - 1]]) if (!insideTileArea(x, z)) return null;
   if (gx === 2) return 'river';
   return zoneAt(cx, cz);
 }

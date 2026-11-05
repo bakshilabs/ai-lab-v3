@@ -12,7 +12,7 @@ export function createRig(stage, canvas, fadeEl) {
     mode: 'sky', reduce: false, locked: false, sky, onTap: null, onDoubleTap: null, onHover: null,
     street: null, flight: null, turntable: 0, follow: null,
     // distance that makes the island ~75% of the screen width (or height on portrait screens)
-    frameDist(span = 86, fill = 0.82) {
+    frameDist(span = 100, fill = 0.8) {
       const vf = cam.fov * DEG; const hf = 2 * Math.atan(Math.tan(vf / 2) * cam.aspect);
       const f = Math.min(hf, vf * 1.25);
       return (span / 2 / fill) / Math.tan(f / 2) * 0.92;

@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { Vox, WORLD, rand, noise2, clipMaterial } from '../engine/voxel.js';
 import { clouds, waterfall, roots, floatingRocks } from '../engine/extras.js';
 import { ease, clamp } from '../engine/stage.js';
-import { T, X0, Z0, RX, RZ, zoneAt, insideVoxel, inRiverVoxel, riverX, tileAt, tileOrigin, tileCenter, ZONES } from './terrain.js';
+import { T, X0, Z0, RX, RZ, zoneAt, rimHeight, insideVoxel, inRiverVoxel, riverX, tileAt, tileOrigin, tileCenter, ZONES } from './terrain.js';
 import { BUILD, MARK, addMod, addModFine, decorate, tree2 } from './builders.js';
 import { ITEMS } from './catalog.js';
 
@@ -17,6 +17,7 @@ function zoneAtVoxel(x0, z0) {
   return zoneAt(x0 + (noise2(x0 * 0.18, z0 * 0.18, 31) - 0.5) * 3, z0 + (noise2(x0 * 0.18, z0 * 0.18, 47) - 0.5) * 3);
 }
 const TOPS = {
+  rim: ['#62bb3d', '#58b036', '#6fc447'],
   meadow: ['#7fd04f', '#74c846', '#89d65a'], wetland: ['#6cbf5a', '#62b552', '#76c663'], wood: ['#4fab3a', '#58b442', '#47a034'],
   slope: ['#86d250', '#7bc947', '#90d85c'], coast: ['#efdcab', '#e7d29b', '#f3e3b8'], field: ['#6fc444', '#66bb3d', '#79cc4d'],
 };
@@ -26,32 +27,53 @@ export function createWorld(stage, terrain) {
   const root = new THREE.Group(); scene.add(root);
   const tileH = (gx, gz) => terrain.tiles.get(gx + ',' + gz)?.h ?? 0;
 
-  // ---------------- terrain mesh
-  const v = new Vox(); v.jitter = 0.05; const water = new Vox(); water.jitter = 0.03; const riverCells = [];
-  for (let x = -RX - 3; x <= RX + 3; x++) for (let z = -RZ - 3; z <= RZ + 3; z++) {
+  // ---------------- terrain mesh: the buildable tile area, ringed by a wild rim of hills, rocks, trees and beach
+  const v = new Vox(); v.jitter = 0.03; const water = new Vox(); water.jitter = 0.03; const riverCells = [];
+  const inTiles = (x, z) => { const tt = tileAt(x, z); return tt && terrain.tiles.has(tt[0] + ',' + tt[1]) ? tt : null; };
+  // the rim is cut by the river valley so the river still runs off both ends
+  const rimH = (x, z) => Math.round(rimHeight(x, z) * Math.min(1, Math.max(0, (Math.abs(x + 0.5 - riverX(z)) - 2.5) / 6)));
+  const heightAt = (x, z) => { if (!insideVoxel(x, z)) return null; if (inRiverVoxel(x, z)) return -1; const tt = inTiles(x, z); return tt ? tileH(tt[0], tt[1]) : rimH(x, z); };
+  const rimCells = [];
+  for (let x = -RX - 4; x <= RX + 4; x++) for (let z = -RZ - 4; z <= RZ + 4; z++) {
     if (!insideVoxel(x, z)) continue;
-    const tt = tileAt(x, z); const h = tt ? tileH(tt[0], tt[1]) : 0;
-    const zone = zoneAtVoxel(x, z); const r = Math.hypot(x / RX, z / RZ);
-    const under = Math.round(15 * (1 - r * r * 0.8) + noise2(x / 3, z / 3, 86) * 4);
-    const river = inRiverVoxel(x, z);
-    const top = river ? -1 : h;
+    const tt = inTiles(x, z); const river = inRiverVoxel(x, z); const top = heightAt(x, z);
+    const r = Math.hypot(x / RX, z / RZ);
+    const beach = !tt && z > 18 && top <= 1;
+    const zone = tt ? zoneAtVoxel(x, z) : beach ? 'coast' : 'rim';
+    let under = Math.round(14 * (1 - r * r * 0.75) + noise2(x / 3, z / 3, 86) * 4) + top;
+    if (rand(x, z, 77) > 0.985 && r < 0.85) under += 5 + Math.floor(rand(x, z, 78) * 5);   // hanging rock tips
+    const edge = !insideVoxel(x + 1, z) || !insideVoxel(x - 1, z) || !insideVoxel(x, z + 1) || !insideVoxel(x, z - 1);
     for (let y = top - under; y <= top; y++) {
       let c;
-      if (y === top) { const pal = TOPS[zone]; c = river ? '#d6c08a' : pal[Math.floor(noise2(x * 0.35, z * 0.35, 9) * 2.99 + rand(x, z) * 0.6) % 3]; }
-      else if (y >= top - 2) c = rand(x, y, z) > 0.5 ? '#9a6a42' : '#8a5c38';             // brown topsoil band
-      else c = rand(x, y, z) > 0.5 ? '#8b8f93' : (rand(x, z, y) > 0.5 ? '#7b8085' : '#959a9e'); // grey stone
+      if (y === top) {
+        const pal = TOPS[zone]; const n = noise2(x * 0.09, z * 0.09, 9) * 0.8 + noise2(x * 0.3, z * 0.3, 4) * 0.2;   // large, calm colour patches
+        c = river ? '#d6c08a' : zone === 'rim' && top >= 4 ? pal[2] : pal[Math.min(2, Math.floor(n * 3))];
+      } else if (y >= top - 2) c = rand(x, y, z) > 0.5 ? '#9a6a42' : '#8a5c38';                       // brown topsoil
+      else c = (y + Math.floor(noise2(x * 0.2, z * 0.2, 3) * 3)) % 4 === 0 ? '#9ca0a4' : rand(x, y, z) > 0.5 ? '#8b8f93' : '#7b8085'; // grey strata
       v.set(x, y, z, c);
     }
+    // ledges on the outer cliff
+    if (edge && rand(x, z, 31) > 0.82) { const nx = insideVoxel(x + 1, z) ? -1 : 1, nz = insideVoxel(x, z + 1) ? -1 : 1; const y0 = top - 4 - Math.floor(rand(x, z, 32) * 4); v.set(x + nx, y0, z, '#8b8f93'); v.set(x + nx, y0 + 1, z, '#6fbf4a'); void nz; }
     if (river) { water.set(x, 0, z, rand(x, 9, z) > 0.5 ? '#5bbcf0' : '#4fb3ea'); riverCells.push([x, z]); }
+    if (!tt && !river && !edge) rimCells.push([x, z, top, zone]);
   }
-  // trees around the rim and on the edges of tiles, so the island never looks like a grid
-  for (let i = 0; i < 40; i++) {
-    const a = rand(i, 3, 9) * Math.PI * 2, rr = 0.9 + rand(i, 4, 9) * 0.08; const x = Math.round(Math.cos(a) * RX * rr), z = Math.round(Math.sin(a) * RZ * rr);
-    if (!insideVoxel(x, z) || inRiverVoxel(x, z) || insideVoxel(x + 3, z) && insideVoxel(x - 3, z) && insideVoxel(x, z + 3) && insideVoxel(x, z - 3) && tileAt(x, z)) continue;
-    const tt = tileAt(x, z); const zone = zoneAtVoxel(x, z); if (tt && terrain.tiles.has(tt[0] + ',' + tt[1])) continue;
-    tree2(v, x, (tt ? tileH(tt[0], tt[1]) : 0), z, zone === 'coast' ? 'round' : ['round', 'pine', 'round', 'pine'][i % 4], i);
+  // rocks and boulders on the rim and along the beach
+  for (const [x, z, top, zone] of rimCells) {
+    const p = rand(x, z, 41);
+    if ((zone === 'rim' && top >= 2 && p > 0.985) || (zone === 'coast' && p > 0.99)) {
+      const s2 = 1 + Math.floor(rand(x, z, 42) * 2);
+      for (let dx = -s2; dx <= s2; dx++) for (let dz = -s2; dz <= s2; dz++) for (let dy = 1; dy <= s2 + 1; dy++) if (Math.hypot(dx, dz, (dy - 1) * 1.2) <= s2 + 0.3) v.set(x + dx, top + dy, z + dz, dy === s2 + 1 ? '#a3a8ac' : rand(dx, dy, dz) > 0.5 ? '#8b8f93' : '#9aa0a5');
+    }
   }
-    const ground = v.mesh(); ground.castShadow = true; ground.receiveShadow = true; root.add(ground);
+  // dense tree clumps on the rim hills: pines up high, round trees lower down
+  for (const [x, z, top, zone] of rimCells) {
+    if (zone !== 'rim' || x % 3 || z % 3) continue;
+    const mask = noise2(x / 11, z / 11, 17) + (top >= 3 ? 0.18 : 0);
+    if (mask < 0.5 || rand(x, z, 19) < 0.25) continue;
+    tree2(v, x + Math.floor(rand(x, z, 20) * 2), top, z + Math.floor(rand(x, z, 21) * 2), top >= 4 ? 'pine' : rand(x, z, 22) > 0.35 ? 'round' : 'pine', x * 7 + z);
+  }
+  roots(v, insideVoxel, { rx: RX, rz: RZ, top: 0, count: 34, seed: 4 });
+  const ground = v.mesh(); ground.castShadow = true; ground.receiveShadow = true; root.add(ground);
   const islets = floatingRocks(scene, { n: 6, center: [0, -6, 0], radius: 95, seed: 8 });
   const waterMesh = water.mesh({ castShadow: false });
   const uTime = { value: 0 };
@@ -91,17 +113,6 @@ export function createWorld(stage, terrain) {
     if (t.fixed) { const G2 = new Vox(), B2 = new Vox(), F2 = new Vox(); F2.jitter = 0.05; const rec = newRec(); BUILD[t.fixed](G2, B2, rec, t, F2); L.fixed = meshLayer(G2, B2, ox, t.h, oz, F2); L.fixedRec = rec; L.group.add(L.fixed); L.deco.visible = false; }
     root.add(L.group); layers.set(t.k, L);
   }
-
-  // ---------------- wind-swept grass tufts and flowers (instanced), grouped by tile so builds can hide them
-  const grassCells = []; const grassTile = new Map();
-  for (const t of terrain.tiles.values()) {
-    if (!['meadow', 'field', 'slope', 'wetland'].includes(t.zone)) continue;
-    const [ox, oz] = tileOrigin(t.gx, t.gz); const n = Math.round((t.zone === 'meadow' ? 14 : 8) * stage.q.grass);
-    const start = grassCells.length;
-    for (let i = 0; i < n; i++) { const x = ox + rand(i, t.gx, t.gz) * T, z = oz + rand(t.gz, i, t.gx) * T; if (!inRiverVoxel(Math.floor(x), Math.floor(z))) grassCells.push([x, z, t.h, t.zone]); }
-    grassTile.set(t.k, [start, grassCells.length]);
-  }
-  const { update: grassU, setVisible: grassVis } = tufts(scene, grassCells);
 
   // ---------------- night lights (windows and lamps), one instanced mesh
   const MAXL = 1600;
@@ -180,7 +191,6 @@ export function createWorld(stage, terrain) {
       L.cellItem = cell?.item || null;
       const has = cell && (cell.item || cell.mark);
       L.deco.visible = !L.fixed && !(cell && cell.item) && !(cell && cell.mark === 'town');
-      const gr = grassTile.get(k); if (gr) grassVis(gr[0], gr[1], L.deco.visible);
       if (L.hedge) L.hedge.visible = !(cell && cell.item) || HEDGE_SAFE.has(cell.item);
       if (!has) return;
       const { g, rec } = buildMeshes(L, cell); L.build = g; L.rec = rec; L.group.add(g);
@@ -237,7 +247,7 @@ export function createWorld(stage, terrain) {
       return hit;
     },
     update(dt, t, { windStill = false } = {}) {
-      uTime.value = t; cloudUpd(t); cloudSea(t * 0.4); islets(t); falls.forEach((f) => f(t)); grassU(t);
+      uTime.value = t; cloudUpd(t); cloudSea(t * 0.4); islets(t); falls.forEach((f) => f(t));
       // clay fade
       this.clay += (this.clayTarget - this.clay) * Math.min(1, dt * 7); WORLD.clay.value = this.clay;
       // night lights fade with the sky
@@ -290,28 +300,3 @@ function overlayMat(color, pattern = 'solid') {
 }
 export { ZONES };
 
-// Instanced grass blades and meadow flowers with GPU wind sway. setVisible hides a range (a tile).
-function tufts(scene, cells) {
-  const N = cells.length; const geo = new THREE.BoxGeometry(0.16, 0.9, 0.16); geo.translate(0, 0.45, 0);
-  const mat = new THREE.MeshLambertMaterial({ color: '#ffffff' }); const uTime = { value: 0 };
-  mat.onBeforeCompile = (sh) => {
-    sh.uniforms.uTime = uTime; sh.uniforms.uClay = WORLD.clay; sh.uniforms.uSnow = WORLD.snow;
-    sh.vertexShader = 'uniform float uTime;\n' + sh.vertexShader.replace('#include <begin_vertex>', `#include <begin_vertex>
-      vec4 ip = instanceMatrix * vec4(0.0,0.0,0.0,1.0);
-      float sway = sin(uTime * 1.8 + ip.x * 0.3 + ip.z * 0.22) * 0.3 + sin(uTime * 3.1 + ip.x) * 0.07;
-      transformed.x += sway * position.y; transformed.z += sway * 0.4 * position.y;`);
-    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform float uClay; uniform float uSnow;').replace('#include <color_fragment>', '#include <color_fragment>\n diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.95,0.97,1.0), uSnow*0.8); diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.82,0.83,0.82), uClay);');
-  };
-  const m = new THREE.InstancedMesh(geo, mat, Math.max(1, N)); m.castShadow = false; m.receiveShadow = true; m.frustumCulled = false;
-  const d = new THREE.Object3D(); const mats = [];
-  const GRASS = ['#8ad85a', '#6fc444', '#9be06a', '#5fb83c'], FLOW = ['#ff7eb6', '#ffd23f', '#ffffff', '#b28cff'];
-  cells.forEach(([x, z, h, zone], i) => {
-    const flower = zone === 'meadow' && noise2(x * 0.12, z * 0.12, 21) > 0.6 && rand(i, 7) > 0.55; // flowers grow in drifts
-    d.position.set(x, h + 1, z); d.rotation.set(0, rand(i, 4) * 3, 0); d.scale.set(flower ? 1.2 : 1, flower ? 0.9 + rand(i, 2) * 0.5 : 0.5 + rand(i, 3) * 0.9, flower ? 1.2 : 1); d.updateMatrix();
-    m.setMatrixAt(i, d.matrix); mats.push(d.matrix.clone());
-    m.setColorAt(i, new THREE.Color(flower ? FLOW[i % FLOW.length] : zone === 'wetland' ? '#6f9a45' : GRASS[i % GRASS.length]));
-  });
-  m.instanceMatrix.needsUpdate = true; if (m.instanceColor) m.instanceColor.needsUpdate = true; scene.add(m);
-  const zero = new THREE.Matrix4().makeScale(0, 0, 0);
-  return { update: (t) => { uTime.value = t; }, setVisible(a, b, on) { for (let i = a; i < b; i++) m.setMatrixAt(i, on ? mats[i] : zero); m.instanceMatrix.needsUpdate = true; } };
-}
