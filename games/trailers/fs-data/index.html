@@ -18,7 +18,7 @@
 .bars .r b { text-align: right; font-weight: 800; }
 .bars .r.q { color: #13202b; }
 .bars .r.q .t i { background: #f2a31b; }
-.dim { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; background: linear-gradient(180deg, rgba(8,30,50,.55), rgba(8,30,50,.25) 45%, rgba(8,30,50,.55)); }
+.dim { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; background: linear-gradient(180deg, rgba(8,40,70,.38), rgba(8,40,70,.12) 45%, rgba(8,40,70,.38)); }
 </style>
 <script type="importmap">{"imports":{"three":"/three/three.module.js","three/addons/":"/three-addons/"}}</script></head>
 <body><div id="app"><div id="bg"></div><div id="ui"></div><div id="fx"></div></div>
@@ -147,11 +147,11 @@ const wallTex = screenTex(512, 288, (g, w, h) => {
   rows.forEach(([n, k], i) => { g.fillStyle = '#5b6b78'; g.font = '700 20px Inter, sans-serif'; g.fillText(n, 24, 92 + i * 50); g.fillStyle = i === 3 ? '#f2a31b' : '#16c79a'; g.fillRect(170, 74 + i * 50, 300 * k / 38, 26); });
 });
 const wallScr = new THREE.Mesh(new THREE.PlaneGeometry(9, 5.06), new THREE.MeshBasicMaterial({ map: wallTex, toneMapped: false }));
-wallScr.position.set(-21.5, 4.6, -16.45); scene.add(wallScr);
-const wallFrame = new THREE.Mesh(new THREE.BoxGeometry(9.6, 5.6, 0.3), new THREE.MeshLambertMaterial({ color: '#1d2731' })); wallFrame.position.set(-21.5, 4.6, -16.65); scene.add(wallFrame);
+wallScr.position.set(-21.5, 4.6, -15.8); scene.add(wallScr);
+const wallFrame = new THREE.Mesh(new THREE.BoxGeometry(9.6, 5.6, 0.3), new THREE.MeshLambertMaterial({ color: '#1d2731' })); wallFrame.position.set(-21.5, 4.6, -15.98); scene.add(wallFrame);
 // council sign above
 const signTex = screenTex(512, 64, (g, w, h) => { g.fillStyle = '#13202b'; g.fillRect(0, 0, w, h); g.fillStyle = '#16c79a'; g.fillRect(16, 22, 20, 20); g.fillStyle = '#ffffff'; g.font = '800 30px Inter, sans-serif'; g.fillText('Harbourside Council · Insight Team', 50, 43); });
-const sign = new THREE.Mesh(new THREE.PlaneGeometry(10, 1.25), new THREE.MeshBasicMaterial({ map: signTex, toneMapped: false })); sign.position.set(-12.5, 6.2, -16.45); scene.add(sign);
+const sign = new THREE.Mesh(new THREE.PlaneGeometry(10, 1.25), new THREE.MeshBasicMaterial({ map: signTex, toneMapped: false })); sign.position.set(-11.5, 6.0, -15.9); scene.add(sign);
 
 // ---------- people ----------
 const seat = (p, x, z, face) => { p.children[0].rotation.x = p.children[1].rotation.x = Math.PI / 2; p.position.set(x, 1 - 0.06, z); p.rotation.y = face === 'n' ? 0 : Math.PI; scene.add(p); return p; };
@@ -190,10 +190,10 @@ const K = [
   { t: 8.4, ang: -0.36, dist: 64, hgt: 45, look: [-17, 1, -4], ox: 430 },
   { t: 9.6, ang: -0.22, dist: 34, hgt: 23, look: [-14.5, 2, -2.5], ox: 470 },
   { t: 14.6, ang: -0.16, dist: 31, hgt: 21, look: [-14.5, 2, -2.5], ox: 470 },
-  { t: 15.8, ang: -0.08, dist: 42, hgt: 22, look: [-20, 3.5, -10], ox: 440 },
-  { t: 19.4, ang: -0.02, dist: 40, hgt: 21, look: [-20, 3.5, -10], ox: 440 },
-  { t: 21.4, ang: 0.42, dist: 60, hgt: 42, look: [21, 1, -9], ox: 440 },
-  { t: 27.0, ang: 0.5, dist: 54, hgt: 38, look: [21, 1, -9], ox: 440 },
+  { t: 15.8, ang: -0.08, dist: 42, hgt: 22, look: [-22, 3.5, -10], ox: 440 },
+  { t: 19.4, ang: -0.02, dist: 40, hgt: 21, look: [-22, 3.5, -10], ox: 440 },
+  { t: 21.4, ang: 0.32, dist: 76, hgt: 58, look: [21, 0, -8], ox: 420 },
+  { t: 27.0, ang: 0.4, dist: 70, hgt: 54, look: [21, 0, -8], ox: 420 },
   { t: 28.4, ang: -0.22, dist: 34, hgt: 23, look: [-14.5, 2, -2.5], ox: 470 },
   { t: 32.4, ang: -0.18, dist: 31, hgt: 21, look: [-14.5, 2, -2.5], ox: 470 },
   { t: 34.4, ang: -0.3, dist: 90, hgt: 62, look: [-6, 0, -2], ox: 320 },
@@ -233,14 +233,14 @@ const ui = []; const A = (f) => ui.push(f);
 const FS = makeFS(A, camera);
 const fade = fader(); A((t) => fade(t < 0.5 ? 1 - prog(t, 0, 0.5) : t > DUR - 0.6 ? prog(t, DUR - 0.6, DUR) : 0));
 // title
-const dimT = el('<div class="dim"></div>'); A(cue(dimT, 0, 3.5, { from: 'fade', dur: 0.3 }));
+const dimT = el('<div class="dim" style="background:radial-gradient(ellipse 60% 45% at 50% 45%, rgba(8,32,60,.62), rgba(8,32,60,.18))"></div>'); A(cue(dimT, 0, 3.5, { from: 'fade', dur: 0.3 }));
 const title = titleCard('Council <span class="hl">Data Desk</span>', 'Clean the data. Question the conclusion.', { chip: 'DeltaOps Learning · Future Skills' }); A(cue(title, 0.4, 3.5, { from: 'pop', dur: 0.7 }));
 FS.appbar('Council Data Desk', 3.9, 35.6, SVG.mark);
 
 // brief
 FS.brief({ from: 'Harbourside Council · Head of Insight', task: 'Which wards need more streetlight repairs?', deliver: 'A one-page Data Brief for councillors', due: 'Friday' }, 4.2, 8.6, { x: 1000, y: 150 });
-FS.caption('<b>Amara</b>council data analyst', () => new THREE.Vector3(-12.2, 4.6, -0.6), 4.8, 14.6);
-FS.caption('<b>Maya, 13</b>junior analyst', () => new THREE.Vector3(-14.75, 4.3, -1.25), 5.4, 14.6, { cls: 'teal' });
+FS.caption('<b>Amara</b>council data analyst', () => new THREE.Vector3(-11.4, 5.6, -0.6), 4.8, 14.6);
+FS.caption('<b>Maya, 13</b>junior analyst', () => new THREE.Vector3(-15.6, 3.9, -1.25), 9.8, 14.6, { cls: 'teal' });
 
 // cleaning the spreadsheet
 const sheet = FS.card(`<div class="fs-top"><span class="ttl"><span class="ic">${SVG.grid()}</span>fault-reports.csv</span><span class="fs-pill grey" data-rows>120 rows</span></div>
@@ -309,7 +309,7 @@ A((t) => {
   const p = doc.querySelector('[data-st]'); const done = t > 31.2; p.className = 'fs-pill ' + (done ? 'teal' : 'amber'); p.textContent = done ? 'Signed off' : 'Editing';
 });
 // portfolio: the brief flies into the folder
-const folder = FS.folder('Portfolio', 'Maya · 1 piece', 32.4, 35.6, { x: 1500, y: 760 });
+const folder = FS.folder('Portfolio', 'Maya · 1 piece', 32.4, 35.6, { x: 1500, y: 760 }); folder.paperAt(34.0);
 FS.fly(doc, 33.0, 34.2, { dx: 1560 - 1000, dy: 790 - 150, s: 0.22, fadeAt: 0.8 });
 A((t) => { folder.querySelector('[data-sub]').textContent = t > 34.1 ? 'Data Brief added' : 'Maya · 0 pieces'; folder.style.transform = (folder.style.transform || '') + (t > 34.1 && t < 34.4 ? ' scale(1.06)' : ''); });
 

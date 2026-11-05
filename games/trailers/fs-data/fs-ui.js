@@ -66,8 +66,9 @@ export function makeFS(A, camera) {
       return `<div class="fs-sign"><span class="tk">${SVG.tick()}</span><span>Reviewed by: ${name}, age ${age}<small>${note}</small></span></div>`;
     },
     folder(title, sub, tIn, tOut, { x, y }) {
-      const n = el(`<div class="fs-folder"><div class="back"></div><div class="front"><b>${title}</b><small data-sub>${sub}</small></div></div>`, { x, y });
+      const n = el(`<div class="fs-folder"><div class="back"></div><div class="paper" data-paper></div><div class="front"><b>${title}</b><small data-sub>${sub}</small></div></div>`, { x, y });
       A(cue(n, tIn, tOut, { from: 'up' }));
+      n.paperAt = (t0) => A((t) => { const p = n.querySelector('[data-paper]'); const k = prog(t, t0, t0 + 0.35, ease.back); p.style.opacity = k > 0 ? 1 : 0; p.style.transform = `translateY(${(1 - k) * 60}px) rotate(-4deg)`; });
       return n;
     },
     // a node flies from its spot into a target point and shrinks

@@ -1,0 +1,262 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Impact Panel trailer</title>
+<link rel="stylesheet" href="../engine/ui.css"><link rel="stylesheet" href="fs.css">
+<style>
+.ip-form { width: 874px; padding: 30px 34px 26px; }
+.ip-form .hd { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; padding-bottom: 18px; border-bottom: 3px solid var(--fs-line); }
+.ip-form h3 { font: 800 40px/1.1 'Inter'; margin-top: 6px; }
+.ip-sec { padding: 16px 0 6px; }
+.ip-stk { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 12px; }
+.ip-s { display: flex; align-items: center; gap: 12px; background: #f4f7f9; border-radius: 18px; padding: 12px 14px; font: 700 23px/1.12 'Inter'; min-height: 72px; }
+.ip-s i { flex: none; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; padding: 8px; }
+.ip-s i svg { width: 100%; height: 100%; }
+.ip-s.new { background: var(--fs-mint); box-shadow: 0 0 0 4px var(--fs-teal) inset; }
+.ip-rows { margin-top: 8px; }
+.ip-r { display: grid; grid-template-columns: 150px 1fr; gap: 18px; align-items: start; padding: 14px 0; border-top: 2px solid var(--fs-line); font: 600 26px/1.35 'Inter'; }
+.ip-r .k { font: 800 19px/1.9 'Inter'; letter-spacing: .12em; text-transform: uppercase; color: var(--fs-muted); }
+.ip-r .muted { color: #a3afb8; }
+.ip-en { display: flex; align-items: center; gap: 16px; }
+.ip-en .bar { width: 130px; height: 16px; border-radius: 99px; background: #e8eef1; overflow: hidden; flex: none; }
+.ip-en .bar i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, #16c79a, #f5a524); }
+.ip-en small { display: block; font: 600 21px 'Inter'; color: var(--fs-muted); }
+</style>
+<script type="importmap">{"imports":{"three":"/three/three.module.js","three/addons/":"/three-addons/"}}</script></head>
+<body><div id="app"><div id="bg"></div><div id="ui"></div><div id="fx"></div></div>
+<script type="module">
+import * as THREE from 'three';
+import { createStage, prog, ease, lerp, clamp, within } from '../engine/stage.js';
+import { Vox, island, tree, house, person, particles, rand, noise2 } from '../engine/kit.js';
+import { el, cue, fader, titleCard } from '../engine/ui.js';
+import { Furn, table, chair, seated, standing, plant, screenPlane, monitor, laptop, draw, ICO, ui, briefHTML, briefChipHTML, aiHTML, findHTML, signHTML, folderHTML, pathHTML, checkStrip, pin, place, fadeIO, typed, setHTML } from './fs.js';
+
+const DUR = 43;
+const st = createStage({ sky: ['#5db6ff', '#d9efff'], post: false });
+const { scene, camera, sun, hemi, rim } = st;
+rim.intensity = 0.5; st.dome.visible = false; st.renderer.setClearColor(0x000000, 0);
+document.getElementById('bg').style.background = 'linear-gradient(180deg, #4fb0ff 0%, #8fd0ff 55%, #dff2ff 100%)';
+sun.intensity = 2.8; sun.position.set(-50, 120, 70); hemi.intensity = 1.3; st.renderer.toneMappingExposure = 1.08;
+
+// ---------- island + town ----------
+const v = new Vox(); v.jitter = 0.06;
+const isl = island(v, { rx: 37, rz: 27, top: 0, depth: 14, seed: 5, wobble: 3 });
+const F = 1; // ground / floor top
+// office floor and walls (cutaway: no roof, no front wall)
+const OX0 = -19, OX1 = 6, OZ0 = -9, OZ1 = 8;
+for (let x = OX0; x <= OX1; x++) for (let z = OZ0; z <= OZ1; z++) v.set(x, 0, z, (x + z) % 2 ? '#e2c79d' : '#d8bb8e');
+const WALL = '#f4f1ea', TRIM = '#16c79a', GLASS = null;
+for (let x = OX0; x <= OX1; x++) for (let y = 1; y <= 7; y++) {
+  const win = y >= 2 && y <= 5 && ((x - OX0) % 5 !== 0) && x > OX0 && x < OX1;
+  v.set(x, y, OZ0, win ? GLASS : (y === 7 ? TRIM : WALL));
+}
+for (let z = OZ0; z <= OZ1; z++) for (let y = 1; y <= 7; y++) {
+  const win = y >= 2 && y <= 5 && ((z - OZ0) % 5 !== 0) && z > OZ0 && z < OZ1 - 1;
+  v.set(OX0, y, z, win ? GLASS : (y === 7 ? TRIM : WALL));
+}
+// low half wall on the right with an entrance gap
+for (let z = OZ0; z <= OZ1; z++) if (z < -1 || z > 2) for (let y = 1; y <= 2; y++) v.set(OX1, y, z, y === 2 ? TRIM : WALL);
+// street behind
+for (let x = -34; x <= 34; x++) for (let z = -14; z <= -11; z++) if (isl.top(x, z) != null) v.set(x, 0, z, z === -12 && x % 4 === 0 ? '#f2f2ea' : '#5b6168');
+// houses behind the street
+const HC = [['#d0573a', '#f1ebe0'], ['#5a6d80', '#efe2c9'], ['#3f8f7a', '#f4efe6'], ['#d0573a', '#efe2c9'], ['#6e5bf2', '#f1ebe0']];
+[[-30, -21, 7, 5, 4], [-21, -22, 6, 6, 5], [-12, -23, 8, 6, 6], [-1, -22, 6, 5, 4], [8, -21, 7, 5, 5]].forEach(([x, z, w, d, h], i) => house(v, x, 0, z, { w, d, h, roof: HC[i][0], wall: HC[i][1] }));
+// council tower (civic building) left
+for (let x = -32; x <= -26; x++) for (let z = -8; z <= -2; z++) for (let y = 1; y <= 12; y++) { const e = x === -32 || x === -26 || z === -8 || z === -2; if (!e) continue; v.set(x, y, z, y % 3 === 0 && (x + z) % 2 ? '#2c4a63' : '#e9e2d3'); }
+for (let x = -33; x <= -25; x++) for (let z = -9; z <= -1; z++) v.set(x, 13, z, '#5a6d80');
+v.box(-30, 14, -6, -28, 16, -4, '#e9e2d3'); v.set(-29, 15, -3, '#ffd23f');
+// park on the right: paths, pond, trees, skate ramp, camera poles
+for (let x = 9; x <= 34; x++) for (let z = -9; z <= 22; z++) { if (isl.top(x, z) == null) continue; if (Math.abs(z - 4 - Math.sin(x / 4) * 2) < 1.1 || Math.abs(x - 19) < 1 && z > -9) v.set(x, 0, z, '#d9c9a0'); }
+for (let x = 23; x <= 31; x++) for (let z = 9; z <= 15; z++) if (Math.hypot((x - 27) / 4.2, (z - 12) / 3.2) < 1) v.set(x, 0, z, '#4fb6e8');
+for (const [x, z] of [[12, -5], [27, -4], [31, 3], [13, 13], [21, 18], [9, 20], [-22, 16], [-28, 8], [-14, 18], [-4, 19]]) if (isl.top(x, z) != null) tree(v, x, 0, z, { kind: 'round' });
+for (const [x, z] of [[33, -6], [-34, 2], [-25, -16], [16, -17]]) if (isl.top(x, z) != null) tree(v, x, 0, z, { kind: 'pine' });
+// skate ramp
+for (let x = 22; x <= 30; x++) for (let z = -5; z <= -1; z++) { const k = Math.abs(x - 26); const hh = k >= 3 ? Math.min(3, k - 1) : 0; for (let y = 1; y <= hh; y++) v.set(x, y, z, '#b8c0c8'); if (hh === 0) v.set(x, 0, z, '#9aa3ab'); }
+// camera poles
+const POLES = [[14, 1], [24, 7], [18, 15], [29, -7]];
+for (const [x, z] of POLES) { for (let y = 1; y <= 7; y++) v.set(x, y, z, '#59636b'); v.set(x, 8, z, '#26323c'); v.set(x - 1, 8, z, '#26323c'); }
+// benches
+for (const [x, z] of [[16, 8], [21, 1]]) { v.box(x, 1, z, x + 2, 1, z, '#9a6a3e'); }
+scene.add(v.mesh());
+
+// ---------- furniture (fine voxels) ----------
+const f = new Furn();
+table(f, F, -12, -2, -1, 2, { top: '#e9dcc4', leg: '#6b5a48' });
+const FAR = -2.9;
+const seatsFar = [-10.3, -7.8, -5.3, -2.8];
+seatsFar.forEach((x) => chair(f, F, x, FAR, 's', { c: '#2f4858' }));
+chair(f, F, -13, 0, 'e', { c: '#2f4858' }); chair(f, F, 0, 0, 'w', { c: '#2f4858' });
+const lapDraw = [draw.doc(), draw.sheet(), draw.doc('#f5a524'), draw.chart()];
+seatsFar.forEach((x, i) => laptop(f, scene, F, x, -1.2, 'n', lapDraw[i]));
+laptop(f, scene, F, -11.4, 0, 'w', draw.sheet()); laptop(f, scene, F, -1.6, 0, 'e', draw.doc());
+// wall screen with park map
+const map = (g, w, h) => {
+  g.fillStyle = '#ffffff'; g.fillRect(0, 0, w, h); g.fillStyle = '#13202b'; g.fillRect(0, 0, w, h * 0.16);
+  g.fillStyle = '#ffffff'; g.font = `800 ${h * 0.09}px Inter, sans-serif`; g.fillText('HARBOUR PARK · AI CAMERAS', w * 0.04, h * 0.11);
+  g.fillStyle = '#bfe6a8'; g.fillRect(w * 0.04, h * 0.22, w * 0.92, h * 0.72);
+  g.fillStyle = '#7fc8f0'; g.beginPath(); g.ellipse(w * 0.72, h * 0.66, w * 0.12, h * 0.12, 0, 0, 7); g.fill();
+  g.strokeStyle = '#e9dcb4'; g.lineWidth = h * 0.04; g.beginPath(); g.moveTo(w * 0.04, h * 0.5); g.bezierCurveTo(w * 0.3, h * 0.3, w * 0.5, h * 0.75, w * 0.96, h * 0.5); g.stroke();
+  [[0.22, 0.42], [0.48, 0.62], [0.62, 0.34], [0.84, 0.8]].forEach(([a, b]) => { g.fillStyle = 'rgba(245,165,36,.35)'; g.beginPath(); g.arc(w * a, h * b, h * 0.12, 0, 7); g.fill(); g.fillStyle = '#e5484d'; g.beginPath(); g.arc(w * a, h * b, h * 0.035, 0, 7); g.fill(); });
+};
+f.box(-10.5, F + 2.0, OZ0 + 1, -1.5, F + 6.5, OZ0 + 1.25, '#26323c');
+screenPlane(scene, 8.6, 4.2, map, { pos: [-6, F + 4.25, OZ0 + 1.27], facing: 's', px: 640 });
+// side desks along the left wall
+for (const z of [3.5, 6.5]) { table(f, F, OX0 + 1, z - 1, OX0 + 2.6, z + 1, { top: '#f4efe6' }); monitor(f, scene, F, OX0 + 1.5, z, 'e', z > 5 ? draw.chart('#6e5bf2') : draw.sheet('#3a8de0'), { w: 1.4, h: 0.95 }); chair(f, F, OX0 + 3.6, z, 'w', { c: '#3a4a56' }); }
+for (const [x, z] of [[OX0 + 1.5, OZ0 + 1.5], [OX1 - 1.5, OZ0 + 1.5], [OX1 - 1.5, 6.5], [OX0 + 1.5, OZ1 - 1]]) plant(f, F, x, z);
+// water cooler + shelf
+f.box(OX1 - 3.5, F, OZ0 + 1, OX1 - 2.5, F + 1.75, OZ0 + 2, '#e8edf0'); f.box(OX1 - 3.25, F + 1.75, OZ0 + 1.25, OX1 - 2.75, F + 2.5, OZ0 + 1.75, '#8fd0f0');
+f.box(-18, F, -7.5, -17, F + 3, -4.5, '#9a6a3e'); for (let k = 0; k < 3; k++) f.box(-17.75, F + 0.5 + k, -7.25, -17, F + 1.25 + k, -4.75, ['#e5484d', '#16c79a', '#3a8de0'][k]);
+// park camera domes (fine)
+for (const [x, z] of POLES) f.box(x - 0.75, 8.5, z + 0.75, x + 0.25, 9, z + 1.25, '#26323c');
+scene.add(f.mesh());
+
+// ---------- people ----------
+const S = 0.36;
+const P = (shirt, skin, hair, pants = '#2c3e66') => ({ shirt, skin, hair, pants, s: S });
+const panel = [
+  seated(P('#3a8de0', '#e0b08a', '#3b2a1a'), seatsFar[0], FAR, 's', F),
+  seated(P('#16c79a', '#8a5a3a', '#1a120c', '#34405a'), seatsFar[1], FAR, 's', F), // Maya
+  seated(P('#ff8a2a', '#c68a5e', '#d8a040'), seatsFar[2], FAR, 's', F),
+  seated(P('#6e5bf2', '#f0c8a0', '#6b3a1e'), seatsFar[3], FAR, 's', F),
+  seated(P('#e5484d', '#a0683f', '#2b1d14'), -13, 0, 'e', F),
+  seated(P('#ffd23f', '#e8b890', '#9a5a2a', '#3a3a3a'), 0, 0, 'w', F),
+  seated(P('#7fb0d0', '#d9a77c', '#2b1d14'), OX0 + 3.6, 3.5, 'w', F),
+  seated(P('#f2a3c0', '#7a4a2c', '#1a120c'), OX0 + 3.6, 6.5, 'w', F),
+];
+panel.forEach((p) => scene.add(p));
+const MAYA = panel[1];
+const mentor = standing({ shirt: '#13202b', pants: '#4a5560', skin: '#a8714a', hair: '#1a120c', s: S }, -0.5, -6.5, 's', F);
+// lanyard
+const lan = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.3, 0.06), new THREE.MeshLambertMaterial({ color: '#16c79a' })); lan.position.set(0, 1.6, -0.4); mentor.add(lan);
+scene.add(mentor);
+// park visitors and skaters
+const walkers = [['#e5484d', '#c68a5e'], ['#3a8de0', '#8a5a3a'], ['#ffd23f', '#e0b08a'], ['#16c79a', '#a0683f']].map(([shirt, skin], i) => { const p = person({ shirt, skin, hair: '#2b1d14', s: 0.34 }); scene.add(p); return p; });
+const skaters = [['#ff8a2a', '#7a4a2c'], ['#6e5bf2', '#e0b08a']].map(([shirt, skin]) => { const p = person({ shirt, skin, hair: '#1a120c', s: 0.34 }); scene.add(p); return p; });
+
+// ---------- motion + camera ----------
+const v3 = (a) => new THREE.Vector3(...a);
+const WIDE = (t) => ({ look: [-2, -2, 0], ang: lerp(-0.78, -0.5, t), dist: lerp(128, 104, ease.out(t)), hgt: lerp(84, 70, t), ox: 0, oy: 0 });
+const MED = (t) => ({ look: [-6.2, 2.6, -1.6], ang: lerp(-0.34, -0.2, t), dist: lerp(30, 27.5, t), hgt: lerp(18, 16.5, t), ox: 470, oy: 30 });
+st.onFrame((t) => {
+  // camera blend
+  let c;
+  if (t < 4.6) c = WIDE(prog(t, 0, 4.6, (k) => k));
+  else if (t < 8.6) { const a = WIDE(1), b = MED(0), k = prog(t, 4.6, 8.6); c = {}; for (const key of ['ang', 'dist', 'hgt', 'ox', 'oy']) c[key] = lerp(a[key], b[key], key === 'ox' || key === 'oy' ? prog(t, 7, 8.8) : k); c.look = a.look.map((q, i) => lerp(q, b.look[i], k)); }
+  else if (t < 30.6) c = MED(prog(t, 8.6, 30.6, (k) => k));
+  else { const a = MED(1), b = WIDE(0.15), k = prog(t, 30.6, 34.4); c = {}; for (const key of ['ang', 'dist', 'hgt', 'ox', 'oy']) c[key] = lerp(a[key], b[key], k); c.look = a.look.map((q, i) => lerp(q, b.look[i], k)); if (t > 34.4) { const q = prog(t, 34.4, DUR, (x) => x); c.ang = lerp(b.ang, b.ang + 0.42, q); c.dist = b.dist + q * 8; } }
+  camera.fov = 30;
+  if (c.ox || c.oy) camera.setViewOffset(1920, 1080, c.ox, c.oy, 1920, 1080); else camera.clearViewOffset();
+  camera.updateProjectionMatrix();
+  camera.position.set(Math.sin(c.ang) * c.dist + c.look[0], c.hgt + c.look[1], Math.cos(c.ang) * c.dist + c.look[2]);
+  camera.lookAt(c.look[0], c.look[1], c.look[2]);
+  // seated idle + Maya leaning in to review
+  panel.forEach((p, i) => { const b = p.userData.base; p.position.y = b.y + Math.max(0, Math.sin(t * 1.3 + i * 1.7)) * 0.05; p.rotation.x = 0; });
+  MAYA.rotation.x = -0.18 * prog(t, 18.8, 19.6) * (1 - prog(t, 28.4, 29.2));
+  // mentor: presents at the screen, then walks behind Maya for the review
+  { const a = [-0.5, -6.5], b = [-6.6, -5.0]; const k = prog(t, 17.6, 19.6, (x) => x); const x = lerp(a[0], b[0], k), z = lerp(a[1], b[1], k);
+    mentor.position.set(x, F, z); const walking = k > 0 && k < 1; mentor.rotation.y = walking ? Math.atan2(b[0] - a[0], b[1] - a[1]) + Math.PI : Math.PI; mentor.userData.walk(walking ? t * 9 : 0); }
+  // park visitors on loops
+  walkers.forEach((p, i) => { const u = t * 0.035 + i * 0.25; const a = u * Math.PI * 2; const x = 21 + Math.cos(a) * 9, z = 5 + Math.sin(a) * 7; p.position.set(x, F, z); p.rotation.y = Math.atan2(-Math.sin(a), Math.cos(a)) + Math.PI; p.userData.walk(t * 8 + i); });
+  skaters.forEach((p, i) => { const ph = t * 1.4 + i * Math.PI; const x = 26 + Math.cos(ph) * 3.2; p.position.set(x, F + Math.max(0, Math.abs(Math.cos(ph)) * 2.3 - 0.5), -3 + i * 1.6); p.rotation.y = Math.sin(ph) > 0 ? -Math.PI / 2 : Math.PI / 2; });
+});
+
+// ---------- UI ----------
+const A = []; const on = (f) => A.push(f);
+const fade = fader(); on((t) => fade(t < 0.5 ? 1 - prog(t, 0, 0.5) : t > DUR - 0.6 ? prog(t, DUR - 0.6, DUR) : 0));
+
+// brief
+const brief = ui(briefHTML({ from: 'Harbourside Council', task: 'Impact assessment: AI cameras in Harbour Park', due: 'Friday' }), 46, 40);
+on(cue(brief, 0.7, 8.0, { from: 'down' }));
+const bchip = ui(briefChipHTML('Harbourside Council · Due <em>Friday</em>'), 46, 40);
+on(cue(bchip, 8.4, 30.4, { from: 'left' }));
+
+// name tags
+const tagMaya = pin('<b>Maya, age 13</b><small>Impact Panel · lead</small>');
+const tagMentor = pin('<b>Priya Shah</b><small>Mentor · data protection officer</small>', 'fs-tag mentor');
+const say = pin('“Start with who it affects.”', 'fs-say');
+on((t) => {
+  place(tagMaya, camera, [MAYA.position.x, MAYA.position.y + 4.2, MAYA.position.z], fadeIO(t, 5.6, 30.2), 0);
+  const mp = mentor.position; place(tagMentor, camera, [mp.x, mp.y + 4.3, mp.z], fadeIO(t, 6.2, 8.8) + fadeIO(t, 12.8, 17.2), 0);
+  place(say, camera, [mp.x, mp.y + 4.3, mp.z], fadeIO(t, 9.0, 12.6), 0);
+});
+
+// impact form
+const stk = [['Residents', '#3a8de0'], ['Park manager', '#ff8a2a'], ['Data protection officer', '#13202b'], ['Environment officer', '#16c79a'], ['Finance officer', '#6e5bf2']];
+const form = ui(`<div class="fs-card ip-form"><div class="hd"><div><span class="fs-lbl">Impact assessment</span><h3>AI cameras in Harbour Park</h3></div><span class="fs-status" data-st>Draft</span></div>
+  <div class="ip-sec"><span class="fs-lbl">Who is affected</span><div class="ip-stk">${stk.map(([n, c], i) => `<div class="ip-s" data-s="${i}"><i style="background:${c}22">${ICO.person(c)}</i>${n}</div>`).join('')}<div class="ip-s new" data-s="5"><i style="background:#16c79a33">${ICO.person('#0c8f6d')}</i>Young people (under 18)</div></div></div>
+  <div class="ip-rows">
+   <div class="ip-r"><span class="k">Privacy</span><span data-priv></span></div>
+   <div class="ip-r"><span class="k">Energy</span><span class="ip-en"><span class="bar"><i data-en></i></span><span><b data-kwh>0 kWh a year</b><small>6 cameras + cloud processing · about 40% of one home</small></span></span></div>
+   <div class="ip-r"><span class="k">Decision</span><span data-dec></span></div>
+  </div></div>`, 1000, 150);
+const fS = [...form.querySelectorAll('[data-s]')];
+const fPriv = form.querySelector('[data-priv]'), fDec = form.querySelector('[data-dec]'), fEn = form.querySelector('[data-en]'), fKwh = form.querySelector('[data-kwh]'), fSt = form.querySelector('[data-st]');
+const PRIV_AI = 'Allowed under the 2024 Park Privacy Act.';
+const PRIV_FIX = 'UK GDPR and the ICO Children’s Code apply. Check with our data protection officer.';
+const DEC_AI = 'Approve. All groups covered.';
+const DEC_FIX = 'Approve with conditions: count people, never identify them. Delete footage after 24 hours.';
+const FORM_IN = 9.0, PORT = 30.8;
+on((t) => {
+  // entrance and portfolio drop (custom transform)
+  const a = prog(t, FORM_IN, FORM_IN + 0.5, ease.out);
+  const d = prog(t, PORT + 0.3, PORT + 1.5, ease.inOut);
+  const gone = t > PORT + 1.5;
+  form.style.opacity = gone ? 0 : a; form.style.visibility = a > 0 && !gone ? 'visible' : 'hidden';
+  // folder target centre (960, 640): form centre approx (1437, 560)
+  form.style.transformOrigin = '50% 50%'; form.style.zIndex = 5;
+  form.style.transform = `translate(${(1 - a) * 120 + d * (960 - 1437)}px, ${d * (600 - 520)}px) scale(${1 - d * 0.7})`;
+  // stakeholder cards pop in
+  fS.forEach((c, i) => { const ti = i < 5 ? FORM_IN + 0.6 + i * 0.28 : 26.0; const k = prog(t, ti, ti + 0.35, ease.back); c.style.opacity = clamp(k); c.style.transform = `scale(${0.7 + 0.3 * k})`; });
+  // energy estimate (Maya's own working)
+  const ek = prog(t, 11.4, 13.0, ease.out); fEn.style.width = ek * 40 + '%'; fKwh.textContent = `≈ ${Math.round(ek * 1100).toLocaleString('en-GB')} kWh a year`;
+  // privacy line
+  let ph;
+  if (t < 15.2) ph = '<span class="muted">Waiting for draft…</span>';
+  else if (t < 22.4) ph = `<span class="fs-aitxt"><span class="fs-aitag">AI</span>${typed(PRIV_AI, t, 15.2, 40)}</span>`;
+  else { const ty = typed(PRIV_FIX, t, 22.9, 34); ph = `<span class="fs-del">2024 Park Privacy Act</span>${t > 22.9 ? `<br><span class="fs-new">${ty}${ty.length < PRIV_FIX.length ? '<i class="fs-caret"></i>' : ''}</span>` : ''}`; }
+  setHTML(fPriv, ph);
+  let dh;
+  if (t < 15.8) dh = '<span class="muted">—</span>';
+  else if (t < 28.6) dh = `<span class="fs-aitxt"><span class="fs-aitag">AI</span>${typed(DEC_AI, t, 15.8, 40)}</span>`;
+  else { const ty = typed(DEC_FIX, t, 28.6, 46); dh = `<span class="fs-new">${ty}${ty.length < DEC_FIX.length ? '<i class="fs-caret"></i>' : ''}</span>`; }
+  setHTML(fDec, dh);
+  const sst = t < 15.2 ? ['', 'Draft'] : t < 19.0 ? ['ai', 'AI draft'] : t < 29.0 ? ['rev', 'In review'] : ['ok', 'Signed off'];
+  const cls = 'fs-status' + (sst[0] ? ' ' + sst[0] : ''); if (fSt.className !== cls) fSt.className = cls; if (fSt.textContent !== sst[1]) fSt.textContent = sst[1];
+});
+
+// AI colleague
+const ai = ui(aiHTML({ text: 'Draft ready. Cameras are <q>allowed under the 2024 Park Privacy Act</q>. All groups covered. Recommend: approve.', sure: 94, data: 'Council survey · adults 18+' }), 46, 600);
+on(cue(ai, 14.2, 19.4, { from: 'left' }));
+
+// review
+const chk = checkStrip(1874, 40, 'tr');
+on(cue(chk, 19.0, 30.4, { from: 'down' }));
+const PLAN = [{ run: 19.6, res: 'pass' }, { run: 20.1, res: 'pass' }, { run: 20.6, res: 'fail', fix: 24.4 }, { run: 24.8, res: 'fail', fix: 27.2 }];
+on((t) => chk.drive(t, PLAN));
+const findSrc = ui(findHTML('SOURCE CHECK · CLAIM NOT FOUND', [['Claim', '“2024 Park Privacy Act”'], ['Searched', 'UK legislation database: 0 results'], ['Asked', 'Priya (DPO): “No such Act.”'], ['Action', { t: 'Invented law. Remove it.', cls: 'bad' }]]), 46, 560);
+on(cue(findSrc, 21.1, 24.6, { from: 'left' }));
+const findAuth = ui(findHTML('AUTHORITY CHECK · NOT ITS CALL', [['Draft says', '“All groups covered.”'], ['Missing', 'Young people use the park most'], ['Rule', 'It can’t speak for them. Ask them.'], ['Action', { t: 'Add young people to the panel.', cls: 'bad' }]]), 46, 560);
+on(cue(findAuth, 25.2, 28.4, { from: 'left' }));
+on((t) => { const ok = t > 27.2; findAuth.firstChild.classList.toggle('ok', ok); findAuth.querySelector('.hd').lastChild.textContent = ok ? 'AUTHORITY CHECK · FIXED' : 'AUTHORITY CHECK · NOT ITS CALL'; findAuth.querySelector('.hd i').textContent = ok ? '✓' : '✕'; });
+on((t) => { const ok = t > 24.4; findSrc.firstChild.classList.toggle('ok', ok); findSrc.querySelector('.hd').lastChild.textContent = ok ? 'SOURCE CHECK · FIXED' : 'SOURCE CHECK · CLAIM NOT FOUND'; findSrc.querySelector('.hd i').textContent = ok ? '✓' : '✕'; });
+const sign = ui(signHTML('Maya', 13), 46, 820);
+on(cue(sign, 29.0, 30.4, { from: 'pop' }));
+
+// portfolio
+const folder = ui(folderHTML('Maya', 3), 960, 600, 'c');
+on(cue(folder, 31.0, 34.0, { from: 'up' }));
+on((t) => { const k = prog(t, PORT + 1.4, PORT + 1.8, ease.back); const p = folder.querySelector('[data-paper]'); p.style.transform = `translateY(${(1 - k) * -60}px)`; p.style.opacity = clamp(k); folder.querySelector('[data-items]').textContent = t > PORT + 1.5 ? 'Maya · 4 pieces' : 'Maya · 3 pieces'; });
+
+// pathway
+const veil = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:rgba(235,246,255,.55)"></div>');
+on(cue(veil, 34.0, 38.6, { from: 'fade', dur: 0.5 }));
+const path = ui(pathHTML({ next: 'Experience AI ethics lessons <em>(free, 11–14)</em> · Elements of AI <em>(free, 16+)</em>', award: 'DofE Skills section <em>(public speaking)</em> · Citizenship GCSE', route: 'EPQ → A-level Law, Politics or Philosophy', jobs: ['Policy adviser', 'Data protection officer', 'AI governance specialist'] }), 960, 540, 'c');
+on(cue(path, 34.2, 38.6, { from: 'up' }));
+
+// title
+const dimEnd = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:radial-gradient(ellipse at center, rgba(10,40,80,.3), rgba(10,40,80,.66))"></div>');
+on(cue(dimEnd, 38.8, null, { from: 'fade', dur: 0.8 }));
+const title = titleCard('Impact <span class="hl">Panel</span>', 'Check the AI’s draft before the council says yes.', { chip: 'DeltaOps Learning · Future Skills' });
+on(cue(title, 39.0, null, { from: 'pop', dur: 0.8 }));
+
+st.onFrame((t) => A.forEach((f) => f(t)));
+window.__duration = DUR;
+document.fonts.ready.then(() => { window.__ready = true; });
+</script></body></html>

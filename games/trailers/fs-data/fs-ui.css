@@ -105,3 +105,6 @@
 .fs-path .col.jobs span { color: #16c79a; }
 .fs-path .col.jobs b { color: #fff; }
 .fs-path .lab { display: flex; align-items: center; gap: 18px; }
+.fs-folder .paper { position: absolute; left: 40px; top: -6px; width: 200px; height: 150px; border-radius: 14px; background: #fff; box-shadow: 0 6px 16px rgba(19,32,43,.2); opacity: 0;
+  background-image: linear-gradient(#13202b, #13202b), linear-gradient(#dcf7ee, #dcf7ee), linear-gradient(#e6ebee, #e6ebee), linear-gradient(#e6ebee, #e6ebee);
+  background-size: 120px 12px, 150px 12px, 150px 10px, 110px 10px; background-position: 22px 22px, 22px 48px, 22px 72px, 22px 92px; background-repeat: no-repeat; }

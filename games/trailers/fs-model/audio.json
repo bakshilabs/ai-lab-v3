@@ -1,0 +1,20 @@
+{"dur": 43, "bpm": 96, "root": 57, "end": 42.6,
+ "sections": [
+  {"t": 0, "chords": [[0,3,7],[8,12,15],[3,7,10],[10,14,17]], "energy": 0.4},
+  {"t": 8.6, "chords": [[0,3,7],[8,12,15]], "energy": 0.5},
+  {"t": 13.6, "chords": [[3,7,10],[10,14,17]], "energy": 0.55},
+  {"t": 17.8, "chords": [[3,7,10],[8,12,15]], "energy": 0.5},
+  {"t": 23.6, "chords": [[0,3,7],[7,10,14]], "energy": 0.3, "shift": -2},
+  {"t": 30.2, "chords": [[3,7,10],[10,14,17],[0,3,7],[8,12,15]], "energy": 0.6},
+  {"t": 37.8, "chords": [[3,7,10,14],[8,12,15,19]], "energy": 0.35}
+ ],
+ "sfx": [
+  {"t":0.5,"type":"pop"},{"t":3.9,"type":"pop"},{"t":4.2,"type":"pop"},{"t":4.8,"type":"tap"},
+  {"t":8.6,"type":"pop"},{"t":9.4,"type":"error","vol":0.5},{"t":12.0,"type":"tap"},{"t":12.8,"type":"tap"},{"t":12.9,"type":"chime","vol":0.6},
+  {"t":13.6,"type":"pop"},{"t":15.4,"type":"tap"},{"t":17.8,"type":"pop"},
+  {"t":21.8,"type":"pop"},{"t":22.3,"type":"tap"},{"t":22.9,"type":"tap"},{"t":23.6,"type":"error"},
+  {"t":24.2,"type":"pop"},{"t":25.8,"type":"error","vol":0.6},{"t":26.6,"type":"tap"},
+  {"t":28.2,"type":"tap"},{"t":28.6,"type":"tap"},{"t":27.4,"type":"pop"},
+  {"t":30.2,"type":"pop"},{"t":32.2,"type":"tap"},{"t":32.7,"type":"tap"},{"t":33.1,"type":"tap"},{"t":33.6,"type":"success"},
+  {"t":34.6,"type":"pop"},{"t":36.0,"type":"chime"},{"t":38.0,"type":"pop"},{"t":38.8,"type":"chime","vol":0.6}
+ ]}
