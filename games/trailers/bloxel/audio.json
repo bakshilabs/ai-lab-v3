@@ -1,18 +1,1 @@
-{"dur": 36, "bpm": 140, "root": 62, "end": 35.6, "chip": true,
- "sections": [
-  {"t": 0, "chords": [[0,4,7],[5,9,12]], "energy": 0.4},
-  {"t": 3.4, "chords": [[0,4,7],[7,11,14]], "energy": 0.55},
-  {"t": 6.4, "chords": [[0,4,7],[5,9,12],[7,11,14],[0,4,7]], "energy": 0.95},
-  {"t": 13.6, "chords": [[0,3,7],[-2,2,5]], "energy": 0.5},
-  {"t": 19, "chords": [[5,9,12],[7,11,14]], "energy": 0.45},
-  {"t": 25, "chords": [[0,4,7],[5,9,12],[7,11,14],[5,9,12]], "energy": 0.9},
-  {"t": 30, "chords": [[0,4,7,11],[5,9,12,16]], "energy": 0.4}
- ],
- "sfx": [
-  {"t":0.6,"type":"tap"},{"t":1.0,"type":"tap"},{"t":1.4,"type":"tap"},{"t":1.8,"type":"tap"},{"t":2.2,"type":"tap"},
-  {"t":3.4,"type":"boom","vol":0.6},{"t":4.0,"type":"riser","len":1.6},
-  {"t":7.6,"type":"coin"},{"t":8.4,"type":"coin"},{"t":9.6,"type":"coin"},{"t":10.6,"type":"coin"},{"t":12.2,"type":"coin"},{"t":13.3,"type":"success"},
-  {"t":15.2,"type":"error"},{"t":16.9,"type":"boom","vol":0.6},{"t":17.4,"type":"error"},
-  {"t":21.8,"type":"pop"},{"t":22.6,"type":"tap"},{"t":23.2,"type":"chime"},
-  {"t":25,"type":"whoosh"},{"t":28.4,"type":"riser","len":1.6},{"t":30,"type":"boom"}
- ]}
+{"dur": 34, "bpm": 140, "root": 62, "end": 33.6, "chip": true, "sections": [{"t": 0, "chords": [[0, 4, 7], [5, 9, 12]], "energy": 0.4}, {"t": 3.4, "chords": [[0, 4, 7], [7, 11, 14]], "energy": 0.55}, {"t": 6.4, "chords": [[0, 4, 7], [5, 9, 12], [7, 11, 14], [0, 4, 7]], "energy": 0.95}, {"t": 13.6, "chords": [[0, 3, 7], [-2, 2, 5]], "energy": 0.5}, {"t": 19, "chords": [[5, 9, 12], [7, 11, 14]], "energy": 0.45}, {"t": 25, "chords": [[0, 4, 7], [5, 9, 12], [7, 11, 14], [5, 9, 12]], "energy": 0.9}, {"t": 30, "chords": [[0, 4, 7, 11], [5, 9, 12, 16]], "energy": 0.4}], "sfx": [{"t": 0.6, "type": "tap"}, {"t": 1.0, "type": "tap"}, {"t": 1.4, "type": "tap"}, {"t": 1.8, "type": "tap"}, {"t": 2.2, "type": "tap"}, {"t": 3.4, "type": "boom", "vol": 0.6}, {"t": 4.0, "type": "riser", "len": 1.6}, {"t": 7.6, "type": "coin"}, {"t": 8.4, "type": "coin"}, {"t": 9.6, "type": "coin"}, {"t": 10.6, "type": "coin"}, {"t": 12.2, "type": "coin"}, {"t": 13.3, "type": "success"}, {"t": 15.2, "type": "error"}, {"t": 16.9, "type": "boom", "vol": 0.6}, {"t": 17.4, "type": "error"}, {"t": 21.8, "type": "pop"}, {"t": 22.6, "type": "tap"}, {"t": 23.2, "type": "chime"}, {"t": 25, "type": "whoosh"}, {"t": 28.4, "type": "riser", "len": 1.6}, {"t": 30, "type": "boom"}]}

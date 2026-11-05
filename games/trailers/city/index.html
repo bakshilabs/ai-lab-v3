@@ -24,7 +24,7 @@ import * as THREE from 'three';
 import { createStage, prog, ease, lerp, clamp, within } from '../engine/stage.js';
 import { el, cue, kicker, titleCard, fader, toScreen, cardsHTML, tap, facilCard } from '../engine/ui.js';
 
-const DUR = 36.5;
+const DUR = 32.6;
 const st = createStage({ sky: ['#2a86f2', '#bfe6ff'] });
 const { scene, camera, sun, hemi, fx } = st;
 fx.setTilt(0.5, 0); fx.grade.uniforms.sat.value = 1.12; fx.grade.uniforms.vignette.value = 0.2; fx.bloom.strength = 0.25;
@@ -36,7 +36,7 @@ const add = (geo, mat, x, y, z, ry = 0) => { const m = new THREE.Mesh(geo, mat);
 // ---------- city: 4x4 blocks, roads every 50 ----------
 const B = 50, RW = 14, N = 4, SPAN = N * B;
 add(new THREE.BoxGeometry(SPAN + 60, 1, SPAN + 60), std('#3a3f47', 0.95), SPAN / 2 - B / 2, -0.5, SPAN / 2 - B / 2);
-{ const gp = add(new THREE.BoxGeometry(1600, 1, 1600), std('#8fcf6a', 0.95), SPAN / 2 - B / 2, -0.62, SPAN / 2 - B / 2); gp.castShadow = false; }
+{ const gp = add(new THREE.BoxGeometry(1600, 1, 1600), std('#6fb456', 0.95), SPAN / 2 - B / 2, -0.62, SPAN / 2 - B / 2); gp.castShadow = false; }
 // lane markings + crosswalks
 const lineMat = std('#f2f2ea', 0.6);
 for (let i = 0; i <= N; i++) { const p = i * B - B / 2; for (let k = -B / 2; k < SPAN; k += 6) { add(new THREE.BoxGeometry(0.3, 0.05, 2.6), lineMat, p, 0.03, k); add(new THREE.BoxGeometry(2.6, 0.05, 0.3), lineMat, k, 0.03, p); } }
@@ -49,7 +49,7 @@ for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
   const cx = i * B, cz = j * B, inner = B - RW;
   // sidewalk
   add(new THREE.BoxGeometry(inner + 4, 0.4, inner + 4), std('#b9bcc2', 0.9), cx, 0.2, cz);
-  add(new THREE.BoxGeometry(inner, 0.5, inner), std('#8fcf6a', 0.9), cx, 0.25, cz).receiveShadow = true;
+  add(new THREE.BoxGeometry(inner, 0.5, inner), std('#72bf58', 0.9), cx, 0.25, cz).receiveShadow = true;
   if ((i + j) % 5 === 3) { // park block
     for (let k = 0; k < 9; k++) trees.push([cx - 12 + (k % 3) * 12, cz - 12 + Math.floor(k / 3) * 12]);
     continue;
@@ -153,7 +153,7 @@ st.onFrame((t) => {
   else if (t < 14) { cp = [p.x - 13, 5.5, p.z - 4]; cl = [p.x + 14, 3, p.z - 8]; fov = 46; }
   else if (t < 22) { const k = prog(t, 14, 22); cp = [B * 1.5 + 14 - k * 2, 6.5, R1 - 11]; cl = [B * 1.5 - 6, 1.2, R1 + 1]; fov = 42; }
   else if (t < 26.5) { cp = [B * 1.5 + 9, 3.4, R1 - 8]; cl = [B * 1.5 - 1, 1.2, R1 + 1]; fov = 42; }
-  else { const k = prog(t, 26.5, 38); cp = [lerp(p.x - 24, B * 2, k), lerp(52, 120, ease.out(k)), lerp(p.z + 34, B * 4.5, k)]; cl = [lerp(p.x, B * 1.5, k), 0, lerp(p.z, B * 1.5, k)]; fov = 40; }
+  else { const k = prog(t, 26.5, 34); cp = [lerp(p.x - 24, B * 2, k), lerp(52, 120, ease.out(k)), lerp(p.z + 34, B * 4.5, k)]; cl = [lerp(p.x, B * 1.5, k), 0, lerp(p.z, B * 1.5, k)]; fov = 40; }
   camera.fov = fov; camera.updateProjectionMatrix(); camera.position.set(...cp); camera.lookAt(...cl);
 });
 
@@ -172,7 +172,8 @@ function det(obj, label, color, tIn, tOut, pad = 8) { const b = el('', { x: 0, y
 traffic.slice(0, 3).forEach((c, i) => det(c, 'CAR 97%', '#59c7fc', 4.0 + i * 0.2, 8.3));
 peds.slice(0, 3).forEach((p, i) => det(p, 'PERSON 93%', '#16ffc6', 4.4 + i * 0.2, 8.3));
 det(billboard, 'PERSON 91%', '#ff5d4a', 9.6, 12.4);
-det(child, (t) => t < 17.4 ? '? 41%' : 'CHILD · 88%', '#ffc83d', 15.6, 21);
+det(child, '? 41%', '#ffc83d', 15.6, 17.4);
+det(child, 'CHILD · 88%', '#ffc83d', 18.9, 21);
 // decision panel
 function decision(text, sure, tIn, tOut, color = '#16ffc6') { const n = el(`<div class="decision"><small>AUTOPILOT DECISION</small><p>${text}</p><div class="conf"><span>${sure >= 85 ? 'Very sure' : sure >= 60 ? 'Fairly sure' : 'Not sure'}</span><i><span style="width:${sure}%"></span></i><span>${sure}%</span></div></div>`, { x: 40, y: 40 }); A(cue(n, tIn, tOut, { from: 'left' })); }
 decision('Person ahead. <b style="color:#ff5d4a">Emergency stop.</b>', 91, 10.2, 12.6);
@@ -189,8 +190,8 @@ const k2 = kicker('Train it. Test it. <span style="color:#16FFC6">Check it.</spa
 const dashN = el(`<div class="dash"><div><small>SPEED</small><b data-s>0</b> <span style="font:700 20px Inter;color:#9fc4dd">mph</span></div><div><small>MODE</small><span class="mode" data-m style="color:#16ffc6">AUTOPILOT</span></div><div><small>RECORD</small><span data-r style="font:800 30px Inter"></span></div></div>`, { x: 0, y: 0 }); dashN.style.width = '1920px'; dashN.style.height = '1080px';
 A(cue(dashN, 3.6, 26.2, { from: 'fade' }));
 A((t) => { const sp = t < 9 ? 22 : t < 10.6 ? 22 : t < 12.2 ? 0 : t < 14 ? 14 : t < 17.4 ? lerp(14, 0, prog(t, 15.6, 17.2)) : t < 26.5 ? 0 : 24; dashN.querySelector('[data-s]').textContent = Math.round(sp); const m = dashN.querySelector('[data-m]'); const stop = within(t, 10.4, 12.2) || within(t, 16.8, 26.5); m.textContent = stop ? 'STOPPED' : 'AUTOPILOT'; m.style.color = stop ? '#ffc83d' : '#16ffc6'; const r = []; if (t > 8) r.push('✓', '✓'); if (t > 11) r.push('✕'); if (t > 19.4) r.push("✓"); if (t > 23.2) r.push("✓"); dashN.querySelector('[data-r]').innerHTML = r.map((x) => `<span style="color:${x === '✓' ? '#16ffc6' : '#ff5d4a'};margin-right:8px">${x}</span>`).join(''); });
-const dimEnd = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:radial-gradient(ellipse at center, rgba(5,15,30,.35), rgba(5,15,30,.7))"></div>'); A(cue(dimEnd, 32.2, null, { from: 'fade', dur: 0.8 }));
-const title = titleCard('Autopilot <span class="hl">City</span>', 'Teach a car to see the city. Check what it sees.', { chip: 'A DeltaOps Learning AI lab' }); A(cue(title, 32.4, null, { from: 'pop', dur: 0.8 }));
+const dimEnd = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:radial-gradient(ellipse at center, rgba(5,15,30,.35), rgba(5,15,30,.7))"></div>'); A(cue(dimEnd, 28.4, null, { from: 'fade', dur: 0.8 }));
+const title = titleCard('Autopilot <span class="hl">City</span>', 'Teach a car to see the city. Check what it sees.', { chip: 'A DeltaOps Learning AI lab' }); A(cue(title, 28.6, null, { from: 'pop', dur: 0.8 }));
 st.onFrame((t) => ui.forEach((f) => f(t)));
 window.__duration = DUR;
 document.fonts.ready.then(() => { window.__ready = true; });

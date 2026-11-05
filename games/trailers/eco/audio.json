@@ -1,16 +1,1 @@
-{"dur": 38, "bpm": 96, "root": 60, "end": 37.6,
- "sections": [
-  {"t": 0, "chords": [[0,4,7],[5,9,12],[9,12,16],[7,11,14]], "energy": 0.45},
-  {"t": 8.4, "chords": [[0,4,7],[5,9,12]], "energy": 0.35},
-  {"t": 13, "chords": [[9,12,16],[4,7,11]], "energy": 0.25, "shift": -2},
-  {"t": 17.4, "chords": [[5,9,12],[7,11,14]], "energy": 0.35},
-  {"t": 21, "chords": [[0,4,7],[7,11,14],[9,12,16],[5,9,12]], "energy": 0.9},
-  {"t": 28, "chords": [[0,4,7],[5,9,12]], "energy": 0.55},
-  {"t": 32, "chords": [[0,4,7,11],[5,9,12,16]], "energy": 0.3}
- ],
- "sfx": [
-  {"t":1.0,"type":"pop"},{"t":1.4,"type":"pop"},{"t":4.2,"type":"pop"},{"t":6.4,"type":"tap"},
-  {"t":8.6,"type":"pop"},{"t":9.4,"type":"riser","len":2},{"t":13.2,"type":"whoosh"},{"t":14.4,"type":"error"},{"t":17.6,"type":"pop"},
-  {"t":18.6,"type":"pop"},{"t":20.4,"type":"tap"},{"t":21.6,"type":"chime"},{"t":24,"type":"blip"},{"t":24.6,"type":"blip"},{"t":26.8,"type":"success"},{"t":27.0,"type":"pop"},
-  {"t":30.4,"type":"riser","len":1.6},{"t":32,"type":"boom"}
- ]}
+{"dur": 36, "bpm": 96, "root": 60, "end": 35.6, "sections": [{"t": 0, "chords": [[0, 4, 7], [5, 9, 12], [9, 12, 16], [7, 11, 14]], "energy": 0.45}, {"t": 8.4, "chords": [[0, 4, 7], [5, 9, 12]], "energy": 0.35}, {"t": 13, "chords": [[9, 12, 16], [4, 7, 11]], "energy": 0.25, "shift": -2}, {"t": 17.4, "chords": [[5, 9, 12], [7, 11, 14]], "energy": 0.35}, {"t": 21, "chords": [[0, 4, 7], [7, 11, 14], [9, 12, 16], [5, 9, 12]], "energy": 0.9}, {"t": 28, "chords": [[0, 4, 7], [5, 9, 12]], "energy": 0.55}, {"t": 32, "chords": [[0, 4, 7, 11], [5, 9, 12, 16]], "energy": 0.3}], "sfx": [{"t": 1.0, "type": "pop"}, {"t": 1.4, "type": "pop"}, {"t": 4.2, "type": "pop"}, {"t": 6.4, "type": "tap"}, {"t": 8.6, "type": "pop"}, {"t": 9.4, "type": "riser", "len": 2}, {"t": 13.2, "type": "whoosh"}, {"t": 14.4, "type": "error"}, {"t": 17.6, "type": "pop"}, {"t": 18.6, "type": "pop"}, {"t": 20.4, "type": "tap"}, {"t": 21.6, "type": "chime"}, {"t": 24, "type": "blip"}, {"t": 24.6, "type": "blip"}, {"t": 26.8, "type": "success"}, {"t": 27.0, "type": "pop"}, {"t": 30.4, "type": "riser", "len": 1.6}, {"t": 32, "type": "boom"}]}

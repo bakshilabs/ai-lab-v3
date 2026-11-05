@@ -20,7 +20,7 @@ import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.j
 import { createStage, prog, ease, lerp, clamp, within } from '../engine/stage.js';
 import { el, cue, fader, toScreen } from '../engine/ui.js';
 
-const DUR = 36;
+const DUR = 35.3;
 const st = createStage({ sky: ['#2a8cff', '#aee2ff'] });
 const { scene, camera, sun, hemi, fx } = st;
 fx.setTilt(0.5, 0); fx.grade.uniforms.sat.value = 1.3; fx.grade.uniforms.contrast.value = 1.1; fx.bloom.strength = 0.3;
@@ -130,7 +130,7 @@ st.onFrame((t) => {
   if (t < 3.8) { cp = p.clone().addScaledVector(fwd, 9).add(new THREE.Vector3(3, 2.6, 0)); cl = p.clone().add(new THREE.Vector3(-3, 1.6, -4)); fov = 48; }
   else if (t < 10 || t >= 22 && t < 29) { cp = p.clone().addScaledVector(fwd, -10 - boost * 2).add(new THREE.Vector3(0, 4.2, 0)); cl = p.clone().addScaledVector(fwd, 8).add(new THREE.Vector3(0, 1.5, 0)); fov = 52 + boost * 10; }
   else if (t < 13.4) { cp = new THREE.Vector3(-30, 34, 30); cl = p.clone(); fov = 46; }
-  else if (t < 19.6) { cp = CP1.clone().add(new THREE.Vector3(26, 14, 22)); cl = CP1.clone().add(new THREE.Vector3(3, 2, 0)); fov = 46; }
+  else if (t < 19.6) { cp = CP1.clone().add(new THREE.Vector3(6, 22, 30)); cl = CP1.clone().add(new THREE.Vector3(6, 0, 0)); fov = 46; }
   else if (t < 22) { cp = new THREE.Vector3(0, 120, 140); cl = new THREE.Vector3(0, 0, 0); fov = 40; }
   else if (t < 31.6) { cp = p.clone().add(new THREE.Vector3(9, 4, -9)); cl = p.clone().add(new THREE.Vector3(0, 2.5, 0)); fov = 46; }
   else { const k = prog(t, 31.6, 36); cp = new THREE.Vector3(lerp(-40, -80, k), lerp(40, 90, k), lerp(130, 200, k)); cl = new THREE.Vector3(0, 0, 0); fov = 42; }
@@ -149,12 +149,11 @@ A((t) => { lg.clearRect(0, 0, 1920, 1080); const b = within(t, 4.8, 5.8) || with
 const boostT = el('<div class="toon" style="font-size:90px;color:#ff9a1a">BOOST!</div>', { x: 960, y: 260, anchor: 'c' }); A(cue(boostT, 4.9, 5.7, { from: 'pop', dur: 0.2 }));
 function cards(tIn, tOut, list, pick) { const n = el(`<div style="display:flex;gap:22px">${list.map((c, i) => `<div class="cardk${i === pick ? ' on' : ''}">${c.v ? '<small>VAGUE</small>' : ''}${c.text}</div>`).join('')}</div>`, { x: 960, y: 760, anchor: 'c' }); A(cue(n, tIn, tOut, { from: 'up' })); }
 function bot(text, sure, tIn, tOut, y = 140) { const n = el(`<div class="botk"><small>SPROCKET · AI RACER</small>${text}<i><span style="width:${sure}%"></span></i><div style="font-size:24px;color:#9fb0c0;margin-top:6px">${sure >= 85 ? 'Very sure' : 'Fairly sure'} · ${sure}%</div></div>`, { x: 960, y, anchor: 'c' }); A(cue(n, tIn, tOut, { from: 'down' })); }
-const dimC = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:rgba(10,20,40,.45)"></div>'); A((t) => { const v = within(t, 8.4, 10) || within(t, 13.4, 15) ? 1 : 0; dimC.style.opacity = v; dimC.style.visibility = v ? 'visible' : 'hidden'; });
-cards(8.5, 10.0, [{ text: '“Go fast!”', v: true }, { text: 'Follow the road all the way round.' }], 0);
-bot('“Fast = shortest! Straight through the middle.”', 92, 8.9, 13.2);
+const dimC = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:rgba(10,20,40,.45)"></div>'); A((t) => { const v = within(t, 8.4, 10) ? 1 : 0; dimC.style.opacity = v; dimC.style.visibility = v ? 'visible' : 'hidden'; });
+cards(8.5, 10.0, [{ text: '1 star every time you pass a checkpoint.', v: true }, { text: 'Stars for NEW checkpoints, in order.' }], 0);
+bot('“Stars come from checkpoints. Shortest way there: across the grass!”', 92, 8.9, 13.2, 200);
 const k1 = el('<div class="toon" style="font-size:72px;white-space:nowrap">It did exactly what you said.</div>', { x: 960, y: 940, anchor: 'c' }); A(cue(k1, 11.0, 13.3, { from: 'up' }));
-cards(13.5, 15.0, [{ text: '1 star every time you pass a checkpoint.' }, { text: 'Stars for NEW checkpoints, in order.' }], 0);
-bot('“I found a GREAT way to get stars!”', 97, 14.0, 19.4);
+bot('“Circle the same checkpoint = endless stars!”', 97, 13.6, 19.4, 200);
 const stars = el('<div style="display:flex;gap:20px"><div class="pill">STARS <span data-s style="color:#e0a21a">0</span></div><div class="pill">LAPS <span style="color:#ff3b30">0</span></div></div>', { x: 60, y: 40 });
 A(cue(stars, 15.0, 19.5, { from: 'left' })); A((t) => { stars.querySelector('[data-s]').textContent = Math.min(47, Math.max(0, Math.floor((t - 15.1) * 10.5))); });
 const k2 = el('<div class="toon" style="font-size:72px;white-space:nowrap">47 stars. 0 laps. <span style="color:#ffe680">Loophole!</span></div>', { x: 960, y: 940, anchor: 'c' }); A(cue(k2, 17.0, 19.5, { from: 'up' }));
@@ -162,7 +161,7 @@ const dial = el(`<div class="cardk" style="width:900px;text-align:center"><small
 const k3 = el('<div class="toon" style="font-size:72px;white-space:nowrap">Same racer. <span style="color:#16ffc6">Better rules.</span></div>', { x: 960, y: 940, anchor: 'c' }); A(cue(k3, 23.0, 28.6, { from: 'up' }));
 // race HUD: position, lap, item slot, minimap
 const hud = el(`<div style="display:flex;gap:18px;align-items:center"><div class="pill" style="font-size:64px;padding:6px 26px" data-p>4TH</div><div class="pill">LAP <span data-l>1</span>/3</div><div class="pill" style="width:110px;height:110px;padding:0;display:grid;place-items:center;font-size:64px;background:#ffe680" data-i>?</div></div>`, { x: 60, y: 40 });
-const hudOn = (t) => within(t, 3.6, 10.0) || within(t, 22.0, 29.2);
+const hudOn = (t) => within(t, 3.6, 8.4) || within(t, 22.0, 29.2);
 A((t) => { const v = hudOn(t) ? 1 : 0; hud.style.opacity = v; hud.style.visibility = v ? 'visible' : 'hidden'; const P = t < 22 ? (t < 6 ? '4TH' : '3RD') : t < 24 ? '3RD' : t < 25.6 ? '2ND' : '1ST'; hud.querySelector('[data-p]').textContent = P; hud.querySelector('[data-p]').style.color = P === '1ST' ? '#e0a21a' : '#13202b'; hud.querySelector('[data-l]').textContent = t < 22 ? 1 : t < 26.5 ? 2 : 3; hud.querySelector('[data-i]').textContent = (within(t, 4.4, 4.9) || within(t, 22.4, 22.7)) ? '⚡' : '?'; });
 const mm = document.createElement('canvas'); mm.width = 300; mm.height = 300; const mmN = el('', { x: 1580, y: 740 }); mmN.appendChild(mm); mm.style.cssText = 'display:block;background:rgba(255,255,255,.85);border:6px solid #13202b;border-radius:26px;box-shadow:0 8px 0 #13202b';
 { let mnx = 1e9, mxx = -1e9, mnz = 1e9, mxz = -1e9; for (let i = 0; i <= 100; i++) { const p = curve.getPointAt(i / 100); mnx = Math.min(mnx, p.x); mxx = Math.max(mxx, p.x); mnz = Math.min(mnz, p.z); mxz = Math.max(mxz, p.z); } const sc = 240 / Math.max(mxx - mnx, mxz - mnz); mm.toXY = (x, z) => [30 + (x - mnx) * sc, 30 + (z - mnz) * sc]; }

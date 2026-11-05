@@ -7,7 +7,7 @@ canvas { width: 1920px; height: 1080px; image-rendering: pixelated; display: blo
 </style></head>
 <body><canvas id="c" width="640" height="360"></canvas>
 <script>
-const W = 640, H = 360, DUR = 36;
+const W = 640, H = 360, DUR = 34;
 const cv = document.getElementById('c'), g = cv.getContext('2d');
 g.imageSmoothingEnabled = false;
 // ---------- helpers ----------
@@ -135,7 +135,7 @@ function frame(t) {
   // ---------- HUD ----------
   // top toolbar
   px(0, 0, W, 14, '#8d929a'); px(0, 13, W, 1, '#4a4f56'); for (let k = 0; k < 8; k++) { px(4 + k * 16, 2, 12, 10, '#c4c9d0'); px(4 + k * 16, 2, 12, 1, '#fff'); }
-  [['#5fb33c'], ['#d8c08a'], ['#3a8fe0'], ['#ff5a4a'], ['#6b4424'], ['#ffc83d'], ['#a46cf0'], ['#16c79a']].forEach(([c], k) => px(7 + k * 16, 5, 6, 4, c));
+  const ic = (k, f) => f(6 + k * 16, 3); ic(0, (x, y) => { px(x + 2, y + 1, 4, 2, '#2e8a2e'); px(x + 1, y + 3, 6, 3, '#3fae3f'); px(x + 3, y + 6, 2, 2, '#6b4424'); }); ic(1, (x, y) => { px(x, y + 5, 8, 3, '#d8c08a'); px(x, y + 5, 8, 1, '#b89c62'); }); ic(2, (x, y) => { px(x, y + 6, 8, 1, '#c03a2a'); px(x + 1, y + 3, 2, 3, '#c03a2a'); px(x + 3, y + 1, 2, 2, '#c03a2a'); px(x + 5, y + 3, 2, 3, '#c03a2a'); }); ic(3, (x, y) => { px(x, y + 2, 8, 2, '#ff5a4a'); px(x + 2, y + 2, 2, 2, '#fff'); px(x + 6, y + 2, 2, 2, '#fff'); px(x + 1, y + 4, 6, 4, '#c9a06a'); }); ic(4, (x, y) => { px(x + 2, y + 2, 4, 6, '#6a7078'); px(x + 1, y + 1, 6, 1, '#4a4f56'); }); ic(5, (x, y) => { px(x, y + 3, 8, 4, '#3a8fe0'); px(x + 1, y + 4, 2, 1, '#9fd4ff'); px(x + 5, y + 5, 2, 1, '#9fd4ff'); }); ic(6, (x, y) => { px(x, y + 4, 6, 3, '#ffc83d'); px(x + 6, y + 2, 2, 5, '#e0a21a'); px(x + 1, y + 7, 2, 1, '#333'); px(x + 4, y + 7, 2, 1, '#333'); }); ic(7, (x, y) => { txt('£', x + 1, y + 7, '#1f7a2a', 'P2P', 8); });
   const guests = t < 8 ? 12 : t < 25 ? Math.round(lerp(12, 84, prog(t, 9, 14))) : 78;
   const wild = t < 9 ? 0.72 : t < 22.4 ? lerp(0.72, 0.28, prog(t, 9.5, 18)) : lerp(0.28, 0.93, prog(t, 22.6, 25.5));
   const tidy = t < 15 ? 0.85 : t < 22.4 ? lerp(0.85, 0.3, prog(t, 15.5, 18.5)) : lerp(0.3, 0.9, prog(t, 22.4, 24));
@@ -156,6 +156,7 @@ function frame(t) {
   
   if (t >= 16.5 && t < 19.5) { news = 'GUEST 23: "THE LITTER HERE IS REALLY BAD"'; red = true; }
   
+  px(0, H - 14, W, 14, '#8d929a'); px(0, H - 14, W, 1, '#c4c9d0'); txt('£' + money.toLocaleString('en-GB') + '   GUESTS ' + guests, 6, H - 4, '#fff', 'P2P', 8); txt('PARK RATING', W - 200, H - 4, '#fff', 'P2P', 8); bar(W - 108, H - 10, 100, (wild + tidy) / 2, '#2fbf6a');
   if (news) { px(0, H - 14, W, 14, red ? '#7a1a12' : '#1d2a48'); px(0, H - 14, W, 1, '#fff3'); const sx = W - ((t * 120) % (W + g.measureText(news).width + 200)); txt(news, Math.max(6, Math.min(6, sx)), H - 4, red ? '#ffd0c8' : '#ffe680', 'Silk', 8); }
   // Manager Bot advisor window (big, readable)
   const advisor = (l1, l2, sure, a, b, right) => { if (t < a || t >= b) return; const k = eio(prog(t, a, a + 0.3)); const wx = right ? W - 368 : 8, wy = Math.round(lerp(H, H - 94, k)), ww = 360, wh = 76; win(wx, wy, ww, wh, 'MANAGER BOT  ·  AI ADVISOR', '#127a6a');
@@ -166,7 +167,10 @@ function frame(t) {
   advisor('MORE GUESTS NEED SNACKS.', 'SIX KIOSKS. NO BINS NEEDED!', 0.95, 13.4, 16.2);
   advisor('GOT IT: PATH ROUND THE MEADOW,', 'BINS BY KIOSKS, TREES FOR SHADE.', 0.88, 22.9, 26, true);
   // clearer instruction (the fix)
-  if (t >= 21.3 && t < 23) { const k = eio(prog(t, 21.3, 21.6)); const wx = 160, wy = Math.round(lerp(H, 96, k)); win(wx, wy, 320, 72, 'NEW INSTRUCTION FOR MANAGER BOT', '#7a3fb0'); button(wx + 8, wy + 20, 304, 16, 'GET 50 GUESTS AND KEEP THE MEADOW WILD.', t > 21.9, false); button(wx + 8, wy + 42, 304, 16, 'PUT A BIN BY EVERY KIOSK.', t > 22.3, false); if (t > 21.8 && t < 22.3) { const r = (t - 21.8) * 40; g.strokeStyle = '#fff'; g.lineWidth = 1; g.beginPath(); g.arc(wx + 60, wy + 28, r, 0, Math.PI * 2); g.stroke(); } }
+  if (t >= 21.3 && t < 23) { const k = eio(prog(t, 21.3, 21.6)); const wx = 160, wy = Math.round(lerp(H, 96, k)); win(wx, wy, 320, 52, 'NEW INSTRUCTION FOR MANAGER BOT', '#7a3fb0'); button(wx + 8, wy + 22, 304, 18, 'GET 50 GUESTS. KEEP THE MEADOW WILD AND TIDY.', t > 21.9, false); if (t > 21.8 && t < 22.3) { const r = (t - 21.8) * 40; g.strokeStyle = '#fff'; g.lineWidth = 1; g.beginPath(); g.arc(wx + 60, wy + 28, r, 0, Math.PI * 2); g.stroke(); } }
+  // harm alert
+  if (t >= 10.6 && t < 12.4) { const k = eio(prog(t, 10.6, 10.9)); const wx = 190, wy = Math.round(lerp(-60, 22, k)); win(wx, wy, 260, 46, 'PARK ALERT', '#b0281a'); txt('WILDLIFE FALLING:', wx + 10, wy + 26, '#7a1a12', 'P2P', 8); txt(Math.round(lerp(72, 40, prog(t, 10.6, 12.2))) + '%  ↓', wx + 170, wy + 38, '#b0281a', 'P2P', 8); }
+  if (t >= 16.6 && t < 19.4) { const k = eio(prog(t, 16.6, 16.9)); const wx = 190, wy = Math.round(lerp(-60, 22, k)); win(wx, wy, 260, 46, 'PARK ALERT', '#b0281a'); txt('LITTER EVERYWHERE:', wx + 10, wy + 26, '#7a1a12', 'P2P', 8); txt('TIDY 30%  ↓', wx + 150, wy + 38, '#b0281a', 'P2P', 8); }
   // ride window (hook)
   if (t >= 0.8 && t < 3.4) { const wx = W - 150, wy = 20; win(wx, wy, 142, 62, 'TWISTER COASTER', '#b0402a'); txt('STATUS: OPEN', wx + 8, wy + 26, '#1a6a2a'); txt('RIDERS TODAY: 412', wx + 8, wy + 39, '#111'); txt('EXCITEMENT: HIGH', wx + 8, wy + 52, '#111'); }
   // scenario + instruction window
@@ -182,7 +186,7 @@ function frame(t) {
     button(wx + 8, wy + 84, 304, 16, 'GET 50 GUESTS AND KEEP THE MEADOW WILD.', false, false);
     if (t > 5.2 && t < 5.7) { const r = (t - 5.2) * 40; g.strokeStyle = '#fff'; g.lineWidth = 1; g.beginPath(); g.arc(wx + 60, wy + 54, r, 0, Math.PI * 2); g.stroke(); }
   }
-  if (t >= 12.6 && t < 14.4) { const wx = 160, wy = 90; win(wx, wy, 320, 50, 'INSTRUCTION', '#7a3fb0'); button(wx + 8, wy + 20, 304, 16, 'SELL AS MANY SNACKS AS POSSIBLE.', true, false); }
+
   // thought bubbles
   const bub = (i, j, h, s, a, b, red) => { if (t >= a && t < b) { const [x, y] = iso(i, j, h); bubble(x + ox, y + oy, s, red); } };
   bub(12.5, 13.5, 1.4, 'WOW, FREE!', 9.6, 12.5); bub(11.4, 6.8, 0.8, 'MY BURROW!', 9.0, 10.6, true); bub(12.6, 11, 1.4, 'WHERE ARE THE FLOWERS?', 11, 12.5);

@@ -119,8 +119,8 @@ const CARDS = [['A', 'Get to the crater as fast as you can'], ['B', 'Drive slowl
 L.cards('TELL THE AI HELPER HOW TO DRIVE', CARDS, 4.2, 8.6, 6.3, 0);
 L.helper('“Fast” means top speed in a straight line. Driving through the sand.', 72, 8.8, 16.2);
 const pg2 = el('<div class="prog"><small>YOUR PROGRAM</small><div class="blk ev">When mission starts</div><div class="blk mv">drive <span class="slot">top speed, straight</span></div><div class="blk sn">at the crater: take a photo</div></div>', { x: 1874, y: 490, anchor: 'tr' }); A(cue(pg2, 9.4, 18.2, { from: 'right' }));
-L.alert('Rover stuck in soft sand', 13.6, 16.3, { y: 780 });
-L.facil('Rovers on Mars drive very slowly. What did “fast” leave out?', 16.4, 20.6, { color: '#ffd23f', ink: '#13202b', x: 706, y: 300 });
+L.alert('Rover stuck in soft sand', 13.6, 16.3, { x: 640, y: 780 });
+L.facil('Rovers on Mars drive very slowly. What did “fast” leave out?', 16.4, 20.6, { color: '#ffd23f', ink: '#13202b', x: 706, y: 560 });
 L.cards('TRY A CLEARER CARD', CARDS, 18.4, 21.4, 19.9, 1);
 L.helper('Slow and safe: wide wheels, under 5 km/h, going round the sand.', 91, 21.6, 26.2);
 const pg3 = el('<div class="prog"><small>YOUR PROGRAM</small><div class="blk ev">When mission starts</div><div class="blk mv">drive <span class="slot">wide wheels, under 5 km/h</span></div><div class="blk mv" style="background:#7a6aff">avoid <span class="slot">soft sand</span></div><div class="blk sn">at the crater: take a photo</div></div>', { x: 1874, y: 490, anchor: 'tr' }); A(cue(pg3, 21.6, 30.8, { from: 'right' }));

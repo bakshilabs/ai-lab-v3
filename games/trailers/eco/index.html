@@ -8,7 +8,7 @@ import { createStage, prog, ease, lerp, clamp, within } from '../engine/stage.js
 import { Vox, island, tree, house, person, duck, frog, particles, PAL, rand, hex } from '../engine/kit.js';
 import { el, cue, fader, toScreen, titleCard } from '../engine/ui.js';
 
-const DUR = 38;
+const DUR = 36;
 const st = createStage({ sky: ['#5db6ff', '#d9efff'], post: false });
 const { scene, camera, sun, hemi, rim } = st;
 rim.intensity = 0.5; st.dome.visible = false; st.renderer.setClearColor(0x000000, 0); document.getElementById('bg').style.background = 'linear-gradient(180deg, #5db6ff 0%, #9fd2ff 45%, #e3f3ff 100%)'; sun.intensity = 2.6; sun.position.set(-50, 120, 70); hemi.intensity = 1.3; st.renderer.toneMappingExposure = 1.08;
