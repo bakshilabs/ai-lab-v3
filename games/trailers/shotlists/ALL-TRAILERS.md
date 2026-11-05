@@ -657,7 +657,7 @@ Future Skills · 0:42 · a floating grassy voxel island with a cut-away building
 **Pathway card:** Next step: Elements of AI (free online course) · Award: iDEA digital skills badges (free) · Route: T Level in Digital Software Development → Level 4 AI & Automation Practitioner apprenticeship · Jobs: automation specialist, operations analyst, business analyst.
 
 **Reviewer notes:**
-- **Render status:** from the current source; not yet rendered (no `out/fs-automate.mp4`).
+- **Render status:** described from the current source; the video (`out/fs-automate.mp4`, 0:42) is now rendered. Contact-sheet check: at about 0:36 the pathway card fades over the island before the title.
 - **Names:** Nia, 15 (automation designer), **Ms Okafor** (mentor, operations analyst), **Pedal Point** Community Bike Repair, and two customers called Sam Taylor. The lab design document still asks for "Pedal Point" to be renamed and says an Okafor mentor appears twice in the strand. Please confirm both have been settled. The existing stills show the old names ("Amara, 13", "Spokes refund workflow"), so they are out of date.
 - **Age:** 15 fits this lab's 14–18 default.
 - **Checks:** the problem is filed under Authority. A name-only match could equally be treated as a Data problem, and the lab design document allows either.
