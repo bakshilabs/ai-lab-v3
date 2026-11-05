@@ -1,19 +1,19 @@
 <!doctype html><html><head><meta charset="utf-8"><title>Creative Producer trailer</title>
 <link rel="stylesheet" href="../engine/ui.css"><link rel="stylesheet" href="fs.css">
 <style>
-.cp-post { width: 424px; padding: 18px 22px 22px; }
+.cp-post { width: 364px; padding: 16px 22px 18px; }
 .cp-post .hd { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
 .cp-post .hd b { font: 800 26px 'Inter'; white-space: nowrap; }
 .cp-post .hd .fs-status { font-size: 17px; padding: 8px 14px; }
-.cp-pz { position: relative; width: 380px; height: 537px; border-radius: 14px; overflow: hidden; box-shadow: 0 4px 14px rgba(0,0,0,.18); }
+.cp-pz { zoom: 0.84; position: relative; width: 380px; height: 537px; border-radius: 14px; overflow: hidden; box-shadow: 0 4px 14px rgba(0,0,0,.18); }
 .cp-pz svg, .cp-pz .ly { position: absolute; left: 0; top: 0; width: 380px; height: 537px; }
 .cp-ann { position: absolute; border: 5px dashed #e5484d; border-radius: 16px; background: rgba(229,72,77,.12); }
-.cp-ann span { position: absolute; left: 6px; bottom: 6px; background: #e5484d; color: #fff; font: 800 21px 'Inter'; padding: 7px 14px; border-radius: 10px; white-space: nowrap; }
+.cp-ann span { position: absolute; left: 6px; bottom: 6px; background: #e5484d; color: #fff; font: 800 24px 'Inter'; padding: 7px 14px; border-radius: 10px; white-space: nowrap; }
 .cp-ann.ok { border-color: #16c79a; border-style: solid; background: rgba(22,199,154,.10); }
 .cp-ann.ok span { background: #16c79a; color: #06261f; }
-.cp-cred { width: 430px; padding: 26px 28px 22px; }
+.cp-cred { width: 430px; padding: 22px 28px 16px; }
 .cp-cred h4 { font: 800 30px 'Inter'; margin: 6px 0 8px; }
-.cp-r { padding: 14px 0; border-top: 2px solid var(--fs-line); }
+.cp-r { padding: 10px 0; border-top: 2px solid var(--fs-line); }
 .cp-r .nm { font: 800 19px 'Inter'; letter-spacing: .12em; text-transform: uppercase; color: var(--fs-muted); margin-bottom: 6px; }
 .cp-r .vl { font: 650 25px/1.32 'Inter'; }
 .lic { display: inline-block; margin-top: 6px; font: 800 18px 'Inter'; letter-spacing: .06em; border-radius: 999px; padding: 6px 14px; white-space: nowrap; }
@@ -21,7 +21,7 @@
 .lic.bad { background: var(--fs-red-bg); color: #c0262c; }
 .lic.ai { background: var(--fs-ai); color: #8a6400; }
 .cp-r .vl .muted { color: #a3afb8; }
-.cp-credit { overflow: hidden; height: 0; font: 650 19px/1.4 'Inter'; color: var(--fs-muted); text-align: center; }
+.cp-credit { overflow: hidden; height: 0; font: 650 18px/1.4 'Inter'; color: var(--fs-muted); text-align: center; }
 .cp-credit div:first-child { margin-top: 12px; }
 .cp-lbl { position: absolute; left: 50%; top: -24px; transform: translateX(-50%); font: 800 22px 'Inter'; letter-spacing: .12em; border-radius: 999px; padding: 8px 20px; white-space: nowrap; }
 </style>
@@ -32,9 +32,9 @@ import * as THREE from 'three';
 import { createStage, prog, ease, lerp, clamp, within } from '../engine/stage.js';
 import { Vox, island, tree, house, person, particles, rand, noise2 } from '../engine/kit.js';
 import { el, cue, fader, titleCard } from '../engine/ui.js';
-import { Furn, table, chair, seated, standing, plant, screenPlane, monitor, laptop, draw, ICO, ui, briefHTML, briefChipHTML, aiHTML, findHTML, signHTML, folderHTML, pathHTML, endTitleHTML, aiReact, findFix, checkStrip, pin, place, fadeIO, typed, setHTML } from './fs.js';
+import { Furn, table, chair, seated, standing, plant, screenPlane, monitor, laptop, draw, ICO, ui, briefHTML, briefChipHTML, aiHTML, findHTML, signHTML, folderHTML, pathHTML, endTitleHTML, aiSet, findFix, checkStrip, pin, place, showIO, fadeIO, typed, setHTML } from './fs.js';
 
-const DUR = 38.6;
+const DUR = 38.0;
 const st = createStage({ sky: ['#5db6ff', '#d9efff'], post: false });
 const { scene, camera, sun, hemi, rim } = st;
 rim.intensity = 0.5; st.dome.visible = false; st.renderer.setClearColor(0x000000, 0);
@@ -123,28 +123,33 @@ const lan = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.3, 0.06), new THREE.Mesh
 scene.add(mentor);
 const walkers = [['#e5484d', '#c68a5e'], ['#3a8de0', '#8a5a3a'], ['#ffd23f', '#e0b08a'], ['#16c79a', '#a0683f'], ['#f2a3c0', '#7a4a2c']].map(([shirt, skin]) => { const p = person({ shirt, skin, hair: '#2b1d14', s: 0.34 }); scene.add(p); return p; });
 const band = [['#ff8a4a', '#7a4a2c'], ['#6e5bf2', '#e0b08a']].map(([shirt, skin], i) => { const p = standing({ shirt, skin, hair: '#1a120c', s: 0.34 }, 22 + i * 4, -5, 's', 3); scene.add(p); return p; });
-
 // ---------- camera + motion ----------
-// 0-2.8 brief | 3.0 poster (sketch) | 5.4 AI draft | 10.6 review: Data ✓ Case ✓ | 12.2 Source red (wrong licence) | 18.0 Authority red (living artist's style) | 24.0 sign-off + before/after | 28.6 portfolio | 32.6 pathway | 35.8 title
-const WIDE = (t) => ({ look: [-2, -2, 0], ang: lerp(-0.78, -0.5, t), dist: lerp(128, 104, ease.out(t)), hgt: lerp(84, 70, t), ox: 0, oy: 0 });
-const MED = (t) => ({ look: [-7.2, 2.0, -1.2], ang: lerp(-0.36, -0.24, t), dist: lerp(38, 35, t), hgt: lerp(23, 21, t), ox: 420, oy: 30 });
-const END = (t) => ({ look: [-2, -3, 0], ang: lerp(-0.66, -0.4, t), dist: 166, hgt: 104, ox: 440, oy: -10 });
-const mix = (a, b, k, ko = k) => { const c = {}; for (const key of ['ang', 'dist', 'hgt']) c[key] = lerp(a[key], b[key], k); for (const key of ['ox', 'oy']) c[key] = lerp(a[key], b[key], ko); c.look = a.look.map((q, i) => lerp(q, b.look[i], k)); return c; };
-const T_MED = 4.0, T_OUT = 28.6, T_END = 31.6;
+// 0-2.6 brief | 3.0 poster (sketch) | 5.4 AI draft | 9.4 review: Data ✓ 10.25 · Case ✓ 12.35 (one-line reasons) | Source ✕ 14.35 (wrong licence) → re-checked 18.05 | Authority ✕ 19.05 (living artist's style) → re-checked 22.85 | 23.4 AI V2 | 24.4 sign-off + before/after | 28.0 portfolio | 31.6 pathway | 35.0 title
+const T_OUT = 28.0, PATH_IN = 31.6, TITLE_IN = 35.0;
+// key: [t, ang, dist, hgt, lookX, lookZ, ox, oy]  (ox/oy = where the look point sits, in px from screen centre)
+const CK = [
+  [0, -0.74, 132, 84, -2, 0, 0, 40],
+  [1.6, -0.64, 126, 80, -2, 0, 0, 40],
+  [3.6, -0.46, 160, 76, -2, 0, 470, 240],
+  [T_OUT, -0.26, 156, 74, -2, 0, 470, 240],
+  [T_OUT + 1.0, -0.22, 156, 74, -2, 0, 470, 190],
+  [TITLE_IN - 0.4, -0.08, 156, 74, -2, 0, 470, 190],
+  [TITLE_IN + 0.5, 0.0, 126, 76, -2, 0, 0, 230],
+  [DUR, 0.12, 122, 74, -2, 0, 0, 230],
+];
+const camAt = (t) => {
+  let i = 0; while (i < CK.length - 2 && t > CK[i + 1][0]) i++;
+  const a = CK[i], c = CK[i + 1]; const long = c[0] - a[0] > 3;
+  const k = long ? clamp((t - a[0]) / (c[0] - a[0])) : ease.inOut(clamp((t - a[0]) / (c[0] - a[0])));
+  return a.map((x, n) => lerp(x, c[n], k));
+};
 st.onFrame((t) => {
-  let c;
-  if (t < 1.4) c = WIDE(prog(t, 0, 1.4, (k) => k) * 0.4);
-  else if (t < T_MED) c = mix(WIDE(0.4), MED(0), prog(t, 1.4, T_MED), prog(t, 2.2, T_MED + 0.2));
-  else if (t < T_OUT) c = MED(prog(t, T_MED, T_OUT, (k) => k));
-  else if (t < T_END) c = mix(MED(1), END(0), prog(t, T_OUT, T_END));
-  else c = END(prog(t, T_END, DUR, (k) => k));
-  camera.fov = 30;
-  if (c.ox || c.oy) camera.setViewOffset(1920, 1080, c.ox, c.oy, 1920, 1080); else camera.clearViewOffset();
-  camera.updateProjectionMatrix();
-  camera.position.set(Math.sin(c.ang) * c.dist + c.look[0], c.hgt + c.look[1], Math.cos(c.ang) * c.dist + c.look[2]);
-  camera.lookAt(c.look[0], c.look[1], c.look[2]);
+  const [, ang, dist, hgt, lx, lz, ox, oy] = camAt(t);
+  camera.fov = 30; camera.setViewOffset(1920, 1080, -ox, -oy, 1920, 1080); camera.updateProjectionMatrix();
+  camera.position.set(Math.sin(ang) * dist + lx, hgt, Math.cos(ang) * dist + lz);
+  camera.lookAt(lx, 0, lz);
   team.forEach((p, i) => { const b = p.userData.base; p.position.y = b.y + Math.max(0, Math.sin(t * 1.3 + i * 1.7)) * 0.05; p.rotation.x = 0; });
-  LEO.rotation.x = -0.18 * prog(t, 11.0, 11.8) * (1 - prog(t, 24.0, 24.8));
+  LEO.rotation.x = -0.18 * prog(t, 9.8, 10.6) * (1 - prog(t, 24.0, 24.8));
   // mentor stays by the easel (clear of Leo)
   mentor.position.set(1.0, F, -6.4); mentor.rotation.y = Math.PI; mentor.userData.walk(0);
   walkers.forEach((p, i) => { const u = t * 0.032 + i * 0.2; const a = u * Math.PI * 2; const x = 20 + Math.cos(a) * 9, z = 6 + Math.sin(a) * 6.5; p.position.set(x, F, z); p.rotation.y = Math.atan2(-Math.sin(a), Math.cos(a)) + Math.PI; p.userData.walk(t * 8 + i); });
@@ -178,101 +183,120 @@ const PH_B = SVG(`<defs><linearGradient id="pbs" x1="0" y1="0" x2="0" y2="1"><st
 const posterInner = `<div class="cp-pz" data-pz><div class="ly" data-l="sk">${ART_SKETCH}</div><div class="ly" data-l="bf">${ART_BEFORE}</div><div class="ly" data-l="af">${ART_AFTER}</div><div class="ly" data-l="pa">${PH_A}</div><div class="ly" data-l="pb">${PH_B}</div>
   <div class="cp-ann" data-a="art" style="left:40px;top:196px;width:304px;height:182px"><span>Copies Mira Kell’s style</span></div>
   <div class="cp-ann" data-a="ph" style="left:12px;top:384px;width:356px;height:96px"><span>Licence: non-commercial only</span></div></div>
-  <div class="cp-credit" data-cr><div>Art: Leo (own work) · AI: layout ideas</div><div>Photo: Harbourside Archive · CC BY 4.0</div></div>`;
+  <div class="cp-credit" data-cr><div>Art: Leo · AI: layout ideas</div><div>Photo: Harbourside Archive, CC BY 4.0</div></div>`;
+
 
 // ---------- UI ----------
+// layout: poster + credits in a column on the left (x 46–860), AI colleague top right over the sky, island bottom right
 const A = []; const on = (f) => A.push(f);
-const fade = fader(); on((t) => fade(t < 0.4 ? 1 - prog(t, 0, 0.4) : t > DUR - 0.5 ? prog(t, DUR - 0.5, DUR) : 0));
+const fade = fader(); on((t) => fade(t < 0.4 ? 1 - prog(t, 0, 0.4) : t > DUR - 0.4 ? prog(t, DUR - 0.4, DUR) : 0));
 const brief = ui(briefHTML({ from: 'Harbourside Lantern Festival', task: 'Festival poster + AI-use statement', due: 'Friday' }), 46, 40);
 on(cue(brief, 0.3, 2.6, { from: 'down' }));
-const bchip = ui(briefChipHTML('Lantern Festival · Due <em>Friday</em>'), 46, 40);
+const bchip = ui(briefChipHTML('Lantern Festival · Due <em>Friday</em>'), 46, 30);
 on(cue(bchip, 3.0, T_OUT - 0.2, { from: 'left' }));
+// name tags snap on fully opaque (no ghosting fades)
 const tagLeo = pin('<b>Leo, age 13</b><small>Creative producer</small>');
 const tagMentor = pin('<b>Sam Oyelaran</b><small>Mentor · graphic designer</small>', 'fs-tag mentor');
 const say = pin('“Every picture needs a credit.”', 'fs-say');
 on((t) => {
-  place(tagLeo, camera, [LEO.position.x, LEO.position.y + 4.2, LEO.position.z], fadeIO(t, 3.4, T_OUT - 0.4), 0);
-  const mp = mentor.position; place(tagMentor, camera, [mp.x, mp.y + 4.3, mp.z], fadeIO(t, 3.8, 5.0) + fadeIO(t, 8.4, 10.6), 0);
-  place(say, camera, [mp.x - 1.4, mp.y + 4.3, mp.z], fadeIO(t, 5.2, 8.0), 0);
+  place(tagLeo, camera, [LEO.position.x, LEO.position.y + 4.2, LEO.position.z], showIO(t, 3.6, 4.9) + showIO(t, 7.4, T_OUT - 0.2), 0);
+  const mp = mentor.position; place(tagMentor, camera, [mp.x, mp.y + 4.3, mp.z], showIO(t, 4.9, 5.9), 0);
+  place(say, camera, [mp.x, mp.y + 4.3, mp.z], showIO(t, 5.9, 7.4), 0);
 });
 
 // timings
-const POST_IN = 3.0, AI_IN = 5.4, DRAFT = 6.0, CRED_IN = 7.0, SRC_FAIL = 12.65, PH_SWAP = 15.4, SRC_FIX = 16.6, AUTH_FAIL = 18.45, ART_SWAP = 20.0, STMT_T = 20.9, AUTH_FIX = 22.5, CR_T = 22.8, SIGN = 24.0;
-const FX = 1440, FY = 560; // folder centre (beside the island in the end framing)
+const POST_IN = 3.0, AI_IN = 5.4, DRAFT = 6.0, CRED_IN = 7.0, DATA_OK = 10.25, CASE_OK = 12.35, SRC_FAIL = 14.35, PH_SWAP = 16.6, SRC_FIX = 17.6, AUTH_FAIL = 19.05, ART_SWAP = 20.4, STMT_T = 21.0, AUTH_FIX = 22.4, CR_T = 22.6, V2 = 23.4, SIGN = 24.4;
+const PX = 46, PY = 112, SH = 384; // poster card position; slide distance for before/after
+const FOLD_X = 60, FOLD_Y = 860; // portfolio folder (bottom left, island stays on the right)
 
 // poster card (after) and before card
-const pc = ui(`<div class="fs-card cp-post"><div class="hd"><b data-pt>Festival poster</b><span class="fs-status" data-st>Sketch</span></div>${posterInner}</div>`, 1000, 164);
+const pc = ui(`<div class="fs-card cp-post"><div class="hd"><b data-pt>Festival poster</b><span class="fs-status" data-st>Sketch</span></div>${posterInner}</div>`, PX, PY);
 const L = (k) => pc.querySelector(`[data-l="${k}"]`), AN = (k) => pc.querySelector(`[data-a="${k}"]`);
 const pSt = pc.querySelector('[data-st]'), pT = pc.querySelector('[data-pt]'), pCr = pc.querySelector('[data-cr]');
 const before = ui(`<div class="fs-card cp-post"><div class="hd"><b>Before</b><span class="fs-status rev">AI draft</span></div><div class="cp-pz"><div class="ly">${ART_BEFORE}</div><div class="ly">${PH_A}</div>
-  <div class="cp-ann" style="left:40px;top:196px;width:304px;height:182px"><span>Living artist’s style</span></div><div class="cp-ann" style="left:12px;top:384px;width:356px;height:96px"><span>Wrong licence</span></div></div></div>`, 1000, 164);
-on(cue(before, SIGN + 0.4, T_OUT, { from: 'left' }));
+  <div class="cp-ann" style="left:40px;top:196px;width:304px;height:182px"><span>Living artist’s style</span></div><div class="cp-ann" style="left:12px;top:384px;width:356px;height:96px"><span>Wrong licence</span></div></div></div>`, PX, PY);
+// the before card slides in only after the poster has moved clear (no double exposure)
+on(cue(before, SIGN + 0.65, T_OUT - 0.2, { from: 'left' }));
 on((t) => {
   const a = prog(t, POST_IN, POST_IN + 0.5, ease.out);
-  const sh = prog(t, SIGN, SIGN + 0.6, ease.inOut) * 444; // slide right for before/after
-  const d = prog(t, T_OUT, T_OUT + 1.0, ease.inOut);
-  const op = a * (1 - prog(t, T_OUT + 0.55, T_OUT + 1.0));
-  pc.style.opacity = op; pc.style.visibility = op > 0.001 ? 'visible' : 'hidden'; pc.style.zIndex = 5;
-  pc.style.transformOrigin = '50% 50%';
-  const cx = 1000 + pc.offsetWidth / 2 + 444, cy = 164 + pc.offsetHeight / 2;
-  pc.style.transform = `translate(${(1 - a) * 120 + sh + d * (FX - cx)}px, ${d * (FY - 140 - cy)}px) scale(${1 - d * 0.7})`;
+  const sh = prog(t, SIGN, SIGN + 0.6, ease.inOut) * SH; // slide right for before/after
+  const d = prog(t, T_OUT + 0.9, T_OUT + 1.8, ease.inOut); // into the portfolio, fully opaque
+  const vis = t > POST_IN && t < T_OUT + 1.75;
+  pc.style.opacity = vis ? a : 0; pc.style.visibility = vis ? 'visible' : 'hidden'; pc.style.zIndex = 5;
+  pc.style.transformOrigin = '0 0';
+  pc.style.transform = `translate(${-(1 - a) * 120 + sh + d * (FOLD_X + 150 - PX - SH)}px, ${d * (FOLD_Y - 20 - PY)}px) scale(${1 - d * 0.82})`;
   const op2 = (k, v) => { L(k).style.opacity = clamp(v); };
   op2('sk', 1 - prog(t, DRAFT, DRAFT + 0.6)); op2('bf', prog(t, DRAFT, DRAFT + 0.6) - prog(t, ART_SWAP, ART_SWAP + 0.8)); op2('af', prog(t, ART_SWAP, ART_SWAP + 0.8));
   op2('pa', prog(t, DRAFT, DRAFT + 0.6) - prog(t, PH_SWAP, PH_SWAP + 0.8)); op2('pb', prog(t, PH_SWAP, PH_SWAP + 0.8));
-  pCr.style.height = prog(t, CR_T, CR_T + 0.5, ease.out) * 66 + 'px';
-  const an = (k, t0, t1, tok) => { const n = AN(k); n.style.opacity = fadeIO(t, t0, t1, 0.3); n.classList.toggle('ok', t > tok); const tx = t > tok ? (k === 'art' ? 'Own drawing ✓' : 'CC BY 4.0 · credited ✓') : (k === 'art' ? 'Copies Mira Kell’s style' : 'Licence: non-commercial only'); const sp = n.querySelector('span'); if (sp.textContent !== tx) sp.textContent = tx; };
-  an('ph', SRC_FAIL, 17.8, SRC_FIX); an('art', AUTH_FAIL, 23.4, AUTH_FIX);
-  const s = t < DRAFT ? ['', 'Sketch'] : t < 10.6 ? ['ai', 'AI draft'] : t < SIGN ? ['rev', 'In review'] : ['ok', 'Signed off'];
+  pCr.style.height = prog(t, CR_T, CR_T + 0.5, ease.out) * 70 + 'px';
+  const an = (k, t0, t1, tok) => { const n = AN(k); n.style.opacity = fadeIO(t, t0, t1, 0.3); n.classList.toggle('ok', t > tok); const tx = t > tok ? (k === 'art' ? 'Own drawing ✓' : 'CC BY 4.0 · credited ✓') : (k === 'art' ? 'Copies Mira Kell’s style' : 'Non-commercial only'); const sp = n.querySelector('span'); if (sp.textContent !== tx) sp.textContent = tx; };
+  an('ph', SRC_FAIL, AUTH_FAIL - 0.6, SRC_FIX + 0.45); an('art', AUTH_FAIL, SIGN - 0.4, AUTH_FIX + 0.45);
+  const s = t < DRAFT ? ['', 'Sketch'] : t < 9.4 ? ['ai', 'AI draft'] : t < SIGN ? ['rev', 'In review'] : ['ok', 'Signed off'];
   const cls = 'fs-status' + (s[0] ? ' ' + s[0] : ''); if (pSt.className !== cls) pSt.className = cls; if (pSt.textContent !== s[1]) pSt.textContent = s[1];
   const ttl = t < SIGN + 0.2 ? 'Festival poster' : 'After'; if (pT.textContent !== ttl) pT.textContent = ttl;
 });
 
-// AI colleague: reacts when Source fails
-const ai = ui(aiHTML({ text: 'Poster finished. Lanterns redrawn <q>in the style of Mira Kell</q>. Harbour photo is <q>royalty-free</q>.', sure: 93, data: 'Leo’s sketch · web image search' }), 46, 600);
-on(cue(ai, AI_IN, 13.6, { from: 'left' }));
-on((t) => aiReact(ai, prog(t, SRC_FAIL, SRC_FAIL + 0.5), { sure: 93, to: 30 }));
+// AI colleague (top right, over the sky): each claim is struck only when its own check fails; returns as V2
+const ai = ui(aiHTML({ text: 'Poster finished. Lanterns drawn <q>in the style of Mira Kell</q>. Photo is <q>royalty-free</q>.', sure: 93, data: 'Leo’s sketch · web image search' }), 1874, 112, 'tr');
+on(cue(ai, AI_IN, T_OUT - 0.2, { from: 'right' }));
+on((t) => {
+  if (t < SRC_FAIL) aiSet(ai, { state: 'DRAFT', sure: 93 });
+  else if (t < AUTH_FAIL) aiSet(ai, { state: 'RETURNED', mode: 'ret', sure: 0, label: 'Not trusted', strike: [1] });
+  else if (t < V2) aiSet(ai, { state: 'RETURNED', mode: 'ret', sure: 0, label: 'Not trusted', strike: [0, 1] });
+  else aiSet(ai, { state: 'V2 · RE-CHECKED', mode: 'v2', sure: 90, label: '90% sure · re-checked by Leo', strike: [0, 1], data: 'Leo’s drawing · archive photo', note: 'Own lanterns · photo licensed + credited' });
+});
 
 // credits & licences panel
 const cred = ui(`<div class="fs-card cp-cred"><span class="fs-lbl">Credits &amp; licences</span>
   <div class="cp-r" style="margin-top:12px"><div class="nm">Lantern artwork</div><div class="vl" data-r="0"></div></div>
   <div class="cp-r"><div class="nm">Harbour photo</div><div class="vl" data-r="1"></div></div>
   <div class="cp-r"><div class="nm">Font</div><div class="vl">Open-source typeface<br><span class="lic ok">✓ Open Font Licence</span></div></div>
-  <div class="cp-r"><div class="nm">AI-use statement</div><div class="vl" data-r="3"></div></div></div>`, 1444, 164);
+  <div class="cp-r"><div class="nm">AI-use statement</div><div class="vl" data-r="3"></div></div></div>`, PX + SH, PY);
 on(cue(cred, CRED_IN, SIGN - 0.4, { from: 'right' }));
 const R = [0, 1, 3].map((i) => cred.querySelector(`[data-r="${i}"]`));
-const STMT = 'I used an AI tool for layout and colour ideas. The lanterns are my own drawing. No living artist’s style was copied.';
+const STMT = 'AI helped with layout and colour. Lanterns: my own drawing.';
 on((t) => {
   setHTML(R[0], t < ART_SWAP + 0.4 ? '<span class="fs-aitxt"><span class="fs-aitag">AI</span>“In the style of Mira Kell”</span><br><span class="lic ' + (t > AUTH_FAIL ? 'bad">✕ Living artist · no permission' : 'ai">? Not checked') + '</span>' : '<span class="fs-new">Leo’s own drawing</span><br><span class="lic ok">✓ Own work · AI colour help</span>');
   setHTML(R[1], t < PH_SWAP + 0.4 ? '<span class="fs-aitxt"><span class="fs-aitag">AI</span>“Royalty-free”</span><br><span class="lic ' + (t > SRC_FAIL ? 'bad">✕ Licence says non-commercial' : 'ai">? Not checked') + '</span>' : '<span class="fs-new">Harbourside Archive</span><br><span class="lic ok">✓ CC BY 4.0 · credited</span>');
-  const ty = typed(STMT, t, STMT_T, 90); // 116 chars → done by ≈22.2, before Authority turns green
+  const ty = typed(STMT, t, STMT_T, 60); // 59 chars → done by ≈22.0, before Authority is re-checked
   setHTML(R[2], t < STMT_T ? '<span class="lic bad">✕ Missing</span>' : `<span class="fs-new">${ty}${ty.length < STMT.length ? '<i class="fs-caret"></i>' : ''}</span>`);
 });
 
-// review: Data ✓, Case ✓, Source ✕ (licence) → fixed, Authority ✕ (living artist's style) → fixed
-const chk = checkStrip(1874, 26, 'tr');
-on(cue(chk, 10.6, T_OUT - 0.2, { from: 'down' }));
-const PLAN = [{ run: 11.0, res: 'pass' }, { run: 11.6, res: 'pass' }, { run: SRC_FAIL - 0.45, res: 'fail', fix: SRC_FIX }, { run: AUTH_FAIL - 0.45, res: 'fail', fix: AUTH_FIX }];
+// review: Data ✓ and Case ✓ (one-line reasons), Source ✕ (licence) → re-checked, Authority ✕ (living artist's style) → re-checked
+const chk = checkStrip(1874, 20, 'tr');
+on(cue(chk, 9.4, T_OUT - 0.2, { from: 'down' }));
+const PLAN = [{ run: DATA_OK - 0.45, res: 'pass' }, { run: CASE_OK - 0.45, res: 'pass' }, { run: SRC_FAIL - 0.45, res: 'fail', fix: SRC_FIX }, { run: AUTH_FAIL - 0.45, res: 'fail', fix: AUTH_FIX }];
 on((t) => chk.drive(t, PLAN));
-const fSrc = ui(findHTML('SOURCE CHECK · WRONG LICENCE', [['AI said', '“Royalty-free”'], ['Licence', 'CC BY-NC: non-commercial only'], ['But', 'The festival sells tickets'], ['Action', { t: 'Use a photo we may use. Credit it.', cls: 'bad' }]]), 46, 560);
-on(cue(fSrc, 13.8, 18.0, { from: 'left' }));
-on(findFix(fSrc, SRC_FIX, 'SOURCE CHECK · WRONG LICENCE', 'SOURCE CHECK · FIXED', 'Archive photo, CC BY 4.0, credited.'));
-const fAuth = ui(findHTML('AUTHORITY CHECK · NO PERMISSION', [['AI did', 'Copied Mira Kell’s style'], ['Problem', 'A living artist. She never agreed.'], ['Action', { t: 'Swap in my own drawing.', cls: 'bad' }]]), 46, 600);
-on(cue(fAuth, 18.6, 23.8, { from: 'left' }));
-on(findFix(fAuth, AUTH_FIX, 'AUTHORITY CHECK · NO PERMISSION', 'AUTHORITY CHECK · FIXED', 'My own drawing + AI-use statement.'));
-const sign = ui(signHTML('Leo', 13), 46, 820);
-on(cue(sign, SIGN, T_OUT, { from: 'pop' }));
+const LOW = 712; // lower slot in the left column, under the poster and credits
+const whyData = ui(findHTML('DATA CHECK · NOTHING MISSING', [['Why', 'Inputs listed: Leo’s sketch and one web photo.']], true), PX, LOW);
+on(cue(whyData, DATA_OK - 0.1, CASE_OK - 0.5, { from: 'left' }));
+const whyCase = ui(findHTML('CASE CHECK · HOLDS', [['Why', 'Right date, place and size for this festival.']], true), PX, LOW);
+on(cue(whyCase, CASE_OK - 0.1, SRC_FAIL - 0.3, { from: 'left' }));
+const fSrc = ui(findHTML('SOURCE CHECK · WRONG LICENCE', [['AI said', '“Royalty-free”'], ['Licence', 'CC BY-NC: non-commercial only'], ['But', 'The festival sells tickets'], ['Action', { t: 'Use a photo we may use. Credit it.', cls: 'bad' }]]), PX, LOW);
+on(cue(fSrc, SRC_FAIL + 0.1, AUTH_FAIL - 0.5, { from: 'left' }));
+on(findFix(fSrc, SRC_FIX + 0.45, 'SOURCE CHECK · WRONG LICENCE', 'SOURCE CHECK · RE-CHECKED', 'Archive photo, CC BY 4.0, credited.'));
+const fAuth = ui(findHTML('AUTHORITY CHECK · NO PERMISSION', [['AI did', 'Copied Mira Kell’s style'], ['Problem', 'A living artist. She never agreed.'], ['Action', { t: 'Swap in my own drawing.', cls: 'bad' }]]), PX, LOW);
+on(cue(fAuth, AUTH_FAIL + 0.1, SIGN - 0.3, { from: 'left' }));
+on(findFix(fAuth, AUTH_FIX + 0.45, 'AUTHORITY CHECK · NO PERMISSION', 'AUTHORITY CHECK · RE-CHECKED', 'My own drawing + AI-use statement.'));
+const sign = ui(signHTML('Leo', 13), PX, LOW + 60);
+on(cue(sign, SIGN, T_OUT - 0.2, { from: 'pop' }));
 
-// portfolio (small, beside the island) with the finished poster on its paper
-const folder = ui(folderHTML('Leo', 2), FX, FY, 'c');
-folder.querySelector('[data-paper]').innerHTML = `<div style="position:absolute;left:29px;top:0;width:142px;height:200px">${ART_AFTER}</div>`;
-on(cue(folder, T_OUT + 0.6, 32.4, { from: 'up' }));
-on((t) => { const k = prog(t, T_OUT + 1.0, T_OUT + 1.4, ease.back); const p = folder.querySelector('[data-paper]'); p.style.transform = `translateY(${(1 - k) * -50}px)`; p.style.opacity = clamp(k); const s = t > T_OUT + 1.2 ? 'Leo · 3 pieces' : 'Leo · 2 pieces'; const n = folder.querySelector('[data-items]'); if (n.textContent !== s) n.textContent = s; });
+// portfolio: Leo's own piece from this trailer only
+const folder = ui(folderHTML('Leo', 'Saving…'), FOLD_X, FOLD_Y);
+folder.style.zIndex = 6;
+on(cue(folder, T_OUT + 0.3, PATH_IN - 0.3, { from: 'up' }));
+on((t) => { const s = t > T_OUT + 1.75 ? 'Festival poster (NEW)' : 'Saving…'; const n = folder.querySelector('[data-items]'); if (n.textContent !== s) n.textContent = s; folder.firstChild.classList.toggle('glow', t > T_OUT + 1.75 && t < T_OUT + 2.3); });
 
-// pathway (beside the island, opaque), then a bright title card in the same place
-const path = ui(pathHTML({ next: 'iDEA creative badges <em>(free, online)</em>', award: 'Arts Award <em>(Explore or Bronze)</em>', route: 'GCSE Art &amp; Design or Media Studies, then a creative and digital apprenticeship', jobs: ['Content producer', 'Graphic designer', 'Marketing assistant'] }), 1430, 540, 'c');
-on(cue(path, 32.6, 35.6, { from: 'up' }));
-const title = ui(endTitleHTML('Creative <span class="hl">Producer</span>', 'Make it with AI. Credit it honestly.'), 1430, 540, 'c');
-on(cue(title, 35.8, null, { from: 'pop', dur: 0.6 }));
+// pathway (left, island on the right), then a bright stacked title above the whole island
+const path = ui(pathHTML({ next: 'iDEA creative badges <em>(free, online)</em>', award: 'Arts Award <em>(Explore or Bronze)</em>', route: 'GCSE Art &amp; Design or Media Studies, then a creative and digital apprenticeship', jobs: ['Content producer', 'Graphic designer', 'Marketing assistant'] }), 46, 200);
+on(cue(path, PATH_IN, TITLE_IN - 0.35, { from: 'left' }));
+const title = ui(endTitleHTML('Creative <span class="hl">Producer</span>', 'Make it with AI. Credit it honestly.'), 960, 70);
+title.dataset.anchor = '';
+on((t) => {
+  const a = prog(t, TITLE_IN, TITLE_IN + 0.6, ease.back);
+  title.style.opacity = clamp(prog(t, TITLE_IN, TITLE_IN + 0.3)); title.style.visibility = t > TITLE_IN ? 'visible' : 'hidden';
+  title.style.transform = `translate(-50%, 0) scale(${(0.8 + 0.2 * a) * (1 + 0.025 * prog(t, TITLE_IN + 0.6, DUR, (k) => k))})`; title.style.transformOrigin = '50% 0';
+});
 
 st.onFrame((t) => A.forEach((f) => f(t)));
 window.__duration = DUR;

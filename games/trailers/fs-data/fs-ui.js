@@ -20,8 +20,33 @@ export function typed(text, t, t0, t1) { const n = Math.round(text.length * clam
 // reveal a block by growing its height (the card grows with it), k in 0..1
 export function grow(node, k, max = 240) { node.style.maxHeight = (k * max) + 'px'; node.style.opacity = clamp(k * 1.4 - 0.2); node.style.overflow = 'hidden'; node.style.display = k <= 0 ? 'none' : ''; }
 
+// warm brochure daylight (shared by fs-data and fs-model)
+export function warmLight(st) {
+  const { sun, hemi, rim, renderer } = st;
+  document.getElementById('bg').style.background = 'linear-gradient(180deg, #4aaefc 0%, #8fd0ff 52%, #e6f4ff 100%)';
+  sun.color.set('#ffe1b0'); sun.intensity = 3.0; sun.position.set(-60, 115, 75);
+  hemi.color.set('#d6ecff'); hemi.groundColor.set('#8a6438'); hemi.intensity = 1.25;
+  rim.color.set('#ffe9c8'); rim.intensity = 0.6;
+  renderer.toneMappingExposure = 1.1;
+  const sc = sun.shadow.camera; sc.left = sc.bottom = -75; sc.right = sc.top = 75; sc.updateProjectionMatrix();
+}
+
+// like engine cue(), but cards leave with a quick slide off the right edge (no half-transparent ghost over the island)
+export function cueS(node, tIn, tOut, { from = 'right', dur = 0.45, outDur = 0.3, dist = 40 } = {}) {
+  return (t) => {
+    const a = prog(t, tIn, tIn + dur, from === 'pop' ? ease.back : ease.out);
+    const b = tOut == null ? 0 : prog(t, tOut, tOut + outDur, ease.in);
+    const v = b >= 1 ? 0 : a;
+    node.style.opacity = v; node.style.visibility = v <= 0.001 ? 'hidden' : 'visible';
+    let tr = from === 'pop' ? `scale(${0.6 + 0.4 * a})` : from === 'up' ? `translateY(${(1 - a) * dist}px)` : from === 'down' ? `translateY(${-(1 - a) * dist}px)` : `translateX(${(1 - a) * dist * 3}px)`;
+    if (b > 0) tr += ` translateX(${b * 1000}px)`;
+    node.style.transform = tr; node.style.transformOrigin = 'center';
+  };
+}
+
 export function makeFS(A, camera) {
   const api = {
+    cueS,
     // persistent top-left app bar with the lab name and strand chip
     appbar(lab, tIn, tOut, icon = SVG.mark) {
       const n = el(`<div class="fs-bar"><span class="mk">${icon}</span><b>${lab}</b><span class="fs-chip">DeltaOps Learning · Future Skills</span></div>`, { x: 46, y: 36 });
@@ -30,7 +55,7 @@ export function makeFS(A, camera) {
     },
     card(html, tIn, tOut, { x, y, w, anchor = 'tl', from = 'up', cls = 'fs-card' } = {}) {
       const n = el(`<div class="${cls}" style="${w ? `width:${w}px` : ''}">${html}</div>`, { x, y, anchor });
-      A(cue(n, tIn, tOut, { from }));
+      A(cueS(n, tIn, tOut, { from }));
       return n;
     },
     brief({ from, task, due, deliver }, tIn, tOut, { x = 1000, y = 150, w = 874 } = {}) {
@@ -41,15 +66,29 @@ export function makeFS(A, camera) {
       const n = el(`<div class="fs-ai" style="width:${w}px"><div class="hd"><span class="bot"></span><span style="color:#fff">AI colleague</span><em data-tag>${tag}</em></div><p data-claim>${text}</p>
         <div class="ft"><div class="sure"><div class="bar"><i data-bar style="width:${sure}%"></i></div><span data-sure>${sure}% sure</span></div></div>
         <div style="margin-top:16px"><span class="data" data-pill>Data I used: <b>${data}</b></span></div></div>`, { x, y });
-      A(cue(n, tIn, tOut, { from }));
+      A(cueS(n, tIn, tOut, { from }));
       n.sure0 = sure;
       return n;
     },
     // the AI card reacts: flag its data pill at flagAt; at retAt strike the claim, flip to "Returned" and drop the % to sure2
-    aiReact(n, { flagAt = null, retAt, sure2 = null, retLabel = 'Returned', retNote = 'Sent back', sureNote = 'on new photos' }) {
+    // v2: { at, name, text, sure, data } -> the card comes back as "V2 · re-checked by <name>" with a confidence number
+    aiReact(n, { flagAt = null, retAt, sure2 = null, retLabel = 'Returned', retNote = 'Sent back', sureNote = 'on new photos', v2 = null }) {
       const p = n.querySelector('[data-claim]'), tag = n.querySelector('[data-tag]'), bar = n.querySelector('[data-bar]'), su = n.querySelector('[data-sure]'), pill = n.querySelector('[data-pill]');
-      const tag0 = tag.textContent;
+      const tag0 = tag.textContent, text0 = p.innerHTML, pill0 = pill.innerHTML;
+      const set = (node, key, val) => { if (node.dataset[key] !== val) { node.dataset[key] = val; return true; } return false; };
       A((t) => {
+        const isV2 = v2 && t >= v2.at;
+        if (isV2) {
+          if (set(p, 'v', '2')) { p.innerHTML = v2.text; pill.innerHTML = `Data I used: <b>${v2.data}</b>`; }
+          p.classList.remove('struck'); pill.classList.remove('flag'); tag.classList.remove('ret'); tag.classList.add('v2');
+          tag.textContent = `V2 · re-checked by ${v2.name}`;
+          const k = prog(t, v2.at, v2.at + 0.35, ease.out);
+          n.style.boxShadow = k < 1 ? `0 0 0 ${8 * (1 - k)}px rgba(22,199,154,.5)` : '';
+          bar.style.width = v2.sure + '%'; bar.classList.remove('low'); su.textContent = `${v2.sure}% sure`;
+          return;
+        }
+        if (set(p, 'v', '1')) { p.innerHTML = text0; pill.innerHTML = pill0; }
+        tag.classList.remove('v2');
         if (flagAt != null) pill.classList.toggle('flag', t >= flagAt);
         const r = t >= retAt; p.classList.toggle('struck', r); tag.classList.toggle('ret', r); tag.textContent = r ? retLabel : tag0;
         const k = prog(t, retAt, retAt + 0.6, ease.out);
@@ -57,6 +96,58 @@ export function makeFS(A, camera) {
         bar.style.width = s + '%'; bar.classList.toggle('low', r);
         su.textContent = !r ? `${n.sure0}% sure` : sure2 != null ? `${s}% ${sureNote}` : retNote;
       });
+    },
+    // in-card check row with one-line reasons: steps = [[k(0..3), runAt, doneAt, 'ok'|'bad'|'warn', reason, fixAt?, fixReason?, reRunAt?]]
+    checkList(steps) {
+      return `<div class="fs-cl">${steps.map((s, i) => `<div class="fs-clr" data-cl="${i}"><span class="fs-check"><i></i>${['Data', 'Case', 'Source', 'Authority'][s[0]]}</span><span class="why" data-why></span></div>`).join('')}</div>`;
+    },
+    bindCheckList(node, steps) {
+      const rows = [...node.querySelectorAll('[data-cl]')];
+      A((t) => rows.forEach((r, i) => {
+        const [, run, done, res, why, rerun, fixDone, fixWhy] = steps[i];
+        const shown = t >= run; r.style.display = shown ? '' : 'none';
+        if (!shown) return;
+        let st, txt;
+        if (rerun != null && t >= rerun) { st = t < fixDone ? 'run' : 'ok'; txt = t < fixDone ? 'Re-checking…' : fixWhy; }
+        else { st = t < done ? 'run' : res; txt = t < done ? 'Checking…' : why; }
+        const c = r.querySelector('.fs-check'); const cls = 'fs-check ' + st; if (c.className !== cls) { c.className = cls; c.querySelector('i').textContent = st === 'ok' ? '✓' : st === 'bad' ? '✕' : st === 'warn' ? '!' : '…'; }
+        const w = r.querySelector('[data-why]'); if (w.dataset.h !== txt) { w.innerHTML = txt; w.dataset.h = txt; w.className = 'why ' + st; }
+        const k = prog(t, run, run + 0.3, ease.out); r.style.opacity = k; r.style.transform = `translateX(${(1 - k) * 24}px)`;
+      }));
+    },
+    // 3D-anchored name tag / speech bubble (fully opaque, no ghosting)
+    tag(html, at, tIn, tOut, cls = 'fs-ntag') {
+      const n = el(`<div class="${cls}">${html}</div>`, { x: 0, y: 0, anchor: 'bc' });
+      A(cue(n, tIn, tOut, { from: 'pop', dur: 0.35, outDur: 0.2 }));
+      A((t) => { if (n.style.visibility === 'hidden') return; const p = toScreen(at(t), camera); n.style.left = p.x + 'px'; n.style.top = (p.y - 10) + 'px'; });
+      return n;
+    },
+    // portfolio: the student's own pieces from this trailer only; items = [[title, sub, appearAt, isNew]]
+    portfolio(name, items, tIn, tOut, { x = 1000, y = 150 } = {}) {
+      const n = el(`<div class="fs-port"><span class="tabf">PORTFOLIO · ${name}</span><div class="body">${items.map(([a, b, , nw], i) => `<div class="it${nw ? ' nw' : ''}" data-it="${i}"><i></i><span>${a}<small>${b}</small></span>${nw ? '<span class="new">NEW</span>' : ''}</div>`).join('')}</div></div>`, { x, y });
+      A(cueS(n, tIn, tOut, { from: 'right' }));
+      A((t) => n.querySelectorAll('[data-it]').forEach((r, i) => { const k = prog(t, items[i][2], items[i][2] + 0.35, ease.back); r.style.opacity = clamp(k * 1.5); r.style.transform = `translateY(${(1 - k) * 30}px)`; }));
+      return n;
+    },
+    // end: island on the left, lab title + pathway rows stacked on the right (bright sky)
+    endRight(lab, tagline, tIn, { x = 1000, y = 70 } = {}) {
+      const n = el(`<div class="fs-etitle"><span class="fs-chip2">DeltaOps Learning · Future Skills</span><h1>${lab}</h1><h2>${tagline}</h2></div>`, { x, y });
+      A(cue(n, tIn, null, { from: 'up', dur: 0.6 }));
+      return n;
+    },
+    pathRows({ next, award, route, jobs }, tIn, { x = 1000, y = 400 } = {}) {
+      const n = el(`<div class="fs-card fs-path2"><div class="top"><span class="tag">PATHWAY</span><h3>Where this skill goes next</h3></div>
+        <div class="row"><span>Next step</span><b>${next}</b></div><div class="row"><span>Award</span><b>${award}</b></div>
+        <div class="row"><span>Route</span><b>${route}</b></div><div class="row"><span>Jobs</span><div class="jobs">${jobs.map((j) => `<i>${j}</i>`).join('')}</div></div>
+        <div class="lg"><img src="../assets/logo-learning.svg"></div></div>`, { x, y });
+      A(cue(n, tIn, null, { from: 'up', dur: 0.6 }));
+      return n;
+    },
+    // opening title on the sky above the island
+    openTitle(lab, tagline, tIn, tOut) {
+      const n = el(`<div class="fs-otitle"><span class="fs-chip2">DeltaOps Learning · Future Skills</span><h1>${lab}</h1><h2>${tagline}</h2></div>`, { x: 0, y: 70 });
+      A(cue(n, tIn, tOut, { from: 'pop', dur: 0.6 }));
+      return n;
     },
     // check chips: states(t) -> array of 'idle'|'run'|'ok'|'warn'|'bad'
     checksHTML() { return `<div class="fs-checks">${['Data', 'Case', 'Source', 'Authority'].map((k) => `<div class="fs-check" data-k="${k}"><i></i>${k}</div>`).join('')}</div>`; },
