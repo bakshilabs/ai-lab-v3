@@ -4,6 +4,28 @@ import * as THREE from 'three';
 
 export function hex(c) { return new THREE.Color(c); }
 
+// World-wide shader controls shared by every voxel mesh:
+//  clay (0..1) fades the world to a pale model for the data lenses;
+//  snow (0..1) whitens upward-facing surfaces for the winter test.
+export const WORLD = { clay: { value: 0 }, snow: { value: 0 } };
+function patch(mat) {
+  mat.onBeforeCompile = (sh) => {
+    sh.uniforms.uClay = WORLD.clay; sh.uniforms.uSnow = WORLD.snow;
+    sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying float vUp;')
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvUp = normalize((modelMatrix * vec4(objectNormal, 0.0)).xyz).y;');
+    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform float uClay; uniform float uSnow; varying float vUp;')
+      .replace('#include <color_fragment>', `#include <color_fragment>
+        diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.96, 0.97, 1.0), uSnow * smoothstep(0.5, 0.9, vUp));
+        float lum = dot(diffuseColor.rgb, vec3(0.3, 0.59, 0.11));
+        diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.80, 0.82, 0.82) * (0.78 + 0.3 * lum), uClay);`);
+  };
+  mat.customProgramCacheKey = () => 'eco-voxel';
+  return mat;
+}
+let _shared = null;
+export function sharedVoxelMaterial() { return _shared || (_shared = patch(new THREE.MeshLambertMaterial({ vertexColors: true }))); }
+export function voxelMaterial(emissive) { const m = patch(new THREE.MeshLambertMaterial({ vertexColors: true })); m.emissive = hex(emissive); return m; }
+
 function hash3(x, y, z) {
   let h = (x * 374761393 + y * 668265263 + z * 2147483647) | 0;
   h = (h ^ (h >>> 13)) * 1274126177;
@@ -60,8 +82,7 @@ export class Vox {
     g.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3));
     g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
     g.setIndex(idx);
-    const mat = new THREE.MeshLambertMaterial({ vertexColors: true });
-    if (emissive) { mat.emissive = hex(emissive); }
+    const mat = emissive ? voxelMaterial(emissive) : sharedVoxelMaterial();
     const mesh = new THREE.Mesh(g, mat);
     mesh.castShadow = castShadow; mesh.receiveShadow = receiveShadow;
     return mesh;

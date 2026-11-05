@@ -1,0 +1,117 @@
+{
+  "about": "Contract between the Plotter language model and the game. The model reads (level, instruction) and returns a probability for each slot of that level plus 'unknown'. Slots describe what the player ASKED FOR, not what the AI does: the planner (js/sim/planner.js) turns slots into a plan and makes the AI's literal / typical-case mistakes. Numbers (minutes, tonnes) are extracted by regex in plotter.js, not by the model.",
+  "levels": {
+    "land": {
+      "n": 1,
+      "title": "Read the land",
+      "slots": {
+        "best": "generic 'best / good / nice / perfect / ideal' land with no stated reason",
+        "flat": "flat, level, easy to build on",
+        "sunny": "sunny, south-facing, warm, gets the sun",
+        "dry": "dry, high ground, does not flood, safe from the river, avoids winter flooding",
+        "keep_meadow": "keep / protect / don't build on the meadow, wildflowers, river meadow",
+        "keep_wood": "keep / protect the wood, forest, trees",
+        "keep_wetland": "keep / protect the wetland, marsh, pond, reeds",
+        "near_water": "near the river or water",
+        "near_coast": "near the beach, sea, coast",
+        "big": "lots of space, room to grow, big area"
+      },
+      "canonical": {
+        "vague": "Find the best land",
+        "clear": "Dry, sunny land. Keep the meadow wild."
+      }
+    },
+    "move": {
+      "n": 2,
+      "title": "Getting around",
+      "slots": {
+        "easy_access": "easy / quick / convenient for everyone to get to school or around town, with no mode stated",
+        "safe_walking": "safe walking, footpaths, pavements, safe crossings, children can walk",
+        "cycling": "bikes, cycle lanes, cycle paths, cycling",
+        "tram": "tram, train, bus, public transport",
+        "cars_at_edge": "cars stay / park at the edge, parking outside the centre",
+        "no_cars": "no cars, car-free, ban cars",
+        "fast": "fast, quick journeys, less traffic jams",
+        "everyone": "everyone including children, wheelchair users, people without cars (explicitly naming who)"
+      },
+      "canonical": {
+        "vague": "Make it easy for everyone to get to school",
+        "clear": "Safe walking and cycling routes. Cars stay at the edge."
+      }
+    },
+    "homes": {
+      "n": 3,
+      "title": "Homes",
+      "slots": {
+        "strong": "strong, sturdy, solid, long-lasting homes",
+        "cheap": "cheap, low cost, affordable",
+        "many": "lots of homes, as many as possible, room for many families",
+        "tall": "tall, tower blocks, flats, high-rise",
+        "low_carbon": "low carbon, eco, green, small carbon footprint, less pollution",
+        "warm": "warm, cosy, insulated, low heating, comfortable in winter",
+        "natural_materials": "timber, wood, straw, straw bale, rammed earth, natural or local materials",
+        "green_roofs": "green roofs, plants on roofs",
+        "reuse": "reclaimed, recycled, reused materials"
+      },
+      "canonical": {
+        "vague": "Build strong homes",
+        "clear": "Warm, low-carbon homes from local timber and straw."
+      }
+    },
+    "food": {
+      "n": 4,
+      "title": "Food",
+      "slots": {
+        "max_food": "as much food as possible, most food, maximum, huge harvest",
+        "enough_food": "enough food for everyone, feed the town (sufficiency, not maximum)",
+        "keep_hedges": "keep / don't cut the hedges, hedgerows",
+        "bees": "bees, pollinators, beehives, flowers for bees",
+        "wildlife": "wildlife, nature, animals, deer, birds",
+        "local": "grown locally, on the island, no lorries, close to homes",
+        "allotments": "allotments, gardens, people grow their own",
+        "orchard": "orchard, fruit trees, food forest"
+      },
+      "canonical": {
+        "vague": "Grow as much food as possible",
+        "clear": "Enough food, and keep the hedges for the bees."
+      }
+    },
+    "power": {
+      "n": 5,
+      "title": "Water, power and waste",
+      "slots": {
+        "clean_power": "clean / green / renewable power, no fossil fuels",
+        "enough_power": "enough power, lights always on, reliable power",
+        "winter": "winter, cold days, still days with no wind, the worst case",
+        "night": "night, when the sun isn't shining, after dark",
+        "storage": "store energy, batteries, save sunshine for later",
+        "wind": "wind turbines, wind power",
+        "solar": "solar panels, sunshine, solar roofs",
+        "save_water": "rain gardens, save water, stop flooding with plants, wetland",
+        "repair": "repair, reuse, recycling, less waste",
+        "compost": "compost, food waste"
+      },
+      "canonical": {
+        "vague": "Make enough clean power",
+        "clear": "Enough power for a still winter night. Store the sunshine."
+      }
+    },
+    "heart": {
+      "n": 6,
+      "title": "Complete the town",
+      "slots": {
+        "middle": "in the middle, centre, central (of the town or island)",
+        "walk_time": "within N minutes' walk, short walk, walking distance",
+        "near_homes": "close to / next to the homes, where people live",
+        "nature_links": "connect nature, green corridor, green bridge, hedgerow links",
+        "market": "market, shops, town square, meeting place",
+        "safe_route": "safe route to school, away from traffic"
+      },
+      "canonical": {
+        "vague": "Put the school in the middle",
+        "clear": "School within a 10-minute walk of every home."
+      }
+    }
+  },
+  "unknown": "off-topic, nonsense, rude or unsafe input, or an instruction for a different level's topic; the game replies 'I don't know how to plan that yet.'"
+}

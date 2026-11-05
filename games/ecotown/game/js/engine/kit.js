@@ -79,6 +79,7 @@ export function waterMesh(cells, y, { color = PAL.water, opacity = 0.82 } = {}) 
   const w = new Vox(); w.jitter = 0.03;
   for (const [x, z] of cells) w.set(x, y, z, color);
   const m = w.mesh({ castShadow: false });
+  m.material = new THREE.MeshLambertMaterial({ vertexColors: true }); // own material: don't change the shared one
   m.material.transparent = true; m.material.opacity = opacity;
   m.position.y = -0.25;
   return m;
