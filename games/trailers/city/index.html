@@ -4,9 +4,9 @@
 <style>
 .tag3d { position: absolute; transform: translate(-50%, -100%); font: 800 26px Inter; padding: 6px 14px; border-radius: 8px; white-space: nowrap; color: #13202b; box-shadow: 0 4px 12px rgba(0,0,0,.25); }
 .box2d { position: absolute; border: 4px solid; border-radius: 6px; }
-.chip { display: inline-block; background: rgba(19,32,43,.88); color: #fff; border-radius: 22px; padding: 14px 26px; box-shadow: 0 8px 22px rgba(0,0,0,.2); }
-.chip small { display: block; font: 800 20px Inter; letter-spacing: .16em; }
-.chip span { display: block; font: 700 32px/1.2 Inter; margin-top: 4px; }
+.tchip { display: inline-block; background: rgba(19,32,43,.88); color: #fff; border-radius: 22px; padding: 14px 26px; box-shadow: 0 8px 22px rgba(0,0,0,.2); }
+.tchip small { display: block; font: 800 20px Inter; letter-spacing: .16em; }
+.tchip span { display: block; font: 700 32px/1.2 Inter; margin-top: 4px; }
 .dashp { display: flex; gap: 14px; }
 .dashp > div { background: rgba(19,32,43,.88); border-radius: 22px; padding: 14px 26px; min-width: 170px; box-shadow: 0 8px 22px rgba(0,0,0,.2); }
 .dashp small { display: block; font: 800 18px Inter; letter-spacing: .16em; color: #9fc4dd; }
@@ -29,6 +29,7 @@
 .strip .kid { position: absolute; top: 34px; width: 34px; height: 34px; border-radius: 50%; background: #ffc83d; border: 4px solid #fff; }
 .strip .gapbar { position: absolute; top: 46px; height: 10px; border-radius: 5px; }
 .strip .gapl { position: absolute; top: 10px; transform: translateX(-50%); font: 800 26px Inter; color: #fff; padding: 0 8px; border-radius: 8px; white-space: nowrap; }
+.strip.m .car { border-radius: 18px 10px 10px 18px; } .strip.m .car::before { right: auto; left: 30px; } .strip.m .car::after { left: auto; right: 70px; }
 .barow .res { width: 130px; font: 800 28px/1.1 Inter; }
 </style>
 <script type="importmap">{"imports":{"three":"/three/three.module.js","three/addons/":"/three-addons/"}}</script></head>
@@ -37,6 +38,8 @@
 import * as THREE from 'three';
 import { createStage, prog, ease, lerp, clamp, within } from '../engine/stage.js';
 import { el, cue, kicker, titleCard, fader, toScreen } from '../engine/ui.js';
+import { Vox, noise2 } from '../engine/voxel.js';
+import { tree as kitTree, PAL as KPAL } from '../engine/kit.js';
 
 // Timeline (s): 0 aerial · 3 first instruction · 5.6 test drive 1 (lidar) · 9.6 side-on hazard · 12.2 too late
 // 14.2 clearer instruction · 17 test drive 2 · 20.2 stops 6 m away · 23.4 wrap-up · 26.5 title · 30 end
@@ -58,12 +61,22 @@ const texts = []; // canvas textures that draw text: repainted once the web font
 
 // ---------- city: 4x4 blocks, roads every 50 ----------
 const B = 50, RW = 14, N = 4, SPAN = N * B, IN = B - RW, LAWN = IN - 4; // sidewalk ring 2 m, road 14 m
-const R1 = B * 0.5 + 1.8; // hero lane (eastbound) on the road z = 25
-const VAN = { x: 55.5, z: 30.4 }; // parked at the school kerb
+const R1 = B * 0.5 + 1.3; // hero lane (eastbound) on the road z = 25
+const VAN = { x: 55.5, z: 30.7 }; // parked at the school kerb (clear gap to the hero lane)
 const KID0 = [57.6, 33.2], KID1 = [60.6, 27.6]; // behind the van -> in the lane
 const STOP1 = 60.6 - 1.1 - 2.2, STOP2 = 60.6 - 6.1 - 2.2; // car centre at the end of each test drive
-add(new THREE.BoxGeometry(SPAN + 60, 1, SPAN + 60), std('#4b4b52', 0.95), SPAN / 2 - B / 2, -0.5, SPAN / 2 - B / 2);
-{ const gp = add(new THREE.BoxGeometry(1600, 1, 1600), std('#93c45e', 0.95), SPAN / 2 - B / 2, -0.62, SPAN / 2 - B / 2); gp.castShadow = false; }
+add(new THREE.BoxGeometry(SPAN + 16, 1, SPAN + 16), std('#4b4b52', 0.95), SPAN / 2 - B / 2, -0.5, SPAN / 2 - B / 2);
+// DeltaOps voxel diorama: the city sits on a floating island (4 m voxels, jittered colours, tapered rock underside)
+const VB = new Vox(); VB.jitter = 0.07; const VSZ = 2;            // buildings: chunky 2 m voxels
+const VH = new Vox(); VH.jitter = 0.06;                           // houses, trees, rim details: 1 m voxels
+{ const VI = new Vox(); VI.jitter = 0.06; const S4 = 4, CX0 = SPAN / 2 - B / 2, RX = 31, RZ = 31;
+  for (let x = -RX - 3; x <= RX + 3; x++) for (let z = -RZ - 3; z <= RZ + 3; z++) {
+    const a = Math.atan2(z, x), wob = 1 + (noise2(Math.cos(a) * 2.2 + 5, Math.sin(a) * 2.2 + 5, 4) - 0.5) * 0.16;
+    const r = Math.pow(Math.pow(Math.abs(x / RX), 4) + Math.pow(Math.abs(z / RZ), 4), 0.25); if (r > wob) continue;
+    const under = Math.round(9 * (1 - Math.pow(r / wob, 3) * 0.75) + noise2(x / 3, z / 3, 6) * 3);
+    for (let y = -under; y <= 0; y++) VI.set(x, y, z, y === 0 ? KPAL.grass[(x * 7 + z * 13 & 3)] : y >= -1 ? KPAL.soil[(x + z * 3 & 1) + (y & 1)] : KPAL.stone[((x * 5 + y * 3 + z) % 3 + 3) % 3]);
+  }
+  const m = VI.mesh({ scale: S4 }); m.position.set(CX0 - S4 / 2, -0.62 - S4, CX0 - S4 / 2); m.castShadow = false; scene.add(m); }
 // lane markings: centre dashes + solid edge lines
 const lineMat = std('#f4efe4', 0.6);
 for (let i = 0; i <= N; i++) { const p = i * B - B / 2; for (let k = -B / 2 + 2; k < SPAN - B / 2; k += 6) { if (Math.abs(((k + B / 2) % B) - B / 2) > B / 2 - RW / 2 - 1) continue; add(new THREE.BoxGeometry(0.3, 0.05, 2.6), lineMat, p, 0.03, k); add(new THREE.BoxGeometry(2.6, 0.05, 0.3), lineMat, k, 0.03, p); } }
@@ -81,22 +94,39 @@ function winTex(base, style, seed) {
   });
 }
 const PAL = ['#f2c6a0', '#e59b74', '#f4dc8a', '#a9cdec', '#f3e7d3', '#d9876a', '#c9e2b0', '#eab4b8', '#d6cbe8'];
-const facades = []; for (let s = 0; s < 4; s++) for (let c = 0; c < PAL.length; c++) facades.push(winTex(PAL[c], s, c * 7 + s));
+
 const awnMats = ['#e8573f', '#16a37f', '#3a8fe0', '#ffc83d', '#7a4fd0'].map((c) => std(c, 0.7));
 const trees = [];
 const roofMat = std('#f4f1ea', 0.6), ventMat = std('#a7aeb5', 0.5), roofRed = flat('#c4543a'), roofGrey = flat('#6e7a86');
+const proxyMat = new THREE.MeshBasicMaterial({ visible: false }); // invisible boxes keep the lidar raycast cheap
+const GLASS = '#34536e', LIT = '#ffe39a', FRAME = '#fbf6ec';
 function building(x, z, w, d, h, ti, k) {
-  const t = facades[ti % facades.length].clone(); t.needsUpdate = true; t.repeat.set(Math.max(1, Math.round(w / 8)), Math.max(1, Math.round(h / 16))); t.wrapS = t.wrapT = THREE.RepeatWrapping;
-  add(new THREE.BoxGeometry(w, h, d), new THREE.MeshStandardMaterial({ map: t, roughness: 0.75 }), x, h / 2 + 0.5, z);
-  add(new THREE.BoxGeometry(w + 0.6, 0.7, d + 0.6), roofMat, x, h + 0.85, z);
-  if (k % 3 === 0 && h > 20) add(new THREE.BoxGeometry(w * 0.6, 5, d * 0.6), new THREE.MeshStandardMaterial({ map: t, roughness: 0.75 }), x, h + 3.5, z); // stepped top
-  else if (k % 3 === 1) add(new THREE.CylinderGeometry(1.4, 1.4, 2.6, 10), ventMat, x + w * 0.2, h + 2.4, z - d * 0.15);
-  else add(new THREE.BoxGeometry(3, 1.6, 2.4), ventMat, x - w * 0.2, h + 2, z);
+  const base = PAL[ti % PAL.length], style = Math.floor(ti / 9) % 4, VS = VSZ;
+  const nx = Math.max(4, Math.round(w / VS)), nz = Math.max(4, Math.round(d / VS)), ny = Math.max(4, Math.round(h / VS));
+  const x0 = Math.round(x / VS - nx / 2), z0 = Math.round(z / VS - nz / 2);
+  const win = (u, k2, n) => { if (u === 0 || u === n - 1 || k2 === 0) return 0; if (style === 0) return u % 2 === 1 && k2 % 2 === 1; if (style === 1) return k2 % 2 === 1 ? 1 : 0; if (style === 2) return u % 3 !== 0 && k2 % 2 === 1; return u % 2 === 0 && k2 % 3 === 1; };
+  for (let k2 = 0; k2 < ny; k2++) for (let i = 0; i < nx; i++) for (let j = 0; j < nz; j++) {
+    const edgeX = i === 0 || i === nx - 1, edgeZ = j === 0 || j === nz - 1; if (!edgeX && !edgeZ) continue;
+    let c = base;
+    if (k2 === 0 && !edgeX && i % 3 !== 0) c = (i + k) % 4 === 0 ? '#ffe9b0' : '#3e5f7a'; // shop windows at street level
+    else if (edgeZ && !edgeX && win(i, k2, nx)) c = rnd(x0 + i * 3 + ti, k2 * 7 + j) > 0.86 ? LIT : GLASS;
+    else if (edgeX && !edgeZ && win(j, k2, nz)) c = rnd(z0 + j * 5 + ti, k2 * 3 + i) > 0.86 ? LIT : GLASS;
+    else if ((edgeX && edgeZ) || k2 === ny - 1) c = FRAME; // corner piers and cornice in cream
+    VB.set(x0 + i, k2, z0 + j, c);
+  }
+  for (let i = 0; i < nx; i++) for (let j = 0; j < nz; j++) { const rim = i === 0 || j === 0 || i === nx - 1 || j === nz - 1; VB.set(x0 + i, ny - 1, z0 + j, rim ? FRAME : '#d9d3c6'); if (rim) VB.set(x0 + i, ny, z0 + j, '#efe9dc'); }
+  if (k % 3 === 0 && ny > 10) VB.box(x0 + 2, ny, z0 + 2, x0 + nx - 3, ny + 2, z0 + nz - 3, base); // stepped top
+  else VB.box(x0 + 1 + (k % 2), ny, z0 + 1, x0 + 2 + (k % 2), ny, z0 + 2, '#a7aeb5'); // roof unit
+  const pr = new THREE.Mesh(new THREE.BoxGeometry(nx * VS, ny * VS, nz * VS), proxyMat); pr.position.set((x0 + nx / 2) * VS, ny * VS / 2 + 0.5, (z0 + nz / 2) * VS); scene.add(pr);
+  return { x: (x0 + nx / 2) * VS, z: (z0 + nz / 2) * VS, w: nx * VS, d: nz * VS };
 }
-function house(x, z, w, d, h, ci, ry) {
-  add(new THREE.BoxGeometry(w, h, d), new THREE.MeshStandardMaterial({ map: facades[18 + (ci % 9)], roughness: 0.8 }), x, h / 2 + 0.5, z);
-  const roof = add(new THREE.ConeGeometry(Math.max(w, d) * 0.78, 3.4, 4), ci % 2 ? roofRed : roofGrey, x, h + 2.2, z, Math.PI / 4); roof.scale.set(w / Math.max(w, d), 1, d / Math.max(w, d));
-  add(new THREE.BoxGeometry(1.4, 2.4, 0.2), std('#3a8fe0', 0.6), x, 1.7, z + (ry ? -d / 2 - 0.05 : d / 2 + 0.05));
+function house(x, z, w, d, h, ci, ry) { // voxel house in the kit style: window grid, door, stepped pitched roof
+  const W = Math.round(w), D = Math.round(d), H = Math.round(h) - 1, x0 = Math.round(x - W / 2), z0 = Math.round(z - D / 2), wall = PAL[ci % PAL.length], roof = ci % 2 ? '#c4543a' : '#5f7184';
+  for (let i = 0; i < W; i++) for (let j = 0; j < D; j++) for (let k2 = 0; k2 < H; k2++) { const ex = i === 0 || i === W - 1, ez = j === 0 || j === D - 1; if (!ex && !ez) continue; let c = wall; if (k2 >= 1 && k2 <= 2 && ((ez && !ex && i % 3 === 1) || (ex && !ez && j % 3 === 1))) c = rnd(i + ci, k2 + j) > 0.8 ? LIT : GLASS; if (ex && ez) c = FRAME; if (k2 < 3 && ((ry && j === 0) || (!ry && j === D - 1)) && i === Math.floor(W / 2)) c = '#3a8fe0'; VH.set(x0 + i, k2, z0 + j, c); }
+  for (let r = 0; r <= Math.ceil(D / 2); r++) for (let i = -1; i <= W; i++) { VH.set(x0 + i, H + r, z0 - 1 + r, roof); VH.set(x0 + i, H + r, z0 + D - r, roof); }
+  for (let j = 1; j < D - 1; j++) { const r = Math.min(j + 1, D - j); for (let k2 = 0; k2 < r - 1; k2++) { VH.set(x0 - 1 + 1, H + k2, z0 + j, wall); VH.set(x0 + W - 1, H + k2, z0 + j, wall); } }
+  VH.box(x0 + W - 3, H + Math.ceil(D / 2) - 1, z0 + Math.floor(D / 2), x0 + W - 3, H + Math.ceil(D / 2) + 1, z0 + Math.floor(D / 2), '#8a5a42'); // chimney
+  const pr = new THREE.Mesh(new THREE.BoxGeometry(W, H, D), proxyMat); pr.position.set(x0 + W / 2, H / 2 + 0.5, z0 + D / 2); scene.add(pr);
 }
 const benchMat = std('#9b6a3e', 0.8);
 for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
@@ -120,8 +150,8 @@ for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
   for (let k = 0; k < n; k++) {
     const w = 10 + rnd(i * 7 + k, j) * 6, d = 10 + rnd(i, j * 7 + k) * 6, h = 9 + rnd(i + k, j + 3) * (i === 2 && j === 1 ? 60 : 30);
     const x = cx - LAWN / 2 + w / 2 + 1 + (k % 2) * (LAWN - w - 2), z = cz - LAWN / 2 + d / 2 + 1 + Math.floor(k / 2) * (LAWN - d - 2);
-    building(x, z, w, d, h, (i * 5 + j * 3 + k * 7) % 36, k + i);
-    if ((i + j + k) % 2 === 0) add(new THREE.BoxGeometry(w * 0.8, 0.3, 1.6), awnMats[(i + j * 2 + k) % awnMats.length], x, 3.6, z + (Math.floor(k / 2) ? d / 2 + 0.8 : -d / 2 - 0.8));
+    const bb = building(x, z, w, d, h, (i * 5 + j * 3 + k * 7) % 36, k + i);
+    if ((i + j + k) % 2 === 0) add(new THREE.BoxGeometry(bb.w * 0.8, 0.4, 1.6), awnMats[(i + j * 2 + k) % awnMats.length], bb.x, 2.9, bb.z + (Math.floor(k / 2) ? bb.d / 2 + 0.8 : -bb.d / 2 - 0.8));
   }
   for (let k = 0; k < 4; k++) trees.push([cx - LAWN / 2 - 1 + (k % 2) * (LAWN + 2), cz - LAWN / 2 + 6 + Math.floor(k / 2) * (LAWN - 12), k + j]);
 }
@@ -150,12 +180,15 @@ for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
     add(new THREE.CylinderGeometry(0.1, 0.1, 3.4, 8), std('#9aa3ab', 0.4, 0.6), x, 2.1, z);
     const s = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 2.2), new THREE.MeshStandardMaterial({ map: st2, transparent: true, roughness: 0.6, side: THREE.DoubleSide })); s.position.set(x, 4.2, z); s.rotation.y = ry; scene.add(s);
   }
-  const rt = canvasTex(256, 512, (g, W, H) => { g.clearRect(0, 0, W, H); g.fillStyle = '#f4efe4'; g.font = '900 104px Inter, Arial, sans-serif'; g.textAlign = 'center'; g.save(); g.scale(1, 3.2); g.fillText('SCHOOL', W / 2, 130); g.restore(); }); texts.push(rt);
-  const paint = new THREE.Mesh(new THREE.PlaneGeometry(3.0, 6), new THREE.MeshStandardMaterial({ map: rt, transparent: true, roughness: 0.7, depthWrite: false })); paint.rotation.set(-Math.PI / 2, 0, -Math.PI / 2); paint.position.set(36, 0.05, R1); paint.receiveShadow = true; scene.add(paint);
+  const rt = canvasTex(512, 512, (g, W, H) => { g.clearRect(0, 0, W, H); g.fillStyle = '#f4efe4'; g.font = '900 110px Inter, Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; const tw = g.measureText('SCHOOL').width; g.save(); g.translate(W / 2, H / 2); g.scale(Math.min(1, (W - 40) / tw), 4.0); g.fillText('SCHOOL', 0, 0); g.restore(); }); texts.push(rt);
+  const paint = new THREE.Mesh(new THREE.PlaneGeometry(5.6, 7), new THREE.MeshStandardMaterial({ map: rt, transparent: true, roughness: 0.7, depthWrite: false })); paint.rotation.set(-Math.PI / 2, 0, -Math.PI / 2); paint.position.set(36, 0.05, B * 0.5 + 3.5); paint.receiveShadow = true; scene.add(paint);
 }
-// trees: round, cone and a few golden ones for the warm afternoon
-const leafMats = [flat('#5fae45'), flat('#79be4a'), flat('#e8a53a'), flat('#4f9d4a')], trunkMat = flat('#7a5232', 0.9);
-trees.forEach(([x, z, k], n) => { add(new THREE.CylinderGeometry(0.3, 0.42, 3, 6), trunkMat, x, 1.9, z); const m = leafMats[(n * 7 + k) % 4]; if ((n + k) % 3 === 2) add(new THREE.ConeGeometry(2.4, 6, 7), m, x, 6, z); else add(new THREE.IcosahedronGeometry(2.3 + rnd(n) * 0.8, 1), m, x, 4.9, z); });
+// kit voxel trees (round + pine), with a few golden ones for the warm afternoon; plus a wooded rim round the island
+for (let k = 0; k < 64; k++) { const a = k / 64 * Math.PI * 2 + rnd(k, 3) * 0.08, rr = 0.5 + rnd(k, 4) * 0.35; const cx = SPAN / 2 - B / 2; const sq = (v) => Math.sign(v) * Math.pow(Math.abs(v), 0.5); const x = cx + sq(Math.cos(a)) * (SPAN / 2 + 14 + rr * 10), z = cx + sq(Math.sin(a)) * (SPAN / 2 + 14 + rr * 10); if (Math.abs(x - cx) < SPAN / 2 + 10 && Math.abs(z - cx) < SPAN / 2 + 10) continue; trees.push([x, z, k + 5, 1]); }
+const GOLD = ['#e8a53a', '#f0b84a', '#d9902e'];
+trees.forEach(([x, z, k, rim], n) => { const tx = Math.round(x), tz = Math.round(z), ty = rim ? -2 : -1; const pine = (n + k) % 3 === 2; kitTree(VH, tx, ty, tz, { kind: pine ? 'pine' : 'round', s: n % 4 === 0 ? 2 : 1 });
+  if (!pine && (n * 7 + k) % 5 === 2) for (let dx = -3; dx <= 3; dx++) for (let dy = 2; dy <= 12; dy++) for (let dz = -3; dz <= 3; dz++) { const c = VH.get(tx + dx, ty + 1 + dy, tz + dz); if (c && c.g > c.r * 1.2) VH.set(tx + dx, ty + 1 + dy, tz + dz, GOLD[(dx + dy + dz + 9) % 3]); } });
+{ const mb = VB.mesh({ scale: VSZ }); mb.position.y = 0.5; scene.add(mb); const mh = VH.mesh({ scale: 1 }); mh.position.y = 0.5; scene.add(mh); }
 // traffic lights at the junction past the school
 const lightMats = []; function trafficLight(x, z, ry) { add(new THREE.BoxGeometry(0.3, 6, 0.3), std('#2a2f36'), x, 3, z, ry); add(new THREE.BoxGeometry(1, 2.4, 0.8), std('#20252b'), x, 6.4, z, ry); const ms = ['#ff3b30', '#ffcc00', '#2ee66b'].map((c, i) => { const m = new THREE.MeshStandardMaterial({ color: '#333', emissive: c, emissiveIntensity: 0 }); add(new THREE.SphereGeometry(0.3, 10, 8), m, x - Math.sin(ry) * 0.45, 7.2 - i * 0.75, z - Math.cos(ry) * 0.45); return m; }); lightMats.push(ms); }
 trafficLight(B * 1.5 - RW / 2 - 0.6, B * 0.5 + RW / 2 + 0.6, Math.PI / 2);
@@ -250,10 +283,11 @@ const kidS = (t) => run2(t) ? prog(t, ...KID_RUN2, ease.out) : prog(t, ...KID_RU
 st.onFrame((t) => {
   const ex = egoX(t), braking = (within(t, T1.brake, T1.stop + 0.2) || within(t, T2.slow, T2.stop + 0.2)) ? 1 : 0;
   drive(ego, ex, R1, Math.PI / 2); ego.rotation.x = braking * 0.035 * (within(t, T1.brake, T1.stop + 0.2) ? 1.4 : 1); ego.userData.ring.rotation.z = t * 6; ego.userData.tail.material.emissiveIntensity = braking ? 3 : 0.4;
-  traffic.forEach((c, i) => { const u = ((t * 9 * (1 + i * 0.07) + i * 40) % (SPAN + 60)) - 30; if (i < 3) drive(c, i % 2 ? SPAN - u : u, i % 2 ? B * 1.5 - 1.8 : B * 2.5 + 1.8, i % 2 ? -Math.PI / 2 : Math.PI / 2); else drive(c, i % 2 ? B * 2.5 - 1.8 : B * 3.5 + 1.8, i % 2 ? SPAN - u : u, i % 2 ? Math.PI : 0); });
+  traffic.forEach((c, i) => { const u = ((t * 9 * (1 + i * 0.07) + i * 40) % (SPAN + 6)) - 28; c.visible = u > -26 && u < SPAN - 26; if (i < 3) drive(c, i % 2 ? SPAN - u : u, i % 2 ? B * 1.5 - 1.8 : B * 2.5 + 1.8, i % 2 ? -Math.PI / 2 : Math.PI / 2); else drive(c, i % 2 ? B * 2.5 - 1.8 : B * 3.5 + 1.8, i % 2 ? SPAN - u : u, i % 2 ? Math.PI : 0); });
   oncoming.forEach((c, i) => { c.visible = t > 3 && t < 11.5; drive(c, (i ? 104 : 88) - 13 * (t - 3), B * 0.5 - 1.8, -Math.PI / 2); });
   drive(parked[0], 20, B * 0.5 + 5.2, Math.PI / 2); drive(parked[1], 73, B * 0.5 - 5.2, -Math.PI / 2); drive(parked[2], 112, B * 0.5 + 5.2, Math.PI / 2);
   drive(van, VAN.x, VAN.z, Math.PI / 2);
+  schoolKids.forEach((p, k) => { const ph = t * (2.2 + k * 0.4) + k * 2; p.position.y = 0.5 + Math.max(0, Math.sin(ph * 1.6)) * (k === 1 ? 0.18 : 0.05); p.rotation.y = Math.PI * 0.9 + Math.sin(t * 0.9 + k * 2.1) * 0.5; p.rotation.z = Math.sin(ph) * 0.05; p.userData.legs.forEach((l, i) => { l.rotation.x = k === 2 ? Math.sin(t * 5 + i * Math.PI) * 0.35 : 0; }); if (k === 2) p.position.x = 41.8 + Math.sin(t * 0.8) * 0.8; });
   peds.forEach((p, k) => { const [x0, z0, ax, L, v] = pedPaths[k]; const u = (((t * v + k * 7) % L) + L) % L; if (ax === 'x') { p.position.set(x0 + u, 0.4, z0); p.rotation.y = v > 0 ? Math.PI / 2 : -Math.PI / 2; } else { p.position.set(x0, 0.4, z0 + u); p.rotation.y = 0; } p.position.y = 0.4 + Math.abs(Math.sin(t * 6 + k)) * 0.05; });
   // the child: hidden behind the van, chases the ball into the lane; in test 2 crosses safely once the car has stopped
   const s = kidS(t); let kx = lerp(KID0[0], KID1[0], s), kz = lerp(KID0[1], KID1[1], s);
@@ -277,11 +311,11 @@ st.onFrame((t) => {
   const p = ego.position; let cp, cl, fov;
   const chase = { cp: [p.x - 11, 5.2, p.z - 4.2], cl: [p.x + 12, 1.6, p.z], fov: 46 };
   const lid = { cp: [p.x - 12, 15, p.z - 6.5], cl: [p.x + 14, 0, p.z + 0.5], fov: 52 };
-  if (t < 3.0) { const k = prog(t, 0, 3.0, ease.inOut); cp = [lerp(-56, chase.cp[0], k), lerp(46, chase.cp[1], ease.in(k) * 0.3 + k * 0.7), lerp(70, chase.cp[2], k)]; cl = [lerp(36, chase.cl[0], k), lerp(0, chase.cl[1], k), lerp(44, chase.cl[2], k)]; fov = lerp(44, chase.fov, k); }
+  if (t < 3.0) { const k = prog(t, 0, 3.0, ease.inOut), k2 = ease.inOut(prog(t, 0.6, 3.0)); cp = [lerp(-150, chase.cp[0], k), lerp(150, chase.cp[1], k2), lerp(-60, chase.cp[2], k)]; cl = [lerp(80, chase.cl[0], k), lerp(-8, chase.cl[1], k), lerp(80, chase.cl[2], k)]; fov = lerp(40, chase.fov, k); }
   else if (t < T1.go) { ({ cp, cl, fov } = chase); cp = [cp[0] + (t - 3) * 0.4, cp[1], cp[2]]; }
   else if (t < 9.6) { const k = prog(t, T1.go, T1.go + 1.0); cp = chase.cp.map((v, i) => lerp(v + (i === 0 ? 1 : 0), lid.cp[i], k)); cl = chase.cl.map((v, i) => lerp(v, lid.cl[i], k)); fov = lerp(chase.fov, lid.fov, k); }
   else if (t < 23.4) ({ cp, cl, fov } = sideCam(t, p.x));
-  else { const a = sideCam(t, STOP2), k = prog(t, 23.4, DUR, ease.inOut); cp = [lerp(a.cp[0], 40, k), lerp(a.cp[1], 24, k), lerp(a.cp[2], -6, k)]; cl = [lerp(a.cl[0], 58, k), lerp(a.cl[1], 0, k), lerp(a.cl[2], 32, k)]; fov = lerp(a.fov, 48, k); }
+  else { const a = sideCam(t, STOP2), k = prog(t, 23.4, DUR, ease.inOut); cp = [lerp(a.cp[0], -90, k), lerp(a.cp[1], 150, k), lerp(a.cp[2], -150, k)]; cl = [lerp(a.cl[0], 70, k), lerp(a.cl[1], -20, k), lerp(a.cl[2], 70, k)]; fov = lerp(a.fov, 40, k); }
   camera.fov = fov; camera.updateProjectionMatrix(); camera.position.set(...cp); camera.lookAt(...cl);
 });
 
@@ -304,12 +338,12 @@ det(child, 'CHILD 88%', '#16ffc6', 19.3, 21.0, 6);
 const wl = el('<div class="tag3d"></div>', { x: 0, y: 0 });
 A((t) => { const v = within(t, 9.9, 10.75) || within(t, 17.2, 19.25); wl.style.opacity = v ? 1 : 0; if (!v) return; const p = toScreen(wedgeC, camera); wl.style.left = clamp(p.x, 300, 1620) + 'px'; wl.style.top = p.y + 40 + 'px'; const r2 = run2(t); wl.style.background = r2 ? '#ffc83d' : '#ff5d4a'; wl.style.color = r2 ? '#13202b' : '#fff'; wl.firstChild.textContent = r2 ? 'CAN’T SEE HERE → SLOW DOWN' : 'CAN’T SEE BEHIND THE VAN'; });
 // test-drive chip (top left) restates the instruction in use
-const chip = (head, line, col, tIn, tOut) => A(cue(el(`<div class="chip"><small style="color:${col}">${head}</small><span>${line}</span></div>`, { x: 40, y: 40 }), tIn, tOut, { from: 'left' }));
+const chip = (head, line, col, tIn, tOut) => A(cue(el(`<div class="tchip"><small style="color:${col}">${head}</small><span>${line}</span></div>`, { x: 40, y: 40 }), tIn, tOut, { from: 'left' }));
 chip('TEST DRIVE 1 · YOUR INSTRUCTION', '“Get me to school <b style="color:#ffc83d">fast</b>.”', '#ffc83d', 5.7, 14.1);
 chip('TEST DRIVE 2 · NEW INSTRUCTION', 'Can’t see past something? <b style="color:#16ffc6">Slow down.</b><br>Not sure? <b style="color:#16ffc6">Stop.</b>', '#16ffc6', 17.0, 23.3);
-const lidLbl = el('<div style="font:800 22px Inter;letter-spacing:.2em;color:#16ffc6;text-shadow:0 2px 8px rgba(0,0,0,.6)">● LIDAR VIEW · 9,000 POINTS A SPIN</div>', { x: 44, y: 172 }); A(cue(lidLbl, 6.0, 9.5, { from: 'left' }));
+const lidLbl = el('<div style="font:800 22px Inter;letter-spacing:.2em;color:#16ffc6;background:rgba(4,16,40,.82);border-radius:999px;padding:10px 22px;box-shadow:0 6px 18px rgba(0,0,0,.25)">● LIDAR VIEW · 9,000 POINTS A SPIN</div>', { x: 40, y: 182 }); A(cue(lidLbl, 6.0, 9.5, { from: 'left' }));
 // AI helper (brochure style, top right)
-function helper(text, sure, tIn, tOut, tag = 'MY PLAN', tagColor = '#ffc83d') { const n = el(`<div class="b-helper" style="width:780px"><div class="bot"><i></i><i></i></div><div class="who">Autopilot <em style="background:${tagColor}">${tag}</em></div><p>${text}</p><div class="sure"><div class="bar"><i style="width:${sure}%"></i></div><span>${sure}% sure</span></div></div>`, { x: 1880, y: 40, anchor: 'tr' }); A(cue(n, tIn, tOut, { from: 'right' })); }
+function helper(text, sure, tIn, tOut, tag = 'MY PLAN', tagColor = '#ffc83d') { const n = el(`<div class="b-helper" style="width:540px"><div class="bot"><i></i><i></i></div><div class="who">Autopilot <em style="background:${tagColor}">${tag}</em></div><p>${text}</p><div class="sure"><div class="bar"><i style="width:${sure}%"></i></div><span>${sure}% sure</span></div></div>`, { x: 1880, y: 40, anchor: 'tr' }); A(cue(n, tIn, tOut, { from: 'right' })); }
 helper('“Fast” means <b style="color:#ffc83d">don’t slow down</b>.', 90, 5.9, 11.9);
 helper('Can’t see past the van. <b style="color:#ffc83d">Slowing down.</b>', 85, 17.3, 19.2, 'NEW RULE', '#16ffc6');
 helper('Not sure what that is. <b style="color:#16ffc6">Stopping!</b>', 88, 19.3, 20.9, 'NEW RULE', '#16ffc6');
@@ -319,14 +353,14 @@ function cards(head, list, tIn, tOut, pickAt, pick) {
   const n = el(`<div class="pc"><div class="b-head">${head}</div><div class="b-cards">${list.map((c) => `<div class="b-card${c.vague ? ' vague' : ''}"><span class="k">${c.k}</span><span>${c.text}</span></div>`).join('')}</div></div>`, { x: 960, y: 1046, anchor: 'bc' });
   A(cue(n, tIn, tOut, { from: 'up' }));
   const h = el(HAND, { x: 0, y: 0 });
-  A((t) => { const v = within(t, pickAt - 0.8, tOut) ? 1 : 0; h.style.opacity = v; h.style.visibility = v ? 'visible' : 'hidden'; n.querySelectorAll('.b-card')[pick].classList.toggle('pick', t > pickAt); const cardEl = n.querySelectorAll('.b-card')[pick]; const r = cardEl.getBoundingClientRect(); const tx = r.left + r.width * 0.5 - 34, ty = r.bottom - 26; const k = prog(t, pickAt - 0.8, pickAt - 0.1, ease.out); h.style.left = lerp(tx + 260, tx, k) + 'px'; h.style.top = lerp(ty + 200, ty, k) + 'px'; h.style.transform = `scale(${t > pickAt && t < pickAt + 0.15 ? 0.88 : 1})`; });
+  A((t) => { const v = within(t, pickAt - 0.8, tOut) ? 1 : 0; h.style.opacity = v; h.style.visibility = v ? 'visible' : 'hidden'; n.querySelectorAll('.b-card')[pick].classList.toggle('pick', t > pickAt); const cardEl = n.querySelectorAll('.b-card')[pick]; const r = cardEl.getBoundingClientRect(); const tx = r.right - 70, ty = r.bottom - 30; const k = prog(t, pickAt - 0.8, pickAt - 0.1, ease.out); h.style.left = lerp(tx + 260, tx, k) + 'px'; h.style.top = lerp(ty + 200, ty, k) + 'px'; h.style.transform = `scale(${t > pickAt && t < pickAt + 0.15 ? 0.88 : 1})`; });
 }
 cards('YOUR TEAM TELLS THE CAR', [{ k: 'A', text: 'Get me to school <b>fast</b>.', vague: true }, { k: 'B', text: 'Drive slowly everywhere.' }, { k: 'C', text: 'Follow the bus.' }], 3.0, 5.5, 4.6, 0);
 cards('TRY A CLEARER INSTRUCTION', [{ k: 'A', text: 'Drive more carefully.', vague: true }, { k: 'B', text: 'Can’t see past something? <b>Slow down.</b> Not sure? <b>Stop.</b>' }, { k: 'C', text: 'Only stop for grown-ups.' }], 14.2, 16.9, 15.8, 1);
 // alerts
 const alert = (txt, good, tIn, tOut) => A(cue(el(`<div class="b-alert" style="${good ? 'color:#1f7a4d' : ''}"><span class="x" style="${good ? 'background:#16c79a' : ''}">${good ? '✓' : '✕'}</span>${txt}</div>`, { x: 960, y: 215, anchor: 'c' }), tIn, tOut));
 alert('Braked too late: only 1 m to spare!', false, 12.1, 14.1);
-alert('Stopped in time: 6 m to spare!', true, 20.95, 23.2);
+alert('Stopped in time: 6 m to spare!', true, 20.95, 22.9);
 // gap ruler on the road between the car's nose and the child
 const gap = (txt, col, tIn, tOut, ax) => { const n = el(`<div class="tag3d" style="background:${col};color:#fff;font-size:34px;padding:8px 20px">${txt}</div>`, { x: 0, y: 0 }); const line = el(`<div style="height:8px;border-radius:4px;background:${col};box-shadow:0 0 10px ${col}"></div>`, { x: 0, y: 0 });
   A((t) => { const v = within(t, tIn, tOut) ? 1 : 0; n.style.opacity = line.style.opacity = v; if (!v) return; const a = toScreen(new THREE.Vector3(ax(), 0.2, R1 + 0.6), camera), b = toScreen(new THREE.Vector3(KID1[0] - 0.2, 0.2, R1 + 0.6), camera); n.style.left = (a.x + b.x) / 2 + 'px'; n.style.top = Math.min(a.y, b.y) + 90 + 'px'; n.style.transform = 'translate(-50%,0)'; line.style.left = Math.min(a.x, b.x) + 'px'; line.style.top = (a.y + b.y) / 2 + 'px'; line.style.width = Math.abs(b.x - a.x) + 'px'; }); };
@@ -334,15 +368,16 @@ gap('1 m', '#e8573f', 12.2, 14.2, () => ego.position.x + 2.2);
 gap('6 m', '#16a37f', 20.4, 21.0, () => ego.position.x + 2.2);
 // Before / After: top-down stopping gap
 const S = 40, SW = 470, KX = SW - 48;
-const strip = (gapM, col) => { const nose = KX - gapM * S, L = 4.4 * S; return `<div class="strip"><i class="lane"></i><div class="car" style="left:${nose - L}px;width:${L}px"></div><div class="gapbar" style="left:${nose + 3}px;width:${gapM * S - 6}px;background:${col}"></div><span class="gapl" style="left:${nose + gapM * S / 2}px;background:${col}">${gapM} m</span><div class="kid" style="left:${KX}px"></div></div>`; };
+const KXL = 14; // child at the left, car arriving from the right (matches the 3D side view)
+const strip = (gapM, col) => { const kidR = KXL + 34, nose = kidR + gapM * S, L = 4.4 * S; return `<div class="strip m"><i class="lane"></i><div class="car" style="left:${nose}px;width:${L}px"></div><div class="gapbar" style="left:${kidR + 3}px;width:${gapM * S - 6}px;background:${col}"></div><span class="gapl" style="left:${kidR + gapM * S / 2}px;background:${col}">${gapM} m</span><div class="kid" style="left:${KXL}px"></div></div>`; };
 const ba = el(`<div class="ba" style="width:820px"><small>SEEN FROM ABOVE: HOW MUCH ROOM WAS LEFT?</small>
   <div class="barow"><div class="tl">TEST 1<b>“Fast”</b></div>${strip(1, '#e8573f')}<div class="res" style="color:#d14a2b">✕ Too close</div></div>
   <div class="barow" data-r2><div class="tl">TEST 2<b>Clearer</b></div>${strip(6, '#16a37f')}<div class="res" style="color:#1f9d55">✓ Safe</div></div></div>`, { x: 40, y: 1040 });
 A(cue(ba, 12.4, 14.1, { from: 'up' }));
-const ba2 = el(ba.innerHTML, { x: 40, y: 1040 }); A(cue(ba2, 21.0, 26.3, { from: 'up' }));
+const ba2 = el(ba.innerHTML, { x: 40, y: 1040 }); A(cue(ba2, 21.0, 25.7, { from: 'up', outDur: 0.25 }));
 for (const n of [ba, ba2]) { n.style.top = 'auto'; n.style.bottom = '40px'; n.style.left = 'auto'; n.style.right = '40px'; }
 ba.querySelector('[data-r2]').style.display = 'none';
-const k2 = kicker('<span style="background:rgba(19,32,43,.86);padding:12px 36px;border-radius:24px">Say it clearly. Test it. <span style="color:#16FFC6">Check it.</span></span>', { y: 118, size: 60 }); A(cue(k2, 23.4, 26.3, { from: 'down' }));
+const k2 = kicker('<span style="background:rgba(19,32,43,.86);padding:12px 36px;border-radius:24px">Say it clearly. Test it. <span style="color:#16FFC6">Check it.</span></span>', { y: 118, size: 60 }); A(cue(k2, 23.4, 25.7, { from: 'down', outDur: 0.25 }));
 // dashboard (bottom right)
 const dashN = el(`<div class="dashp"><div><small>SPEED</small><b data-s>0</b> <span style="font:700 22px Inter;color:#9fc4dd">mph</span></div><div style="min-width:240px"><small>MODE</small><span class="mode" data-m>AUTOPILOT</span></div></div>`, { x: 1880, y: 920, anchor: 'tr' });
 A((t) => { const on = within(t, 5.6, 12.35) || within(t, 17.0, 20.95) ? 1 : 0; dashN.style.opacity = on; dashN.style.visibility = on ? 'visible' : 'hidden'; dashN.style.transform = 'translate(-100%,0)'; dashN.querySelector('[data-s]').textContent = Math.round(speed(t) * 2.7); const m = dashN.querySelector('[data-m]'); const stopped = speed(t) < 0.05 && t > 6; const slow = run2(t) && t > T2.slow && !stopped; m.textContent = stopped ? 'STOPPED' : slow ? 'SLOWING' : 'AUTOPILOT'; m.style.color = stopped ? '#ff9a6a' : slow ? '#ffc83d' : '#16ffc6'; if (stopped && run2(t)) m.style.color = '#16ffc6'; });
