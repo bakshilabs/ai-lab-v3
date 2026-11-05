@@ -209,3 +209,5 @@ html[data-motion="reduce"] #letterbox i { transition: none; }
 
 #dock.actions-only { grid-template-columns: 1fr; width: auto; min-width: min(560px, calc(100vw - 28px)); max-width: min(1180px, calc(100vw - 28px)); }
 #dock.actions-only .actions { align-items: stretch; }
+/* reveal callouts must be readable immediately, even on slow devices: no fade-in */
+#alert:not(.hide), #toast:not(.hide) { transition: none; opacity: 1; }

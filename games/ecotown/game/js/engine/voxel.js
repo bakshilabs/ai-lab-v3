@@ -11,13 +11,14 @@ export const WORLD = { clay: { value: 0 }, snow: { value: 0 } };
 function patch(mat) {
   mat.onBeforeCompile = (sh) => {
     sh.uniforms.uClay = WORLD.clay; sh.uniforms.uSnow = WORLD.snow;
-    sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying float vUp;')
-      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvUp = normalize((modelMatrix * vec4(objectNormal, 0.0)).xyz).y;');
-    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform float uClay; uniform float uSnow; varying float vUp;')
+    sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying float vUp; varying vec3 vWPos;')
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvUp = normalize((modelMatrix * vec4(objectNormal, 0.0)).xyz).y; vWPos = (modelMatrix * vec4(transformed, 1.0)).xyz;');
+    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform float uClay; uniform float uSnow; varying float vUp; varying vec3 vWPos;')
       .replace('#include <color_fragment>', `#include <color_fragment>
         diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.96, 0.97, 1.0), uSnow * smoothstep(0.5, 0.9, vUp));
         float lum = dot(diffuseColor.rgb, vec3(0.3, 0.59, 0.11));
-        diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.80, 0.82, 0.82) * (0.78 + 0.3 * lum), uClay);`);
+        float rim = smoothstep(1.0, 1.12, length(vWPos.xz / vec2(41.0, 32.0)));
+        diffuseColor.rgb = mix(diffuseColor.rgb, mix(vec3(0.82, 0.84, 0.84), vec3(0.30, 0.34, 0.40), rim) * (0.8 + 0.28 * lum), uClay);`);
   };
   mat.customProgramCacheKey = () => 'eco-voxel';
   return mat;
