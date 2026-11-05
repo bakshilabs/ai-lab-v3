@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { ITEMS, TARGETS, placeReason } from '../world/catalog.js';
 import { simulate, cellOf, emptyCell, natureBaseline } from '../sim/sim.js';
 import { applyPlacements } from '../sim/planner.js';
-import { ask, modelReady } from '../ai/plotter.js';
+import { ask, read as readInstr, modelReady } from '../ai/plotter.js';
 import { LEVELS, LEVEL_ORDER, ALL_CHECKS } from './levels.js';
 import { CONTENT, LEVEL_TEXT, DILEMMAS, HABITS } from './content.js';
 import { createChecks } from './checks.js';
@@ -73,9 +73,9 @@ export function createGame(app) {
   // live highlight of the words the model picked up (senior free text)
   function highlight(id, text, el) {
     if (!text.trim()) { el.innerHTML = ''; return; }
-    const r = ask(id, text, { terrain, cells: G.cells });
-    const ex = r.read.explain || []; const strong = new Set(ex.filter((e) => e.weight > 0.15).map((e) => e.word.toLowerCase()));
-    const words = text.split(/\s+/).map((w) => { const k = w.toLowerCase().replace(/[^a-z0-9'-]/g, ''); return strong.has(k) ? `<mark class="strong">${esc(w)}</mark>` : ex.some((e) => e.word.toLowerCase() === k && e.weight > 0.05) ? `<mark>${esc(w)}</mark>` : esc(w); });
+    const rd = readInstr(id, text, { withExplain: true }); const r = { unknown: rd.isUnknown, read: rd };
+    const ex = rd.explain || []; const norm = (w) => w.toLowerCase().replace(/[^a-z0-9'-]/g, ''); const strong = new Set(ex.filter((e) => e.weight > 0.5).map((e) => norm(e.word)));
+    const words = text.split(/\s+/).map((w) => { const k = w.toLowerCase().replace(/[^a-z0-9'-]/g, ''); return strong.has(k) ? `<mark class="strong">${esc(w)}</mark>` : ex.some((e) => norm(e.word) === k && e.weight > 0.15) ? `<mark>${esc(w)}</mark>` : esc(w); });
     el.innerHTML = r.unknown ? `<span>${esc(G.C.ui.unknown)}</span>` : `<span>Plotter reads:</span> ${r.read.active.map((s) => `<mark class="strong">${esc(s.replace(/_/g, ' '))}</mark>`).join(' ')}${ex.length ? ' · ' + words.join(' ') : ''}`;
   }
 

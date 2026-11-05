@@ -157,7 +157,27 @@ General rules used throughout the data:
 Test = held-out templates. Threshold 0.5. (Numbers from `eval/results.json` and
 `node --test`.)
 
-RESULTS_TABLE
+| Gate | Result | Target | |
+|---|---|---|---|
+| Micro slot F1, held-out-template test (n = 11,061) | **0.9904** | ≥ 0.90 | PASS |
+| Unknown recall (unknown test set) | **0.9843** | ≥ 0.95 | PASS |
+| Unknown false-positive rate (in-domain test) | **0.0084** | ≤ 0.05 | PASS |
+| JS int8 vs PyTorch float, 200 test sentences: max abs prob diff | **0.0112** | ≤ 0.05 | PASS |
+| JS int8 vs PyTorch float: same thresholded labels | **200 / 200 (100%)** | ≥ 98% | PASS |
+| JS tokenizer == Python tokenizer (same 200 sentences) | 200 / 200 | all | PASS |
+| Canonical cards, exact labels | **12 / 12** | 12 / 12 | PASS |
+| Hand-written child phrasing list (`sanity_child.json`, 58 items incl. 7 unknown), exact match | **57 / 58 (98.3%)** | ≥ 85% | PASS |
+| JS `predict()` latency, 32 tokens, Node 22 (4-core VM shared with other jobs) | **15.6 ms** (10-word card: 5.6 ms) | < 30 ms | PASS |
+
+Per-level test F1: land 0.990, move 0.997, homes 0.985, food 0.982, power 0.993, heart 0.998.
+Per age band: child frames 0.991, teen frames 0.990.
+
+Other numbers: model load (parse + dequantise) about 30 ms in Node. `explain()` takes about 57 ms for a
+10-word card and about 0.48 s for 35 words. Training used 8 epochs; the best validation epoch was 5.
+The only remaining sanity miss is "flat ground so its easy to build" (land), which gets an extra `sunny`.
+The sanity list was written before the lexicon and has never been edited. After the first evaluation, two
+synonym groups were added to the lexicon (more battery phrasings for `storage`; "a place where people meet" for
+`market`). No sanity string was copied into the generator.
 
 ## Runtime API (`game/js/ai/model.js`)
 

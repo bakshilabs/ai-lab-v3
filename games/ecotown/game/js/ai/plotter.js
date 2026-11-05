@@ -30,20 +30,22 @@ function keywordRead(level, text) {
   return { slots, unknown: any ? 0.05 : 0.9, explain: [] };
 }
 
-export function read(level, text) {
+export function read(level, text, { withExplain = false } = {}) {
   const clean = String(text || '').slice(0, 200);
   let r;
   if (model) {
     const p = model.predict(level, clean);
     let explain = [];
-    try { explain = model.explain(level, clean); } catch { /* optional */ }
+    if (withExplain) try { explain = model.explain(level, clean); } catch { /* optional */ } // costs one model run per word: only for live highlighting
     r = { slots: p.slots, unknown: p.unknown, explain, source: 'model' };
   } else r = { ...keywordRead(level, clean), source: 'keywords' };
   const active = Object.entries(r.slots).filter(([, p]) => p >= 0.5).map(([s]) => s);
   const m = clean.match(/(\d{1,2})\s*-?\s*min/); const minutes = m ? Math.max(3, Math.min(30, +m[1])) : null;
   // reading confidence: how sure the model is about the slots it switched on, and that this is on-topic
-  const conf = active.length ? active.reduce((a, s) => a * r.slots[s], 1) ** (1 / active.length) * (1 - r.unknown) : 0;
-  return { ...r, active, numbers: { minutes }, conf, isUnknown: r.unknown >= 0.5 || active.length === 0 };
+  const conf = active.length ? active.reduce((a, s) => a * r.slots[s], 1) ** (1 / active.length) * (1 - r.unknown) : 0.6 * (1 - r.unknown);
+  // on-topic but no specific request ("pick some land"): Plotter falls back to its default reading
+  const isUnknown = r.source === 'model' ? r.unknown >= 0.5 : r.unknown >= 0.5 || active.length === 0;
+  return { ...r, active, numbers: { minutes }, conf, isUnknown };
 }
 
 // Read + plan + reply. ctx: { terrain, cells }
