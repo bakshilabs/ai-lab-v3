@@ -78,7 +78,8 @@ The data is synthetic and built from `lexicon.py`:
 * **Unknown set** (about 27% of the data): off-topic chat, homework questions,
   silly builds ("build a theme park"), jokes, mild rude or unsafe text ("you're
   stupid", "burn down the town", "build a bomb"; no slurs), nonsense and keyboard
-  mashing, empty strings, and **instructions that belong to a different level**
+  mashing, empty strings, composed destructive requests (`burn down` / `blow up` /
+  `poison` × `the school` / `the river`… , split by verb), and **instructions that belong to a different level**
   (food words in the homes level, and so on). A cross-level fragment is only used
   as unknown when none of its content words occur in the current level's own
   lexicon. So "keep the wood" is never an unknown example in the homes level,
@@ -166,7 +167,7 @@ const plotter = await loadPlotter({ jsonUrl: 'models/plotter.json', binUrl: 'mod
 // Node: await loadPlotter({ json: JSON.parse(fs.readFileSync(...)), bin: fs.readFileSync(...) })
 
 plotter.predict('land', 'Dry, sunny land')    // { slots: {best, flat, ...}, unknown, tokens: ['[L_land]', 'dry', 'sunny', 'land'] }
-plotter.explain('food', "Don't cut the hedges") // [{ word: "Don't", weight: 0.4, slot: 'keep_hedges' }, ...]
+plotter.explain('food', "Don't cut the hedges") // [{ word: "Don't", slot: 'keep_hedges', weight: 1, dProb: 0.6 }, ...]
 plotter.embed('food', text)                   // Float32Array(160): pooled vector fed to the head
 plotter.head('food')                          // { slots, W (n×160 row-major), b, unknownW, unknownB, d }
 plotter.predictFromEmbedding('food', emb, { W, b }?)  // same as predict().slots/unknown; optional head override
@@ -175,11 +176,22 @@ plotter.predictFromEmbedding('food', emb, { W, b }?)  // same as predict().slots
 * `predict(level, text)` is exactly `predictFromEmbedding(level, embed(level, text))`
   (it is the same code path).
 * `explain` uses occlusion. It drops each whitespace-separated word, re-runs the
-  model, and reports for each word the active output (slots ≥ 0.5, or `unknown`
-  if ≥ 0.5; if nothing is active, the top slot) whose probability fell most, and by
-  how much. A negative weight means removing the word made that output more likely.
-  It costs one forward pass per word (about 0.1 to 0.3 s for a long sentence), so
-  call it on demand, not on every keystroke.
+  model, and measures how far each active output's **logit** falls (slots ≥ 0.5,
+  plus `unknown` if ≥ 0.5; if nothing is active, the top slot). Logits are used
+  because a confident 0.999 barely moves in probability when one of several cues
+  is removed. Each word gets `{word, slot, weight, dProb}`:
+  * `slot` is the output the word supports most (`null` if none);
+  * `weight` is that logit fall divided by the largest fall any word causes for
+    that slot, so the key word scores 1 and weights ≤ 0 mean no support;
+  * `dProb` is the raw probability change.
+
+  Example: "Enough power for a still winter night. Store the sunshine." gives
+  Enough→enough_power 1, winter→winter 1, night.→night 1, Store→storage 1,
+  still→winter 0.52. Words that normalise to nothing, or that fall past the
+  32-token window, are skipped (weight 0). Cost is one forward pass per word:
+  about 65 ms for a 10-word card and about 0.5 s for a 35-word paragraph on this
+  machine. So call it when the player asks to see the highlights, or debounce it,
+  rather than on every keystroke.
 * "Teach Plotter": `embed` + `head` give the game everything it needs to fit a
   logistic head in the browser and pass it back as `headOverride`. The override may
   also carry `unknownW` / `unknownB`.

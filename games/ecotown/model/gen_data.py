@@ -18,7 +18,8 @@ import os
 import random
 import re
 
-from lexicon import (LEX, GENERIC_FRAMES, EXCLUSIVE, CHAT, JOKES, RUDE_UNSAFE, NONSENSE_WORDS, TAGALONG)
+from lexicon import (LEX, GENERIC_FRAMES, EXCLUSIVE, CHAT, JOKES, RUDE_UNSAFE, NONSENSE_WORDS, TAGALONG,
+                     VIOLENT_VERBS, VIOLENT_OBJECTS)
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SCHEMA_PATH = os.path.join(HERE, "..", "game", "js", "ai", "schema.json")
@@ -390,6 +391,10 @@ def gen_unknown(level, n, rng, vocab):
             text = UNK_PATTERNS[i].replace("{T}", rng.choice(THINGS)).replace("{B}", rng.choice(FUN_BUILDS))
         elif r < 0.45:
             tid, text = "unk|nonsense", nonsense(rng)
+        elif r < 0.50:
+            i = rng.randrange(len(VIOLENT_VERBS))   # split by verb
+            tid = f"unk|violent|{i}"
+            text = dress(f"{VIOLENT_VERBS[i]} {rng.choice(VIOLENT_OBJECTS)}", rng, teen)
         else:
             # an instruction that belongs to a different level's topic
             src = rng.choice(others)

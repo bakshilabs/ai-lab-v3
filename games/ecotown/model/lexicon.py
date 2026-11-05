@@ -640,6 +640,14 @@ RUDE_UNSAFE = [
     "make the kids walk on the motorway", "steal the money", "tell me a swear word", "say a rude word",
     "how do i make a weapon", "give me your password", "what's your address", "delete the game",
 ]
+# Destructive requests, composed (verb x object) -> unknown. Planning verbs such
+# as "cut" / "rip out" / "build on" are NOT here: those are on-topic choices.
+VIOLENT_VERBS = ["burn down", "burn", "blow up", "set fire to", "smash up", "smash", "wreck", "bomb", "poison",
+                 "explode", "nuke", "kill", "attack", "flood on purpose", "knock down all of", "break"]
+VIOLENT_OBJECTS = ["the school", "the town", "the houses", "the farm", "the trees", "the river", "the wind turbines",
+                   "the tram", "the market", "everyone's homes", "the people", "the animals", "the bees", "the island",
+                   "the power station", "the shops", "the bridge", "my friend's house"]
+
 NONSENSE_WORDS = ["blah", "asdf", "qwerty", "lalala", "zzz", "hmm", "uhh", "bleep", "wobble", "flibber",
                   "jibber", "zoop", "glorp", "snorkel", "plink", "xyz", "abc", "aaaa", "ggg", "test"]
 
