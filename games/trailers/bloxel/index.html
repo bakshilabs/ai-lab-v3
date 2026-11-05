@@ -182,7 +182,7 @@ function frame(t) {
       px(180, 40, 132, 52, '#13202b'); txt('AI HELPER GUESSES', 246, 54, '#16ffc6', 8, 'Silk');
       txt(t < 24.3 ? '"A FROG!"' : '"A DRAGON!"', 246, 72, '#fff', 8, 'P2P');
       const sure = t < 24.3 ? 0.72 : 0.9; px(196, 80, 100, 4, '#2a3a49'); px(196, 80, 100 * sure, 4, '#16ffc6'); txt(Math.round(sure * 100) + '% SURE', 246, 90, '#c9d6ee', 8, 'Silk');
-      if (t > 23.2 && t < 24.8) { px(176, 100, 140, 26, '#ffe680'); txt('YOU: "ADD WINGS', 246, 111, '#13202b', 8, 'Silk'); txt('AND FIRE BREATH."', 246, 121, '#13202b', 8, 'Silk'); }
+      if (t > 23.2 && t < 24.3) { px(176, 100, 140, 26, '#ffe680'); txt('YOU: "ADD WINGS', 246, 111, '#13202b', 8, 'Silk'); txt('AND FIRE BREATH."', 246, 121, '#13202b', 8, 'Silk'); }
       if (t >= 24.3) { hero(220, 120, t, true); for (let i = 0; i < 5; i++) px(234 + i * 3, 126 + Math.sin(t * 20 + i) * 2, 2, 2, ['#ff8a2a', '#ffd23f'][i % 2]); }
     }
   } else if (t < 30) {
