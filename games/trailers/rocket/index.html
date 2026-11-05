@@ -489,7 +489,7 @@ A((t) => { if (!within(t, 6.9, 16.7)) return; const g = g4; g.clearRect(0, 0, 72
   if (gust > 0) legend(g, lx, 22, [['worst gust 45 km/h', '#e8573f', '#ffffff', gust]]);
   windChart(g, { x0, y0, w, h, ink: '#13202b', sub: '#7a8a98', grid: '#e6ebee', curve: '#2f6fd8', band: '#ffe1db', bandInk: '#e8573f', reveal: prog(t, 7.2, 8.4, (q) => q), gust, fs: 1 });
   if (gust > 0) { const gx = x0 + 45 / 60 * w; g.globalAlpha = gust; g.strokeStyle = '#e8573f'; g.lineWidth = 3; g.beginPath(); g.moveTo(gx, 40); g.lineTo(gx, y0 + h - 45 / 50 * h - 14); g.stroke(); g.globalAlpha = 1; } });
-follow('<div class="bub ghost" style="font-size:28px">DRY RUN · NAV’S PLAN</div>', TG + 0.1, TT - 0.1, () => ship.localToWorld(simPivot.position.clone().add(new THREE.Vector3(-1.18, 3.9, 0))));
+follow('<div class="bub ghost" style="font-size:28px">DRY RUN · NAV’S PLAN</div>', TG + 0.1, TT - 0.1, () => ship.localToWorld(simPivot.position.clone().add(new THREE.Vector3(-1.18, -3.2, 0))));
 follow('<div class="bub" style="background:#e8573f;color:#fff;font-size:30px">GUST 45 km/h →</div>', TT, TF + 0.3, () => ship.localToWorld(new THREE.Vector3(-3.4, 2.4, 0)), 'c');
 { const n = el('<div class="alertx"><span class="x">✕</span>A 45 km/h gust tipped it over</div>', { x: 1440, y: 300, anchor: 'c' }); A(cue(n, TFE + 0.05, 13.2, { dur: 0.35, outDur: 0.3 })); }
 cards('TRY A CLEARER CARD', C4, 13.5, 16.0, 15.0, 1);
