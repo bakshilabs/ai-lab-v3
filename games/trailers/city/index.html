@@ -24,7 +24,7 @@ import * as THREE from 'three';
 import { createStage, prog, ease, lerp, clamp, within } from '../engine/stage.js';
 import { el, cue, kicker, titleCard, fader, toScreen, cardsHTML, tap, facilCard } from '../engine/ui.js';
 
-const DUR = 38;
+const DUR = 36.5;
 const st = createStage({ sky: ['#2a86f2', '#bfe6ff'] });
 const { scene, camera, sun, hemi, fx } = st;
 fx.setTilt(0.5, 0); fx.grade.uniforms.sat.value = 1.12; fx.grade.uniforms.vignette.value = 0.2; fx.bloom.strength = 0.25;
@@ -36,13 +36,14 @@ const add = (geo, mat, x, y, z, ry = 0) => { const m = new THREE.Mesh(geo, mat);
 // ---------- city: 4x4 blocks, roads every 50 ----------
 const B = 50, RW = 14, N = 4, SPAN = N * B;
 add(new THREE.BoxGeometry(SPAN + 60, 1, SPAN + 60), std('#3a3f47', 0.95), SPAN / 2 - B / 2, -0.5, SPAN / 2 - B / 2);
+{ const gp = add(new THREE.BoxGeometry(1600, 1, 1600), std('#8fcf6a', 0.95), SPAN / 2 - B / 2, -0.62, SPAN / 2 - B / 2); gp.castShadow = false; }
 // lane markings + crosswalks
 const lineMat = std('#f2f2ea', 0.6);
 for (let i = 0; i <= N; i++) { const p = i * B - B / 2; for (let k = -B / 2; k < SPAN; k += 6) { add(new THREE.BoxGeometry(0.3, 0.05, 2.6), lineMat, p, 0.03, k); add(new THREE.BoxGeometry(2.6, 0.05, 0.3), lineMat, k, 0.03, p); } }
 for (let i = 0; i <= N; i++) for (let j = 0; j <= N; j++) { const x = i * B - B / 2, z = j * B - B / 2; for (let s = -5; s <= 5; s += 1.6) { add(new THREE.BoxGeometry(1, 0.06, 3), lineMat, x + s, 0.04, z + RW / 2 + 2.2); add(new THREE.BoxGeometry(3, 0.06, 1), lineMat, x + RW / 2 + 2.2, 0.04, z + s); } }
 // window texture
 function winTex(base, lit) { const c = document.createElement('canvas'); c.width = 64; c.height = 128; const g = c.getContext('2d'); g.fillStyle = base; g.fillRect(0, 0, 64, 128); for (let y = 6; y < 128; y += 12) for (let x = 5; x < 64; x += 12) { g.fillStyle = rnd(x, y + base.length) > 0.82 ? lit : '#2c4a63'; g.fillRect(x, y, 8, 8); g.fillStyle = 'rgba(255,255,255,.25)'; g.fillRect(x, y, 8, 2); } const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; return t; }
-const facades = ['#e9e4da', '#d7e3ef', '#f1d9c4', '#cfd8dc', '#e6efe3', '#f3e7c9'].map((c) => winTex(c, '#ffe9a8'));
+const facades = ['#f2c6a0', '#a9cdec', '#f4dc8a', '#c9e2b0', '#eab4b8', '#d9d2f0', '#e9e4da'].map((c) => winTex(c, '#ffe9a8'));
 const trees = [], peds = [];
 for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
   const cx = i * B, cz = j * B, inner = B - RW;
@@ -179,14 +180,15 @@ const al = el('<div class="alert"><span class="x">✕</span>False alarm. It’s 
 const fc = el(facilCard('It was 91% sure. Why did a poster fool it?'), { x: 1250, y: 780 }); A(cue(fc, 11.8, 13.9, { from: 'up' }));
 decision('Something behind the van… <b style="color:#ffc83d">slowing. Ask the driver?</b>', 41, 15.8, 17.4);
 const dim = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:rgba(6,14,26,.55)"></div>'); A((t) => { const v = within(t, 17.4, 18.8) ? 1 : 0; dim.style.opacity = v; dim.style.visibility = v ? 'visible' : 'hidden'; });
-const cards = el(cardsHTML('TRAIN THE CAR', [{ k: 'A', text: 'Drive more carefully.', vague: true }, { k: 'B', text: 'Add pictures of <b>children half hidden</b> behind cars.' }, { k: 'C', text: 'Add more pictures of grown-ups.' }], 1), { x: 960, y: 560, anchor: 'c' }); A(cue(cards, 17.45, 18.8, { from: 'up' }));
+const cards = el(cardsHTML('TRAIN THE CAR', [{ k: 'A', text: 'Drive more carefully.', vague: true }, { k: 'B', text: 'Add pictures of <b>posters</b>, and of <b>children half hidden</b> behind cars.' }, { k: 'C', text: 'Add more pictures of grown-ups.' }], 1), { x: 960, y: 560, anchor: 'c' }); A(cue(cards, 17.45, 18.8, { from: 'up' }));
 const tp = tap(960, 570); A((t) => tp(t, 17.9));
 decision('Child behind the van. <b style="color:#16ffc6">Stopping early.</b>', 88, 19.0, 25.6);
+const res = el(`<div class="decision" style="position:relative;left:0;top:0;width:780px"><small>TEST RESULTS AFTER TRAINING</small><p style="margin-top:8px">✓ Runner on a poster: <b style="color:#16ffc6">not a person</b> <span style="color:#9fc4dd">(8%)</span></p><p>✓ Child behind the van: <b style="color:#16ffc6">stop early</b> <span style="color:#9fc4dd">(88%)</span></p></div>`, { x: 1880, y: 400, anchor: 'tr' }); A(cue(res, 23.0, 26.2, { from: 'right' }));
 const k2 = kicker('Train it. Test it. <span style="color:#16FFC6">Check it.</span>', { y: 850 }); A(cue(k2, 22.6, 26.2, { from: 'up' }));
 // bottom dashboard
 const dashN = el(`<div class="dash"><div><small>SPEED</small><b data-s>0</b> <span style="font:700 20px Inter;color:#9fc4dd">mph</span></div><div><small>MODE</small><span class="mode" data-m style="color:#16ffc6">AUTOPILOT</span></div><div><small>RECORD</small><span data-r style="font:800 30px Inter"></span></div></div>`, { x: 0, y: 0 }); dashN.style.width = '1920px'; dashN.style.height = '1080px';
 A(cue(dashN, 3.6, 26.2, { from: 'fade' }));
-A((t) => { const sp = t < 9 ? 22 : t < 10.6 ? 22 : t < 12.2 ? 0 : t < 14 ? 14 : t < 17.4 ? lerp(14, 0, prog(t, 15.6, 17.2)) : t < 26.5 ? 0 : 24; dashN.querySelector('[data-s]').textContent = Math.round(sp); const m = dashN.querySelector('[data-m]'); const stop = within(t, 10.4, 12.2) || within(t, 16.8, 26.5); m.textContent = stop ? 'STOPPED' : 'AUTOPILOT'; m.style.color = stop ? '#ffc83d' : '#16ffc6'; const r = []; if (t > 8) r.push('✓', '✓'); if (t > 11) r.push('✕'); if (t > 19.4) r.push('✓'); dashN.querySelector('[data-r]').innerHTML = r.map((x) => `<span style="color:${x === '✓' ? '#16ffc6' : '#ff5d4a'};margin-right:8px">${x}</span>`).join(''); });
+A((t) => { const sp = t < 9 ? 22 : t < 10.6 ? 22 : t < 12.2 ? 0 : t < 14 ? 14 : t < 17.4 ? lerp(14, 0, prog(t, 15.6, 17.2)) : t < 26.5 ? 0 : 24; dashN.querySelector('[data-s]').textContent = Math.round(sp); const m = dashN.querySelector('[data-m]'); const stop = within(t, 10.4, 12.2) || within(t, 16.8, 26.5); m.textContent = stop ? 'STOPPED' : 'AUTOPILOT'; m.style.color = stop ? '#ffc83d' : '#16ffc6'; const r = []; if (t > 8) r.push('✓', '✓'); if (t > 11) r.push('✕'); if (t > 19.4) r.push("✓"); if (t > 23.2) r.push("✓"); dashN.querySelector('[data-r]').innerHTML = r.map((x) => `<span style="color:${x === '✓' ? '#16ffc6' : '#ff5d4a'};margin-right:8px">${x}</span>`).join(''); });
 const dimEnd = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:radial-gradient(ellipse at center, rgba(5,15,30,.35), rgba(5,15,30,.7))"></div>'); A(cue(dimEnd, 32.2, null, { from: 'fade', dur: 0.8 }));
 const title = titleCard('Autopilot <span class="hl">City</span>', 'Teach a car to see the city. Check what it sees.', { chip: 'A DeltaOps Learning AI lab' }); A(cue(title, 32.4, null, { from: 'pop', dur: 0.8 }));
 st.onFrame((t) => ui.forEach((f) => f(t)));

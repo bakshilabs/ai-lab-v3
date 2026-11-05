@@ -62,7 +62,10 @@ const LAMPS = []; for (let i = 0; i < 12; i++) { const x = -16 + (i % 6) * 7, z 
 const lampPosts = particles(12, { size: 1 }); lampPosts.geometry = new THREE.BoxGeometry(0.25, 3, 0.25); lampPosts.material.color.set('#3a4048'); scene.add(lampPosts); LAMPS.forEach(([x, z], i) => lampPosts.setAt(i, x + 0.5, 1.5, z + 0.5)); lampPosts.done();
 const glow = new THREE.PointLight('#ffcf70', 0, 60, 1.4); glow.position.set(0, 7, 10); scene.add(glow);
 const panelsGlow = particles(HOUSES.length, { size: 1 }); panelsGlow.geometry = new THREE.BoxGeometry(5, 0.1, 0.9); panelsGlow.material = new THREE.MeshBasicMaterial({ color: '#8fd0ff', transparent: true, opacity: 0.0 }); scene.add(panelsGlow);
+const PN = HOUSES.length * 2; const panels = new THREE.InstancedMesh(new THREE.BoxGeometry(2.4, 0.25, 2.2), new THREE.MeshStandardMaterial({ color: '#2b4fb8', roughness: 0.35, metalness: 0.3, emissive: '#3a7aff', emissiveIntensity: 0 }), PN); panels.frustumCulled = false; scene.add(panels);
+{ const d = new THREE.Object3D(); HOUSES.forEach(([x, z], i) => [1.6, 4.6].forEach((dx, k) => { d.position.set(x + dx + 0.5, 8.05, z + 5.35); d.rotation.set(Math.PI / 4, 0, 0); d.updateMatrix(); panels.setMatrixAt(i * 2 + k, d.matrix); })); panels.instanceMatrix.needsUpdate = true; }
 const sparks = particles(30, { size: 0.35 }); sparks.material = new THREE.MeshBasicMaterial({ color: '#19f0c0' }); scene.add(sparks);
+const offX = particles(5, { size: 1 }); offX.geometry = new THREE.BoxGeometry(2.4, 2.4, 0.3); offX.material = new THREE.MeshBasicMaterial({ color: '#ff5a4a' }); scene.add(offX);
 const conf = burst(scene, { at: [BX + 2.5, 9, BZ + 2.5], t0: 26.3, n: 80, colors: ['#ffd23f', '#19f0c0', '#ff6a4a', '#ffffff'], size: 0.5, speed: 9, up: 9, life: 2 });
 
 // time of day: 0 day, 1 night
@@ -83,17 +86,20 @@ st.onFrame((t) => {
   batFill.scale.set(1, Math.max(0.01, charge * 4.6), 1); batTop.material.color.set(t > 20.6 ? '#19f0c0' : '#2a8a78');
   for (let i = 0; i < 30; i++) { const ph = (t * 1.2 + i / 30) % 1; const [hx, hz] = HOUSES[i % HOUSES.length]; const toB = t >= 20.6 && t < 22.6; const fromB = t >= 23.4 && t < 31; const sx = toB ? lerp(hx + 4, BX + 2.5, ph) : lerp(BX + 2.5, hx + 4, ph), sz = toB ? lerp(hz + 3, BZ + 2.5, ph) : lerp(BZ + 2.5, hz + 3, ph); sparks.setAt(i, sx, 7 + Math.sin(ph * Math.PI) * 4, sz, t, t, toB || fromB ? 1 : 0); } sparks.done();
   HOUSES.forEach(([x, z], i) => panelsGlow.setAt(i, x + 4, 7.2, z + 0.6)); panelsGlow.done(); panelsGlow.material.opacity = (t > 8.8 && t < 10.6) || (t > 20.6 && t < 22.6) ? 0.6 + 0.3 * Math.sin(t * 8) : 0;
-  const spinOn = t < 8.6 || t > 20.4; turbines.forEach((g, i) => { g.userData.rot.rotation.z = (spinOn ? t : Math.min(t, 8.6 + 0.5)) * (1.6 + i * 0.1) + i; });
+  panels.material.emissiveIntensity = (t > 8.8 && t < 10.8) || (t > 20.6 && t < 22.8) ? 0.55 + 0.25 * Math.sin(t * 8) : 0.05;
+  const spinOn = t < 8.6 || t > 20.4;
+  turbines.forEach((g, i) => offX.setAt(i, g.position.x, g.position.y + 23.5, g.position.z + 2.2, 0, 0.35, t > 9.2 && t < 19.4 ? prog(t, 9.2 + i * 0.1, 9.5 + i * 0.1) : 0)); offX.done(); turbines.forEach((g, i) => { g.userData.rot.rotation.z = (spinOn ? t : Math.min(t, 8.6 + 0.5)) * (1.6 + i * 0.1) + i; });
   conf(t);
   // camera
   let ang, dist, hgt, look = [0, 0, 2], dy = -1.5;
   if (t < 4.2) { const k = prog(t, 0, 4.2); ang = lerp(-0.85, -0.45, ease.inOut(k)); dist = lerp(140, 112, ease.out(k)); hgt = lerp(100, 80, k); look = [0, 4, 0]; dy = 0; }
   else if (t < 8.4) { const k = prog(t, 4.2, 8.4); ang = lerp(-0.45, -0.36, k); dist = lerp(86, 78, k); hgt = lerp(62, 56, k); look = [0, 2, 2]; dy = -4; }
-  else if (t < 16.2) { const k = prog(t, 8.4, 16.2); ang = lerp(-0.36, -0.12, k); dist = lerp(74, 58, ease.inOut(k)); hgt = lerp(54, 42, ease.inOut(k)); look = [lerp(0, 2, k), 2, lerp(2, 6, k)]; dy = -3; }
-  else if (t < 20.4) { const k = prog(t, 16.2, 20.4); ang = lerp(-0.12, -0.3, k); dist = lerp(58, 74, ease.inOut(k)); hgt = lerp(42, 54, ease.inOut(k)); look = [2, 2, 4]; dy = -3; }
-  else if (t < 26.4) { const k = prog(t, 20.4, 26.4); ang = lerp(-0.3, 0.12, ease.inOut(k)); dist = lerp(70, 56, k); hgt = lerp(52, 40, k); look = [lerp(4, 2, k), 2, lerp(0, 5, k)]; dy = -3; }
-  else if (t < 31) { const k = prog(t, 26.4, 31); ang = lerp(0.12, 0.36, k); dist = lerp(58, 72, k); hgt = lerp(40, 50, k); look = [2, 2, 4]; dy = -3; }
+  else if (t < 16.2) { const k = prog(t, 8.4, 16.2); ang = lerp(-0.36, -0.12, k); dist = lerp(84, 70, ease.inOut(k)); hgt = lerp(50, 40, ease.inOut(k)); look = [lerp(0, 2, k), 6, lerp(-2, 0, k)]; dy = -3; }
+  else if (t < 20.4) { const k = prog(t, 16.2, 20.4); ang = lerp(-0.12, -0.3, k); dist = lerp(70, 84, ease.inOut(k)); hgt = lerp(40, 50, ease.inOut(k)); look = [2, 6, 0]; dy = -3; }
+  else if (t < 26.4) { const k = prog(t, 20.4, 26.4); ang = lerp(-0.3, 0.12, ease.inOut(k)); dist = lerp(82, 70, k); hgt = lerp(50, 40, k); look = [2, 6, lerp(-2, 0, k)]; dy = -3; }
+  else if (t < 31) { const k = prog(t, 26.4, 31); ang = lerp(0.12, 0.36, k); dist = lerp(72, 84, k); hgt = lerp(40, 50, k); look = [2, 6, 0]; dy = -3; }
   else { const k = prog(t, 31, 37); ang = lerp(0.36, 0.75, k); dist = lerp(100, 145, k); hgt = lerp(72, 104, k); look = [0, 4, 0]; dy = 0; }
+  if (t >= 9.6 && t < 11.0) { const q = Math.sin(prog(t, 9.6, 11.0) * Math.PI); look = [look[0], lerp(look[1], 16, q), lerp(look[2], -12, q)]; }
   camera.fov = 30; camera.updateProjectionMatrix(); camera.position.set(Math.sin(ang) * dist + look[0], hgt + look[1], Math.cos(ang) * dist + look[2]); camera.lookAt(look[0], look[1] + dy, look[2]);
 });
 
@@ -117,13 +123,14 @@ const batt = '<svg width="34" height="34" viewBox="0 0 24 24"><rect x="3" y="7" 
 const lightsOn = (t) => t < 12.2 ? 100 : t < 19.4 ? 100 - 85 * prog(t, 12.2, 13.2) : 100;
 const clean = (t) => t < 9 ? 70 : t < 19.4 ? 70 + 26 * prog(t, 9, 10) : t < 20.6 ? 70 : 70 + 22 * prog(t, 20.6, 22);
 const bat = (t) => t < 20.6 ? 15 : t < 22.6 ? lerp(15, 100, prog(t, 20.6, 22.6)) : lerp(100, 62, prog(t, 23, 30));
-L.meters([{ icon: plug, label: 'Clean', fn: clean, badBelow: 50 }, { icon: bulb, label: 'Lights', fn: lightsOn, badBelow: 50 }, { icon: batt, label: 'Battery', fn: bat, badBelow: 30 }], 9.4, 30.8, { x: 46, y: 820 });
+const MR = [{ icon: plug, label: 'Clean', fn: clean, badBelow: 50 }, { icon: bulb, label: 'Lights', fn: lightsOn, badBelow: 50 }, { icon: batt, label: 'Battery', fn: bat, badBelow: 30 }];
+L.meters(MR, 9.4, 17.9, { x: 46, y: 820 }); L.meters(MR, 21.8, 30.8, { x: 46, y: 820 });
 L.alert('Blackout at 8 pm', 13.4, 16.3, { y: 620 });
 L.facil('Solar is clean. But what happens when the sun goes down?', 16.4, 20.6, { color: '#f6c343', y: 560 });
 L.cards('TRY A CLEARER CARD', CARDS, 18.4, 21.4, 19.9, 1);
 L.helper('Charging the battery while it is sunny, then using it tonight. The turbines help too.', 90, 21.6, 26.2);
 L.saved('Lights on all night · 92% clean power', 26.4, 30.6, { y: 470 });
-const dimEnd = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:radial-gradient(ellipse at center, rgba(5,15,50,.15), rgba(5,15,50,.5))"></div>'); A(cue(dimEnd, 31.2, null, { from: 'fade', dur: 0.8 }));
+const dimEnd = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:radial-gradient(ellipse at center, rgba(5,15,50,.45), rgba(5,15,50,.75))"></div>'); A(cue(dimEnd, 31.2, null, { from: 'fade', dur: 0.8 }));
 const title = titleCard('Eco <span class="hl">Town</span>', 'Power a town with the AI. Keep the lights on after dark.', { chip: 'A DeltaOps Learning AI lab · Schools' }); A(cue(title, 31.4, null, { from: 'pop', dur: 0.8 }));
 st.onFrame((t) => ui.forEach((f) => f(t)));
 window.__duration = DUR;

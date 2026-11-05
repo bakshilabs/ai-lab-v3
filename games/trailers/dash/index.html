@@ -123,11 +123,17 @@ function frame(t) {
     text(pct + '%', 1430, 74, 40, '#fff', 'left', 'Baloo', 8);
     if (L.a.n > 0) text('ATTEMPT ' + (L.a.fast ? L.a.n + Math.floor((t - L.a.t0) / 0.9) : L.a.n), 240, 300, 72, '#fff', 'left', 'Baloo', 12);
   }
-  if (t >= 12 && t < 17.4) text('PRACTICE MODE', W / 2, 180, 60, '#3dff6a', 'center', 'Baloo', 12);
+  if (t >= 12 && t < 17.4) text('PRACTICE MODE', 640, 180, 60, '#3dff6a', 'center', 'Baloo', 12);
   // restart flash
   for (const a of attempts) if (a.crash) { const ct = a.t0 + (a.crash - a.x0) / SPEED; const nxt = attempts[attempts.indexOf(a) + 1]; if (nxt && t > ct + crashLen && t < nxt.t0) { g.fillStyle = 'rgba(255,255,255,' + (1 - (t - ct - crashLen) / (nxt.t0 - ct - crashLen)) * 0.6 + ')'; g.fillRect(0, 0, W, H); } }
   // co-pilot card (confident but wrong)
-  if (t >= 8.6 && t < 11.6) {
+  const copilot = (t0, t1, line, sure, col) => { if (t < t0 || t >= t1) return; const a = prog(t, t0, t0 + 0.3) * (1 - prog(t, t1 - 0.3, t1)); g.globalAlpha = a; const bx = 1010, by = 130;
+    g.fillStyle = '#13202b'; g.beginPath(); g.roundRect(bx, by, 880, 210, 34); g.fill(); g.fillStyle = '#ffffff'; g.beginPath(); g.roundRect(bx + 30, by + 40, 92, 92, 24); g.fill(); g.fillStyle = '#16c7a6'; g.fillRect(bx + 52, by + 72, 16, 22); g.fillRect(bx + 84, by + 72, 16, 22);
+    g.font = '800 34px Baloo'; g.textAlign = 'left'; g.fillStyle = '#c9d6ee'; g.fillText('CO-PILOT GUESS', bx + 150, by + 66); g.font = '800 56px Baloo'; g.fillStyle = '#fff'; g.fillText(line, bx + 150, by + 126);
+    g.fillStyle = '#2a3a49'; g.fillRect(bx + 150, by + 152, 440, 16); g.fillStyle = col; g.fillRect(bx + 150, by + 152, 440 * sure, 16); g.font = '800 34px Baloo'; g.fillStyle = '#c9d6ee'; g.fillText(Math.round(sure * 100) + '% sure', bx + 610, by + 170); g.globalAlpha = 1; };
+  copilot(13.9, 17.3, '“Jump on beat 3. I counted.”', 0.76, '#16ffc6');
+  if (t >= 12.3 && t < 13.9) { const a = prog(t, 12.3, 12.6) * (1 - prog(t, 13.6, 13.9)); g.globalAlpha = a; const bx = 360, by = 250; g.fillStyle = '#ffffff'; g.beginPath(); g.roundRect(bx, by, 1200, 150, 34); g.fill(); g.font = '800 30px Baloo'; g.textAlign = 'left'; g.fillStyle = '#7a3fb0'; g.fillText('YOU TELL THE CO-PILOT', bx + 40, by + 52); g.font = '800 52px Baloo'; g.fillStyle = '#13202b'; g.fillText('“Count along with the music first.”', bx + 40, by + 116); g.globalAlpha = 1; }
+  if (t >= 8.6 && t < 11.6 && false) {
     const a = prog(t, 8.6, 8.9) * (1 - prog(t, 11.3, 11.6));
     g.globalAlpha = a; const bx = 1180, by = 140;
     g.fillStyle = '#13202b'; g.beginPath(); g.roundRect(bx, by, 640, 170, 30); g.fill();
@@ -137,6 +143,7 @@ function frame(t) {
     g.fillStyle = '#2a3a49'; g.fillRect(bx + 130, by + 128, 360, 12); g.fillStyle = '#16ffc6'; g.fillRect(bx + 130, by + 128, 360 * 0.92, 12); g.font = '800 28px Baloo'; g.fillStyle = '#c9d6ee'; g.fillText('92% sure', bx + 510, by + 141);
     g.globalAlpha = 1;
   }
+  copilot(8.6, 11.6, '“Jump on the 4th beat!”', 0.92, '#ffb03d');
   if (t >= 11.0 && t < 12.1) text('Very sure is not the same as right.', W / 2, 980, 64, '#ffe23d', 'center', 'Baloo', 12);
   // hook text
   if (t < 2.4) { const a = prog(t, 0.2, 0.5); g.globalAlpha = a; text('ONE BUTTON.', W / 2, 430, 150, '#fff', 'center', 'Baloo', 16); if (t > 1.0) text('ONE BEAT.', W / 2, 590, 120, '#16ffc6', 'center', 'Baloo', 14); g.globalAlpha = 1; }

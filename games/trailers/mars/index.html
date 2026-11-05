@@ -47,8 +47,8 @@ for (let x = -RX - 4; x <= RX + 4; x++) for (let z = -RZ - 4; z <= RZ + 4; z++) 
   const cr = crater(x, z); if (cr < 1) h = 2 - Math.round(3.5 * (1 - cr * cr)); else if (cr < 1.35) h = Math.max(h, 4);
   H.set(K(x, z), h);
   const r = Math.hypot(x / RX, z / RZ); const under = Math.round(10 * (1 - r * r * 0.7) + noise2(x / 3, z / 3, 4) * 3);
-  for (let y = h - under; y <= h; y++) { let c; if (y === h) { c = pad ? ((x + z) % 2 ? '#a9a9b0' : '#9a9aa2') : sd < 1 ? (sd < 0.7 ? '#f2b884' : '#e8a06a') : cr < 1 ? '#b0522a' : SH[Math.floor(rand(x, y, z) * 4)]; } else { const b = Math.floor((y + noise2(x / 5, z / 5, 2) * 2) / 2); c = ['#c4602c', '#a84a24', '#d9743a', '#8a3a1e', '#e8a06a'][((b % 5) + 5) % 5]; } v.set(x, y, z, c); }
-  if (!pad && sd > 1.1 && cr > 1.4 && !isBase && rand(x, 5, z) > 0.975) v.set(x, h + 1, z, rand(x, 6, z) > .5 ? '#7a2e1a' : '#8a3a22');
+  for (let y = h - under; y <= h; y++) { let c; if (y === h) { c = pad ? ((x + z) % 2 ? '#a9a9b0' : '#9a9aa2') : sd < 1 ? (sd < 0.7 ? '#f2b884' : '#e8a06a') : cr < 1 ? '#b0522a' : SH[Math.floor(clamp(noise2(x / 5, z / 5, 9) * 1.4 - 0.2) * 3.99)]; } else { const b = Math.floor((y + noise2(x / 5, z / 5, 2) * 2) / 2); c = ['#c4602c', '#a84a24', '#d9743a', '#8a3a1e', '#e8a06a'][((b % 5) + 5) % 5]; } v.set(x, y, z, c); }
+  if (!pad && sd > 1.1 && cr > 1.4 && !isBase && rand(x, 5, z) > 0.988) v.set(x, h + 1, z, rand(x, 6, z) > .5 ? '#7a2e1a' : '#8a3a22');
 }
 const hAt = (x, z) => H.get(K(Math.round(x), Math.round(z))) ?? 2;
 const hSm = (x, z) => { const x0 = Math.floor(x), z0 = Math.floor(z), fx = x - x0, fz = z - z0; const g = (a, b) => H.get(K(a, b)) ?? 2; return lerp(lerp(g(x0, z0), g(x0 + 1, z0), fx), lerp(g(x0, z0 + 1), g(x0 + 1, z0 + 1), fx), fz); };
@@ -118,16 +118,16 @@ A(cue(pg, 1.6, 8.4, { from: 'right' }));
 const CARDS = [['A', 'Get to the crater as fast as you can'], ['B', 'Drive slowly and steer round soft sand'], ['C', 'Take lots of photos on the way']];
 L.cards('TELL THE AI HELPER HOW TO DRIVE', CARDS, 4.2, 8.6, 6.3, 0);
 L.helper('“Fast” means top speed in a straight line. Driving through the sand.', 72, 8.8, 16.2);
-const pg2 = el('<div class="prog"><small>YOUR PROGRAM</small><div class="blk ev">When mission starts</div><div class="blk mv">drive <span class="slot">top speed, straight</span></div><div class="blk sn">at the crater: take a photo</div></div>', { x: 46, y: 300 }); A(cue(pg2, 9.4, 18.2, { from: 'left' }));
+const pg2 = el('<div class="prog"><small>YOUR PROGRAM</small><div class="blk ev">When mission starts</div><div class="blk mv">drive <span class="slot">top speed, straight</span></div><div class="blk sn">at the crater: take a photo</div></div>', { x: 1874, y: 490, anchor: 'tr' }); A(cue(pg2, 9.4, 18.2, { from: 'right' }));
 L.alert('Rover stuck in soft sand', 13.6, 16.3, { y: 780 });
-L.facil('Rovers on Mars drive very slowly. What did “fast” leave out?', 16.4, 20.6, { color: '#ffd23f', ink: '#13202b', y: 520 });
+L.facil('Rovers on Mars drive very slowly. What did “fast” leave out?', 16.4, 20.6, { color: '#ffd23f', ink: '#13202b', x: 706, y: 300 });
 L.cards('TRY A CLEARER CARD', CARDS, 18.4, 21.4, 19.9, 1);
 L.helper('Slow and safe: wide wheels, under 5 km/h, going round the sand.', 91, 21.6, 26.2);
-const pg3 = el('<div class="prog"><small>YOUR PROGRAM</small><div class="blk ev">When mission starts</div><div class="blk mv">drive <span class="slot">wide wheels, under 5 km/h</span></div><div class="blk mv" style="background:#7a6aff">avoid <span class="slot">soft sand</span></div><div class="blk sn">at the crater: take a photo</div></div>', { x: 46, y: 300 }); A(cue(pg3, 21.6, 30.8, { from: 'left' }));
+const pg3 = el('<div class="prog"><small>YOUR PROGRAM</small><div class="blk ev">When mission starts</div><div class="blk mv">drive <span class="slot">wide wheels, under 5 km/h</span></div><div class="blk mv" style="background:#7a6aff">avoid <span class="slot">soft sand</span></div><div class="blk sn">at the crater: take a photo</div></div>', { x: 1874, y: 490, anchor: 'tr' }); A(cue(pg3, 21.6, 30.8, { from: 'right' }));
 const STAR = '<svg viewBox="0 0 24 24"><path d="M12 2.6l2.8 5.7 6.3.9-4.6 4.4 1.1 6.2L12 16.9l-5.6 2.9 1.1-6.2-4.6-4.4 6.3-.9z" fill="#ffc83d" stroke="#e8a020" stroke-width=".8"/></svg>';
-const stars = el(`<div class="bigstars" style="display:flex;gap:30px;align-items:flex-end">${STAR}<span style="transform:translateY(-30px)">${STAR}</span>${STAR}</div>`, { x: 1100, y: 330, anchor: 'c' }); A(cue(stars, 26.8, 30.8));
-const lvl = el('<div class="lvl">Level 5 unlocked<div class="bar"><i data-b></i></div></div>', { x: 1100, y: 500, anchor: 'c' }); A(cue(lvl, 27.2, 30.8)); A((t) => { lvl.querySelector('[data-b]').style.width = 100 * prog(t, 27.4, 28.6) + '%'; });
-const pola = el('<div class="pola"><img data-i>Crater photo #1</div>', { x: 1874, y: 1040, anchor: 'tr' }); pola.style.transformOrigin = 'center';
+const stars = el(`<div class="bigstars" style="display:flex;gap:30px;align-items:flex-end">${STAR}<span style="transform:translateY(-30px)">${STAR}</span>${STAR}</div>`, { x: 760, y: 330, anchor: 'c' }); A(cue(stars, 26.8, 30.8));
+const lvl = el('<div class="lvl">Level 5 unlocked<div class="bar"><i data-b></i></div></div>', { x: 760, y: 500, anchor: 'c' }); A(cue(lvl, 27.2, 30.8)); A((t) => { lvl.querySelector('[data-b]').style.width = 100 * prog(t, 27.4, 28.6) + '%'; });
+const pola = el('<div class="pola"><img data-i>Crater photo #1</div>', { x: 1180, y: 1040, anchor: 'tr' }); pola.style.transformOrigin = 'center';
 let snapped = false; A((t) => { if (t >= 26.05 && !snapped) { pola.querySelector('[data-i]').src = st.renderer.domElement.toDataURL('image/jpeg', 0.8); snapped = true; } const k = prog(t, 26.3, 27.1, ease.back); pola.style.opacity = t > 26.3 && t < 31 ? 1 : 0; pola.style.transform = `translate(-100%,-100%) rotate(${lerp(-14, 4, k)}deg) scale(${lerp(1.6, 1, k)})`; });
 const dimEnd = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:radial-gradient(ellipse at center, rgba(10,8,40,.2), rgba(10,8,40,.55))"></div>'); A(cue(dimEnd, 31.2, null, { from: 'fade', dur: 0.8 }));
 const title = titleCard('AI Inventor <span class="hl">Lab</span>', 'Program the rover. Check what the AI thinks you meant.', { chip: 'A DeltaOps Learning AI lab · STEM clubs' }); A(cue(title, 31.4, null, { from: 'pop', dur: 0.8 }));

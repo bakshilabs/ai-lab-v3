@@ -60,6 +60,7 @@ const COLS = 39;
 function cell(c, r, hard) {
   const room = ROOMS[Math.floor(c / 13)]; if (!room) return '.';
   let ch = room[r][c % 13];
+  if (hard === 'fair') { if (ch === '.' && r === 10 && (c === 12 || c === 20)) ch = 'R'; return ch; }
   if (hard && ch === '.' && r >= 8 && r <= 10 && hash(c, r, 5) > 0.35) ch = 'R';
   if (hard && ch === 'Y') ch = 'R';
   return ch;
@@ -142,7 +143,7 @@ function frame(t) {
   else if (t < 6.4) {
     // photo flash then the board pixels lift into a game room
     const k = eio(prog(t, 4.0, 5.6));
-    if (k <= 0) { board(t, 1, 1 - prog(t, 3.4, 3.9)); txt('SNAP!', W / 2, 172, '#fff', 8); }
+    if (k <= 0) { board(t, 1, (1 - prog(t, 3.4, 3.9)) * 0.35); txt('SNAP!', W / 2, 172, '#fff', 8); }
     else { play(t, lerp(-82, 0, k)); g.globalAlpha = 1 - k; board(t, 1, 0); g.globalAlpha = 1; txt('...AND PLAY IT!', W / 2, 172, '#fff', 8); }
   } else if (t < 13.6) {
     const u = prog(t, 6.4, 13.4); const [hx, hy, air] = heroAt(u);
@@ -155,37 +156,39 @@ function frame(t) {
     px(4, 4, 46, 11, '#0008'); drawTile('Y', 4, 4, 0); txt('x ' + coins, 30, 13, '#fff', 8, 'P2P', 'center');
     for (let i = 0; i < 3; i++) { const hx0 = W - 44 + i * 13; px(hx0, 6, 3, 2, '#ff5a7a'); px(hx0 + 5, 6, 3, 2, '#ff5a7a'); px(hx0, 8, 8, 2, '#ff5a7a'); px(hx0 + 1, 10, 6, 1, '#ff5a7a'); px(hx0 + 3, 11, 2, 1, '#ff5a7a'); }
     if (u > 0.98) txt('ROOM CLEAR!', W / 2, 90, '#ffe680', 16);
-  } else if (t < 19) {
+  } else if (t < 21.2) {
     // AI helper: "make it harder" -> fills the level with hazards
-    const hard = t > 15.2;
+    const fair = t > 19.6; const hard = fair ? 'fair' : t > 15.2;
     play(t, 0, { hard });
-    if (t > 16.4) { const k = prog(t, 16.4, 17.2); hero(30 - 6, 20 + 11 * T - 12 - Math.sin(k * Math.PI) * 30 + k * 30, t, false); if (k > 0.6) { g.globalAlpha = (1 - prog(t, 17.0, 17.6)); for (let i = 0; i < 12; i++) px(36 + Math.cos(i) * 14 * k, 140 + Math.sin(i) * 14 * k, 2, 2, '#fff'); g.globalAlpha = 1; } }
+    if (fair) { const k = prog(t, 19.7, 21.0); const hx = lerp(4, 290, k); const jump = Math.max(0, 1 - Math.abs(hx + 6 - 12 * T - 6) / 18) + Math.max(0, 1 - Math.abs(hx + 6 - 20 * T - 6) / 18); hero(hx, 20 + 11 * T - 12 - Math.sin(Math.min(1, jump) * Math.PI / 2) * 22, t, jump < 0.05); }
+    if (t > 16.4 && !fair) { const k = prog(t, 16.4, 17.2); hero(30 - 6, 20 + 11 * T - 12 - Math.sin(k * Math.PI) * 30 + k * 30, t, false); if (k > 0.6) { g.globalAlpha = (1 - prog(t, 17.0, 17.6)); for (let i = 0; i < 12; i++) px(36 + Math.cos(i) * 14 * k, 140 + Math.sin(i) * 14 * k, 2, 2, '#fff'); g.globalAlpha = 1; } }
     // helper window
     px(8, 6, 304, 34, '#13202b'); px(8, 6, 304, 1, '#2a3a49');
     px(14, 12, 20, 20, '#fff'); px(18, 19, 4, 5, '#16c7a6'); px(26, 19, 4, 5, '#16c7a6');
     txt('AI LEVEL HELPER', 40, 17, '#16ffc6', 8, 'Silk', 'left');
-    txt(t < 15.2 ? 'YOU: "MAKE IT HARDER."' : '"HARDER = MORE SPIKES!"  89% SURE', 40, 30, '#fff', 8, 'Silk', 'left');
-    if (t > 17.4) { px(40, 150, 240, 20, '#e83b3b'); txt('IMPOSSIBLE! NOBODY CAN PLAY THIS.', W / 2, 163, '#fff', 8, 'Silk'); }
-  } else if (t < 25) {
+    txt(t < 15.2 ? 'YOU: "MAKE IT HARDER."' : t < 18.6 ? '"HARDER = MORE SPIKES!"  89% SURE' : t < 19.6 ? 'YOU: "HARDER = ONE TRICKY JUMP. KEEP IT FAIR."' : '"ONE TRICKY JUMP, STILL FAIR."  82% SURE', 40, 30, t >= 18.6 && t < 19.6 ? '#ffe680' : '#fff', 8, 'Silk', 'left');
+    if (t > 20.3) { px(70, 46, 180, 20, '#1f9d55'); txt('PLAYTESTED: HARD, BUT FUN!', W / 2, 59, '#fff', 8, 'Silk'); }
+    if (t > 17.4 && t < 18.6) { px(40, 150, 240, 20, '#e83b3b'); txt('IMPOSSIBLE! NOBODY CAN PLAY THIS.', W / 2, 163, '#fff', 8, 'Silk'); }
+  } else if (t < 25.6) {
     // art board: draw the hero, AI guesses what it is
     for (let y = 0; y < H; y += 4) px(0, y, W, 4, y % 8 ? '#2a2f4a' : '#262b45');
     const s = 10, bx = 40, by = 22;
     px(bx - 4, by - 4, 12 * s + 8, 12 * s + 8, '#11131f');
-    const k = prog(t, 19.2, 21.6);
+    const k = prog(t, 21.3, 22.8);
     HERO.forEach((row, r) => row.split('').forEach((ch, c) => { px(bx + c * s, by + r * s, s - 1, s - 1, '#1c2033'); const order = r * 12 + c; if (ch !== '.' && order / 144 < k) px(bx + c * s, by + r * s, s - 1, s - 1, HC[ch]); }));
-    if (t > 22.6) [[8, 3], [9, 2], [10, 1], [9, 4], [10, 3], [11, 2], [0, 4], [0, 3], [1, 2]].forEach(([c, r], i) => { if (t > 22.6 + i * 0.06) px(bx + c * s, by + r * s, s - 1, s - 1, i < 6 ? '#ff6fb5' : '#ff8a2a'); });
+    if (t > 23.7) [[8, 3], [9, 2], [10, 1], [9, 4], [10, 3], [11, 2], [0, 4], [0, 3], [1, 2]].forEach(([c, r], i) => { if (t > 23.7 + i * 0.06) px(bx + c * s, by + r * s, s - 1, s - 1, i < 6 ? '#ff6fb5' : '#ff8a2a'); });
     txt('ART BOARD', bx + 60, 16, '#fff', 8, 'Silk');
-    if (t > 21.8) {
+    if (t > 22.9) {
       px(180, 40, 132, 52, '#13202b'); txt('AI HELPER GUESSES', 246, 54, '#16ffc6', 8, 'Silk');
-      txt(t < 23.2 ? '"A FROG!"' : '"A DRAGON!"', 246, 72, '#fff', 8, 'P2P');
-      const sure = t < 23.2 ? 0.72 : 0.9; px(196, 80, 100, 4, '#2a3a49'); px(196, 80, 100 * sure, 4, '#16ffc6'); txt(Math.round(sure * 100) + '% SURE', 246, 90, '#c9d6ee', 8, 'Silk');
-      if (t > 22.4 && t < 23.2) { txt('YOU: "ADD WINGS AND FIRE."', 246, 116, '#ffe680', 8, 'Silk'); }
-      if (t >= 23.2) { hero(220, 120, t, true); for (let i = 0; i < 5; i++) px(234 + i * 3, 126 + Math.sin(t * 20 + i) * 2, 2, 2, ['#ff8a2a', '#ffd23f'][i % 2]); }
+      txt(t < 24.3 ? '"A FROG!"' : '"A DRAGON!"', 246, 72, '#fff', 8, 'P2P');
+      const sure = t < 24.3 ? 0.72 : 0.9; px(196, 80, 100, 4, '#2a3a49'); px(196, 80, 100 * sure, 4, '#16ffc6'); txt(Math.round(sure * 100) + '% SURE', 246, 90, '#c9d6ee', 8, 'Silk');
+      if (t > 23.5 && t < 24.3) { txt('YOU: "ADD WINGS AND FIRE."', 246, 116, '#ffe680', 8, 'Silk'); }
+      if (t >= 24.3) { hero(220, 120, t, true); for (let i = 0; i < 5; i++) px(234 + i * 3, 126 + Math.sin(t * 20 + i) * 2, 2, 2, ['#ff8a2a', '#ffd23f'][i % 2]); }
     }
   } else if (t < 30) {
     // world map of rooms
     for (let y = 0; y < H; y += 3) px(0, y, W, 3, y % 6 ? '#1a3a6a' : '#183663');
-    const k = eio(prog(t, 25, 26.2));
+    const k = eio(prog(t, 25.6, 26.6));
     const sc = lerp(1, 0.28, k);
     for (let rr = 0; rr < 3; rr++) for (let cc = 0; cc < 5; cc++) {
       const ox = W / 2 + (cc - 2) * 13 * T * sc * 1.12 - 13 * T * sc / 2, oy = H / 2 + (rr - 1) * 13 * T * sc * 1.12 - 13 * T * sc / 2;
@@ -194,7 +197,7 @@ function frame(t) {
       px(ox, oy, 13 * T * sc, 13 * T * sc, '#8fd0ff');
       for (let r = 0; r < 13; r++) for (let c = 0; c < 13; c++) { const ch = room[r][c]; if (ch !== '.') px(ox + c * T * sc, oy + r * T * sc, Math.ceil(T * sc), Math.ceil(T * sc), (COL[ch] || COL.G)[0]); }
     }
-    if (t > 26.4) txt('BUILD A WHOLE WORLD.', W / 2, 172, '#fff', 8);
+    if (t > 26.8) txt('BUILD A WHOLE WORLD.', W / 2, 172, '#fff', 8);
   } else {
     play(t, 60 + (t - 30) * 10);
     g.globalAlpha = 0.6; px(0, 0, W, H, '#10163a'); g.globalAlpha = 1;
