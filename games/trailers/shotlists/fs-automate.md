@@ -27,7 +27,7 @@ Future Skills · 0:38 · a bright floating voxel island built round **Pedal Poin
 **Pathway card:** Next step: Elements of AI (free online course) · Award: iDEA digital skills badges (free) · Route: T Level in Digital Software Development, then a Level 4 AI & Automation Practitioner apprenticeship · Jobs: automation specialist, operations analyst, business analyst.
 
 **Reviewer notes:**
-- **Render status:** Described from the current source; video re-rendering.
+- **Render status:** Described from the current source; video re-rendered and checked on a contact sheet.
 - **Checks:** Data fails for the name-only match (it matches the AI card's "Data I used" line) and Authority fails for sending money with no human approval. Each turns green only when its own fix is applied; neither keeps red text once fixed.
 - **Names:** Nia, 15; Ms Okafor (mentor, operations analyst); Pedal Point Community Bike Repair; two customers called Sam Taylor. The lab design document still flags "Pedal Point" and the Okafor surname for checking.
 - **Pathway facts to check:** Elements of AI being free, iDEA badges, the T Level and Level 4 apprenticeship names.
