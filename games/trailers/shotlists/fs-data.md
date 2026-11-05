@@ -25,7 +25,7 @@ Future Skills · 0:36 · a bright tilt-shift voxel harbour town on a rounded flo
 **Pathway card:** Next step: MEI Introduction to Data Science (free) · Award: CREST Discovery (data project) · Route: T Level Digital Data Analytics, or a Level 3 Data Technician apprenticeship · Jobs: data technician, data analyst, policy researcher.
 
 **Reviewer notes:**
-- **Render status:** Described from the current source; video re-rendering.
+- **Render status:** Described from the current source; video re-rendered and checked on a contact sheet.
 - **Changes in this version:** 36 s (was 38). Rounded brochure island with rocky underside, rim trees and warmer light replaces the rectangular slab; bright opening title over the whole island (no dim); AI draft lands at 0:08 with 94% shown at once; checks carry one-line reasons; several Old Quay lamps marked (four red pins) and the note reworded (no "9 streets" claim); failed checks re-run before 4 of 4; AI card returns as "V2 · re-checked by Freya, 90%"; new "one week later" survey beat on the island; portfolio shows only Freya's own pieces and sits above the sign-off stamp; cards enter opaque and leave with a slide (no see-through ghosts); end title and pathway beside the whole island, no static end hold.
 - **Names:** **Freya, 13** (learner) and **Ines** (council data analyst). These replace the earlier Maya and Amara, so the analyst no longer clashes with **Amara Osei** (Desk Editor) in Verification Desk. Neither name is used in any other trailer or lab.
 - **Places:** "Harbourside" is a real place name (Bristol). The ward and street names (Mill Lane, Castle Hill, Old Quay, Quay Road, Ash Street, Keep Lane, Net Loft Row) are common. These need a final check.
