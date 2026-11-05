@@ -28,7 +28,7 @@ Future Skills · 0:43 · the same floating-island voxel office as Verification D
 **Pathway card:** Next step: Technovation Girls (free, ages 8–18, build for your community) · Award: iDEA enterprise badges (free, online) · Route: T Level Digital Software Development · Jobs: UX designer, product manager, service designer.
 
 **Reviewer notes:**
-- **Render status:** from the current source; not yet rendered (no `out/fs-product.mp4`).
+- **Render status:** described from the current source; the video (`out/fs-product.mp4`, 0:43) is now rendered and was checked on a contact sheet.
 - **Names:** Aisha, 13 (product designer) and Tomasz Nowak (service designer, mentor). Tomasz Nowak is a very common Polish name, and the lab design document asks for a check. The existing stills in `frames/fs-product/` still show the old name "Kofi", so they are out of date. **"PlanAssist"** (the AI's working name) is visible on screen.
 - **Checks:** only Case fails. The AI's data was "survey of smartphone users, in English", so a reviewer may expect Data to fail or show amber, and the lab design document raises this too. The lab document also adds an Authority problem later in the session that the trailer does not show.
 - **Numbers that may confuse:** "Can every user reach a screen? No: 1 in 5" sits beside "2 of 5 users are left out". Both are right (one user has no smartphone, the other needs Polish), but the two figures appear side by side. The "Sign + times web page" is marked "5 of 5", although the Polish speaker is only fully served once the translation is added.
