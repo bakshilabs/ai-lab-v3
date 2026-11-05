@@ -694,7 +694,7 @@ Future Skills · 0:38.6 · a floating grassy voxel island with a cut-away counci
 **Pathway card:** Next step: Experience AI ethics lessons (free, 11–14) and Elements of AI (free, 16+) · Award: DofE Bronze Skills section (debating or public speaking) · Route: Citizenship GCSE, then A-level Law or Politics, or an EPQ · Jobs: policy adviser, data protection officer, AI governance specialist.
 
 **Reviewer notes:**
-- **Render status:** Described from the current source; video re-rendering.
+- **Render status:** Described from the current source; video re-rendered and checked on a contact sheet.
 - **Checks now match the evidence:** the AI card's "Data I used: Council survey · adults 18+" is the flaw, so **Data** fails (under-18s missing). **Source** fails for the invented Act. Case and Authority pass. Checks run Data, Case, Source, Authority; each pill turns green only after its fix lands, and fixed cards show a green "Done" line instead of the red action.
 - **Mentor:** Priya now stays by the wall screen throughout, clear of Zainab and her tag.
 - **Pathway:** Citizenship GCSE moved from Award to Route. DofE Skills section wording to verify (see the lab design document).
