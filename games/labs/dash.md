@@ -13,7 +13,7 @@ Beat Block is a one-button rhythm runner: a neon cube races along a track in tim
 - By the end, learners can describe how their attempts improved, using the best-progress bar rather than "I'm bad at it".
 
 **Curriculum and framework links**
-- **KS2 computing:** "detect and correct errors in algorithms"; "use logical reasoning to… predict the behaviour of simple programs" (to verify exact wording) ([National Curriculum computing](https://www.gov.uk/government/publications/national-curriculum-in-england-computing-programmes-of-study/national-curriculum-in-england-computing-programmes-of-study)).
+- **KS2 computing:** "use logical reasoning to explain how some simple algorithms work and to detect and correct errors in algorithms and programs" (to verify exact wording) ([National Curriculum computing](https://www.gov.uk/government/publications/national-curriculum-in-england-computing-programmes-of-study/national-curriculum-in-england-computing-programmes-of-study)).
 - **KS2/KS3 music:** pulse, rhythm, tempo and changes of metre (to verify statement wording in the music programme of study).
 - **KS3 maths:** sequences and patterns; when a pattern rule stops holding.
 - **NGSS:** 3-5-ETS1-3 (fair tests in which failure points are considered).
