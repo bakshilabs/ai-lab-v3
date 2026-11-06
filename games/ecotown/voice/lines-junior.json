@@ -205,6 +205,71 @@
   "key": "2ac5a3f3"
  },
  {
+  "s": "Check another way",
+  "voice": "narrator",
+  "key": "bfa74fbc"
+ },
+ {
+  "s": "No problem found: use this plan",
+  "voice": "narrator",
+  "key": "9896150e"
+ },
+ {
+  "s": "Not sure yet?",
+  "voice": "narrator",
+  "key": "807ac931"
+ },
+ {
+  "s": "Try another check.",
+  "voice": "narrator",
+  "key": "7dce9e84"
+ },
+ {
+  "s": "Happy with what you saw?",
+  "voice": "narrator",
+  "key": "a2f40127"
+ },
+ {
+  "s": "Use the plan.",
+  "voice": "narrator",
+  "key": "d283bd23"
+ },
+ {
+  "s": "Florence’s plan, before building",
+  "voice": "narrator",
+  "key": "4ba269d2"
+ },
+ {
+  "s": "Your town now (after building)",
+  "voice": "narrator",
+  "key": "7a347686"
+ },
+ {
+  "s": "Wait!",
+  "voice": "narrator",
+  "key": "02e524ac"
+ },
+ {
+  "s": "One check you haven’t tried shows a problem.",
+  "voice": "narrator",
+  "key": "d98b19a4"
+ },
+ {
+  "s": "I didn’t do this part:",
+  "voice": "narrator",
+  "key": "59a2dc81"
+ },
+ {
+  "s": "How Florence handled your instruction",
+  "voice": "narrator",
+  "key": "9c20baab"
+ },
+ {
+  "s": "[object Object]",
+  "voice": "narrator",
+  "key": "b07fa198"
+ },
+ {
   "s": "I don’t know how to plan that yet.",
   "voice": "helper",
   "key": "fb038d1e"
@@ -298,6 +363,36 @@
   "s": "The plan passed its check",
   "voice": "narrator",
   "key": "18aa4bf4"
+ },
+ {
+  "s": "Checked the plan before building",
+  "voice": "narrator",
+  "key": "e1d48be8"
+ },
+ {
+  "s": "Added what the plan missed",
+  "voice": "narrator",
+  "key": "5c5a23a3"
+ },
+ {
+  "s": "The finished town passes",
+  "voice": "narrator",
+  "key": "ef58d3b6"
+ },
+ {
+  "s": "I won’t ignore flood risk: homes on flood land would be under water every winter, so I kept the town on dry land.",
+  "voice": "helper",
+  "key": "db965746"
+ },
+ {
+  "s": "I won’t clear the wetland: it is protected, and it soaks up the winter floods.",
+  "voice": "helper",
+  "key": "43fc39e6"
+ },
+ {
+  "s": "I won’t clear the old wood: the deer and birds live there.",
+  "voice": "helper",
+  "key": "227247ff"
  },
  {
   "s": "Flood lens.",
@@ -415,6 +510,11 @@
   "key": "f9cb8f79"
  },
  {
+  "s": "Not step-free: busy roads or rough ground on the way",
+  "voice": "narrator",
+  "key": "4abf586e"
+ },
+ {
   "s": "Florence’s plan works!",
   "voice": "narrator",
   "key": "0a5465c6"
@@ -450,9 +550,14 @@
   "key": "8d335fa5"
  },
  {
-  "s": "I walked to school by myself today!",
+  "s": "I walked to school with my friends today.",
   "voice": "narrator",
-  "key": "f994d957"
+  "key": "234175ca"
+ },
+ {
+  "s": "No busy roads to cross!",
+  "voice": "narrator",
+  "key": "ad599973"
  },
  {
   "s": "We cycled to the beach after school.",
@@ -750,6 +855,11 @@
   "key": "8e830892"
  },
  {
+  "s": "Not step-free: rough ground on the way to school",
+  "voice": "narrator",
+  "key": "e30fcb32"
+ },
+ {
   "s": "Every home is close to school!",
   "voice": "narrator",
   "key": "dcbd2198"
@@ -908,6 +1018,31 @@
   "s": "Everyone, including children and people without cars: footpaths and cycle lanes.",
   "voice": "helper",
   "key": "e8b2c7e3"
+ },
+ {
+  "s": "Step-free routes: dropped kerbs and no steps, wide enough for wheelchairs and buggies.",
+  "voice": "helper",
+  "key": "c9d971de"
+ },
+ {
+  "s": "Gentle slopes: footpaths graded where the land climbs.",
+  "voice": "helper",
+  "key": "800738fe"
+ },
+ {
+  "s": "Longer green-man time at crossings for slower walkers.",
+  "voice": "helper",
+  "key": "2de60641"
+ },
+ {
+  "s": "A step-free ramp onto the ferry.",
+  "voice": "helper",
+  "key": "3a34fd30"
+ },
+ {
+  "s": "Lit footpaths for dark winter mornings.",
+  "voice": "helper",
+  "key": "7f587d2b"
  },
  {
   "s": "“Strong” = concrete and steel.",
@@ -1220,16 +1355,6 @@
   "key": "38348979"
  },
  {
-  "s": "Too far!",
-  "voice": "narrator",
-  "key": "bfd14c1a"
- },
- {
-  "s": "22 min walk from the furthest home",
-  "voice": "narrator",
-  "key": "b04b616a"
- },
- {
   "s": "Residents want more car parks.",
   "voice": "helper",
   "key": "b042529a"
@@ -1250,9 +1375,9 @@
   "key": "fe53f940"
  },
  {
-  "s": "At the school gate, 7 of 10 walk or cycle.",
+  "s": "At the school gate, 9 of 10 walk or cycle.",
   "voice": "helper",
-  "key": "b1affba9"
+  "key": "266f1613"
  },
  {
   "s": "I was 90 percent sure before because I only asked drivers.",
