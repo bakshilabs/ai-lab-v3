@@ -1,0 +1,47 @@
+# Public TEST version of Eco Town on GitHub Pages (no login).
+# The secure version for classes is on Cloudflare Pages behind Cloudflare Access (see games/ecotown/README.md).
+name: Eco Town test site (GitHub Pages)
+
+on:
+  push:
+    branches: [claude/focused-cori-qeoveu, main]
+    paths: ['games/ecotown/**', '.github/workflows/ecotown-pages.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: ecotown-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Test
+        working-directory: games/ecotown/game
+        run: node --test tests/sim.test.mjs tests/model.test.mjs tests/teach.test.mjs tests/syntax.test.mjs
+      - name: Build protected site
+        working-directory: games/ecotown
+        run: npm ci && node build.mjs
+      - name: Mark as test build
+        run: touch games/ecotown/dist/.nojekyll
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: games/ecotown/dist
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
