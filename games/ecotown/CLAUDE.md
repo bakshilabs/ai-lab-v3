@@ -31,7 +31,7 @@ Everything is merged to `main`. The working branch was `claude/focused-cori-qeov
 |---|---|
 | Students (passcode) | https://ecotown.deltaops.workers.dev |
 | Admin (company only) | https://ecotown.deltaops.workers.dev/admin, via Cloudflare Access ("Sign in with Cloudflare") |
-| Public test version | https://bakshilabs.github.io/ai-lab-v3/. Not live yet; see Open items |
+| Public test version | https://bakshilabs.github.io/ai-lab-v3/. Live, public, no login; republished on every push to `main` that touches the game |
 
 **Cloudflare account**
 - Account id `9c5ee116be85caa02b46ec934ed28bbf`, owned by vs.code.iloader@gmail.com.
@@ -86,7 +86,7 @@ There's also a Playwright play-through: `tests/playwright/run.mjs`. See the READ
 1. **Live end-to-end passcode test** (login, second device replaces the first, switch-off) has not been run against the real site.
    - The plan was a temporary `ADMIN_TEST_KEY` Worker secret, which `worker.js` accepts in the `X-Admin-Test-Key` header, but writing that secret was blocked by the safety checker.
    - Instead, ask the user to create a test batch at `/admin` and share one code, or to approve the secret.
-2. **GitHub Pages** (`.github/workflows/ecotown-pages.yml`): the build passes, but deploy fails with 404 "Ensure GitHub Pages has been enabled". A repo admin needs to set Settings → Pages → Source to "GitHub Actions", then re-run the workflow on `main`.
+2. **GitHub Pages:** done. Source is set to GitHub Actions and the site is live.
 3. **Leftover project:** optionally delete the empty `ecotown.pages.dev` Pages project. Ask first.
 4. **Custom domain:** optional, e.g. `play.deltaopslearning.com`. School filters may block `workers.dev`.
 5. **Stripe paywall:** future work. Start from `docs/FUTURE-PAYWALL.md` and its open decisions.
