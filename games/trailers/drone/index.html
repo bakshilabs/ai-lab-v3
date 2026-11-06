@@ -263,7 +263,7 @@ const ndvi = (() => { const nv = new Vox(); nv.jitter = 0.0; for (let x = -1; x 
 // wind arrows (headwind from the east)
 const arrowGeo = (() => { const av = new Vox(); av.box(0, 0, 0, 5, 0, 0, '#fff'); av.box(0, 0, -1, 0, 0, 1, '#fff'); av.set(-1, 0, 0, '#fff'); av.box(1, 0, -2, 1, 0, 2, '#fff'); return av.mesh({ scale: 0.6 }).geometry; })();
 const ARW = []; for (let i = 0; i < 44; i++) ARW.push([rand(i, 31) * 100 - 48, 6 + rand(i, 32) * 4, rand(i, 33) * 44 - 16]);
-const arrows = new THREE.InstancedMesh(arrowGeo, new THREE.MeshBasicMaterial({ color: '#e8f8ff' }), ARW.length); arrows.frustumCulled = false; scene.add(arrows);
+const arrows = new THREE.InstancedMesh(arrowGeo, new THREE.MeshBasicMaterial({ color: '#e8f8ff', transparent: true, opacity: 0.65, depthWrite: false }), ARW.length); arrows.frustumCulled = false; scene.add(arrows);
 // rain streaks
 const NR = 700; const rain = new THREE.InstancedMesh(new THREE.BoxGeometry(0.07, 1.8, 0.07), new THREE.MeshBasicMaterial({ color: '#dcecff', transparent: true, opacity: 0.6 }), NR); rain.frustumCulled = false; scene.add(rain);
 const whitecaps = particles(140, { size: 1 }); whitecaps.geometry = new THREE.BoxGeometry(1.2, 0.18, 0.5); whitecaps.material = new THREE.MeshBasicMaterial({ color: '#ffffff', transparent: true, opacity: 0.85 }); scene.add(whitecaps);
@@ -345,7 +345,7 @@ function cam(t) {
   if (t < S) { const k = prog(t, FV.res, S); return { pos: [lerp(5, 4.5, k), lerp(24, 22, k), lerp(7, 6, k)], look: [3, 3, -14.5], fov: 34 }; }
   if (t < SV.plan) { const k = prog(t, S, SV.plan); const o = orb(lerp(0.5, 0.43, k), 150, 92, [8, -6, 6]); return { ...o, fov: 30 }; }
   if (t < SV.fly) { const k = prog(t, SV.plan, SV.fly); return { pos: [lerp(14, 13, k), lerp(116, 110, k), lerp(84, 80, k)], look: [lerp(14, 13, k), 0, 6], fov: 34 }; }
-  if (t < SV.land - 0.2) { const d = dronePose(t).p; return { pos: [d[0] - 10, d[1] + 5, d[2] + 11], look: [d[0] + 5, d[1] - 2, d[2] - 1], fov: 40 }; }
+  if (t < SV.land - 0.2) { const d = dronePose(t).p, q = prog(t, SV.fly, SV.fly + 1.3); return { pos: [d[0] - lerp(13, 10, q), d[1] + lerp(14, 5, q), d[2] + lerp(15, 11, q)], look: [d[0] + 5, d[1] - 2, d[2] - 1], fov: 40 }; }
   if (t < E) { const k = prog(t, SV.land - 0.2, E); const d = dronePose(SV.land - 0.2).p; return { pos: [lerp(d[0] - 10, 33, k), lerp(d[1] + 5, 10, k), lerp(d[2] + 11, 25, k)], look: [lerp(d[0] + 5, 41, k), lerp(d[1] - 2, 3, k), lerp(d[2] - 1, 12, k)], fov: 40 }; }
   const k = prog(t, E, DUR); const o = orb(lerp(0.55, 0.9, k), lerp(160, 172, k), lerp(105, 111, k), [2, 14, -8]); return { ...o, fov: 30 };
 }
@@ -398,7 +398,8 @@ st.onFrame((t) => {
   frz.visible = within(t, M + 1.2, F); { const k = prog(t, M + 1.2, M + 1.9, ease.back); frz.scale.set(Math.max(k, 0.01), Math.max(prog(t, M + 1.2, M + 1.7), 0.01), Math.max(k, 0.01)); }
   ndvi.visible = false;
   // wind arrows across the strait (Saturday)
-  const aOn = within(t, SV.plan + 1.8, SV.fly + 2.4) ? prog(t, SV.plan + 1.8, SV.plan + 2.4) : 0; ARW.forEach(([x, y, z], i) => { const xx = ((x - t * 9 + 300) % 100) - 48; dO.position.set(xx, y, z); dO.rotation.set(0, 0, 0); dO.scale.setScalar(aOn * (2.2 + 0.3 * Math.sin(i))); dO.updateMatrix(); arrows.setMatrixAt(i, dO.matrix); }); arrows.instanceMatrix.needsUpdate = true; arrows.visible = aOn > 0 && mode < 0;
+  const aOn = within(t, SV.plan + 1.8, SV.fly + 2.4) ? prog(t, SV.plan + 1.8, SV.plan + 2.4) : 0; const ac = cam(t); camera.fov = ac.fov; camera.updateProjectionMatrix(); camera.position.set(...ac.pos); camera.lookAt(...ac.look); camera.updateMatrixWorld(); const palOn = within(t, SV.plan + 3.6, SV.fly); // keep arrows out from behind the plan panel and away from the chase camera
+  ARW.forEach(([x, y, z], i) => { const xx = ((x - t * 9 + 300) % 100) - 48; dO.position.set(xx, y, z); dO.rotation.set(0, 0, 0); let hide = 1; if (palOn) { const sp = toScreen(dO.position, camera); if (sp.x > 6 && sp.x < 770 && sp.y > 250 && sp.y < 690) hide = 0; } if (t > SV.fly) hide = clamp((dO.position.distanceTo(camera.position) - 20) / 8); dO.scale.setScalar(aOn * hide * (1.1 + 0.15 * Math.sin(i))); dO.updateMatrix(); arrows.setMatrixAt(i, dO.matrix); }); arrows.instanceMatrix.needsUpdate = true; arrows.visible = aOn > 0 && mode < 0;
   // rain (storm), around what the camera sees
   const rOn = w.storm > 0.5 && t < E ? 1 : 0; rain.visible = rOn > 0 && mode < 0;
   if (rOn) { const c = cam(t), lk = c.look, cp = c.pos; const near = t > SV.fly; for (let i = 0; i < NR; i++) { const ph = (t * 1.6 + rand(i, 51)) % 1; let bx, bz, by; if (near) { bx = lerp(cp[0], lk[0], 0.55) + (rand(i, 52) - 0.5) * 50; bz = lerp(cp[2], lk[2], 0.55) + (rand(i, 53) - 0.5) * 34; by = 26 - ph * 30; } else { bx = (rand(i, 52) - 0.5) * 120; bz = (rand(i, 53) - 0.5) * 70; by = 50 - ph * 52; } dO.position.set(bx - ph * 4, by, bz); dO.rotation.set(0, 0, 0.35); dO.scale.set(1, near ? 1 : 2.4, 1); dO.updateMatrix(); rain.setMatrixAt(i, dO.matrix); } rain.instanceMatrix.needsUpdate = true; }
