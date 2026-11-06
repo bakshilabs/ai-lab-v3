@@ -409,7 +409,7 @@ const evY = el(`<div class="ev"><i></i><span></span></div>`, { anchor: 'bc' });
 const evC = el(`<div class="ev cam"><i>${SVG.cam}</i><span>4 cameras</span></div>`, { anchor: 'bc' });
 const domes = POLES.map((_, i) => el(`<div class="dome">${i + 1}</div>`, { anchor: 'c' }));
 const P_HEAD = headOf(mentor, 4.25), Z_HEAD = headOf(MAYA, 3.7);
-A(cue(tagP, 2.7, 3.75, { outDur: 0.2 })); A(cue(say1, 3.85, 4.75, { outDur: 0.25 }));
+A(cue(tagP, 2.7, 3.5, { outDur: 0.2 })); A(cue(say1, 3.8, 4.75, { outDur: 0.25 }));
 A(cue(tagZ, 6.4, 9.0, { outDur: 0.25 }));
 const tagZ2 = (t) => cue(tagZ, 22.4, 26.3, { outDur: 0.25 })(t);
 A((t) => { if (t >= 15) tagZ2(t); });
