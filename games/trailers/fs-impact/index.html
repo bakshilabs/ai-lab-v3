@@ -173,6 +173,7 @@
 .ev.cam.ok { border-color:var(--teal); color:#08694f; } .ev.cam.ok i { background:var(--teal); } .ev.cam.ok::after { border-top-color:var(--teal); }
 .dome { width:30px; height:30px; border-radius:50%; background:rgba(255,255,255,.92); border:4px solid var(--ink); box-shadow:0 4px 12px rgba(8,28,44,.3); display:grid; place-items:center; font:800 16px 'Inter'; color:var(--ink); }
 .ai p { font-size:28px; }
+.ai .hd .dr { transform-origin:100% 50%; }
 .ai .sure .bar { width:110px; } .ai .data { font-size:22px; padding-right:16px; }
 .sign { width:876px; box-sizing:border-box; white-space:normal; }
 .sign b { font-size:30px; line-height:1.15; }
@@ -322,8 +323,8 @@ const END = (t) => { const k = prog(t, T_END, DUR, (q) => q); return orbit([0, -
 const mixO = (a, b, k) => ({ look: a.look.map((x, i) => lerp(x, b.look[i], k)), ang: lerp(a.ang, b.ang, k), dist: lerp(a.dist, b.dist, k), hgt: lerp(a.hgt, b.hgt, k), ox: lerp(a.ox, b.ox, k), oy: lerp(a.oy, b.oy, k) });
 function cam(t) {
   let c;
-  if (t < 4.2) c = WIDE(t);
-  else if (t < 6.2) c = mixO(WIDE(t), MED(t), prog(t, 4.2, 6.2));
+  if (t < 3.4) c = WIDE(t);
+  else if (t < 5.4) c = mixO(WIDE(t), MED(t), prog(t, 3.4, 5.4));
   else if (t < T_END - 0.1) c = MED(t);
   else if (t < T_END + 1.7) c = mixO(MED(t), END(t), prog(t, T_END - 0.1, T_END + 1.7));
   else c = END(t);
