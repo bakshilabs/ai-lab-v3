@@ -123,6 +123,26 @@ async function opening() {
 }
 
 window.__eco = { app, terrain, ready: () => !!app.G, modelReady };
+// Passcode sessions (only when served by the Eco Town Worker; local and GitHub Pages builds have no /api).
+// Every minute the game checks its session is still the active one for this passcode (newest login wins).
+(async function heartbeat() {
+  let first = true;
+  const beat = async () => {
+    let r; try { r = await fetch('/api/heartbeat', { method: 'POST', credentials: 'same-origin' }); } catch { return; }   // offline: keep playing
+    if (first && (r.status === 404 || r.status === 405 || r.status === 501)) return 'off';                               // no passcode server here
+    first = false;
+    if (r.status === 409) { let d = {}; try { d = await r.json(); } catch { /* */ } locked(d); return 'locked'; }
+  };
+  const lockedNow = await beat(); if (lockedNow) return;
+  const t = setInterval(async () => { if (await beat()) clearInterval(t); }, 60000);
+})();
+function locked(d) {
+  try { setSound(false); } catch { /* */ }
+  const card = h(`<div style="position:fixed;inset:0;z-index:100;display:grid;place-items:center;background:rgba(30,40,60,.55)"><div class="panel modal" style="position:relative;left:auto;top:auto;transform:none">
+    <div class="ribbon">Eco Town</div><div class="big">🔒</div><h2>${d.reason === 'expired' ? 'Your free access has ended' : d.reason === 'revoked' ? 'This passcode is switched off' : 'Playing on another device'}</h2>
+    <p>${esc(d.message || 'This passcode is now being used on another device.')}</p><button class="btn go" data-act="again">Log in again</button></div></div>`);
+  document.body.appendChild(card); card.querySelector('[data-act]').onclick = async () => { try { await fetch('/api/logout', { method: 'POST' }); } catch { /* */ } location.replace('/'); };
+}
 // light deterrents against casual copying (not real protection: the browser must have the code to run it)
 const typing = (e) => /INPUT|TEXTAREA/.test(e.target?.tagName);
 window.addEventListener('contextmenu', (e) => { if (!typing(e)) e.preventDefault(); });

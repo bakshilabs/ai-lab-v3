@@ -22,10 +22,18 @@ files.forEach((p, i) => {
 });
 index += '};\n';
 form.append('files.js', new Blob([index], { type: 'application/javascript+module' }), 'files.js');
-form.append('worker.js', new Blob([fs.readFileSync(path.join(here, 'worker.js'))], { type: 'application/javascript+module' }), 'worker.js');
-form.append('metadata', new Blob([JSON.stringify({ main_module: 'worker.js', compatibility_date: '2025-01-01' })], { type: 'application/json' }));
-
-const r = await (await fetch(API, { method: 'PUT', headers: auth, body: form })).json();
+for (const m of ['worker.js', 'store.js', 'codes.js']) form.append(m, new Blob([fs.readFileSync(path.join(here, m))], { type: 'application/javascript+module' }), m);
+form.append('admin.html', new Blob([fs.readFileSync(path.join(here, 'admin.html'))], { type: 'text/plain' }), 'admin.html');
+const upload = async (withMigration) => {
+  const f = new FormData(); for (const [k, v] of form.entries()) f.append(k, v, k);
+  f.append('metadata', new Blob([JSON.stringify({ main_module: 'worker.js', compatibility_date: '2025-01-01',
+    bindings: [{ type: 'durable_object_namespace', name: 'CODES', class_name: 'CodeStore' }],
+    keep_bindings: ['secret_text'], ...(withMigration ? { migrations: { new_tag: 'v1', new_sqlite_classes: ['CodeStore'] } } : {}) })], { type: 'application/json' }));
+  return (await fetch(API, { method: 'PUT', headers: auth, body: f })).json();
+};
+// first deploy creates the CodeStore class (migration v1); later deploys must not repeat it
+let r = await upload(true);
+if (!r.success && JSON.stringify(r.errors).toLowerCase().includes('migration')) r = await upload(false);
 if (!r.success) { console.error('upload failed', JSON.stringify(r.errors)); process.exit(1); }
 console.log('uploaded', files.length, 'files');
 // workers.dev on, preview URLs off

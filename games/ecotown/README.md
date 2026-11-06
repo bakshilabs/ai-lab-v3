@@ -20,25 +20,24 @@ Then open <http://localhost:8765/>. For schools, host the same folder on any sta
 
 Once the page has loaded, nothing is fetched from the internet. three.js, the fonts and Plotter's model are served alongside the page. There are no accounts and no data collection, and nothing a player types is stored or sent.
 
-## Live secure site
+## Live site: passcodes for students, admin for the company
 
-**https://ecotown.vs-code-iloader.workers.dev** is protected by Cloudflare Access: sign in with Cloudflare.
-- **Allowed:** the email on the policy "Allowed people" in the Access app "Eco Town" (Zero Trust → Access → Applications).
-- **Two layers of protection:**
-  - Cloudflare Access redirects every request to the login, including the game's code and model files.
-  - The Worker also refuses any request without a valid login token for this app.
+- **Students:** **https://ecotown.vs-code-iloader.workers.dev**. They type the passcode they were given, for example `OTTER-4821`, and play free between the batch's start and end dates.
+  - **One active session per passcode:** logging in on a second device stops the first within about a minute, with "This passcode is now being used on another device".
+  - After the end date, the code shows "Your free access has ended. Ask your teacher." This is where the paywall will go; see `docs/FUTURE-PAYWALL.md`.
+- **Admin (company only):** **https://ecotown.vs-code-iloader.workers.dev/admin**, behind Cloudflare Access ("Sign in with Cloudflare", allowed email on the policy). From there you can:
+  - **create a batch:** school or teacher, number of codes, free-from and free-until dates;
+  - **print code cards** or download a **CSV** to send to the teacher;
+  - **see usage:** used codes, playing now, last login;
+  - **manage a batch:** change dates, add codes, switch a code or a whole batch off, end a session, delete a batch.
+- **Protection:** the game's code and model are only served to a browser with a valid passcode session. Admin pages need the Cloudflare Access login, which the Worker checks itself too. Wrong guesses are limited to 10 per 10 minutes per network.
+- **How it works:** `worker/worker.js` is the router and passcode page, `worker/store.js` holds the Durable Object database `CodeStore`, `worker/codes.js` has the logic (tested in `game/tests/codes.test.mjs`), and `worker/admin.html` is the console.
 
-**To publish a new version** (from this repo, with the Cloudflare API token available):
+**To publish a new version** (with the Cloudflare API token available):
 
 ```bash
-node build.mjs && CF_ACCOUNT_ID=<account id> NODE_USE_ENV_PROXY=1 node worker/deploy.mjs
+cd games/ecotown && node build.mjs && CF_ACCOUNT_ID=<account id> NODE_USE_ENV_PROXY=1 node worker/deploy.mjs
 ```
-
-The game is served as a Cloudflare Worker (`worker/`) rather than Pages, because Pages' upload step doesn't work behind this environment's network proxy.
-
-**To let more people in:**
-- In the dashboard: Access app "Eco Town" → Policies → "Allowed people" → add emails.
-- To use emailed codes instead of Cloudflare accounts, add **One-time PIN** under Zero Trust → Settings → Authentication.
 
 ## Public test version (GitHub Pages, no login)
 

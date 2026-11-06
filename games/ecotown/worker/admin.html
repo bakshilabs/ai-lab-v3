@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Eco Town admin</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font:500 15px/1.45 system-ui,-apple-system,Segoe UI,sans-serif;color:#1f2a37;background:#f4f1ea}
+header{background:#2b3a55;color:#fff;padding:14px 22px;display:flex;align-items:center;gap:12px}header b{font-size:1.2em}header span{opacity:.75}
+main{max-width:1100px;margin:0 auto;padding:18px}section{background:#fff;border-radius:16px;padding:16px 18px;margin-bottom:16px;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+h2{margin:0 0 10px;font-size:1.1em}label{display:block;font-weight:700;font-size:.85em;margin-bottom:3px}input{font:inherit;padding:8px 10px;border-radius:10px;border:1px solid #cfd6de;width:100%}
+.grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 2fr auto;gap:10px;align-items:end}button{font:inherit;font-weight:700;border:0;border-radius:10px;padding:8px 14px;cursor:pointer;background:#e8edf2}
+button.go{background:#2e9b5a;color:#fff}button.warn{background:#fde3dc;color:#a3321f}table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:7px 6px;border-bottom:1px solid #eef1f4;vertical-align:middle}
+th{font-size:.8em;color:#64748b;text-transform:uppercase;letter-spacing:.04em}.pill{display:inline-block;border-radius:999px;padding:2px 9px;font-size:.8em;font-weight:800}
+.active{background:#dff3e6;color:#1f7a44}.expired,.revoked{background:#fde3dc;color:#a3321f}.not_started{background:#fff3cf;color:#7a5a00}.err{color:#a3321f;font-weight:700;min-height:1.2em}
+.row-actions{display:flex;gap:6px;flex-wrap:wrap}.muted{color:#64748b}.on{color:#1f7a44;font-weight:800}
+#sheet{display:none}@media print{header,main{display:none}#sheet{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:8px}}
+.card{border:2px dashed #9aa6b2;border-radius:12px;padding:12px;break-inside:avoid;font:600 13px system-ui}.card b{display:block;font-size:22px;letter-spacing:.05em;margin:6px 0}
+</style></head><body>
+<header><b>Eco Town</b><span>Passcode admin</span></header>
+<main>
+<section><h2>New batch of passcodes</h2>
+<div class="grid"><div><label>School / teacher</label><input id="school" placeholder="Oak Primary – Ms Patel"></div>
+<div><label>Codes</label><input id="count" type="number" min="1" max="500" value="30"></div>
+<div><label>Free from</label><input id="starts" type="date"></div><div><label>Free until (inclusive)</label><input id="ends" type="date"></div>
+<div><label>Note</label><input id="note" placeholder="Year 5, autumn term"></div><button class="go" id="create">Create</button></div><div class="err" id="err"></div></section>
+<section><h2>Batches</h2><table><thead><tr><th>School / teacher</th><th>Dates</th><th>Status</th><th>Codes</th><th>Used</th><th>Active now</th><th></th></tr></thead><tbody id="batches"></tbody></table></section>
+<section id="codesSec" style="display:none"><h2 id="codesTitle">Codes</h2><table><thead><tr><th>Code</th><th>Status</th><th>Logins</th><th>Last login</th><th>Active now</th><th></th></tr></thead><tbody id="codes"></tbody></table></section>
+</main><div id="sheet"></div>
+<script>
+const $=(id)=>document.getElementById(id), esc=(s)=>String(s??'').replace(/[&<>"]/g,(c)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const api=async(p,o={})=>{const r=await fetch('/admin/api'+p,{...o,headers:{'Content-Type':'application/json'},body:o.body?JSON.stringify(o.body):undefined});const d=await r.json();if(!r.ok)throw new Error(d.error||'Error');return d;};
+const today=new Date().toISOString().slice(0,10);$('starts').value=today;$('ends').value=new Date(Date.now()+90*864e5).toISOString().slice(0,10);
+let batches=[],current=null;
+const when=(t)=>t?new Date(t).toLocaleString('en-GB',{dateStyle:'medium',timeStyle:'short'}):'—';
+async function load(){batches=await api('/batches');$('batches').innerHTML=batches.map((b)=>`<tr><td><b>${esc(b.school)}</b><div class="muted">${esc(b.note)}</div></td><td>${b.starts} → ${b.ends}</td><td><span class="pill ${b.state}">${b.state.replace('_',' ')}</span></td><td>${b.codes}</td><td>${b.used}</td><td>${b.active}</td>
+<td class="row-actions"><button data-a="view" data-id="${b.id}">Codes</button><button data-a="print" data-id="${b.id}">Print</button><button data-a="csv" data-id="${b.id}">CSV</button><button data-a="extend" data-id="${b.id}">Change dates</button><button data-a="add" data-id="${b.id}">Add codes</button>
+<button class="warn" data-a="${b.revoked?'restore':'revoke'}" data-id="${b.id}">${b.revoked?'Restore':'Switch off'}</button><button class="warn" data-a="delete" data-id="${b.id}">Delete</button></td></tr>`).join('')||'<tr><td colspan="7" class="muted">No batches yet.</td></tr>';
+ if(current)await showCodes(current);}
+async function showCodes(id){current=id;const b=batches.find((x)=>x.id===id);const codes=await api(`/batches/${id}/codes`);$('codesSec').style.display='';$('codesTitle').textContent=`Codes – ${b?b.school:''}`;
+ $('codes').innerHTML=codes.map((c)=>`<tr><td><b>${c.code}</b></td><td>${c.revoked?'<span class="pill revoked">off</span>':'<span class="pill active">on</span>'}</td><td>${c.logins}</td><td>${when(c.lastLogin)}</td><td>${c.activeNow?'<span class="on">● playing</span>':'—'}</td>
+<td class="row-actions"><button data-c="end" data-code="${c.code}">End session</button><button class="warn" data-c="${c.revoked?'on':'off'}" data-code="${c.code}">${c.revoked?'Switch on':'Switch off'}</button></td></tr>`).join('');return codes;}
+const origin=location.origin;
+function printSheet(b,codes){$('sheet').innerHTML=codes.map((c)=>`<div class="card">Eco Town · ${esc(b.school)}<b>${c.code}</b>Go to ${origin}<br>Free until ${b.ends}</div>`).join('');window.print();}
+function csv(b,codes){const rows=[['school','code','free_from','free_until'],...codes.map((c)=>[b.school,c.code,b.starts,b.ends])];const blob=new Blob([rows.map((r)=>r.map((v)=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n')],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`ecotown-${b.school.replace(/\W+/g,'-')}.csv`;a.click();}
+$('create').onclick=async()=>{$('err').textContent='';try{const r=await api('/batches',{method:'POST',body:{school:$('school').value,count:$('count').value,starts:$('starts').value,ends:$('ends').value,note:$('note').value}});$('school').value='';$('note').value='';await load();await showCodes(r.batch.id);}catch(e){$('err').textContent=e.message;}};
+$('batches').onclick=async(e)=>{const t=e.target.closest('button');if(!t)return;const id=t.dataset.id,b=batches.find((x)=>x.id===id);try{
+ if(t.dataset.a==='view')await showCodes(id);
+ if(t.dataset.a==='print'||t.dataset.a==='csv'){const codes=(await api(`/batches/${id}/codes`)).filter((c)=>!c.revoked);t.dataset.a==='print'?printSheet(b,codes):csv(b,codes);}
+ if(t.dataset.a==='extend'){const s=prompt('Free from (YYYY-MM-DD)',b.starts);if(!s)return;const en=prompt('Free until (YYYY-MM-DD, inclusive)',b.ends);if(!en)return;await api(`/batches/${id}`,{method:'PATCH',body:{starts:s,ends:en}});}
+ if(t.dataset.a==='add'){const n=prompt('How many more codes?','5');if(!n)return;await api(`/batches/${id}/add`,{method:'POST',body:{count:n}});}
+ if(t.dataset.a==='revoke'&&confirm(`Switch off every code for ${b.school}? Students playing now will be stopped.`))await api(`/batches/${id}`,{method:'PATCH',body:{revoked:true}});
+ if(t.dataset.a==='restore')await api(`/batches/${id}`,{method:'PATCH',body:{revoked:false}});
+ if(t.dataset.a==='delete'&&confirm(`Delete ${b.school} and all its codes permanently?`)){await api(`/batches/${id}`,{method:'DELETE'});if(current===id){current=null;$('codesSec').style.display='none';}}
+ await load();}catch(err){alert(err.message);}};
+$('codes').onclick=async(e)=>{const t=e.target.closest('button');if(!t)return;const code=t.dataset.code;try{
+ if(t.dataset.c==='end')await api(`/codes/${code}`,{method:'PATCH',body:{endSession:true}});
+ if(t.dataset.c==='off')await api(`/codes/${code}`,{method:'PATCH',body:{revoked:true}});
+ if(t.dataset.c==='on')await api(`/codes/${code}`,{method:'PATCH',body:{revoked:false}});
+ await load();}catch(err){alert(err.message);}};
+load().catch((e)=>{$('err').textContent=e.message;});setInterval(()=>load().catch(()=>{}),30000);
+</script></body></html>
