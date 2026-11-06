@@ -69,7 +69,7 @@ for (const [id, check, vague, clear] of LEVELS) {
   }
   // live: screenshot midway, then skip
   const first = await Promise.race([p.waitForSelector('#dock [data-actions] [data-skip]', { state: 'visible', timeout: 120000 }).then(() => 'live'), p.waitForSelector('#modal:not(.hide) [data-act]', { timeout: 120000 }).then(() => 'modal')]);
-  if (first === 'live') { await p.waitForTimeout(3500); await shot(`${id}-live`); budget.push([`${id}-live`, await panelsVisible()]); await click('#dock [data-actions] [data-skip]'); }
+  if (first === 'live') { await p.waitForTimeout(3500); await shot(`${id}-live`); budget.push([`${id}-live`, await panelsVisible()]); await p.click('#dock [data-actions] [data-skip]', { timeout: 3000 }).catch(() => {}); } // the day may already be over
   // petitions / dilemmas (senior) and the reward card
   for (let i = 0; i < 3; i++) {
     const m = await p.waitForSelector('#modal:not(.hide) [data-act]', { timeout: 30000 });
