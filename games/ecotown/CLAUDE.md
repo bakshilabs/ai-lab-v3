@@ -9,7 +9,7 @@ Eco Town is a browser game (three.js voxel) with two versions, for ages 8–12 a
 | Teachers and facilitators | `LAB-GUIDE.md` |
 | Future paywall plan (not built yet) | `docs/FUTURE-PAYWALL.md` |
 
-Work happens on branch `claude/focused-cori-qeoveu`, which is **not merged to `main` yet**.
+Everything is merged to `main`. The working branch was `claude/focused-cori-qeoveu`.
 
 ## Who the user is and what they want
 - **The business.** The user runs a game design company and keeps admin access themselves:
@@ -86,13 +86,10 @@ There's also a Playwright play-through: `tests/playwright/run.mjs`. See the READ
 1. **Live end-to-end passcode test** (login, second device replaces the first, switch-off) has not been run against the real site.
    - The plan was a temporary `ADMIN_TEST_KEY` Worker secret, which `worker.js` accepts in the `X-Admin-Test-Key` header, but writing that secret was blocked by the safety checker.
    - Instead, ask the user to create a test batch at `/admin` and share one code, or to approve the secret.
-2. **GitHub Pages** (`.github/workflows/ecotown-pages.yml`): the build passes, but deploy needs a repo admin to:
-   - set Settings → Pages → Source to "GitHub Actions";
-   - allow the branch under Environments → github-pages.
+2. **GitHub Pages** (`.github/workflows/ecotown-pages.yml`): the build passes, but deploy fails with 404 "Ensure GitHub Pages has been enabled". A repo admin needs to set Settings → Pages → Source to "GitHub Actions", then re-run the workflow on `main`.
 3. **Leftover project:** optionally delete the empty `ecotown.pages.dev` Pages project. Ask first.
 4. **Custom domain:** optional, e.g. `play.deltaopslearning.com`. School filters may block `workers.dev`.
 5. **Stripe paywall:** future work. Start from `docs/FUTURE-PAYWALL.md` and its open decisions.
-6. **Merge:** the branch has not been merged to `main`.
 
 ## Gotchas
 - **Blocked actions:** the safety checker blocked writing Worker secrets and deleting or re-creating the account workers.dev subdomain. Explain to the user and let them do it in the dashboard; don't work around it.
