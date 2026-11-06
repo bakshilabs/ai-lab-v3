@@ -196,7 +196,7 @@ Client request · 0:33 · chunky pixel-art platform game (a physical 13×13 tile
 **Ending / pathway:** A zoom out to a whole world of fifteen rooms, then the title: "BUILD IT. PLAY IT. TEACH THE AI WHAT FUN MEANS." "A DELTAOPS LEARNING GAME LAB".
 
 **Reviewer notes:**
-- Render status: `bloxel/index.html` was rebuilt in the November fix round; `out/bloxel.mp4` needs a fresh render.
+- Render status: rebuilt in the November fix round and re-rendered (`out/bloxel.mp4`, 0:33); checked on a contact sheet.
 - The game world is drawn at 240×135 (8× pixels) and the text and HUD at 320×180 (6× pixels), all in Press Start 2P.
 - The art-board drawing already has dragon spikes, a tail and a snout, so "A FROG!" (72%) is a confident misread; wings and fire breath fix it.
 - The physical-board-to-game idea is close to the real product Bloxels; check that the look and the 13×13 board do not copy it too closely. The trailer does not use the name.
