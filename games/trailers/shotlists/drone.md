@@ -27,7 +27,7 @@ Career skills · 0:41 · brochure voxel island (a blocky island village with a h
 
 **Reviewer notes:**
 - Fix round (2026-11): cut from 53.5 s to 40.8 s. Wednesday crop doctor cut; Monday is one 3.8 s montage beat; roles strip and the separate careers card removed; all white flashes replaced by hard cuts; viewfinder now has four corners and a label synced to the view; one wrong guess on Friday; the children pick a clearer instruction card in both main loops. Verified with stills only; the notes below are from the earlier 53.5 s render.
-- Render status: checked against the rendered video (`out/drone.mp4`, 53.5 s, newer than the source) at one frame per second. Timings and on-screen text match, with small corrections made: the careers card starts at 0:46 (not 0:45), the delivery shot runs to 0:46, and the battery gauge visibly counts up from 3% to 46% rather than jumping.
+- Render status: re-rendered as the 0:41 cut (`out/drone.mp4`) and checked on a contact sheet.
 - Possible bug: during the Friday search (0:23–0:32) only one corner bracket (top left) of the drone-camera frame is visible, and the camera labels "THERMAL · 60 m", "ZOOM CAMERA · ×8" and "COLOUR LENS · RED ONLY" that are in the source do not appear in the video. The lens pills at the bottom ("● THERMAL CAMERA" etc.) do appear. Check whether the frame labels were meant to show.
 - Very dense: four AI mistakes in about 35 seconds, each with a card, a lens and an alert. Wednesday's crop-map example is especially quick (about five seconds), and "NDVI" is jargon that most viewers will not know.
 - The Friday search uses seven white flashes as the camera mode changes (0:22–0:35). Check against photosensitivity guidance.
