@@ -30,7 +30,7 @@ const rig = createRig(stage, canvas, $('#fade'));
 const bot = createBot(stage);
 life.setTown(simulate(terrain, new Map()), new Map(), stage.q);
 const app = {
-  stage, terrain, world, life, inside, rig, bot, audio: sfx, band: 'junior', session: 60, hour: 11, moveIn: null, winterTest: false,
+  stage, terrain, world, life, inside, rig, bot, audio: sfx, setMusic, band: 'junior', session: 60, classMode: false, sandboxFull: new URLSearchParams(location.search).get('sandbox') === 'full', hour: 11, moveIn: null, winterTest: false,
   settings: { readAloud: true, reduce: matchMedia('(prefers-reduced-motion: reduce)').matches, sound: true, facilitator: false, text: 'normal', quality: 'auto', ...prefs },
   get reduce() { return this.settings.reduce; },
   // town picture for the report: render, then paint it over the current sky colours
@@ -91,13 +91,13 @@ async function start() {
   const quality = app.settings.quality === 'auto' ? probeTier(stage) : Promise.resolve(app.settings.quality);
   const scr = h(`<div id="start"><div class="card">
     <span class="chip">A DELTAOPS LEARNING AI LAB</span><h1>Eco <span>Town</span></h1>
-    <p style="font-weight:600;color:#46596a;margin:4px 0">Build a whole town with Florence, an AI planning helper. Florence is clever, and sometimes confidently wrong. Can you catch her mistakes?</p>
+    <p style="font-weight:600;color:#46596a;margin:4px 0">Build your own town on a floating island. Florence, your AI helper, gives tips as you build. Step into the AI Lab to test her plans: she is clever, and sometimes confidently wrong. Can you catch her mistakes?</p>
     <div class="ages"><button class="age" data-band="junior"><b>Ages 8–12</b><span>Word tiles, picture chips and a friendly voice that reads everything aloud. Gentle consequences.</span></button><button class="age" data-band="senior"><b>Ages 13–17</b><span>Free-text instructions, real units, budgets and town-meeting dilemmas. 🔊 to hear any card.</span></button></div>
-    <p class="both">Both versions end with a bias check: who did Florence forget to ask? Next, for either age group: name your town and set the session length and facilitator notes.</p>
+    <p class="both">Both versions have six AI Lab missions, ending with a bias check: who did Florence forget to ask? Next: name your town and choose how the missions are played.</p>
     <p data-resume style="display:none"></p>
   </div></div>`);
   $('#layer').appendChild(scr); setTimeout(() => scr.querySelector('[data-band]')?.focus(), 100);
-  const SESS = { 45: 'Short: each town day lasts 8 seconds, and the move-in, the food level’s day and the town meetings are skipped.', 60: 'Standard: every part of every level, with a 14-second town day.', 90: 'Long: longer town days (22 seconds) and a full final day, with time to discuss.' };
+  const ORDER = { free: 'Free: players build and open any AI Lab mission once it unlocks. Florence invites them when the town hits a problem a mission teaches.', class: 'In order: the class does the missions one by one. Only the next mission opens, and Florence invites players to it as soon as it is ready.' };
   const band = await new Promise((res) => scr.querySelectorAll('[data-band]').forEach((b) => (b.onclick = () => res(b.dataset.band))));
   initAudio(); sfx.good(); loadVoices(band);
   app.band = band; ui.readAloud = app.settings.readAloud && band === 'junior' ? true : app.settings.readAloud && band === 'senior' ? false : app.settings.readAloud;
@@ -107,12 +107,12 @@ async function start() {
     <div class="names">${NAME_IDEAS.map((n) => `<button class="tile" data-n="${n}">${n}</button>`).join('')}</div>
     <div class="textin" style="margin-top:12px"><div class="field"><input data-name maxlength="24" placeholder="Your town’s name" aria-label="Town name" autocomplete="off"></div></div><p class="nameerr" data-err></p>
     <h3 class="setuphead">Session setup</h3>
-    <div class="opts"><label>Session <select data-session>${[45, 60, 90].map((m) => `<option value="${m}" ${app.session === m ? 'selected' : ''}>${m} min</option>`).join('')}</select></label>
+    <div class="opts"><label>AI Lab missions <select data-order><option value="free" ${app.classMode ? '' : 'selected'}>Any order</option><option value="class" ${app.classMode ? 'selected' : ''}>In order (class)</option></select></label>
     <label><input type="checkbox" data-facil ${app.settings.facilitator ? 'checked' : ''}> Facilitator notes</label></div>
     <p class="sessnote" data-sessnote></p>
     <div class="row" style="justify-content:center;margin-top:10px"><button class="btn go" data-go>Start ➜</button></div>`;
-  const sn = card.querySelector('[data-sessnote]'); sn.textContent = SESS[app.session];
-  card.querySelector('[data-session]').onchange = (e) => { app.session = +e.target.value; sn.textContent = SESS[app.session]; };
+  const sn = card.querySelector('[data-sessnote]'); sn.textContent = ORDER[app.classMode ? 'class' : 'free'];
+  card.querySelector('[data-order]').onchange = (e) => { app.classMode = e.target.value === 'class'; sn.textContent = ORDER[e.target.value]; };
   card.querySelector('[data-facil]').onchange = (e) => { app.settings.facilitator = e.target.checked; applySettings(); ui.refreshFacil(); };
   const inp = card.querySelector('[data-name]'); inp.value = NAME_IDEAS[Math.floor(Math.random() * NAME_IDEAS.length)]; setTimeout(() => inp.focus(), 50);
   card.querySelectorAll('[data-n]').forEach((b) => (b.onclick = () => { inp.value = b.dataset.n; inp.focus(); }));
@@ -123,9 +123,9 @@ async function start() {
   await modelP;
   const G = createGame(app);
   const saved = G.saved();
-  if (saved && saved.li > 0) { const a = await ui.modal(`<div class="ribbon">Welcome back</div><h2>Carry on from Level ${saved.li + 1}?</h2><div class="row" style="justify-content:center"><button class="btn go" data-act="resume">Resume</button><button class="btn alt" data-act="new">Start again</button></div>`); if (a === 'resume') { G.load(saved); app.session = saved.session || app.session; } }
+  if (saved && !app.sandboxFull) { const a = await ui.modal(`<div class="ribbon">Welcome back</div><h2>Carry on building ${esc(saved.townName || 'your town')}?</h2><div class="row" style="justify-content:center"><button class="btn go" data-act="resume">Carry on</button><button class="btn alt" data-act="new">Start a new town</button></div>`); if (a === 'resume') { G.load(saved); ui.setTownName(G.townName); } }
   // living-island opening: about 10 seconds, skippable
-  if (!saved || G.li === 0) await opening();
+  if (!G.movedIn) await opening();
   rig.startTurntable(0); setMusic('calm');
   await G.run();
 }
@@ -172,9 +172,8 @@ if (filmParam) filmPreview(filmParam); else start();
 async function filmPreview(level) {
   const { plan, applyPlacements } = await import('./sim/planner.js');
   const { createFilm } = await import('./game/film.js');
-  const CLEAR = { land: ['dry', 'sunny', 'keep_meadow'], move: ['safe_walking', 'cycling', 'cars_at_edge'], homes: ['warm', 'low_carbon', 'natural_materials'], food: ['enough_food', 'keep_hedges', 'bees'], power: ['enough_power', 'winter', 'night', 'storage', 'solar', 'save_water', 'compost'], heart: ['walk_time', 'market', 'nature_links'] };
-  const order = Object.keys(CLEAR); let cells = new Map();
-  for (const id of order.slice(0, order.indexOf(level))) { cells = applyPlacements(cells, plan(id, CLEAR[id], { terrain, cells, numbers: { minutes: 10 } }).placements); for (const c of cells.values()) c.locked = true; }
+  const { seedTo, CLEAR } = await import('./game/seed.js');
+  const cells = seedTo(terrain, level);
   for (const [k, c] of cells) world.setCell(k, c);
   const next = applyPlacements(cells, plan(level, CLEAR[level], { terrain, cells, numbers: { minutes: 10 } }).placements);
   const changed = new Set([...next.keys()].filter((k) => JSON.stringify(next.get(k)) !== JSON.stringify(cells.get(k))));

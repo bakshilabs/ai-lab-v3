@@ -19,7 +19,7 @@ export function createUI(root, labelsRoot, opts) {
   mk('card', 'from-left', `<div class="crow"><span class="leaf">🌱</span><b class="brand">Eco Town</b><span class="band" data-sub></span><span class="stars"><span class="star">★</span><b data-stars>0</b></span></div>
     <div class="track" data-track>${LEVEL_ICONS.map((ic, i) => `<i data-l="${i + 1}"><span>${ic}</span></i>`).join('<em></em>')}</div><div class="goal" data-goal></div>`);
   mk('strip', 'from-right', `<button class="ib" data-flower aria-label="Town flower"><svg viewBox="-60 -60 120 120"></svg></button><span class="sep"></span>
-    <button class="ib" data-v="sky" aria-label="Sky view">☁</button><button class="ib" data-v="street" aria-label="Street view">👟</button><button class="ib" data-v="inside" aria-label="Inside view">🏠</button><span class="sep"></span><button class="ib" data-menu aria-label="Settings">☰</button>`);
+    <button class="ib" data-v="sky" aria-label="Sky view">☁</button><button class="ib" data-v="street" aria-label="Street view">👟</button><button class="ib" data-v="inside" aria-label="Inside view">🏠</button><span class="sep"></span><span class="lenses" data-lenses></span><button class="ib lab" data-lab aria-label="AI Lab" title="AI Lab">🧪</button><span class="sep"></span><button class="ib" data-menu aria-label="Settings">☰</button>`);
   mk('flowerpop', 'from-right', '<svg viewBox="-60 -60 120 120" aria-label="Town flower"></svg><div class="ttl"></div><div class="legend"></div>');
   mk('dock', 'from-bottom', '<div class="head" data-head></div><div class="speaker" data-speaker></div><div class="actions" data-actions></div>');
   mk('alert', 'pop', '<span class="x">✕</span><span data-t></span>');
@@ -57,6 +57,10 @@ export function createUI(root, labelsRoot, opts) {
       P.card.querySelectorAll('[data-l]').forEach((e) => { const l = +e.dataset.l; e.classList.toggle('done', l < n); e.classList.toggle('on', l === n); });
       this.show('card');
     },
+    // the six missions on the town card: 'done', 'on' (ready) or '' (not yet). Tapping one opens the AI Lab.
+    setTrack(states) { P.card.querySelectorAll('[data-l]').forEach((e, i) => { e.classList.toggle('done', states[i] === 'done'); e.classList.toggle('on', states[i] === 'on'); }); },
+    // lens buttons in the icon strip (one per AI Lab mission done): [{ id, icon, label, on }]
+    setLenses(list) { const box = P.strip.querySelector('[data-lenses]'); box.innerHTML = list.map((l) => `<button class="ib ${l.on ? 'on' : ''}" data-lens="${l.id}" aria-label="${esc(l.label)}" title="${esc(l.label)}" aria-pressed="${!!l.on}">${l.icon}</button>`).join('') + (list.length ? '<span class="sep"></span>' : ''); },
     setStars(n) { const b = P.card.querySelector('[data-stars]'); if (b.textContent !== String(n)) { b.textContent = n; b.parentElement.classList.remove('bump'); void b.offsetWidth; b.parentElement.classList.add('bump'); } this.show('card'); },
     // Florence speaks in the dock: { tag, tagCls, html, sure, sureLabel, why, thinking, mini, say }
     // mini: a small card kept on screen while the player checks her guess
@@ -127,6 +131,9 @@ export function createUI(root, labelsRoot, opts) {
     },
   };
   P.strip.querySelector('[data-flower]').addEventListener('click', () => P.flowerpop.classList.toggle('hide'));
+  P.strip.querySelector('[data-lab]').addEventListener('click', () => ui.onLab?.());
+  P.strip.querySelector('[data-lenses]').addEventListener('click', (e) => { const b = e.target.closest('[data-lens]'); if (b) ui.onLens?.(b.dataset.lens); });
+  P.card.querySelector('[data-track]').addEventListener('click', () => ui.onLab?.());
   P.flowerpop.addEventListener('click', () => P.flowerpop.classList.add('hide'));
 
 
@@ -134,7 +141,7 @@ export function createUI(root, labelsRoot, opts) {
   const anchored = []; const v3 = new THREE.Vector3();
   ui.labels = {
     set(list) { this.clear('lbl'); for (const l of list) add('lbl ' + (l.cls || ''), l); },
-    bubble(b) { const cur = anchored.filter((a) => a.node.classList.contains('bub')); if (cur.length >= 2) remove(cur[0]); add('bub ' + (b.bad ? 'bad' : ''), b); ui.say(b.text, 'narrator'); setTimeout(() => remove(anchored.find((a) => a.data === b)), b.ms || 4200); },
+    bubble(b) { const cur = anchored.filter((a) => a.node.classList.contains('bub')); if (cur.length >= 2) remove(cur[0]); add('bub ' + (b.bad ? 'bad' : ''), b); if (!b.quiet) ui.say(b.text, 'narrator'); setTimeout(() => remove(anchored.find((a) => a.data === b)), b.ms || 4200); },
     clear(kind) { for (const a of anchored.slice()) if (!kind || a.node.classList.contains(kind)) remove(a); },
     update(camera, canvas) {
       const w = canvas.clientWidth, hgt = canvas.clientHeight;

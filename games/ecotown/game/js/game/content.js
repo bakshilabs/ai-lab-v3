@@ -33,7 +33,7 @@ export const CONTENT = {
       correct: 'Correct!', notQuite: 'Not quite.', lookAgain: 'Look at Florence’s guess again:', itWas: 'It was', hidden: 'Florence still guessed one thing. Which one?',
       emptyText: 'Type an instruction first', guessCard: 'Florence’s guess',
       checkAnother: 'Check another way', accept: 'No problem found: use this plan', checkHelp: 'Not sure yet? Try another check. Happy with what you saw? Use the plan.',
-      beforeBuild: 'Florence’s plan, before building', afterBuild: 'Your town now (after building)', notFoundYet: 'Wait! One check you haven’t tried shows a problem.',
+      beforeBuild: 'Florence’s plan, before building', townNow: 'Your town now', afterBuild: 'Your town now (after building)', notFoundYet: 'Wait! One check you haven’t tried shows a problem.',
       wontDo: 'I didn’t do this part:', outcomeHead: 'How Florence handled your instruction',
       outcome: { clean: 'No problem found', flawed: 'Florence misunderstood', missed: 'The plan missed something' },
     },
@@ -41,7 +41,7 @@ export const CONTENT = {
       flawed: ['Found the problem with your first check', 'Named Florence’s habit first time', 'Fixed the plan so it passes'],
       clean: ['Clear instruction first time', 'Spotted Florence’s hidden guess', 'The plan passed its check'],
 
-      missed: ['Checked the plan before building', 'Added what the plan missed', 'The finished town passes'],
+      missed: ['Checked the plan before building', 'Told Florence what her plan missed', 'Her new plan passes'],
     },
   },
   senior: {
@@ -69,7 +69,7 @@ export const CONTENT = {
       correct: 'Correct.', notQuite: 'Not quite.', lookAgain: 'Re-read Florence’s reading:', itWas: 'It was', hidden: 'The plan passed, but Florence still made an unstated assumption. Which?',
       emptyText: 'Write an instruction first', guessCard: 'Florence’s guess',
       checkAnother: 'Run another test', accept: 'No issue found: accept the plan', checkHelp: 'Keep testing if the evidence doesn’t cover your brief yet; accept the plan when it does.',
-      beforeBuild: 'Planned, not built yet', afterBuild: 'After building', notFoundYet: 'Before you accept: a test you haven’t run shows a problem.',
+      beforeBuild: 'Planned, not built yet', townNow: 'Current town', afterBuild: 'After building', notFoundYet: 'Before you accept: a test you haven’t run shows a problem.',
       wontDo: 'Not followed, and why:', outcomeHead: 'How Florence handled the brief',
       outcome: { clean: 'No issue found', flawed: 'Florence misunderstood the brief', missed: 'The plan missed part of the brief' },
     },
@@ -77,8 +77,76 @@ export const CONTENT = {
       flawed: ['Found the evidence with your first test', 'Identified the failure mode first time', 'Fixed specification passes'],
       clean: ['Well specified first time', 'Found the unstated assumption', 'The plan passed its test'],
 
-      missed: ['Tested the plan before building', 'Completed the missing requirement', 'Final plan passes'],
+      missed: ['Tested the plan before building', 'Specified the missing requirement', 'Revised plan passes'],
     },
+  },
+};
+
+// Free building: the build bar, Florence's tips, the AI Lab board and missions, the town complete card.
+const SANDBOX_COMMON = {
+  cats: { land: 'Land', move: 'Getting around', homes: 'Homes', food: 'Food', power: 'Power & water', heart: 'Town heart' },
+  tipTag: 'TIP', labTitle: 'AI Lab', dismiss: 'Dismiss', day: 'Day', newDay: 'Good morning! Day', play: 'Play', pause: 'Pause',
+};
+export const SANDBOX = {
+  junior: {
+    ...SANDBOX_COMMON,
+    buildWhat: 'What to build', dayClock: 'The time in your town', tools: 'Tools', erase: 'Remove', credits: 'credits', fromHouseholds: 'from the families',
+    unlocksWhen: 'Unlocks when you have:', now: 'Now', townLand: 'Town land', families: 'families', tiles: 'tiles', food: 'food',
+    removeFirst: 'Remove what’s built here first', already: 'Already here', townFull: (n) => `Town land is full (${n} tiles). Remove a tile first.`, noCredits: 'Not enough credits yet',
+    nextGoal: 'Next goal',
+    goal: {
+      homes: (s) => `homes for 40 families (${s.familiesSafe} so far)`, food: (s) => `enough food (${s.food} of ${s.foodNeed} baskets)`, nature: () => 'more room for nature', health: () => 'a healthier town: paths, parks, warm homes',
+      energy: () => 'lights on through a still winter night', community: () => 'places to meet: market, hall, allotments', carbon: (s) => `carbon under 160 t (now ${s.carbon} t)`, walk: (s) => (s.walkMax > 15 ? `every home within 15 minutes of school (now ${s.walkMax})` : 'a school for the town'),
+    },
+    allGoals: 'Your town has everything it needs!',
+    unlocked: 'unlocked!',
+    unlockTip: {
+      homes: 'Homes unlocked! 40 families are coming. Build homes on your town land.', food: 'Food unlocked! Farms, orchards and beehives can feed the families.',
+      power: 'Power and water unlocked! Keep the lights on, even on a cold, still night.', heart: 'Town heart unlocked! Your town needs a school, a market and places to play.',
+      land: '', move: '',
+    },
+    labReady: 'A new AI Lab mission is ready.', showInLab: 'Show me in the AI Lab', useLens: 'Look with the lens', closeLens: 'Close',
+    moveIn: 'Here they come! The first family arrives on the sky-ferry.',
+    classFirst: 'Do the missions in order', playAgain: 'play again', ready: 'Ready!',
+    labIntro: 'Step into the AI Lab: give Florence an instruction, check her plan, and catch her mistakes. Then come back to building.',
+    watchDay: 'Watch a whole day', backToBuilding: 'Back to building', mission: 'MISSION',
+    practice: 'Florence practises on a copy of the island. Your town is safe until you choose to use her plan.',
+    notNow: 'Not now', tellMissing: 'Tell Florence what her plan left out', missionDone: 'Mission complete', newTool: 'New lens to use',
+    useQuestion: 'Do you want Florence’s fixed plan in your own town? Only what fits is added. Nothing you built is removed.',
+    keepMine: 'Keep my town as it is', usePlan: 'Use Florence’s plan',
+    planUsed: (n, skip) => `Added ${n} part${n === 1 ? '' : 's'} of Florence’s plan to your town.${skip ? ` ${skip} didn’t fit, so they were left out.` : ''}`, planDidntFit: 'Florence’s plan didn’t fit your town, so nothing changed.',
+    completeRibbon: 'Town complete!', completeText: 'Every family has a home, there’s enough food, the lights stay on in winter and every home is close to school. Well done!', keepBuilding: 'Keep building',
+    classInvite: 'Ready for your first AI Lab mission? Let’s see if you can catch my mistakes!',
+  },
+  senior: {
+    ...SANDBOX_COMMON,
+    buildWhat: 'Build categories', dayClock: 'Town clock', tools: 'Tools', erase: 'Demolish', credits: 'cr', fromHouseholds: 'household income',
+    unlocksWhen: 'Unlocks at:', now: 'Now', townLand: 'Town land', families: 'households', tiles: 'tiles', food: 'food',
+    removeFirst: 'Demolish the building first', already: 'Already built', townFull: (n) => `Town land at its cap (${n} tiles).`, noCredits: 'Insufficient credits',
+    nextGoal: 'Next target',
+    goal: {
+      homes: (s) => `40 households housed safely (${s.familiesSafe})`, food: (s) => `food ${s.food} / ${s.foodNeed} units`, nature: () => 'nature petal to 100%', health: () => 'health petal to 100%',
+      energy: () => 'winter-night supply ≥ demand', community: () => 'community petal to 100%', carbon: (s) => `town carbon ≤ 160 t (${s.carbon} t)`, walk: (s) => (s.walkMax > 15 ? `longest walk to school ≤ 15 min (${s.walkMax})` : 'a town school'),
+    },
+    allGoals: 'All town targets met.',
+    unlocked: 'unlocked',
+    unlockTip: {
+      homes: 'Housing unlocked: 40 households need homes on town land. Watch embodied carbon.', food: 'Food unlocked: one food unit feeds three households. Watch the habitats.',
+      power: 'Power, water and waste unlocked: plan for the worst case, a still winter night.', heart: 'Town heart unlocked: a school within a 15-minute walk of every home.',
+      land: '', move: '',
+    },
+    labReady: 'New AI Lab mission available.', showInLab: 'Open the AI Lab', useLens: 'Run the lens', closeLens: 'Close lens',
+    moveIn: 'Move-in: the first household arrives by sky-ferry.',
+    classFirst: 'Class mode: complete the missions in order', playAgain: 'replay', ready: 'Available',
+    labIntro: 'AI Lab missions: brief Florence, test her plan with evidence, identify the failure mode, and re-specify. Then return to the build.',
+    watchDay: 'Watch a full day', backToBuilding: 'Back to the build', mission: 'MISSION',
+    practice: 'Florence plans on a test copy of the island. Your town changes only if you adopt her plan.',
+    notNow: 'Not now', tellMissing: 'Specify the missing requirement', missionDone: 'Mission complete', newTool: 'New lens',
+    useQuestion: 'Adopt Florence’s fixed plan in your town? The AI Lab funds it. Only placements that fit are applied; nothing you built is replaced.',
+    keepMine: 'Keep my town', usePlan: 'Adopt the plan',
+    planUsed: (n, skip) => `Applied ${n} placement${n === 1 ? '' : 's'} from Florence’s plan, funded by the AI Lab (no credits spent).${skip ? ` ${skip} skipped (occupied or not allowed).` : ''}`, planDidntFit: 'No placements fitted your town; nothing changed.',
+    completeRibbon: 'Town complete', completeText: 'All petals at "enough", carbon under the ceiling, winter-night power secured, every home within 15 minutes of school.', keepBuilding: 'Keep building',
+    classInvite: 'Class mode: your first AI Lab mission is ready. Test my plan before you trust it.',
   },
 };
 

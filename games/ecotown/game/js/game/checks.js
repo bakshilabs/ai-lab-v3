@@ -157,8 +157,8 @@ export function createChecks(app) {
       clear(); app.audio.whoosh();
       if (!['street', 'inside'].includes(id) && rig.mode === 'sky') await rig.overview(0.9); // lenses read best on the whole island
       const info = await RUN[id](sim, cells);
-      // this is evidence about Florence's plan, not the built town: say so on the lens bar
-      if (!P.lensbar.classList.contains('hide')) P.lensbar.insertAdjacentHTML('afterbegin', `<span class="when">${esc(app.C.ui.beforeBuild)}</span>`);
+      // in the AI Lab this is evidence about Florence's plan, not the built town; in free building it is the player's town now
+      if (!P.lensbar.classList.contains('hide')) P.lensbar.insertAdjacentHTML('afterbegin', `<span class="when">${esc(app.inLab ? app.C.ui.beforeBuild : app.C.ui.townNow)}</span>`);
       return { revealed: reveal[id] || null, info };
     },
     async leave() {

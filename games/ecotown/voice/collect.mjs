@@ -13,7 +13,8 @@ const [base = 'http://localhost:8765/', ...saidFiles] = process.argv.slice(2);
 const b = await chromium.launch(); const p = await b.newPage();
 await p.goto(base + 'index.html?film=none');
 const out = await p.evaluate(async () => {
-  const { CONTENT, LEVEL_TEXT, diaryLines, HELPER } = await import('./js/game/content.js');
+  const { CONTENT, LEVEL_TEXT, diaryLines, HELPER, SANDBOX } = await import('./js/game/content.js');
+  const { RULES } = await import('./js/game/advisor.js');
   const { FILMS } = await import('./js/game/film.js');
   const { plan } = await import('./js/sim/planner.js');
   const { makeTerrain } = await import('./js/world/terrain.js');
@@ -38,6 +39,11 @@ const out = await p.evaluate(async () => {
       for (const ok of [true, false]) { const s = { townFlooded: ok ? 0 : 3, unsafeCrossings: ok ? 0 : 2, avgTemp: ok ? 21 : 14, species: { bees: ok }, food: ok ? 20 : 5, foodNeed: 14, power: { winterOK: ok }, walkMax: ok ? 12 : 22 }; for (const l of diaryLines(id, s, j)) add(band, l, 'narrator'); }
     }
     add(band, 'Ribbon-cutting time!', 'narrator'); add(band, 'Opening ceremony.', 'narrator');
+    // free building: Florence's fixed tips and unlock lines, the AI Lab cards (lines with live numbers use the device voice)
+    const S = SANDBOX[band];
+    for (const r of RULES) { const t = r.text[j ? 'j' : 's']; if (typeof t === 'string') add(band, t, 'helper'); }
+    for (const id of Object.keys(S.unlockTip)) if (S.unlockTip[id]) { add(band, S.unlockTip[id], 'helper'); add(band, `${S.unlockTip[id]} ${S.labReady}`, 'helper'); }
+    add(band, S.classInvite, 'helper'); add(band, S.moveIn, 'narrator'); add(band, S.completeText, 'narrator'); add(band, S.planDidntFit, 'narrator');
   }
   // Florence's readings for many instructions (both bands hear them in her voice)
   const terrain = makeTerrain(); let cells = new Map(); const SL = { land: ['best', 'flat', 'sunny', 'dry', 'keep_meadow', 'keep_wood', 'keep_wetland', 'near_water', 'near_coast', 'big'], move: ['easy_access', 'safe_walking', 'cycling', 'tram', 'cars_at_edge', 'no_cars', 'fast', 'everyone'], homes: ['strong', 'cheap', 'many', 'tall', 'low_carbon', 'warm', 'natural_materials', 'green_roofs', 'reuse'], food: ['max_food', 'enough_food', 'keep_hedges', 'bees', 'wildlife', 'local', 'allotments', 'orchard'], power: ['clean_power', 'enough_power', 'winter', 'night', 'storage', 'wind', 'solar', 'save_water', 'repair', 'compost'], heart: ['middle', 'walk_time', 'near_homes', 'nature_links', 'market', 'safe_route'] };
