@@ -2,11 +2,11 @@
 // Plotter never writes free text. Nothing the player types is stored or sent anywhere.
 import { plan, applyPlacements } from '../sim/planner.js';
 import SCHEMA from './schema.js';
+import { loadPlotter } from './model.js';
 
 let model = null, modelError = null;
 export async function loadModel(base = './models/') {
   try {
-    const { loadPlotter } = await import('./model.js');
     model = await loadPlotter({ jsonUrl: base + 'plotter.json', binUrl: base + 'plotter.bin' });
   } catch (e) { modelError = e; model = null; console.warn('Plotter model unavailable; using the keyword reader.', e?.message); }
   return !!model;

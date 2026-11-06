@@ -20,6 +20,70 @@ Then open <http://localhost:8765/>. For schools, host the same folder on any sta
 
 Once the page has loaded, nothing is fetched from the internet. three.js, the fonts and Plotter's model are served alongside the page. There are no accounts and no data collection, and nothing a player types is stored or sent.
 
+## Put it on a secure website (Cloudflare Pages + login)
+
+The game is published from a **protected build** (`dist/`):
+- one scrambled JavaScript file;
+- hashed file names;
+- no source code, tests, docs or training code;
+- strict security headers (`_headers`).
+
+Cloudflare Access sits in front, so **nothing is sent to a browser until the person has logged in**. Cloudflare builds `dist/` automatically on every push; you never upload files by hand.
+
+### One-time setup (about 10 minutes, in your Cloudflare account)
+1. **Create the site.**
+   - In the Cloudflare dashboard: **Workers & Pages → Create → Pages → Connect to Git**. Authorise GitHub and pick `bakshilabs/ai-lab-v3`.
+   - Production branch: `claude/focused-cori-qeoveu`, or `main` once it's merged.
+   - Framework preset: **None**.
+   - Build command: `cd games/ecotown && npm ci && node build.mjs`
+   - Build output directory: `games/ecotown/dist`
+   - **Save and Deploy.** You get a link like `https://ecotown.pages.dev`.
+2. **Add the login (Cloudflare Access).**
+   - Go to **Zero Trust → Access → Applications → Add an application → Self-hosted**. If asked, choose the free plan and a team name.
+   - Application domain: `ecotown.pages.dev`. Add a second domain: `*.ecotown.pages.dev`, so preview builds are protected too.
+   - Session duration: 24 hours.
+   - Add a policy:
+     - Name: "Allowed people".
+     - Action: **Allow**.
+     - Include: **Emails**, listing each person, or **Emails ending in** `@yourschool.org` for a whole school.
+   - Login methods: **One-time PIN**, which emails a code with no passwords to manage. Save.
+3. **Test it** in a private browser window. Open the link, enter an allowed email, type the code from your inbox, and the game loads. An email that isn't on the list never sees any game files.
+
+### Day to day
+- **Add or remove someone:** edit the policy (Zero Trust → Access → Applications → Eco Town → Policies). Removing them takes effect at their next login.
+- **See who used it:** Zero Trust → Logs → Access.
+- **Custom address (optional):** Pages project → Custom domains, for example `ecotown.deltaopslearning.com`. Then add that domain to the same Access application.
+- **Updating the game:** push to the branch. Cloudflare rebuilds and the same link shows the new version.
+
+### What this protects, and what it can't
+- **Protected:**
+  - only listed people can open the site;
+  - search engines won't index it;
+  - other websites can't embed it;
+  - files aren't kept in the browser cache;
+  - visitors never get the readable source, tests or design documents;
+  - right-click and save shortcuts are blocked.
+- **Not possible for any website:** a game that runs in a browser has to send its code to the device. A determined, logged-in user with technical skill could still capture the scrambled files. If that's a concern, share access only with people under your agreement, and remove people when they no longer need it.
+
+### Before deploying a change
+Run the tests:
+
+```bash
+cd games/ecotown/game && node --test tests/sim.test.mjs tests/model.test.mjs tests/teach.test.mjs tests/syntax.test.mjs
+```
+
+Build the protected site:
+
+```bash
+cd games/ecotown && npm ci && node build.mjs
+```
+
+Preview it at http://localhost:8000:
+
+```bash
+cd games/ecotown/dist && python3 -m http.server 8000
+```
+
 ## Controls
 
 | | Touch | Mouse / keyboard |

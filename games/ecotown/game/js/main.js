@@ -123,6 +123,11 @@ async function opening() {
 }
 
 window.__eco = { app, terrain, ready: () => !!app.G, modelReady };
+// light deterrents against casual copying (not real protection: the browser must have the code to run it)
+const typing = (e) => /INPUT|TEXTAREA/.test(e.target?.tagName);
+window.addEventListener('contextmenu', (e) => { if (!typing(e)) e.preventDefault(); });
+window.addEventListener('keydown', (e) => { const k = e.key.toLowerCase(), mod = e.ctrlKey || e.metaKey; if (mod && (k === 's' || k === 'u' || (e.shiftKey && (k === 'i' || k === 'j' || k === 'c')))) e.preventDefault(); });
+window.addEventListener('dragstart', (e) => e.preventDefault());
 // Film preview: index.html?film=homes builds the town up to that level with the clear instructions, then plays its film.
 const filmParam = new URLSearchParams(location.search).get('film');
 if (filmParam) filmPreview(filmParam); else start();
