@@ -73,14 +73,20 @@ export function createFilm(app) {
       const skipBtn = h('<button class="btn alt" id="filmskip">Skip ⏭</button>'); document.getElementById('layer').appendChild(skipBtn); skipBtn.onclick = () => { this.skip = true; };
       app.ui.say(band === 'junior' ? F.lines.j : F.lines.s);
       // shot 1: establishing, the crew arrives; surroundings first
-      const heroDur = { land: 3, move: 9, homes: 16, food: 9, power: 13, heart: 14 }[levelId] || 10;
+      const heroDur = { land: 5, move: 9, homes: 16, food: 9, power: 13, heart: 14 }[levelId] || 10;
       await rig.focus(centre, { dist: 70, pitch: 0.62, yaw: rig.sky.yaw + 0.3 }, 1.3);
       // crew
       const crewUpd = [];
       const st = () => world.buildState(hero);
       if (F.crew === 'crane' && tall(hero)) { const away = heroP.clone().sub(stage.camera.position).setY(0).normalize(); crewUpd.push(crane(heroP.clone().add(away.multiplyScalar(-11)).add(new THREE.Vector3(-6, 0, 0)), 20)); }
       if (['crane', 'install', 'survey'].includes(F.crew)) for (let i = 0; i < 3; i++) { const w = worker(i, F.crew === 'survey' ? '#ffffff' : '#ffd23f'); const a = (i / 3) * Math.PI * 2; crewUpd.push((t) => { w.position.set(heroP.x + Math.cos(a + t * 0.3) * 4.6, heroP.y, heroP.z + Math.sin(a + t * 0.3) * 4.6); w.rotation.y = -(a + t * 0.3); w.userData.walk(t * 8); }); }
-      if (F.crew === 'survey') ordered.slice(0, 8).forEach((k) => flag(world.tileTop(k)));
+      if (F.crew === 'survey') {
+        const corners = ordered.filter((k, i) => i % 3 === 0);
+        corners.forEach((k, i) => setTimeout(() => { flag(world.tileTop(k)); audio.tap(); }, 600 + i * 260));
+        // a surveyor with a measuring staff walks the boundary
+        const sv = worker(0, '#ffffff'); const staff = new THREE.Mesh(new THREE.BoxGeometry(0.15, 3, 0.15), new THREE.MeshLambertMaterial({ color: '#ffd23f' })); staff.position.set(0.5, 1.5, 0); sv.add(staff);
+        crewUpd.push((t) => { const f = (t * 0.08) % 1; const a = Math.floor(f * corners.length), b = (a + 1) % corners.length; const pa = world.tileTop(corners[a]), pb = world.tileTop(corners[b]); const k = f * corners.length - a; sv.position.lerpVectors(pa, pb, k); sv.rotation.y = Math.atan2(pb.x - pa.x, pb.z - pa.z); sv.userData.walk(t * 8); });
+      }
       if (F.crew === 'roller' || F.crew === 'tractor') {
         const flat = ordered.filter((k) => !tall(k)); const veh = vehicle(F.crew); const vk = flat.includes(hero) ? hero : flat[0];
         if (vk) crewUpd.push(() => { const s = world.buildState(vk); const p = world.tileTop(vk); veh.position.set(s && s.dir === 'x' ? s.level + 1 : p.x + 3.5, p.y + 0.1, p.z); veh.rotation.y = Math.PI; veh.visible = !!s; });
@@ -107,7 +113,8 @@ export function createFilm(app) {
         const hits = ray.intersectObjects(world.root.children, true).filter((h) => h.object.visible).length + Math.abs(Math.sin((yaw - rig.sky.yaw) / 2)) * 0.5;
         if (hits < best) { best = hits; yawOut = yaw; }
       }
-      if (!this.skip) await rig.focus(heroP.clone().add(new THREE.Vector3(0, cells.get(hero)?.item === 'wind' ? 5 : isTall ? 6 : 2, 0)), { dist: cells.get(hero)?.item === 'wind' ? 64 : isTall ? 52 : levelId === 'food' || levelId === 'move' ? 34 : 24, pitch: levelId === 'food' || levelId === 'move' ? 0.95 : cells.get(hero)?.item === 'wind' ? 0.42 : isTall ? 0.35 : 0.55, yaw: yawOut }, 1.4);
+      if (!this.skip && levelId === 'land') await rig.focus(centre, { dist: 72, pitch: 0.85, yaw: rig.sky.yaw }, 1.2);
+      else if (!this.skip) await rig.focus(heroP.clone().add(new THREE.Vector3(0, cells.get(hero)?.item === 'wind' ? 5 : isTall ? 6 : 2, 0)), { dist: cells.get(hero)?.item === 'wind' ? 64 : isTall ? 52 : levelId === 'food' || levelId === 'move' ? 34 : 24, pitch: levelId === 'food' || levelId === 'move' ? 0.95 : cells.get(hero)?.item === 'wind' ? 0.42 : isTall ? 0.35 : 0.55, yaw: yawOut }, 1.4);
       const t0 = performance.now();
       rig.startTurntable(0.04);
       while (!this.skip && (world.builds.has(hero) || performance.now() - t0 < 1200) && performance.now() - t0 < 300000) await sleep(80);
