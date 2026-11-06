@@ -20,6 +20,18 @@ Then open <http://localhost:8765/>. For schools, host the same folder on any sta
 
 Once the page has loaded, nothing is fetched from the internet. three.js, the fonts and Plotter's model are served alongside the page. There are no accounts and no data collection, and nothing a player types is stored or sent.
 
+## Public test version (GitHub Pages, no login)
+
+The workflow `.github/workflows/ecotown-pages.yml` runs the tests, builds the same protected site, and publishes it at **https://bakshilabs.github.io/ai-lab-v3/**. It runs on every push to `claude/focused-cori-qeoveu` or `main` that touches the game.
+
+Two one-time settings, which need a repo admin:
+1. **Settings → Pages → Build and deployment → Source: GitHub Actions.**
+2. **Settings → Environments → github-pages → Deployment branches and tags:** add `claude/focused-cori-qeoveu`. By default GitHub only lets `main` deploy. Skip this step once the branch is merged to `main`.
+
+Then open **Actions → "Eco Town test site (GitHub Pages)" → Re-run all jobs**, or push any change.
+
+This version is **public**: anyone with the link can play it and save its files. Use it for testing, and use the Cloudflare version for classes.
+
 ## Put it on a secure website (Cloudflare Pages + login)
 
 The game is published from a **protected build** (`dist/`):
