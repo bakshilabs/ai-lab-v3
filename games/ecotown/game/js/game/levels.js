@@ -4,7 +4,7 @@
 import { LEVEL_ITEMS, TARGETS } from '../world/catalog.js';
 
 export const LEVEL_ORDER = ['land', 'move', 'homes', 'food', 'power', 'heart'];
-export const ALL_CHECKS = ['flood', 'nature', 'street', 'carbon', 'inside', 'winter', 'walk'];
+export const ALL_CHECKS = ['flood', 'nature', 'street', 'access', 'carbon', 'inside', 'winter', 'walk'];
 // lenses build up level by level; street view and inside view are views, available whenever there is something to see
 const LENS_ORDER = ['flood', 'street', 'carbon', 'nature', 'winter', 'walk'];
 export function checksFor(id, junior, reveal = {}) {
@@ -12,6 +12,7 @@ export function checksFor(id, junior, reveal = {}) {
   let list = [...unlocked];
   if (!list.includes('street')) list.push('street');
   if (n >= 3) list.push('inside');
+  if (id === 'move' || id === 'heart') list.splice(1, 0, 'access'); // routes for everyone: step-free, gentle slopes, safe crossings
   for (const k of Object.keys(reveal)) if (!list.includes(k)) list.push(k); // never hide the evidence that shows the problem
   if (junior) { const nw = LEVELS[id].newLens; list = [nw, ...list.filter((c) => c !== nw).reverse()].slice(0, 4); for (const k of Object.keys(reveal)) if (!list.includes(k)) list[list.length - 1] = k; }
   return list;
@@ -37,9 +38,18 @@ export const LEVELS = {
   },
   move: {
     n: 2, newLens: 'street', habit: 'typical', palette: LEVEL_ITEMS.move,
-    reveal(sim) { return sim.unsafeCrossings > 0 ? { street: { n: sim.unsafeCrossings } } : {}; },
-    pass: (sim, ctx) => sim.unsafeCrossings === 0 && ctx.moveTiles >= 3,
-    needs: (sim, ctx, j) => [{ label: j ? '🚶 A route from homes to school' : 'Route from homes to school (3+ tiles)', ok: ctx.moveTiles >= 3 }, { label: j ? '🚸 Safe to cross at 8:45 am' : `Unsafe crossings at 8:45 am: ${sim.unsafeCrossings}`, ok: sim.unsafeCrossings === 0 }],
+    // a busy crossing shows up in street view and on the step-free route; a route that isn't step-free shows on the access lens
+    reveal(sim, base, ctx) {
+      if (sim.unsafeCrossings > 0) return { street: { n: sim.unsafeCrossings }, access: { n: sim.unsafeCrossings } };
+      if (ctx?.access && !ctx.access.ok) return { access: { n: ctx.access.issues } };
+      return {};
+    },
+    pass: (sim, ctx) => sim.unsafeCrossings === 0 && ctx.moveTiles >= 3 && (!ctx.access || ctx.access.ok),
+    needs: (sim, ctx, j) => [
+      { label: j ? '🚶 Paths from homes to school and the ferry' : 'Routes to school and the ferry (3+ tiles)', ok: ctx.moveTiles >= 3 },
+      { label: j ? '🚸 Safe to cross at 8:45 am' : `Unsafe crossings at 8:45 am: ${sim.unsafeCrossings}`, ok: sim.unsafeCrossings === 0 },
+      ...(ctx.access ? [{ label: j ? '♿ Step-free all the way, ferry included' : `Step-free route to school and ferry: ${ctx.access.ok ? 'yes' : `${ctx.access.issues} problem${ctx.access.issues === 1 ? '' : 's'}`}`, ok: ctx.access.ok }] : []),
+    ],
     stat: (s, j) => [j ? 'Busy crossings' : 'Unsafe crossings', `${s.unsafeCrossings}`],
   },
   homes: {

@@ -28,9 +28,9 @@ const panelsVisible = () => p.evaluate(() => [...document.querySelectorAll('#lay
 const budget = [];
 
 await p.goto(base + 'index.html');
-await p.selectOption('[data-session]', '45');
 await shot('start');
 await click(`[data-band="${band}"]`);
+await p.selectOption('[data-session]', '45');
 await click('[data-name]'); await p.fill('[data-name]', 'Otter Bend'); await shot('name'); await click('[data-go]');
 await p.waitForTimeout(800);
 const skip = await p.$('text=Skip ⏭'); if (skip) await skip.click().catch(() => {});
@@ -56,8 +56,9 @@ for (const [id, check, vague, clear] of LEVELS) {
   } else {
     await instruct(clear, 1); await p.waitForTimeout(2200); await shot(`${id}-plan-clear`);
     await click(`#dock [data-actions] [data-c="${check}"]`);
-    const w = await Promise.race([p.waitForSelector('#dock [data-actions] [data-o]', { timeout: 40000 }).then(() => 'o'), p.waitForSelector('#dock [data-actions] [data-go]', { timeout: 40000 }).then(() => 'go')]);
-    if (w === 'go') { await shot(`${id}-view-checked`); await click('#dock [data-actions] [data-go]'); await p.waitForSelector('#dock [data-actions] [data-o]', { timeout: 30000 }); }
+    // each check that shows no problem ends on a result card: check another way, or accept the plan
+    await click('#dock [data-actions] [data-accept]', 40000); await shot(`${id}-checked`);
+    await p.waitForSelector('#dock [data-actions] [data-o]', { timeout: 30000 });
     await shot(`${id}-hidden`);
     await click('#dock [data-actions] [data-o="0"]'); await click('#dock [data-actions] [data-go]');
   }
@@ -82,7 +83,7 @@ for (const [id, check, vague, clear] of LEVELS) {
   }
   console.log('level done', id, clean ? 'clean' : 'flawed', 'stars', await p.evaluate(() => window.__eco.app.G.stars));
 }
-await p.waitForSelector('#dock [data-actions] [data-skip]', { timeout: 60000 }); await p.waitForTimeout(4000); await shot('final-day'); await click('#dock [data-actions] [data-skip]');
+await p.waitForSelector('#dock [data-actions] [data-skip]', { timeout: 60000 }); await p.waitForTimeout(4000); await shot('final-day'); await p.click('#dock [data-actions] [data-skip]', { timeout: 3000 }).catch(() => {}); // the day may already be over
 await p.waitForSelector('#report', { timeout: 60000 }); await p.waitForTimeout(800); await shot('report');
 const said = await p.evaluate(() => window.__sayLog || []);
 fs.writeFileSync(`${out}/said.json`, JSON.stringify(said, null, 1));

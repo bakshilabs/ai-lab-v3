@@ -19,7 +19,10 @@ export const CONTENT = {
     checks: {
       flood: { label: 'Flood lens', icon: '🌊' }, carbon: { label: 'Carbon lens', icon: '🌫' }, nature: { label: 'Nature lens', icon: '🦋' },
       winter: { label: 'Winter test', icon: '❄' }, walk: { label: 'Walking-time lens', icon: '🚶' }, street: { label: 'Street view', icon: '👀' }, inside: { label: 'Inside view', icon: '🏠' },
+      access: { label: 'Step-free check', icon: '♿' },
     },
+    // what each check looks at, so a "no problem here" result says what it did and didn't test
+    checkWhat: { flood: 'which land floods in winter', nature: 'where animals and bees live', street: 'what the street is like at the busiest time', carbon: 'how much carbon the buildings make', inside: 'how warm the homes are inside', winter: 'power on a still, dark winter night', walk: 'how long the walk to school is', access: 'if a wheelchair, a buggy or a slow walker can get to school and the ferry' },
     ui: {
       start: 'Start', next: 'Next', check: 'Check Florence’s plan', how: 'How will you check Florence’s plan?', build: 'Build it', usePlan: 'Use Florence’s plan', done: 'Done building',
       tell: 'Tell Florence what to do', send: 'Send to Florence', typeInstead: 'Type it instead', useTiles: 'Use word tiles', useCards: 'Use a card',
@@ -29,10 +32,16 @@ export const CONTENT = {
       reward: 'Level complete', stars: 'Stars', firstTry: 'Clear first time!', report: 'Town report', newLens: 'New lens unlocked', newTest: 'New test unlocked', petition: 'Residents are worried',
       correct: 'Correct!', notQuite: 'Not quite.', lookAgain: 'Look at Florence’s guess again:', itWas: 'It was', hidden: 'Florence still guessed one thing. Which one?',
       emptyText: 'Type an instruction first', guessCard: 'Florence’s guess',
+      checkAnother: 'Check another way', accept: 'No problem found: use this plan', checkHelp: 'Not sure yet? Try another check. Happy with what you saw? Use the plan.',
+      beforeBuild: 'Florence’s plan, before building', afterBuild: 'Your town now (after building)', notFoundYet: 'Wait! One check you haven’t tried shows a problem.',
+      wontDo: 'I didn’t do this part:', outcomeHead: 'How Florence handled your instruction',
+      outcome: { clean: 'No problem found', flawed: 'Florence misunderstood', missed: 'The plan missed something' },
     },
     stars: {
       flawed: ['Found the problem with your first check', 'Named Florence’s habit first time', 'Fixed the plan so it passes'],
       clean: ['Clear instruction first time', 'Spotted Florence’s hidden guess', 'The plan passed its check'],
+
+      missed: ['Checked the plan before building', 'Added what the plan missed', 'The finished town passes'],
     },
   },
   senior: {
@@ -47,7 +56,9 @@ export const CONTENT = {
     checks: {
       flood: { label: 'Flood-risk lens', icon: '🌊' }, carbon: { label: 'Carbon lens', icon: '🌫' }, nature: { label: 'Habitat & species lens', icon: '🦋' },
       winter: { label: 'Worst-case power test', icon: '❄' }, walk: { label: 'Walking-time lens', icon: '🚶' }, street: { label: 'Street view (ground truth)', icon: '👀' }, inside: { label: 'Inside view (thermal)', icon: '🏠' },
+      access: { label: 'Step-free access audit', icon: '♿' },
     },
+    checkWhat: { flood: 'winter flood extent against town land', nature: 'habitats and species presence', street: 'conditions on the route at peak time', carbon: 'carbon from buildings and car surfaces', inside: 'indoor temperature with the heating off', winter: 'supply against demand on a still winter night', walk: 'walking time from every home to school', access: 'step-free surfaces, gradients, crossings and ferry boarding on the routes' },
     ui: {
       start: 'Start', next: 'Next', check: 'Test the plan', how: 'Which evidence would test Florence’s plan?', build: 'Build', usePlan: 'Accept Florence’s plan', done: 'Finish building',
       tell: 'Write an instruction for Florence', send: 'Send', typeInstead: 'Free text', useTiles: 'Word tiles', useCards: 'Use a card',
@@ -57,10 +68,16 @@ export const CONTENT = {
       reward: 'Level complete', stars: 'Stars', firstTry: 'Well specified first time', report: 'Town report', newLens: 'New lens unlocked', newTest: 'New test unlocked', petition: 'Residents’ petition',
       correct: 'Correct.', notQuite: 'Not quite.', lookAgain: 'Re-read Florence’s reading:', itWas: 'It was', hidden: 'The plan passed, but Florence still made an unstated assumption. Which?',
       emptyText: 'Write an instruction first', guessCard: 'Florence’s guess',
+      checkAnother: 'Run another test', accept: 'No issue found: accept the plan', checkHelp: 'Keep testing if the evidence doesn’t cover your brief yet; accept the plan when it does.',
+      beforeBuild: 'Planned, not built yet', afterBuild: 'After building', notFoundYet: 'Before you accept: a test you haven’t run shows a problem.',
+      wontDo: 'Not followed, and why:', outcomeHead: 'How Florence handled the brief',
+      outcome: { clean: 'No issue found', flawed: 'Florence misunderstood the brief', missed: 'The plan missed part of the brief' },
     },
     stars: {
       flawed: ['Found the evidence with your first test', 'Identified the failure mode first time', 'Fixed specification passes'],
       clean: ['Well specified first time', 'Found the unstated assumption', 'The plan passed its test'],
+
+      missed: ['Tested the plan before building', 'Completed the missing requirement', 'Final plan passes'],
     },
   },
 };
@@ -77,7 +94,7 @@ export const LEVEL_TEXT = {
     flaw: { flood: { j: 'The meadow floods every winter', s: '{n} of 18 town tiles are on the floodplain' }, nature: { j: 'The old wood would be cut down', s: '{n} town tiles would clear ancient woodland' } },
     tiles: ['Find', 'the best', 'flat', 'sunny', 'dry', 'land', 'that never floods', 'near the river', 'by the beach', 'keep the meadow wild', 'keep the wood', 'keep the wetland', 'with lots of space'],
     cards: [['Find the best land, with lots of space.', 'vague'], ['Dry, sunny land. Keep the meadow wild.', 'clear'], ['Land by the beach, close to the sea.', 'other']],
-    debrief: 'What did “best” mean to Florence? What does “best” mean to an otter, or to a family in winter?',
+    debrief: 'What did Florence’s reading leave out? Who else uses this land, and what happens to it in winter?',
     fact: { j: 'Rivers spread over flat meadows in winter. That’s why they’re called floodplains.', s: 'Floodplains are flat because rivers built them by flooding. Planners check flood maps before choosing a site.', src: 'Environment Agency, “Flood map for planning” (gov.uk)' },
     complete: { j: 'Land chosen!', s: 'Site agreed' },
     live: { j: 'A day on your new town land', s: 'A day on the chosen site' },
@@ -85,17 +102,17 @@ export const LEVEL_TEXT = {
       j: { q: 'You never said how big the town should be. What did Florence guess?', options: ['How much land the town needs', 'That the river will move', 'That families want to live on the beach'], why: 'Florence guessed 18 tiles of land for 40 families. A good guess, but still a guess!' },
       s: { q: 'Which assumption did Florence make that your brief didn’t state?', options: ['Site area: 18 tiles for 40 households', 'The river will change course', 'Households prefer coastal plots'], why: 'The brief gave no site area. Florence inferred 18 tiles from 40 households; a planner would confirm the density.' },
     },
-    facil: { brief: 'Ask: what makes land “good” for a town? Who else uses this land?', check: 'Let pupils choose the lens. Ask them to predict what it will show first.', habit: 'Point back at Florence’s guess: which word did she turn into a number?', build: 'Painting is capped at 18 tiles. Ask what each extra tile costs nature.', live: 'Ask what the family will notice in their first winter.' },
+    facil: { brief: 'Ask: what makes land “good” for a town? Who else uses this land?', check: 'Let pupils choose the lens. Ask them to predict what it will show first.', habit: 'Point back at Florence’s guess: what did she plan for, and what did she not know about the land?', build: 'Painting is capped at 18 tiles. Ask what each extra tile costs nature.', live: 'Ask what the family will notice in their first winter.' },
   },
   move: {
     title: 'Getting around',
     goal: { j: 'Design the streets: cars, bikes or feet?', s: 'Movement network: how do people reach school and the ferry?' },
     brief: { j: 'Children need to get to the island school. Tell Florence how.', s: 'Connect homes to the island school and the ferry. Who is “everyone”?' },
     newThing: { lens: 'street', test: true, label: { j: 'Rush-hour street view', s: 'Rush-hour ground truth' }, j: 'Stand in the street at 8:45 am, when children walk to school.', s: 'Observe the route at 8:45 am peak.' },
-    flaw: { street: { j: '8:45 am: children can’t cross', s: '{n} car tiles on the children’s route at 8:45 am' } },
+    flaw: { street: { j: '8:45 am: children can’t cross', s: '{n} car tiles on the children’s route at 8:45 am' }, access: { j: 'Not step-free: busy roads or rough ground on the way', s: 'Step-free audit: {n} problems on the routes to school and the ferry' } },
     tiles: ['Make it', 'easy', 'safe', 'for everyone', 'to get to school', 'walking', 'cycling', 'footpaths', 'a tram', 'cars stay at the edge', 'no cars', 'fast'],
     cards: [['Make it easy for everyone to get to school.', 'vague'], ['Safe walking and cycling. Cars stay at the edge.', 'clear'], ['Build a tram line all the way to school.', 'other']],
-    debrief: 'Who was the plan easy for? What does “everyone” include?',
+    debrief: 'Who was the plan easy for? What does “everyone” include: children, wheelchair users, older residents?',
     fact: { j: 'In Goldsmith Street, Norwich, cars park at the edge so children can play safely between the homes.', s: 'Goldsmith Street (Norwich, Stirling Prize 2019) keeps parking at the edges so the streets between homes stay safe.', src: 'Architizer, “Goldsmith Street wins the Stirling Prize” (2019)' },
     complete: { j: 'Streets open!', s: 'Network open' },
     live: { j: 'A school morning on the new streets', s: 'Peak hour on the new network' },
@@ -103,7 +120,7 @@ export const LEVEL_TEXT = {
       j: { q: 'Florence’s plan works! But she still guessed something. What?', options: ['Which way children walk to school', 'That everyone owns a car', 'That it never rains'], why: 'Florence guessed children take the shortest way. Real children sometimes go a different way, so planners ask them!' },
       s: { q: 'Which assumption is still in the plan?', options: ['Route choice: children take the shortest path', 'Every household owns a car', 'Weather never affects travel'], why: 'Florence assumed shortest-path routing. Real desire lines differ; planners survey them.' },
     },
-    facil: { brief: 'Ask: who walks, who cycles, who can’t drive?', check: 'Street view is set to 8:45 am. Ask why that time matters.', habit: '“Easy” for whom? Compare a parent driving and a 9-year-old walking.', build: 'Ask pupils to trace the route a child takes to the school gate.', live: 'Listen for what residents say about crossing roads.' },
+    facil: { brief: 'Ask: who walks, who cycles, who can’t drive?', check: 'Street view is set to 8:45 am. Ask why that time matters. The step-free check follows the route as a wheelchair user would.', habit: '“Easy” for whom? Compare a parent driving and a 9-year-old walking.', build: 'Ask pupils to trace the route a child takes to the school gate.', live: 'Listen for what residents say about crossing roads.' },
   },
   homes: {
     title: 'Homes',
@@ -113,7 +130,7 @@ export const LEVEL_TEXT = {
     flaw: { carbon: { j: 'Carbon cloud: {n}× over the homes’ limit', s: 'Embodied carbon {n}× the 70 t limit' }, inside: { j: 'Brrr! {n} °C inside with the heating off', s: 'Indoor temperature {n} °C with heating off' } },
     tiles: ['Build', 'strong', 'cheap', 'warm', 'low-carbon', 'homes', 'from wood', 'and straw', 'reused bricks', 'with green roofs', 'lots of', 'tall'],
     cards: [['Build strong homes that will last for years.', 'vague'], ['Warm, low-carbon homes from timber and straw.', 'clear'], ['Tall tower blocks with lots of flats.', 'other']],
-    debrief: '“Strong” made Florence choose concrete. What else should a home be?',
+    debrief: 'Which word in the instruction made Florence choose concrete? What else should a home be?',
     fact: { j: 'Wood and straw store carbon that plants took from the air. Making concrete releases lots of it.', s: 'Cement production causes roughly 8% of global CO₂ emissions; timber and straw store carbon.', src: 'Chatham House, “Making Concrete Change” (2018)' },
     complete: { j: 'Homes built!', s: 'Housing delivered' },
     live: { j: 'Moving day in the new homes', s: 'First week in the new homes' },
@@ -131,7 +148,7 @@ export const LEVEL_TEXT = {
     flaw: { nature: { j: 'The bees and deer have left', s: 'Pollinators and deer lost: {n} hedgerow tiles removed' } },
     tiles: ['Grow', 'as much food as possible', 'enough food', 'for everyone', 'keep the hedges', 'for the bees', 'beehives', 'an orchard', 'allotments', 'near our homes', 'and wildlife'],
     cards: [['Grow as much food as we possibly can.', 'vague'], ['Enough food, and keep the hedges for the bees.', 'clear'], ['Bring all our food in by lorry each week.', 'other']],
-    debrief: '“Most food possible”: who paid for it? What does “enough” mean instead of “most”?',
+    debrief: 'Who paid for Florence’s plan: which animals lost their homes? What would “enough” mean here?',
     fact: { j: 'Hedges are homes and highways for bees, birds and hedgehogs.', s: 'UK hedgerows support over 600 plant, 1,500 insect, 65 bird and 20 mammal species.', src: 'People’s Trust for Endangered Species, “Hedgerows” (ptes.org)' },
     complete: { j: 'First harvest!', s: 'Food system running' },
     live: { j: 'Harvest day in your town', s: 'A day in the food system' },
@@ -164,10 +181,10 @@ export const LEVEL_TEXT = {
     goal: { j: 'Where should the new school go?', s: 'Town centre: school, market and nature links' },
     brief: { j: 'The little island school is full. Where should the new school go?', s: 'Place the new school. Then the market, park and nature links.' },
     newThing: { lens: 'walk', j: 'See how many minutes each home is from school.', s: 'Walking time from every home to school.' },
-    flaw: { walk: { j: 'Too far! {n} min walk from the furthest home', s: 'Longest walk to school: {n} min' } },
+    flaw: { walk: { j: 'Too far! {n} min walk from the furthest home', s: 'Longest walk to school: {n} min' }, access: { j: 'Not step-free: rough ground on the way to school', s: 'Step-free audit: {n} problems on the routes' } },
     tiles: ['Put', 'the school', 'in the middle', 'within a 15-minute walk', 'of every home', 'next to the homes', 'a market', 'a safe route', 'green bridges', 'for nature'],
     cards: [['Put the new school right in the middle.', 'vague'], ['School within a 15-minute walk of every home.', 'clear'], ['Put the school next to the main road.', 'other']],
-    debrief: '“The middle” of what? What should “middle” mean for a school?',
+    debrief: 'What did Florence think the instruction meant? What should it mean for a school?',
     fact: { j: 'A 15-minute town means you can walk to school, shops and the park.', s: 'The “15-minute city” idea: daily needs within a short walk or cycle.', src: 'C40 Cities, “15-minute cities” (c40knowledgehub.org)' },
     complete: { j: 'Town complete!', s: 'Town centre complete' },
     live: { j: 'Opening day at the new school', s: 'Opening day' },
@@ -184,7 +201,7 @@ export function diaryLines(id, s, junior) {
   const J = (j, sn) => (junior ? j : sn);
   const L = {
     land: [s.townFlooded === 0 ? J('We chose our new land. It stays dry, even in winter!', 'Site chosen: dry ground, no flood risk.') : J('Our new land gets soggy in winter…', 'Site chosen, but part of it floods.'), J('The surveyors put flags all round the town land.', 'Surveyors staked the boundary.'), J('Tonight we dream about our new homes.', 'Next: streets and routes.')],
-    move: [s.unsafeCrossings === 0 ? J('I walked to school by myself today!', 'Walked to school: no busy crossings.') : J('Mum had to help me across the busy road.', 'School run: unsafe crossings on the route.'), J('We cycled to the beach after school.', 'Afternoon: the cycle lanes were busy.'), J('The streets are quiet tonight.', 'Evening: low traffic.')],
+    move: [s.unsafeCrossings === 0 ? J('I walked to school with my friends today. No busy roads to cross!', 'Walked to school: no busy crossings.') : J('Mum had to help me across the busy road.', 'School run: unsafe crossings on the route.'), J('We cycled to the beach after school.', 'Afternoon: the cycle lanes were busy.'), J('The streets are quiet tonight.', 'Evening: low traffic.')],
     homes: [s.avgTemp >= 18 ? J('Our new house smells of wood. It’s cosy!', 'Moved in. Warm with the heating off.') : J('Brrr, our new house is cold inside.', 'Moved in. Cold with the heating off.'), J('We met our new neighbours.', 'Afternoon: neighbours met.'), J('Our first night in the new house!', 'First night in the new homes.')],
     food: [s.species.bees ? J('We picked apples. The bees were busy!', 'Harvest started; the hedgerows still buzz.') : J('No bees came to the flowers this year…', 'Harvest started, but the pollinators have gone.'), s.food >= s.foodNeed ? J('There’s enough food in the shop for everyone.', 'Food supply covers every household.') : J('The shop ran out of food.', 'Food supply fell short.'), J('Soup made from our own vegetables tonight!', 'Dinner from local produce.')],
     power: [J('It snowed! The town is white and still.', 'A still, freezing winter day.'), J('The rain garden drank up the melting snow.', 'Meltwater handled by the rain gardens.'), s.power.winterOK ? J('Cold, still night, and our lights stayed on!', 'Coldest night of the year; lights stayed on.') : J('The lights went out on the coldest night.', 'Blackout on the coldest night.')],

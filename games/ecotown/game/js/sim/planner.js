@@ -104,6 +104,14 @@ const PLANNERS = {
     if (slots.has('tram')) reading.push('A tram stop.');
     if (slots.has('cars_at_edge')) reading.push('Cars park at the edge of town.');
     if (slots.has('no_cars')) reading.push('No cars in town.');
+    // step-free access: what the brief says about wheelchairs, buggies, slopes, lighting and slower walkers
+    const tx = (ctx.text || '').toLowerCase(); const access = [];
+    if (!carMode && (/wheelchair|step.?free|ramp|kerb|curb|disab|buggy|pushchair|pram|accessib/.test(tx) || slots.has('everyone'))) access.push('Step-free routes: dropped kerbs and no steps, wide enough for wheelchairs and buggies.');
+    if (!carMode && /slope|gradient|gentle|hill|steep/.test(tx)) access.push('Gentle slopes: footpaths graded where the land climbs.');
+    if (!carMode && /slow|older|elderly|old people|grandparent|young children|little ones|time to cross|crossing time/.test(tx)) access.push('Longer green-man time at crossings for slower walkers.');
+    if (!carMode && /ferry/.test(tx) && /access|step|wheelchair|ramp/.test(tx)) access.push('A step-free ramp onto the ferry.');
+    if (!carMode && /\blit\b|light|dark/.test(tx)) access.push('Lit footpaths for dark winter mornings.');
+    reading.push(...access);
     const terr = ctx.terrain, school = terr.tiles.get(terr.school);
     const town = townTiles(ctx); const placements = [];
     if (!town.length || !school) return { placements, reading, assumptions, tested: 'nothing yet', fit: 0.5 };
@@ -111,6 +119,9 @@ const PLANNERS = {
     const field = walkField(terr, new Map(), [school.k]);
     const start = town.reduce((a, b) => ((field.get(a.k) ?? 99) <= (field.get(b.k) ?? 99) ? a : b));
     let route = routeFrom(terr, field, start.k).filter((k) => k !== school.k);
+    // the brief says school *and* the ferry: a second route from the town to the dock
+    const dockT = terr.tiles.get(terr.dock);
+    if (dockT) { const df = walkField(terr, new Map(), [dockT.k]); const ds = town.reduce((a, b) => ((df.get(a.k) ?? 99) <= (df.get(b.k) ?? 99) ? a : b)); for (const k of routeFrom(terr, df, ds.k)) if (k !== dockT.k && !route.includes(k)) route.push(k); }
     // a main street through the middle of town
     const c = centroid(town); const main = town.filter((t) => !route.includes(t.k)).sort((a, b) => distTo(a, c) - distTo(b, c))[0];
     if (main) route.push(main.k);
@@ -126,7 +137,7 @@ const PLANNERS = {
         .sort((a, b) => distTo(a, tileCenter(dock.gx, dock.gz)) - distTo(b, tileCenter(dock.gx, dock.gz)))[0];
       if (edge && !placements.some((p) => p.k === edge.k)) placements.push({ k: edge.k, item: 'carpark' });
     }
-    return { placements, reading, assumptions, habit, habitWhy, tested: carMode ? 'journey time for a car' : 'journey time on foot and by bike', fit: 0.95 };
+    return { placements, reading, assumptions, habit, habitWhy, tested: carMode ? 'journey time for a car' : access.length ? 'journey time on foot and by bike, and a step-free route to school and the ferry' : 'journey time on foot and by bike', fit: 0.95 };
   },
 
   // ---------- Level 3: homes
@@ -224,7 +235,12 @@ const PLANNERS = {
       // batteries sit at the edge of town (next to it, not between the houses or in the orchard)
       const taken = new Set(placements.map((p) => p.k));
       const edgeSpots = tilesOf(ctx).filter((t) => ['field', 'slope'].includes(t.zone) && !taken.has(t.k) && free(ctx, t, 'battery') && neighbours(ctx.terrain.tiles, t).some((n) => cellOf(ctx.cells, n.k).mark === 'town') && !neighbours(ctx.terrain.tiles, t).some((n) => ['orchard', 'allot', 'hives'].includes(cellOf(ctx.cells, n.k).item))).sort((a, b) => distTo(a, c) - distTo(b, c));
-      const spots = edgeSpots.length ? edgeSpots : townTiles(ctx).filter((t) => !taken.has(t.k) && free(ctx, t, 'battery'));
+      // edge of town first; if those run out (paths and car parks use some), free town tiles
+      // (keeping one town tile free for each rain garden, repair café or compost hub asked for)
+      const reserve = ['save_water', 'repair', 'compost'].filter((x) => slots.has(x)).length;
+      const inTown = townTiles(ctx).filter((t) => !taken.has(t.k) && free(ctx, t, 'battery') && !edgeSpots.includes(t));
+      const nearby = tilesOf(ctx).filter((t) => ['field', 'slope'].includes(t.zone) && !taken.has(t.k) && !edgeSpots.includes(t) && free(ctx, t, 'battery') && neighbours(ctx.terrain.tiles, t).some((n) => cellOf(ctx.cells, n.k).item || cellOf(ctx.cells, n.k).mark === 'town') && !neighbours(ctx.terrain.tiles, t).some((n) => ['orchard', 'allot', 'hives'].includes(cellOf(ctx.cells, n.k).item))).sort((a, b) => distTo(a, c) - distTo(b, c)).slice(0, 4);
+      const spots = [...edgeSpots, ...nearby, ...inTown.slice(0, Math.max(0, inTown.length - reserve))];
       let b = 0; while (winter < demand && b < spots.length) { placements.push({ k: spots[b].k, item: 'battery' }); winter += 4; b++; }
       if (b) reading.push(`${b} batter${b > 1 ? 'ies' : 'y'} to store energy for the night.`);
       if (winter < demand) assumptions.push('Not enough space to cover every still winter night.');

@@ -100,7 +100,7 @@ Cloudflare Access sits in front, so **nothing is sent to a browser until the per
 Run the tests:
 
 ```bash
-cd games/ecotown/game && node --test tests/sim.test.mjs tests/model.test.mjs tests/teach.test.mjs tests/syntax.test.mjs
+cd games/ecotown/game && node --test tests/sim.test.mjs tests/model.test.mjs tests/teach.test.mjs tests/syntax.test.mjs tests/playtest.test.mjs
 ```
 
 Build the protected site:
@@ -135,10 +135,14 @@ The ☰ menu has these settings:
 
 ## How a level plays
 
-0. **Start.** Choose the age band and session length, then name the town. The name is used in the header, on the cards and on the printed report.
-1. **Brief.** A card shows what the level adds. Lenses build up: L1 flood, L2 rush-hour street view, L3 carbon, L4 nature, L5 winter test, L6 walking time. Street view and inside view are always available.
+0. **Start.** Choose the age band. The next card, the same for both age bands, names the town and sets the session length and facilitator notes. The name is used in the header, on the cards and on the printed report.
+1. **Brief.** A card shows what the level adds. Lenses build up: L1 flood, L2 rush-hour street view and the step-free check, L3 carbon, L4 nature, L5 winter test, L6 walking time. Street view and inside view are always available.
 2. **Plan.** The player instructs Florence with word tiles (default for 8–12), free text (default for 13–17) or a card. Florence flies over, beams down a see-through plan and shows her reading and her "% sure".
-3. **Check.** The player chooses a lens or view. The island turns to pale clay and the honest simulation shows what the plan would really do. Florence's guess stays on screen in a small card. Street and inside views stay until the player taps "Back to the island".
+3. **Check.** The player chooses a lens or view. The island turns to pale clay and the honest simulation shows what the plan would really do. The lens bar is labelled "Florence's plan, before building", and Florence's guess stays on screen in a small card.
+   - A check that finds nothing ends on a result card: what it tested, what it found (e.g. "Flood lens: No town land floods"), and two buttons, **Check another way** or **No problem found: use this plan**. Checks already tried are ticked.
+   - Accepting never leaves the player stuck. If the plan is fine, it goes ahead (clean path). If a check the player didn't try would show a problem, that check runs before anything is built. If no check can show it (the plan just leaves something out), the game names what's missing and the player adds it while building ("The plan missed something" path).
+   - **Step-free check** (L2 and L6): follows the routes from the town to the school gate and the ferry, the way a wheelchair user would, and marks busy car crossings, unsurfaced ground, steep steps with no graded path, and whether the ferry has a step-free approach. Level 2 needs a step-free route to pass.
+   - Florence's Level 2 plan always connects the town to the school **and** the ferry. When a brief mentions wheelchairs, step-free routes, slopes, lighting or slower walkers, her plan names them (dropped kerbs, graded paths, longer crossing times, a ferry ramp, lit paths). When a brief asks for something unsafe ("ignore flood risk", "clear the wetland", "prioritise drivers"), she says what she didn't do and why, but only when her plan really kept to the rule.
 4. **Fix.** The player names Florence's habit, writes a clearer instruction and builds.
    - The right habit comes from **what Florence actually assumed** in that plan (each planner reading carries its habit). For example, "fast" read as "wide roads" is *took one word too far*. A wrong pick explains what that habit means and points back at her guess; after two wrong picks the answer is explained.
    - **Clear first time?** The plan passes, then a short **"spot the hidden guess"** step asks what Florence still assumed (e.g. how much land 40 families need). So the lesson always happens, and good instructions can still earn 3 stars.
@@ -148,6 +152,7 @@ The ☰ menu has these settings:
      |---|---|---|---|
      | Mistake first | Found it with the first check | Named the habit first time | The fixed plan passes |
      | Clear first | Clear instruction first time | Spotted the hidden guess | The plan passed its check |
+     | Plan missed something | Checked the plan before building | Added what the plan missed | The finished town passes |
 
      Level 6's bias check gives a bonus star.
    - **Building:** tiles the selected tool can go on are lit up. The camera doesn't move on taps while building, and the tools panel can be folded away. One rule everywhere: nothing goes on the protected wetland except paths, green bridges, reed beds and "keep wild". Town land is capped at 18 tiles.
@@ -164,14 +169,15 @@ The ☰ menu has these settings:
 
 5. **Move in** (level 3, when the homes are built). The followed family arrives on the sky-ferry and walks along the streets to their front door.
 6. **Live.** A day passes, with thought bubbles from residents (pinned to a real resident) and a family diary that changes from morning to evening and comes from the simulation. The level 5 day is a snowy winter day. In the 13–17 version, "What residents said" lists the comments and repeated complaints can become a petition.
-7. **Celebrate.** The level's builds replay as a time-lapse from the same angle, then the reward card appears. The 13–17 version adds a town-meeting dilemma.
+7. **Celebrate.** The level's builds replay as a time-lapse from the same angle, then the reward card appears. Its **"How Florence handled your instruction"** box says one of *No problem found*, *Florence misunderstood* (took one word too far, read the words too exactly) or *The plan missed something* (normal day only, missing information), with a sentence on what happened and who caught it with which check. The 13–17 version adds a town-meeting dilemma.
 
 Level 6 adds three things before the final day:
 - a check of the AI's summary of residents' views (sampling bias):
   - **8–12:** Florence says she asked 10 people at the car park; the children ask 10 people at the school gate (🚗 drives / 🚶 walks), then Florence counts everyone and explains why her answer changed;
   - **13–17:** **Teach Florence**. Florence trains a real classifier in the browser on residents' comments, first from the car-park survey box only (drivers), and her summary says "Residents want more car parks". Students inspect the training data, add comments from the school gate or write and label their own, and retrain until the summary matches the town;
 - a three-promise town charter;
-- a printable town report at the end.
+- a printable town report at the end. Its table "How Florence handled the brief, level by level" uses the same outcome wording as the level cards; level 6 also notes when a typed brief was stricter than the town rule (e.g. "You asked for a 10-minute walk; the longest route is 13 minutes. That meets the town's 15-minute rule, but not your brief."). Carbon is shown in tonnes against the 160 t town limit, and the homes' materials against level 3's 70 t limit. The reflection "Before I trust an AI plan, I…" has tap-to-add ideas (check the evidence, ask who was included, compare the result with the goal…) and a text box.
+- The town flower's pop-up explains its scale: 100% (the dashed ring) means enough, and carbon is shown in tonnes against the limit.
 
 ### Numbers the game uses (one rule each)
 - **Walking:** every home within **15 minutes** of school (check, lens, charter and bubbles all use `TARGETS.walkMinutes`).
