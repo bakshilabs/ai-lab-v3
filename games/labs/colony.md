@@ -40,7 +40,7 @@ A crew of four lands on a red floating island, and a planning AI called the Plan
 - **Checks:** trend reviews, worst-case tests, a second sensor, written assumptions and a sign-off before anything goes live.
 
 ## 4. Setting, look and characters
-- **Style:** one floating voxel Mars diorama in the brochure style (`island-mars.png`): rust plateau, crater rim with a pale ice scarp, a lava-tube mouth, a dusty equatorial plain, deep indigo sky with Earth as a small blue dot. The colony grows visibly: survey pegs, inflatable module, regolith mound, ice drill and pipes, gold battery bank, glowing greenhouse.
+- **Style:** one floating voxel Mars diorama in the brochure style (`island-mars.png`): rust plateau, crater rim with a pale ice scarp, a lava-tube mouth, a dusty equatorial plain, under a bright butterscotch-to-peach Martian daytime sky with a warm high sun. The colony grows visibly: survey pegs, inflatable module, regolith mound, ice drill and pipes, gold battery bank, glowing greenhouse.
 - **The AI helper: the Planner.** A navy console card with no face and no feelings, a "PLAN" tag, a "% sure" bar with words ("fairly sure, 84%"), a **USED** row of data chips and an **ASSUMED** row. Chips can carry tags such as FICTION or EARTH. Voice: calm, plain, "based on…", "I don't have data on…". The CIMON "Don't be so mean please" episode ([NBC News](https://www.nbcnews.com/tech/innovation/don-t-be-so-mean-cimon-european-space-robot-cops-n943336/)) is why it has no persona.
 - **Crew:** four or five tiny voxel crew in role-coloured suits, varied skin tones, and a wheelchair-using mission controller in the call-home scenes.
 - **Camera views:** Sky (diorama), Inside (cutaway module), Lens (data overlay), Suit walk (short outdoor rail).
