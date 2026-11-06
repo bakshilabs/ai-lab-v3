@@ -30,12 +30,16 @@
 .ntag b { display:block; font:800 28px 'Inter'; color:var(--ink); }
 .ntag small { display:block; font:650 21px 'Inter'; color:var(--mut); margin-top:2px; }
 .ntag.m { background:var(--ink); } .ntag.m b { color:#fff; } .ntag.m small { color:#9fe8d2; }
-.ntag::after { content:''; position:absolute; left:50%; bottom:-12px; margin-left:-12px; border:12px solid transparent; border-top-color:#fff; border-bottom:0; }
+.ntag::after { content:''; position:absolute; left:var(--ax,50%); bottom:-12px; margin-left:-12px; border:12px solid transparent; border-top-color:#fff; border-bottom:0; }
 .ntag.m::after { border-top-color:var(--ink); }
-.ntag.nd { padding:8px 16px 9px; } .ntag.nd b { font-size:24px; } .ntag.nd { box-shadow:0 0 0 4px var(--red), 0 10px 24px rgba(8,28,44,.25); } .ntag.nd small { color:var(--redD); font-weight:800; letter-spacing:.08em; } .ntag.nd::after { border-top-color:var(--red); }
+.ntag.nd { padding:8px 16px 9px; } .ntag.nd b { font-size:23px; } .ntag.nd { box-shadow:0 0 0 4px var(--red), 0 10px 24px rgba(8,28,44,.25); } .ntag.nd small { color:var(--redD); font-weight:800; letter-spacing:.08em; } .ntag.nd::after { border-top-color:var(--red); }
 .ntag.nd.ok { box-shadow:0 0 0 4px var(--teal), 0 10px 24px rgba(8,28,44,.25); } .ntag.nd.ok small { color:#08694f; } .ntag.nd.ok::after { border-top-color:var(--teal); }
+/* a tag or bubble that sits below its person, pointing up */
+.up .ntag::after, .up .say::after { top:-12px; bottom:auto; border:12px solid transparent; border-top:0; border-bottom-color:#fff; }
+.up .ntag.nd::after { border-bottom-color:var(--red); } .up .ntag.nd.ok::after { border-bottom-color:var(--teal); }
+.say.s { font-size:26px; padding:12px 20px; }
 .say { background:#fff; color:var(--ink); border-radius:22px; padding:16px 26px; font:700 30px/1.2 'Inter'; white-space:nowrap; box-shadow:0 12px 26px rgba(8,28,44,.3); }
-.say::after { content:''; position:absolute; left:50%; bottom:-12px; margin-left:-12px; border:12px solid transparent; border-top-color:#fff; border-bottom:0; }
+.say::after { content:''; position:absolute; left:var(--ax,50%); bottom:-12px; margin-left:-12px; border:12px solid transparent; border-top-color:#fff; border-bottom:0; }
 /* work card (right column) */
 .doc { width:876px; overflow:hidden; }
 .doc .tb { display:flex; align-items:center; gap:14px; height:74px; padding:0 26px; border-bottom:2px solid var(--line); font:650 22px 'Inter'; color:var(--mut); }
@@ -45,7 +49,7 @@
 .stchip { margin-left:auto; display:inline-flex; align-items:center; gap:10px; font:800 20px 'Inter'; letter-spacing:.1em; text-transform:uppercase; border-radius:999px; padding:9px 18px; background:#fff2c6; color:#8a6400; white-space:nowrap; }
 .stchip::before { content:''; width:12px; height:12px; border-radius:50%; background:currentColor; }
 .stchip.rev { background:#fff0e0; color:#c2410c; } .stchip.ret { background:var(--redBg); color:var(--redD); } .stchip.ok { background:var(--mint); color:var(--tealD); }
-.doc .mn { padding:22px 30px 6px; }
+.doc .mn { padding:18px 30px 6px; }
 .doc h3 { font:800 36px/1.15 'Inter'; letter-spacing:-.015em; margin:0; }
 .doc p.tx { font:500 26px/1.45 'Inter'; margin:12px 0 0; }
 .doc .src { margin-top:12px; border-top:2px solid var(--line); padding-top:10px; }
@@ -89,7 +93,7 @@
 .ai p .del { color:#ffb3b5; background:rgba(229,72,77,.22); text-decoration-color:#ff6b70; }
 .ai .ftr { display:flex; align-items:center; gap:18px; margin-top:18px; }
 .ai .sure { display:flex; align-items:center; gap:14px; font:800 30px 'Inter'; white-space:nowrap; }
-.ai .sure .bar { width:150px; height:14px; border-radius:99px; background:#2c3e4e; overflow:hidden; }
+.ai .sure .bar { width:220px; height:14px; border-radius:99px; background:#2c3e4e; overflow:hidden; }
 .ai .sure .bar i { display:block; height:100%; border-radius:99px; background:linear-gradient(90deg,#ffc83d,var(--teal)); }
 .ai .sure.low { color:#ff8f93; }
 .ai .data { margin-left:auto; display:inline-flex; align-items:center; gap:10px; background:#233544; border-radius:999px; padding:9px 20px 9px 10px; font:650 23px 'Inter'; color:#dbe6ee; white-space:nowrap; }
@@ -138,12 +142,17 @@
 .ring { width:70px; height:70px; border-radius:50%; border:5px solid var(--teal); }
 /* product lab */
 .prob { font:700 26px/1.3 'Inter'; background:#f1f6fa; border-radius:16px; padding:14px 20px; margin-bottom:14px; }
-.pers { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding-bottom:10px; }
-.per { display:flex; align-items:center; gap:12px; border:3px solid var(--line); border-radius:18px; padding:8px 12px; background:#fff; position:relative; }
+.pers { display:grid; grid-template-columns:1fr 1fr; gap:8px; padding-bottom:8px; }
+.per { display:flex; align-items:center; gap:12px; border:3px solid var(--line); border-radius:18px; padding:5px 12px; min-height:62px; box-sizing:border-box; background:#fff; position:relative; }
 .per i { flex:none; width:40px; height:40px; border-radius:50%; background:#e8eef2; display:grid; place-items:center; } .per i svg { width:24px; height:24px; }
 .per b { font:750 23px/1.2 'Inter'; }
 .per.bad { border-color:var(--red); background:#fff5f5; } .per.bad i { background:var(--redBg); }
-.per .ns { position:absolute; right:10px; top:-14px; font:800 19px 'Inter'; letter-spacing:.06em; background:var(--red); color:#fff; border-radius:8px; padding:3px 9px; opacity:0; }
+.per .nm { display:flex; flex-direction:column; align-items:flex-start; gap:3px; }
+.per .ns { display:none; font:800 19px 'Inter'; letter-spacing:.06em; background:var(--red); color:#fff; border-radius:7px; padding:1px 9px; }
+.per.bad .ns, .per.ok .ns { display:inline-block; }
+.per.ok { border-color:var(--teal); background:#effbf6; } .per.ok i { background:var(--mint); } .per.ok .ns { background:var(--teal); color:#062a20; }
+.ask { display:flex; align-items:center; gap:14px; padding:0 18px; border-radius:16px; font:650 24px 'Inter'; color:#08694f; background:#effbf6; box-shadow:inset 0 0 0 2px #cdeee2; overflow:hidden; height:0; white-space:nowrap; margin-bottom:10px; }
+.ask i { flex:none; width:32px; height:32px; border-radius:50%; background:var(--teal); display:grid; place-items:center; } .ask i svg { width:20px; height:20px; } .ask b { font-weight:800; }
 .dec .dl { font:650 26px/1.35 'Inter'; margin:4px 0 14px; padding-left:18px; border-left:5px solid var(--teal); min-height:34px; }
 .dec .dl small { display:block; font:800 20px 'Inter'; letter-spacing:.12em; color:var(--tealD); text-transform:uppercase; }
 .tree { width:876px; padding:22px 30px 16px; }
@@ -285,15 +294,15 @@ const birdEdge = () => birdG.forEach((g) => { BV.copy(g.position).project(camera
 // ---------- camera ----------
 const orbit = (look, ang, dist, hgt, ox = 0, oy = 0) => ({ look, ang, dist, hgt, ox, oy });
 const WIDE = (t) => { const k = prog(t, 0, 5.2, (q) => q); return orbit([0, 0, -3], lerp(-0.62, -0.42, k), lerp(126, 108, k), lerp(66, 58, k), 0, 0); };
-const MED = (t) => { const k = prog(t, 5.0, 29.4, (q) => q); return orbit([0, 1, -1], lerp(0.30, 0.42, k), lerp(86, 80, k), lerp(52, 48, k), 470, -110); }; // framed low enough that the clock tower clears the header pill
-const END = (t) => { const k = prog(t, 29.4, DUR, (q) => q); return orbit([0, -1, -3], lerp(0.28, 0.52, k), lerp(150, 144, k), lerp(74, 70, k), 430, -40); };
+const MED = (t) => { const k = prog(t, 5.0, 32.5, (q) => q); return orbit([0, 1, -1], lerp(0.30, 0.42, k), lerp(86, 80, k), lerp(52, 48, k), 470, -110); }; // framed low enough that the clock tower clears the header pill
+const END = (t) => { const k = prog(t, 32.2, DUR, (q) => q); return orbit([0, -1, -3], lerp(0.30, 0.46, k), lerp(172, 162, k), lerp(84, 78, k), 490, -40); }; // a gentle 4.5 s push-in; the island stays left of the pathway card
 const mixO = (a, b, k) => ({ look: a.look.map((x, i) => lerp(x, b.look[i], k)), ang: lerp(a.ang, b.ang, k), dist: lerp(a.dist, b.dist, k), hgt: lerp(a.hgt, b.hgt, k), ox: lerp(a.ox, b.ox, k), oy: lerp(a.oy, b.oy, k) });
 function cam(t) {
   let c;
   if (t < 4.2) c = WIDE(t);
   else if (t < 6.2) c = mixO(WIDE(t), MED(t), prog(t, 4.2, 6.2));
-  else if (t < 29.2) c = MED(t);
-  else if (t < 31.0) c = mixO(MED(t), END(t), prog(t, 29.2, 31.0));
+  else if (t < 32.2) c = MED(t);
+  else if (t < 33.8) c = mixO(MED(t), END(t), prog(t, 32.2, 33.8));
   else c = END(t);
   camera.fov = 30;
   camera.position.set(Math.sin(c.ang) * c.dist + c.look[0], c.hgt + c.look[1], Math.cos(c.ang) * c.dist + c.look[2]);
@@ -304,6 +313,8 @@ st.onFrame((t) => {
   cam(t); cloudU(t); birdU(t); birdEdge();
   kids.forEach((p, i) => { p.children[2].rotation.y = Math.sin(t * 0.9 + i * 1.7) * 0.12; p.children[2].position.y = Math.abs(Math.sin(t * 3 + i)) * 0.03; });
   MENTOR.children[2].rotation.y = Math.sin(t * 0.7) * 0.15; LIB.children[2].rotation.y = Math.sin(t * 0.6 + 1) * 0.2;
+  // the two visitors nod as they answer Aisha at the desk
+  OLD.children[2].rotation.x = within(t, 20.0, 21.4) ? Math.sin((t - 20.0) * 9) * 0.1 : 0; PL.children[2].rotation.x = within(t, 20.3, 21.5) ? Math.sin((t - 20.3) * 9) * 0.1 : 0;
 });
 
 // ---------- UI ----------
@@ -331,72 +342,92 @@ const cueS = (node, tIn, tOut, { dur = 0.4, outDur = 0.3 } = {}) => (t) => {
 
 // opening title moment, then the header chip
 const otitle = el(`<div class="otitle"><span class="chip2">DeltaOps Learning · Future Skills</span><h1>Should It Be AI?</h1><h2>Start with the user. Then decide if AI belongs.</h2></div>`, { x: 0, y: 70 });
-A(cue(otitle, 0.05, 2.3, { from: 'pop', dur: 0.6, outDur: 0.3 }));
+A(cue(otitle, 0.05, 2.0, { from: 'pop', dur: 0.6, outDur: 0.28 })); // fully gone by 2.28, before the brief starts
 const labchip = el(`<div class="labchip"><span class="ic">${SVG.bulb}</span><b>Should It Be AI?</b><span class="bar"></span><span class="r">DeltaOps Learning · Future Skills</span></div>`, { x: 44, y: 36 });
-A(cue(labchip, 2.6, 28.9, { from: 'fade', dur: 0.35, outDur: 0.3 }));
+A(cue(labchip, 2.6, 32.15, { from: 'fade', dur: 0.35, outDur: 0.3 }));
 
 // brief
 const brief = el(`<div class="wcard brief"><span class="bic">${SVG.brief}</span>
  <div class="f"><small>Brief from</small><b>Harbourside Library</b></div>
  <div class="f"><small>They asked for</small><b>“An AI chatbot for times and PC booking”</b></div>
  <div class="f due"><small>Due</small><b>Friday</b></div></div>`, { x: 960, y: 1000, anchor: 'bc' });
-A(cue(brief, 2.45, 4.9, { from: 'up' }));
+A(cue(brief, 2.32, 4.9, { from: 'up' }));
 
 // name tags (3D-anchored)
 const tagM = el(`<div class="ntag"><b>Aisha, 13</b><small>Product designer</small></div>`, { anchor: 'bc' });
 const tagE = el(`<div class="ntag m"><b>Tomasz Nowak</b><small>Service designer · mentor</small></div>`, { anchor: 'bc' });
 const sayE = el(`<div class="say">“Clear reasons, Aisha. Send it to the library.”</div>`, { anchor: 'bc' });
 const V3 = new THREE.Vector3();
-const follow = (node, obj, dy, dx = 0, ddy = 0) => (t) => { V3.set(obj.position.x, obj.position.y + dy, obj.position.z); const p = toScreen(V3, camera); node.style.left = (p.x + dx) + 'px'; node.style.top = (p.y - 10 + ddy) + 'px'; };
-A(cue(tagM, 6.6, 23.6, { outDur: 0.25 })); A(cue(tagE, 2.8, 4.9)); A(cue(sayE, 24.6, 28.9));
+// the arrow keeps pointing at the person when a label is pushed sideways by dx
+const follow = (node, obj, dy, dx = 0, ddy = 0) => (t) => { V3.set(obj.position.x, obj.position.y + dy, obj.position.z); const p = toScreen(V3, camera); node.style.left = (p.x + dx) + 'px'; node.style.top = (p.y - 10 + ddy) + 'px'; if (dx) node.firstElementChild.style.setProperty('--ax', (node.firstElementChild.offsetWidth / 2 - dx) + 'px'); };
+// below the person's feet, pointing up
+const followBelow = (node, obj, gap, dx = 0) => (t) => { V3.set(obj.position.x, obj.position.y, obj.position.z); const p = toScreen(V3, camera); const w = node.firstElementChild.offsetWidth; node.style.left = (p.x + dx - w / 2) + 'px'; node.style.top = (p.y + gap) + 'px'; node.firstElementChild.style.setProperty('--ax', (w / 2 - dx) + 'px'); };
+A(cue(tagM, 6.6, 19.0, { outDur: 0.2 })); A(cue(tagE, 2.8, 4.9)); A(cue(sayE, 27.0, 32.1));
 A(follow(tagM, AISHA, 3.75)); A(follow(tagE, MENTOR, 3.95)); A(follow(sayE, MENTOR, 3.95, 40, 0));
-const ndO = el(`<div class="ntag nd"><b>No smartphone</b><small>NOT IN DATA</small></div>`, { anchor: 'bc' });
-const ndP = el(`<div class="ntag nd"><b>Polish speaker</b><small>NOT IN DATA</small></div>`, { anchor: 'bc' });
-A(cue(ndO, 10.7, 24.3, { outDur: 0.25 })); A(cue(ndP, 10.85, 24.3, { outDur: 0.25 }));
-A(follow(ndO, OLD, 3.9, 222, 0)); A(follow(ndP, PL, 3.9, 50, 0)); // both tags sit right of Aisha's label, clear of the cards
-A((t) => [ndO, ndP].forEach((n) => { const ok = t >= T_FIX; cls(n.firstElementChild, 'ok', ok); setT(n.querySelector('small'), ok ? 'IN THE DATA ✓' : 'NOT IN DATA'); }));
+// the same short names as on the plan card
+const NM_O = 'Older visitor · no phone', NM_P = 'Polish speaker';
+const ndO = el(`<div class="ntag nd"><b>${NM_O}</b><small>NOT IN DATA</small></div>`, { anchor: 'bc' });
+const ndP = el(`<div class="ntag nd"><b>${NM_P}</b><small>NOT IN DATA</small></div>`); ndP.classList.add('up');
+// red while the review runs; they step aside while Aisha asks at the desk, then return green
+const T_ASK = 19.1, T_ASKED = 20.6, T_INDATA = 21.0, T_TAGOK = 21.6;
+const ndO1 = cue(ndO, 10.7, 19.0, { outDur: 0.25 }), ndO2 = cue(ndO, T_TAGOK, 26.7, { outDur: 0.25 });
+const ndP1 = cue(ndP, 10.85, 19.0, { outDur: 0.25 }), ndP2 = cue(ndP, T_TAGOK + 0.1, 26.7, { outDur: 0.25 });
+A((t) => { (t < 20.4 ? ndO1 : ndO2)(t); (t < 20.4 ? ndP1 : ndP2)(t); });
+// the older visitor's tag sits above her, right of Aisha's label; the Polish speaker's sits below his feet, so the two never touch
+A(follow(ndO, OLD, 3.9, 95, 0)); A(followBelow(ndP, PL, 18, -10));
+A((t) => [ndO, ndP].forEach((n) => { const ok = t >= T_TAGOK; cls(n.firstElementChild, 'ok', ok); setT(n.querySelector('small'), ok ? 'IN THE DATA ✓' : 'NOT IN DATA'); }));
+// Aisha asks at the desk; the two visitors the survey missed answer
+const sayA = el(`<div class="say s">“How do you check the times?”</div>`, { anchor: 'bc' });
+const sayO = el(`<div class="say s">“I check the door sign.”</div>`, { anchor: 'bc' });
+const sayP = el(`<div class="say s">“Times in Polish, please.”</div>`); sayP.classList.add('up');
+A(cue(sayA, 19.15, 19.85, { outDur: 0.25 })); A(cue(sayO, 20.0, 21.4, { outDur: 0.25 })); A(cue(sayP, 20.3, 21.5, { outDur: 0.25 }));
+A(follow(sayA, AISHA, 3.75)); A(follow(sayO, OLD, 3.9, 95, 0)); A(followBelow(sayP, PL, 18, -10));
 
 // the plan card
-const U = (name, bad) => `<div class="per"${bad ? ' data-bad' : ''}><i>${SVG.user}</i><b>${name}</b><span class="ns">NOT IN DATA</span></div>`;
+const U = (name, bad) => `<div class="per"${bad ? ' data-bad' : ''}><i>${SVG.user}</i><span class="nm"><b>${name}</b>${bad ? '<span class="ns">NOT IN DATA</span>' : ''}</span></div>`;
 const doc = el(`<div class="wcard doc">
- <div class="tb"><span class="fi"></span><b>library-plan</b><span data-sec>· Users</span><span class="stchip" data-st>Draft</span></div>
+ <div class="tb"><span class="fi"></span><b data-ttl>Users</b><span data-sec>· who visits the library</span><span class="stchip" data-st></span></div>
  <div class="mn">
   <section data-v="0">
-   <div class="pers">${U('Parent with a buggy')}${U('Older visitor, no smartphone', 1)}${U('Teenager')}${U('Polish speaker', 1)}${U('Wheelchair user')}</div></section>
+   <div class="pers">${U('Parent with a buggy')}${U(NM_O, 1)}${U('Teenager')}${U(NM_P, 1)}${U('Wheelchair user')}</div>
+   <div class="ask" data-ask><i>${SVG.tick}</i><span><b>Asked at the desk:</b> 2 more users ✓</span></div></section>
   <section data-v="1" class="dec">
    <div class="dl"><small>Based on</small><span data-d0></span></div>
    <div class="dl"><small>We build</small><span data-d1></span></div>
    <div class="dl"><small>AI only for</small><span data-d2></span></div></section>
  </div>
- <div class="rv"><span class="lab">REVIEW</span><span data-run class="btn">Run the four checks</span>
+ <div class="rv"><span class="lab">AI PLAN</span><span data-run class="btn">Run the four checks</span>
    <span class="chk" data-c="0"><i>${SVG.dots}</i>Data</span><span class="chk" data-c="1"><i>${SVG.dots}</i>Case</span><span class="chk" data-c="2"><i>${SVG.dots}</i>Source</span><span class="chk" data-c="3"><i>${SVG.dots}</i>Authority</span></div>
  <div class="find" data-find><i>${SVG.cross}</i><span data-ft></span></div>
- <div class="prow" data-pr="1"><i>${SVG.tick}</i><span><b>Case:</b> visitors really can’t find the times or book a PC</span></div>
- <div class="prow" data-pr="2"><i>${SVG.tick}</i><span><b>Source:</b> the library’s own visitor survey</span></div>
- <div class="prow" data-pr="3"><i>${SVG.tick}</i><span><b>Authority:</b> the library makes the final call</span></div>
+ <div class="prow" data-pr="1"><i>${SVG.tick}</i><span><b>Case:</b> front-desk log, 40 times and booking questions a week</span></div>
+ <div class="prow" data-pr="2"><i>${SVG.tick}</i><span><b>Source:</b> opening times come from the library’s own timetable</span></div>
+ <div class="prow" data-pr="3"><i>${SVG.tick}</i><span><b>Authority:</b> the library manager signs off; council rules allow it</span></div>
  <div class="ft"><span data-sg>Reviewed by: not yet</span><span data-pass class="pass">Checks passed: 0 of 4</span><span data-sign class="btn t">Sign off</span></div>
 </div>`, { x: COL, y: 124 });
 A(cueS(doc, 5.0, null));
 const Q = (s) => doc.querySelector(s);
 const chks = [0, 1, 2, 3].map((i) => Q(`[data-c="${i}"]`));
-const T_RUN = 9.6, T_DFAIL = 10.6, T_RET = 12.0, T_DEC = 19.6, T_RECHK = 22.9, T_FIX = 23.4, T_SIGN = 24.0;
+const T_RUN = 9.6, T_DFAIL = 10.6, T_RET = 12.0, T_DEC = 22.0, T_RECHK = 25.3, T_FIX = 25.8, T_SIGN = 26.4;
 // all four checks run, each with its reason, and only then is the plan returned
 const chkT = [[9.8, T_DFAIL], [10.7, 11.0], [11.1, 11.4], [11.5, 11.8]];
 const T_FOLD = 12.8; // the three passing reasons fold away before the AI card comes back
 const typed = (n, s, t0, t1, t) => { const k = clamp((t - t0) / (t1 - t0)); const c = Math.round(s.length * k); setH(n, s.slice(0, c) + (k > 0 && k < 1 ? '<span class="caret"></span>' : '')); };
-const D = ['all 5 users, asked at the desk and in Polish', 'a clear sign, a times page and a booking form', 'Polish opening times, checked by a librarian'];
-const DT = [[19.9, 20.8], [21.0, 21.9], [22.0, 22.8]];
+const D = ['all 5 kinds of user, asked at the desk and in Polish', 'a clear sign, a times page and a booking form', 'Polish opening times, checked by a librarian'];
+const DT = [[22.3, 23.2], [23.4, 24.3], [24.4, 25.2]];
 A((t) => {
-  const s = t < T_RUN ? ['', 'Draft'] : t < T_RET ? ['rev', 'In review'] : t < T_DEC ? ['ret', 'Returned'] : t < T_SIGN ? ['rev', 'In review'] : ['ok', 'Approved'];
-  const sc = Q('[data-st]'); const c2 = 'stchip' + (s[0] ? ' ' + s[0] : ''); if (sc.className !== c2) sc.className = c2; setT(sc, s[1]);
-  const sec = t < T_DEC ? 0 : 1; setT(Q('[data-sec]'), sec ? '· Decision record' : '· Users');
+  // the Users card has no status of its own: its chip reports on the AI colleague's draft plan under review
+  const s = t < T_RUN ? ['', ''] : t < T_RET ? ['rev', 'AI plan · in review'] : t < T_DEC ? ['ret', 'AI plan · returned'] : t < T_SIGN ? ['rev', 'In review'] : ['ok', 'Approved'];
+  const sc = Q('[data-st]'); const c2 = 'stchip' + (s[0] ? ' ' + s[0] : ''); if (sc.className !== c2) sc.className = c2; setT(sc, s[1]); sc.style.display = s[1] ? '' : 'none';
+  const sec = t < T_DEC ? 0 : 1; setT(Q('[data-ttl]'), sec ? 'Decision record' : 'Users'); setT(Q('[data-sec]'), sec ? '· for the library' : '· who visits the library');
   doc.querySelectorAll('section[data-v]').forEach((n, i) => { n.style.display = i === sec ? 'block' : 'none'; });
-  doc.querySelectorAll('.per').forEach((n, i) => { const t0 = 5.05 + i * 0.25; /* the card grows as each user arrives */ n.style.display = t >= t0 ? '' : 'none'; n.style.opacity = prog(t, t0, t0 + 0.3); n.style.transform = `translateY(${(1 - prog(t, t0, t0 + 0.4, ease.out)) * 16}px)`; const bad = n.hasAttribute('data-bad') && t >= T_DFAIL; cls(n, 'bad', bad); n.querySelector('.ns').style.opacity = bad ? 1 : 0; });
+  doc.querySelectorAll('.per').forEach((n, i) => { const t0 = 5.05 + i * 0.25; /* the card grows as each user arrives */ n.style.display = t >= t0 ? '' : 'none'; n.style.opacity = prog(t, t0, t0 + 0.3); n.style.transform = `translateY(${(1 - prog(t, t0, t0 + 0.4, ease.out)) * 16}px)`; const miss = n.hasAttribute('data-bad'), ok = miss && t >= T_INDATA, bad = miss && t >= T_DFAIL && !ok; cls(n, 'bad', bad); cls(n, 'ok', ok); if (miss) setT(n.querySelector('.ns'), ok ? 'IN THE DATA ✓' : 'NOT IN DATA'); });
+  Q('[data-ask]').style.height = 52 * prog(t, T_ASKED, T_ASKED + 0.3, ease.out) + 'px';
   D.forEach((x, i) => typed(Q(`[data-d${i}]`), x, DT[i][0], DT[i][1], t));
   const run = Q('[data-run]'); run.style.display = t < T_RUN + 0.15 ? '' : 'none'; run.style.transform = within(t, T_RUN - 0.05, T_RUN + 0.15) ? 'scale(.94)' : '';
   chks.forEach((c, i) => {
     c.style.display = t < T_RUN + 0.15 ? 'none' : '';
-    const [r, d] = chkT[i]; const rerun = i === 0 && within(t, T_RECHK, T_FIX); const bad = i === 0 && t < T_FIX; const done = t >= d && !rerun;
+    // once the two missing users are asked, the old Data result no longer stands: it waits (grey) until it is re-run
+    const [r, d] = chkT[i]; const rerun = i === 0 && within(t, T_RECHK, T_FIX); const pend = i === 0 && within(t, T_INDATA, T_RECHK); const bad = i === 0 && t < T_FIX; const done = t >= d && !rerun && !pend;
     cls(c, 'run', (t >= r && !done) || rerun); cls(c, 'ok', done && !bad); cls(c, 'bad', done && bad);
     const ic = done ? (bad ? SVG.cross : SVG.tick) : SVG.dots; const ii = c.querySelector('i'); if (ii.dataset.s !== ic) { ii.innerHTML = ic; ii.dataset.s = ic; }
     c.style.transform = i === 0 && within(t, T_DFAIL, T_DFAIL + 0.4) ? `translateX(${Math.sin((t - T_DFAIL) * 60) * 5}px)` : (i === 0 && within(t, T_FIX, T_FIX + 0.3) ? 'scale(1.08)' : '');
@@ -405,35 +436,36 @@ A((t) => {
   const ps = Q('[data-pass]'); setT(ps, `Checks passed: ${npass} of 4`); cls(ps, 'ok', npass === 4);
   const fd = Q('[data-find]'); fd.style.height = 66 * prog(t, T_DFAIL + 0.1, T_DFAIL + 0.45, ease.out) + 'px';
   doc.querySelectorAll('[data-pr]').forEach((n, i) => { const d = chkT[i + 1][1]; const fo = 1 - prog(t, T_FOLD, T_FOLD + 0.3, ease.inOut); n.style.height = 50 * prog(t, d, d + 0.3, ease.out) * fo + 'px'; n.style.opacity = prog(t, d + 0.1, d + 0.3) * clamp(fo * 2 - 1); n.style.borderTopWidth = t < d || t > T_FOLD + 0.3 ? '0' : '2px'; });
-  const ok = t >= T_FIX, rr = within(t, T_RECHK, T_FIX); cls(fd, 'ok', ok); cls(fd, 'rr', rr); setH(fd.querySelector('i'), ok ? SVG.tick : rr ? SVG.dots : SVG.cross);
-  setT(fd.querySelector('[data-ft]'), ok ? 'Data: all 5 users now included ✓' : rr ? 'Re-running Data with the new user list…' : 'Data: survey only asked smartphone users, in English');
+  const ok = t >= T_FIX, rr = within(t, T_INDATA, T_FIX); cls(fd, 'ok', ok); cls(fd, 'rr', rr); setH(fd.querySelector('i'), ok ? SVG.tick : rr ? SVG.dots : SVG.cross);
+  setT(fd.querySelector('[data-ft]'), ok ? 'Data: all 5 kinds of user now included ✓' : t >= T_RECHK ? 'Re-running Data with the new user list…' : rr ? 'Data: 2 more users added · re-run Data to confirm' : 'Data: survey only asked smartphone users, in English');
   const sg = Q('[data-sg]'), sb = Q('[data-sign]');
   sb.style.opacity = t >= T_FIX ? 1 : 0.35; sb.style.transform = within(t, T_SIGN - 0.1, T_SIGN + 0.1) ? 'scale(.94)' : '';
   setT(sg, t >= T_SIGN ? 'Reviewed by: Aisha, age 13' : 'Reviewed by: not yet'); sg.style.color = t >= T_SIGN ? '#13202b' : ''; sb.style.visibility = t >= T_SIGN ? 'hidden' : '';
-  if (t >= 26.4) { const k = prog(t, 26.4, 26.9, ease.inOut); doc.style.transformOrigin = '0 0'; doc.style.transform = `translate(${k * 36}px, ${k * 110}px) scale(${1 - k * 0.95})`; doc.style.opacity = 1 - prog(t, 26.7, 26.9); doc.style.visibility = t > 26.9 ? 'hidden' : 'visible'; } // shrinks into the portfolio item's icon
+  if (t >= 29.0) { const k = prog(t, 29.0, 29.5, ease.inOut); doc.style.transformOrigin = '0 0'; doc.style.transform = `translate(${k * 36}px, ${k * 110}px) scale(${1 - k * 0.95})`; doc.style.opacity = 1 - prog(t, 29.3, 29.5); doc.style.visibility = t > 29.5 ? 'hidden' : 'visible'; } // shrinks into the portfolio item's icon
 });
 
 // AI colleague (bottom slot)
-const SLOT = 700;
-const ai = el(`<div class="ai"><div class="hd"><span class="bot"><i></i></span><b>AI colleague</b><span class="dr" data-dr>DRAFT</span></div>
+const SLOT = 708;
+const ai = el(`<div class="ai"><div class="hd"><span class="bot"><i></i></span><b>AI colleague</b><span class="dr" data-dr>DRAFT PLAN · TO CHECK</span></div>
  <p><span data-claim>Build an always-on AI chatbot. It answers questions and books PCs.</span></p>
  <div class="ftr"><span class="sure" data-sure><span class="bar"><i data-b style="width:0%"></i></span><span data-p>92% sure</span></span><span class="data w" data-data><b>DATA I USED</b>survey of smartphone users, in English</span></div></div>`, { x: COL, y: SLOT });
 // first visit 6.8–9.7 (it steps aside while the four checks and their reasons fill the plan card), back at 13.0 to take the return, then again as V2 after the fix
 const T_AIRET = 13.35;
-const aiIn1 = cueS(ai, 6.8, 9.7), aiIn1b = cueS(ai, 13.0, 15.0), aiIn2 = cueS(ai, 21.0, 24.4);
+const aiIn1 = cueS(ai, 6.8, 9.7), aiIn1b = cueS(ai, 13.0, 15.0), aiIn2 = cueS(ai, 23.4, 26.8);
 A((t) => (t < 11 ? aiIn1 : t < 18 ? aiIn1b : aiIn2)(t));
 A((t) => {
   const ret = t >= T_AIRET, drop = prog(t, T_AIRET, T_AIRET + 0.4), v2 = t >= T_FIX;
-  // the number reads 92% from the first frame; only the bar fills, so no misleading low value is ever on screen
-  const bw = v2 ? 90 * prog(t, T_FIX, T_FIX + 0.4, ease.out) : 92 * prog(t, 7.0, 7.6, ease.out) * (1 - drop);
+  // the bar always matches the number (92% and 90% bars are full-length from their first frame); it empties only as the number gives way to "Data gap"
+  const bw = v2 ? 90 : 92 * (1 - drop);
+  ai.querySelector('[data-sure]').style.opacity = v2 ? prog(t, T_FIX, T_FIX + 0.25) : 1;
   setT(ai.querySelector('[data-p]'), v2 ? '90% sure' : ret ? 'Data gap' : '92% sure');
   ai.querySelector('[data-b]').style.width = bw + '%';
   cls(ai.querySelector('[data-sure]'), 'low', ret && !v2); cls(ai.querySelector('[data-sure]'), 'v2', v2);
   cls(ai.querySelector('[data-data]'), 'bad', ret && !v2);
-  setH(ai.querySelector('[data-data]'), v2 ? '<b>DATA I USED</b>all 5 users, at the desk and in Polish' : '<b>DATA I USED</b>survey of smartphone users, in English');
+  setH(ai.querySelector('[data-data]'), v2 ? '<b>DATA I USED</b>all 5 kinds of user, at the desk and in Polish' : '<b>DATA I USED</b>survey of smartphone users, in English');
   const cl = ai.querySelector('[data-claim]'); cls(cl, 'del', ret && !v2);
   setT(cl, v2 ? 'Sign, times page and booking form. AI only for Polish times, checked by a librarian.' : 'Build an always-on AI chatbot. It answers questions and books PCs.');
-  const dr = ai.querySelector('[data-dr]'); setT(dr, v2 ? 'V2 · RE-CHECKED BY AISHA' : ret ? 'RETURNED' : 'DRAFT'); cls(dr, 'ret', ret && !v2); cls(dr, 'v2', v2);
+  const dr = ai.querySelector('[data-dr]'); setT(dr, v2 ? 'V2 · RE-CHECKED BY AISHA' : ret ? 'RETURNED' : 'DRAFT PLAN · TO CHECK'); cls(dr, 'ret', ret && !v2); cls(dr, 'v2', v2);
   dr.style.transform = within(t, T_FIX, T_FIX + 0.3) || within(t, T_AIRET, T_AIRET + 0.3) ? 'scale(1.1)' : '';
 });
 
@@ -443,24 +475,24 @@ const qtree = el(`<div class="wcard tree"><div class="th"><span class="tag">AI O
  <div class="q"><span>Book a PC</span><b class="o">Simple booking form</b></div>
  <div class="q"><span>Translate to Polish</span><b class="a">AI helps, librarian checks</b></div>
  <div class="q"><span>A chatbot for everything?</span><b class="x">Not needed</b></div></div>`, { x: COL, y: SLOT });
-A(cueS(qtree, 15.2, 20.6));
+A(cueS(qtree, 15.2, 19.0));
 A((t) => qtree.querySelectorAll('.q').forEach((n, i) => { const t0 = 15.4 + i * 0.8; n.style.display = t >= t0 ? '' : 'none'; n.style.opacity = prog(t, t0, t0 + 0.3); n.style.transform = `translateX(${(1 - prog(t, t0, t0 + 0.4, ease.out)) * 30}px)`; }));
 
 // sign-off card (bottom slot)
 const signC = el(`<div class="sign"><span class="tick">${SVG.tick}</span><span><small>SIGNED OFF · THURSDAY</small><b>Reviewed by: Aisha, age 13</b><em>Checks passed: 4 of 4</em></span></div>`, { x: COL, y: SLOT + 40 });
-A(cue(signC, 24.6, 28.8, { from: 'pop', outDur: 0.3 }));
+A(cue(signC, 27.0, 32.1, { from: 'pop', outDur: 0.3 }));
 
 // steps strip
 const steps = el(`<div class="steps"><span class="n" data-n></span><span class="d" data-d></span></div>`, { x: 44, y: 1000 });
-A(cue(steps, 5.4, 29.0, { from: 'up' }));
-const STEPS = [[0, 'Step 1 of 6', 'Map the users and the real problem'], [9.4, 'Step 2 of 6', 'Check the AI colleague’s plan'], [15.2, 'Step 3 of 6', 'Ask: AI or not, task by task'], [19.6, 'Step 4 of 6', 'Write the decision record'], [23.8, 'Step 5 of 6', 'Sign it off'], [26.4, 'Step 6 of 6', 'File it in your portfolio']];
+A(cue(steps, 5.4, 32.15, { from: 'up' }));
+const STEPS = [[0, 'Step 1 of 7', 'Map the users and the real problem'], [9.4, 'Step 2 of 7', 'Check the AI colleague’s plan'], [15.2, 'Step 3 of 7', 'Ask: AI or not, task by task'], [19.1, 'Step 4 of 7', 'Ask the users the data missed'], [22.0, 'Step 5 of 7', 'Write the decision record'], [26.2, 'Step 6 of 7', 'Sign it off'], [29.0, 'Step 7 of 7', 'File it in your portfolio']];
 A((t) => { let s = STEPS[0]; for (const x of STEPS) if (t >= x[0]) s = x; setT(steps.querySelector('[data-n]'), s[1]); setT(steps.querySelector('[data-d]'), s[2]); });
 
 // portfolio folder
 const folder = el(`<div class="folder"><span class="tabf">PORTFOLIO · Aisha</span><div class="body">
  <div class="it nw" data-nw><i></i><span>Decision record<small>Should It Be AI? · library times</small></span><span class="new">NEW</span></div></div></div>`, { x: COL, y: 150 });
-A(cueS(folder, 26.75, 28.8, { dur: 0.3 }));
-A((t) => { const n = folder.querySelector('[data-nw]'); n.style.transform = `scale(${1 + 0.05 * Math.sin(prog(t, 26.95, 27.45) * Math.PI)})`; });
+A(cueS(folder, 29.35, 32.1, { dur: 0.3 }));
+A((t) => { const n = folder.querySelector('[data-nw]'); n.style.transform = `scale(${1 + 0.05 * Math.sin(prog(t, 29.55, 30.05) * Math.PI)})`; });
 
 // cursor (parks in the gap left of the cards)
 const cur = el(SVG.cursor, { x: 0, y: 0 }); cur.style.zIndex = 5;
@@ -468,24 +500,24 @@ const ring = el('<div class="ring"></div>', { x: 0, y: 0, anchor: 'c' });
 // a hidden target (the Sign off button once pressed) falls back to the right end of its row, so the cursor never flies to the corner
 const R = (sel, root = doc) => () => { const n = root.querySelector(sel); const r = n.getBoundingClientRect(); if (r.width > 0) return [r.left + r.width * 0.5, r.top + r.height * 0.55]; const q = n.parentElement.getBoundingClientRect(); return [q.right - 90, q.top + q.height * 0.55]; };
 const PARK = (y) => () => [940, y];
-const PATH = [[8.6, [820, 1100]], [9.45, R('[data-run]')], [9.8, R('[data-run]')], [10.6, PARK(430)], [22.9, PARK(480)], /* parks high, clear of the in-world NOT IN DATA tags */ [23.55, () => { const [x, y] = R('[data-sign]')(); return [x - 170, y + 14]; }], [23.95, R('[data-sign]')], [24.25, R('[data-sign]')], [25.1, R('[data-sign]')]]; // after the click the pointer fades out in place instead of crossing the cards
+const PATH = [[8.6, [820, 1100]], [9.45, R('[data-run]')], [9.8, R('[data-run]')], [10.6, PARK(430)], [25.3, PARK(480)], /* hidden while parked (12.6–25.0), so it never sits over the desk beat */ [25.95, () => { const [x, y] = R('[data-sign]')(); return [x - 170, y + 14]; }], [26.35, R('[data-sign]')], [26.65, R('[data-sign]')], [27.5, R('[data-sign]')]]; // after the click the pointer fades out in place instead of crossing the cards
 const CLICKS = [T_RUN, T_SIGN];
 A((t) => {
-  const on = within(t, 8.6, 24.8); cur.style.opacity = on ? 1 - prog(t, 24.4, 24.7) : 0;
+  const on = within(t, 8.6, 27.2); cur.style.opacity = !on ? 0 : t < 18 ? 1 - prog(t, 12.3, 12.6) : prog(t, 24.9, 25.2) * (1 - prog(t, 26.8, 27.1));
   if (on) { let i = 0; while (i < PATH.length - 2 && t > PATH[i + 1][0]) i++; const [ta, pa] = PATH[i], [tb, pb] = PATH[i + 1]; const a = typeof pa === 'function' ? pa() : pa, b = typeof pb === 'function' ? pb() : pb; const k = prog(t, ta, tb, ease.inOut); const x = lerp(a[0], b[0], k), y = lerp(a[1], b[1], k); cur.style.left = x + 'px'; cur.style.top = y + 'px'; ring.style.left = (x + 4) + 'px'; ring.style.top = (y + 4) + 'px'; }
   const c = CLICKS.find((x) => within(t, x, x + 0.45)); if (c != null && on) { const k = (t - c) / 0.45; ring.style.opacity = 1 - k; ring.style.transform = `translate(-50%,-50%) scale(${0.4 + k})`; } else ring.style.opacity = 0;
 });
 
 // end: whole island on the left in daylight; title and pathway on the right
 const etitle = el(`<div class="etitle"><span class="chip2">DeltaOps Learning · Future Skills</span><h1>Should It Be AI?</h1><h2>Start with the user. Then decide if AI belongs.</h2></div>`, { x: COL, y: 70 });
-A(cue(etitle, 29.15, null, { from: 'up', dur: 0.6 }));
+A(cue(etitle, 32.5, null, { from: 'up', dur: 0.6 }));
 const path = el(`<div class="wcard path"><div class="top"><span class="tag">PATHWAY</span><h3>Where this skill goes next</h3></div>
  <div class="row"><span>Next step</span><b>Apps for Good <em>(free, with your school)</em></b></div>
  <div class="row"><span>Award</span><b>iDEA Bronze Award <em>(free, online)</em></b></div>
  <div class="row"><span>Route</span><b>GCSE Design &amp; Technology, then T Level Digital</b></div>
  <div class="row"><span>Jobs</span><div class="jobs"><i>UX designer</i><i>Product manager</i><i>Service designer</i></div></div>
  <div class="lg"><img src="../assets/logo-learning.svg"></div></div>`, { x: COL, y: 400 });
-A(cue(path, 30.1, null, { from: 'up', dur: 0.6 }));
+A(cue(path, 32.85, null, { from: 'up', dur: 0.6 }));
 
 st.onFrame((t) => ui.forEach((fn) => fn(t)));
 window.__duration = DUR;
