@@ -1,0 +1,497 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Island Park Tycoon (pixel) trailer</title>
+<style>
+@font-face { font-family: 'P2P'; src: url('../node_modules/@fontsource/press-start-2p/files/press-start-2p-latin-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Silk'; src: url('../node_modules/@fontsource/silkscreen/files/silkscreen-latin-400-normal.woff2') format('woff2'); }
+html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: #000; }
+canvas { width: 1920px; height: 1080px; image-rendering: pixelated; display: block; }
+</style></head>
+<body><canvas id="c" width="640" height="360"></canvas>
+<script>
+const W = 640, H = 360, DUR = 30;
+const cv = document.getElementById('c'), g = cv.getContext('2d');
+g.imageSmoothingEnabled = false;
+// ---------- helpers ----------
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+const lerp = (a, b, k) => a + (b - a) * k;
+const prog = (t, a, b) => clamp((t - a) / (b - a));
+const eio = (k) => k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+const eob = (k) => { const c1 = 1.70158, c3 = c1 + 1; return k <= 0 ? 0 : k >= 1 ? 1 : 1 + c3 * Math.pow(k - 1, 3) + c1 * Math.pow(k - 1, 2); };
+function hash(x, y, z = 0) { let h = (x * 374761393 + y * 668265263 + z * 2147483647) | 0; h = (h ^ (h >>> 13)) * 1274126177; return ((h ^ (h >>> 16)) >>> 0) / 4294967295; }
+const px = (x, y, w, h, c) => { g.fillStyle = c; g.fillRect(Math.round(x), Math.round(y), w, h); };
+const _sh = new Map();
+function shade(hex, f) { const kk = hex + f; if (_sh.has(kk)) return _sh.get(kk); const n = parseInt(hex.slice(1, 7), 16); const m = (c) => Math.round(f < 0 ? c * (1 + f) : c + (255 - c) * f); const out = `rgb(${m(n >> 16 & 255)},${m(n >> 8 & 255)},${m(n & 255)})`; _sh.set(kk, out); return out; }
+function line(x0, y0, x1, y1, c) { g.fillStyle = c; const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0), 1); for (let k = 0; k <= n; k++) g.fillRect(Math.round(x0 + (x1 - x0) * k / n), Math.round(y0 + (y1 - y0) * k / n), 1, 1); }
+function ell(x, y, rx, ry, c) { g.fillStyle = c; for (let r = -ry; r <= ry; r++) { const w = Math.round(rx * Math.sqrt(Math.max(0, 1 - (r / (ry + 0.5)) ** 2))); g.fillRect(Math.round(x - w), Math.round(y + r), w * 2, 1); } }
+function fillPoly(pts, c) { g.fillStyle = c; let y0 = 1e9, y1 = -1e9; for (const p of pts) { y0 = Math.min(y0, p[1]); y1 = Math.max(y1, p[1]); }
+  for (let y = Math.ceil(y0); y <= Math.floor(y1); y++) { let xa = 1e9, xb = -1e9; const yy = y + 0.01; for (let k = 0; k < pts.length; k++) { const [ax, ay] = pts[k], [bx, by] = pts[(k + 1) % pts.length]; if ((ay <= yy && by >= yy) || (by <= yy && ay >= yy)) { if (Math.abs(by - ay) < 1e-6) { xa = Math.min(xa, ax, bx); xb = Math.max(xb, ax, bx); } else { const x = ax + (yy - ay) / (by - ay) * (bx - ax); xa = Math.min(xa, x); xb = Math.max(xb, x); } } }
+    if (xb >= xa) g.fillRect(Math.round(xa), y, Math.max(1, Math.round(xb) - Math.round(xa)), 1); } }
+function mk(w, h, fn) { const c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d'); fn(x); return c; }
+const BAY = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+const dith = (pal, v, x, y) => { const n = pal.length - 1, f = clamp(v) * n, k = Math.floor(f); return pal[Math.min(n, k + ((f - k) > (BAY[(y & 3) * 4 + (x & 3)] + 0.5) / 16 ? 1 : 0))]; };
+function pmap(x, y, rows, pal, flip, outline, z = 1) { const h = rows.length, w = rows[0].length; x = Math.round(x); y = Math.round(y); const X = (c) => flip ? x + (w - 1 - c) * z : x + c * z;
+  if (outline) { g.fillStyle = outline; for (let r = 0; r < h; r++) for (let c = 0; c < w; c++) if (rows[r][c] !== '.') { g.fillRect(X(c) - 1, y + r * z, z + 2, z); g.fillRect(X(c), y + r * z - 1, z, z + 2); } }
+  for (let r = 0; r < h; r++) for (let c = 0; c < w; c++) { const ch = rows[r][c]; if (ch !== '.') { g.fillStyle = pal[ch]; g.fillRect(X(c), y + r * z, z, z); } } }
+
+// ---------- projection ----------
+let OX = 0, OY = 0;
+const SP = (i, j, h = 0) => [Math.round((i - j) * 32 + OX), Math.round((i + j) * 16 + OY - h)];
+const key = (i, j) => i + ',' + j;
+
+// ---------- map ----------
+const sev = (i, j) => Math.pow(Math.abs(i - 9.5) / 12.4, 4) + Math.pow(Math.abs(j - 9.5) / 12.4, 4);
+const LAND = (i, j) => sev(i, j) < 1;
+const pond = (i, j) => Math.hypot(i - 5, j - 12) < 1.8;
+const sandy = (i, j) => Math.hypot(i - 5, j - 12) < 2.6;
+const meadow = (i, j) => i >= 11 && i <= 15 && j >= 5 && j <= 12;
+const EP = [[15, 17], [14, 17], [13, 16], [12, 16], [11, 16], [10, 16], [9, 15], [8, 15], [7, 15], [6, 15], [5, 15], [4, 14], [3, 13], [3, 12], [3, 11], [3, 10], [4, 9], [4, 8], [5, 7], [6, 7]];
+const SPINE = [[9, 14], [9, 13], [9, 12], [9, 11], [9, 10], [9, 9], [9, 8], [10, 8], [10, 7], [10, 6], [10, 5], [10, 4]];
+const NP = []; for (let i = 11; i <= 16; i++) NP.push([i, 4]);
+const ENTRY = [[15, 18], [15, 19], [15, 20], [15, 21]];
+const SN = [...SPINE, ...NP];
+const BASEPATH = [...EP, ...SPINE, ...NP, ...ENTRY];
+const QUEUES = [[[6, 7], [7, 7], [8, 7], [9, 7], [9, 6]].slice(1), [[6, 8], [6, 9]], [[12, 17]]];
+const queueSet = new Set(QUEUES.flat().map(([i, j]) => key(i, j)));
+const cutPath = []; for (let j = 15; j >= 4; j--) cutPath.push([12, j]);
+const reroute = [[12, 15], [12, 14]]; for (let i = 12; i <= 16; i++) reroute.push([i, 13]); for (let j = 12; j >= 5; j--) reroute.push([16, j]);
+const DEER = [[13.6, 5.9], [14.8, 8.4], [14.0, 10.8]];
+const treesNew = [[15.55, 6.4], [15.55, 9.0], [15.55, 11.6], [13.6, 12.55], [11.5, 12.55], [14.6, 7.6]];
+const BURROW = [12.35, 7.05];
+// stalls, rides and services round the meadow (centre i, j, kind)
+const STALLS = [[2.4, 11.5, 'ice'], [4.6, 15.6, 'drink'], [8.5, 16.4, 'burger'], [10.5, 10.4, 'burger'], [10.5, 12.3, 'drink'], [10.5, 14.3, 'balloon'], [11.5, 15.45, 'chips'], [13.5, 15.5, 'drink'], [16.5, 15.4, 'burger'], [11.5, 3.4, 'burger'], [13.5, 3.4, 'ice'], [15.5, 3.4, 'chips'], [14.4, 18.5, 'ice'], [16.6, 13.9, 'balloon']];
+const LOOS = [[2.4, 13.6], [8.4, 10.6], [16.5, 16.5], [17.4, 2.5]];
+const INFOS = [[8.4, 12.6], [14.5, 16.5], [16.5, 18.5]];
+const TOWER = [8, 9], WHEEL = [6.5, 16.6], CAROUSEL = [2.6, 8.6], SHIP = [12.7, 18.7], CUPS = [14.6, 14.6];
+const OCC = new Set(); const occ = (i0, j0, i1, j1) => { for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++) OCC.add(key(i, j)); };
+BASEPATH.forEach(([i, j]) => OCC.add(key(i, j))); queueSet.forEach((k) => OCC.add(k)); cutPath.forEach(([i, j]) => OCC.add(key(i, j))); reroute.forEach(([i, j]) => OCC.add(key(i, j)));
+occ(11, 5, 15, 12); occ(7, 8, 8, 9); occ(5, 16, 7, 17); occ(11, 17, 14, 19); occ(2, 8, 3, 9); occ(17, 2, 18, 11); occ(14, 17, 16, 18); occ(14, 14, 15, 15); occ(9, 4, 9, 6);
+[...STALLS, ...LOOS, ...INFOS].forEach(([i, j]) => OCC.add(key(Math.floor(i), Math.floor(j))));
+
+// coaster track: closed Catmull-Rom spline through control points (i, j, height px)
+const CP = [[9.5, 6.4, 8], [9.5, 5.2, 8], [9.5, 4.0, 8], [9.5, 3.0, 16], [9.5, 1.6, 62], [9.4, 0.4, 98], [8.8, -0.4, 104], [7.8, -0.6, 98], [6.6, -0.5, 60], [5.4, -0.3, 16], [4.2, 0.2, 22], [3.0, 1.0, 58], [2.1, 2.2, 74], [1.8, 3.6, 64], [2.2, 4.9, 40], [3.2, 5.8, 24], [4.4, 6.0, 40], [5.6, 5.9, 50], [6.8, 5.9, 30], [7.9, 6.2, 14], [8.8, 6.8, 9]];
+const TRACK = []; { const n = CP.length; for (let s = 0; s < n; s++) { const p0 = CP[(s - 1 + n) % n], p1 = CP[s], p2 = CP[(s + 1) % n], p3 = CP[(s + 2) % n]; const seg = Math.max(4, Math.round(Math.hypot(p2[0] - p1[0], p2[1] - p1[1]) / 0.16));
+  for (let q = 0; q < seg; q++) { const u = q / seg, u2 = u * u, u3 = u2 * u; const cr = (a, b, c, d) => 0.5 * (2 * b + (-a + c) * u + (2 * a - 5 * b + 4 * c - d) * u2 + (-a + 3 * b - 3 * c + d) * u3); TRACK.push({ i: cr(p0[0], p1[0], p2[0], p3[0]), j: cr(p0[1], p1[1], p2[1], p3[1]), h: cr(p0[2], p1[2], p2[2], p3[2]), lift: s >= 2 && s < 5 }); } } }
+{ const n = TRACK.length; let tot = 0; TRACK.forEach((p, k) => { const q = TRACK[(k + 1) % n], q0 = TRACK[(k - 1 + n) % n]; const ti = q.i - q0.i, tj = q.j - q0.j, l = Math.hypot(ti, tj) || 1; p.pi = -tj / l * 0.12; p.pj = ti / l * 0.12; const d = Math.hypot(q.i - p.i, q.j - p.j, (q.h - p.h) / 32); const v = p.lift ? 0.5 : 0.75 + Math.sqrt(Math.max(0, 112 - p.h)) * 0.13; p.tm = tot; tot += d / v; OCC.add(key(Math.floor(p.i), Math.floor(p.j))); }); TRACK.tot = tot; }
+// log flume: two channels beside the new path, a lift and a big splash drop
+const FLUME = []; { const pts = [[17.5, 4.0, 6], [17.5, 7.4, 6], [17.5, 10.3, 44], [17.6, 10.9, 46], [18.0, 11.15, 46], [18.4, 10.9, 46], [18.5, 10.3, 44], [18.5, 8.4, 6], [18.5, 4.0, 6], [18.4, 3.4, 6], [18.0, 3.15, 6], [17.6, 3.4, 6]];
+  for (let k = 0; k < pts.length; k++) { const a = pts[k], b = pts[(k + 1) % pts.length]; const n = Math.max(1, Math.round(Math.hypot(b[0] - a[0], b[1] - a[1]) / 0.2)); for (let s = 0; s < n; s++) { const f = s / n; FLUME.push({ i: lerp(a[0], b[0], f), j: lerp(a[1], b[1], f), h: lerp(a[2], b[2], f), lift: k === 1, drop: k === 6 }); } }
+  let tot = 0; FLUME.forEach((p, k) => { const q = FLUME[(k + 1) % FLUME.length]; p.tm = tot; tot += Math.hypot(q.i - p.i, q.j - p.j) / (p.lift ? 0.35 : p.drop ? 2.4 : 0.8); }); FLUME.tot = tot; }
+function atTime(arr, tau) { tau = ((tau % arr.tot) + arr.tot) % arr.tot; let lo = 0, hi = arr.length - 1; while (lo < hi) { const m = (lo + hi + 1) >> 1; if (arr[m].tm <= tau) lo = m; else hi = m - 1; } const a = arr[lo], b = arr[(lo + 1) % arr.length]; const span = ((b.tm - a.tm) + arr.tot) % arr.tot || 1e-6; const f = clamp((tau - a.tm) / span); return { i: lerp(a.i, b.i, f), j: lerp(a.j, b.j, f), h: lerp(a.h, b.h, f), k: lo }; }
+
+// scenery trees: dense woods round the coast, scattered trees inside
+const TREES = [];
+for (let i = -3; i <= 22; i++) for (let j = -3; j <= 22; j++) { if (!LAND(i, j) || OCC.has(key(i, j)) || sandy(i, j) || meadow(i, j)) continue; const coast = sev(i + 0.5, j + 0.5) > 0.42 || (i >= 2 && i <= 8 && j >= 0 && j <= 5);
+  if (hash(i, j, 7) > (coast ? 0.22 : 0.72)) TREES.push([i + 0.3 + hash(i, j, 8) * 0.4, j + 0.3 + hash(i, j, 9) * 0.4, Math.floor(hash(i, j, 10) * 6)]);
+  if (coast && hash(i, j, 11) > 0.55) TREES.push([i + 0.15 + hash(i, j, 12) * 0.3, j + 0.65 + hash(i, j, 13) * 0.3, Math.floor(hash(i, j, 14) * 6)]);
+  else if (!coast && hash(i, j, 15) > 0.8) TREES.push([i + 0.7, j + 0.3, 6]); }
+
+// ---------- pre-rendered sprites ----------
+const PAL = { green: ['#173d14', '#245a1c', '#357a26', '#4f9a32', '#76bf48', '#a6dc6a'], dark: ['#10301a', '#1a4824', '#286232', '#3a7e3e', '#58a052', '#88c474'], lime: ['#2a4a12', '#3d6a1a', '#558a24', '#74aa30', '#9cc848', '#c6e070'], pine: ['#0c2618', '#153b24', '#1f5230', '#2c6c3e', '#438a50', '#68aa68'] };
+function makeTree(kind, pal, seed, sc) {
+  return mk(40, 54, (c) => { const set = (x, y, col) => { c.fillStyle = col; c.fillRect(x, y, 1, 1); };
+    c.fillStyle = 'rgba(14,44,8,0.34)'; for (let y = -3; y <= 3; y++) { const w = Math.round(12 * sc * Math.sqrt(1 - (y / 3.6) ** 2)); c.fillRect(23 - w, 50 + y, w * 2, 1); }
+    const cx = 20;
+    if (kind === 'pine') { for (let y = 42; y < 51; y++) { set(19, y, '#7a4e2a'); set(20, y, '#5a3820'); set(21, y, '#3e2614'); }
+      const top = Math.round(46 - 42 * sc), bot = 46;
+      for (let y = top; y <= bot; y++) { const f = (y - top) / (bot - top), tier = ((y - top) % 8) / 8, hw = (1 + f * 11 * sc) * (0.62 + 0.38 * tier);
+        for (let x = Math.floor(cx - hw); x <= Math.ceil(cx + hw); x++) { const nx = (x - cx + 0.5) / hw; if (Math.abs(nx) > 1) continue; let v = 0.66 - 0.42 * nx - 0.3 * tier + (hash(x >> 1, y, seed) - 0.5) * 0.3; if (Math.abs(nx) > 0.88 || tier > 0.86) v -= 0.3; set(x, y, dith(pal, v, x, y)); } }
+    } else if (kind === 'bush') { const blobs = [[20, 44, 7], [15, 46, 5], [25, 46, 5], [20, 41, 5]];
+      for (let y = 30; y < 52; y++) for (let x = 6; x < 34; x++) { let best = -1, bn = null; for (const [bx, by, br] of blobs) { const dx = x + 0.5 - bx, dy = y + 0.5 - by, q = br * br - dx * dx - dy * dy; if (q <= 0) continue; const z = Math.sqrt(q); if (z > best) { best = z; bn = [dx / br, dy / br, z / br]; } } if (!bn) continue;
+        let v = 0.1 + 0.95 * Math.max(0, -0.55 * bn[0] - 0.65 * bn[1] + 0.52 * bn[2]) + (hash(x, y, seed) - 0.5) * 0.3; if (bn[2] < 0.25) v -= 0.3; set(x, y, dith(pal, v, x, y)); }
+      for (let k = 0; k < 6; k++) set(10 + Math.floor(hash(k, seed, 1) * 20), 38 + Math.floor(hash(k, seed, 2) * 10), ['#ff5a7a', '#ffffff', '#ffd23f'][k % 3]);
+    } else { for (let y = 30; y < 51; y++) { set(19, y, '#8a5a32'); set(20, y, '#6b4424'); set(21, y, '#4a2e18'); } set(18, 50, '#6b4424'); set(22, 50, '#4a2e18');
+      const R = 11 * sc, cy = 46 - 28 * sc; const blobs = [[cx, cy, R * 0.85]];
+      for (let b = 0; b < 7; b++) { const a = hash(b, seed, 3) * 6.283, d = R * 0.42 * hash(b, seed, 4) + R * 0.28; blobs.push([cx + Math.cos(a) * d, cy + Math.sin(a) * d * 0.8, R * (0.42 + hash(b, seed, 5) * 0.22)]); }
+      for (let y = 0; y < 50; y++) for (let x = 0; x < 40; x++) { let best = -1, bn = null; for (const [bx, by, br] of blobs) { const dx = x + 0.5 - bx, dy = y + 0.5 - by, q = br * br - dx * dx - dy * dy; if (q <= 0) continue; const z = Math.sqrt(q); if (z > best) { best = z; bn = [dx / br, dy / br, z / br]; } } if (!bn) continue;
+        let v = 0.1 + 0.95 * Math.max(0, -0.55 * bn[0] - 0.65 * bn[1] + 0.52 * bn[2]); v += (hash(x >> 1, y >> 1, seed) - 0.5) * 0.26 + (hash(x, y, seed + 9) - 0.5) * 0.18; v -= clamp((y - cy) / R) * 0.15; if (bn[2] < 0.22) v -= 0.32; set(x, y, dith(pal, v, x, y)); } }
+  }); }
+const TSPR = [makeTree('round', PAL.green, 1, 1), makeTree('round', PAL.green, 2, 0.82), makeTree('round', PAL.dark, 3, 1), makeTree('round', PAL.lime, 4, 0.9), makeTree('pine', PAL.pine, 5, 1), makeTree('pine', PAL.pine, 6, 0.78), makeTree('bush', PAL.green, 7, 1)];
+function mkTile(fn) { return mk(64, 32, (c) => { for (let r = 0; r < 32; r++) { const w = r < 16 ? (r + 1) * 4 : (32 - r) * 4, x0 = 32 - w / 2; for (let x = x0; x < x0 + w; x++) { c.fillStyle = fn(x, r); c.fillRect(x, r, 1, 1); } } }); }
+const pick = (pal, wts, v) => { let a = 0; for (let k = 0; k < wts.length; k++) { a += wts[k]; if (v < a) return pal[k]; } return pal[pal.length - 1]; };
+const GRASS = [0, 1, 2, 3, 4, 5].map((s) => mkTile((x, r) => { const m = hash(x >> 1, r, s * 7 + 5), n = hash(x, r, s * 13 + 1); if (m > 0.94) return '#7cc850'; if (m < 0.06 || ((x + r * 2 + s * 5) % 11 === 0 && n > 0.6)) return '#3c8226'; return pick(['#58a838', '#62b240', '#4e9c32', '#478f2c'], [0.48, 0.2, 0.22, 0.1], n); }));
+const MEAD = [0, 1, 2, 3].map((s) => mkTile((x, r) => { const n = hash(x, r, s * 17 + 3), m = hash(x >> 1, r >> 1, s + 40); if (r % 3 === 0 && n > 0.9) return '#c8d86a'; if ((x + s) % 4 === 0 && n > 0.55) return '#4c7a26'; return pick(['#7aae3e', '#8cbc48', '#64962f', '#9cc652'], [0.42, 0.22, 0.24, 0.12], m * 0.5 + n * 0.5); }));
+const PATHS = [0, 1, 2].map((s) => { const pts = []; for (let k = 0; k < 13; k++) pts.push([hash(k, s, 21) * 64, hash(k, s, 22) * 32]); return mkTile((x, r) => { let d1 = 1e9, d2 = 1e9, id = 0; for (let k = 0; k < pts.length; k++) { const dx = x - pts[k][0], dy = (r - pts[k][1]) * 2, d = dx * dx + dy * dy; if (d < d1) { d2 = d1; d1 = d; id = k; } else if (d < d2) d2 = d; } if (Math.sqrt(d2) - Math.sqrt(d1) < 1.4) return '#9c8458'; const tone = hash(id, s, 23), n = hash(x, r, s + 30); return n < 0.1 ? '#b49c70' : tone < 0.33 ? '#cdb68c' : tone < 0.66 ? '#d8c49a' : '#c4ab80'; }); });
+const QTILE = mkTile((x, r) => ((x + r * 2) % 16 < 1 ? '#7e8792' : pick(['#a9b1ba', '#b6bdc5', '#9aa2ac'], [0.6, 0.25, 0.15], hash(x, r, 77))));
+const SAND = [0, 1, 2].map((s) => mkTile((x, r) => pick(['#e2cd92', '#ecdba6', '#d2bb80', '#c4ac72'], [0.55, 0.2, 0.18, 0.07], hash(x, r, s + 50))));
+const WATER = [0, 1, 2].map((f) => mkTile((x, r) => { const n = hash(x, r, 60 + f); if (((x + r * 2 + f * 5) % 18) < 3 && hash(x >> 2, r, f) > 0.55) return '#8cc6f4'; return pick(['#3a84d8', '#4690e0', '#3276c8'], [0.6, 0.2, 0.2], n); }));
+const SEA = [0, 1, 2].map((f) => mkTile((x, r) => { const n = hash(x, r, 70 + f); if (((x - r * 2 + f * 6) % 22) < 2 && hash(x >> 2, r, f + 5) > 0.6) return '#78aee6'; return pick(['#2a66b8', '#3270c2', '#245ca8'], [0.6, 0.2, 0.2], n); }));
+
+// ---------- world drawing primitives ----------
+function vface(i0, j0, i1, j1, h0, h1, col) { const a = SP(i0, j0, 0), b = SP(i1, j1, 0); const [l, r] = a[0] <= b[0] ? [a, b] : [b, a];
+  for (let x = l[0]; x < r[0]; x++) { const f = (x - l[0]) / ((r[0] - l[0]) || 1), y = Math.round(lerp(l[1], r[1], f)); g.fillStyle = typeof col === 'function' ? col(x - l[0], r[0] - l[0]) : col; g.fillRect(x, y - h1, 1, h1 - h0); } }
+function box(i, j, di, dj, h0, h1, cT, cL, cR) { vface(i, j + dj, i + di, j + dj, h0, h1, cL); vface(i + di, j + dj, i + di, j, h0, h1, cR); if (cT) fillPoly([SP(i, j, h1), SP(i + di, j, h1), SP(i + di, j + dj, h1), SP(i, j + dj, h1)], cT); }
+function roof(ci, cj, r, h0, h1, c, stripe) { const B = SP(ci - r, cj - r, h0), Rr = SP(ci + r, cj - r, h0), F = SP(ci + r, cj + r, h0), L = SP(ci - r, cj + r, h0), A = SP(ci, cj, h1);
+  const fan = (p, q, c1, c2) => { const n = 6; for (let k = 0; k < n; k++) fillPoly([A, [lerp(p[0], q[0], k / n), lerp(p[1], q[1], k / n)], [lerp(p[0], q[0], (k + 1) / n), lerp(p[1], q[1], (k + 1) / n)]], stripe && k % 2 ? c2 : c1); };
+  fan(B, L, shade(c, 0.15), stripe ? '#ffffff' : null); fan(B, Rr, c, stripe ? '#f0f0f0' : null); fan(L, F, c, stripe ? '#ffffff' : null); fan(F, Rr, shade(c, -0.25), stripe ? '#c8c8c8' : null); }
+const stripeFn = (c1, c2, w = 3) => (x) => (Math.floor(x / w) % 2 ? c1 : c2);
+function signItem(x, y, kind, lit) { x = Math.round(x); y = Math.round(y);
+  if (kind === 'burger') { ell(x, y - 3, 6, 2, '#c47a2a'); px(x - 6, y - 6, 12, 2, '#5a3018'); px(x - 7, y - 7, 14, 1, '#5ab83a'); ell(x, y - 10, 6, 3, '#e09a3a'); px(x - 3, y - 12, 1, 1, '#fff6d0'); px(x + 2, y - 11, 1, 1, '#fff6d0'); }
+  else if (kind === 'drink') { fillPoly([[x - 5, y - 14], [x + 5, y - 14], [x + 3, y], [x - 3, y]], '#e83a3a'); px(x - 5, y - 15, 10, 2, '#fff'); px(x - 3, y - 10, 6, 3, '#fff'); px(x + 1, y - 21, 1, 6, '#ffd23f'); px(x + 2, y - 21, 2, 1, '#ffd23f'); px(x - 4, y - 13, 1, 10, '#ff8a8a'); }
+  else if (kind === 'ice') { fillPoly([[x - 4, y - 8], [x + 4, y - 8], [x, y + 1]], '#d8a050'); line(x - 2, y - 6, x + 1, y - 3, '#b07a30'); ell(x, y - 11, 5, 4, '#ffb4d0'); px(x - 2, y - 14, 2, 2, '#fff'); px(x - 1, y - 17, 3, 2, '#ff4a6a'); }
+  else if (kind === 'chips') { px(x - 4, y - 8, 8, 8, '#e83a3a'); px(x - 4, y - 8, 8, 1, '#ff8a8a'); for (let k = 0; k < 5; k++) px(x - 4 + k * 2, y - 13 + (k % 2) * 2, 1, 6, '#ffd23f'); px(x - 2, y - 5, 4, 3, '#ffd23f'); }
+  else if (kind === 'balloon') { [[-5, -18, '#ff5a7a'], [4, -20, '#3aa0f0'], [0, -25, '#ffd23f']].forEach(([dx, dy, c]) => { line(x, y, x + dx, y + dy + 5, '#ddd'); ell(x + dx, y + dy, 3, 4, c); px(x + dx - 1, y + dy - 2, 1, 1, '#fff'); }); }
+  if (lit) { px(x - 1, y - 30, 2, 2, Math.floor(T * 6) % 2 ? '#fff6a0' : '#ffb03a'); } }
+function stall(ci, cj, kind, k) { const col = ['#e83a3a', '#2a7ad8', '#e8a020', '#16a37f', '#a050d8'][k % 5], r = 0.26;
+  box(ci - r, cj - r, 2 * r, 2 * r, 0, 12, null, stripeFn('#efe4cc', '#e6d8bc', 4), '#c8b898');
+  vface(ci - r + 0.07, cj + r, ci + r - 0.07, cj + r, 5, 10, '#3e2a18'); vface(ci - r + 0.07, cj + r, ci + r - 0.07, cj + r, 4, 5, '#ffffff');
+  box(ci - r - 0.05, cj - r - 0.05, 2 * r + 0.1, 2 * r + 0.1, 12, 15, null, stripeFn(col, '#ffffff'), stripeFn(shade(col, -0.3), '#cfcfcf'));
+  roof(ci, cj, r + 0.05, 15, 23, col, true); const [x, y] = SP(ci, cj, 23); signItem(x, y, kind, LIGHTS > 0); }
+function loo(ci, cj) { const r = 0.28; box(ci - r, cj - r, 2 * r, 2 * r, 0, 13, null, '#dfe6ee', '#aab4c0'); vface(ci - r + 0.08, cj + r, ci - 0.04, cj + r, 0, 9, '#3a6ab0'); vface(ci + 0.06, cj + r, ci + r - 0.06, cj + r, 0, 9, '#c84a7a');
+  box(ci - r - 0.04, cj - r - 0.04, 2 * r + 0.08, 2 * r + 0.08, 13, 16, '#4a7ac8', '#3a62a8', '#2a4a88'); const [x, y] = SP(ci, cj, 16); px(x - 7, y - 9, 14, 8, '#fff'); px(x - 7, y - 9, 14, 1, '#ccc'); px(x - 5, y - 8, 2, 2, '#2a5ab0'); px(x - 6, y - 6, 4, 3, '#2a5ab0'); px(x + 3, y - 8, 2, 2, '#c83a6a'); fillPoly([[x + 4, y - 6], [x + 6, y - 3], [x + 2, y - 3]], '#c83a6a'); }
+function info(ci, cj) { const r = 0.22; box(ci - r, cj - r, 2 * r, 2 * r, 0, 12, null, '#f6e7a0', '#d0bc70'); vface(ci - r + 0.05, cj + r, ci + r - 0.05, cj + r, 6, 10, '#5aa0e0'); roof(ci, cj, r + 0.08, 12, 20, '#2a6fd0', false);
+  const [x, y] = SP(ci, cj, 20); ell(x, y - 6, 5, 5, '#ffffff'); ell(x, y - 6, 4, 4, '#2a6fd0'); px(x - 1, y - 9, 2, 1, '#fff'); px(x - 1, y - 7, 2, 4, '#fff'); }
+function lamp(x, y, glow) { px(x, y - 15, 1, 15, '#2a2e34'); px(x + 1, y - 14, 1, 13, '#555b64'); px(x - 1, y - 18, 4, 3, glow > 0 ? '#fff6b0' : '#ffe680'); px(x - 1, y - 19, 4, 1, '#2a2e34'); if (glow > 0) { g.globalAlpha = 0.28 * glow; ell(x + 1, y - 16, 9, 6, '#fff2a0'); g.globalAlpha = 1; } }
+function bench(x, y) { px(x - 4, y - 5, 9, 1, '#a0703e'); px(x - 4, y - 3, 9, 2, '#8a5a32'); px(x - 4, y - 3, 9, 1, '#b8844e'); px(x - 4, y - 1, 1, 2, '#3a2a1a'); px(x + 4, y - 1, 1, 2, '#3a2a1a'); }
+function bin(x, y) { px(x - 1, y - 6, 4, 6, '#2f8a43'); px(x + 1, y - 6, 2, 6, '#22683a'); px(x - 1, y - 7, 4, 1, '#7ad04e'); }
+function flowerbed(x, y, k) { px(x - 7, y - 3, 14, 3, '#7a5232'); px(x - 7, y - 3, 14, 1, '#a8784a'); px(x - 8, y, 16, 1, '#c9c2b4'); for (let f = 0; f < 9; f++) px(x - 6 + f * 1.4, y - 5 - (f % 2), 1 + (f % 2), 2, ['#ff5a7a', '#ffd23f', '#ffffff', '#b28cff', '#ff8a4a', '#ff5a7a'][(f + k) % 6]); for (let f = 0; f < 4; f++) px(x - 5 + f * 3, y - 4, 1, 1, '#3f8a2a'); }
+function fence(i0, j0, i1, j1) { const [ax, ay] = SP(i0, j0), [bx, by] = SP(i1, j1); line(ax, ay - 6, bx, by - 6, '#b8885a'); line(ax, ay - 3, bx, by - 3, '#a8784a'); for (let k = 0; k <= 3; k++) { const x = lerp(ax, bx, k / 3), y = lerp(ay, by, k / 3); px(x, y - 9, 2, 9, '#6b4424'); px(x, y - 9, 1, 9, '#8a5a32'); px(x, y - 10, 2, 1, '#c79a62'); } }
+function rail(i0, j0, i1, j1) { const [ax, ay] = SP(i0, j0), [bx, by] = SP(i1, j1); line(ax, ay - 6, bx, by - 6, '#e8ecf0'); line(ax, ay - 5, bx, by - 5, '#8a929c'); for (let k = 0; k <= 2; k++) px(lerp(ax, bx, k / 2), lerp(ay, by, k / 2) - 6, 1, 6, '#4a4f56'); }
+const HAIR = ['#3a2a1a', '#6b4424', '#e0c070', '#1a1a1a', '#a0522d', '#d8d0c0'], PANTS = ['#2c3e66', '#3a3a3a', '#5a4a3a', '#2a5a3a', '#6a4a7a'], SKINS = ['#f0c8a0', '#a8714b', '#6b4a33', '#e8b88a'], SHIRTS = ['#ff5a4a', '#3aa0f0', '#ffc83d', '#a46cf0', '#16c79a', '#ff8fc0', '#ffffff', '#ff8a3a'];
+function peep(x, y, k, ph, cheer) { x = Math.round(x); y = Math.round(y); const shirt = SHIRTS[k % 8], skin = SKINS[k % 4], hair = HAIR[k % 6], pants = PANTS[k % 5];
+  if (cheer) y -= Math.round(Math.abs(Math.sin(ph * 0.7)) * 4); const st = Math.floor(ph) % 2;
+  px(x - 1, y - 6, 3, 1, pants); px(x - 1, y - 5, 1, st && !cheer ? 4 : 5, pants); px(x + 1, y - 5, 1, st && !cheer ? 5 : 4, pants); px(x - 1 - (st && !cheer ? 1 : 0), y - 1, 2, 1, '#222'); px(x + 1, y - 1 + (st || cheer ? 0 : 0), 2, 1, '#222');
+  px(x - 2, y - 11, 5, 5, shirt); px(x + 2, y - 11, 1, 5, shade(shirt, -0.3)); px(x - 2, y - 11, 1, 5, shade(shirt, 0.25));
+  if (cheer) { px(x - 3, y - 15, 1, 4, skin); px(x + 3, y - 15, 1, 4, skin); } else { px(x - 3, y - 11, 1, 3, shirt); px(x - 3, y - 8, 1, 1, skin); px(x + 3, y - 11, 1, 3, shade(shirt, -0.3)); px(x + 3, y - 8, 1, 1, skin); }
+  px(x - 1, y - 14, 3, 3, skin); px(x - 1, y - 15, 3, 1, hair); px(x - 1, y - 14, 1, 1, hair); px(x + 1, y - 13, 1, 1, '#2a1a10'); }
+const DEERMAP = ['..........A.A...', '..........AA.A..', '...........AA...', '..........DBBK..', '..........BBBBK.', '..........LBB...', '.........LBB....', '..WLLLLLLBBB....', '.WLBBBBBBBBB....', '..BBBBBBBBBB....', '..DBBBBBBBBD....', '...DWWWWWWD.....', '...B.B...B.B....', '...B.B...B.B....', '...D.D...D.D....', '...K.K...K.K....'];
+const DEERRUN = ['..B......B......', '.B........B.....', 'D..........D....', 'K...........K...'];
+const DPAL = { A: '#e0d0a8', B: '#a8683a', D: '#7a4626', L: '#c8925a', W: '#f4ece0', K: '#2a1a10' };
+function deer(x, y, run, flip) { const rows = run ? [...DEERMAP.slice(0, 12), ...DEERRUN] : DEERMAP; pmap(x - 8, y - 16, rows, DPAL, flip, '#3a2412'); }
+const RABBIT = ['.......B.B..', '.......BPBP.', '.......BPBP.', '......BBBBB.', '......BBBKBB', '.BBBBBBBBBBP', 'WBBBBBBBBBB.', 'WBLLLBBBBB..', '.BBBBBBBBB..', '..DD...DD...'];
+const RPAL = { B: '#8a7462', L: '#e8dcc8', D: '#4e3e30', P: '#ff9aa8', W: '#ffffff', K: '#111111' };
+function rabbit(x, y, flip) { pmap(x - 6, y - 10, RABBIT, RPAL, flip, '#1e160e'); }
+const BIRD = ['.YY..', 'BYKYO', 'BBBB.', '.D.D.'];
+const BPAL = { Y: '#ffe060', B: '#3a7ad8', K: '#111', O: '#f2a33a', D: '#333' };
+const DUCK = ['....GG.', '....GKO', 'WWWWWW.', '.WWWW..'];
+const DUPAL = { G: '#2f8a4a', K: '#111', O: '#f2a33a', W: '#ffffff' };
+function heart(x, y) { const q = (dx, dy, w, h) => px(x + dx * 2, y + dy * 2, w * 2, h * 2, '#ff5a7a'); q(0, 0, 2, 1); q(3, 0, 2, 1); q(0, 1, 5, 1); q(1, 2, 3, 1); q(2, 3, 1, 1); }
+const S = (x, y) => (dx, dy, w, h, c) => px(x + dx * 2, y + dy * 2, w * 2, h * 2, c);
+function wheel(x, y, t, lit) { const R = 34, hy = y - 58; line(x - 22, y, x, hy, '#7a8088'); line(x + 22, y, x, hy, '#7a8088'); line(x - 21, y, x + 1, hy, '#aab0b8'); line(x + 21, y, x + 1, hy, '#5a6068'); px(x - 26, y - 2, 52, 3, '#6b7078');
+  for (let k = 0; k < 36; k++) { const a = k / 36 * 6.283; px(x + Math.cos(a) * R, hy + Math.sin(a) * R, 2, 2, lit && (k + Math.floor(t * 8)) % 3 === 0 ? '#fff6a0' : '#d0d6dc'); }
+  for (let k = 0; k < 8; k++) { const a = k / 8 * 6.283 + t * 0.5; const cx = x + Math.cos(a) * R, cy = hy + Math.sin(a) * R; line(x, hy, cx, cy, '#aeb6be'); const c = ['#ff5a4a', '#ffc83d', '#3aa0f0', '#16c79a'][k % 4]; px(cx - 5, cy + 1, 10, 7, c); px(cx - 5, cy + 6, 10, 1, shade(c, -0.35)); px(cx - 4, cy + 2, 8, 2, '#ffffffaa'); px(cx, cy, 1, 2, '#555'); }
+  ell(x, hy, 3, 3, '#ffd23f'); }
+function gate(x, y, t) { const q = S(x, y);
+  q(-24, -24, 4, 24, '#7a5232'); q(20, -24, 4, 24, '#7a5232'); q(-24, -24, 1, 24, '#a07448'); q(20, -24, 1, 24, '#a07448');
+  q(-23, -34, 1, 10, '#3a3f46'); q(21, -34, 1, 10, '#3a3f46'); const fl = Math.floor(t * 4) % 2; q(-22, -34, 5 + fl, 3, '#ff5a4a'); q(22, -34, 5 + fl, 3, '#ffd23f');
+  q(-27, -33, 54, 11, '#0c5a48'); q(-26, -32, 52, 9, '#16a37f'); q(-26, -32, 52, 1, '#5fe0b8'); q(-26, -24, 52, 1, '#0c6a52');
+  for (let k = 0; k < 14; k++) px(x - 50 + k * 7.6, y - 66, 2, 2, LIGHTS > 0 && (k + Math.floor(t * 8)) % 2 ? '#fff6a0' : '#e8c060');
+  txt('ISLAND PARK', x, y - 51, '#ffffff', 'Silk', 8, 'center'); txt('ISLAND PARK', x, y - 52, '#ffffff', 'Silk', 8, 'center');
+  q(-36, -10, 9, 10, '#f1ebe0'); q(-37, -13, 11, 3, '#ff5a4a'); q(-34, -8, 5, 3, '#3a6a9a'); }
+function carousel(ci, cj, t, lit) { const [x, y] = SP(ci, cj, 0); ell(x, y - 1, 24, 12, '#a89878'); ell(x, y - 3, 24, 12, '#efe4cc'); ell(x, y - 3, 20, 10, '#e2d4b4');
+  const items = []; for (let k = 0; k < 8; k++) { const a = k / 8 * 6.283 + t * 1.3; items.push([Math.sin(a), Math.cos(a) * 17, Math.sin(a) * 8, k]); } items.sort((a, b) => a[0] - b[0]);
+  const drawH = ([, dx, dy, k]) => { const hx = Math.round(x + dx), hy = Math.round(y - 3 + dy - 6 - Math.sin(t * 4 + k) * 2); px(hx, y - 40 + Math.round(dy), 1, hy - (y - 40 + Math.round(dy)), '#e0c050'); const c = ['#ffffff', '#c86a3a', '#4a4a4a', '#e8d0a0'][k % 4]; px(hx - 4, hy, 8, 3, c); px(hx + 3, hy - 3, 2, 4, c); px(hx + 4, hy - 3, 2, 1, shade(c, -0.4)); px(hx - 4, hy + 3, 1, 3, c); px(hx + 3, hy + 3, 1, 3, c); px(hx - 1, hy - 2, 2, 2, SHIRTS[k % 8]); };
+  items.filter((a) => a[0] < 0).forEach(drawH); px(x - 2, y - 44, 4, 41, '#d4b040'); px(x - 2, y - 44, 1, 41, '#f0d870'); items.filter((a) => a[0] >= 0).forEach(drawH);
+  for (let r = 0; r < 14; r++) { const hw = 3 + r * 1.75, yy = y - 56 + r; for (let xx = -Math.floor(hw); xx < hw; xx++) { const s = Math.floor((xx / hw + 1) * 5 + t * 1.3) % 2; px(x + xx, yy, 1, 1, shade(s ? '#ff6eae' : '#fff2e0', xx > 0 ? -0.2 * xx / hw : 0.12)); } }
+  for (let k = -26; k < 26; k += 4) { px(x + k, y - 42, 4, 3, (k / 4) % 2 ? '#ffd23f' : '#ff6eae'); if (lit && (k / 4 + Math.floor(t * 8)) % 2) px(x + k + 1, y - 40, 2, 2, '#fffbd0'); } px(x - 1, y - 62, 2, 6, '#3a3f46'); px(x + 1, y - 62, 5, 3, '#ffd23f'); }
+function dropTower(ci, cj, t, lit) { box(ci - 0.75, cj - 0.75, 1.5, 1.5, 0, 2, '#8fcf6a', '#6a9a4a', '#4a7a32'); for (let k = 0; k < 4; k++) { const a = k * 1.5708 + 0.785; fence(ci + Math.cos(a) * 1.0, cj + Math.sin(a) * 1.0, ci + Math.cos(a + 1.5708) * 1.0, cj + Math.sin(a + 1.5708) * 1.0); } ell(SP(ci, cj)[0], SP(ci, cj)[1], 22, 11, '#d8c8a0'); box(ci - 0.35, cj - 0.35, 0.7, 0.7, 0, 5, '#e83a3a', '#c02a1a', '#8a1a10'); const [x, yb] = SP(ci, cj, 5), Hh = 150;
+  for (let k = 0; k < Hh; k++) { px(x - 3, yb - k, 2, 1, '#eef1f4'); px(x - 1, yb - k, 2, 1, '#b8bec6'); px(x + 1, yb - k, 2, 1, '#7a8088'); if (k % 6 === 0) px(x - 4, yb - k, 8, 1, '#5a6068'); }
+  for (let k = 0; k < Hh; k += 24) px(x - 3, yb - k - 12, 6, 2, '#e83a3a');
+  px(x - 7, yb - Hh - 8, 14, 8, '#d03a2a'); px(x - 7, yb - Hh - 8, 14, 2, '#ff7a5a'); px(x - 1, yb - Hh - 16, 2, 8, '#3a3f46'); px(x - 1, yb - Hh - 18, 3, 3, (Math.floor(t * 2) % 2 || lit) ? '#ff3a2a' : '#7a1a12');
+  const cyc = (t + 1.2) % 6; let hh; if (cyc < 3.2) hh = lerp(8, 130, eio(cyc / 3.2)); else if (cyc < 4.0) hh = 130; else if (cyc < 4.5) hh = lerp(130, 8, ((cyc - 4.0) / 0.5) ** 2); else hh = 8;
+  const gy = Math.round(yb - hh), screaming = cyc >= 4.0 && cyc < 4.6;
+  for (let s = 0; s < 6; s++) { const sx = x - 13 + s * 5 + (s >= 3 ? 1 : 0); px(sx, gy - 6, 3, 4, SKINS[s % 4]); if (screaming) { px(sx, gy - 10, 1, 3, SKINS[s % 4]); px(sx + 2, gy - 10, 1, 3, SKINS[s % 4]); } px(sx, gy + 1, 1, 4, PANTS[s % 5]); px(sx + 2, gy + 1, 1, 4, PANTS[s % 5]); }
+  px(x - 14, gy - 3, 29, 5, '#ffc83d'); px(x - 14, gy - 3, 29, 1, '#fff2a0'); px(x + 4, gy - 3, 11, 5, '#d8a020'); px(x - 4, gy - 4, 8, 7, '#3a3f46'); }
+function ship(ci, cj, t) { const P = SP(ci, cj, 58), th = 0.95 * Math.sin(t * 1.5), cs = Math.cos(th), sn = Math.sin(th);
+  const proj = (s, z, off) => { const rs = s * cs - z * sn, rz = s * sn + z * cs; return [P[0] + rs * 0.894 - off * 32, P[1] + rs * 0.447 - rz + off * 16]; };
+  const frameA = (off) => { const top = SP(ci, cj + off, 58), l = SP(ci - 1.0, cj + off, 0), r = SP(ci + 1.0, cj + off, 0); line(l[0], l[1], top[0], top[1], '#3a3f46'); line(l[0] + 1, l[1], top[0] + 1, top[1], '#6a7078'); line(r[0], r[1], top[0], top[1], '#3a3f46'); line(r[0] - 1, r[1], top[0] - 1, top[1], '#555b64'); };
+  frameA(-0.55);
+  const hull = [[-30, -38], [30, -38], [22, -50], [-22, -50]];
+  [-0.4, 0.4].forEach((off) => { line(...proj(0, 0, off * 0.9), ...proj(-26, -38, off), '#8a929c'); line(...proj(0, 0, off * 0.9), ...proj(26, -38, off), '#8a929c'); });
+  fillPoly(hull.map(([s, z]) => proj(s, z, -0.4)), '#7a2a1a'); fillPoly([proj(-30, -38, -0.4), proj(30, -38, -0.4), proj(30, -38, 0.4), proj(-30, -38, 0.4)], '#a8784a');
+  for (let k = 0; k < 5; k++) { const p = proj(-20 + k * 10, -38, 0); px(p[0] - 1, p[1] - 4, 3, 3, SKINS[k % 4]); px(p[0] - 1, p[1] - 5, 3, 1, HAIR[k % 6]); if (Math.abs(th) > 0.6) { px(p[0] - 2, p[1] - 8, 1, 3, SKINS[k % 4]); px(p[0] + 2, p[1] - 8, 1, 3, SKINS[k % 4]); } }
+  fillPoly(hull.map(([s, z]) => proj(s, z, 0.4)), '#c0392b'); fillPoly([proj(-27, -42, 0.4), proj(27, -42, 0.4), proj(25, -45, 0.4), proj(-25, -45, 0.4)], '#ffd23f'); const m0 = proj(0, -38, 0), m1 = proj(0, -8, 0); line(m0[0], m0[1], m1[0], m1[1], '#5a3a20'); fillPoly([proj(1, -12, 0), proj(14, -22, 0), proj(1, -34, 0)], '#f4ece0');
+  ell(P[0], P[1], 2, 2, '#ffd23f'); frameA(0.55); }
+function teacups(ci, cj, t) { const [x, y] = SP(ci, cj, 0); ell(x, y, 30, 15, '#8a80a8'); ell(x, y - 2, 30, 15, '#d8d0ec'); ell(x, y - 2, 6, 3, '#a898d0');
+  const cups = []; for (let k = 0; k < 4; k++) { const a = k / 4 * 6.283 + t * 0.9; cups.push([Math.sin(a), x + Math.cos(a) * 18, y - 2 + Math.sin(a) * 8, k]); } cups.sort((a, b) => a[0] - b[0]);
+  cups.forEach(([, cx, cy, k]) => { const c = ['#ff6eae', '#3aa0f0', '#ffd23f', '#16c79a'][k]; ell(cx, cy - 2, 7, 4, shade(c, -0.25)); ell(cx, cy - 4, 7, 3, c); ell(cx, cy - 5, 5, 2, '#3a2a3a'); const sp = t * 5 + k; px(cx + Math.cos(sp) * 3 - 1, cy - 8, 3, 3, SKINS[k]); px(cx - Math.cos(sp) * 3 - 1, cy - 8, 3, 3, SKINS[(k + 2) % 4]); px(cx + 6, cy - 5, 2, 3, c); }); }
+
+// ---------- UI (retro bevelled windows) ----------
+function win(x, y, w, h, title, tc = '#2a6fb0') {
+  x = Math.round(x); y = Math.round(y);
+  px(x + 3, y + 3, w, h, '#00000055'); px(x - 1, y - 1, w + 2, h + 2, '#1a1c20'); px(x, y, w, h, '#b9bec6');
+  px(x, y, w, 1, '#ffffff'); px(x, y, 1, h, '#ffffff'); px(x + 1, y + 1, w - 2, 1, '#e2e6ea'); px(x + 1, y + 1, 1, h - 2, '#e2e6ea');
+  px(x + w - 1, y, 1, h, '#4a4f56'); px(x, y + h - 1, w, 1, '#4a4f56'); px(x + w - 2, y + 1, 1, h - 2, '#80868e'); px(x + 1, y + h - 2, w - 2, 1, '#80868e');
+  if (title) { px(x + 3, y + 3, w - 6, 11, tc); px(x + 3, y + 3, w - 6, 1, '#ffffff55'); px(x + 3, y + 13, w - 6, 1, '#00000055');
+    txt(title, x + 7, y + 12, '#00000088', 'Silk', 8); txt(title, x + 6, y + 11, '#fff', 'Silk', 8);
+    const bx = x + w - 15, by = y + 4; px(bx, by, 11, 9, '#c8ccd2'); px(bx, by, 11, 1, '#fff'); px(bx, by, 1, 9, '#fff'); px(bx + 10, by, 1, 9, '#4a4f56'); px(bx, by + 8, 11, 1, '#4a4f56');
+    for (let k = 0; k < 5; k++) { px(bx + 3 + k, by + 2 + k, 1, 1, '#2a1a1a'); px(bx + 7 - k, by + 2 + k, 1, 1, '#2a1a1a'); }
+    px(x + 3, y + 16, w - 6, 1, '#80868e'); px(x + 3, y + 16, 1, h - 19, '#80868e'); px(x + 3, y + h - 4, w - 6, 1, '#ffffff'); px(x + w - 4, y + 16, 1, h - 19, '#ffffff'); }
+}
+function txt(s, x, y, c = '#111', f = 'Silk', size = 8, align = 'left') { g.font = `${size}px ${f}`; g.textAlign = align; g.fillStyle = c; g.fillText(s, Math.round(x), Math.round(y)); }
+function txtS(s, x, y, c, f = 'P2P', size = 8, align = 'left') { txt(s, x + 1, y + 1, '#00000088', f, size, align); txt(s, x, y, c, f, size, align); }
+function txtO(s, x, y, c, f = 'P2P', size = 8, align = 'left', o = '#1a1020') { for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1], [-1, -1], [1, 1], [1, -1], [-1, 1], [2, 2]]) txt(s, x + dx, y + dy, o, f, size, align); txt(s, x, y, c, f, size, align); }
+function bar(x, y, w, v, c) { px(x, y, w, 5, '#4a4f56'); px(x + 1, y + 1, Math.round((w - 2) * clamp(v)), 3, c); }
+function button(x, y, w, h, label, on) { px(x, y, w, h, on ? '#ffe680' : '#d6dae0'); px(x, y, w, 1, '#fff'); px(x, y, 1, h, '#fff'); px(x + w - 1, y, 1, h, '#5a5f66'); px(x, y + h - 1, w, 1, '#5a5f66'); txt(label, x + 6, y + h / 2 + 3, '#111', 'Silk', 8); }
+// speech (animals, red) and thought (guests) bubbles: Press Start 8 px, kept inside the frame
+function bubble(x, y, s, red, thought) { g.font = '8px P2P'; const w = Math.ceil(g.measureText(s).width) + 10, h = 15; x = Math.round(x); y = Math.round(y);
+  const bx = Math.round(clamp(x - w / 2, 8, W - w - 8)), by = Math.round(Math.max(20, y - h - (thought ? 12 : 8))); const bg = red ? '#ffe2dc' : '#ffffff', ed = red ? '#8a1a10' : '#222';
+  px(bx + 2, by + 2, w, h, '#00000055'); px(bx - 1, by, w + 2, h, ed); px(bx, by - 1, w, h + 2, ed); px(bx, by, w, h, bg);
+  const tx = clamp(x, bx + 6, bx + w - 6);
+  if (thought) { ell(tx, by + h + 4, 2, 2, ed); ell(tx, by + h + 4, 1, 1, bg); px(tx + 2, by + h + 8, 2, 2, ed); }
+  else { for (let r = 0; r < 6; r++) { const ww = Math.max(1, 6 - r); px(tx - Math.floor(ww / 2) - 1, by + h + r - 1, ww + 2, 1, ed); px(tx - Math.floor(ww / 2), by + h + r - 1, ww, 1, bg); } }
+  txt(s, bx + 5, by + 12, red ? '#a01808' : '#111', 'P2P', 8); }
+
+// ---------- timeline ----------
+function focus(t) {
+  const keys = [[0, 13.2, 15.6], [3.5, 7.2, 6.4], [7.0, 9, 10], [8.8, 11.5, 10.2], [11.2, 12.2, 9.4], [13.4, 12, 10], [15.4, 11, 9.5], [20.8, 11, 9.5], [22.6, 12.6, 9.2], [24.8, 12.0, 9.4], [27.6, 9.8, 9.6], [30, 8.6, 9.0]];
+  let k = 0; while (k < keys.length - 1 && t > keys[k + 1][0]) k++; const a = keys[k], b = keys[Math.min(k + 1, keys.length - 1)];
+  const lin = k === 0 || k === keys.length - 2; const u = clamp((t - a[0]) / (b[0] - a[0] || 1)); const f = b === a ? 0 : k === 0 ? 1 - Math.pow(1 - u, 2) : lin ? u : eio(u); return [lerp(a[1], b[1], f), lerp(a[2], b[2], f)];
+}
+let T = 0, LIGHTS = 0;
+const FW = [[25.6, 150, 70, '#ffd23f', 0.7], [26.3, 470, 60, '#ff5a7a', 0.7], [27.0, 330, 50, '#7ae06a', 0.7], [27.7, 110, 80, '#ffd23f', 1], [28.0, 530, 70, '#ff5a7a', 1], [28.15, 320, 40, '#5ac8ff', 1], [28.45, 210, 60, '#b28cff', 1], [28.8, 440, 50, '#7ae06a', 1], [29.1, 90, 50, '#ff8a3a', 1], [29.4, 560, 60, '#ffffff', 1], [29.6, 300, 70, '#ffd23f', 1]];
+function frame(t) {
+  T = t; LIGHTS = prog(t, 27.6, 28.0);
+  const [fi, fj] = focus(t); OX = Math.round(W / 2 - (fi - fj) * 32); OY = Math.round(H / 2 - (fi + fj) * 16 + 10);
+  const pathSet = new Set(BASEPATH.map(([i, j]) => key(i, j)));
+  // story clock: s runs the first attempt; the rewind plays it backwards to June, then the second attempt runs on t
+  const RW0 = 19.5, RW1 = 20.7, rewinding = t >= RW0 && t < RW1, P2 = t >= RW1;
+  const s = t < RW0 ? t : rewinding ? lerp(13.6, 7.0, eio(prog(t, RW0, RW1))) : 7.0;
+  const cutOn = s >= 7.4, cutK = prog(s, 7.4, 9.4);
+  const trample = prog(s, 9.6, 12.8);
+  const trampled = (i, j, f) => trample > 0 && meadow(i, j) && Math.abs(i - 12) <= 1 && hash(i, j, f + 70) < trample * 1.05;
+  const rk = prog(t, 21.0, 22.8);
+  if (t >= 21.0) reroute.forEach(([i, j], k) => { if (k / reroute.length < rk) pathSet.add(key(i, j)); });
+  if (t >= 21.0 && t < 22.9) { const kk = clamp(rk * reroute.length, 0, reroute.length - 1); const [bi, bj] = reroute[Math.floor(kk)]; window.__bld = SP(bi, bj); } else window.__bld = null;
+  if (cutOn) cutPath.forEach(([i, j], k) => { if (k / cutPath.length < cutK) pathSet.add(key(i, j)); });
+  const isPath = (i, j) => pathSet.has(key(i, j)) || queueSet.has(key(i, j));
+  // ---- sea ----
+  g.fillStyle = '#2a66b8'; g.fillRect(0, 0, W, H); const sf = Math.floor(t * 2.5);
+  for (let i = Math.floor(fi - 25); i <= fi + 25; i++) for (let j = Math.floor(fj - 25); j <= fj + 25; j++) { if (LAND(i, j)) continue; const [x, y] = SP(i, j); if (x < -40 || x > W + 40 || y < -60 || y > H) continue; g.drawImage(SEA[(sf + i * 2 + j) % 3], x - 32, y + 20); }
+  // ---- land tiles ----
+  for (let s2 = -6; s2 <= 44; s2++) for (let i = -3; i <= 22; i++) {
+    const j = s2 - i; if (j < -3 || j > 22 || !LAND(i, j)) continue;
+    const [x, y] = SP(i, j); if (x < -40 || x > W + 40 || y < -40 || y > H + 4) continue;
+    if (!LAND(i, j + 1)) cliffL(x, y); if (!LAND(i + 1, j)) cliffR(x, y);
+    const kk = key(i, j), isP = pathSet.has(kk), isQ = queueSet.has(kk), isPond = pond(i, j), isM = meadow(i, j), v = Math.floor(hash(i, j, 3) * 6);
+    const spr = isPond ? WATER[(Math.floor(t * 3) + i + j) % 3] : isP ? PATHS[v % 3] : isQ ? QTILE : sandy(i, j) ? SAND[v % 3] : isM ? MEAD[v % 4] : GRASS[v];
+    g.drawImage(spr, x - 32, y);
+    if (isP || isQ) tEdges(x, y, [!isPath(i - 1, j), !isPath(i, j - 1), !isPath(i, j + 1), !isPath(i + 1, j)], isQ ? '#6a727c' : '#8c744c');
+    else if (isPond) tEdges(x, y, [!pond(i - 1, j), !pond(i, j - 1), !pond(i, j + 1), !pond(i + 1, j)], '#c8b070');
+    if (isM && !isP) for (let f = 0; f < 7; f++) { const fx = x - 14 + hash(i, j, f) * 28, fy = y + 6 + hash(i, j, f + 9) * 18; if (trampled(i, j, f)) { px(fx - 1, fy + 1, 4, 1, '#9a7a44'); px(fx, fy, 2, 1, '#7a5a30'); } else { px(fx, fy + 1, 1, 2, '#3f7a22'); px(fx, fy, 2, 2, ['#ffffff', '#ffd23f', '#ff8fc0', '#b28cff', '#ffffff', '#ffd23f', '#ff6a5a'][f]); } }
+    if (!isP && isM && Math.abs(i - 12) <= 1 && trample > 0) for (let f = 0; f < 9; f++) { if (hash(i, j, f + 90) > trample) continue; const dx = hash(i, j, f + 91) * 30 - 15, dy = hash(i, j, f + 92) * 16 + 8; px(x + dx, y + dy, 4, 2, f % 2 ? '#b89c62' : '#a08048'); }
+    if (cutOn && i === 12 && isP) { const k = cutPath.findIndex(([a, b]) => a === i && b === j) / cutPath.length; if (Math.abs(k - cutK) < 0.08) { px(x - 2, y + 6 - (t * 30 % 10), 4, 4, '#fff'); px(x + 6, y + 10 - (t * 24 % 8), 3, 3, '#fff8'); } }
+  }
+  // ---- objects (painter's order by i + j) ----
+  const objs = []; const add = (d, f) => objs.push([d, f]);
+  const onScreen = (i, j, m = 80) => { const [x, y] = SP(i, j); return x > -m && x < W + m && y > -20 && y < H + 200; };
+  TREES.forEach(([i, j, k]) => { if (onScreen(i, j)) add(i + j, () => { const [x, y] = SP(i, j); g.drawImage(TSPR[k], x - 20, y - 50); }); });
+  treesNew.forEach(([i, j], k) => { const gk = prog(t, 22.8 + k * 0.3, 23.5 + k * 0.3); if (gk > 0 && P2) add(i + j, () => { const [x, y] = SP(i, j); const sc = 0.3 + 0.7 * eob(gk), sp = TSPR[k % 2 ? 4 : 0]; g.drawImage(sp, Math.round(x - 20 * sc), Math.round(y - 50 * sc), Math.round(40 * sc), Math.round(54 * sc)); }); });
+  STALLS.forEach(([i, j, kind], k) => { if (onScreen(i, j)) add(i + j + 0.3, () => stall(i, j, kind, k)); });
+  LOOS.forEach(([i, j]) => { if (onScreen(i, j)) add(i + j + 0.3, () => loo(i, j)); });
+  INFOS.forEach(([i, j]) => { if (onScreen(i, j)) add(i + j + 0.3, () => info(i, j)); });
+  if (onScreen(...TOWER, 120)) add(TOWER[0] + TOWER[1] + 0.8, () => dropTower(...TOWER, t, LIGHTS > 0));
+  add(WHEEL[0] + WHEEL[1] + 0.2, () => { const [x, y] = SP(...WHEEL); wheel(x, y, t, LIGHTS > 0); });
+  add(CAROUSEL[0] + CAROUSEL[1] + 0.6, () => carousel(...CAROUSEL, t, LIGHTS > 0));
+  add(SHIP[0] + SHIP[1] + 0.6, () => ship(...SHIP, t));
+  add(CUPS[0] + CUPS[1] + 0.7, () => teacups(...CUPS, t));
+  add(15.4 + 17.6, () => { const [x, y] = SP(15.4, 17.6); gate(x, y, t); });
+  // coaster: twin rails, cross-ties, lattice supports; station with roof
+  TRACK.forEach((p, k) => { const q = TRACK[(k + 1) % TRACK.length]; if (!onScreen(p.i, p.j, 120)) return; add(p.i + p.j - 0.25, () => {
+    const L0 = SP(p.i + p.pi, p.j + p.pj, p.h), R0 = SP(p.i - p.pi, p.j - p.pj, p.h), L1 = SP(q.i + q.pi, q.j + q.pj, q.h), R1 = SP(q.i - q.pi, q.j - q.pj, q.h);
+    if (k % 3 === 0 && p.h > 14 && !(p.i > 9 && p.j > 3.6 && p.j < 6.8)) { const lg = SP(p.i + p.pi, p.j + p.pj, 0), rg = SP(p.i - p.pi, p.j - p.pj, 0);
+      line(L0[0], L0[1] + 3, lg[0], lg[1], '#eef1f4'); line(R0[0], R0[1] + 3, rg[0], rg[1], '#b8bec6');
+      for (let yy = 6; yy < p.h - 4; yy += 9) { line(L0[0], L0[1] + yy, R0[0], R0[1] + yy + 9, '#a0a8b0'); line(R0[0], R0[1] + yy, L0[0], L0[1] + yy + 9, '#a0a8b0'); }
+      px(lg[0] - 1, lg[1] - 1, 3, 2, '#8a8a8a'); px(rg[0] - 1, rg[1] - 1, 3, 2, '#8a8a8a'); }
+    line(L0[0], L0[1] + 2, R0[0], R0[1] + 2, '#4a4f56'); const m0 = SP(p.i, p.j, p.h - 3), m1 = SP(q.i, q.j, q.h - 3); line(m0[0], m0[1], m1[0], m1[1], '#9a2a1a');
+    if (p.lift && k % 2) px((L0[0] + R0[0]) / 2, (L0[1] + R0[1]) / 2, 1, 1, '#222');
+    line(L0[0], L0[1] + 1, L1[0], L1[1] + 1, '#8a1e12'); line(R0[0], R0[1] + 1, R1[0], R1[1] + 1, '#8a1e12'); line(L0[0], L0[1], L1[0], L1[1], '#ff5a3a'); line(R0[0], R0[1], R1[0], R1[1], '#e83a24'); }); });
+  add(9.9 + 6.7, () => { box(9.1, 4.0, 0.8, 2.6, 0, 5, '#c9a06a', '#a8784a', '#8a5a32'); for (const [a, b] of [[9.12, 4.3], [9.12, 6.3], [9.88, 4.3], [9.88, 6.3]]) { const [x, y] = SP(a, b, 5); px(x, y - 15, 1, 15, '#5a3a20'); } box(9.05, 4.25, 0.9, 2.1, 20, 22, null, stripeFn('#d03a2a', '#ffffff', 4), stripeFn('#9a2a1a', '#c8c8c8', 4)); fillPoly([SP(9.05, 4.25, 22), SP(9.95, 4.25, 22), SP(9.5, 4.25, 27), ], '#e04a3a'); fillPoly([SP(9.05, 4.25, 22), SP(9.5, 4.25, 27), SP(9.5, 6.35, 27), SP(9.05, 6.35, 22)], '#e85a4a'); fillPoly([SP(9.5, 4.25, 27), SP(9.95, 4.25, 22), SP(9.95, 6.35, 22), SP(9.5, 6.35, 27)], '#a8281a'); });
+  { const tau = t * TRACK.tot / 9.5; for (let c = 0; c < 4; c++) { const p = atTime(TRACK, tau - c * 0.16); add(p.i + p.j - 0.1, () => { const [x, y] = SP(p.i, p.j, p.h); const col = ['#ffc83d', '#3aa0f0', '#16c79a', '#a46cf0'][c]; px(x - 5, y - 4, 10, 5, col); px(x - 5, y, 10, 1, shade(col, -0.4)); px(x - 5, y - 4, 10, 1, shade(col, 0.4)); const steep = TRACK[p.k].h - TRACK[(p.k + 2) % TRACK.length].h > 2; px(x - 3, y - 7, 2, 3, SKINS[c]); px(x + 1, y - 7, 2, 3, SKINS[c + 1]); if (steep) { px(x - 4, y - 10, 1, 3, SKINS[c]); px(x + 3, y - 10, 1, 3, SKINS[c + 1]); } }); } }
+  // log flume trough, supports, logs and splash
+  FLUME.forEach((p, k) => { if (!onScreen(p.i, p.j, 60)) return; add(p.i + p.j - 0.2, () => { const r = 0.3;
+    if (p.h > 10 && k % 2 === 0) { const [a0, a1] = SP(p.i - r, p.j + r, 0), [b0, b1] = SP(p.i + r, p.j + r, 0); px(a0, a1 - p.h + 6, 1, p.h - 6, '#6b4424'); px(b0, b1 - p.h + 6, 1, p.h - 6, '#4a2e18'); line(a0, a1 - p.h + 8, b0, b1 - 2, '#7a5232'); }
+    box(p.i - r, p.j - r, 2 * r, 2 * r, p.h - 6, p.h, '#a8784a', '#8a5a32', '#6b4424'); const q = FLUME[(k + 1) % FLUME.length], alJ = Math.abs(q.j - p.j) >= Math.abs(q.i - p.i), ei = alJ ? 0.1 : 0, ej = alJ ? 0 : 0.1; fillPoly([SP(p.i - r + ei, p.j - r + ej, p.h), SP(p.i + r - ei, p.j - r + ej, p.h), SP(p.i + r - ei, p.j + r - ej, p.h), SP(p.i - r + ei, p.j + r - ej, p.h)], (k + Math.floor(t * 8)) % 6 ? '#4a9ae8' : '#8ac8fa'); }); });
+  add(18.0 + 4.6, () => { for (const [a, b] of [[17.05, 3.0], [18.95, 3.0], [17.05, 4.4], [18.95, 4.4]]) { const [x, y] = SP(a, b, 0); px(x, y - 20, 1, 20, '#5a3a20'); } box(17.0, 2.95, 2.0, 1.5, 18, 21, '#2f9a5a', stripeFn('#2f9a5a', '#ffffff', 4), '#1f6a3a'); });
+  { const tau = t * FLUME.tot / 7; for (let c = 0; c < 3; c++) { const p = atTime(FLUME, tau - c * FLUME.tot / 3); add(p.i + p.j - 0.1, () => { const [x, y] = SP(p.i, p.j, p.h + 1); px(x - 6, y - 4, 12, 4, '#8a5a32'); px(x - 6, y - 4, 12, 1, '#b8844e'); px(x - 4, y - 7, 3, 3, SKINS[c]); px(x + 1, y - 7, 3, 3, SKINS[c + 1]); });
+    const d = FLUME[p.k]; if (!d.drop && FLUME[(p.k - 3 + FLUME.length) % FLUME.length].drop) { add(18.5 + 8.4 + 0.2, () => { const [x, y] = SP(18.5, 8.2, 8); for (let s3 = 0; s3 < 12; s3++) { const a = s3 / 12 * 3.14, r = 6 + hash(s3, Math.floor(t * 10)) * 10; px(x + Math.cos(a) * r * 1.4, y - Math.sin(a) * r, 2, 2, s3 % 2 ? '#ffffff' : '#bfe4ff'); } }); } } }
+  // ---- guests ----
+  const guests = P2 ? Math.round(lerp(12, 52, prog(t, 21.8, 24.6))) : Math.round(lerp(12, 50, prog(s, 7.6, 12.8)));
+  const wild = P2 ? lerp(0.72, 0.93, eio(prog(t, 22.8, 25.4))) : s < 9.6 ? 0.72 : lerp(0.72, 0.28, prog(s, 9.6, 13.6));
+  const day = P2 ? 2 * prog(t, 20.9, 24.8) : rewinding ? lerp(2, 0, eio(prog(t, RW0, RW1))) : 2 * prog(t, 3.6, 13.4);
+  const money = 3600 + guests * 60 + Math.floor(t * 12) + (t > 24.8 ? Math.floor((t - 24.8) * 140) : 0);
+  const cheerP = P2 ? (t > 27.6 ? 0.85 : t > 24.8 ? 0.55 : t > 22.9 ? 0.25 : 0) : 0;
+  const crowd = Math.round(14 + (guests - 12) * 1.15);
+  for (let k = 0; k < crowd; k++) {
+    let i, j; const extra = k >= 14;
+    const cu = ((t * 0.06 + k * 0.061) % 1), cj = lerp(15.5, 4.5, cu);
+    const cutPeep = extra && !P2, onCut = cutPeep && cutOn && cj > 15.6 - cutK * 12;
+    if (cutPeep && !onCut) continue;
+    const onNew = P2 && extra && k % 4 !== 0;
+    if (onCut) { i = 12 + (hash(k, 1) - 0.5) * 0.7 + 0.5; j = cj; }
+    else if (onNew) { const u = ((t * 0.05 + k * 0.061) % 1) * (reroute.length - 1); const a = reroute[Math.floor(u)], b = reroute[Math.min(reroute.length - 1, Math.floor(u) + 1)], f = u % 1; i = lerp(a[0], b[0], f) + 0.5 + (hash(k, 2) - 0.5) * 0.6; j = lerp(a[1], b[1], f) + 0.5 + (hash(k, 3) - 0.5) * 0.6; }
+    else { const u = ((t * 0.035 + k * 0.047) % 1) * (EP.length - 1); const a = EP[Math.floor(u)], b = EP[Math.min(EP.length - 1, Math.floor(u) + 1)], f = u % 1; i = lerp(a[0], b[0], f) + 0.5 + (hash(k, 2) - 0.5) * 0.6; j = lerp(a[1], b[1], f) + 0.5 + (hash(k, 3) - 0.5) * 0.6; }
+    if (!onScreen(i, j)) continue; const ch = hash(k, 5) < cheerP;
+    add(i + j, () => { const [x, y] = SP(i, j); peep(x, y, k, t * 9 + k, ch); });
+  }
+  for (let k = 0; k < 12; k++) { const u = ((t * 0.03 + k * 0.083) % 1) * (SN.length - 1); const a = SN[Math.floor(u)], b = SN[Math.min(SN.length - 1, Math.floor(u) + 1)], f = u % 1; const i = lerp(a[0], b[0], f) + 0.5 + (hash(k, 22) - 0.5) * 0.6, j = lerp(a[1], b[1], f) + 0.5 + (hash(k, 23) - 0.5) * 0.6; if (onScreen(i, j)) add(i + j, () => { const [x, y] = SP(i, j); peep(x, y, k + 3, t * 9 + k, hash(k, 24) < cheerP); }); }
+  for (let k = 0; k < 4; k++) { const u = (t * 0.08 + k * 0.25) % 1; const i = 15.5 + (hash(k, 31) - 0.5) * 0.5, j = lerp(21.4, 17.6, u); if (onScreen(i, j)) add(i + j, () => { const [x, y] = SP(i, j); peep(x, y, k + 9, t * 9 + k, false); }); }
+  // queue lines: railings (two lanes per tile) and waiting guests
+  QUEUES.forEach((q) => q.forEach(([i, j], n) => { const along = n > 0 ? q[n - 1][1] === j : q.length > 1 ? q[1][1] === j : true;
+    add(i + j + 0.95, () => { if (along) { rail(i, j + 0.1, i + 1, j + 0.1); rail(i + 0.15, j + 0.5, i + 0.95, j + 0.5); rail(i, j + 0.92, i + 1, j + 0.92); } else { rail(i + 0.1, j, i + 0.1, j + 1); rail(i + 0.5, j + 0.05, i + 0.5, j + 0.85); rail(i + 0.92, j, i + 0.92, j + 1); } });
+    for (let m = 0; m < 4; m++) { const a = (m % 2 ? 0.3 : 0.72), b = 0.2 + Math.floor(m / 2) * 0.5; const ii = i + (along ? b : a), jj = j + (along ? a : b); add(ii + jj, () => { const [x, y] = SP(ii, jj); peep(x, y - (Math.sin(t * 3 + m + i) > 0.8 ? 1 : 0), m + i * 3 + j, 0, P2 && hash(i, m) < cheerP); }); } }));
+  // path furniture: benches, lamps, bins and flower beds along the paths
+  const busy = [...STALLS, ...LOOS, ...INFOS, WHEEL, TOWER, SHIP, CUPS, [15.4, 17.6]];
+  const furn = (fi2, fj2, kind, k) => { if (sandy(Math.floor(fi2), Math.floor(fj2)) || busy.some(([a, b]) => Math.hypot(fi2 - a, fj2 - b) < 0.75) || !onScreen(fi2, fj2)) return; add(fi2 + fj2, () => { const [x, y] = SP(fi2, fj2); kind === 1 ? lamp(x, y, LIGHTS) : [bench, null, bin, flowerbed][kind](x, y, k); }); };
+  EP.forEach(([i, j], k) => { if (k === 0) return; furn(i + 0.9, j + 0.2, k % 4, k); furn(i + 0.15, j + 0.9, (k + 2) % 4, k + 3); });
+  SN.forEach(([i, j], k) => { if (k % 2) return; furn(i + 0.9, j + 0.15, (k / 2) % 2 ? 1 : 0, k); furn(i + 0.1, j + 0.85, (k / 2) % 2 ? 3 : 1, k); });
+  if (P2) { const n = Math.floor(prog(t, 22.6, 23.6) * 5); [[13.5, 13.9], [15.5, 13.9], [16.9, 11.0], [16.9, 8.5], [16.9, 6.0]].slice(0, n).forEach(([a, b], k) => add(a + b, () => { const [x, y] = SP(a, b); [bench, lamp, lamp, bench, lamp][k](x, y, LIGHTS); })); }
+  // meadow fence (wildlife reserve) with a gap where the shortcut cuts through
+  for (let i = 11; i < 16; i++) { if (!(cutOn && i === 12)) { add(i + 13 + 0.3, () => fence(i, 13, i + 1, 13)); add(i + 5, () => fence(i, 5, i + 1, 5)); } }
+  for (let j = 5; j < 13; j++) { add(16 + j + 0.3, () => fence(16, j, 16, j + 1)); add(11 + j + 0.3, () => fence(11, j, 11, j + 1)); }
+  for (let k = 0; k < 34; k++) { const i = 11 + hash(k, 41) * 5, j = 5 + hash(k, 42) * 8; if (Math.abs(i - 12.5) < 0.9 && cutOn) continue; if (Math.abs(i - 12.5) < 2.0 && hash(k, 43) < trample) continue; add(i + j, () => { const [x, y] = SP(i, j); for (let f = 0; f < 5; f++) { px(x - 3 + f * 1.5, y - 1 - (f % 2), 1, 2, '#3f7a22'); px(x - 3 + f * 1.5, y - 2 - (f % 2) * 2, 2, 2, ['#ff5a7a', '#ffd23f', '#ffffff', '#b28cff', '#ff8a4a'][(f + k) % 5]); } }); }
+  // wildlife: rabbits (one by its burrow on the line of the shortcut), birds, ducks, deer
+  const flee = s >= 9.4 ? prog(s, 9.4, 10.8) : 0;
+  if (!pathSet.has(key(12, 7))) add(BURROW[0] + BURROW[1], () => { const [x, y] = SP(...BURROW); ell(x, y, 8, 3, '#8a6a42'); ell(x, y - 1, 7, 2, '#a08050'); ell(x, y, 4, 2, '#1e140a'); });
+  [[12.75, 7.45, 1], [11.6, 9.9, 0], [13.9, 6.3, 0], [14.7, 11.3, 1]].forEach(([i, j, hero], k) => { if (flee >= 1) return; const ii = i + flee * 6, jj = j - flee * 3; add(ii + jj + 0.05, () => { const [x, y] = SP(ii, jj); rabbit(x, y - (flee > 0 ? Math.round(Math.abs(Math.sin(t * 12 + k)) * 6) : (hero && Math.floor(t * 3) % 4 === 0 ? 1 : 0)), !hero && flee === 0); }); });
+  const birdsGone = s >= 13.0 ? prog(s, 13.0, 14.0) : 0;
+  [[11.0, 8.25], [11.0, 8.75]].forEach(([i, j], k) => { if (birdsGone >= 1) return; add(i + j + 0.4, () => { const [x, y] = SP(i, j); const fly = birdsGone; pmap(x - 5 - fly * 120 - k * 10, y - 18 - fly * 90 - (s >= 11.8 && s < 13 && Math.floor(t * 6 + k) % 2 ? 2 : 0), BIRD, BPAL, k === 1, '#10203a', 2); }); });
+  [0, 1, 2].forEach((k) => { const a = t * 0.5 + k * 2; const i = 5.5 + Math.cos(a) * 1.0, j = 12.5 + Math.sin(a) * 0.8; add(i + j, () => { const [x, y] = SP(i, j); pmap(x - 3, y - 4, DUCK, DUPAL, Math.cos(a) > 0); }); });
+  DEER.forEach(([di, dj], k) => {
+    let i = di, j = dj, hop = 0, run = false;
+    if (s >= 11.8) { const b = prog(s, 11.8 + k * 0.15, 13.0 + k * 0.15); if (b >= 1) return; i = di + eio(b) * 7; j = dj - eio(b) * 4; hop = Math.abs(Math.sin(t * 14 + k)) * 7; run = b > 0; }
+    else if (P2) { i = di + Math.sin(t * 0.7 + k * 2) * 0.25; j = dj + Math.cos(t * 0.5 + k) * 0.15; }
+    add(i + j, () => { const [x, y] = SP(i, j); deer(x, y - hop, run, false); if (hop > 0 && !P2) for (let d = 1; d <= 3; d++) px(x - 8 - d * 7, y - 2 + (d % 2) * 2, 5 - d, 4 - d, '#e8dcc0');
+      if (s >= 11.0 && s < 12.0 && !rewinding) { px(x + 2, y - 30, 3, 7, '#fff'); px(x + 3, y - 29, 1, 4, '#d0281a'); px(x + 3, y - 24, 1, 1, '#d0281a'); }
+      if (t > 24.8) heart(x - 4, y - 34 - (t * 10 % 10)); });
+  });
+  objs.sort((a, b) => a[0] - b[0]).forEach(([, f]) => f());
+
+  // ---- celebration overlays: confetti, coin pops and fireworks ----
+  if (t > 24.8) { const a = prog(t, 24.8, 25.2); for (let k = 0; k < 130; k++) { const sp = 30 + hash(k, 61) * 40, x0 = hash(k, 62) * W, y0 = ((t - 24.8) * sp + hash(k, 63) * H * 1.2) % (H + 20) - 20; const xx = x0 + Math.sin(t * 3 + k) * 6; if (y0 < 14 || hash(k, 66) > a) continue; const cw = Math.floor(t * 8 + k) % 3; px(xx - 1, y0 - 1, cw ? 4 : 2, 4, '#00000040'); px(xx, y0, cw ? 3 : 1, 3, ['#ff3a6a', '#ffd23f', '#2a90ff', '#ffffff', '#ff8a2a', '#c070ff'][k % 6]); }
+    STALLS.forEach(([i, j], k) => { const u = (t - 24.8 - k * 0.13) % 1.4; if (u < 0 || t > 27.6) return; const [x, y] = SP(i, j, 30 + u * 22); if (x < 10 || x > W - 10) return; g.globalAlpha = 1 - u / 1.4; txtO('+£2', x, y, '#ffe680', 'Silk', 8, 'center', '#3a2a00'); g.globalAlpha = 1; }); }
+  FW.forEach(([t0, fx, fy, c, sc]) => { const u = t - t0; if (u < -0.35 || u > 1.3) return; if (u < 0) { const yy = lerp(H - 30, fy, (u + 0.35) / 0.35); px(fx, yy, 2, 3, '#fff6c0'); px(fx, yy + 3, 1, 4, '#ffb03a'); return; }
+    g.globalAlpha = clamp(1.25 - u / 1.3); const n = 32; for (let k = 0; k < n; k++) { const an = k / n * 6.283 + t0, r = (8 + Math.sqrt(u) * 62) * sc, drop = u * u * 24; const xx = fx + Math.cos(an) * r, yy = fy + Math.sin(an) * r * 0.9 + drop;
+      for (let tr = 1; tr <= 3; tr++) px(xx - Math.cos(an) * tr * 4, yy - Math.sin(an) * tr * 3.6 - tr, 2, 2, shade(c, 0.2 * tr)); px(xx - 1, yy - 1, 4, 4, '#1a102080'); px(xx, yy, 3, 3, (Math.floor(t * 20) + k) % 4 ? c : '#ffffff'); if (k % 2 === 0) px(fx + Math.cos(an) * r * 0.55, fy + Math.sin(an) * r * 0.5 + drop, 2, 2, '#ffffff'); }
+    if (u < 0.15) { ell(fx, fy, 9, 9, c); ell(fx, fy, 6, 6, '#ffffff'); } g.globalAlpha = 1; });
+
+  // ---------- HUD ----------
+  // top toolbar
+  px(0, 0, W, 14, '#8d929a'); px(0, 13, W, 1, '#4a4f56'); for (let k = 0; k < 8; k++) { px(4 + k * 16, 2, 12, 10, '#c4c9d0'); px(4 + k * 16, 2, 12, 1, '#fff'); }
+  const ic = (k, f) => f(6 + k * 16, 3); ic(0, (x, y) => { px(x + 2, y + 1, 4, 2, '#2e8a2e'); px(x + 1, y + 3, 6, 3, '#3fae3f'); px(x + 3, y + 6, 2, 2, '#6b4424'); }); ic(1, (x, y) => { px(x, y + 5, 8, 3, '#d8c08a'); px(x, y + 5, 8, 1, '#b89c62'); }); ic(2, (x, y) => { px(x, y + 6, 8, 1, '#c03a2a'); px(x + 1, y + 3, 2, 3, '#c03a2a'); px(x + 3, y + 1, 2, 2, '#c03a2a'); px(x + 5, y + 3, 2, 3, '#c03a2a'); }); ic(3, (x, y) => { px(x, y + 2, 8, 2, '#ff5a4a'); px(x + 2, y + 2, 2, 2, '#fff'); px(x + 6, y + 2, 2, 2, '#fff'); px(x + 1, y + 4, 6, 4, '#c9a06a'); }); ic(4, (x, y) => { px(x + 2, y + 2, 4, 6, '#6a7078'); px(x + 1, y + 1, 6, 1, '#4a4f56'); }); ic(5, (x, y) => { px(x, y + 3, 8, 4, '#3a8fe0'); px(x + 1, y + 4, 2, 1, '#9fd4ff'); px(x + 5, y + 5, 2, 1, '#9fd4ff'); }); ic(6, (x, y) => { px(x, y + 4, 6, 3, '#ffc83d'); px(x + 6, y + 2, 2, 5, '#e0a21a'); px(x + 1, y + 7, 2, 1, '#333'); px(x + 4, y + 7, 2, 1, '#333'); }); ic(7, (x, y) => { txt('£', x + 1, y + 7, '#1f7a2a', 'P2P', 8); });
+  const tidy = 0.88;
+  { const MON = ['JUNE', 'JULY', 'AUGUST']; const m = Math.min(2, Math.floor(day + 1e-6)); const flash = day > 0.5 && (day % 1) < 0.12 && !rewinding;
+    px(138, 2, 210, 11, '#5a5f66'); px(139, 3, 208, 9, flash ? '#ffe680' : '#2a3038');
+    txt(MON[m] + ', YEAR 1', 143, 10, flash ? '#111' : '#fff', 'Silk', 8);
+    const bx = 240, bw = 60; px(bx, 5, bw, 4, '#4a4f56'); px(bx, 5, Math.round(bw * clamp(day / 2)), 4, day >= 2 ? '#ff7a5a' : '#7ae06a'); px(bx + Math.round(bw / 2), 4, 1, 6, '#c4c9d0');
+    px(bx + bw + 2, 3, 1, 8, '#fff'); px(bx + bw + 3, 3, 5, 3, '#ff5a4a'); txt('AUG', bx + bw + 10, 10, '#ffe680', 'Silk', 8); }
+  const wildCol = (v) => { const a = [229, 83, 61], m = [227, 169, 31], b = [47, 191, 106]; const k = clamp((v - 0.3) / 0.4); const c = k < 0.5 ? a.map((x, i) => lerp(x, m[i], k * 2)) : m.map((x, i) => lerp(x, b[i], k * 2 - 1)); return `rgb(${c.map(Math.round).join(',')})`; };
+  if (t >= 3.5 && t < 27.6) {
+    win(W - 116, 18, 112, 56, 'PARK STATUS', '#2a8a5a');
+    const blink = t >= 12.8 && t < 15.4 && Math.floor(t * 4) % 2 === 0;
+    if (blink) { g.strokeStyle = '#ff3a2a'; g.lineWidth = 2; g.strokeRect(W - 112, 35, 104, 10); }
+    txt('WILDLIFE', W - 110, 43, '#111'); bar(W - 58, 38, 48, wild, wildCol(wild));
+    txt('TIDY', W - 110, 55, '#111'); bar(W - 58, 50, 48, tidy, '#e3a91f');
+    txt('RATING', W - 110, 67, '#111'); bar(W - 58, 62, 48, (wild + tidy) / 2, '#3a8fe0');
+    if (P2 && t < 25.6 && wild < 0.93) { const yy = 38 - ((t * 12) % 8); txt('+', W - 58 + Math.round(48 * wild), yy, '#1a8a3a', 'P2P', 8); }
+  }
+  // thought and speech bubbles (drawn under the windows)
+  const bub = (i, j, h, str, a, b, red, thought) => { if (t >= a && t < b) { const [x, y] = SP(i, j, h); bubble(x, y, str, red, thought); } };
+  bub(12.75, 7.45, 12, 'MY BURROW!', 8.4, 10.0, true); bub(12.5, 13.5, 20, 'WOW, A SHORTCUT!', 9.6, 11.6, false, true); bub(12.6, 11, 20, 'WHERE ARE THE FLOWERS?', 10.6, 12.4, false, true);
+  bub(12, 12.5, 20, 'I CAME TO SEE THE DEER', 12.4, 15.2, true, true); bub(11.0, 8.5, 16, 'TOO NOISY HERE', 11.8, 13.4, true);
+  bub(16.5, 8, 22, 'SHADE AT LAST', 23.6, 27.6, false, true); bub(13.5, 14.4, 20, 'I SAW A DEER!', 23.4, 27.6, false, true);
+  // classic arrow cursor
+  const ARROW = ['X', 'XX', 'XWX', 'XWWX', 'XWWWX', 'XWWWWX', 'XWWWWWX', 'XWWWWWWX', 'XWWWWWWWX', 'XWWWWWXXXX', 'XWWXWWX', 'XWX XWWX', 'XX  XWWX', 'X    XWWX', '     XWWX', '      XX'];
+  const pointer = (x, y) => ARROW.forEach((row, r) => { for (let c = 0; c < row.length; c++) if (row[c] !== ' ') px(x + c, y + r, 1, 1, row[c] === 'X' ? '#111' : '#fff'); });
+  const ring = (x, y, a) => { if (t > a && t < a + 0.5) { const r = 3 + (t - a) * 36; g.strokeStyle = '#fff'; g.lineWidth = 1; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.stroke(); } };
+  const tick = (x, y) => { px(x, y + 4, 2, 2, '#1f9a3a'); px(x + 2, y + 6, 2, 2, '#1f9a3a'); px(x + 4, y + 4, 2, 2, '#1f9a3a'); px(x + 6, y + 2, 2, 2, '#1f9a3a'); px(x + 8, y, 2, 2, '#1f9a3a'); };
+  const cross = (x, y) => { for (let k = 0; k < 4; k++) { px(x + k * 2, y + k * 2, 2, 2, '#d0281a'); px(x + 6 - k * 2, y + k * 2, 2, 2, '#d0281a'); } };
+  // Manager Bot advisor window; sits above the ticker row
+  const advisor = (l1, l2, sure, a, b, ok) => { if (t < a || t >= b) return; const k = eio(prog(t, a, a + 0.3)); const wx = 8, wy = Math.round(lerp(H, H - 110, k)), ww = 360, wh = 76; win(wx, wy, ww, wh, 'MANAGER BOT  ·  AI ADVISOR', '#127a6a');
+    const q = (x, y, w, h, c) => px(wx + 8 + x, wy + 18 + y, w, h, c); q(0, 0, 40, 40, '#2a3a48'); q(6, 8, 28, 22, '#f4f6f8'); q(10, 13, 7, 7, '#16c7a6'); q(23, 13, 7, 7, '#16c7a6'); q(12, 24, 16, 2, '#2a3a48'); q(18, 2, 4, 6, '#ffc83d');
+    txt(l1, wx + 58, wy + 30, '#111', 'P2P', 8); txt(l2, wx + 58, wy + 44, '#111', 'P2P', 8);
+    px(wx + 58, wy + 54, 200, 8, '#4a4f56'); px(wx + 59, wy + 55, Math.round(198 * sure * prog(t, a + 0.2, a + 0.8)), 6, ok ? '#2fbf6a' : '#ff8a3a'); txt(Math.round(sure * 100) + '% SURE', wx + 266, wy + 62, ok ? '#1a6a2a' : '#a8400a', 'P2P', 8); };
+  advisor('FASTEST WAY TO 50 GUESTS:', 'A PATH STRAIGHT THROUGH THE MEADOW!', 0.92, 6.6, 9.8, false);
+  advisor('GOT IT. FIRST: UNDO THE SHORTCUT.', 'THEN: A PATH ROUND THE MEADOW.', 0.88, 19.2, 21.0, true);
+  const alert = (a, b, title, l1, l2, w = 260) => { if (t < a || t >= b) return; const k = eio(prog(t, a, a + 0.3)); const wx = Math.round(W / 2 - 10 - w / 2), wy = Math.round(lerp(-60, 22, k)); win(wx, wy, w, 46, title, '#b0281a'); txt(l1, wx + 10, wy + 26, '#7a1a12', 'P2P', 8); txt(l2, wx + w - 10, wy + 38, '#b0281a', 'P2P', 8, 'right'); };
+  alert(9.8, 11.7, 'PARK ALERT', 'FLOWERS TRAMPLED!', 'WILDLIFE ' + Math.round(wild * 100) + '%  ↓');
+  alert(11.7, 13.4, 'PARK ALERT', 'DEER LEAVING THE PARK!', 'WILDLIFE ' + Math.round(wild * 100) + '%  ↓');
+  // goal check, then it eases up and away before the "try again" window zooms open
+  if (t >= 13.4 && t < 15.4) { const k = eio(prog(t, 13.4, 13.7)) - eio(prog(t, 14.95, 15.3)); const wx = 190, wy = Math.round(lerp(-80, 22, k)); win(wx, wy, 260, 62, 'GOAL CHECK: 1 AUGUST', '#b0281a');
+    txt('GUESTS     50 / 50', wx + 10, wy + 28, '#111', 'P2P', 8); if (t > 13.8) tick(wx + 236, wy + 20);
+    txt('WILDLIFE   28%  (NEED 60%)', wx + 10, wy + 46, '#7a1a12', 'P2P', 8); if (t > 14.2) cross(wx + 238, wy + 38); }
+  if (t >= 0.8 && t < 3.4) { const k = eio(prog(t, 0.8, 1.1)) - eio(prog(t, 3.1, 3.4)); const wx = Math.round(lerp(W + 4, W - 150, k)), wy = 20; win(wx, wy, 142, 62, 'TWISTER COASTER', '#b0402a'); txt('STATUS: OPEN', wx + 8, wy + 26, '#1a6a2a'); txt('RIDERS TODAY: ' + Math.round(380 + prog(t, 0.8, 3.4) * 32), wx + 8, wy + 39, '#111'); txt('EXCITEMENT: HIGH', wx + 8, wy + 52, '#111'); }
+  if (t >= 3.5 && t < 6.6) {
+    const k = eio(prog(t, 3.5, 3.9)) - eio(prog(t, 6.3, 6.6));
+    const wx = 160, wy = Math.round(lerp(H, 90, k));
+    win(wx, wy, 320, 110, 'SCENARIO: OPENING SUMMER', '#7a3fb0');
+    txt('GOAL: 50 GUESTS BY AUGUST. KEEP WILDLIFE ABOVE 60%.', wx + 8, wy + 24, '#111');
+    txt('TELL MANAGER BOT WHAT TO DO:', wx + 8, wy + 40, '#333');
+    button(wx + 8, wy + 46, 304, 16, 'GET 50 GUESTS.', t > 5.0); button(wx + 8, wy + 65, 304, 16, 'MAKE THE PARK POPULAR.', false); button(wx + 8, wy + 84, 304, 16, 'MAKE LOTS OF MONEY.', false);
+    if (t >= 4.2) { const kk = eio(prog(t, 4.2, 4.9)); pointer(Math.round(lerp(470, 300, kk)), Math.round(lerp(260, wy + 52, kk))); }
+    ring(300, wy + 54, 4.95);
+  }
+  // the children write a clearer instruction: window zooms open from the centre, clear of the bottom bars
+  if (t >= 15.2 && t < 19.2) {
+    const wx = 150, wy = 84, ww = 340, wh = 104, z = eio(prog(t, 15.2, 15.55));
+    if (z < 1) { for (let r = 0; r < 3; r++) { const zz = clamp(z - r * 0.12 + 0.12); if (zz <= 0) continue; const w2 = Math.round(lerp(40, ww, zz)), h2 = Math.round(lerp(12, wh, zz)); g.strokeStyle = r ? '#ffffff88' : '#ffffff'; g.lineWidth = 1; g.strokeRect(W / 2 - w2 / 2 + 0.5, wy + wh / 2 - h2 / 2 + 0.5, w2, h2); } }
+    else {
+      win(wx, wy, ww, wh, 'TRY AGAIN: WRITE A CLEARER INSTRUCTION', '#7a3fb0');
+      txt('MANAGER BOT ONLY HEARD "GET 50 GUESTS".', wx + 8, wy + 24, '#333');
+      txt('ADD WHAT MATTERS:', wx + 8, wy + 37, '#333');
+      px(wx + 8, wy + 42, ww - 16, 22, '#ffffff'); px(wx + 8, wy + 42, ww - 16, 1, '#5a5f66'); px(wx + 8, wy + 42, 1, 22, '#5a5f66');
+      const base = 'GET 50 GUESTS.', addS = ' KEEP THE MEADOW WILD.';
+      const n = Math.floor(prog(t, 16.0, 17.8) * addS.length + 0.001), typed = addS.slice(0, n);
+      txt(base, wx + 14, wy + 57, '#111', 'P2P', 8); txt(typed, wx + 14 + base.length * 8, wy + 57, '#1a7a2a', 'P2P', 8);
+      if (t < 17.8 && (Math.floor(t * 4) % 2 === 0 || t > 16)) px(wx + 15 + (base.length + n) * 8, wy + 48, 2, 11, '#111');
+      tick(wx + 10, wy + 72); txt('50 GUESTS', wx + 24, wy + 80, '#111');
+      if (n >= addS.length) tick(wx + 92, wy + 72); else { px(wx + 92, wy + 72, 9, 9, '#fff'); px(wx + 92, wy + 72, 9, 1, '#5a5f66'); px(wx + 92, wy + 72, 1, 9, '#5a5f66'); }
+      txt('MEADOW STAYS WILD', wx + 106, wy + 80, '#111');
+      const sent = t > 18.35; button(wx + ww - 76, wy + 72, 68, 20, 'SEND  >', sent);
+      if (t >= 17.8) { const kk = eio(prog(t, 17.8, 18.3)); pointer(Math.round(lerp(560, wx + ww - 30, kk)), Math.round(lerp(300, wy + 84, kk))); }
+      ring(wx + ww - 30, wy + 85, 18.3);
+    }
+  }
+  // award: bounces in, trophy glints, ticks pop in
+  if (t >= 24.8 && t < 27.6) {
+    const k = eob(prog(t, 24.8, 25.35)) - eio(prog(t, 27.3, 27.6)); const wx = 8, wy = Math.round(lerp(-130, 34, k));
+    win(wx, wy, 220, 110, 'AUGUST: GOAL MET!', '#b08a1a');
+    const tx = wx + 40, ty = wy + 30 + Math.round(Math.sin(t * 4) * 1.5); px(tx - 10, ty, 20, 4, '#ffd23f'); px(tx - 8, ty + 4, 16, 12, '#ffc83d'); px(tx - 3, ty + 16, 6, 8, '#e0a21a'); px(tx - 9, ty + 24, 18, 4, '#b08a1a'); px(tx - 6, ty + 6, 3, 8, '#fff6');
+    px(tx - 14, ty + 2, 4, 8, '#e0a21a'); px(tx + 10, ty + 2, 4, 8, '#e0a21a'); const gl = ((t - 25) * 1.2) % 1.6; if (gl < 1) { const gx = tx - 10 + gl * 22; for (let r = 0; r < 18; r++) px(gx + r * 0.4, ty + r, 2, 1, '#ffffffcc'); }
+    for (let s3 = 0; s3 < 4; s3++) { const ph = (t * 2 + s3 * 0.7) % 2; if (ph < 0.6) { const sx = tx + [-18, 16, -14, 20][s3], sy = ty + [-4, 0, 22, 18][s3], r = ph < 0.3 ? 2 : 1; px(sx - r, sy, r * 2 + 1, 1, '#fff'); px(sx, sy - r, 1, r * 2 + 1, '#fff'); } }
+    txt('GREENEST PARK', wx + 70, wy + 40, '#111', 'P2P', 8); txt('ON THE ISLAND', wx + 70, wy + 52, '#111', 'P2P', 8);
+    if (t > 25.4) { tick(wx + 70, wy + 64); txt('52 GUESTS', wx + 84, wy + 72, '#111', 'Silk', 8); } if (t > 25.8) { tick(wx + 70, wy + 80); txt('WILDLIFE 93%', wx + 84, wy + 88, '#1a6a2a', 'Silk', 8); }
+  }
+  // hook text
+  if (t >= 0.6 && t < 3.4) { const a = prog(t, 0.6, 0.9) * (1 - prog(t, 3.1, 3.4)); g.globalAlpha = a; txtO('RUN A PARK.', W / 2, 262, '#ffffff', 'P2P', 16, 'center'); txtO('HIRE AN AI MANAGER.', W / 2, 288, '#ffe680', 'P2P', 12, 'center'); g.globalAlpha = 1; }
+  const caption = (str, y, a, b, out = 0) => { if (t < a || t >= b) return; g.font = '12px P2P'; const w = Math.ceil(g.measureText(str).width) + 28, x = Math.round(W / 2 - w / 2), k = eio(prog(t, a, a + 0.3)), ko = eio(prog(t, b - 0.4, b)); const yy = Math.round(y - (1 - k) * 8 - (out ? ko * (y + 40) : 0)); g.globalAlpha = out ? k : k * (1 - ko);
+    px(x - 1, yy - 1, w + 2, 26, '#000'); px(x, yy, w, 24, '#13202b'); px(x, yy, w, 1, '#3a5a7a'); px(x, yy + 23, w, 1, '#0a1018'); txtS(str, W / 2, yy + 17, '#ffffff', 'P2P', 12, 'center'); g.globalAlpha = 1; };
+  caption('IT DID EXACTLY WHAT YOU SAID.', 92, 13.8, 15.3, 1);
+  caption('SAY WHAT YOU MEAN.', 26, 22.9, 24.8);
+  // builder cursor laying the new path
+  if (window.__bld) { const [bx, by] = window.__bld; const X = bx, Y = by + 16; px(X - 1, Y - 22, 3, 18, '#ffe680'); px(X - 6, Y - 26, 13, 6, '#ffe680'); px(X - 4, Y - 24, 9, 2, '#b08a1a'); g.strokeStyle = '#ffe680'; g.lineWidth = 1; g.beginPath(); g.moveTo(X - 16, Y); g.lineTo(X, Y - 8); g.lineTo(X + 16, Y); g.lineTo(X, Y + 8); g.closePath(); g.stroke(); }
+  // rewind overlay
+  if (rewinding) { const a = Math.min(prog(t, RW0, RW0 + 0.15), 1 - prog(t, RW1 - 0.15, RW1)); g.globalAlpha = 0.18 * a; px(0, 14, W, H - 42, '#3a6aff'); g.globalAlpha = a;
+    for (let k = 0; k < 4; k++) { const yy = 20 + ((k * 83 + Math.floor(t * 30) * 37) % (H - 60)); px(0, yy, W, 1, '#ffffff66'); }
+    const tri = (x0) => { for (let r = 0; r < 16; r++) { const w = r < 8 ? r + 1 : 16 - r; px(x0 + 9 - w, 24 + r, w, 1, '#ffffff'); } };
+    px(10, 20, 116, 24, '#13202bcc'); tri(16); tri(26); txtS('REWIND', 42, 38, '#ffffff', 'P2P', 8); g.globalAlpha = 1; }
+  // title over the bright, lit-up park
+  if (t >= 27.6) {
+    const wave = (str, cx, y, size, col, t0) => { const cw = size; const x0 = cx - str.length * cw / 2; for (let k = 0; k < str.length; k++) { const d = prog(t, t0 + k * 0.05, t0 + k * 0.05 + 0.45); if (d <= 0) continue; const yy = y - (1 - eob(d)) * 50 + Math.round(Math.sin(t * 5 - k * 0.6) * 2);
+      g.globalAlpha = clamp(d * 3); const cc = (Math.floor(t * 6) - k) % 11 === 0 ? '#ffffff' : col; txt(str[k], x0 + k * cw + 4, yy + 5, '#00000055', 'P2P', size); for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2], [0, 2], [-2, -2], [2, 2], [2, -2], [-2, 2]]) txt(str[k], x0 + k * cw + dx, yy + dy, '#1a1020', 'P2P', size); txt(str[k], x0 + k * cw, yy + 2, shade(cc, -0.35), 'P2P', size); txt(str[k], x0 + k * cw, yy, cc, 'P2P', size); } g.globalAlpha = 1; };
+    wave('ISLAND PARK', W / 2, 128, 32, '#ffe680', 27.6); wave('TYCOON', W / 2, 176, 40, '#7ae06a', 27.85);
+    const pa = eio(prog(t, 28.3, 28.6)); if (pa > 0) { g.globalAlpha = pa; const pw = 330, ph = 46, pxx = W / 2 - pw / 2, pyy = 196 + Math.round((1 - pa) * 10); win(pxx, pyy, pw, ph, null); txt('MANAGER BOT DOES WHAT YOU SAY.', W / 2, pyy + 19, '#111', 'P2P', 8, 'center'); txt('SAY WHAT YOU MEAN.', W / 2, pyy + 35, '#a8400a', 'P2P', 8, 'center'); g.globalAlpha = 1; }
+    g.globalAlpha = prog(t, 28.6, 28.9); txtO('A DELTAOPS LEARNING AI LAB', W / 2, 262, '#bff4ec', 'P2P', 8, 'center', '#0c2a30'); g.globalAlpha = 1;
+  }
+  // bottom HUD: news ticker in its own row above a permanent money / guests / rating strip
+  let news = null, red = false;
+  if (t >= 0.8 && t < 3.5) news = 'WELCOME TO ISLAND PARK. YOUR AI MANAGER IS READY.';
+  if (t >= 9.6 && t < 11.7) { news = 'RABBIT: "MY BURROW IS UNDER THAT PATH!"'; red = true; }
+  if (t >= 11.7 && t < 13.4) { news = 'DEER: "TOO MANY FEET! WE ARE LEAVING."'; red = true; }
+  if (t >= 13.4 && t < 15.4) { news = 'GUEST 23: "WHERE DID ALL THE DEER GO?"'; red = true; }
+  if (rewinding) { news = '<< REWIND TO JUNE: UNDOING THE SHORTCUT'; red = false; }
+  if (t >= RW1 + 0.1 && t < 22.9) news = 'BUILDING: A PATH ROUND THE MEADOW...';
+  if (t >= 22.9 && t < 24.8) news = 'THE DEER STAYED! GUESTS COME TO SEE THEM.';
+  px(0, H - 28, W, 14, '#2a3038'); px(0, H - 28, W, 1, '#5a5f66');
+  if (news) { px(0, H - 27, W, 13, red ? '#7a1a12' : '#1d2a48'); px(4, H - 25, 9, 9, red ? '#ff5a4a' : '#ffe680'); txt('!', 7, H - 17, '#111', 'P2P', 8); txt(news, 18, H - 17, red ? '#ffd0c8' : '#ffe680', 'Silk', 8); }
+  else { for (let k = 0; k < W; k += 6) px(k, H - 21, 2, 1, '#3a4048'); }
+  px(0, H - 14, W, 14, '#8d929a'); px(0, H - 14, W, 1, '#c4c9d0'); txt('£' + money.toLocaleString('en-GB') + '   GUESTS ' + guests, 6, H - 4, '#fff', 'P2P', 8); txt('PARK RATING', W - 200, H - 4, '#fff', 'P2P', 8); bar(W - 108, H - 10, 100, (wild + tidy) / 2, '#2fbf6a');
+  // fades
+  const f = t < 0.4 ? 1 - t / 0.4 : t > DUR - 0.5 ? prog(t, DUR - 0.5, DUR) : 0;
+  if (f > 0) { g.globalAlpha = f; px(0, 0, W, H, '#000'); g.globalAlpha = 1; }
+}
+function tEdges(x, y, e, c) { for (let r = 0; r < 16; r++) { const hw = (r + 1) * 2; if (e[0]) px(x - hw, y + r, 2, 1, c); if (e[1]) px(x + hw - 2, y + r, 2, 1, c); } for (let r = 16; r < 32; r++) { const hw = (32 - r) * 2; if (e[2]) px(x - hw, y + r, 2, 1, c); if (e[3]) px(x + hw - 2, y + r, 2, 1, c); } }
+function cliffL(x, y) { for (let c = 0; c < 32; c++) { const X = x - 32 + c, Y = y + 16 + Math.floor(c / 2), sb = 7 + Math.round(hash(c, X, 3) * 3); px(X, Y, 1, 2, '#3f8a2a'); px(X, Y + 2, 1, sb, (c & 1) ? '#946036' : '#8a5a32'); px(X, Y + 2 + sb, 1, 18 - sb, (c & 1) ? '#80868e' : '#767c84'); px(X, Y + 20, 1, 1, (c + Math.floor(T * 4)) % 3 ? '#cfe6fa' : '#8ab8ec'); } }
+function cliffR(x, y) { for (let c = 0; c < 32; c++) { const X = x + c, Y = y + 31 - Math.floor(c / 2), sb = 7 + Math.round(hash(c, X, 4) * 3); px(X, Y, 1, 2, '#357a22'); px(X, Y + 2, 1, sb, (c & 1) ? '#6b4424' : '#5f3c20'); px(X, Y + 2 + sb, 1, 18 - sb, (c & 1) ? '#5f646a' : '#565b62'); px(X, Y + 20, 1, 1, (c + Math.floor(T * 4)) % 3 ? '#cfe6fa' : '#8ab8ec'); } }
+window.__render = (t) => { frame(t); return true; };
+window.__duration = DUR;
+Promise.all([document.fonts.load('8px P2P'), document.fonts.load('8px Silk')]).then(() => { window.__ready = true; });
+</script></body></html>

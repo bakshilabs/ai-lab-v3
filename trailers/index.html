@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>html,body{margin:0}</style>
+<title>DeltaOps Lab Trailers</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: a night-sky screening room. Main player with its notes beside it, then the six-lab playlist. One dark look, matching the brochure's back cover. */
+:root {
+  --night: #0d1833;
+  --night-2: #14244a;
+  --night-3: #1c3160;
+  --ink: #eef3fb;
+  --muted: #a9b8d6;
+  --mint: #16ffc6;
+  --sky: #59c7fc;
+  --sun: #ffc83d;
+  --coral: #ff6a4a;
+  --line: rgba(201, 214, 238, 0.16);
+  --display: 'Bricolage Grotesque', 'Inter', system-ui, sans-serif;
+  --sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: radial-gradient(120% 70% at 50% -10%, var(--night-3) 0%, var(--night) 60%) fixed, var(--night);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.55;
+}
+.wrap {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding-block: 28px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid;
+  gap: 40px;
+}
+header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 20px 32px; }
+.brand { display: grid; gap: 18px; }
+.brand img { height: 30px; width: auto; }
+h1 {
+  font-family: var(--display); font-weight: 800; font-size: clamp(2.2rem, 5.2vw, 4rem);
+  line-height: 0.98; letter-spacing: -0.035em; margin: 0; text-wrap: balance;
+}
+h1 span { background: linear-gradient(100deg, var(--sky), var(--mint)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.intro { max-width: 46ch; color: var(--muted); margin: 0; font-size: 1.02rem; }
+
+/* main player */
+.stage { display: grid; grid-template-columns: minmax(0, 2.1fr) minmax(0, 1fr); gap: 28px; align-items: start; }
+.player { border-radius: 18px; overflow: hidden; background: #000; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45), 0 0 0 1px var(--line); aspect-ratio: 16 / 9; max-width: 100%; }
+.player video { display: block; width: 100%; height: 100%; background: #000; }
+.notes { display: grid; gap: 18px; min-width: 0; }
+.eyebrow { font-size: 0.75rem; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mint); }
+.notes h2 { font-family: var(--display); font-weight: 800; font-size: clamp(1.7rem, 3vw, 2.3rem); line-height: 1.02; letter-spacing: -0.02em; margin: 6px 0 0; text-wrap: balance; }
+.notes .tag { color: var(--muted); margin: 6px 0 0; }
+.facts { display: grid; gap: 14px; margin: 0; }
+.facts div { display: grid; gap: 4px; padding-top: 14px; border-top: 1px solid var(--line); }
+.facts dt { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+.facts dd { margin: 0; font-size: 0.98rem; }
+.guess { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 10px; background: #13202b; border: 1px solid var(--line); border-radius: 14px; padding: 10px 14px; font-weight: 600; }
+.guess b { font-weight: 800; color: var(--ink); }
+.sure { display: inline-flex; align-items: center; gap: 8px; font-size: 0.82rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.sure i { display: block; width: 70px; height: 7px; border-radius: 99px; background: #2a3a49; overflow: hidden; position: relative; }
+.sure i::after { content: ""; position: absolute; inset: 0 auto 0 0; width: var(--p); border-radius: 99px; background: linear-gradient(90deg, var(--sun), var(--mint)); }
+
+/* playlist */
+.list-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px 20px; }
+.list-head h3 { font-family: var(--display); font-weight: 800; font-size: 1.5rem; letter-spacing: -0.01em; margin: 0; }
+.list-head p { margin: 0; color: var(--muted); font-size: 0.92rem; }
+.group-note { margin: 4px 0 0; color: var(--muted); font-size: 0.92rem; max-width: 70ch; }
+.grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
+.card {
+  display: grid; gap: 12px; text-align: left; color: inherit; font: inherit; cursor: pointer;
+  background: transparent; border: 0; padding: 0; border-radius: 16px;
+}
+.thumb { position: relative; border-radius: 14px; overflow: hidden; aspect-ratio: 16 / 9; max-width: 100%; box-shadow: 0 0 0 1px var(--line); transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.thumb .len { position: absolute; right: 10px; bottom: 10px; background: rgba(13, 24, 51, 0.85); color: var(--ink); font-size: 0.78rem; font-weight: 700; padding: 3px 8px; border-radius: 8px; font-variant-numeric: tabular-nums; }
+.thumb .now { position: absolute; left: 10px; top: 10px; background: var(--mint); color: #06261f; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; padding: 4px 9px; border-radius: 8px; }
+.card:hover .thumb, .card:focus-visible .thumb { transform: translateY(-3px); box-shadow: 0 0 0 2px var(--sky), 0 16px 40px rgba(0, 0, 0, 0.4); }
+.card:focus-visible { outline: none; }
+.card[aria-current="true"] .thumb { box-shadow: 0 0 0 3px var(--mint), 0 16px 40px rgba(0, 0, 0, 0.4); }
+.card .meta { display: grid; gap: 2px; min-width: 0; }
+.card .meta b { font-family: var(--display); font-weight: 800; font-size: 1.18rem; letter-spacing: -0.01em; }
+.card .meta span { color: var(--muted); font-size: 0.9rem; }
+footer { color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--line); padding-top: 18px; display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; }
+
+@media (max-width: 960px) {
+  .stage { grid-template-columns: minmax(0, 1fr); }
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .grid { grid-template-columns: minmax(0, 1fr); }
+  .wrap { gap: 30px; }
+}
+@media (prefers-reduced-motion: reduce) { .thumb { transition: none; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <img src="logo.svg" alt="DeltaOps Learning">
+      <h1>DeltaOps <span>AI labs</span>, in trailers</h1>
+    </div>
+    <p class="intro">In every lab, children give an AI helper an instruction, watch it guess wrong, and fix it with a clearer one. The client requests are each drawn in the style of their reference game. The world-building labs match the brochure screenshots.</p>
+  </header>
+
+  <section class="stage" aria-label="Now playing">
+    <div class="player"><video id="player" controls playsinline preload="metadata"></video></div>
+    <div class="notes">
+      <div>
+        <div class="eyebrow" id="n-for"></div>
+        <h2 id="n-title"></h2>
+        <p class="tag" id="n-tag"></p>
+      </div>
+      <dl class="facts">
+        <div><dt>The AI’s wrong guess</dt><dd><span class="guess" id="n-guess"></span></dd></div>
+        <div><dt>What children fix</dt><dd id="n-fix"></dd></div>
+        <div><dt>What it teaches</dt><dd id="n-learn"></dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section aria-label="All trailers" id="groups" style="display:grid;gap:44px"></section>
+
+  <footer>
+    <span>DeltaOps Learning · concept trailers, November 2026</span>
+    <span>Rendered in-engine. Every AI response is pre-written; there is no live AI model. Block Quiz is not an official Minecraft product and is not approved by or associated with Mojang or Microsoft.</span>
+  </footer>
+</div>
+
+<script>
+const GROUPS = [
+  { id: 'client', title: 'The seven client requests', note: 'Each trailer uses the look of the game the client named, not one shared style.' },
+  { id: 'career', title: 'Career skills labs', note: 'Real-world training with an AI assistant: the jobs, the tools and the checks professionals use.' },
+  { id: 'future', title: 'Future Skills labs', note: 'Less like games: real workplace briefs, AI skills beyond prompting, and a pathway card to the next course, award and job.' },
+  { id: 'brochure', title: 'Brochure world-building labs', note: 'Built to match the game screenshots and islands in the DeltaOps Learning brochure.' },
+  { id: 'first', title: 'First concepts', note: 'The original six trailers, in one shared voxel style.' },
+];
+const LABS = [
+  { g: 'client', id: 'ecotown', title: 'Eco Town', len: '1:35', venue: 'Request 1 · A world-building project with an environmental theme',
+    tag: 'Six levels. Your decisions. A whole town that lives.',
+    guess: '“Best land” = the flattest: the river meadow that floods', sure: 82,
+    fix: 'Six levels from empty land to a whole town: where to build, streets, homes, food, water and power, the town heart. Clearer cards fix each AI guess.',
+    learn: 'A sustainable town is many decisions, not one. Check the AI from the sky, the street and inside.' },
+  { g: 'client', id: 'tycoon2', title: 'Island Park Tycoon', len: '0:30', venue: 'Request 2 · A resource management game like the old Zoo and RollerCoaster Tycoon games',
+    tag: 'Manager Bot does what you say. Say what you mean.',
+    guess: '“Get 50 guests” = a path straight through the meadow', sure: 92,
+    fix: 'Rewrite the goal with limits: “Get 50 guests. Keep the meadow wild and tidy.”',
+    learn: 'Pushing one number causes side effects. Good goals say what must not change.' },
+  { g: 'client', id: 'mcquiz', title: 'Block Quiz', len: '0:30', venue: 'Request 3 · A quiz on Minecraft',
+    tag: 'Stand on your answer. Check the AI before you jump.',
+    guess: 'A Nether portal frame is made of “Lava!”', sure: 90,
+    fix: 'The room tells the AI: answer, and tell us WHY. Now it gives a reason the teams can check.',
+    learn: 'An AI can sound sure and still be wrong. Check it before you trust it.' },
+  { g: 'client', id: 'dash', title: 'Beat Block', len: '0:35', venue: 'Request 4 · A game with repeat playability like Geometry Dash',
+    tag: 'One button. Every try teaches you the beat.',
+    guess: '“Jump on the 4th beat!”', sure: 92,
+    fix: 'Tell the co-pilot to count along with the music first. Then practise until the full run lands.',
+    learn: 'Very sure is not the same as right. Every attempt teaches you something.' },
+  { g: 'client', id: 'bloxel', title: 'Block Quest', len: '0:33', venue: 'Request 5 · A game like Bloxels',
+    tag: 'Build it. Play it. Teach the AI what fun means.',
+    guess: '“Harder” = more spikes', sure: 89,
+    fix: 'Say what harder means: one tricky jump, keep it fair. Then add wings so the AI sees a dragon.',
+    learn: 'The AI only knows what you show and tell it.' },
+  { g: 'client', id: 'city', title: 'Autopilot City', len: '0:30', venue: 'Request 6 · A self-driving car game in a city',
+    tag: 'Label what the car sees. Train it. Drive again.',
+    guess: 'A runner on a billboard = “Person”', sure: 91,
+    fix: 'Train it with pictures of posters and of children half hidden behind cars. Then test both.',
+    learn: 'A self-driving car is only as good as the examples it learned from.' },
+  { g: 'client', id: 'kart', title: 'Pit Crew GP', len: '0:35', venue: 'Request 7 · A racing game',
+    tag: 'You don’t drive. You write the robot’s rules.',
+    guess: '“More checkpoints = more stars. Any way I like!”', sure: 92,
+    fix: 'Stars only for new checkpoints, in order. The robot races the full lap and wins.',
+    learn: 'An AI chases whatever earns points, so it finds loopholes.' },
+  { g: 'career', id: 'colony', title: 'Build a Space Colony', len: '0:37', venue: 'Space camps and STEM clubs',
+    tag: 'The AI plans in seconds. Your crew makes sure it survives.',
+    guess: '“Best place” = the sunniest plain, with no ice for 200 km', sure: 88,
+    fix: 'Ice radar, a dust-storm test and a soil test catch the Planner. Batteries, a greenhouse and a safety STOP card keep the crew alive.',
+    learn: 'Systems thinking, budgets and checking an AI plan’s assumptions. Jobs: life-support engineer, space architect, mission planner.' },
+  { g: 'career', id: 'rocket', title: 'Land a Rocket', len: '0:32', venue: 'STEM clubs and museums',
+    tag: 'Run mission control. Check the AI like a pro.',
+    guess: 'Plans the drone-ship landing for average wind', sure: 89,
+    fix: 'Telemetry shows 45 km/h gusts. The team holds, then lands upright. On Mars their rules block a glitching sensor.',
+    learn: 'Reading telemetry, go/no-go calls and rules written in advance. Jobs: flight controller, GNC engineer, launch director.' },
+  { g: 'career', id: 'robot', title: 'Train a Robot', len: '0:44', venue: 'STEM clubs and makerspaces',
+    tag: 'Teach it. Test it. Make it safe.',
+    guess: '“I’ve got it.” Predicted 94%, measured 4/10', sure: 94,
+    fix: 'Show it varied demonstrations, not more of the same. Then paint safety zones and check results for every resident.',
+    learn: 'Data from demonstrations, testing many times, safety and fairness. Jobs: robot trainer, test engineer, safety engineer.' },
+  { g: 'career', id: 'drone', title: 'Become a Drone Pilot', len: '0:41', venue: 'Holiday camps and schools',
+    tag: 'Plan it. Check it. Fly it.',
+    guess: '“PERSON 94%” is a sheep. It misses the walker in red.', sure: 94,
+    fix: 'Zoom and colour lenses find Ellie. The team tells the AI to over-flag and let people check, then plans for the headwind.',
+    learn: 'Airspace, weather, battery budgets and two kinds of AI error. Jobs: drone pilot, search-and-rescue operator, inspection analyst.' },
+  { g: 'future', id: 'fs-data', title: 'Council Data Desk', len: '0:36', venue: 'Ages 11–16 · Data analyst',
+    tag: 'Clean a real dataset. Question the conclusion.',
+    guess: '“Fewest reports” = “fewest faults”', sure: 94,
+    fix: 'The Data check finds streets that never report. The brief is rewritten and a door-knock survey added.',
+    learn: 'Reporting bias. Next: MEI data science · CREST Discovery · T Level Data Analytics.' },
+  { g: 'future', id: 'fs-model', title: 'Model Test Lab', len: '0:36', venue: 'Ages 11–16 · ML engineer',
+    tag: 'Labelling rules, a held-back test set and a confusion matrix.',
+    guess: '98% accurate (on its own training photos)', sure: 97,
+    fix: 'Held-back photos score 71%. Night-shift cartons are added and retrained to 90%, with a model card.',
+    learn: 'Testing models honestly. Next: Experience AI · CREST ML Bronze · A-level Computer Science.' },
+  { g: 'future', id: 'fs-verify', title: 'Verification Desk', len: '0:37', venue: 'Ages 11–16 · Fact-checker',
+    tag: 'Trace the source before it goes to print.',
+    guess: 'A confident citation to a journal that doesn’t exist', sure: 94,
+    fix: 'Lateral reading in three tabs finds the real council report. The claim and citation are corrected.',
+    learn: 'Verification. Next: Civic Online Reasoning · Arts Award · fact-checker, OSINT analyst.' },
+  { g: 'future', id: 'fs-product', title: 'Should It Be AI?', len: '0:37', venue: 'Ages 11–16 · Service designer',
+    tag: 'Map the users. Decide if AI is the answer.',
+    guess: 'An AI chatbot “for 100% of visitors”', sure: 92,
+    fix: 'Personas show who it leaves out. A sign, a phone line and AI translation win, in a written “AI or not” decision.',
+    learn: 'Product thinking. Next: Technovation Girls · iDEA · T Level Software Development.' },
+  { g: 'future', id: 'fs-automate', title: 'Automation Designer', len: '0:38', venue: 'Ages 14–18 · Automation specialist',
+    tag: 'Map the workflow. Decide what the agent may do.',
+    guess: '“12 of 12 handled”, including a refund to the wrong Sam Taylor', sure: 96,
+    fix: 'A human approval step goes in before money moves, and matching uses booking numbers. The re-run is correct.',
+    learn: 'Agents, permissions and human checkpoints. Next: Elements of AI · AI & Automation apprenticeship.' },
+  { g: 'future', id: 'fs-redteam', title: 'Red Team', len: '0:38', venue: 'Ages 14–18 · AI red teamer',
+    tag: 'Test the chatbot before the school groups arrive.',
+    guess: '“Passed all 5 tests. Ready to launch.” (it marked its own work)', sure: 97,
+    fix: 'Real tests find a wrong closing time and a leaked staff note. A pre-launch report holds the launch until the re-test passes.',
+    learn: 'Safety testing. Next: CyberFirst · CREST Bronze · Cyber Security apprenticeship.' },
+  { g: 'future', id: 'fs-impact', title: 'Impact Panel', len: '0:38', venue: 'Ages 14–18 · Policy adviser',
+    tag: 'Who does this affect? Prove it before the council decides.',
+    guess: 'Cites a “2024 Park Privacy Act” that doesn’t exist', sure: 94,
+    fix: 'Source and Authority checks replace it with UK GDPR and the Children’s Code, and add young people to the assessment.',
+    learn: 'AI impact assessment. Next: Experience AI ethics · EPQ · data protection officer.' },
+  { g: 'future', id: 'fs-creative', title: 'Creative Producer', len: '0:38', venue: 'Ages 11–16 · Content producer',
+    tag: 'Make it with AI. Credit it honestly.',
+    guess: 'Copies a living artist’s style and calls a photo “royalty-free”', sure: 93,
+    fix: 'Own artwork and a properly licensed photo go in, with credits and an AI-use statement.',
+    learn: 'Rights and attribution. Next: iDEA · Arts Award · creative apprenticeship.' },
+  { g: 'brochure', id: 'eco', title: 'Eco AI Explorer', len: '0:36', venue: 'Nature centres',
+    tag: 'Design a pond for wildlife and visitors. Check the AI’s guess.',
+    guess: '“Nice” = neat: cut the reeds, add a gravel path', sure: 64,
+    fix: 'Pick the clearer card: a boardwalk, and keep the reeds wild. The ducks come back.',
+    learn: 'Vague words make an AI guess what you meant.' },
+  { g: 'brochure', id: 'mission', title: 'Mission AI', len: '0:37', venue: 'Holiday camps',
+    tag: 'Plan the route. Check what the AI thinks you meant.',
+    guess: '“Quickest” = shortest, straight over the ridge', sure: 70,
+    fix: 'Ask for a flat path you can walk fast. The team takes the beach and arrives with 0:41 to spare.',
+    learn: 'Shortest is not always quickest. Say what really matters.' },
+  { g: 'brochure', id: 'museum', title: 'AI Time Traveller', len: '0:37', venue: 'Museums',
+    tag: 'Plan a day in the past. Ask the AI for its evidence.',
+    guess: 'Romans ate feasts: peacock, dormice and oysters', sure: 66,
+    fix: 'Plan from things found in London: oyster shells, wine jars and millstones. A street-stall lunch.',
+    learn: 'An AI repeats famous stories. Ask who it is describing, and for the evidence.' },
+  { g: 'brochure', id: 'mars', title: 'AI Inventor Lab', len: '0:35', venue: 'STEM clubs',
+    tag: 'Program the rover. Check what the AI thinks you meant.',
+    guess: '“Fast” = top speed, straight through the sand', sure: 72,
+    fix: 'Drive slowly on wide wheels and go round the soft sand. The rover sends back its crater photo.',
+    learn: 'Good instructions include the limits, not just the goal.' },
+  { g: 'first', id: 'robotaxi', title: 'Robo-Taxi Island', len: '0:42', venue: 'For STEM clubs and museums',
+    tag: 'Teach a self-driving taxi to see. Check what it sees.',
+    guess: 'Scarecrow = “Person”', sure: 94,
+    fix: 'Add night-time pictures of people on scooters, and turn on “ask a human” when Pip is unsure.',
+    learn: 'An AI only knows what is in its training pictures. Very sure is not the same as right.' },
+  { g: 'first', id: 'pitcrew', title: 'Pit Crew', len: '0:41', venue: 'For STEM clubs and holiday camps',
+    tag: 'You don’t drive. You decide what counts.',
+    guess: '“Go fast!” = straight through the meadow', sure: 92,
+    fix: 'Rewrite the reward: stars for each new checkpoint in order, and lose stars on flowers.',
+    learn: 'An AI chases whatever earns points, so it finds loopholes. 47 stars, 0 laps.' },
+  { g: 'first', id: 'blocks', title: 'Block Builders', len: '0:40', venue: 'For classrooms and libraries',
+    tag: 'Build it on paper. The AI reads it. You check it.',
+    guess: '“Sunny Power Town. Lights on all night.”', sure: 88,
+    fix: 'Swap three solar tiles for batteries so the town stores power for after dark.',
+    learn: 'An AI can label a design from one point of view and miss what happens later.' },
+  { g: 'first', id: 'tycoon', title: 'Island Park Tycoon (voxel)', len: '0:40', venue: 'For nature centres and zoos',
+    tag: 'Manager Bot does what you say. Say what you mean.',
+    guess: '“Get 50 visitors” = a path through the meadow', sure: 92,
+    fix: 'Count every bubble, animals too, then set a goal with limits: target, never, check.',
+    learn: 'Pushing one number causes side effects. Who you count changes the answer.' },
+  { g: 'first', id: 'quiz', title: 'Sure or Not Sure?', len: '0:37', venue: 'For a whole room at once',
+    tag: 'The quiz show where everyone checks the AI.',
+    guess: '“Duck!” It’s a moorhen', sure: 95,
+    fix: 'Decide as a room: trust it, check it, or don’t use it. Then shout what it assumed.',
+    learn: 'Before you trust an AI’s answer, check it.' },
+  { g: 'first', id: 'signal', title: 'Clear Signal', len: '0:36', venue: 'A warm-up for any lab',
+    tag: 'Say it clearly. Hit the beat. Try again.',
+    guess: '“Duck!” = fetch a duck', sure: 91,
+    fix: 'Pick the clearer card on the beat. Restart in under a second, with no lives to lose.',
+    learn: 'Vague instructions make an AI guess. Every attempt teaches you something.' },
+];
+
+const $ = (id) => document.getElementById(id);
+const player = $('player');
+const groups = $('groups');
+
+function sureWord(p) { return p >= 85 ? 'Very sure' : p >= 60 ? 'Fairly sure' : 'Not sure'; }
+
+const cardHTML = (l) => `
+  <button class="card" type="button" data-id="${l.id}" id="card-${l.id}">
+    <span class="thumb"><img src="posters/${l.id}.jpg" alt="" loading="lazy"><span class="len">${l.len}</span></span>
+    <span class="meta"><b>${l.title}</b><span>${l.tag}</span></span>
+  </button>`;
+// Trailers with a finished video. The rest are still rendering and are listed as coming soon.
+const READY = new Set(['ecotown','tycoon2','mcquiz','dash','bloxel','city','kart','colony','robot','drone','eco','mission','museum','mars','robotaxi','pitcrew','blocks','tycoon','quiz','signal','rocket','fs-impact','fs-creative','fs-data','fs-model','fs-automate','fs-redteam','fs-verify','fs-product']);
+const ALL = LABS.slice();
+LABS.splice(0, LABS.length, ...ALL.filter((l) => READY.has(l.id)));
+groups.innerHTML = GROUPS.map((g) => {
+  const ready = LABS.filter((l) => l.g === g.id), later = ALL.filter((l) => l.g === g.id && !READY.has(l.id));
+  const soon = later.length ? `<p class="group-note">Rendering now: ${later.map((l) => l.title).join(', ')}.</p>` : '';
+  return `<div><div class="list-head"><h3>${g.title}</h3><p>1080p · sound on</p></div><p class="group-note">${g.note}</p>${soon}${ready.length ? `<div class="grid" style="margin-top:18px">${ready.map(cardHTML).join('')}</div>` : ''}</div>`;
+}).join('');
+
+function show(id, play) {
+  const l = LABS.find((x) => x.id === id) || LABS[0];
+  if (player.dataset.id !== l.id) {
+    player.dataset.id = l.id;
+    player.poster = `posters/${l.id}.jpg`;
+    player.src = `videos/${l.id}.mp4`;
+  }
+  $('n-for').textContent = l.venue;
+  $('n-title').textContent = l.title;
+  $('n-tag').textContent = l.tag;
+  $('n-guess').innerHTML = `<b>${l.guess}</b><span class="sure" style="--p:${l.sure}%">${sureWord(l.sure)} <i></i> ${l.sure}%</span>`;
+  $('n-fix').textContent = l.fix;
+  $('n-learn').textContent = l.learn;
+  document.querySelectorAll('.card').forEach((c) => {
+    const on = c.dataset.id === l.id;
+    c.setAttribute('aria-current', on ? 'true' : 'false');
+    const badge = c.querySelector('.now');
+    if (on && !badge) c.querySelector('.thumb').insertAdjacentHTML('beforeend', '<span class="now">Now playing</span>');
+    if (!on && badge) badge.remove();
+  });
+  if (play) { const p = player.play(); if (p && p.catch) p.catch(() => {}); }
+}
+
+groups.addEventListener('click', (e) => {
+  const c = e.target.closest('.card');
+  if (!c) return;
+  if (location.hash !== '#' + c.dataset.id) location.hash = c.dataset.id;
+  show(c.dataset.id, true);
+  $('player').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
+});
+window.addEventListener('hashchange', () => show(location.hash.slice(1), false));
+show(location.hash.slice(1), false);
+</script>

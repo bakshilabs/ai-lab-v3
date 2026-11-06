@@ -1,0 +1,624 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Should It Be AI? trailer</title>
+<link rel="stylesheet" href="../engine/ui.css">
+<style>
+:root { --ink:#13202b; --teal:#16c79a; --tealD:#0c8f6d; --mint:#e3f7f0; --red:#e5484d; --redD:#b4232a; --redBg:#fde3e3; --mut:#5b6b78; --line:#e4e9ee; --soft:#f4f7f9; }
+#ui, #ui * { font-family: 'Inter', sans-serif; }
+.wcard { background:#fff; border-radius:28px; color:var(--ink); box-shadow:0 10px 0 rgba(10,30,40,.06), 0 18px 40px rgba(10,30,40,.18); }
+/* opening title + header chip */
+.otitle { width:1920px; text-align:center; color:#fff; }
+.otitle .chip2, .etitle .chip2 { display:inline-flex; align-items:center; gap:12px; background:#fff; color:var(--ink); border-radius:999px; padding:12px 26px; font:800 24px 'Inter'; letter-spacing:.08em; box-shadow:0 10px 26px rgba(8,28,44,.18); }
+.otitle .chip2::before, .etitle .chip2::before { content:''; width:14px; height:14px; border-radius:50%; background:var(--teal); }
+.otitle h1 { font:800 104px/1 'Inter'; letter-spacing:-.035em; margin:22px 0 0; text-shadow:0 8px 34px rgba(0,30,60,.35); }
+.otitle h2 { font:700 38px 'Inter'; margin:16px 0 0; text-shadow:0 4px 18px rgba(0,30,60,.4); }
+.labchip { display:flex; align-items:center; gap:18px; background:#fff; border-radius:999px; padding:12px 30px 12px 14px; box-shadow:0 12px 30px rgba(8,28,44,.18); color:var(--ink); white-space:nowrap; }
+.labchip .ic { width:50px; height:50px; border-radius:50%; background:var(--teal); display:grid; place-items:center; }
+.labchip .ic svg { width:30px; height:30px; }
+.labchip b { font:800 30px 'Inter'; letter-spacing:-.01em; }
+.labchip span.r { font:700 22px 'Inter'; color:var(--mut); }
+.labchip span.bar { width:2px; height:32px; background:var(--line); }
+/* brief: a compact card at top right, on open sky */
+.brief { width:876px; box-sizing:border-box; padding:20px 30px 22px; }
+.brief .bh { display:flex; align-items:center; gap:24px; }
+.brief .bic { flex:none; width:76px; height:76px; border-radius:20px; background:var(--teal); display:grid; place-items:center; }
+.brief .bic svg { width:46px; height:46px; }
+.brief .bh .due { margin-left:auto; text-align:right; }
+.brief .aq { margin-top:14px; padding-top:12px; border-top:3px solid var(--line); }
+.brief small { display:block; font:800 20px 'Inter'; letter-spacing:.14em; text-transform:uppercase; color:var(--mut); }
+.brief b { display:block; font:800 34px/1.15 'Inter'; margin-top:6px; white-space:nowrap; }
+.brief .due b { color:#c2410c; }
+/* 3D-anchored tags */
+.ntag { background:#fff; border-radius:16px; padding:10px 20px 11px; box-shadow:0 10px 24px rgba(8,28,44,.25); white-space:nowrap; text-align:center; }
+.ntag b { display:block; font:800 28px 'Inter'; color:var(--ink); }
+.ntag small { display:block; font:650 21px 'Inter'; color:var(--mut); margin-top:2px; }
+.ntag.m { background:var(--ink); } .ntag.m b { color:#fff; } .ntag.m small { color:#9fe8d2; }
+.ntag::after { content:''; position:absolute; left:var(--ax,50%); bottom:-12px; margin-left:-12px; border:12px solid transparent; border-top-color:#fff; border-bottom:0; }
+.ntag.m::after { border-top-color:var(--ink); }
+.ntag.nd { padding:8px 16px 9px; } .ntag.nd b { font-size:23px; } .ntag.nd { box-shadow:0 0 0 4px var(--red), 0 10px 24px rgba(8,28,44,.25); } .ntag.nd small { color:var(--redD); font-weight:800; letter-spacing:.08em; } .ntag.nd::after { border-top-color:var(--red); }
+.ntag.nd.ok { box-shadow:0 0 0 4px var(--teal), 0 10px 24px rgba(8,28,44,.25); } .ntag.nd.ok small { color:#08694f; } .ntag.nd.ok::after { border-top-color:var(--teal); }
+/* a tag or bubble that sits below its person, pointing up */
+.up .ntag::after, .up .say::after { top:-12px; bottom:auto; border:12px solid transparent; border-top:0; border-bottom-color:#fff; }
+.up .ntag.nd::after { border-bottom-color:var(--red); } .up .ntag.nd.ok::after { border-bottom-color:var(--teal); }
+.say.s { font-size:26px; padding:12px 20px; }
+.say { background:#fff; color:var(--ink); border-radius:22px; padding:16px 26px; font:700 30px/1.2 'Inter'; white-space:nowrap; box-shadow:0 12px 26px rgba(8,28,44,.3); }
+.say::after { content:''; position:absolute; left:var(--ax,50%); bottom:-12px; margin-left:-12px; border:12px solid transparent; border-top-color:#fff; border-bottom:0; }
+.say small { display:block; font:800 19px 'Inter'; letter-spacing:.1em; text-transform:uppercase; color:var(--tealD); margin-bottom:4px; }
+/* work card (right column) */
+.doc { width:876px; overflow:hidden; }
+.doc .tb { display:flex; align-items:center; gap:14px; height:74px; padding:0 26px; border-bottom:2px solid var(--line); font:650 22px 'Inter'; color:var(--mut); }
+.doc .tb .fi { flex:none; width:32px; height:38px; border-radius:6px; background:#3d7be0; position:relative; }
+.doc .tb .fi::after { content:''; position:absolute; left:7px; right:7px; top:11px; height:3px; background:#fff; box-shadow:0 7px 0 #fff, 0 14px 0 #fff; }
+.doc .tb b { color:var(--ink); font-weight:800; font-size:24px; }
+.stchip { margin-left:auto; display:inline-flex; align-items:center; gap:10px; font:800 20px 'Inter'; letter-spacing:.1em; text-transform:uppercase; border-radius:999px; padding:9px 18px; background:#fff2c6; color:#8a6400; white-space:nowrap; }
+.stchip::before { content:''; width:12px; height:12px; border-radius:50%; background:currentColor; }
+.stchip.rev { background:#fff0e0; color:#c2410c; } .stchip.ret { background:var(--redBg); color:var(--redD); } .stchip.ok { background:var(--mint); color:var(--tealD); }
+.doc .mn { padding:18px 30px 6px; }
+.doc h3 { font:800 36px/1.15 'Inter'; letter-spacing:-.015em; margin:0; }
+.doc p.tx { font:500 26px/1.45 'Inter'; margin:12px 0 0; }
+.doc .src { margin-top:12px; border-top:2px solid var(--line); padding-top:10px; }
+.doc .src small { font:800 20px 'Inter'; letter-spacing:.14em; color:var(--mut); }
+.doc .src p { font:500 22px/1.38 'Inter'; margin:4px 0 0; }
+.del { color:var(--redD); text-decoration:line-through; text-decoration-thickness:3px; background:var(--redBg); border-radius:4px; }
+.ins { color:#08694f; background:#d6f5e9; border-radius:4px; }
+.flag { background:var(--redBg); box-shadow:0 0 0 3px var(--red); border-radius:6px; }
+.caret { display:inline-block; width:3px; height:1.05em; background:var(--ink); vertical-align:-3px; margin-left:2px; }
+.doc .rv { display:flex; align-items:center; gap:10px; padding:14px 26px; border-top:2px solid var(--line); background:#fbfcfd; min-height:78px; }
+.doc .rv .lab { font:800 20px 'Inter'; letter-spacing:.12em; color:var(--mut); margin-right:4px; white-space:nowrap; }
+.doc .rv .lab.dr { letter-spacing:.03em; font-size:18px; margin-right:0; }
+.btn { font:800 24px 'Inter'; background:var(--ink); color:#fff; border-radius:999px; padding:12px 26px; white-space:nowrap; }
+.btn.t { background:var(--teal); color:#062a20; }
+.btn.t.off { background:#e4e9ee; color:#9aa8b4; } /* disabled until all four checks pass */
+.chk { display:flex; align-items:center; gap:10px; font:800 24px 'Inter'; padding:8px 18px 8px 8px; border-radius:999px; background:#eef2f5; color:#7d8b97; border:3px solid transparent; white-space:nowrap; }
+.chk i { width:34px; height:34px; border-radius:50%; background:#d5dde3; display:grid; place-items:center; }
+.chk i svg { width:22px; height:22px; }
+.chk.run { border-color:var(--teal); color:var(--ink); background:#fff; }
+.chk.ok { background:var(--mint); color:#08694f; } .chk.ok i { background:var(--teal); }
+.chk.bad { background:var(--red); color:#fff; box-shadow:0 0 0 5px rgba(229,72,77,.22); } .chk.bad i { background:#fff; } .chk.bad i svg path { stroke:var(--red); }
+.find { box-sizing:border-box; display:flex; align-items:center; gap:14px; padding:0 26px; font:700 23px/1.25 'Inter'; color:var(--redD); background:#fff5f5; border-top:2px solid #f6cfd0; overflow:hidden; height:0; }
+.find i { flex:none; width:36px; height:36px; border-radius:50%; background:var(--red); display:grid; place-items:center; } .find i svg { width:22px; height:22px; }
+.find.ok { color:#08694f; background:#effbf6; border-top-color:#cdeee2; } .find.ok i { background:var(--teal); }
+.find.rr { color:var(--ink); background:var(--soft); border-top-color:var(--line); } .find.rr i { background:#9aa8b4; }
+.prow { display:flex; align-items:center; gap:14px; padding:0 26px; font:650 23px 'Inter'; color:#08694f; background:#effbf6; border-top:2px solid #cdeee2; overflow:hidden; height:0; white-space:nowrap; }
+.prow i { flex:none; width:32px; height:32px; border-radius:50%; background:var(--teal); display:grid; place-items:center; } .prow i svg { width:20px; height:20px; }
+.prow b { font-weight:800; }
+.doc .ft { display:flex; align-items:center; gap:16px; height:84px; padding:0 26px; border-top:2px solid var(--line); background:#fbfcfd; font:700 24px 'Inter'; color:#8a98a4; }
+.doc .ft .pass { margin-left:auto; font:800 22px 'Inter'; background:#eef2f5; border-radius:999px; padding:10px 18px; color:var(--mut); white-space:nowrap; }
+.doc .ft .pass.ok { background:var(--mint); color:#08694f; }
+/* AI colleague */
+.ai { width:876px; background:var(--ink); color:#fff; border-radius:28px; padding:24px 30px 24px; box-shadow:0 14px 0 rgba(0,0,0,.14), 0 20px 40px rgba(5,15,25,.3); }
+.ai .hd { display:flex; align-items:center; gap:14px; }
+.ai .hd .bot { width:52px; height:52px; border-radius:16px; background:#233544; display:grid; place-items:center; }
+.ai .hd .bot i { display:block; width:28px; height:11px; border-radius:6px; background:var(--teal); box-shadow:0 0 12px rgba(22,199,154,.8); }
+.ai .hd b { font:800 28px 'Inter'; }
+.ai .hd .dr { margin-left:auto; font:800 20px 'Inter'; letter-spacing:.12em; background:#233544; color:#ffd36b; border-radius:999px; padding:8px 16px; }
+.ai .hd .dr.ret { background:var(--red); color:#fff; }
+.ai .hd .dr.v2 { background:var(--teal); color:#062a20; }
+.ai .sure.v2 { color:#9fe8d2; }
+.ai p { font:600 30px/1.3 'Inter'; margin:16px 0 0; }
+.ai p .del { color:#ffb3b5; background:rgba(229,72,77,.22); text-decoration-color:#ff6b70; }
+.ai .ftr { display:flex; align-items:center; gap:18px; margin-top:18px; }
+.ai .sure { display:flex; align-items:center; gap:14px; font:800 30px 'Inter'; white-space:nowrap; }
+.ai .sure .bar { width:220px; height:14px; border-radius:99px; background:#2c3e4e; overflow:hidden; }
+.ai .sure .bar i { display:block; height:100%; border-radius:99px; background:linear-gradient(90deg,#ffc83d,var(--teal)); }
+.ai .sure.low { color:#ff8f93; font-size:26px; } .ai .sure.low .bar { display:none; } /* the label replaces the bar, as in fs-verify */
+.ai .data { margin-left:auto; display:inline-flex; align-items:center; gap:10px; background:#233544; border-radius:999px; padding:9px 20px 9px 10px; font:650 23px 'Inter'; color:#dbe6ee; white-space:nowrap; }
+.ai .ftr { flex-wrap:wrap; } .ai .data.w { margin-left:0; }
+.ai .data b { background:#3a5063; color:#fff; border-radius:999px; padding:4px 12px; font:800 20px 'Inter'; letter-spacing:.1em; }
+.ai .data.bad { background:rgba(229,72,77,.25); color:#ffd0d1; } .ai .data.bad b { background:var(--red); }
+/* sign-off */
+.sign { display:inline-flex; align-items:center; gap:22px; background:#fff; border:4px solid var(--teal); border-radius:28px; padding:20px 34px 20px 20px; box-shadow:0 16px 36px rgba(10,60,50,.28); white-space:nowrap; color:var(--ink); }
+.sign .tick { width:80px; height:80px; border-radius:50%; background:var(--teal); display:grid; place-items:center; }
+.sign .tick svg { width:48px; height:48px; }
+.sign small { display:block; font:800 20px 'Inter'; letter-spacing:.14em; color:var(--tealD); }
+.sign b { display:block; font:800 40px 'Inter'; margin-top:2px; }
+.sign em { display:block; font-style:normal; font:700 24px 'Inter'; color:var(--mut); margin-top:4px; }
+.sign { width:876px; box-sizing:border-box; white-space:normal; } .sign b { font-size:32px; line-height:1.15; }
+/* island evidence tag (as in fs-impact) */
+.ev { display:flex; align-items:center; gap:12px; background:#fff; border:4px solid var(--ink); border-radius:18px; padding:8px 20px 8px 8px; font:800 25px 'Inter'; color:var(--ink); white-space:nowrap; box-shadow:0 12px 26px rgba(8,28,44,.3); }
+.ev i { flex:none; width:38px; height:38px; border-radius:50%; background:var(--ink); display:grid; place-items:center; } .ev i svg { width:24px; height:24px; }
+.ev.ok { border-color:var(--teal); color:#08694f; } .ev.ok i { background:var(--teal); }
+.ev::after { content:''; position:absolute; left:var(--ax,50%); bottom:-14px; margin-left:-12px; border:12px solid transparent; border-top-color:var(--ink); border-bottom:0; }
+.ev.ok::after { border-top-color:var(--teal); }
+.up .ev::after { top:-14px; bottom:auto; border:12px solid transparent; border-top:0; border-bottom-color:var(--ink); } .up .ev.ok::after { border-bottom-color:var(--teal); }
+/* front-desk log (Case evidence) */
+.log { width:876px; padding:20px 30px 16px; box-sizing:border-box; }
+.log .lh { display:flex; align-items:center; gap:14px; font:800 26px 'Inter'; margin-bottom:6px; }
+.log .lh .tag { font:800 20px 'Inter'; letter-spacing:.14em; background:var(--ink); color:#fff; border-radius:10px; padding:8px 14px; }
+.log .lh span:last-child { color:var(--mut); font-weight:650; font-size:23px; }
+.log .lr { display:flex; align-items:center; padding:9px 0; border-bottom:2px solid var(--line); font:650 25px 'Inter'; color:#33414d; }
+.log .lr b { margin-left:auto; font:800 28px 'Inter'; color:var(--ink); }
+.log .lt { display:flex; align-items:center; gap:12px; margin-top:10px; padding:10px 16px; border-radius:14px; background:var(--soft); font:800 25px 'Inter'; color:var(--ink); }
+.log .lt b { margin-left:auto; font:800 28px 'Inter'; }
+.log .lt.ok { background:var(--mint); color:#08694f; }
+.log .lt.bad { background:var(--redBg); color:var(--redD); box-shadow:inset 0 0 0 3px var(--red); }
+.log .lr em { font-style:normal; font:800 18px 'Inter'; letter-spacing:.1em; background:#eef2f5; color:var(--mut); border-radius:8px; padding:4px 10px; margin-left:14px; }
+/* step strip */
+.steps { display:flex; align-items:center; gap:16px; background:rgba(19,32,43,.9); color:#fff; border-radius:999px; padding:10px 28px 10px 10px; white-space:nowrap; }
+.steps .n { font:800 22px 'Inter'; background:var(--teal); color:#062a20; border-radius:999px; padding:8px 16px; }
+.steps .d { font:700 26px 'Inter'; }
+/* portfolio */
+.folder { width:876px; }
+.folder .tabf { display:inline-block; background:var(--teal); color:#062a20; font:800 24px 'Inter'; letter-spacing:.06em; border-radius:20px 20px 0 0; padding:12px 30px 10px; margin-left:26px; }
+.folder .body { background:#fff; border-radius:28px; border-top:10px solid var(--teal); padding:16px 24px; box-shadow:0 18px 40px rgba(8,28,44,.25); }
+.folder .it { display:flex; align-items:center; gap:22px; padding:20px 18px; border-bottom:2px solid var(--line); font:800 36px 'Inter'; color:var(--ink); }
+.folder .it:last-child { border-bottom:0; }
+.folder .it i { flex:none; width:58px; height:70px; border-radius:10px; background:#e8eef2; }
+.folder .it small { display:block; font:650 25px 'Inter'; color:var(--mut); margin-top:5px; }
+.folder .it span { line-height:1.15; }
+.folder .pv { padding:8px 18px 6px; }
+.folder .pv div { font:650 25px/1.3 'Inter'; color:#33414d; padding:9px 0 9px 18px; border-left:5px solid var(--teal); margin:8px 0; }
+.folder .pv small { display:block; font:800 19px 'Inter'; letter-spacing:.12em; color:var(--tealD); }
+.folder .it.nw { background:#ecfaf4; border-radius:16px; border-bottom:0; }
+.folder .it.nw i { background:var(--teal); }
+.folder .it .new { margin-left:auto; font:800 22px 'Inter'; letter-spacing:.1em; background:var(--ink); color:#fff; border-radius:8px; padding:7px 14px; }
+/* end */
+.etitle { width:876px; color:#fff; }
+.etitle h1 { font:800 92px/1 'Inter'; letter-spacing:-.035em; margin:20px 0 0; text-shadow:0 6px 30px rgba(0,30,60,.3); white-space:nowrap; }
+.etitle h2 { font:700 34px/1.25 'Inter'; margin:14px 0 0; text-shadow:0 3px 16px rgba(0,30,60,.35); }
+.path { width:876px; padding:28px 30px 26px; }
+.path .top { display:flex; align-items:center; gap:16px; margin-bottom:8px; }
+.path .top .tag { font:800 20px 'Inter'; letter-spacing:.14em; background:var(--teal); color:#062a20; border-radius:10px; padding:8px 14px; }
+.path .top h3 { font:800 34px 'Inter'; margin:0; }
+.path .row { display:grid; grid-template-columns:140px 1fr; align-items:center; gap:14px; padding:14px 0; border-top:2px solid var(--line); }
+.path .row span { font:800 21px 'Inter'; letter-spacing:.1em; text-transform:uppercase; color:#07513e; }
+.path .row b { font:700 31px/1.25 'Inter'; }
+.path .row b em { font-style:normal; color:var(--mut); font-weight:600; }
+.path .jobs { display:flex; gap:8px; flex-wrap:nowrap; }
+.path .jobs i { font:750 24px 'Inter'; font-style:normal; background:var(--mint); border-radius:999px; padding:8px 12px; white-space:nowrap; }
+.path .lg { display:flex; justify-content:flex-end; padding-top:12px; border-top:2px solid var(--line); }
+.path .lg img { height:40px; }
+.cur { width:46px; height:56px; }
+.ring { width:70px; height:70px; border-radius:50%; border:5px solid var(--teal); }
+/* product lab */
+.prob { font:700 26px/1.3 'Inter'; background:#f1f6fa; border-radius:16px; padding:14px 20px; margin-bottom:14px; }
+.pers { display:grid; grid-template-columns:1fr 1fr; gap:8px; padding-bottom:8px; }
+.per { display:flex; align-items:center; gap:12px; border:3px solid var(--line); border-radius:18px; padding:5px 12px; min-height:62px; box-sizing:border-box; background:#fff; position:relative; }
+.per i { flex:none; width:40px; height:40px; border-radius:50%; background:#e8eef2; display:grid; place-items:center; } .per i svg { width:24px; height:24px; }
+.per b { font:750 23px/1.2 'Inter'; }
+.per.bad { border-color:var(--red); background:#fff5f5; } .per.bad i { background:var(--redBg); }
+.per .nm { display:flex; flex-direction:column; align-items:flex-start; gap:3px; }
+.per .ns { display:none; font:800 19px 'Inter'; letter-spacing:.06em; background:var(--red); color:#fff; border-radius:7px; padding:1px 9px; }
+.per.bad .ns, .per.ok .ns { display:inline-block; }
+.per.ok { border-color:var(--teal); background:#effbf6; } .per.ok i { background:var(--mint); } .per.ok .ns { background:var(--teal); color:#062a20; }
+.ask { display:flex; align-items:center; gap:14px; padding:0 18px; border-radius:16px; font:650 24px 'Inter'; color:#08694f; background:#effbf6; box-shadow:inset 0 0 0 2px #cdeee2; overflow:hidden; height:0; white-space:nowrap; margin-bottom:10px; }
+.ask i { flex:none; width:32px; height:32px; border-radius:50%; background:var(--teal); display:grid; place-items:center; } .ask i svg { width:20px; height:20px; } .ask b { font-weight:800; }
+.dec .dl { font:650 26px/1.35 'Inter'; margin:4px 0 14px; padding-left:18px; border-left:5px solid var(--teal); min-height:34px; }
+.dec .dl small { display:block; font:800 20px 'Inter'; letter-spacing:.12em; color:var(--tealD); text-transform:uppercase; }
+.tree { width:876px; padding:18px 30px 10px; box-sizing:border-box; }
+.tree .th { display:flex; align-items:center; gap:14px; font:800 28px 'Inter'; }
+.tree .tag { font:800 20px 'Inter'; letter-spacing:.14em; background:var(--teal); color:#062a20; border-radius:10px; padding:8px 14px; }
+.tree .q { display:grid; grid-template-columns:1fr auto; gap:14px; align-items:center; padding:7px 0; border-bottom:2px solid var(--line); min-height:46px; }
+.tree .q:last-child { border-bottom:0; }
+.tree .q span { font:650 26px/1.25 'Inter'; color:#33414d; }
+.tree .q b { font:800 24px 'Inter'; border-radius:999px; padding:7px 18px; white-space:nowrap; }
+.tree .q b.a { background:#fff1d6; color:#8a5a00; } .tree .q b.x { background:var(--red); color:#fff; box-shadow:0 0 0 4px rgba(229,72,77,.22); } .tree .q b.o { background:var(--mint); color:#08694f; }
+</style>
+<script type="importmap">{"imports":{"three":"/three/three.module.js","three/addons/":"/three-addons/"}}</script></head>
+<body><div id="app"><div id="bg"></div><div id="ui"></div><div id="fx"></div></div>
+<script type="module">
+import * as THREE from 'three';
+import { createStage, prog, ease, lerp, clamp, within } from '../engine/stage.js';
+import { Vox, tree, house, person, island, rand, noise2 } from '../engine/kit.js';
+import { el, cue, fader, toScreen } from '../engine/ui.js';
+import { clouds, birds } from '../engine/extras.js';
+
+const DUR = 37;
+const T_END = 31.9; // the portfolio leaves and the end title and pathway come in on the same beat
+const st = createStage({ post: false });
+const { scene, camera, sun, hemi, rim } = st;
+rim.intensity = 0.55; st.dome.visible = false; st.renderer.setClearColor(0x000000, 0);
+document.getElementById('bg').style.background = 'linear-gradient(180deg, #4fb0ff 0%, #8fd0ff 52%, #dff2ff 100%)';
+sun.intensity = 2.8; sun.position.set(-60, 120, 70); hemi.intensity = 1.3; st.renderer.toneMappingExposure = 1.08;
+
+await document.fonts.load('800 40px Inter'); await document.fonts.load('600 40px Inter');
+
+// ---------- helpers ----------
+function tex(w, h, draw) { const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d'); draw(g, w, h); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t; }
+function plane(w, h, map, at, ry = 0) { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ map, toneMapped: false })); m.position.set(...at); m.rotation.y = ry; scene.add(m); return m; }
+const rr = (g, x, y, w, h, r, c) => { g.fillStyle = c; g.beginPath(); g.roundRect(x, y, w, h, r); g.fill(); };
+
+// ---------- island + library ----------
+const v = new Vox(); v.jitter = 0.05;
+const isl = island(v, { rx: 40, rz: 30, top: 0, depth: 15, seed: 12, wobble: 4 });
+const OX0 = -17, OX1 = 13, OZ0 = -12, OZ1 = 8;
+const BRICK = ['#b8593c', '#a94f34', '#c4643f'], CREAM = '#f1e6cf', STONE = '#d9cdb4';
+// warm plank floor
+for (let x = OX0; x <= OX1; x++) for (let z = OZ0; z <= OZ1; z++) v.set(x, 0, z, (x === OX0 || x === OX1 || z === OZ1) ? STONE : (z % 2 ? '#d8b083' : '#cfa375'));
+// kids' corner rug (front-left)
+for (let x = -15; x <= -9; x++) for (let z = 1; z <= 6; z++) { const r = Math.hypot(x + 12, (z - 3.5) * 1.2); v.set(x, 0, z, r < 1.6 ? '#ffd23f' : r < 3 ? '#5bc0eb' : '#ff7a8a'); }
+// brick back wall (z = OZ0) and left wall (x = OX0) with tall arched windows
+const brick = (x, y, z) => BRICK[(x * 7 + y * 3 + z * 5) & 1 ? 0 : (y % 3 === 0 ? 2 : 1)];
+const winAt = (u, y) => y >= 3 && y <= 7 && (u % 5 === 2 || u % 5 === 3) && !(y === 7 && (u % 5 === 3));
+for (let x = OX0; x <= OX1; x++) for (let y = 1; y <= 9; y++) { const u = x - OX0; const w = winAt(u, y) && x > OX0 + 2 && x < OX1 - 1; if (!w) v.set(x, y, OZ0, y === 9 ? CREAM : y === 1 ? STONE : brick(x, y, OZ0)); }
+for (let z = OZ0; z <= OZ1; z++) for (let y = 1; y <= 9; y++) { const u = z - OZ0; const w = winAt(u, y) && z > OZ0 + 2 && z < OZ1 - 1; if (!w) v.set(OX0, y, z, y === 9 ? CREAM : y === 1 ? STONE : brick(OX0, y, z)); }
+// clock tower on the back-left corner with a copper roof
+for (let x = OX0 - 1; x <= OX0 + 4; x++) for (let z = OZ0 - 1; z <= OZ0 + 4; z++) for (let y = 1; y <= 15; y++) { const edge = x === OX0 - 1 || x === OX0 + 4 || z === OZ0 - 1 || z === OZ0 + 4; if (!edge) continue; v.set(x, y, z, y === 15 || y === 10 ? CREAM : brick(x, y, z)); }
+for (let k = 0; k <= 3; k++) for (let x = OX0 - 1 + k; x <= OX0 + 4 - k; x++) for (let z = OZ0 - 1 + k; z <= OZ0 + 4 - k; z++) v.set(x, 16 + k, z, k % 2 ? '#4f9c86' : '#5fb39a');
+v.set(OX0 + 1, 20, OZ0 + 1, '#f6c343'); v.set(OX0 + 2, 20, OZ0 + 2, '#f6c343');
+// low front wall with an entrance gap, stone pillars either side
+for (let x = OX0; x <= OX1; x++) if (x < -3 || x > 3) for (let y = 1; y <= 2; y++) v.set(x, y, OZ1, y === 2 ? CREAM : brick(x, y, OZ1));
+for (const px of [-4, 4]) for (let y = 1; y <= 5; y++) v.set(px, y, OZ1, y === 5 ? '#f6c343' : STONE);
+// park behind: pond, trees, a few cottages
+for (let x = -30; x <= 30; x++) for (let z = -26; z <= -16; z++) if (isl.top(x, z) != null && Math.hypot((x - 14) / 9, (z + 21) / 4) < 1) v.set(x, 0, z, '#4fb6e8');
+const roofs = ['#3f6fb0', '#e0a23a', '#7a5ac8'];
+[[-28, -24], [-14, -26], [0, -27]].forEach(([x, z], i) => { if (isl.top(x, z) != null && isl.top(x + 7, z + 5) != null) house(v, x, 0, z, { w: 7, d: 5, h: 4, roof: roofs[i], wall: i % 2 ? '#f4efe6' : '#efe2c9' }); });
+for (const [x, z] of [[24, -10], [30, -3], [27, 9], [-27, 6], [-29, -6], [-23, 17], [31, 14], [-12, 21], [-34, 0], [35, 2], [5, -18], [26, -18]]) if (isl.top(x, z) != null) tree(v, x, 0, z, { kind: rand(x, z) > .45 ? 'round' : 'pine', s: 2 });
+// front path and flower beds
+for (let z = OZ1 + 1; z <= 28; z++) for (let x = -2; x <= 2; x++) if (isl.top(x, z) != null) v.set(x, 0, z, '#e2d3ae');
+for (let x = -15; x <= -6; x++) for (let z = 11; z <= 13; z++) v.set(x, 1, z, rand(x, z, 3) > .5 ? (rand(x, z, 4) > .5 ? '#ff7eb6' : '#ffd23f') : '#4caf50');
+for (let x = 6; x <= 15; x++) for (let z = 11; z <= 13; z++) v.set(x, 1, z, rand(x, z, 5) > .5 ? (rand(x, z, 6) > .5 ? '#b28cff' : '#ff9a4a') : '#4caf50');
+scene.add(v.mesh());
+
+// half-size furniture voxels
+const f = new Vox(); f.jitter = 0.03;
+const fb = (x0, y0, z0, x1, y1, z1, c) => { for (let i = Math.round(x0 * 2); i < Math.round(x1 * 2); i++) for (let j = Math.round(y0 * 2); j < Math.round(y1 * 2); j++) for (let k = Math.round(z0 * 2); k < Math.round(z1 * 2); k++) f.set(i, j, k, c); };
+const FL = 1;
+const SPINE = ['#d0573a', '#3c6ea8', '#f6c343', '#16c79a', '#efe2c9', '#7a5ac8', '#e8573f', '#2f8a43', '#ff9ec4'];
+// bookcase: along x (faces +z) or along z (faces +x)
+function shelfX(x0, x1, z, h, face = 1) { fb(x0, FL, z - 0.5, x1, FL + h, z + 0.5, '#7a4e2c'); for (let y = 0; y < Math.floor(h / 1.25); y++) for (let x = x0 + 0.5; x < x1 - 0.5; x += 0.5) if (rand(x * 2, y, z) > .12) { const top = FL + 0.5 + y * 1.25 + 1 - (rand(x * 3, y, z) > .6 ? 0.25 : 0); fb(x, FL + 0.5 + y * 1.25, z + (face > 0 ? 0.5 : -1), x + 0.5, top, z + (face > 0 ? 1 : -0.5), SPINE[Math.floor(rand(x * 5, y, z) * SPINE.length)]); } }
+function shelfZ(z0, z1, x, h) { fb(x - 0.5, FL, z0, x + 0.5, FL + h, z1, '#7a4e2c'); for (let y = 0; y < Math.floor(h / 1.25); y++) for (let z = z0 + 0.5; z < z1 - 0.5; z += 0.5) if (rand(z * 2, y, x) > .12) fb(x + 0.5, FL + 0.5 + y * 1.25, z, x + 1, FL + 0.5 + y * 1.25 + 1 - (rand(z * 3, y) > .6 ? 0.25 : 0), z + 0.5, SPINE[Math.floor(rand(z * 5, y, x) * SPINE.length)]); }
+shelfX(-12.5, -6, OZ0 + 1, 4); shelfX(-3, 3, OZ0 + 1, 4); shelfX(6, 12, OZ0 + 1, 4);
+shelfZ(-8, -2, OX0 + 1, 4);
+// freestanding low double shelf in the middle back
+shelfX(-11, -4, -6.5, 2.5); shelfX(-11, -4, -6.5, 2.5, -1);
+// reading tables with green lamps and open books / laptops
+function readTable(cx, cz, lap = true) {
+  fb(cx - 3, FL + 1.25, cz - 1.25, cx + 3, FL + 1.5, cz + 1.25, '#f4efe6');
+  for (const [a, b] of [[-3, -1.25], [2.5, -1.25], [-3, 0.75], [2.5, 0.75]]) fb(cx + a, FL, cz + b, cx + a + 0.5, FL + 1.25, cz + b + 0.5, '#6b4526');
+  fb(cx - 0.25, FL + 1.5, cz - 0.75, cx + 0.25, FL + 2.5, cz - 0.25, '#2f8a43'); fb(cx - 0.75, FL + 2.5, cz - 1, cx + 0.75, FL + 3, cz, '#2f8a43');
+  for (const sx of [cx - 1.75, cx + 1.75]) {
+    if (lap) { fb(sx - 0.75, FL + 1.5, cz - 0.25, sx + 0.75, FL + 1.75, cz + 0.75, '#c7d0d6'); fb(sx - 0.75, FL + 1.5, cz - 0.75, sx + 0.75, FL + 2.75, cz - 0.25, '#9aa6b0'); }
+    else { fb(sx - 0.75, FL + 1.5, cz, sx, FL + 1.75, cz + 0.75, '#f7f2e6'); fb(sx, FL + 1.5, cz, sx + 0.75, FL + 1.75, cz + 0.75, '#efe6d2'); }
+    fb(sx - 0.5, FL + 0.5, cz + 1.75, sx + 0.5, FL + 1, cz + 2.75, '#2f6f5c'); fb(sx - 0.5, FL + 1, cz + 2.75, sx + 0.5, FL + 2.5, cz + 3.25, '#2f6f5c');
+  }
+}
+readTable(0, 1); readTable(-1, -3.5, false);
+// laptop screens on Aisha's table
+const lapTex = tex(160, 110, (g, w, h) => { g.fillStyle = '#ffffff'; g.fillRect(0, 0, w, h); g.fillStyle = '#16c79a'; g.fillRect(0, 0, w, 16); g.fillStyle = '#c3cdd4'; for (let r = 0; r < 5; r++) g.fillRect(12, 28 + r * 15, r % 2 ? 90 : 130, 7); });
+for (const sx of [-1.75, 1.75]) plane(1.3, 0.95, lapTex, [sx, FL + 2.15, 1 - 0.49]);
+// public computers against the back wall (right)
+const pcTex = tex(200, 120, (g, w, h) => { g.fillStyle = '#eaf2f7'; g.fillRect(0, 0, w, h); rr(g, 0, 0, w, 22, 0, '#3d7be0'); g.fillStyle = '#13202b'; g.font = '800 15px Inter'; g.fillText('BOOK A PC', 10, 16); for (let i = 0; i < 4; i++) rr(g, 12 + i * 46, 36, 38, 30, 4, i === 2 ? '#16c79a' : '#c9d6df'); });
+fb(6, FL + 1.25, -9.5, 12, FL + 1.5, -7.5, '#e9e4d8'); fb(6, FL, -9.5, 6.5, FL + 1.25, -7.5, '#9aa6b0'); fb(11.5, FL, -9.5, 12, FL + 1.25, -7.5, '#9aa6b0');
+for (const sx of [7.5, 10.5]) { fb(sx - 1, FL + 1.75, -9.25, sx + 1, FL + 3, -8.75, '#22303c'); plane(1.8, 1.05, pcTex, [sx, FL + 2.375, -8.74]); fb(sx - 0.5, FL + 0.5, -6.5, sx + 0.5, FL + 1, -5.5, '#3d7be0'); }
+// returns desk (front right) with a book trolley
+fb(6, FL, 3, 12, FL + 1.75, 4, '#16a383'); fb(11, FL, 4, 12, FL + 1.75, 6.5, '#16a383'); fb(5.75, FL + 1.75, 2.75, 12.25, FL + 2, 4.25, '#f1e6cf'); fb(10.75, FL + 1.75, 4, 12.25, FL + 2, 6.75, '#f1e6cf');
+for (let i = 0; i < 6; i++) fb(6.5 + i * 0.5, FL + 2, 3.25, 7 + i * 0.5, FL + 2.5 + (i % 3) * 0.25, 3.75, SPINE[i]);
+fb(13.5, FL + 0.5, 5.5, 15.5, FL + 0.75, 6.5, '#9aa6b0'); fb(13.5, FL + 1.5, 5.5, 15.5, FL + 1.75, 6.5, '#9aa6b0'); for (let i = 0; i < 7; i++) fb(13.6 + i * 0.25, FL + 1.75, 5.6, 13.85 + i * 0.25, FL + 2.5, 6.4, SPINE[(i + 3) % 9]);
+const retSign = tex(256, 64, (g, w, h) => { rr(g, 0, 0, w, h, 12, '#13202b'); g.fillStyle = '#9fe8d2'; g.font = '800 36px Inter'; g.textBaseline = 'middle'; g.fillText('RETURNS', 46, 34); });
+plane(2.6, 0.65, retSign, [8.8, FL + 1.05, 4.02]);
+// kids' corner: beanbags, low shelf, a paper tree
+for (const [x, z, c] of [[-13.5, 2.5, '#e5484d'], [-10.5, 2.25, '#f6c343'], [-13, 5.25, '#3c6ea8']]) { fb(x - 0.75, FL, z - 0.75, x + 0.75, FL + 0.75, z + 0.75, c); fb(x - 0.5, FL + 0.75, z - 0.5, x + 0.5, FL + 1.25, z + 0.5, c); }
+shelfZ(1, 6, OX0 + 1, 2.5);
+fb(-9, FL, 5, -8.5, FL + 3, 5.5, '#8a5c38'); for (let i = 0; i < 16; i++) { const a = i * 2.4, r = 0.4 + (i % 3) * 0.35; fb(-8.75 + Math.cos(a) * r - 0.25, FL + 3 + (i % 4) * 0.25, 5.25 + Math.sin(a) * r - 0.25, -8.75 + Math.cos(a) * r + 0.25, FL + 3.5 + (i % 4) * 0.25, 5.25 + Math.sin(a) * r + 0.25, ['#4caf50', '#5bbd5a', '#ff9ec4'][i % 3]); }
+// outside: red book drop, bike rack, bench, opening-times board
+fb(5.5, FL - 1, 10, 6.75, FL + 1, 11, '#d0302f'); fb(5.5, FL + 1, 10, 6.75, FL + 1.5, 11, '#a82222');
+fb(8, FL - 1, 16, 12, FL - 0.5, 17, '#a8743f'); fb(8, FL - 0.5, 16.75, 12, FL + 0.5, 17, '#a8743f');
+plane(18, 1.6, tex(1024, 96, (g, w, h) => { rr(g, 0, 0, w, h, 20, '#1f5f4a'); g.fillStyle = '#f6c343'; g.fillRect(40, 26, 12, 46); g.fillRect(58, 26, 12, 46); g.fillRect(76, 30, 12, 42); g.fillStyle = '#f1e6cf'; g.font = '800 56px Inter'; g.textBaseline = 'middle'; g.fillText('HARBOURSIDE LIBRARY', 110, 52); }), [-2, 7.6, OZ0 + 1.04]);
+const times = tex(256, 200, (g, w, h) => { rr(g, 0, 0, w, h, 14, '#1f5f4a'); g.fillStyle = '#f6c343'; g.font = '800 30px Inter'; g.fillText('OPEN', 22, 42); g.fillStyle = '#f1e6cf'; g.font = '700 24px Inter'; ['Mon–Fri 9–7', 'Sat 9–5', 'Sun closed'].forEach((s, i) => g.fillText(s, 22, 90 + i * 38)); });
+// the opening-times board stands on the front lawn, right of the path, where its Source tag can sit below it, clear of the desk tags
+fb(13.75, FL - 1, 18, 14.25, FL + 2.5, 18.5, '#59636b'); fb(17.75, FL - 1, 18, 18.25, FL + 2.5, 18.5, '#59636b');
+plane(4.4, 3.4, times, [16, FL + 3.0, 18.55]);
+const BOARD = new THREE.Vector3(16, FL - 1, 18.55); // top of the opening-times board (half-size voxels: world units)
+scene.add(f.mesh({ scale: 0.5 }));
+
+// ---------- people ----------
+const add = (o, at, ry = 0, sit = true) => { const p = person({ s: 0.36, ...o }); if (sit) { p.children[0].rotation.x = Math.PI / 2; p.children[1].rotation.x = Math.PI / 2; } p.position.set(at[0], sit ? FL + 1 - 1.08 : FL - 0.02, at[1]); p.rotation.y = ry; scene.add(p); return p; };
+const AISHA = add({ shirt: '#16c79a', pants: '#2c3e66', skin: '#7a4a2c', hair: '#1a1210' }, [-1.75, 3.25]);
+{ const m = new THREE.MeshLambertMaterial({ color: '#6e5bf2' }); const a = new THREE.Mesh(new THREE.BoxGeometry(0.9, 1.18, 0.5), m); a.position.set(0, 2.72, 0.2); const b = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.5, 0.8), m); b.position.set(0, 3.1, 0.02); AISHA.add(a, b); }
+const P2 = add({ shirt: '#ff8a2a', pants: '#3b3f46', skin: '#e0b08a', hair: '#d8a040' }, [1.75, 3.25]);
+const P3 = add({ shirt: '#3d7be0', pants: '#2c3e66', skin: '#c68a5e', hair: '#2b1d14' }, [-2.75, -1.25]);
+const P4 = add({ shirt: '#e8573f', pants: '#2b2b33', skin: '#f0c9a0', hair: '#7a4a2c' }, [7.5, -5.75], Math.PI);
+const KID = add({ shirt: '#f6c343', pants: '#3c6ea8', skin: '#8a5a3a', hair: '#111', s: 0.28 }, [-10.5, 2.25], Math.PI);
+const LIB = add({ shirt: '#7a5ac8', pants: '#2c3e66', skin: '#e0b08a', hair: '#9a9a9a' }, [9, 1.6], Math.PI, false);
+const OLD = add({ shirt: '#8fa3b0', pants: '#4a5560', skin: '#f0c9a0', hair: '#e6e6e6' }, [9, 5.6], 0, false);
+const PL = add({ shirt: '#d0302f', pants: '#2c3e66', skin: '#f0c9a0', hair: '#c8a060' }, [6.6, 5.4], 0.2, false);
+const MENTOR = add({ shirt: '#f6b53c', pants: '#2c3e66', skin: '#6b4026', hair: '#2a1a12', s: 0.39 }, [4.0, 4.8], Math.PI / 2 + 0.35, false);
+const kids = [AISHA, P2, P3, P4, KID];
+// a visitor strolls up the front path to the book drop and back: a little life on the lawn (no effect on framing)
+const WALKER = add({ shirt: '#2f8a43', pants: '#3b3f46', skin: '#c68a5e', hair: '#2b1d14' }, [0.5, 24], Math.PI, false);
+const WALK = [[0.5, 24], [0.5, 12], [4.3, 10.6]], WP = 16; // out along the path, drop a book, back again every 16 s
+function walkerAt(t) {
+  const ph = ((t + 3) % WP) / WP; const out = ph < 0.44, back = ph > 0.56; const u = out ? ph / 0.44 : back ? (1 - ph) / 0.44 : 1;
+  const L1 = 12, L2 = Math.hypot(3.8, 1.4), d = u * (L1 + L2); let x, z, dx, dz;
+  if (d <= L1) { x = 0.5; z = 24 - d; dx = 0; dz = -1; } else { const q = (d - L1) / L2; x = lerp(0.5, 4.3, q); z = lerp(12, 10.6, q); dx = 3.8; dz = -1.4; }
+  if (back) { dx = -dx; dz = -dz; }
+  WALKER.position.x = x; WALKER.position.z = z;
+  if (out || back) { WALKER.rotation.y = Math.atan2(-dx, -dz); WALKER.userData.walk(t * 7); } else { WALKER.rotation.y = -Math.PI / 2; /* faces the book drop */ WALKER.userData.walk(0); }
+}
+
+const cloudU = clouds(scene, { n: 8, spread: 300, y: [50, 80], z: [-220, -90], seed: 4 });
+const nBefore = scene.children.length;
+const birdU = birds(scene, { n: 6, center: [0, 22, -8], radius: 40, seed: 7 });
+const birdG = scene.children.slice(nBefore);
+const BV = new THREE.Vector3();
+// birds shrink away before they reach a frame edge, so none is ever cut off by it
+const birdEdge = () => birdG.forEach((g) => { BV.copy(g.position).project(camera); const x = (BV.x + 1) * 960, y = (1 - BV.y) * 540; const m = Math.min(x, 1920 - x, y, 1080 - y); g.scale.setScalar(clamp((m - 70) / 90)); });
+
+// ---------- camera ----------
+const orbit = (look, ang, dist, hgt, ox = 0, oy = 0) => ({ look, ang, dist, hgt, ox, oy });
+const WIDE = (t) => { const k = prog(t, 0, 5.2, (q) => q); return orbit([0, 0, -3], lerp(-0.62, -0.42, k), lerp(150, 126, k), lerp(74, 64, k), 0, -170); }; // framed low, so the title sits on open sky above the clock tower
+const MED = (t) => { const k = prog(t, 5.0, 32.0, (q) => q); return orbit([2, -2, 2], lerp(0.30, 0.38, k), lerp(118, 112, k), lerp(72, 68, k), 470, -10); }; // fs-impact's medium shot: the island fills the left side top to bottom, its rocky underside at the bottom left
+const END = (t) => { const k = prog(t, T_END, DUR, (q) => q); return orbit([0, -1, -3], lerp(0.30, 0.46, k), lerp(170, 162, k), lerp(85, 79, k), 470, -40); }; // a gentle push-in; the whole island, edges included, stays left of the pathway card
+const mixO = (a, b, k) => ({ look: a.look.map((x, i) => lerp(x, b.look[i], k)), ang: lerp(a.ang, b.ang, k), dist: lerp(a.dist, b.dist, k), hgt: lerp(a.hgt, b.hgt, k), ox: lerp(a.ox, b.ox, k), oy: lerp(a.oy, b.oy, k) });
+function cam(t) {
+  let c;
+  if (t < 4.2) c = WIDE(t);
+  else if (t < 6.2) c = mixO(WIDE(t), MED(t), prog(t, 4.2, 6.2));
+  else if (t < T_END) c = MED(t);
+  else if (t < T_END + 1.25) c = mixO(MED(t), END(t), prog(t, T_END, T_END + 1.25)); // settles before the pathway card fades in
+  else c = END(t);
+  camera.fov = 30;
+  camera.position.set(Math.sin(c.ang) * c.dist + c.look[0], c.hgt + c.look[1], Math.cos(c.ang) * c.dist + c.look[2]);
+  camera.lookAt(...c.look);
+  camera.setViewOffset(1920, 1080, c.ox, c.oy, 1920, 1080); camera.updateProjectionMatrix(); camera.updateMatrixWorld();
+}
+st.onFrame((t) => {
+  cam(t); cloudU(t); birdU(t); birdEdge(); walkerAt(t);
+  kids.forEach((p, i) => { p.children[2].rotation.y = Math.sin(t * 0.9 + i * 1.7) * 0.12; p.children[2].position.y = Math.abs(Math.sin(t * 3 + i)) * 0.03; });
+  MENTOR.children[2].rotation.y = Math.sin(t * 0.7) * 0.15; LIB.children[2].rotation.y = Math.sin(t * 0.6 + 1) * 0.2;
+  // the two visitors nod as they answer Aisha at the desk
+  OLD.children[2].rotation.x = within(t, T_SAYO, T_SAYO + 1.2) ? Math.sin((t - T_SAYO) * 9) * 0.1 : 0; PL.children[2].rotation.x = within(t, T_SAYP, T_SAYP + 1.0) ? Math.sin((t - T_SAYP) * 9) * 0.1 : 0;
+});
+
+// ---------- UI ----------
+const ui = []; const A = (fn) => ui.push(fn);
+const fade = fader(); A((t) => fade(t < 0.5 ? 1 - prog(t, 0, 0.5) : t > DUR - 0.6 ? prog(t, DUR - 0.6, DUR) : 0));
+const SVG = {
+  tick: '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.2 4.2L19 7" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  cross: '<svg viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round"/></svg>',
+  dots: '<svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="2.2" fill="#fff"/><circle cx="12" cy="12" r="2.2" fill="#fff"/><circle cx="18" cy="12" r="2.2" fill="#fff"/></svg>',
+  bulb: '<svg viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0-3.5 10.9V16h7v-2.1A6 6 0 0 0 12 3z" fill="#fff"/><path d="M9 18h6v1.6H9zM10 20.6h4V22h-4z" fill="#fff"/></svg>',
+  user: '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" fill="#13202b"/><path d="M4.5 21v-2a7.5 7.5 0 0 1 15 0v2z" fill="#13202b"/></svg>',
+  brief: '<svg viewBox="0 0 24 24"><path d="M8 4h8v3h4v13H4V7h4z" fill="#fff"/><path d="M10 5.6h4V7h-4z" fill="#16c79a"/><path d="M7 11h10M7 14.5h7" stroke="#16c79a" stroke-width="1.8"/></svg>',
+  clock: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="#fff" stroke-width="2.6"/><path d="M12 7.5V12l3 2" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg>',
+  cursor: '<svg class="cur" viewBox="0 0 46 56"><path d="M4 3l36 24-15 3 9 18-8 4-9-18-13 10z" fill="#13202b" stroke="#fff" stroke-width="3.5" stroke-linejoin="round"/></svg>',
+};
+const cls = (n, c, on) => n.classList.toggle(c, !!on);
+const setH = (n, h) => { if (n._h !== h) { n.innerHTML = h; n._h = h; } };
+const setT = (n, s) => { if (n.textContent !== s) n.textContent = s; };
+const COL = 1000;
+// cards fade and scale in place, so none ever slides past the right edge of the frame
+const cueS = (node, tIn, tOut, { dur = 0.4, outDur = 0.3 } = {}) => (t) => {
+  const a = prog(t, tIn, tIn + dur, ease.out), b = tOut == null ? 0 : prog(t, tOut, tOut + outDur, ease.in);
+  const v = clamp(a - b); node.style.opacity = v; node.style.visibility = v <= 0.001 ? 'hidden' : 'visible';
+  node.style.transformOrigin = '50% 50%'; node.style.transform = `scale(${0.95 + 0.05 * a - 0.03 * b})`;
+};
+
+// ---------- timeline ----------
+// find the flaw → fix → re-check → sign off
+const T_DOC = 4.55, T_STRIP = 4.75, T_AI = 6.0, T_BTN = 6.6, T_RUN = 8.15;
+// the four checks: Data ✕ and Case ✕, Source ✓ and Authority ✓, each reason readable for about a second
+const C_DATA = 8.55, DATA_BAD = 8.95, T_AIOUT = 9.85, T_LOG = 9.9, C_CASE = 10.15, CASE_BAD = 10.55;
+const T_BOARD = 11.3, C_SRC = 11.6, SRC_OK = 12.0, C_AUTH = 12.95, AUTH_OK = 13.35, T_LOGOUT = 13.25, T_AIBACK = 13.4, T_RET = 14.3;
+// fix Data: Aisha asks the two users the survey missed
+const T_STEP3 = 15.2, T_SAYA = 15.25, T_SAYO = 15.95, T_SAYP = 16.25, T_ASKED = 16.45, T_TAGS = 17.5;
+// fix Case: AI or not, task by task (a verdict every 0.6 s); then the decision record
+const T_TREE = 17.9, T_DEC = 20.5;
+// re-check the record (Data, then Case), V2, the Send button arms, the click, the recommendation
+const T_RECHK = 23.0, C_DATA2 = 23.3, DATA_OK = 23.7, C_CASE2 = 24.75, CASE_OK = 25.15, T_TREEOUT = 25.3, T_V2 = 25.45, T_ARM = 25.9, T_SEND = 26.75;
+const T_AIOUT2 = 27.35, T_SIGNC = 27.55, T_SAYE = 27.95, T_FOLD = 30.0, T_FOLDER = 30.45;
+
+// opening title moment, then the header chip
+const otitle = el(`<div class="otitle"><span class="chip2">DeltaOps Learning · Future Skills</span><h1>Should It Be AI?</h1><h2>Start with the user. Then decide if AI belongs.</h2></div>`, { x: 0, y: 70 });
+A(cue(otitle, 0.05, 2.0, { from: 'pop', dur: 0.6, outDur: 0.28 })); // fully gone by 2.28, before the brief starts
+const labchip = el(`<div class="labchip"><span class="ic">${SVG.bulb}</span><b>Should It Be AI?</b><span class="bar"></span><span class="r">DeltaOps Learning · Future Skills</span></div>`, { x: 44, y: 36 });
+A(cue(labchip, 2.6, T_END - 0.05, { from: 'fade', dur: 0.35, outDur: 0.3 }));
+
+// brief: a compact card on open sky at top right, where the Users card takes over, so the island and its underside stay clear
+const brief = el(`<div class="wcard brief"><div class="bh"><span class="bic">${SVG.brief}</span>
+ <div><small>Brief from</small><b>Harbourside Library</b></div>
+ <div class="due"><small>Due</small><b>Friday</b></div></div>
+ <div class="aq"><small>They asked for</small><b>“An AI chatbot for times and PC booking”</b></div></div>`, { x: COL, y: 124 });
+A(cueS(brief, 2.32, T_DOC - 0.3, { dur: 0.4, outDur: 0.25 })); // the Users card takes its place the moment it has gone
+
+// name tags (3D-anchored)
+const tagM = el(`<div class="ntag"><b>Aisha, 13</b><small>Product designer</small></div>`, { anchor: 'bc' });
+const tagE = el(`<div class="ntag m"><b>Tomasz Nowak</b><small>Service designer · mentor</small></div>`, { anchor: 'bc' });
+const sayE = el(`<div class="say"><small>Tomasz · mentor</small>“Clear reasons, Aisha. Over to the manager.”</div>`);
+const V3 = new THREE.Vector3();
+// the arrow keeps pointing at the person when a label is pushed sideways by dx
+const follow = (node, obj, dy, dx = 0, ddy = 0) => (t) => { V3.set(obj.position.x, obj.position.y + dy, obj.position.z); const p = toScreen(V3, camera); node.style.left = (p.x + dx) + 'px'; node.style.top = (p.y - 10 + ddy) + 'px'; if (dx) node.firstElementChild.style.setProperty('--ax', (node.firstElementChild.offsetWidth / 2 - dx) + 'px'); };
+// below the person's feet, pointing up
+const followBelow = (node, obj, gap, dx = 0) => (t) => { V3.set(obj.position.x, obj.position.y, obj.position.z); const p = toScreen(V3, camera); const w = node.firstElementChild.offsetWidth; node.style.left = (p.x + dx - w / 2) + 'px'; node.style.top = (p.y + gap) + 'px'; node.firstElementChild.style.setProperty('--ax', (w / 2 - dx) + 'px'); };
+const tagM1 = cue(tagM, 6.6, T_SAYA - 0.25, { outDur: 0.2 }), tagM2 = cue(tagM, T_SAYO + 0.1, T_END - 0.3, { outDur: 0.25 });
+A((t) => (t < T_SAYA + 0.3 ? tagM1 : tagM2)(t)); A(cue(tagE, 2.8, 4.9)); A(cue(sayE, T_SAYE, T_END - 0.3, { outDur: 0.25 }));
+sayE.classList.add('up'); // Tomasz speaks from below his feet, pointing up at him, so Aisha's label stays clear above her
+A(follow(tagM, AISHA, 3.75, -70)); A(follow(tagE, MENTOR, 3.95)); A(followBelow(sayE, MENTOR, 18, 40));
+
+// the same short names as on the Users card
+const NM_O = 'Older visitor · no phone', NM_P = 'Polish speaker';
+const ndO = el(`<div class="ntag nd"><b>${NM_O}</b><small>NOT IN DATA</small></div>`, { anchor: 'bc' });
+const ndP = el(`<div class="ntag nd"><b>${NM_P}</b><small>NOT IN DATA</small></div>`); ndP.classList.add('up');
+// red from the Data fail; they step aside while the two answer at the desk, come back green ("ASKED ✓"), and read "IN THE DATA ✓" once Data is re-checked
+const ndO1 = cue(ndO, DATA_BAD + 0.1, T_STEP3 - 0.25, { outDur: 0.25 }), ndO2 = cue(ndO, T_TAGS, DATA_OK + 1.0, { outDur: 0.25 });
+const ndP1 = cue(ndP, DATA_BAD + 0.25, T_STEP3 - 0.25, { outDur: 0.25 }), ndP2 = cue(ndP, T_TAGS + 0.1, DATA_OK + 1.0, { outDur: 0.25 });
+A((t) => { (t < 16.5 ? ndO1 : ndO2)(t); (t < 16.5 ? ndP1 : ndP2)(t); });
+// the older visitor's tag sits above her, right of Aisha's label; the Polish speaker's sits below his feet, so the two never touch
+A(follow(ndO, OLD, 3.9, 125, 0)); A(followBelow(ndP, PL, 18, -75));
+A((t) => [ndO, ndP].forEach((n) => { const ok = t >= T_ASKED; cls(n.firstElementChild, 'ok', ok); setT(n.querySelector('small'), t >= DATA_OK ? 'IN THE DATA ✓' : ok ? 'ASKED ✓' : 'NOT IN DATA');
+  n.firstElementChild.style.transform = within(t, DATA_OK, DATA_OK + 0.3) ? `scale(${1 + 0.08 * Math.sin(prog(t, DATA_OK, DATA_OK + 0.3) * Math.PI)})` : ''; }));
+// Aisha asks at the desk; the two visitors the survey missed answer, each bubble headed with who is speaking and pointing at them
+const sayA = el(`<div class="say s"><small>Aisha</small>“How do you check the times?”</div>`, { anchor: 'bc' });
+const sayO = el(`<div class="say s"><small>Older visitor</small>“I check the door sign.”</div>`, { anchor: 'bc' });
+const sayP = el(`<div class="say s"><small>Polish speaker</small>“Times in Polish, please.”</div>`); sayP.classList.add('up');
+A(cue(sayA, T_SAYA, T_SAYO - 0.15, { outDur: 0.2 })); A(cue(sayO, T_SAYO, 17.15, { outDur: 0.2 })); A(cue(sayP, T_SAYP, 17.25, { outDur: 0.2 }));
+A(follow(sayA, AISHA, 3.75)); A(follow(sayO, OLD, 3.9, 125, 0)); A(followBelow(sayP, PL, 18, -75));
+
+// Source evidence: a tag on the opening-times board outside
+const evB = el(`<div class="ev"><i>${SVG.clock}</i><span>Times from the library timetable</span></div>`); evB.classList.add('up');
+A(cue(evB, T_BOARD, 13.6, { from: 'pop', outDur: 0.25 }));
+A(followBelow(evB, { position: BOARD }, 14, 60));
+A((t) => { const ok = t >= SRC_OK; cls(evB.firstElementChild, 'ok', ok); setH(evB.querySelector('i'), ok ? SVG.tick : SVG.clock); setT(evB.querySelector('span'), ok ? 'Times from the library timetable ✓' : 'Times from the library timetable');
+  if (within(t, SRC_OK, SRC_OK + 0.3)) evB.style.transform += ` scale(${1 + 0.08 * Math.sin(prog(t, SRC_OK, SRC_OK + 0.3) * Math.PI)})`; });
+
+// the plan card
+const U = (name, bad) => `<div class="per"${bad ? ' data-bad' : ''}><i>${SVG.user}</i><span class="nm"><b>${name}</b>${bad ? '<span class="ns">NOT IN DATA</span>' : ''}</span></div>`;
+const doc = el(`<div class="wcard doc">
+ <div class="tb"><span class="fi"></span><b data-ttl>Users</b><span data-sec>· who visits the library</span><span class="stchip" data-st></span></div>
+ <div class="mn">
+  <section data-v="0">
+   <div class="pers">${U('Parent with a buggy')}${U(NM_O, 1)}${U('Teenager')}${U(NM_P, 1)}${U('Wheelchair user')}</div>
+   <div class="ask" data-ask><i>${SVG.tick}</i><span><b>Asked at the desk:</b> 2 more users ✓</span></div></section>
+  <section data-v="1" class="dec">
+   <div class="dl"><small>Based on</small><span data-d0></span></div>
+   <div class="dl"><small>We build</small><span data-d1></span></div>
+   <div class="dl"><small>AI only for</small><span data-d2></span></div></section>
+ </div>
+ <div class="rv"><span class="lab" data-lab>AI PLAN</span><span data-run class="btn">Run the four checks</span>
+   <span class="chk" data-c="0"><i>${SVG.dots}</i>Data</span><span class="chk" data-c="1"><i>${SVG.dots}</i>Case</span><span class="chk" data-c="2"><i>${SVG.dots}</i>Source</span><span class="chk" data-c="3"><i>${SVG.dots}</i>Authority</span></div>
+ <div class="find" data-find><i>${SVG.cross}</i><span data-ft></span></div>
+ <div class="ft"><span data-sg>Reviewed by: not yet</span><span data-pass class="pass">Checks passed: 0 of 4</span><span data-sign class="btn t">Send to manager</span></div>
+</div>`, { x: COL, y: 124 });
+A(cueS(doc, T_DOC, null));
+const Q = (s) => doc.querySelector(s);
+const chks = [0, 1, 2, 3].map((i) => Q(`[data-c="${i}"]`));
+// each check: [run, result, bad?] segments in order; Data and Case fail on the AI plan and pass on the re-checked decision record
+const PLAN = [[[C_DATA, DATA_BAD, true], [C_DATA2, DATA_OK, false]], [[C_CASE, CASE_BAD, true], [C_CASE2, CASE_OK, false]], [[C_SRC, SRC_OK, false]], [[C_AUTH, AUTH_OK, false]]];
+// once the record replaces the plan, Data and Case wait (grey) for their re-check; Source and Authority still stand
+const chkState = (i, t) => { if (i < 2 && within(t, T_DEC, PLAN[i][1][0])) return 'idle'; let s = 'idle'; for (const [r, d, bad] of PLAN[i]) { if (t >= d) s = bad ? 'bad' : 'ok'; else if (t >= r) s = 'run'; } return s; };
+// the reason line: the current check's one-line reason (red on a fail, green on a pass, grey while a fix is under way)
+const FINDS = [
+  [DATA_BAD, 'bad', '<b>Data:</b> survey only asked smartphone users, in English'],
+  [CASE_BAD, 'bad', '<b>Case:</b> 40 simple questions a week. A clear sign and a form would cover them.'],
+  [SRC_OK, 'ok', '<b>Source:</b> opening times come from the library timetable ✓'],
+  [AUTH_OK, 'ok', '<b>Authority:</b> the library manager decides; council rules allow it'],
+  [T_RET, 'bad', '<b>Returned:</b> fix Data and Case, then re-check'],
+  [T_STEP3, 'rr', '<b>Fixing Data:</b> ask the users the survey missed'],
+  [T_ASKED, 'rr', '<b>Fixing Data:</b> 2 more users asked at the desk'],
+  [T_TREE, 'rr', '<b>Fixing Case:</b> AI or not, task by task'],
+  [T_DEC + 0.2, 'rr', '<b>To re-check:</b> Data and Case, on the decision record'],
+  [DATA_OK, 'ok', '<b>Data:</b> all 5 kinds of user ✓'],
+  [CASE_OK, 'ok', '<b>Case:</b> sign, times page and booking form fit 40 simple questions ✓'],
+];
+const typed = (n, s, t0, t1, t) => { const k = clamp((t - t0) / (t1 - t0)); const c = Math.round(s.length * k); setH(n, s.slice(0, c) + (k > 0 && k < 1 ? '<span class="caret"></span>' : '')); };
+const D = ['all 5 kinds of user, asked at the desk and in Polish', 'a clear sign, a times page and a booking form', 'Polish opening times, checked by a librarian'];
+const DT = [[T_DEC + 0.2, T_DEC + 0.9], [T_DEC + 1.0, T_DEC + 1.7], [T_DEC + 1.8, T_DEC + 2.5]];
+A((t) => {
+  // the Users card has no status of its own: its chip reports on the AI colleague's plan, then on Aisha's fixes
+  const s = t < T_RUN ? ['', ''] : t < T_RET ? ['rev', 'AI plan · in review'] : t < T_STEP3 ? ['ret', 'AI plan · returned'] : t < T_SEND + 0.12 ? ['rev', 'In review'] : ['ok', 'Recommended'];
+  const sc = Q('[data-st]'); const c2 = 'stchip' + (s[0] ? ' ' + s[0] : ''); if (sc.className !== c2) sc.className = c2; setT(sc, s[1]); sc.style.display = s[1] ? '' : 'none';
+  const pulse = [T_RET, T_SEND + 0.12].find((x) => within(t, x, x + 0.3));
+  sc.style.transform = pulse != null ? `scale(${1 + 0.08 * Math.sin(prog(t, pulse, pulse + 0.3) * Math.PI)})` : '';
+  const sec = t < T_DEC ? 0 : 1; setT(Q('[data-ttl]'), sec ? 'Decision record' : 'Users'); setT(Q('[data-sec]'), sec ? '· for the library' : '· who visits the library');
+  doc.querySelectorAll('section[data-v]').forEach((n, i) => { n.style.display = i === sec ? 'block' : 'none'; });
+  doc.querySelectorAll('.per').forEach((n, i) => { const t0 = T_DOC + 0.05 + i * 0.25; /* the card grows as each user arrives */ n.style.display = t >= t0 ? '' : 'none'; n.style.opacity = prog(t, t0, t0 + 0.3); const pop = within(t, T_ASKED, T_ASKED + 0.3) && n.hasAttribute('data-bad') ? 1 + 0.06 * Math.sin(prog(t, T_ASKED, T_ASKED + 0.3) * Math.PI) : 1; n.style.transform = `translateY(${(1 - prog(t, t0, t0 + 0.4, ease.out)) * 16}px) scale(${pop})`; const miss = n.hasAttribute('data-bad'), ok = miss && t >= T_ASKED, bad = miss && t >= DATA_BAD && !ok; cls(n, 'bad', bad); cls(n, 'ok', ok); if (miss) setT(n.querySelector('.ns'), ok ? 'ASKED ✓' : 'NOT IN DATA'); });
+  const ask = Q('[data-ask]'); ask.style.height = 52 * prog(t, T_ASKED, T_ASKED + 0.3, ease.out) * (1 - prog(t, T_TREE - 0.3, T_TREE, ease.inOut)) + 'px'; ask.style.opacity = 1 - prog(t, T_TREE - 0.6, T_TREE - 0.3); // fades out, then folds away, so the task-by-task card fits below
+  D.forEach((x, i) => typed(Q(`[data-d${i}]`), x, DT[i][0], DT[i][1], t));
+  const run = Q('[data-run]'); run.style.display = t < T_RUN + 0.15 ? '' : 'none'; run.style.opacity = prog(t, T_BTN, T_BTN + 0.3); run.style.transform = within(t, T_RUN - 0.05, T_RUN + 0.15) ? 'scale(.94)' : `scale(${0.85 + 0.15 * prog(t, T_BTN, T_BTN + 0.35, ease.back)})`;
+  setT(Q('[data-lab]'), sec ? 'DECISION RECORD' : 'AI PLAN'); cls(Q('[data-lab]'), 'dr', sec);
+  chks.forEach((c, i) => {
+    c.style.display = t < T_RUN + 0.15 ? 'none' : '';
+    const st2 = chkState(i, t); cls(c, 'run', st2 === 'run'); cls(c, 'ok', st2 === 'ok'); cls(c, 'bad', st2 === 'bad');
+    const ic = st2 === 'ok' ? SVG.tick : st2 === 'bad' ? SVG.cross : SVG.dots; const ii = c.querySelector('i'); if (ii.dataset.s !== ic) { ii.innerHTML = ic; ii.dataset.s = ic; }
+    const r = PLAN[i].find(([, d, bad]) => bad && within(t, d, d + 0.4)); const g = PLAN[i].find(([, d, bad]) => !bad && within(t, d, d + 0.3));
+    c.style.transform = r ? `translateX(${Math.sin((t - r[1]) * 60) * 5}px)` : g ? `scale(${1 + 0.08 * Math.sin(prog(t, g[1], g[1] + 0.3) * Math.PI)})` : '';
+  });
+  const npass = chks.filter((c) => c.classList.contains('ok')).length;
+  const ps = Q('[data-pass]'); setT(ps, `Checks passed: ${npass} of 4`); cls(ps, 'ok', npass === 4);
+  ps.style.transform = within(t, CASE_OK, CASE_OK + 0.3) ? `scale(${1 + 0.08 * Math.sin(prog(t, CASE_OK, CASE_OK + 0.3) * Math.PI)})` : '';
+  // the reason line opens on the first result and grows to two lines when a reason needs it
+  const fd = Q('[data-find]'); const kf = prog(t, DATA_BAD + 0.05, DATA_BAD + 0.35, ease.out);
+  fd.style.height = kf >= 1 ? 'auto' : (66 * kf) + 'px'; fd.style.minHeight = kf >= 1 ? '66px' : '0px'; fd.style.paddingTop = fd.style.paddingBottom = kf >= 1 ? '8px' : '0px';
+  let f = FINDS[0]; for (const x of FINDS) if (t >= x[0]) f = x;
+  cls(fd, 'ok', f[1] === 'ok'); cls(fd, 'rr', f[1] === 'rr'); setH(fd.querySelector('i'), f[1] === 'ok' ? SVG.tick : f[1] === 'rr' ? SVG.dots : SVG.cross); setH(Q('[data-ft]'), f[2]);
+  // send to the manager: disabled (grey) until all four checks pass and V2 is on screen; the click sends Aisha's recommendation
+  const sg = Q('[data-sg]'), sb = Q('[data-sign]'), sent = t >= T_SEND + 0.12;
+  cls(sb, 'off', t < T_ARM);
+  sb.style.transform = within(t, T_SEND - 0.08, T_SEND + 0.12) ? 'scale(.94)' : within(t, T_ARM, T_ARM + 0.3) ? `scale(${1 + 0.08 * Math.sin(prog(t, T_ARM, T_ARM + 0.3) * Math.PI)})` : '';
+  setT(sb, sent ? 'Sent ✓' : 'Send to manager'); sb.style.background = sent ? '#e3f7f0' : ''; sb.style.color = sent ? '#08694f' : '';
+  setT(sg, sent ? 'Reviewed by: Aisha, age 13' : 'Reviewed by: not yet'); sg.style.color = sent ? '#13202b' : '';
+  if (t >= T_FOLD) { const k = prog(t, T_FOLD, T_FOLD + 0.45, ease.inOut), ic = ICON(), w = doc.offsetWidth, h = doc.offsetHeight, sc = Math.min(ic.w / w, ic.h / h); doc.style.transformOrigin = '0 0'; doc.style.transform = `translate(${k * (ic.x + (ic.w - w * sc) / 2 - COL)}px, ${k * (ic.y + (ic.h - h * sc) / 2 - 124)}px) scale(${1 - k * (1 - sc)})`; doc.style.opacity = 1 - prog(t, T_FOLD + 0.3, T_FOLD + 0.45); doc.style.visibility = t > T_FOLD + 0.45 ? 'hidden' : 'visible'; } // shrinks onto the portfolio item's icon (not its title) and is gone before the item fades in
+});
+
+// bottom slot: below the plan card, one card at a time
+const SLOT = 744;
+// Case evidence: the front-desk log; every question is a simple one
+const logC = el(`<div class="wcard log"><div class="lh"><span class="tag">FRONT-DESK LOG</span><span>Questions asked at the desk · this week</span></div>
+ <div class="lr"><span>“What time do you open?”</span><em data-sm>SIMPLE</em><b>24</b></div>
+ <div class="lr" style="border-bottom:0"><span>“Can I book a PC?”</span><em data-sm>SIMPLE</em><b>16</b></div>
+ <div class="lt" data-lt><span>Times and booking questions</span><b>40 a week</b></div></div>`, { x: COL, y: SLOT });
+A(cueS(logC, T_LOG, T_LOGOUT));
+A((t) => { const n = logC.querySelector('[data-lt]'); cls(n, 'bad', t >= CASE_BAD); n.style.transform = within(t, CASE_BAD, CASE_BAD + 0.3) ? `scale(${1 + 0.04 * Math.sin(prog(t, CASE_BAD, CASE_BAD + 0.3) * Math.PI)})` : '';
+  logC.querySelectorAll('[data-sm]').forEach((m, i) => { const t0 = C_CASE + 0.05 + i * 0.15; m.style.opacity = prog(t, t0, t0 + 0.2); m.style.transform = `scale(${0.7 + 0.3 * prog(t, t0, t0 + 0.25, ease.back)})`; }); });
+
+// AI colleague
+const CLAIM = 'Build an always-on AI chatbot. It answers opening-times questions and books PCs.';
+const ai = el(`<div class="ai"><div class="hd"><span class="bot"><i></i></span><b>AI colleague</b><span class="dr" data-dr>DRAFT PLAN · TO CHECK</span></div>
+ <p><span data-claim>${CLAIM}</span></p>
+ <div class="ftr"><span class="sure" data-sure><span class="bar"><i data-b style="width:0%"></i></span><span data-p>92% sure</span></span><span class="data w" data-data><b>DATA I USED</b>survey of smartphone users, in English</span></div></div>`, { x: COL, y: SLOT });
+// first visit (it steps aside while the log and the board tag show the evidence), back for the return and through the desk beat; then, after the re-check, it comes back as V2
+const aiIn1 = cueS(ai, T_AI, T_AIOUT), aiIn1b = cueS(ai, T_AIBACK, T_TREE - 0.5), aiIn2 = cueS(ai, T_V2, T_AIOUT2);
+// once returned, the card is shorter ("Not trusted" replaces the bar) and settles a little lower, below the Users card's new desk row
+A((t) => { (t < 11 ? aiIn1 : t < 20 ? aiIn1b : aiIn2)(t); ai.style.top = (t < 20 ? lerp(SLOT, 790, prog(t, T_RET, T_RET + 0.3)) : SLOT) + 'px'; });
+A((t) => {
+  const v2 = t >= 20, ret = t >= T_RET && !v2;
+  // the bar always matches the number; on the return "Not trusted" takes the bar's place, as in fs-impact
+  ai.querySelector('[data-b]').style.width = (v2 ? 90 : 92) + '%';
+  setT(ai.querySelector('[data-p]'), v2 ? '90% sure' : ret ? 'Not trusted' : '92% sure');
+  cls(ai.querySelector('[data-sure]'), 'low', ret); cls(ai.querySelector('[data-sure]'), 'v2', v2);
+  cls(ai.querySelector('[data-data]'), 'bad', ret);
+  setH(ai.querySelector('[data-data]'), v2 ? '<b>DATA I USED</b>all 5 kinds of user, at the desk and in Polish' : '<b>DATA I USED</b>survey of smartphone users, in English');
+  const cl = ai.querySelector('[data-claim]'); cls(cl, 'del', ret); // struck: Case ✕ (an always-on AI chatbot is overkill) and Data ✕ (built on the smartphone survey)
+  setT(cl, v2 ? 'Sign, times page and booking form. AI only for Polish times, checked by a librarian.' : CLAIM);
+  const dr = ai.querySelector('[data-dr]'); setT(dr, v2 ? 'V2 · RE-CHECKED BY AISHA' : ret ? 'RETURNED' : 'DRAFT PLAN · TO CHECK'); cls(dr, 'ret', ret); cls(dr, 'v2', v2);
+  dr.style.transform = within(t, T_RET, T_RET + 0.3) ? 'scale(1.1)' : '';
+});
+
+// AI or not? task by task: the card arrives full size with its four tasks; a verdict lands every 0.6 s
+const qtree = el(`<div class="wcard tree"><div class="th"><span class="tag">AI OR NOT?</span>Task by task</div>
+ <div class="q"><span>Opening times</span><b class="o">A clear sign + web page</b></div>
+ <div class="q"><span>Book a PC</span><b class="o">Simple booking form</b></div>
+ <div class="q"><span>Translate to Polish</span><b class="a">AI helps, librarian checks</b></div>
+ <div class="q"><span>A chatbot for everything?</span><b class="x">Not needed</b></div></div>`, { x: COL, y: SLOT });
+A(cueS(qtree, T_TREE, T_TREEOUT));
+A((t) => { if (within(t, T_TREE - 0.1, T_TREEOUT + 0.4)) qtree.style.top = (doc.getBoundingClientRect().bottom + 24) + 'px'; });
+A((t) => qtree.querySelectorAll('.q b').forEach((n, i) => { const t0 = T_TREE + 0.25 + i * 0.6; n.style.opacity = prog(t, t0, t0 + 0.25); n.style.transform = `translateX(${(1 - prog(t, t0, t0 + 0.35, ease.out)) * 30}px)`; }));
+
+// recommendation card: Aisha reviewed it; the library manager approves it
+const signC = el(`<div class="sign"><span class="tick">${SVG.tick}</span><span><small>RECOMMENDED · CHECKS PASSED 4 OF 4</small><b>Recommendation reviewed by: Aisha, age 13</b><em>For the library manager to approve</em></span></div>`, { x: COL, y: SLOT + 30 });
+A(cue(signC, T_SIGNC, T_END - 0.05, { from: 'pop', outDur: 0.3 }));
+
+// steps strip: arrives with the Users card, so the hand-over from the brief is never empty
+const steps = el(`<div class="steps"><span class="n" data-n></span><span class="d" data-d></span></div>`, { x: 44, y: 1000 });
+A(cue(steps, T_STRIP, T_END - 0.05, { from: 'up', outDur: 0.3 }));
+const STEPS = [[0, 'Step 1 of 7', 'Map the users and the real problem'], [8.0, 'Step 2 of 7', 'Check the AI colleague’s plan'], [T_STEP3, 'Step 3 of 7', 'Fix Data: ask the users it missed'], [T_TREE, 'Step 4 of 7', 'Fix Case: AI or not, task by task'], [T_DEC, 'Step 5 of 7', 'Write the decision record'], [T_RECHK, 'Step 6 of 7', 'Re-check, then send to the manager'], [T_FOLD, 'Step 7 of 7', 'File it in your portfolio']];
+A((t) => { let s = STEPS[0]; for (const x of STEPS) if (t >= x[0]) s = x; setT(steps.querySelector('[data-n]'), s[1]); setT(steps.querySelector('[data-d]'), s[2]); });
+
+// portfolio folder: arrives once the recommendation card is up, with its item already in it
+const folder = el(`<div class="folder"><span class="tabf">PORTFOLIO · Aisha</span><div class="body">
+ <div class="it nw" data-nw><i></i><span>Decision record<small>Should It Be AI? · library times</small></span><span class="new">NEW</span></div>
+ <div class="pv"><div><small>BASED ON</small>all 5 kinds of user, asked at the desk and in Polish</div><div><small>WE BUILD</small>a clear sign, a times page and a booking form</div><div><small>AI ONLY FOR</small>Polish opening times, checked by a librarian</div></div></div></div>`, { x: COL, y: 150 });
+A(cueS(folder, T_FOLDER, T_END - 0.05, { dur: 0.3 }));
+const ICON = () => { const r = folder.querySelector('[data-nw] i').getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height }; };
+A((t) => { const n = folder.querySelector('[data-nw]'); n.style.transform = `scale(${1 + 0.04 * Math.sin(prog(t, T_FOLDER + 0.2, T_FOLDER + 0.7) * Math.PI)})`; });
+
+// cursor (parks in the gap left of the cards, hidden while Aisha works at the desk and on the record)
+const cur = el(SVG.cursor, { x: 0, y: 0 }); cur.style.zIndex = 5;
+const ring = el('<div class="ring"></div>', { x: 0, y: 0, anchor: 'c' });
+const R = (sel, root = doc) => () => { const n = root.querySelector(sel); const r = n.getBoundingClientRect(); if (r.width > 0) return [r.left + r.width * 0.5, r.top + r.height * 0.55]; const q = n.parentElement.getBoundingClientRect(); return [q.right - 90, q.top + q.height * 0.55]; };
+const PARK = (y) => () => [940, y];
+const pill = (i) => R(`[data-c="${i}"]`);
+const nearSend = () => { const [x, y] = R('[data-sign]')(); return [x - 170, y + 14]; };
+const PATH = [[7.3, [820, 1100]], [8.0, R('[data-run]')], [8.2, R('[data-run]')], [8.5, pill(0)], [9.9, pill(0)], [10.1, pill(1)], [11.3, pill(1)], [11.55, pill(2)], [12.65, pill(2)], [12.9, pill(3)], [13.4, pill(3)], [13.85, PARK(560)],
+  [22.9, PARK(600)], /* hidden while parked (13.8–22.85) */ [23.25, pill(0)], [24.45, pill(0)], [24.7, pill(1)], [25.9, pill(1)], [26.3, nearSend], [26.65, R('[data-sign]')], [27.4, R('[data-sign]')]]; // after the click the pointer fades out in place
+const CLICKS = [T_RUN, C_DATA, C_CASE, C_SRC, C_AUTH, C_DATA2, C_CASE2, T_SEND];
+A((t) => {
+  const on = within(t, 7.3, 27.4); cur.style.opacity = !on ? 0 : t < 20 ? 1 - prog(t, 13.5, 13.8) : prog(t, 22.85, 23.15) * (1 - prog(t, 27.05, 27.3));
+  if (on) { let i = 0; while (i < PATH.length - 2 && t > PATH[i + 1][0]) i++; const [ta, pa] = PATH[i], [tb, pb] = PATH[i + 1]; const a = typeof pa === 'function' ? pa() : pa, b = typeof pb === 'function' ? pb() : pb; const k = prog(t, ta, tb, ease.inOut); const x = lerp(a[0], b[0], k), y = lerp(a[1], b[1], k); cur.style.left = x + 'px'; cur.style.top = y + 'px'; ring.style.left = (x + 4) + 'px'; ring.style.top = (y + 4) + 'px'; }
+  const c = CLICKS.find((x) => within(t, x, x + 0.45)); if (c != null && on) { const k = (t - c) / 0.45; ring.style.opacity = 1 - k; ring.style.transform = `translate(-50%,-50%) scale(${0.4 + k})`; } else ring.style.opacity = 0;
+});
+
+// end: whole island on the left in daylight; title and pathway on the right
+const etitle = el(`<div class="etitle"><span class="chip2">DeltaOps Learning · Future Skills</span><h1>Should It Be AI?</h1><h2>Start with the user. Then decide if AI belongs.</h2></div>`, { x: COL, y: 70 });
+A(cue(etitle, T_END + 0.1, null, { from: 'up', dur: 0.6 }));
+const path = el(`<div class="wcard path"><div class="top"><span class="tag">PATHWAY</span><h3>Where this skill goes next</h3></div>
+ <div class="row"><span>Next step</span><b>Apps for Good <em>(free, with your school)</em></b></div>
+ <div class="row"><span>Award</span><b>iDEA Bronze Award <em>(free, online)</em></b></div>
+ <div class="row"><span>Route</span><b>GCSE Design &amp; Technology, then T Level Digital</b></div>
+ <div class="row"><span>Jobs</span><div class="jobs"><i>UX designer</i><i>Product manager</i><i>Service designer</i></div></div>
+ <div class="lg"><img src="../assets/logo-learning.svg"></div></div>`, { x: COL, y: 400 });
+A(cue(path, T_END + 1.15, null, { from: 'up', dur: 0.55 })); // after the camera has settled, so it never fades in over moving trees
+
+st.onFrame((t) => ui.forEach((fn) => fn(t)));
+window.__duration = DUR;
+document.fonts.ready.then(() => { window.__ready = true; });
+</script></body></html>

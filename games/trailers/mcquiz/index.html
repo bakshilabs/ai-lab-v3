@@ -1,0 +1,322 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Block Quiz trailer</title>
+<style>
+@font-face { font-family: 'P2P'; src: url('../node_modules/@fontsource/press-start-2p/files/press-start-2p-latin-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'VT'; src: url('../node_modules/@fontsource/vt323/files/vt323-latin-400-normal.woff2') format('woff2'); }
+html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: #000; }
+#app { position: relative; width: 1920px; height: 1080px; }
+canvas { position: absolute; inset: 0; }
+#ui { position: absolute; inset: 0; pointer-events: none; font-family: 'VT', monospace; color: #fff; }
+.panel { position: absolute; background: rgba(16, 12, 24, 0.82); border: 6px solid #3c3c46; box-shadow: inset 0 0 0 4px #1a1a20, 0 10px 0 rgba(0,0,0,.35); padding: 22px 30px; }
+.q { font-family: 'P2P'; font-size: 30px; line-height: 1.45; text-shadow: 4px 4px 0 #3a3a3a; }
+.opts { display: flex; gap: 22px; margin-top: 22px; }
+.opt { flex: 1; text-align: center; white-space: nowrap; line-height: 1.4; font-family: 'P2P'; font-size: 24px; padding: 18px 16px; border: 6px solid #000; box-shadow: inset -6px -6px 0 rgba(0,0,0,.3), inset 6px 6px 0 rgba(255,255,255,.3); text-shadow: 3px 3px 0 rgba(0,0,0,.5); }
+.ai { font-size: 40px; line-height: 1.1; }
+.ai b { color: #7dffb0; font-weight: normal; }
+.big { position: absolute; left: 0; right: 0; text-align: center; font-family: 'P2P'; text-shadow: 6px 6px 0 #3a3a3a; }
+.sure { display: flex; align-items: center; gap: 14px; font-size: 40px; color: #c9d6ee; margin-top: 6px; }
+.sure i { display: block; width: 260px; height: 16px; background: #2a2a34; border: 3px solid #000; }
+.sure i span { display: block; height: 100%; background: #55ff9a; }
+.chip { font-family: 'P2P'; font-size: 22px; padding: 14px 20px; background: rgba(16, 12, 24, 0.82); border: 5px solid #3c3c46; box-shadow: inset 0 0 0 3px #1a1a20; display: flex; align-items: center; gap: 12px; text-shadow: 3px 3px 0 #000; }
+.chip b { color: #ffe066; font-weight: normal; } .chip .sep { width: 4px; height: 26px; background: #3c3c46; margin: 0 6px; }
+.cap { font-family: 'P2P'; font-size: 50px; padding: 22px 34px; background: rgba(12, 10, 20, 0.88); border: 6px solid #3c3c46; box-shadow: inset 0 0 0 4px #1a1a20; text-shadow: 5px 5px 0 #000; white-space: nowrap; }
+.chk { margin-top: 12px; height: 62px; position: relative; }
+.btn { font-family: 'P2P'; font-size: 24px; display: inline-block; padding: 14px 22px; background: #3fbf5a; border: 5px solid #000; box-shadow: inset -5px -5px 0 rgba(0,0,0,.3), inset 5px 5px 0 rgba(255,255,255,.3); text-shadow: 3px 3px 0 rgba(0,0,0,.5); }
+.ok { position: absolute; left: 0; top: 0; font-family: 'P2P'; font-size: 24px; padding: 14px 22px 14px 18px; background: #1f7a3a; border: 5px solid #7dffb0; color: #fff; display: flex; align-items: center; gap: 14px; text-shadow: 3px 3px 0 #000; }
+.tick { display: block; width: 14px; height: 26px; border: solid #7dffb0; border-width: 0 8px 8px 0; transform: rotate(45deg) translate(-3px, -4px); }
+.stamp { font-family: 'P2P'; font-size: 40px; color: #fff; background: #1f7a3a; border: 6px solid #7dffb0; padding: 16px 26px 16px 22px; display: flex; align-items: center; gap: 20px; text-shadow: 4px 4px 0 #000; box-shadow: 0 8px 0 rgba(0,0,0,.35); }
+.stamp .tick { width: 20px; height: 36px; border-width: 0 10px 10px 0; }
+.tag { font-family: 'P2P'; font-size: 14px; background: #ffe066; color: #000; padding: 4px 6px; margin: 2px 0 0 28px; display: inline-block; }
+.grassStrip { position: absolute; left: 0; right: 0; bottom: 0; height: 70px; background: repeating-linear-gradient(90deg, #5cae3c 0 40px, #4c9a30 40px 80px); border-top: 10px solid #3f8f2c; }
+</style>
+<script type="importmap">{"imports":{"three":"/three/three.module.js","three/addons/":"/three-addons/"}}</script></head>
+<body><div id="app"><div id="ui"></div></div>
+<script type="module">
+import * as THREE from 'three';
+const W = 1920, H = 1080, DUR = 30.2;
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x)), lerp = (a, b, k) => a + (b - a) * k, prog = (t, a, b) => clamp((t - a) / (b - a));
+const eio = (k) => k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+function hash(x, y = 0, z = 0) { let h = (x * 374761393 + y * 668265263 + z * 2147483647) | 0; h = (h ^ (h >>> 13)) * 1274126177; return ((h ^ (h >>> 16)) >>> 0) / 4294967295; }
+
+const renderer = new THREE.WebGLRenderer({ antialias: false, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1); renderer.setSize(W, H); renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFShadowMap;
+document.getElementById('app').prepend(renderer.domElement);
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(60, W / H, 0.1, 1000);
+scene.background = new THREE.Color('#7fb6ff');
+scene.fog = new THREE.Fog('#a9cdff', 60, 160);
+const hemi = new THREE.HemisphereLight(0xffffff, 0x88775a, 1.2); scene.add(hemi);
+const sun = new THREE.DirectionalLight(0xfff4e0, 2.2); sun.position.set(-40, 80, 30); sun.castShadow = true; sun.shadow.mapSize.set(1024, 1024);
+Object.assign(sun.shadow.camera, { left: -60, right: 60, top: 60, bottom: -60, near: 1, far: 300 }); scene.add(sun);
+
+// ---------- procedural 16x16 pixel textures (original designs) ----------
+function tex(fn) { const c = document.createElement('canvas'); c.width = c.height = 16; const g = c.getContext('2d'); for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) { g.fillStyle = fn(x, y); g.fillRect(x, y, 1, 1); } const t = new THREE.CanvasTexture(c); t.magFilter = THREE.NearestFilter; t.minFilter = THREE.NearestFilter; t.colorSpace = THREE.SRGBColorSpace; return t; }
+const shade = (base, x, y, s = 1, amt = 0.16) => { const v = 1 + (hash(x, y, s) - 0.5) * 2 * amt; const c = new THREE.Color(base); c.multiplyScalar(v); return '#' + c.getHexString(); };
+const T = {
+  grassTop: tex((x, y) => shade('#5cae3c', x, y, 1, 0.18)),
+  grassSide: tex((x, y) => y < 4 ? shade('#5cae3c', x, y, 2) : y === 4 ? (x % 4 === 1 ? '#4c9a30' : shade('#7a5434', x, y, 3)) : shade('#7a5434', x, y, 3, 0.2)),
+  dirt: tex((x, y) => shade('#7a5434', x, y, 4, 0.2)),
+  stone: tex((x, y) => shade(hash(Math.floor(x / 4), Math.floor(y / 3), 9) > 0.7 ? '#6c6f76' : '#878a91', x, y, 5, 0.12)),
+  brick: tex((x, y) => (y % 4 === 0 || (x + (Math.floor(y / 4) % 2) * 4) % 8 === 0) ? '#55575d' : shade('#8e9198', x, y, 6, 0.08)),
+  plank: tex((x, y) => y % 4 === 0 ? '#7a5528' : shade('#b9894c', x, y, 7, 0.1)),
+  log: tex((x, y) => (x % 5 === 0) ? '#4e3519' : shade('#6b4a26', x, y, 8, 0.12)),
+  leaves: tex((x, y) => hash(x, y, 10) > 0.82 ? '#2b6b20' : shade('#3f8f2c', x, y, 11, 0.2)),
+  water: tex((x, y) => shade(((x + y) % 6 === 0) ? '#5aa8ff' : '#3a7fe0', x, y, 12, 0.08)),
+  sand: tex((x, y) => shade('#e2d39a', x, y, 13, 0.08)),
+  lava: tex((x, y) => hash(Math.floor(x / 3), Math.floor((y + x * 0.5) / 3), 31) > 0.72 ? '#ffe36a' : shade('#ff7a1a', x, y, 32, 0.12)),
+  obsidian: tex((x, y) => hash(x, y, 33) > 0.86 ? '#5a3a8a' : shade('#1c1428', x, y, 34, 0.25)),
+  red: tex((x, y) => shade('#d9413a', x, y, 14, 0.07)), yellow: tex((x, y) => shade('#f2c230', x, y, 15, 0.07)), green: tex((x, y) => shade('#3fbf5a', x, y, 16, 0.07)), gold: tex((x, y) => shade('#ffd84a', x, y, 17, 0.15)),
+};
+const mat = (k) => new THREE.MeshLambertMaterial({ map: T[k] });
+const M = { grass: [mat('grassSide'), mat('grassSide'), mat('grassTop'), mat('dirt'), mat('grassSide'), mat('grassSide')], dirt: mat('dirt'), stone: mat('stone'), brick: mat('brick'), plank: mat('plank'), log: mat('log'), leaves: mat('leaves'), sand: mat('sand'), red: mat('red'), yellow: mat('yellow'), green: mat('green'), gold: mat('gold') };
+M.leaves.transparent = false;
+const waterMat = new THREE.MeshLambertMaterial({ map: T.water, transparent: true, opacity: 0.82 });
+const box = new THREE.BoxGeometry(1, 1, 1);
+const blocks = {}; // kind -> list of positions
+const put = (k, x, y, z) => (blocks[k] = blocks[k] || []).push([x, y, z]);
+
+// ---------- world ----------
+const R = 38;
+for (let x = -R; x <= R; x++) for (let z = -R; z <= R; z++) {
+  const d = Math.hypot(x, z); if (d > R) continue;
+  const n = Math.sin(x * 0.12) * 2 + Math.cos(z * 0.1) * 2 + Math.sin((x + z) * 0.07) * 3;
+  let h = Math.round(4 + n + Math.max(0, (d - 20)) * 0.25);
+  if (d < 18) h = 2; // arena basin
+  for (let y = Math.max(-2, h - 3); y <= h; y++) put(y === h ? (h <= 2 && d < 18 ? 'sand' : 'grass') : y > h - 3 ? 'dirt' : 'stone', x, y, z);
+  if (d > 22 && d < 40 && hash(x, z, 3) > 0.985) { for (let y = 1; y <= 4; y++) put('log', x, h + y, z); for (let dx = -2; dx <= 2; dx++) for (let dz = -2; dz <= 2; dz++) for (let dy = 3; dy <= 5; dy++) if (Math.abs(dx) + Math.abs(dz) + (dy - 3) < 5 && !(dx === 0 && dz === 0 && dy < 5)) put('leaves', x + dx, h + dy, z + dz); }
+}
+// water pool in the basin
+const water = new THREE.Mesh(new THREE.BoxGeometry(34, 1, 34), waterMat); water.position.set(0, 3.4, 0); scene.add(water);
+// arena: brick ring walkway + three answer pads on pillars
+for (let a = 0; a < 360; a += 2) { const r = 15.5; const x = Math.round(Math.cos(a * Math.PI / 180) * r), z = Math.round(Math.sin(a * Math.PI / 180) * r); put('brick', x, 6, z); put('brick', x, 5, z); }
+const PADS = { A: { x: -8, z: 0, k: 'red' }, B: { x: 0, z: -7, k: 'yellow' }, C: { x: 8, z: 0, k: 'green' } };
+const padBlocks = { A: [], B: [], C: [] };
+for (const [key, p] of Object.entries(PADS)) for (let dx = -2; dx <= 2; dx++) for (let dz = -2; dz <= 2; dz++) padBlocks[key].push([p.x + dx, 7, p.z + dz]);
+// start platform (where players wait) at front
+for (let dx = -5; dx <= 5; dx++) for (let dz = 9; dz <= 13; dz++) put('plank', dx, 7, dz);
+// scoreboard wall at back
+for (let x = -10; x <= 10; x++) for (let y = 7; y <= 15; y++) put(y === 7 || y === 15 || x === -10 || x === 10 ? 'log' : 'plank', x, y, -16);
+for (const [k, list] of Object.entries(blocks)) { const m = new THREE.InstancedMesh(box, M[k], list.length); const d = new THREE.Object3D(); list.forEach((p, i) => { d.position.set(p[0] + 0.5, p[1] + 0.5, p[2] + 0.5); d.updateMatrix(); m.setMatrixAt(i, d.matrix); }); m.castShadow = true; m.receiveShadow = true; m.frustumCulled = false; scene.add(m); }
+const padMesh = {}; for (const key of ['A', 'B', 'C']) { const m = new THREE.InstancedMesh(box, M[PADS[key].k], 25); m.castShadow = m.receiveShadow = true; m.frustumCulled = false; scene.add(m); padMesh[key] = m; }
+const d3 = new THREE.Object3D();
+function setPads(t, falls) { for (const key of ['A', 'B', 'C']) padBlocks[key].forEach((p, i) => { const f = falls[key] || 0; const drop = f > 0 ? Math.pow(f, 2) * 14 * (0.6 + hash(i, 3) * 0.8) : 0; d3.position.set(p[0] + 0.5, p[1] + 0.5 - drop, p[2] + 0.5); d3.rotation.set(drop * 0.1, 0, drop * 0.07); d3.scale.setScalar(drop > 10 ? 0.001 : 1); d3.updateMatrix(); padMesh[key].setMatrixAt(i, d3.matrix); }); for (const k in padMesh) padMesh[k].instanceMatrix.needsUpdate = true; }
+// square clouds + square sun
+for (let i = 0; i < 14; i++) { const c = new THREE.Mesh(new THREE.BoxGeometry(10 + hash(i) * 14, 2, 6 + hash(i, 2) * 8), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.92, fog: false })); c.position.set(-90 + hash(i, 3) * 180, 46 + hash(i, 4) * 6, -90 + hash(i, 5) * 160); c.userData.vx = 1 + hash(i, 6); scene.add(c); (scene.userData.clouds = scene.userData.clouds || []).push(c); }
+const sunSq = new THREE.Mesh(new THREE.PlaneGeometry(20, 20), new THREE.MeshBasicMaterial({ color: 0xfff6c0, fog: false })); sunSq.position.set(-120, 110, -200); sunSq.lookAt(0, 0, 0); scene.add(sunSq);
+
+// ---------- players (original blocky avatars) ----------
+function avatar(shirt, skin, hair) {
+  const g = new THREE.Group(); const m = (c) => new THREE.MeshLambertMaterial({ color: c });
+  const head = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.8), m(skin)); head.position.y = 1.85; g.add(head);
+  const hairM = new THREE.Mesh(new THREE.BoxGeometry(0.84, 0.25, 0.84), m(hair)); hairM.position.y = 2.2; g.add(hairM);
+  const eyes = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.12, 0.02), m('#1a1a2a')); eyes.position.set(0, 1.9, 0.41); g.add(eyes);
+  const body = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.75, 0.4), m(shirt)); body.position.y = 1.08; g.add(body);
+  const legL = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.7, 0.36), m('#2e3a6a')); legL.geometry.translate(0, -0.35, 0); legL.position.set(-0.17, 0.7, 0); g.add(legL);
+  const legR = legL.clone(); legR.position.x = 0.17; g.add(legR);
+  const armL = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.7, 0.3), m(skin)); armL.geometry.translate(0, -0.3, 0); armL.position.set(-0.47, 1.42, 0); g.add(armL);
+  const armR = armL.clone(); armR.position.x = 0.47; g.add(armR);
+  g.traverse((o) => { if (o.isMesh) o.castShadow = true; });
+  g.userData.anim = (ph, cheer) => { legL.rotation.x = Math.sin(ph) * 0.7; legR.rotation.x = -Math.sin(ph) * 0.7; armL.rotation.x = cheer ? Math.PI : -Math.sin(ph) * 0.6; armR.rotation.x = cheer ? Math.PI : Math.sin(ph) * 0.6; armL.rotation.z = cheer ? -0.3 : 0; armR.rotation.z = cheer ? 0.3 : 0; };
+  scene.add(g); return g;
+}
+const SHIRTS = ['#e8573f', '#3a8fe0', '#f2c230', '#7a4fd0', '#2fbf6a', '#ff7eb6'], SKIN = ['#c68a5e', '#8d5a3b', '#e0b08a', '#a8714b', '#f0c8a0'], HAIR = ['#2b1d14', '#6b3e1e', '#d8b060', '#111'];
+const players = Array.from({ length: 12 }, (_, i) => avatar(SHIRTS[i % 6], SKIN[i % 5], HAIR[i % 4]));
+// ---------- story timing ----------
+// Q1 (round 2): AI says Lava (wrong) -> Lava/Diamond pads drop, followers splash.
+// Fix: room asks for a reason. Q2 (round 3): AI gives a reason, room CHECKS it on the test bench, then everyone is right.
+const Q = [
+  { t0: 4.4, tGo: 6.4, tRev: 9.0, tBack: 11.9, q: 'What do you need to build a Nether portal?', opts: ['Obsidian', 'Lava', 'Diamond'], ai: ['“Lava!”', 90], correct: 'A', picks: 'BBABACBBAABB' },
+  { t0: 14.1, tGo: 19.1, tRev: 21.0, tBack: 99, q: 'How do you make obsidian?', opts: ['Smelt sand', 'Water + lava', 'Burn wood'], ai: ['“Water + lava.”', 85], why: 'Water poured onto still lava turns it into obsidian.', correct: 'B', picks: 'BBBBBBBABBBB' },
+];
+const T_FIX = 11.95, T_TAP = 15.8, T_DEMO = 16.2, T_DEMO_END = 19.0, T_SCORE = 23.6, T_END = 25.6;
+const home = (i) => [-4.5 + (i % 6) * 1.8, 8, 10 + Math.floor(i / 6) * 2];
+const GRID = [[0, 0], [-1, 1], [1, 1], [-1, -1], [1, -1], [0, 1], [0, -1], [-1, 0], [1, 0]];
+const spot = (i, pad, picks) => { const r = [...picks.slice(0, i)].filter((c) => c === picks[i]).length; const g = GRID[(r + i * 0) % 9]; return [pad.x + 0.5 + g[0] * 1.45, 8, pad.z + 0.5 + g[1] * 1.45]; };
+function playerPos(i, t) {
+  const h = home(i);
+  let pos = h, y = 8, fall = 0, cheer = false, moving = false, rot = Math.PI, fallT = 0;
+  // run-in from the walkway onto the stand
+  if (t < Q[0].tGo) {
+    const sx = (h[0] < 0 ? -1 : 1) * Math.sqrt(15.5 * 15.5 - h[2] * h[2]);
+    const k = eio(prog(t, 2.9 + i * 0.04, 4.1 + i * 0.04));
+    pos = [lerp(sx, h[0], k), 0, h[2]]; y = lerp(7, 8, k); moving = k > 0 && k < 1;
+    rot = moving ? (sx < 0 ? Math.PI / 2 : -Math.PI / 2) : Math.PI;
+  }
+  for (const q of Q) {
+    const pick = q.picks[i]; const pad = PADS[pick];
+    if (t >= q.tGo && t < q.tBack) {
+      const k = eio(prog(t, q.tGo + i * 0.04, q.tGo + 1.2 + i * 0.04)); const tgt = spot(i, pad, q.picks);
+      pos = [lerp(h[0], tgt[0], k), 0, lerp(h[2], tgt[2], k)]; moving = k > 0 && k < 1;
+      y = 8 + Math.sin(k * Math.PI) * 1.4; // leap across the water
+      rot = moving ? Math.atan2(tgt[0] - h[0], tgt[2] - h[2]) : 0;
+      if (t > q.tRev && pick !== q.correct) { const f = prog(t, q.tRev + 0.5, q.tRev + 1.15); y = 8 - f * f * 5.2; fall = f; fallT = q.tRev + 1.15; }
+      if (t > q.tRev && pick === q.correct) cheer = true;
+    }
+  }
+  if (t > T_SCORE) cheer = t > 24.6 && i % 3 === 0; // Torch Team cheers its win
+  const inWater = fall >= 1;
+  return { pos, y: inWater ? 3.45 + Math.sin(t * 5 + i) * 0.08 : Math.max(y, 3.5), fall, fallT, cheer, moving, rot };
+}
+
+// ---------- test bench: a stone tray of lava that rises from the pond ----------
+const tray = new THREE.Group(); scene.add(tray);
+const lavaMat = new THREE.MeshBasicMaterial({ map: T.lava }), obsMat = new THREE.MeshLambertMaterial({ map: T.obsidian });
+const lavaBlocks = [];
+for (let x = -2; x <= 2; x++) for (let z = 3; z <= 6; z++) {
+  const inner = x >= -1 && x <= 1 && z >= 4 && z <= 5;
+  const m = new THREE.Mesh(box, inner ? lavaMat : M.stone); m.position.set(x + 0.5, inner ? 7.45 : 7.5, z + 0.5); if (inner) { m.scale.y = 0.9; lavaBlocks.push(m); }
+  m.castShadow = m.receiveShadow = true; tray.add(m);
+  const under = new THREE.Mesh(box, M.stone); under.position.set(x + 0.5, 6.5, z + 0.5); tray.add(under);
+}
+const pourCol = new THREE.Mesh(new THREE.BoxGeometry(0.7, 1, 0.7), waterMat); scene.add(pourCol);
+const pourSlab = new THREE.Mesh(new THREE.BoxGeometry(1, 0.2, 2), new THREE.MeshLambertMaterial({ map: T.water, transparent: true, opacity: 0.75 })); scene.add(pourSlab);
+const steam = new THREE.InstancedMesh(new THREE.BoxGeometry(0.35, 0.35, 0.35), new THREE.MeshLambertMaterial({ color: '#f2f6ff', transparent: true, opacity: 0.85 }), 60); steam.frustumCulled = false; scene.add(steam);
+const SPREAD0 = 16.95, SPREAD1 = 17.6; const flipAt = (bx) => lerp(SPREAD0, SPREAD1, (bx + 0.5 + 0.1) / 3.2);
+function bench(t) {
+  tray.position.y = lerp(-6, 0, eio(prog(t, 15.85, 16.35)));
+  // water column pours from above, then spreads over the lava
+  const c = prog(t, 16.55, 16.95), cEnd = prog(t, 17.25, 17.5);
+  const top = 14, bot = lerp(14, 8, c), topNow = lerp(top, 8, cEnd);
+  pourCol.visible = c > 0 && cEnd < 1; pourCol.scale.y = Math.max(0.01, topNow - bot); pourCol.position.set(-0.5, (topNow + bot) / 2, 5);
+  const s = prog(t, SPREAD0, SPREAD1), fadeS = prog(t, 18.0, 18.5);
+  pourSlab.visible = s > 0 && fadeS < 1; pourSlab.scale.x = Math.max(0.01, 3 * s); pourSlab.position.set(-1 + 1.5 * s, 8.0, 5); pourSlab.material.opacity = 0.75 * (1 - fadeS);
+  lavaBlocks.forEach((m) => { m.material = t > flipAt(m.position.x) ? obsMat : lavaMat; });
+  let n = 0;
+  lavaBlocks.forEach((m, j) => { const tf = flipAt(m.position.x); for (let k = 0; k < 10; k++, n++) { const age = t - tf - k * 0.04; const on = age > 0 && age < 1.1; d3.position.set(m.position.x + (hash(j, k, 1) - 0.5) * 0.9, 8.1 + age * 2.4, m.position.z + (hash(j, k, 2) - 0.5) * 0.9); d3.scale.setScalar(on ? 0.5 + age * 0.6 : 0.001); d3.rotation.set(age * 2, age * 3, 0); d3.updateMatrix(); steam.setMatrixAt(n, d3.matrix); } });
+  steam.instanceMatrix.needsUpdate = true;
+}
+
+// ---------- in-world signboard: round number, then live team scores ----------
+const signC = document.createElement('canvas'); signC.width = 760; signC.height = 280;
+const signTex = new THREE.CanvasTexture(signC); signTex.colorSpace = THREE.SRGBColorSpace; signTex.magFilter = THREE.NearestFilter;
+const sign = new THREE.Mesh(new THREE.PlaneGeometry(19, 7), new THREE.MeshBasicMaterial({ map: signTex, transparent: true })); sign.position.set(0.5, 11.5, -14.97); scene.add(sign);
+const TEAMS = [['TORCH TEAM', 9, '#2fbf6a'], ['DIAMOND DIGGERS', 8, '#3a8fe0'], ['REDSTONE CREW', 6, '#d9413a']];
+let signKey = '';
+function drawSign(t) {
+  const g = signC.getContext('2d');
+  if (t < T_SCORE) {
+    const r = t < 13.0 ? 2 : 3; const key = 'r' + r; if (key === signKey) return; signKey = key;
+    g.clearRect(0, 0, 760, 280); g.fillStyle = 'rgba(20,14,8,0.55)'; g.fillRect(20, 20, 720, 240);
+    g.textAlign = 'center'; g.fillStyle = '#ffe066'; g.font = '30px P2P'; g.fillText('BLOCK QUIZ', 380, 92);
+    g.fillStyle = '#fff'; g.font = '52px P2P'; g.fillText(`ROUND ${r} OF 5`, 380, 190);
+  } else {
+    const k = eio(prog(t, 23.7, 24.6)); const win = t > 24.6 && Math.floor((t - 24.6) * 6) % 2 === 0;
+    const key = 's' + TEAMS.map(([, s]) => Math.round(k * s)).join() + win; if (key === signKey) return; signKey = key;
+    g.clearRect(0, 0, 760, 280); g.fillStyle = 'rgba(20,14,8,0.7)'; g.fillRect(10, 10, 740, 260);
+    g.textAlign = 'left'; g.fillStyle = '#ffe066'; g.font = '28px P2P'; g.fillText('TEAM SCORES', 36, 58);
+    TEAMS.forEach(([n, s, c], i) => { const y = 100 + i * 60, v = Math.round(k * s);
+      if (i === 0 && t > 24.6) { g.fillStyle = win ? '#ffe066' : '#fff'; g.fillRect(26, y - 8, 708, 52); g.fillStyle = 'rgba(20,14,8,0.9)'; g.fillRect(30, y - 4, 700, 44); }
+      g.fillStyle = '#fff'; g.font = '22px P2P'; g.fillText(n, 40, y + 28);
+      g.fillStyle = '#000'; g.fillRect(398, y + 4, k * s * 30 + 8, 32); g.fillStyle = c; g.fillRect(402, y + 8, k * s * 30, 24);
+      g.fillStyle = '#fff'; g.font = '26px P2P'; g.fillText(String(v), 420 + k * s * 30, y + 32); });
+  }
+  signTex.needsUpdate = true;
+}
+
+// ---------- UI ----------
+const ui = document.getElementById('ui');
+const node = (html, css) => { const d = document.createElement('div'); d.innerHTML = html; Object.assign(d.style, { position: 'absolute', opacity: 0 }, css); ui.appendChild(d); return d; };
+const show = (n, t, a, b, from = 30) => { const v = clamp(prog(t, a, a + 0.3)) * (b == null ? 1 : 1 - prog(t, b, b + 0.25)); n.style.opacity = v; n.style.transform = `translateY(${(1 - Math.min(1, prog(t, a, a + 0.3))) * from}px)`; };
+const hook = node('<div class="big" style="font-size:64px;top:120px">HOW WELL DO YOU KNOW</div><div class="big" style="font-size:96px;top:225px;color:#7dffb0">MINECRAFT?</div>', { left: 0, top: 0, width: '1920px' });
+// HUD: round chip (top left), room score + streak (top right)
+const hudRound = node('<div class="chip"><span id="rnd">ROUND 2 OF 5</span></div>', { left: '24px', top: '22px' });
+const hudScore = node('<div class="chip">ROOM SCORE <b id="sc">120</b><span class="sep"></span>STREAK <b id="st">2</b></div>', { right: '24px', top: '22px' });
+const elRnd = hudRound.querySelector('#rnd'), elSc = hudScore.querySelector('#sc'), elSt = hudScore.querySelector('#st');
+const qPanels = Q.map((q) => node(`<div class="panel" style="width:1340px;box-sizing:content-box"><div class="q">${q.q}</div><div class="opts">${q.opts.map((o, i) => `<div class="opt" data-o="${'ABC'[i]}" style="background:${['#d9413a', '#e0a91a', '#2fa84a'][i]}">${'ABC'[i]}. ${o}</div>`).join('')}</div></div>`, { left: '256px', top: '96px' }));
+const aiPanels = Q.map((q) => node(`<div class="panel" style="width:620px;box-sizing:border-box"><div style="font-size:36px;color:#9aa7c0">AI HELPER GUESSES</div><div class="ai" style="font-size:60px"><b>${q.ai[0]}</b></div>${q.why ? `<div style="font-size:34px;line-height:1.1;color:#ffe066;margin:6px 0 4px">WHY: ${q.why}</div>` : '<div style="font-size:34px;color:#ff8a7a;margin:6px 0 4px">WHY: (no reason given)</div>'}<div class="sure"><span>Very sure</span><i><span style="width:${q.ai[1]}%"></span></i><span>${q.ai[1]}%</span></div>${q.why ? '<div class="chk"><div class="btn">CHECK IT</div><div class="ok"><i class="tick"></i>REASON CHECKED</div></div>' : ''}</div>`, { left: '1276px', top: q.why ? '608px' : '700px' }));
+const aiBtn = aiPanels[1].querySelector('.btn'), aiOk = aiPanels[1].querySelector('.ok');
+const cursor = node('<svg width="44" height="52" viewBox="0 0 11 13" shape-rendering="crispEdges"><path d="M0 0h1v1h1v1h1v1h1v1h1v1h1v1h1v1h1v1h1v1h-4v1h1v1h1v1h-2v-1h-1v-1h-1v1h-1v1h-1z" fill="#000"/><path d="M1 2h1v1h1v1h1v1h1v1h1v1h1v1h1v1h-3v1h1v1h1v1h-1v-1h-1v-1h-1v-1h-1v1h-1z" fill="#fff"/></svg><div class="tag">ROOM</div>', { left: 0, top: 0 });
+const benchTick = node('<div class="stamp"><i class="tick"></i>CHECKED</div>', { left: 0, top: 0 });
+const floats = Array.from({ length: 12 }, () => node('', { left: 0, top: 0, fontFamily: 'P2P', fontSize: '36px', textShadow: '4px 4px 0 #000', whiteSpace: 'nowrap', background: 'rgba(12,10,20,.78)', padding: '10px 14px 6px', border: '4px solid #3c3c46' }));
+const cap = (txt, col) => node(`<div class="cap" style="color:${col}">${txt}</div>`, { left: 0, width: '1920px', top: '900px', display: 'flex', justifyContent: 'center' });
+const rev1 = cap('THE AI WAS VERY SURE. AND WRONG.', '#ffe066');
+const rev2 = cap('IT GAVE A REASON. YOU CHECKED IT.', '#7dffb0');
+const fixP = node(`<div class="panel" style="width:1340px;box-sizing:content-box"><div class="q" style="font-size:28px;color:#ffe066">THE ROOM TELLS THE AI HELPER:</div><div class="opts"><div class="opt" data-f="0" style="background:#6a6a74;flex:0.8">Just answer.</div><div class="opt" data-f="1" style="background:#2f8fd6;flex:1.25">Answer, and tell us WHY.</div></div></div>`, { left: '256px', top: '380px' });
+const endBg = node('<div class="grassStrip"></div>', { left: 0, top: 0, width: '1920px', height: '1080px', background: 'linear-gradient(#7fb6ff 0%, #bfe0ff 70%, #e6f3ff 100%)' });
+const title = node(`<div class="big" style="font-size:132px;top:300px;color:#5fd86a;text-shadow:8px 8px 0 #1d4d22">BLOCK QUIZ</div><div class="big" style="top:490px;font-family:VT;font-size:76px;color:#14202e;text-shadow:none">The Minecraft quiz where you check the AI.</div><div class="big" style="top:600px;font-family:VT;font-size:50px;color:#1b5f8c;text-shadow:none">A DELTAOPS LEARNING QUIZ FOR THE WHOLE ROOM</div><div class="big" style="top:900px;font-family:VT;font-size:40px;color:#14202e;text-shadow:none">NOT AN OFFICIAL MINECRAFT PRODUCT. NOT APPROVED BY OR ASSOCIATED WITH MOJANG OR MICROSOFT.</div>`, { left: 0, top: 0, width: '1920px', transformOrigin: '960px 540px' });
+// end-card blocks: the trailer's own 16x16 textures, bobbing either side of the title
+const endBlocks = [['grassSide', 150, 250, 150], ['obsidian', 300, 640, 110], ['lava', 1650, 240, 150], ['gold', 1500, 650, 110]].map(([k, x, y, sz], i) => { const c = document.createElement('canvas'); c.width = c.height = 16; c.getContext('2d').drawImage(T[k].image, 0, 0); Object.assign(c.style, { position: 'absolute', left: x + 'px', top: y + 'px', width: sz + 'px', height: sz + 'px', imageRendering: 'pixelated', border: '6px solid rgba(0,0,0,.55)', boxShadow: '0 14px 0 rgba(0,0,0,.18)' }); title.appendChild(c); return [c, i]; });
+const fade = node('', { left: 0, top: 0, width: '1920px', height: '1080px', background: '#000' });
+
+// confetti blocks over the right answer
+const conf = new THREE.InstancedMesh(new THREE.BoxGeometry(0.3, 0.3, 0.3), new THREE.MeshLambertMaterial({ color: '#ffffff' }), 160); conf.frustumCulled = false; scene.add(conf);
+for (let i = 0; i < 160; i++) conf.setColorAt(i, new THREE.Color(['#ff5a4a', '#ffd23f', '#3fbf5a', '#3a8fe0', '#ffffff'][i % 5]));
+function confetti(t) { let n = 0; for (const q of Q) { const tr = q.tRev + 0.3; const p = PADS[q.correct]; for (let i = 0; i < 80; i++, n++) { const age = t - tr - (i % 10) * 0.05; const a = hash(i, 21) * 6.28, r = 1 + hash(i, 22) * 4; const on = age > 0 && age < 2.5; d3.position.set(p.x + 0.5 + Math.cos(a) * r * Math.min(1, age * 2), 10 + age * 5 - age * age * 3, p.z + 0.5 + Math.sin(a) * r * Math.min(1, age * 2)); d3.rotation.set(age * 7, age * 5, 0); d3.scale.setScalar(on ? 1 : 0.001); d3.updateMatrix(); conf.setMatrixAt(n, d3.matrix); } } conf.instanceMatrix.needsUpdate = true; }
+// splash particles (one burst per player who drops in)
+const splashM = new THREE.InstancedMesh(new THREE.BoxGeometry(0.28, 0.28, 0.28), new THREE.MeshLambertMaterial({ color: '#dff0ff' }), 168); splashM.frustumCulled = false; scene.add(splashM);
+const v3 = new THREE.Vector3();
+const toScreen = (x, y, z) => { v3.set(x, y, z).project(camera); return v3.z < 1 ? [(v3.x + 1) / 2 * W, (1 - v3.y) / 2 * H] : null; };
+
+// HUD values
+const SCORE0 = 120;
+const scoreAt = (t) => { let s = SCORE0; for (const q of Q) { const right = [...q.picks].filter((p) => p === q.correct).length, wrong = 12 - right; s += eio(prog(t, q.tRev + 1.2, q.tRev + 1.9)) * (right - wrong) * 10; } return Math.round(s); };
+const streakAt = (t) => t < Q[0].tRev + 1.2 ? 2 : t < Q[1].tRev + 1.2 ? 0 : 1;
+
+window.__render = (t) => {
+  // camera
+  let cp, cl;
+  const wide = () => { const s = Math.sin((t - 4.4) * 0.18); cp = [s * 6, 16, 26]; cl = [0, 6.6, 1]; };
+  if (t < 3) { const k = eio(prog(t, 0, 3)); cp = [lerp(-50, -28, k), lerp(26, 21, k), lerp(50, 32, k)]; cl = [0, 8, 0]; }
+  else if (t < 4.4) { const k = eio(prog(t, 3, 4.4)); cp = [lerp(-28, 0, k), lerp(21, 16, k), lerp(32, 26, k)]; cl = [0, lerp(8, 6.6, k), lerp(0, 1, k)]; }
+  else if (t >= Q[0].tRev && t < Q[0].tBack) { const k = prog(t, Q[0].tRev, Q[0].tBack); cp = [lerp(4.0, 3.3, k), lerp(5.3, 5.6, k), lerp(8.4, 7.4, k)]; cl = [-3.4, 7.6, -4]; } // low angle from the water
+  else if (t >= T_DEMO && t < T_DEMO_END) { const k = prog(t, T_DEMO, T_DEMO_END); cp = [lerp(6.2, 5.4, k), lerp(11.6, 11.0, k), lerp(0.2, 0.9, k)]; cl = [-0.6, 7.2, 5.6]; } // test bench close-up
+  else if (t >= Q[1].tRev && t < T_SCORE) { const k = prog(t, Q[1].tRev, T_SCORE); cp = [lerp(3.5, 2, k), lerp(15.5, 15, k), lerp(5.5, 7, k)]; cl = [0, 7.6, -6]; }
+  else if (t >= T_SCORE) { const k = eio(prog(t, T_SCORE, T_END + 5)); cp = [lerp(2.5, 0.5, k), lerp(17, 17.6, k), lerp(4, 7, k)]; cl = [0.5, 10.8, -15]; } // scoreboard + crowd
+  else wide();
+  camera.position.set(...cp); camera.lookAt(...cl); camera.updateMatrixWorld();
+  scene.userData.clouds.forEach((c, i) => { c.position.x = -90 + ((hash(i, 3) * 180 + t * c.userData.vx) % 180); });
+  water.material.map.offset.set(t * 0.05, t * 0.03);
+  // pads fall for wrong answers (Q2's stay down until the end)
+  const falls = { A: 0, B: 0, C: 0 };
+  for (const q of Q) { const tr = q.tRev + 0.3; if (t > tr && t < q.tBack) for (const k of 'ABC') if (k !== q.correct) falls[k] = prog(t, tr, tr + 1.2); }
+  setPads(t, falls);
+  bench(t);
+  // players
+  let sp = 0;
+  players.forEach((p, i) => { const s = playerPos(i, t); p.position.set(s.pos[0], s.y, s.pos[2]); p.rotation.y = s.rot; p.userData.anim(s.moving ? t * 12 + i : (s.fall > 0 && s.fall < 1) ? t * 20 : 0, s.cheer && Math.sin(t * 8 + i) > -0.2); p.position.y += s.cheer ? Math.abs(Math.sin(t * 7 + i)) * 0.6 : 0;
+    if (s.fall > 0) { const age = t - s.fallT + 0.05; if (age > 0 && age < 0.9) for (let k = 0; k < 14 && sp < 168; k++, sp++) { const a = hash(i, k) * 6.28, sp2 = 1.5 + hash(i, k, 7) * 2; d3.position.set(s.pos[0] + Math.cos(a) * age * sp2, 3.9 + age * (4 + hash(k, i) * 3) - age * age * 9, s.pos[2] + Math.sin(a) * age * sp2); d3.scale.setScalar(Math.max(0.001, 1 - age)); d3.rotation.set(age * 4, age * 3, 0); d3.updateMatrix(); splashM.setMatrixAt(sp, d3.matrix); } } });
+  for (; sp < 168; sp++) { d3.scale.setScalar(0.001); d3.updateMatrix(); splashM.setMatrixAt(sp, d3.matrix); } splashM.instanceMatrix.needsUpdate = true;
+  confetti(t);
+  drawSign(t);
+  renderer.render(scene, camera);
+  // ---- ui ----
+  show(hook, t, 0.4, 2.7);
+  show(hudRound, t, 3.3, T_END - 0.3, -20); show(hudScore, t, 3.4, T_END - 0.3, -20);
+  elRnd.textContent = t < 13.0 ? 'ROUND 2 OF 5' : 'ROUND 3 OF 5';
+  elSc.textContent = scoreAt(t); const st = streakAt(t); elSt.textContent = st;
+  const flashBad = t > Q[0].tRev + 1.2 && t < Q[0].tRev + 2.4, flashGood = t > Q[1].tRev + 1.2 && t < Q[1].tRev + 2.4;
+  hudScore.firstChild.style.background = flashBad ? 'rgba(150,30,30,.9)' : flashGood ? 'rgba(30,120,60,.9)' : '';
+  floats.forEach((f) => { f.style.opacity = 0; });
+  Q.forEach((q, k) => {
+    if (k === 1 && t >= T_DEMO - 0.3 && t < T_DEMO_END) show(qPanels[k], t, q.t0, T_DEMO - 0.25, -30); // off while the bench test runs
+    else show(qPanels[k], t, k === 1 && t >= T_DEMO_END ? T_DEMO_END : q.t0, q.tRev - 0.25, -30);
+    show(aiPanels[k], t, q.t0 + 0.9, q.tRev - 0.65);
+    qPanels[k].querySelectorAll('.opt').forEach((o) => { const rev = t > q.tRev - 0.65; o.style.filter = rev && o.dataset.o !== q.correct ? 'grayscale(1) brightness(.5)' : 'none'; o.style.outline = rev && o.dataset.o === q.correct ? '6px solid #fff' : 'none'; });
+    // one score floater per occupied pad
+    if (t > q.tGo && t < q.tBack) ['A', 'B', 'C'].forEach((key, j) => { const n = [...q.picks].filter((c) => c === key).length; if (!n) return;
+      const right = key === q.correct; const age = t - (right ? q.tRev + 0.5 : q.tRev + 1.2); const f = floats[j];
+      if (age < 0 || age > 1.8) return; const pd = PADS[key];
+      const sc = toScreen(pd.x + 0.5, (right ? 11.2 : 6.4) + age * 1.0, pd.z + 0.5); if (!sc) return;
+      f.textContent = (right ? '+10' : '-10') + (n > 1 ? ' EACH' : ''); f.style.color = right ? '#7dffb0' : '#ff6a5a';
+      f.style.left = (sc[0] - f.offsetWidth / 2) + 'px'; f.style.top = (sc[1] - 24) + 'px'; f.style.opacity = Math.min(1, age * 5) * (1 - prog(age, 1.4, 1.8)); });
+  });
+  // the room taps CHECK IT, the bench proves the reason
+  const tapK = eio(prog(t, T_TAP - 0.7, T_TAP)); const pressed = t > T_TAP && t < T_TAP + 0.25;
+  const br = aiBtn.getBoundingClientRect();
+  cursor.style.left = lerp(1500, br.left + br.width * 0.55, tapK) + 'px'; cursor.style.top = lerp(1060, br.top + br.height * 0.45, tapK) + 'px';
+  cursor.style.opacity = t > T_TAP - 0.75 && t < T_TAP + 0.6 ? 1 : 0;
+  aiBtn.style.transform = pressed ? 'translateY(4px)' : 'none'; aiBtn.style.boxShadow = pressed ? 'inset 0 0 0 4px #1a6a30' : '';
+  aiBtn.style.background = t > T_TAP ? '#2a9a4a' : '#3fbf5a';
+  const okOn = t > 18.0; aiOk.style.opacity = okOn ? 1 : 0; aiBtn.style.display = okOn ? 'none' : 'inline-block';
+  const bt = toScreen(0.5, 9.6, 5); if (bt) { benchTick.style.left = (bt[0] - 150) + 'px'; benchTick.style.top = (bt[1] - 50) + 'px'; }
+  const tk = prog(t, 18.0, 18.2); benchTick.style.opacity = t < T_DEMO_END - 0.1 ? tk : 0; benchTick.firstChild.style.transform = `scale(${lerp(1.6, 1, tk)})`;
+  show(rev1, t, Q[0].tRev + 0.5, Q[0].tBack - 0.35); show(rev2, t, Q[1].tRev + 0.3, T_SCORE - 0.3);
+  show(fixP, t, T_FIX, Q[1].t0 - 0.3); const pick = t > 12.9; fixP.querySelector('[data-f="1"]').style.outline = pick ? '6px solid #fff' : 'none'; fixP.querySelector('[data-f="1"]').style.transform = pick ? 'translateY(-6px)' : 'none'; fixP.querySelector('[data-f="0"]').style.filter = pick ? 'brightness(.6)' : 'none';
+  show(endBg, t, T_END, null, 0); show(title, t, T_END + 0.2, null);
+  if (t > T_END) { const e = t - T_END; title.style.transform += ` scale(${1 + e * 0.008})`; endBlocks.forEach(([c, i]) => { c.style.transform = `translateY(${Math.sin(e * 2.2 + i * 1.7) * 14}px) rotate(${Math.sin(e * 1.3 + i) * 6}deg)`; }); }
+  fade.style.opacity = t < 0.4 ? 1 - t / 0.4 : 0;
+  return true;
+};
+window.__duration = DUR;
+Promise.all([document.fonts.load('20px P2P'), document.fonts.load('20px VT')]).then(() => { signKey = ''; window.__ready = true; });
+</script></body></html>
