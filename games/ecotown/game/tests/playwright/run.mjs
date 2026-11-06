@@ -83,7 +83,7 @@ for (const [id, check, vague, clear] of LEVELS) {
   }
   console.log('level done', id, clean ? 'clean' : 'flawed', 'stars', await p.evaluate(() => window.__eco.app.G.stars));
 }
-await p.waitForSelector('#dock [data-actions] [data-skip]', { timeout: 60000 }); await p.waitForTimeout(4000); await shot('final-day'); await click('#dock [data-actions] [data-skip]');
+await p.waitForSelector('#dock [data-actions] [data-skip]', { timeout: 60000 }); await p.waitForTimeout(4000); await shot('final-day'); await p.click('#dock [data-actions] [data-skip]', { timeout: 3000 }).catch(() => {}); // the day may already be over
 await p.waitForSelector('#report', { timeout: 60000 }); await p.waitForTimeout(800); await shot('report');
 const said = await p.evaluate(() => window.__sayLog || []);
 fs.writeFileSync(`${out}/said.json`, JSON.stringify(said, null, 1));

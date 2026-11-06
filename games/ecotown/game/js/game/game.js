@@ -377,7 +377,7 @@ export function createGame(app) {
       G.outcomes[id] = { kind: 'missed', detail: G.j ? `Florence’s plan left out: ${chk.missed.join('; ')}. You added it while building.` : `The plan did not cover: ${chk.missed.join('; ')}. Completed during the build.` };
     } else if (!chk.flawed) {
       G.paths[id] = 'clean'; const guessed = await hiddenAct(id);
-      G.outcomes[id] = { kind: 'clean', detail: `${G.j ? 'Florence’s first plan passed' : 'First plan passed'}: ${chk.tried.map(checkName).join(', ')}. ${G.j ? 'She still guessed one thing:' : 'Unstated assumption:'} ${guessed}` };
+      G.outcomes[id] = { kind: 'clean', detail: `${G.j ? 'Florence’s first plan passed the' : 'First plan passed the'} ${chk.tried.map(checkName).join(', ')} check${chk.tried.length > 1 ? 's' : ''}. ${G.j ? '' : 'Unstated assumption: '}${guessed}` };
     } else {
       G.paths[id] = 'flawed';
       // Act 4: fix (habit, clearer instruction, auto re-test until it passes)
