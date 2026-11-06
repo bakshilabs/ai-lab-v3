@@ -95,7 +95,7 @@
 .ai .sure { display:flex; align-items:center; gap:14px; font:800 30px 'Inter'; white-space:nowrap; }
 .ai .sure .bar { width:220px; height:14px; border-radius:99px; background:#2c3e4e; overflow:hidden; }
 .ai .sure .bar i { display:block; height:100%; border-radius:99px; background:linear-gradient(90deg,#ffc83d,var(--teal)); }
-.ai .sure.low { color:#ff8f93; }
+.ai .sure.low { color:#ff8f93; } .ai .sure.low .bar { display:none; } /* the label replaces the bar, as in fs-verify */
 .ai .data { margin-left:auto; display:inline-flex; align-items:center; gap:10px; background:#233544; border-radius:999px; padding:9px 20px 9px 10px; font:650 23px 'Inter'; color:#dbe6ee; white-space:nowrap; }
 .ai .ftr { flex-wrap:wrap; } .ai .data.w { margin-left:0; }
 .ai .data b { background:#3a5063; color:#fff; border-radius:999px; padding:4px 12px; font:800 20px 'Inter'; letter-spacing:.1em; }
@@ -107,6 +107,24 @@
 .sign small { display:block; font:800 20px 'Inter'; letter-spacing:.14em; color:var(--tealD); }
 .sign b { display:block; font:800 40px 'Inter'; margin-top:2px; }
 .sign em { display:block; font-style:normal; font:700 24px 'Inter'; color:var(--mut); margin-top:4px; }
+.sign { width:876px; box-sizing:border-box; white-space:normal; } .sign b { font-size:32px; line-height:1.15; }
+/* island evidence tag (as in fs-impact) */
+.ev { display:flex; align-items:center; gap:12px; background:#fff; border:4px solid var(--ink); border-radius:18px; padding:8px 20px 8px 8px; font:800 25px 'Inter'; color:var(--ink); white-space:nowrap; box-shadow:0 12px 26px rgba(8,28,44,.3); }
+.ev i { flex:none; width:38px; height:38px; border-radius:50%; background:var(--ink); display:grid; place-items:center; } .ev i svg { width:24px; height:24px; }
+.ev.ok { border-color:var(--teal); color:#08694f; } .ev.ok i { background:var(--teal); }
+.ev::after { content:''; position:absolute; left:var(--ax,50%); bottom:-14px; margin-left:-12px; border:12px solid transparent; border-top-color:var(--ink); border-bottom:0; }
+.ev.ok::after { border-top-color:var(--teal); }
+.up .ev::after { top:-14px; bottom:auto; border:12px solid transparent; border-top:0; border-bottom-color:var(--ink); } .up .ev.ok::after { border-bottom-color:var(--teal); }
+/* front-desk log (Case evidence) */
+.log { width:876px; padding:20px 30px 16px; box-sizing:border-box; }
+.log .lh { display:flex; align-items:center; gap:14px; font:800 26px 'Inter'; margin-bottom:6px; }
+.log .lh .tag { font:800 20px 'Inter'; letter-spacing:.14em; background:var(--ink); color:#fff; border-radius:10px; padding:8px 14px; }
+.log .lh span:last-child { color:var(--mut); font-weight:650; font-size:23px; }
+.log .lr { display:flex; align-items:center; padding:9px 0; border-bottom:2px solid var(--line); font:650 25px 'Inter'; color:#33414d; }
+.log .lr b { margin-left:auto; font:800 28px 'Inter'; color:var(--ink); }
+.log .lt { display:flex; align-items:center; gap:12px; margin-top:10px; padding:10px 16px; border-radius:14px; background:var(--soft); font:800 25px 'Inter'; color:var(--ink); }
+.log .lt b { margin-left:auto; font:800 28px 'Inter'; }
+.log .lt.ok { background:var(--mint); color:#08694f; }
 /* step strip */
 .steps { display:flex; align-items:center; gap:16px; background:rgba(19,32,43,.9); color:#fff; border-radius:999px; padding:10px 28px 10px 10px; white-space:nowrap; }
 .steps .n { font:800 22px 'Inter'; background:var(--teal); color:#062a20; border-radius:999px; padding:8px 16px; }
@@ -115,13 +133,17 @@
 .folder { width:876px; }
 .folder .tabf { display:inline-block; background:var(--teal); color:#062a20; font:800 24px 'Inter'; letter-spacing:.06em; border-radius:20px 20px 0 0; padding:12px 30px 10px; margin-left:26px; }
 .folder .body { background:#fff; border-radius:28px; border-top:10px solid var(--teal); padding:16px 24px; box-shadow:0 18px 40px rgba(8,28,44,.25); }
-.folder .it { display:flex; align-items:center; gap:18px; padding:14px 10px; border-bottom:2px solid var(--line); font:800 28px 'Inter'; color:var(--ink); }
+.folder .it { display:flex; align-items:center; gap:22px; padding:20px 18px; border-bottom:2px solid var(--line); font:800 36px 'Inter'; color:var(--ink); }
 .folder .it:last-child { border-bottom:0; }
-.folder .it i { flex:none; width:42px; height:50px; border-radius:8px; background:#e8eef2; }
-.folder .it small { display:block; font:650 22px 'Inter'; color:var(--mut); margin-top:3px; }
+.folder .it i { flex:none; width:58px; height:70px; border-radius:10px; background:#e8eef2; }
+.folder .it small { display:block; font:650 25px 'Inter'; color:var(--mut); margin-top:5px; }
+.folder .it span { line-height:1.15; }
+.folder .pv { padding:8px 18px 6px; }
+.folder .pv div { font:650 25px/1.3 'Inter'; color:#33414d; padding:9px 0 9px 18px; border-left:5px solid var(--teal); margin:8px 0; }
+.folder .pv small { display:block; font:800 19px 'Inter'; letter-spacing:.12em; color:var(--tealD); }
 .folder .it.nw { background:#ecfaf4; border-radius:16px; border-bottom:0; }
 .folder .it.nw i { background:var(--teal); }
-.folder .it .new { margin-left:auto; font:800 20px 'Inter'; letter-spacing:.1em; background:var(--ink); color:#fff; border-radius:8px; padding:6px 12px; }
+.folder .it .new { margin-left:auto; font:800 22px 'Inter'; letter-spacing:.1em; background:var(--ink); color:#fff; border-radius:8px; padding:7px 14px; }
 /* end */
 .etitle { width:876px; color:#fff; }
 .etitle h1 { font:800 92px/1 'Inter'; letter-spacing:-.035em; margin:20px 0 0; text-shadow:0 6px 30px rgba(0,30,60,.3); white-space:nowrap; }
@@ -155,10 +177,10 @@
 .ask i { flex:none; width:32px; height:32px; border-radius:50%; background:var(--teal); display:grid; place-items:center; } .ask i svg { width:20px; height:20px; } .ask b { font-weight:800; }
 .dec .dl { font:650 26px/1.35 'Inter'; margin:4px 0 14px; padding-left:18px; border-left:5px solid var(--teal); min-height:34px; }
 .dec .dl small { display:block; font:800 20px 'Inter'; letter-spacing:.12em; color:var(--tealD); text-transform:uppercase; }
-.tree { width:876px; padding:22px 30px 16px; }
+.tree { width:876px; padding:18px 30px 10px; box-sizing:border-box; }
 .tree .th { display:flex; align-items:center; gap:14px; font:800 28px 'Inter'; }
 .tree .tag { font:800 20px 'Inter'; letter-spacing:.14em; background:var(--teal); color:#062a20; border-radius:10px; padding:8px 14px; }
-.tree .q { display:grid; grid-template-columns:1fr auto; gap:14px; align-items:center; padding:10px 0; border-bottom:2px solid var(--line); opacity:0; }
+.tree .q { display:grid; grid-template-columns:1fr auto; gap:14px; align-items:center; padding:7px 0; border-bottom:2px solid var(--line); opacity:0; }
 .tree .q:last-child { border-bottom:0; }
 .tree .q span { font:650 26px/1.25 'Inter'; color:#33414d; }
 .tree .q b { font:800 24px 'Inter'; border-radius:999px; padding:7px 18px; white-space:nowrap; }
@@ -212,7 +234,7 @@ for (const px of [-4, 4]) for (let y = 1; y <= 5; y++) v.set(px, y, OZ1, y === 5
 for (let x = -30; x <= 30; x++) for (let z = -26; z <= -16; z++) if (isl.top(x, z) != null && Math.hypot((x - 14) / 9, (z + 21) / 4) < 1) v.set(x, 0, z, '#4fb6e8');
 const roofs = ['#3f6fb0', '#e0a23a', '#7a5ac8'];
 [[-28, -24], [-14, -26], [0, -27]].forEach(([x, z], i) => { if (isl.top(x, z) != null && isl.top(x + 7, z + 5) != null) house(v, x, 0, z, { w: 7, d: 5, h: 4, roof: roofs[i], wall: i % 2 ? '#f4efe6' : '#efe2c9' }); });
-for (const [x, z] of [[24, -10], [30, -3], [27, 9], [-27, 6], [-29, -6], [-23, 17], [21, 18], [31, 14], [-12, 21], [13, 22], [-34, 0], [35, 2], [5, -18], [26, -18]]) if (isl.top(x, z) != null) tree(v, x, 0, z, { kind: rand(x, z) > .45 ? 'round' : 'pine', s: 2 });
+for (const [x, z] of [[24, -10], [30, -3], [27, 9], [-27, 6], [-29, -6], [-23, 17], [31, 14], [-12, 21], [-34, 0], [35, 2], [5, -18], [26, -18]]) if (isl.top(x, z) != null) tree(v, x, 0, z, { kind: rand(x, z) > .45 ? 'round' : 'pine', s: 2 });
 // front path and flower beds
 for (let z = OZ1 + 1; z <= 28; z++) for (let x = -2; x <= 2; x++) if (isl.top(x, z) != null) v.set(x, 0, z, '#e2d3ae');
 for (let x = -15; x <= -6; x++) for (let z = 11; z <= 13; z++) v.set(x, 1, z, rand(x, z, 3) > .5 ? (rand(x, z, 4) > .5 ? '#ff7eb6' : '#ffd23f') : '#4caf50');
@@ -265,8 +287,10 @@ fb(5.5, FL - 1, 10, 6.75, FL + 1, 11, '#d0302f'); fb(5.5, FL + 1, 10, 6.75, FL +
 fb(8, FL - 1, 16, 12, FL - 0.5, 17, '#a8743f'); fb(8, FL - 0.5, 16.75, 12, FL + 0.5, 17, '#a8743f');
 plane(18, 1.6, tex(1024, 96, (g, w, h) => { rr(g, 0, 0, w, h, 20, '#1f5f4a'); g.fillStyle = '#f6c343'; g.fillRect(40, 26, 12, 46); g.fillRect(58, 26, 12, 46); g.fillRect(76, 30, 12, 42); g.fillStyle = '#f1e6cf'; g.font = '800 56px Inter'; g.textBaseline = 'middle'; g.fillText('HARBOURSIDE LIBRARY', 110, 52); }), [-2, 7.6, OZ0 + 1.04]);
 const times = tex(256, 200, (g, w, h) => { rr(g, 0, 0, w, h, 14, '#1f5f4a'); g.fillStyle = '#f6c343'; g.font = '800 30px Inter'; g.fillText('OPEN', 22, 42); g.fillStyle = '#f1e6cf'; g.font = '700 24px Inter'; ['Mon–Fri 9–7', 'Sat 9–5', 'Sun closed'].forEach((s, i) => g.fillText(s, 22, 90 + i * 38)); });
-fb(3.75, FL - 1, 12, 4.25, FL + 2, 12.5, '#59636b'); fb(6.75, FL - 1, 12, 7.25, FL + 2, 12.5, '#59636b');
-plane(3.2, 2.5, times, [5.5, FL + 2.6, 12.55]);
+// the opening-times board stands on the front lawn, right of the path, where its Source tag can sit below it, clear of the desk tags
+fb(13.75, FL - 1, 18, 14.25, FL + 2.5, 18.5, '#59636b'); fb(17.75, FL - 1, 18, 18.25, FL + 2.5, 18.5, '#59636b');
+plane(4.4, 3.4, times, [16, FL + 3.0, 18.55]);
+const BOARD = new THREE.Vector3(16, FL - 1, 18.55); // top of the opening-times board (half-size voxels: world units)
 scene.add(f.mesh({ scale: 0.5 }));
 
 // ---------- people ----------
@@ -294,7 +318,7 @@ const birdEdge = () => birdG.forEach((g) => { BV.copy(g.position).project(camera
 // ---------- camera ----------
 const orbit = (look, ang, dist, hgt, ox = 0, oy = 0) => ({ look, ang, dist, hgt, ox, oy });
 const WIDE = (t) => { const k = prog(t, 0, 5.2, (q) => q); return orbit([0, 0, -3], lerp(-0.62, -0.42, k), lerp(126, 108, k), lerp(66, 58, k), 0, 0); };
-const MED = (t) => { const k = prog(t, 5.0, 32.5, (q) => q); return orbit([0, 1, -1], lerp(0.30, 0.42, k), lerp(86, 80, k), lerp(52, 48, k), 470, -110); }; // framed low enough that the clock tower clears the header pill
+const MED = (t) => { const k = prog(t, 5.0, 32.5, (q) => q); return orbit([0, -3, -1], lerp(0.30, 0.40, k), lerp(158, 152, k), lerp(86, 82, k), 470, -10); }; // pulled back so the whole rounded island and its rocky underside read on the left; the clock tower stays clear of the header pill
 const END = (t) => { const k = prog(t, 32.2, DUR, (q) => q); return orbit([0, -1, -3], lerp(0.30, 0.46, k), lerp(172, 162, k), lerp(84, 78, k), 490, -40); }; // a gentle 4.5 s push-in; the island stays left of the pathway card
 const mixO = (a, b, k) => ({ look: a.look.map((x, i) => lerp(x, b.look[i], k)), ang: lerp(a.ang, b.ang, k), dist: lerp(a.dist, b.dist, k), hgt: lerp(a.hgt, b.hgt, k), ox: lerp(a.ox, b.ox, k), oy: lerp(a.oy, b.oy, k) });
 function cam(t) {
@@ -314,7 +338,7 @@ st.onFrame((t) => {
   kids.forEach((p, i) => { p.children[2].rotation.y = Math.sin(t * 0.9 + i * 1.7) * 0.12; p.children[2].position.y = Math.abs(Math.sin(t * 3 + i)) * 0.03; });
   MENTOR.children[2].rotation.y = Math.sin(t * 0.7) * 0.15; LIB.children[2].rotation.y = Math.sin(t * 0.6 + 1) * 0.2;
   // the two visitors nod as they answer Aisha at the desk
-  OLD.children[2].rotation.x = within(t, 20.0, 21.4) ? Math.sin((t - 20.0) * 9) * 0.1 : 0; PL.children[2].rotation.x = within(t, 20.3, 21.5) ? Math.sin((t - 20.3) * 9) * 0.1 : 0;
+  OLD.children[2].rotation.x = within(t, 16.9, 18.2) ? Math.sin((t - 16.9) * 9) * 0.1 : 0; PL.children[2].rotation.x = within(t, 17.2, 18.3) ? Math.sin((t - 17.2) * 9) * 0.1 : 0;
 });
 
 // ---------- UI ----------
@@ -327,6 +351,7 @@ const SVG = {
   bulb: '<svg viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0-3.5 10.9V16h7v-2.1A6 6 0 0 0 12 3z" fill="#fff"/><path d="M9 18h6v1.6H9zM10 20.6h4V22h-4z" fill="#fff"/></svg>',
   user: '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" fill="#13202b"/><path d="M4.5 21v-2a7.5 7.5 0 0 1 15 0v2z" fill="#13202b"/></svg>',
   brief: '<svg viewBox="0 0 24 24"><path d="M8 4h8v3h4v13H4V7h4z" fill="#fff"/><path d="M10 5.6h4V7h-4z" fill="#16c79a"/><path d="M7 11h10M7 14.5h7" stroke="#16c79a" stroke-width="1.8"/></svg>',
+  clock: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="#fff" stroke-width="2.6"/><path d="M12 7.5V12l3 2" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg>',
   cursor: '<svg class="cur" viewBox="0 0 46 56"><path d="M4 3l36 24-15 3 9 18-8 4-9-18-13 10z" fill="#13202b" stroke="#fff" stroke-width="3.5" stroke-linejoin="round"/></svg>',
 };
 const cls = (n, c, on) => n.classList.toggle(c, !!on);
@@ -356,32 +381,48 @@ A(cue(brief, 2.32, 4.9, { from: 'up' }));
 // name tags (3D-anchored)
 const tagM = el(`<div class="ntag"><b>Aisha, 13</b><small>Product designer</small></div>`, { anchor: 'bc' });
 const tagE = el(`<div class="ntag m"><b>Tomasz Nowak</b><small>Service designer · mentor</small></div>`, { anchor: 'bc' });
-const sayE = el(`<div class="say">“Clear reasons, Aisha. Send it to the library.”</div>`, { anchor: 'bc' });
+const sayE = el(`<div class="say">“Clear reasons, Aisha. Over to the manager.”</div>`, { anchor: 'bc' });
 const V3 = new THREE.Vector3();
 // the arrow keeps pointing at the person when a label is pushed sideways by dx
 const follow = (node, obj, dy, dx = 0, ddy = 0) => (t) => { V3.set(obj.position.x, obj.position.y + dy, obj.position.z); const p = toScreen(V3, camera); node.style.left = (p.x + dx) + 'px'; node.style.top = (p.y - 10 + ddy) + 'px'; if (dx) node.firstElementChild.style.setProperty('--ax', (node.firstElementChild.offsetWidth / 2 - dx) + 'px'); };
 // below the person's feet, pointing up
 const followBelow = (node, obj, gap, dx = 0) => (t) => { V3.set(obj.position.x, obj.position.y, obj.position.z); const p = toScreen(V3, camera); const w = node.firstElementChild.offsetWidth; node.style.left = (p.x + dx - w / 2) + 'px'; node.style.top = (p.y + gap) + 'px'; node.firstElementChild.style.setProperty('--ax', (w / 2 - dx) + 'px'); };
-A(cue(tagM, 6.6, 19.0, { outDur: 0.2 })); A(cue(tagE, 2.8, 4.9)); A(cue(sayE, 27.0, 32.1));
-A(follow(tagM, AISHA, 3.75)); A(follow(tagE, MENTOR, 3.95)); A(follow(sayE, MENTOR, 3.95, 40, 0));
+A(cue(tagM, 6.6, 15.75, { outDur: 0.2 })); A(cue(tagE, 2.8, 4.9)); A(cue(sayE, 28.5, 32.1));
+A(follow(tagM, AISHA, 3.75, -70)); A(follow(tagE, MENTOR, 3.95)); A(follow(sayE, MENTOR, 3.95, 40, 0));
+// ---------- timeline ----------
+const T_RUN = 9.6, T_DFAIL = 10.6;
+// Case and Source each get a short evidence moment before they pass; Authority passes on its reason
+const T_LOG = 10.95, C_CASE = 11.25, CASE_OK = 11.75, T_BOARD = 12.0, C_SRC = 12.25, SRC_OK = 12.75, C_AUTH = 13.05, AUTH_OK = 13.45, T_RET = 13.65;
+const T_AIBACK = 14.0, T_AIRET = 14.35, T_AIOUT = 15.7;
+// Aisha asks the two users the survey missed, then Data is re-run
+const T_STEP3 = 16.0, T_SAYA = 16.05, T_SAYO = 16.9, T_SAYP = 17.2, T_ASKED = 17.6, T_INDATA = 18.0, T_TAGOK = 18.4, T_RECHK = 18.7, T_FIX = 19.2;
+// then AI or not, task by task; then the decision record; then V2, the send click and the recommendation card
+const T_TREE = 19.6, T_DEC = 23.6, T_V2 = 26.5, T_STEP6 = 27.0, T_SEND = 27.55, T_AIOUT2 = 28.0, T_SIGNC = 28.2, T_SIGNOUT = 30.0, T_FOLD = 30.15, T_FOLDER = 30.4;
+
 // the same short names as on the plan card
 const NM_O = 'Older visitor · no phone', NM_P = 'Polish speaker';
 const ndO = el(`<div class="ntag nd"><b>${NM_O}</b><small>NOT IN DATA</small></div>`, { anchor: 'bc' });
 const ndP = el(`<div class="ntag nd"><b>${NM_P}</b><small>NOT IN DATA</small></div>`); ndP.classList.add('up');
-// red while the review runs; they step aside while Aisha asks at the desk, then return green
-const T_ASK = 19.1, T_ASKED = 20.6, T_INDATA = 21.0, T_TAGOK = 21.6;
-const ndO1 = cue(ndO, 10.7, 19.0, { outDur: 0.25 }), ndO2 = cue(ndO, T_TAGOK, 26.7, { outDur: 0.25 });
-const ndP1 = cue(ndP, 10.85, 19.0, { outDur: 0.25 }), ndP2 = cue(ndP, T_TAGOK + 0.1, 26.7, { outDur: 0.25 });
-A((t) => { (t < 20.4 ? ndO1 : ndO2)(t); (t < 20.4 ? ndP1 : ndP2)(t); });
+// red from the Data fail; they step aside while Aisha asks at the desk, then return green
+const ndO1 = cue(ndO, 10.7, T_STEP3, { outDur: 0.25 }), ndO2 = cue(ndO, T_TAGOK, 26.9, { outDur: 0.25 });
+const ndP1 = cue(ndP, 10.85, T_STEP3, { outDur: 0.25 }), ndP2 = cue(ndP, T_TAGOK + 0.1, 26.9, { outDur: 0.25 });
+A((t) => { (t < 17 ? ndO1 : ndO2)(t); (t < 17 ? ndP1 : ndP2)(t); });
 // the older visitor's tag sits above her, right of Aisha's label; the Polish speaker's sits below his feet, so the two never touch
-A(follow(ndO, OLD, 3.9, 95, 0)); A(followBelow(ndP, PL, 18, -10));
+A(follow(ndO, OLD, 3.9, 125, 0)); A(followBelow(ndP, PL, 18, -75));
 A((t) => [ndO, ndP].forEach((n) => { const ok = t >= T_TAGOK; cls(n.firstElementChild, 'ok', ok); setT(n.querySelector('small'), ok ? 'IN THE DATA ✓' : 'NOT IN DATA'); }));
 // Aisha asks at the desk; the two visitors the survey missed answer
 const sayA = el(`<div class="say s">“How do you check the times?”</div>`, { anchor: 'bc' });
 const sayO = el(`<div class="say s">“I check the door sign.”</div>`, { anchor: 'bc' });
 const sayP = el(`<div class="say s">“Times in Polish, please.”</div>`); sayP.classList.add('up');
-A(cue(sayA, 19.15, 19.85, { outDur: 0.25 })); A(cue(sayO, 20.0, 21.4, { outDur: 0.25 })); A(cue(sayP, 20.3, 21.5, { outDur: 0.25 }));
-A(follow(sayA, AISHA, 3.75)); A(follow(sayO, OLD, 3.9, 95, 0)); A(followBelow(sayP, PL, 18, -10));
+A(cue(sayA, T_SAYA, T_SAYO - 0.15, { outDur: 0.25 })); A(cue(sayO, T_SAYO, 18.2, { outDur: 0.25 })); A(cue(sayP, T_SAYP, 18.3, { outDur: 0.25 }));
+A(follow(sayA, AISHA, 3.75)); A(follow(sayO, OLD, 3.9, 125, 0)); A(followBelow(sayP, PL, 18, -75));
+
+// Source evidence: a tag on the opening-times board outside
+const evB = el(`<div class="ev"><i>${SVG.clock}</i><span>Times from the library timetable</span></div>`); evB.classList.add('up');
+A(cue(evB, T_BOARD, 14.2, { from: 'pop', outDur: 0.25 }));
+A(followBelow(evB, { position: BOARD }, 14, 60));
+A((t) => { const ok = t >= SRC_OK; cls(evB.firstElementChild, 'ok', ok); setH(evB.querySelector('i'), ok ? SVG.tick : SVG.clock); setT(evB.querySelector('span'), ok ? 'Times from the library timetable ✓' : 'Times from the library timetable');
+  if (within(t, SRC_OK, SRC_OK + 0.3)) evB.style.transform += ` scale(${1 + 0.08 * Math.sin(prog(t, SRC_OK, SRC_OK + 0.3) * Math.PI)})`; });
 
 // the plan card
 const U = (name, bad) => `<div class="per"${bad ? ' data-bad' : ''}><i>${SVG.user}</i><span class="nm"><b>${name}</b>${bad ? '<span class="ns">NOT IN DATA</span>' : ''}</span></div>`;
@@ -399,111 +440,126 @@ const doc = el(`<div class="wcard doc">
  <div class="rv"><span class="lab">AI PLAN</span><span data-run class="btn">Run the four checks</span>
    <span class="chk" data-c="0"><i>${SVG.dots}</i>Data</span><span class="chk" data-c="1"><i>${SVG.dots}</i>Case</span><span class="chk" data-c="2"><i>${SVG.dots}</i>Source</span><span class="chk" data-c="3"><i>${SVG.dots}</i>Authority</span></div>
  <div class="find" data-find><i>${SVG.cross}</i><span data-ft></span></div>
- <div class="prow" data-pr="1"><i>${SVG.tick}</i><span><b>Case:</b> front-desk log, 40 times and booking questions a week</span></div>
- <div class="prow" data-pr="2"><i>${SVG.tick}</i><span><b>Source:</b> opening times come from the library’s own timetable</span></div>
- <div class="prow" data-pr="3"><i>${SVG.tick}</i><span><b>Authority:</b> the library manager signs off; council rules allow it</span></div>
- <div class="ft"><span data-sg>Reviewed by: not yet</span><span data-pass class="pass">Checks passed: 0 of 4</span><span data-sign class="btn t">Sign off</span></div>
+ <div class="ft"><span data-sg>Reviewed by: not yet</span><span data-pass class="pass">Checks passed: 0 of 4</span><span data-sign class="btn t">Send to manager</span></div>
 </div>`, { x: COL, y: 124 });
 A(cueS(doc, 5.0, null));
 const Q = (s) => doc.querySelector(s);
 const chks = [0, 1, 2, 3].map((i) => Q(`[data-c="${i}"]`));
-const T_RUN = 9.6, T_DFAIL = 10.6, T_RET = 12.0, T_DEC = 22.0, T_RECHK = 25.3, T_FIX = 25.8, T_SIGN = 26.4;
-// all four checks run, each with its reason, and only then is the plan returned
-const chkT = [[9.8, T_DFAIL], [10.7, 11.0], [11.1, 11.4], [11.5, 11.8]];
-const T_FOLD = 12.8; // the three passing reasons fold away before the AI card comes back
+// each check: [run, result, bad?] segments in order; Data waits (grey) between the desk answers and its re-run
+const PLAN = [[[9.8, T_DFAIL, true], [T_RECHK, T_FIX, false]], [[C_CASE, CASE_OK, false]], [[C_SRC, SRC_OK, false]], [[C_AUTH, AUTH_OK, false]]];
+const chkState = (i, t) => { if (i === 0 && within(t, T_INDATA, T_RECHK)) return 'idle'; let s = 'idle'; for (const [r, d, bad] of PLAN[i]) { if (t >= d) s = bad ? 'bad' : 'ok'; else if (t >= r) s = 'run'; } return s; };
+// the reason line: the latest check's one-line reason (red on a fail, green on a pass, grey while waiting)
+const FINDS = [
+  [T_DFAIL, 'bad', '<b>Data:</b> survey only asked smartphone users, in English'],
+  [CASE_OK, 'ok', '<b>Case:</b> front-desk log, 40 times and booking questions a week'],
+  [SRC_OK, 'ok', '<b>Source:</b> opening times come from the library’s own timetable'],
+  [AUTH_OK, 'ok', '<b>Authority:</b> the library manager decides; council rules allow it'],
+  [T_RET, 'bad', '<b>Data:</b> survey only asked smartphone users, in English'],
+  [T_INDATA, 'rr', '<b>Data:</b> 2 more users asked at the desk · re-run Data'],
+  [T_RECHK, 'rr', 'Re-running Data with the new user list…'],
+  [T_FIX, 'ok', '<b>Data:</b> all 5 kinds of user now included ✓'],
+];
 const typed = (n, s, t0, t1, t) => { const k = clamp((t - t0) / (t1 - t0)); const c = Math.round(s.length * k); setH(n, s.slice(0, c) + (k > 0 && k < 1 ? '<span class="caret"></span>' : '')); };
 const D = ['all 5 kinds of user, asked at the desk and in Polish', 'a clear sign, a times page and a booking form', 'Polish opening times, checked by a librarian'];
-const DT = [[22.3, 23.2], [23.4, 24.3], [24.4, 25.2]];
+const DT = [[23.9, 24.6], [24.75, 25.45], [25.6, 26.3]];
 A((t) => {
   // the Users card has no status of its own: its chip reports on the AI colleague's draft plan under review
-  const s = t < T_RUN ? ['', ''] : t < T_RET ? ['rev', 'AI plan · in review'] : t < T_DEC ? ['ret', 'AI plan · returned'] : t < T_SIGN ? ['rev', 'In review'] : ['ok', 'Approved'];
+  const s = t < T_RUN ? ['', ''] : t < T_RET ? ['rev', 'AI plan · in review'] : t < T_FIX ? ['ret', 'AI plan · returned'] : t < T_SEND + 0.12 ? ['rev', 'In review'] : ['ok', 'Recommended'];
   const sc = Q('[data-st]'); const c2 = 'stchip' + (s[0] ? ' ' + s[0] : ''); if (sc.className !== c2) sc.className = c2; setT(sc, s[1]); sc.style.display = s[1] ? '' : 'none';
+  sc.style.transform = within(t, T_SEND + 0.12, T_SEND + 0.42) ? `scale(${1 + 0.08 * Math.sin(prog(t, T_SEND + 0.12, T_SEND + 0.42) * Math.PI)})` : '';
   const sec = t < T_DEC ? 0 : 1; setT(Q('[data-ttl]'), sec ? 'Decision record' : 'Users'); setT(Q('[data-sec]'), sec ? '· for the library' : '· who visits the library');
   doc.querySelectorAll('section[data-v]').forEach((n, i) => { n.style.display = i === sec ? 'block' : 'none'; });
-  doc.querySelectorAll('.per').forEach((n, i) => { const t0 = 5.05 + i * 0.25; /* the card grows as each user arrives */ n.style.display = t >= t0 ? '' : 'none'; n.style.opacity = prog(t, t0, t0 + 0.3); n.style.transform = `translateY(${(1 - prog(t, t0, t0 + 0.4, ease.out)) * 16}px)`; const miss = n.hasAttribute('data-bad'), ok = miss && t >= T_INDATA, bad = miss && t >= T_DFAIL && !ok; cls(n, 'bad', bad); cls(n, 'ok', ok); if (miss) setT(n.querySelector('.ns'), ok ? 'IN THE DATA ✓' : 'NOT IN DATA'); });
-  Q('[data-ask]').style.height = 52 * prog(t, T_ASKED, T_ASKED + 0.3, ease.out) + 'px';
+  doc.querySelectorAll('.per').forEach((n, i) => { const t0 = 5.05 + i * 0.25; /* the card grows as each user arrives */ n.style.display = t >= t0 ? '' : 'none'; n.style.opacity = prog(t, t0, t0 + 0.3); const pop = within(t, T_INDATA, T_INDATA + 0.3) && n.hasAttribute('data-bad') ? 1 + 0.06 * Math.sin(prog(t, T_INDATA, T_INDATA + 0.3) * Math.PI) : 1; n.style.transform = `translateY(${(1 - prog(t, t0, t0 + 0.4, ease.out)) * 16}px) scale(${pop})`; const miss = n.hasAttribute('data-bad'), ok = miss && t >= T_INDATA, bad = miss && t >= T_DFAIL && !ok; cls(n, 'bad', bad); cls(n, 'ok', ok); if (miss) setT(n.querySelector('.ns'), ok ? 'IN THE DATA ✓' : 'NOT IN DATA'); });
+  Q('[data-ask]').style.height = 52 * prog(t, T_ASKED, T_ASKED + 0.3, ease.out) * (1 - prog(t, T_TREE - 0.35, T_TREE, ease.inOut)) + 'px'; // folds away once Data is green, so the task-by-task card fits below
   D.forEach((x, i) => typed(Q(`[data-d${i}]`), x, DT[i][0], DT[i][1], t));
   const run = Q('[data-run]'); run.style.display = t < T_RUN + 0.15 ? '' : 'none'; run.style.transform = within(t, T_RUN - 0.05, T_RUN + 0.15) ? 'scale(.94)' : '';
   chks.forEach((c, i) => {
     c.style.display = t < T_RUN + 0.15 ? 'none' : '';
-    // once the two missing users are asked, the old Data result no longer stands: it waits (grey) until it is re-run
-    const [r, d] = chkT[i]; const rerun = i === 0 && within(t, T_RECHK, T_FIX); const pend = i === 0 && within(t, T_INDATA, T_RECHK); const bad = i === 0 && t < T_FIX; const done = t >= d && !rerun && !pend;
-    cls(c, 'run', (t >= r && !done) || rerun); cls(c, 'ok', done && !bad); cls(c, 'bad', done && bad);
-    const ic = done ? (bad ? SVG.cross : SVG.tick) : SVG.dots; const ii = c.querySelector('i'); if (ii.dataset.s !== ic) { ii.innerHTML = ic; ii.dataset.s = ic; }
-    c.style.transform = i === 0 && within(t, T_DFAIL, T_DFAIL + 0.4) ? `translateX(${Math.sin((t - T_DFAIL) * 60) * 5}px)` : (i === 0 && within(t, T_FIX, T_FIX + 0.3) ? 'scale(1.08)' : '');
+    const st2 = chkState(i, t); cls(c, 'run', st2 === 'run'); cls(c, 'ok', st2 === 'ok'); cls(c, 'bad', st2 === 'bad');
+    const ic = st2 === 'ok' ? SVG.tick : st2 === 'bad' ? SVG.cross : SVG.dots; const ii = c.querySelector('i'); if (ii.dataset.s !== ic) { ii.innerHTML = ic; ii.dataset.s = ic; }
+    const r = PLAN[i].find(([, d, bad]) => bad && within(t, d, d + 0.4)); const g = PLAN[i].find(([, d, bad]) => !bad && within(t, d, d + 0.3));
+    c.style.transform = r ? `translateX(${Math.sin((t - r[1]) * 60) * 5}px)` : g ? `scale(${1 + 0.08 * Math.sin(prog(t, g[1], g[1] + 0.3) * Math.PI)})` : '';
   });
   const npass = chks.filter((c) => c.classList.contains('ok')).length;
   const ps = Q('[data-pass]'); setT(ps, `Checks passed: ${npass} of 4`); cls(ps, 'ok', npass === 4);
   const fd = Q('[data-find]'); fd.style.height = 66 * prog(t, T_DFAIL + 0.1, T_DFAIL + 0.45, ease.out) + 'px';
-  doc.querySelectorAll('[data-pr]').forEach((n, i) => { const d = chkT[i + 1][1]; const fo = 1 - prog(t, T_FOLD, T_FOLD + 0.3, ease.inOut); n.style.height = 50 * prog(t, d, d + 0.3, ease.out) * fo + 'px'; n.style.opacity = prog(t, d + 0.1, d + 0.3) * clamp(fo * 2 - 1); n.style.borderTopWidth = t < d || t > T_FOLD + 0.3 ? '0' : '2px'; });
-  const ok = t >= T_FIX, rr = within(t, T_INDATA, T_FIX); cls(fd, 'ok', ok); cls(fd, 'rr', rr); setH(fd.querySelector('i'), ok ? SVG.tick : rr ? SVG.dots : SVG.cross);
-  setT(fd.querySelector('[data-ft]'), ok ? 'Data: all 5 kinds of user now included ✓' : t >= T_RECHK ? 'Re-running Data with the new user list…' : rr ? 'Data: 2 more users added · re-run Data to confirm' : 'Data: survey only asked smartphone users, in English');
-  const sg = Q('[data-sg]'), sb = Q('[data-sign]');
-  sb.style.opacity = t >= T_FIX ? 1 : 0.35; sb.style.transform = within(t, T_SIGN - 0.1, T_SIGN + 0.1) ? 'scale(.94)' : '';
-  setT(sg, t >= T_SIGN ? 'Reviewed by: Aisha, age 13' : 'Reviewed by: not yet'); sg.style.color = t >= T_SIGN ? '#13202b' : ''; sb.style.visibility = t >= T_SIGN ? 'hidden' : '';
-  if (t >= 29.0) { const k = prog(t, 29.0, 29.5, ease.inOut); doc.style.transformOrigin = '0 0'; doc.style.transform = `translate(${k * 36}px, ${k * 110}px) scale(${1 - k * 0.95})`; doc.style.opacity = 1 - prog(t, 29.3, 29.5); doc.style.visibility = t > 29.5 ? 'hidden' : 'visible'; } // shrinks into the portfolio item's icon
+  let f = FINDS[0]; for (const x of FINDS) if (t >= x[0]) f = x;
+  cls(fd, 'ok', f[1] === 'ok'); cls(fd, 'rr', f[1] === 'rr'); setH(fd.querySelector('i'), f[1] === 'ok' ? SVG.tick : f[1] === 'rr' ? SVG.dots : SVG.cross); setH(Q('[data-ft]'), f[2]);
+  // send to the manager: V2 is already on screen; the click sends Aisha's recommendation; the button stays, now reading "Sent ✓"
+  const sg = Q('[data-sg]'), sb = Q('[data-sign]'), sent = t >= T_SEND + 0.12;
+  sb.style.opacity = t >= T_FIX ? 1 : 0.35; sb.style.transform = within(t, T_SEND - 0.08, T_SEND + 0.12) ? 'scale(.94)' : '';
+  setT(sb, sent ? 'Sent ✓' : 'Send to manager'); sb.style.background = sent ? '#e3f7f0' : ''; sb.style.color = sent ? '#08694f' : '';
+  setT(sg, sent ? 'Reviewed by: Aisha, age 13' : 'Reviewed by: not yet'); sg.style.color = sent ? '#13202b' : '';
+  if (t >= T_FOLD) { const k = prog(t, T_FOLD, T_FOLD + 0.5, ease.inOut); doc.style.transformOrigin = '0 0'; doc.style.transform = `translate(${k * 50}px, ${k * 130}px) scale(${1 - k * 0.94})`; doc.style.opacity = 1 - prog(t, T_FOLD + 0.3, T_FOLD + 0.5); doc.style.visibility = t > T_FOLD + 0.5 ? 'hidden' : 'visible'; } // shrinks into the portfolio item's icon
 });
 
-// AI colleague (bottom slot)
-const SLOT = 708;
+// bottom slot: below the plan card, one card at a time
+const SLOT = 744;
+// Case evidence: the front-desk log
+const logC = el(`<div class="wcard log"><div class="lh"><span class="tag">FRONT-DESK LOG</span><span>Questions asked at the desk · this week</span></div>
+ <div class="lr"><span>“What time do you open?”</span><b>24</b></div>
+ <div class="lr" style="border-bottom:0"><span>“Can I book a PC?”</span><b>16</b></div>
+ <div class="lt" data-lt><span>Times and booking questions</span><b>40 a week</b></div></div>`, { x: COL, y: SLOT });
+A(cueS(logC, T_LOG, 13.45));
+A((t) => { const n = logC.querySelector('[data-lt]'); cls(n, 'ok', t >= CASE_OK); n.style.transform = within(t, CASE_OK, CASE_OK + 0.3) ? `scale(${1 + 0.04 * Math.sin(prog(t, CASE_OK, CASE_OK + 0.3) * Math.PI)})` : ''; });
+
+// AI colleague
 const ai = el(`<div class="ai"><div class="hd"><span class="bot"><i></i></span><b>AI colleague</b><span class="dr" data-dr>DRAFT PLAN · TO CHECK</span></div>
  <p><span data-claim>Build an always-on AI chatbot. It answers questions and books PCs.</span></p>
  <div class="ftr"><span class="sure" data-sure><span class="bar"><i data-b style="width:0%"></i></span><span data-p>92% sure</span></span><span class="data w" data-data><b>DATA I USED</b>survey of smartphone users, in English</span></div></div>`, { x: COL, y: SLOT });
-// first visit 6.8–9.7 (it steps aside while the four checks and their reasons fill the plan card), back at 13.0 to take the return, then again as V2 after the fix
-const T_AIRET = 13.35;
-const aiIn1 = cueS(ai, 6.8, 9.7), aiIn1b = cueS(ai, 13.0, 15.0), aiIn2 = cueS(ai, 23.4, 26.8);
-A((t) => (t < 11 ? aiIn1 : t < 18 ? aiIn1b : aiIn2)(t));
+// first visit 6.8–9.7 (it steps aside while the checks and their evidence run), back after the return; then, unseen in between, it comes back as V2 after the decision record
+const aiIn1 = cueS(ai, 6.8, 9.7), aiIn1b = cueS(ai, T_AIBACK, T_AIOUT), aiIn2 = cueS(ai, T_V2, T_AIOUT2);
+A((t) => (t < 11 ? aiIn1 : t < 20 ? aiIn1b : aiIn2)(t));
 A((t) => {
-  const ret = t >= T_AIRET, drop = prog(t, T_AIRET, T_AIRET + 0.4), v2 = t >= T_FIX;
-  // the bar always matches the number (92% and 90% bars are full-length from their first frame); it empties only as the number gives way to "Data gap"
-  const bw = v2 ? 90 : 92 * (1 - drop);
-  ai.querySelector('[data-sure]').style.opacity = v2 ? prog(t, T_FIX, T_FIX + 0.25) : 1;
+  const v2 = t >= 20, ret = t >= T_AIRET && !v2;
+  // the bar always matches the number; on the return the "Data gap" label takes the bar's place, as fs-verify's "Source not found" does
+  ai.querySelector('[data-b]').style.width = (v2 ? 90 : 92) + '%';
   setT(ai.querySelector('[data-p]'), v2 ? '90% sure' : ret ? 'Data gap' : '92% sure');
-  ai.querySelector('[data-b]').style.width = bw + '%';
-  cls(ai.querySelector('[data-sure]'), 'low', ret && !v2); cls(ai.querySelector('[data-sure]'), 'v2', v2);
-  cls(ai.querySelector('[data-data]'), 'bad', ret && !v2);
+  cls(ai.querySelector('[data-sure]'), 'low', ret); cls(ai.querySelector('[data-sure]'), 'v2', v2);
+  cls(ai.querySelector('[data-data]'), 'bad', ret);
   setH(ai.querySelector('[data-data]'), v2 ? '<b>DATA I USED</b>all 5 kinds of user, at the desk and in Polish' : '<b>DATA I USED</b>survey of smartphone users, in English');
-  const cl = ai.querySelector('[data-claim]'); cls(cl, 'del', ret && !v2);
+  const cl = ai.querySelector('[data-claim]'); cls(cl, 'del', ret);
   setT(cl, v2 ? 'Sign, times page and booking form. AI only for Polish times, checked by a librarian.' : 'Build an always-on AI chatbot. It answers questions and books PCs.');
-  const dr = ai.querySelector('[data-dr]'); setT(dr, v2 ? 'V2 · RE-CHECKED BY AISHA' : ret ? 'RETURNED' : 'DRAFT PLAN · TO CHECK'); cls(dr, 'ret', ret && !v2); cls(dr, 'v2', v2);
-  dr.style.transform = within(t, T_FIX, T_FIX + 0.3) || within(t, T_AIRET, T_AIRET + 0.3) ? 'scale(1.1)' : '';
+  const dr = ai.querySelector('[data-dr]'); setT(dr, v2 ? 'V2 · RE-CHECKED BY AISHA' : ret ? 'RETURNED' : 'DRAFT PLAN · TO CHECK'); cls(dr, 'ret', ret); cls(dr, 'v2', v2);
+  dr.style.transform = within(t, T_AIRET, T_AIRET + 0.3) ? 'scale(1.1)' : '';
 });
 
-// AI or not? task by task (bottom slot); the card grows a row at a time
+// AI or not? task by task; the card grows a row at a time
 const qtree = el(`<div class="wcard tree"><div class="th"><span class="tag">AI OR NOT?</span>Task by task</div>
  <div class="q"><span>Opening times</span><b class="o">A clear sign + web page</b></div>
  <div class="q"><span>Book a PC</span><b class="o">Simple booking form</b></div>
  <div class="q"><span>Translate to Polish</span><b class="a">AI helps, librarian checks</b></div>
  <div class="q"><span>A chatbot for everything?</span><b class="x">Not needed</b></div></div>`, { x: COL, y: SLOT });
-A(cueS(qtree, 15.2, 19.0));
-A((t) => qtree.querySelectorAll('.q').forEach((n, i) => { const t0 = 15.4 + i * 0.8; n.style.display = t >= t0 ? '' : 'none'; n.style.opacity = prog(t, t0, t0 + 0.3); n.style.transform = `translateX(${(1 - prog(t, t0, t0 + 0.4, ease.out)) * 30}px)`; }));
+A(cueS(qtree, T_TREE, T_DEC - 0.3));
+A((t) => { if (within(t, T_TREE - 0.1, T_DEC + 0.1)) qtree.style.top = (doc.getBoundingClientRect().bottom + 24) + 'px'; });
+A((t) => qtree.querySelectorAll('.q').forEach((n, i) => { const t0 = T_TREE + 0.25 + i * 0.7; n.style.display = t >= t0 ? '' : 'none'; n.style.opacity = prog(t, t0, t0 + 0.3); n.style.transform = `translateX(${(1 - prog(t, t0, t0 + 0.4, ease.out)) * 30}px)`; }));
 
-// sign-off card (bottom slot)
-const signC = el(`<div class="sign"><span class="tick">${SVG.tick}</span><span><small>SIGNED OFF · THURSDAY</small><b>Reviewed by: Aisha, age 13</b><em>Checks passed: 4 of 4</em></span></div>`, { x: COL, y: SLOT + 40 });
-A(cue(signC, 27.0, 32.1, { from: 'pop', outDur: 0.3 }));
+// recommendation card: Aisha reviewed it; the library manager approves it
+const signC = el(`<div class="sign"><span class="tick">${SVG.tick}</span><span><small>RECOMMENDED · CHECKS PASSED 4 OF 4</small><b>Recommendation reviewed by: Aisha, age 13</b><em>For the library manager to approve</em></span></div>`, { x: COL, y: SLOT + 30 });
+A(cue(signC, T_SIGNC, T_SIGNOUT, { from: 'pop', outDur: 0.3 }));
 
 // steps strip
 const steps = el(`<div class="steps"><span class="n" data-n></span><span class="d" data-d></span></div>`, { x: 44, y: 1000 });
 A(cue(steps, 5.4, 32.15, { from: 'up' }));
-const STEPS = [[0, 'Step 1 of 7', 'Map the users and the real problem'], [9.4, 'Step 2 of 7', 'Check the AI colleague’s plan'], [15.2, 'Step 3 of 7', 'Ask: AI or not, task by task'], [19.1, 'Step 4 of 7', 'Ask the users the data missed'], [22.0, 'Step 5 of 7', 'Write the decision record'], [26.2, 'Step 6 of 7', 'Sign it off'], [29.0, 'Step 7 of 7', 'File it in your portfolio']];
+const STEPS = [[0, 'Step 1 of 7', 'Map the users and the real problem'], [9.4, 'Step 2 of 7', 'Check the AI colleague’s plan'], [T_STEP3, 'Step 3 of 7', 'Ask the users the data missed'], [T_TREE, 'Step 4 of 7', 'Ask: AI or not, task by task'], [T_DEC, 'Step 5 of 7', 'Write the decision record'], [T_STEP6, 'Step 6 of 7', 'Send it to the library manager'], [T_FOLD, 'Step 7 of 7', 'File it in your portfolio']];
 A((t) => { let s = STEPS[0]; for (const x of STEPS) if (t >= x[0]) s = x; setT(steps.querySelector('[data-n]'), s[1]); setT(steps.querySelector('[data-d]'), s[2]); });
 
-// portfolio folder
+// portfolio folder: arrives once the recommendation card has gone, with its item already in it
 const folder = el(`<div class="folder"><span class="tabf">PORTFOLIO · Aisha</span><div class="body">
- <div class="it nw" data-nw><i></i><span>Decision record<small>Should It Be AI? · library times</small></span><span class="new">NEW</span></div></div></div>`, { x: COL, y: 150 });
-A(cueS(folder, 29.35, 32.1, { dur: 0.3 }));
-A((t) => { const n = folder.querySelector('[data-nw]'); n.style.transform = `scale(${1 + 0.05 * Math.sin(prog(t, 29.55, 30.05) * Math.PI)})`; });
+ <div class="it nw" data-nw><i></i><span>Decision record<small>Should It Be AI? · library times</small></span><span class="new">NEW</span></div>
+ <div class="pv"><div><small>BASED ON</small>all 5 kinds of user, asked at the desk and in Polish</div><div><small>WE BUILD</small>a clear sign, a times page and a booking form</div><div><small>AI ONLY FOR</small>Polish opening times, checked by a librarian</div></div></div></div>`, { x: COL, y: 150 });
+A(cueS(folder, T_FOLDER, 32.1, { dur: 0.3 }));
+A((t) => { const n = folder.querySelector('[data-nw]'); n.style.transform = `scale(${1 + 0.04 * Math.sin(prog(t, T_FOLDER + 0.2, T_FOLDER + 0.7) * Math.PI)})`; });
 
 // cursor (parks in the gap left of the cards)
 const cur = el(SVG.cursor, { x: 0, y: 0 }); cur.style.zIndex = 5;
 const ring = el('<div class="ring"></div>', { x: 0, y: 0, anchor: 'c' });
-// a hidden target (the Sign off button once pressed) falls back to the right end of its row, so the cursor never flies to the corner
 const R = (sel, root = doc) => () => { const n = root.querySelector(sel); const r = n.getBoundingClientRect(); if (r.width > 0) return [r.left + r.width * 0.5, r.top + r.height * 0.55]; const q = n.parentElement.getBoundingClientRect(); return [q.right - 90, q.top + q.height * 0.55]; };
 const PARK = (y) => () => [940, y];
-const PATH = [[8.6, [820, 1100]], [9.45, R('[data-run]')], [9.8, R('[data-run]')], [10.6, PARK(430)], [25.3, PARK(480)], /* hidden while parked (12.6–25.0), so it never sits over the desk beat */ [25.95, () => { const [x, y] = R('[data-sign]')(); return [x - 170, y + 14]; }], [26.35, R('[data-sign]')], [26.65, R('[data-sign]')], [27.5, R('[data-sign]')]]; // after the click the pointer fades out in place instead of crossing the cards
-const CLICKS = [T_RUN, T_SIGN];
+const PATH = [[8.6, [820, 1100]], [9.45, R('[data-run]')], [9.8, R('[data-run]')], [10.6, PARK(430)], [26.85, PARK(600)], /* hidden while parked (12.6–26.7) */ [27.2, () => { const [x, y] = R('[data-sign]')(); return [x - 170, y + 14]; }], [27.45, R('[data-sign]')], [27.75, R('[data-sign]')], [28.4, R('[data-sign]')]]; // after the click the pointer fades out in place instead of crossing the cards
+const CLICKS = [T_RUN, T_SEND];
 A((t) => {
-  const on = within(t, 8.6, 27.2); cur.style.opacity = !on ? 0 : t < 18 ? 1 - prog(t, 12.3, 12.6) : prog(t, 24.9, 25.2) * (1 - prog(t, 26.8, 27.1));
+  const on = within(t, 8.6, 28.2); cur.style.opacity = !on ? 0 : t < 20 ? 1 - prog(t, 12.3, 12.6) : prog(t, 26.7, 27.0) * (1 - prog(t, 27.85, 28.1));
   if (on) { let i = 0; while (i < PATH.length - 2 && t > PATH[i + 1][0]) i++; const [ta, pa] = PATH[i], [tb, pb] = PATH[i + 1]; const a = typeof pa === 'function' ? pa() : pa, b = typeof pb === 'function' ? pb() : pb; const k = prog(t, ta, tb, ease.inOut); const x = lerp(a[0], b[0], k), y = lerp(a[1], b[1], k); cur.style.left = x + 'px'; cur.style.top = y + 'px'; ring.style.left = (x + 4) + 'px'; ring.style.top = (y + 4) + 'px'; }
   const c = CLICKS.find((x) => within(t, x, x + 0.45)); if (c != null && on) { const k = (t - c) / 0.45; ring.style.opacity = 1 - k; ring.style.transform = `translate(-50%,-50%) scale(${0.4 + k})`; } else ring.style.opacity = 0;
 });
