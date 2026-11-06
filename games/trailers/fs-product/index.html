@@ -73,7 +73,7 @@
 .chk.run { border-color:var(--teal); color:var(--ink); background:#fff; }
 .chk.ok { background:var(--mint); color:#08694f; } .chk.ok i { background:var(--teal); }
 .chk.bad { background:var(--red); color:#fff; box-shadow:0 0 0 5px rgba(229,72,77,.22); } .chk.bad i { background:#fff; } .chk.bad i svg path { stroke:var(--red); }
-.find { box-sizing:border-box; display:flex; align-items:center; gap:14px; padding:0 26px; font:700 24px/1.25 'Inter'; color:var(--redD); background:#fff5f5; border-top:2px solid #f6cfd0; overflow:hidden; height:0; }
+.find { box-sizing:border-box; display:flex; align-items:center; gap:14px; padding:0 26px; font:700 23px/1.25 'Inter'; color:var(--redD); background:#fff5f5; border-top:2px solid #f6cfd0; overflow:hidden; height:0; }
 .find i { flex:none; width:36px; height:36px; border-radius:50%; background:var(--red); display:grid; place-items:center; } .find i svg { width:22px; height:22px; }
 .find.ok { color:#08694f; background:#effbf6; border-top-color:#cdeee2; } .find.ok i { background:var(--teal); }
 .find.rr { color:var(--ink); background:var(--soft); border-top-color:var(--line); } .find.rr i { background:#9aa8b4; }
@@ -390,11 +390,11 @@ const T_DOC = 4.55, T_STRIP = 4.75, T_AI = 6.0, T_BTN = 6.6, T_RUN = 8.15;
 const C_DATA = 8.55, DATA_BAD = 8.95, T_AIOUT = 9.85, T_LOG = 9.9, C_CASE = 10.15, CASE_BAD = 10.55;
 const T_BOARD = 11.3, C_SRC = 11.6, SRC_OK = 12.0, C_AUTH = 12.95, AUTH_OK = 13.35, T_LOGOUT = 13.25, T_AIBACK = 13.4, T_RET = 14.3;
 // fix Data: Aisha asks the two users the survey missed
-const T_STEP3 = 15.2, T_SAYA = 15.25, T_SAYO = 15.95, T_SAYP = 16.25, T_ASKED = 16.65, T_TAGS = 17.5;
+const T_STEP3 = 15.2, T_SAYA = 15.25, T_SAYO = 15.95, T_SAYP = 16.25, T_ASKED = 16.45, T_TAGS = 17.5;
 // fix Case: AI or not, task by task (a verdict every 0.6 s); then the decision record
-const T_TREE = 17.7, T_DEC = 20.4;
+const T_TREE = 17.9, T_DEC = 20.5;
 // re-check the record (Data, then Case), V2, the Send button arms, the click, the recommendation
-const T_RECHK = 22.9, C_DATA2 = 23.3, DATA_OK = 23.7, C_CASE2 = 24.75, CASE_OK = 25.15, T_TREEOUT = 25.3, T_V2 = 25.45, T_ARM = 25.9, T_SEND = 26.75;
+const T_RECHK = 23.0, C_DATA2 = 23.3, DATA_OK = 23.7, C_CASE2 = 24.75, CASE_OK = 25.15, T_TREEOUT = 25.3, T_V2 = 25.45, T_ARM = 25.9, T_SEND = 26.75;
 const T_AIOUT2 = 27.35, T_SIGNC = 27.55, T_SAYE = 27.95, T_FOLD = 30.0, T_FOLDER = 30.45;
 
 // opening title moment, then the header chip
@@ -547,7 +547,8 @@ const ai = el(`<div class="ai"><div class="hd"><span class="bot"><i></i></span><
  <div class="ftr"><span class="sure" data-sure><span class="bar"><i data-b style="width:0%"></i></span><span data-p>92% sure</span></span><span class="data w" data-data><b>DATA I USED</b>survey of smartphone users, in English</span></div></div>`, { x: COL, y: SLOT });
 // first visit (it steps aside while the log and the board tag show the evidence), back for the return and through the desk beat; then, after the re-check, it comes back as V2
 const aiIn1 = cueS(ai, T_AI, T_AIOUT), aiIn1b = cueS(ai, T_AIBACK, T_TREE - 0.5), aiIn2 = cueS(ai, T_V2, T_AIOUT2);
-A((t) => { (t < 11 ? aiIn1 : t < 20 ? aiIn1b : aiIn2)(t); ai.style.top = (within(t, 11, 20) ? 790 : SLOT) + 'px'; });
+// once returned, the card is shorter ("Not trusted" replaces the bar) and settles a little lower, below the Users card's new desk row
+A((t) => { (t < 11 ? aiIn1 : t < 20 ? aiIn1b : aiIn2)(t); ai.style.top = (t < 20 ? lerp(SLOT, 790, prog(t, T_RET, T_RET + 0.3)) : SLOT) + 'px'; });
 A((t) => {
   const v2 = t >= 20, ret = t >= T_RET && !v2;
   // the bar always matches the number; on the return "Not trusted" takes the bar's place, as in fs-impact
