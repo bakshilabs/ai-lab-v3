@@ -1,4 +1,4 @@
-/* DeltaOps Learning · Future Skills strand: work-tool UI (shared by fs-impact and fs-creative) */
+/* DeltaOps Learning · Future Skills strand: work-tool UI (fs-impact's copy) */
 :root { --fs-ink: #13202b; --fs-teal: #16c79a; --fs-teal-d: #0c8f6d; --fs-mint: #e3f7f0; --fs-red: #e5484d; --fs-red-bg: #fde8e8; --fs-amber: #f5a524; --fs-muted: #5b6b78; --fs-line: #e4e9ed; --fs-ai: #fff2c6; }
 .fs { font-family: 'Inter', sans-serif; color: var(--fs-ink); }
 .fs-card { background: #fff; border-radius: 28px; box-shadow: 0 10px 0 rgba(10,30,40,.06), 0 18px 40px rgba(10,30,40,.16); }
@@ -37,6 +37,7 @@
 .fs-ai .who em { font-style: normal; color: #9fb3c4; font-weight: 650; }
 .fs-ai .st { margin-left: auto; font: 800 19px 'Inter'; letter-spacing: .12em; background: #233544; color: #ffd36b; border-radius: 999px; padding: 8px 16px; }
 .fs-ai p { font: 600 29px/1.3 'Inter'; margin: 16px 0 14px; }
+.fs-ai.v2 p b { color: #6ff0c8; font-weight: 800; }
 .fs-ai .nt { display: none; background: var(--fs-teal); color: #062a20; border-radius: 14px; padding: 10px 16px; font: 750 25px/1.3 'Inter'; margin: 0 0 14px; }
 .fs-ai p q { quotes: none; background: rgba(255,210,90,.18); color: #ffe29a; border-radius: 8px; padding: 0 6px; }
 .fs-ai .ft { display: flex; align-items: center; gap: 12px 18px; flex-wrap: wrap; }
@@ -97,7 +98,7 @@
 .fs-sign .tick { width: 70px; height: 70px; border-radius: 50%; background: var(--fs-teal); display: grid; place-items: center; }
 .fs-sign .tick svg { width: 42px; height: 42px; }
 .fs-sign small { display: block; font: 800 19px 'Inter'; letter-spacing: .14em; color: var(--fs-teal-d); }
-.fs-sign b { display: block; font: 800 36px 'Inter'; }
+.fs-sign b { display: block; font: 800 31px 'Inter'; }
 
 /* portfolio folder (small; sits beside the island) */
 .fs-folder { position: relative; width: 440px; height: 170px; }

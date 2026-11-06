@@ -1,4 +1,4 @@
-// Future Skills strand helpers (shared by fs-impact and fs-creative; keep the two copies identical).
+// Future Skills strand helpers (fs-impact's copy; it has diverged from fs-creative's: aiSet `text`, endTitleHTML `logo`).
 import * as THREE from 'three';
 import { Vox, person } from '../engine/kit.js';
 import { el, toScreen } from '../engine/ui.js';
@@ -95,9 +95,11 @@ export const aiHTML = ({ text, sure, data, state = 'DRAFT' }) => `<div class="fs
   <p>${text}</p><div class="nt" data-note></div><div class="ft"><span class="sure"><span class="bar"><i style="width:${sure}%"></i></span><span data-sure>${sure}% sure</span></span><span class="data"><b>DATA I USED</b><span data-d>${data}</span></span></div></div>`;
 // AI card state: strike only the claims whose own check failed (strike = indices of <q> claims), optional data-line strike,
 // mode '' | 'ret' (RETURNED) | 'v2' (re-checked); confidence numbers are set directly (never counted up)
-export function aiSet(node, { state = 'DRAFT', mode = '', sure = 94, label, strike = [], dataX = false, data, note = '' } = {}) {
+// text: replaces the card's main text (e.g. the corrected V2 recommendation); omit to keep the draft text
+export function aiSet(node, { state = 'DRAFT', mode = '', sure = 94, label, strike = [], dataX = false, data, note = '', text } = {}) {
   const c = node.firstChild; const cls = 'fs-ai' + (mode ? ' ' + mode : ''); if (c.className !== cls) c.className = cls;
   const st = c.querySelector('.st'); if (st.textContent !== state) st.textContent = state;
+  const p = c.querySelector('p'); if (p._t0 == null) p._t0 = p.innerHTML; const ph = text ?? p._t0; if (p._h !== ph) { p.innerHTML = ph; p._h = ph; }
   c.querySelectorAll('p q').forEach((q, i) => q.classList.toggle('x', strike.includes(i)));
   const d = c.querySelector('[data-d]'); d.classList.toggle('x', dataX); if (data != null && d.textContent !== data) d.textContent = data;
   c.querySelector('.sure .bar i').style.width = sure + '%';
@@ -122,7 +124,7 @@ export const pathHTML = ({ next, award, route, jobs }) => `<div class="fs-card f
   <div class="row"><span>Route</span><b>${route}</b></div>
   <div class="row"><span>Jobs</span><div class="jobs">${jobs.map((j) => `<i>${j}</i>`).join('')}</div></div></div>`;
 // bright stacked end title on open sky above the island (no card, no dark veil)
-export const endTitleHTML = (name, tagline) => `<div class="fs-end"><span class="fs-strand">DeltaOps Learning · Future Skills</span><h1>${name}</h1><h2>${tagline}</h2><img src="../assets/logo-learning.svg" alt=""></div>`;
+export const endTitleHTML = (name, tagline, logo = true) => `<div class="fs-end"><span class="fs-strand">DeltaOps Learning · Future Skills</span><h1>${name}</h1><h2>${tagline}</h2>${logo ? '<img src="../assets/logo-learning.svg" alt="">' : ''}</div>`;
 
 // review strip with four chips; set(t) drives states from a schedule [{i, run, res:'pass'|'fail', fix}]
 export function checkStrip(x, y, anchor = 'tr') {

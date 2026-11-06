@@ -6,8 +6,8 @@
 .ip-form h3 { font: 800 36px/1.1 'Inter'; margin-top: 4px; }
 .ip-sec { padding: 12px 0 4px; }
 .ip-stk { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; }
-.ip-s { display: flex; align-items: center; gap: 10px; background: #f4f7f9; border-radius: 16px; padding: 8px 12px; font: 700 22px/1.12 'Inter'; min-height: 60px; }
-.ip-s i { flex: none; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; padding: 7px; }
+.ip-s { display: flex; align-items: center; gap: 10px; background: #f4f7f9; border-radius: 16px; padding: 8px 12px; font: 700 24px/1.12 'Inter'; min-height: 64px; }
+.ip-s i { flex: none; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; padding: 7px; }
 .ip-s i svg { width: 100%; height: 100%; }
 .ip-s.new { background: var(--fs-mint); box-shadow: 0 0 0 4px var(--fs-teal) inset; }
 .ip-rows { margin-top: 6px; }
@@ -132,16 +132,18 @@ const walkers = [['#e5484d', '#c68a5e'], ['#3a8de0', '#8a5a3a'], ['#ffd23f', '#e
 const skaters = [['#ff8a2a', '#7a4a2c'], ['#6e5bf2', '#e0b08a']].map(([shirt, skin]) => { const p = person({ shirt, skin, hair: '#1a120c', s: 0.34 }); scene.add(p); return p; });
 
 // ---------- motion + camera ----------
-// 0-2.6 brief | 3.0 form | 6.6 AI draft | 8.8 review: Data ✕ 9.65 (adults-only survey) → fixed 12.2 | Case ✓ 14.35 (energy small) | Source ✕ 16.75 (invented Act) → fixed 20.0 | Authority ✓ 21.85 (council decides) | 23.6 AI V2 | 24.8 sign-off | 28.0 portfolio | 31.6 pathway | 35.0 title
+// 0.2-2.3 opening title | 2.3-4.2 brief | 4.4 form | 8.0 AI draft | 10.2 review: Data ✕ 11.05 (adults-only survey) → fixed 13.6 | Case ✓ 15.75 (fits this park: count people, not faces; energy small) | Source ✕ 18.55 (invented Act) → fixed 21.8 | Authority ✓ 23.65 (council decides) | 25.4 AI V2 (corrected recommendation) | 26.6 sign-off | 29.8 portfolio | 30.2 title (top right) | 30.95 pathway | 35.2 title centred
 // key: [t, ang, dist, hgt, lookX, lookZ, ox, oy]  (ox/oy = where the look point sits, in px from screen centre)
-const T_OUT = 28.0, PATH_IN = 31.6, TITLE_IN = 35.0;
+const T_OUT = 29.8, TITLE_A = 30.2, PATH_IN = 30.95, TITLE_IN = 35.2, AI_IN = 8.0;
 const CK = [
-  [0, -0.74, 132, 84, -2, 0, 0, 40],
-  [1.6, -0.64, 126, 80, -2, 0, 0, 40],
-  [3.6, -0.46, 160, 76, -2, 0, 470, 240],
+  [0, -0.74, 124, 84, -2, 0, 0, 120],
+  [2.3, -0.66, 120, 80, -2, 0, 0, 120],
+  [4.6, -0.5, 132, 76, -2, 0, 458, 60],
+  [AI_IN - 1.0, -0.45, 134, 76, -2, 0, 458, 60],
+  [AI_IN + 0.6, -0.42, 160, 76, -2, 0, 470, 240],
   [T_OUT, -0.26, 156, 74, -2, 0, 470, 240],
-  [T_OUT + 1.0, -0.22, 156, 74, -2, 0, 470, 190],
-  [TITLE_IN - 0.4, -0.08, 156, 74, -2, 0, 470, 190],
+  [T_OUT + 1.0, -0.22, 156, 74, -2, 0, 445, 190],
+  [TITLE_IN - 0.4, -0.08, 156, 74, -2, 0, 445, 190],
   [TITLE_IN + 0.5, 0.0, 126, 76, -2, 0, 0, 230],
   [DUR, 0.12, 122, 74, -2, 0, 0, 230],
 ];
@@ -158,7 +160,7 @@ st.onFrame((t) => {
   camera.lookAt(lx, 0, lz);
   // seated idle + Zainab leaning in to review
   panel.forEach((p, i) => { const b = p.userData.base; p.position.y = b.y + Math.max(0, Math.sin(t * 1.3 + i * 1.7)) * 0.05; p.rotation.x = 0; });
-  MAYA.rotation.x = -0.18 * prog(t, 9.2, 10.0) * (1 - prog(t, 24.4, 25.2));
+  MAYA.rotation.x = -0.18 * prog(t, 10.6, 11.4) * (1 - prog(t, 26.2, 27.0));
   // mentor stays by the wall screen (clear of Zainab)
   mentor.position.set(-0.5, F, -6.5); mentor.rotation.y = Math.PI; mentor.userData.walk(0);
   // park visitors on loops
@@ -172,19 +174,26 @@ const A = []; const on = (f) => A.push(f);
 const fade = fader(); on((t) => fade(t < 0.4 ? 1 - prog(t, 0, 0.4) : t > DUR - 0.4 ? prog(t, DUR - 0.4, DUR) : 0));
 
 // brief
+// opening title over the whole island (strand chip, lab name, tagline), then the brief
+const otitle = ui(endTitleHTML('Impact <span class="hl">Panel</span>', 'Check the AI’s draft before the council says yes.', false), 960, 70);
+on((t) => {
+  const a = prog(t, 0.2, 0.8, ease.back), b = prog(t, 2.05, 2.4, ease.in);
+  const v = clamp(prog(t, 0.2, 0.5) - b); otitle.style.opacity = v; otitle.style.visibility = v > 0.001 ? 'visible' : 'hidden';
+  otitle.style.transformOrigin = '50% 0'; otitle.style.transform = `translate(-50%, ${-b * 30}px) scale(${0.8 + 0.2 * a})`;
+});
 const brief = ui(briefHTML({ from: 'Harbourside Council', task: 'Impact assessment: AI cameras in Harbour Park', due: 'Friday' }), 46, 40);
-on(cue(brief, 0.3, 2.6, { from: 'down' }));
+on(cue(brief, 2.3, 4.2, { from: 'down' }));
 const bchip = ui(briefChipHTML('Harbourside Council · Due <em>Friday</em>'), 46, 30);
-on(cue(bchip, 3.0, T_OUT - 0.2, { from: 'left' }));
+on(cue(bchip, 4.4, T_OUT - 0.2, { from: 'left', dist: 14 }));
 
 // name tags (snap on fully opaque; no fades over the busy scene)
 const tagMaya = pin('<b>Zainab, age 15</b><small>Impact Panel · lead</small>');
 const tagMentor = pin('<b>Priya Shah</b><small>Mentor · data protection officer</small>', 'fs-tag mentor');
 const say = pin('“Start with who it affects.”', 'fs-say');
 on((t) => {
-  place(tagMaya, camera, [MAYA.position.x, MAYA.position.y + 4.2, MAYA.position.z], showIO(t, 3.6, 4.9) + showIO(t, 7.4, T_OUT - 0.2), 0);
-  const mp = mentor.position; place(tagMentor, camera, [mp.x, mp.y + 4.3, mp.z], showIO(t, 4.9, 5.9), 0);
-  place(say, camera, [mp.x, mp.y + 4.3, mp.z], showIO(t, 5.9, 7.4), 0);
+  place(tagMaya, camera, [MAYA.position.x, MAYA.position.y + 4.2, MAYA.position.z], showIO(t, 5.0, 6.3) + showIO(t, 8.7, T_OUT - 0.2), 0);
+  const mp = mentor.position; place(tagMentor, camera, [mp.x, mp.y + 4.3, mp.z], showIO(t, 6.3, 7.3), 0);
+  place(say, camera, [mp.x, mp.y + 4.3, mp.z], showIO(t, 7.3, 8.7), 0);
 });
 
 // impact form (left column)
@@ -202,21 +211,21 @@ const fPriv = form.querySelector('[data-priv]'), fDec = form.querySelector('[dat
 const PRIV_AI = 'Allowed under the 2024 Park Privacy Act.';
 const PRIV_FIX = 'UK GDPR and ICO video guidance apply.';
 const DEC_AI = 'Approve. All groups covered.';
-const DEC_FIX = 'Recommend to councillors: count people, never identify them. Delete footage after 24 h.';
-const FORM_IN = 3.0, AI_IN = 6.6, DATA_FAIL = 9.65, DATA_FIX = 12.2, CASE_OK = 14.35, SRC_FAIL = 16.75, PRIV_T = 18.4, SRC_FIX = 20.0, AUTH_OK = 21.85, DEC_T = 22.2, V2 = 23.6, SIGN = 24.8;
+const DEC_FIX = 'Recommend to councillors: approve with conditions. Count people, never identify them. Delete footage after 24 h.';
+const FORM_IN = 4.4, REV_IN = 10.2, DATA_FAIL = 11.05, DATA_FIX = 13.6, CASE_OK = 15.75, SRC_FAIL = 18.55, PRIV_T = 20.2, SRC_FIX = 21.8, AUTH_OK = 23.65, DEC_T = 24.0, V2 = 25.4, SIGN = 26.6;
 const FOLD_X = 60, FOLD_Y = 860; // portfolio folder (bottom left, island stays on the right)
 on((t) => {
   // entrance; at the end the form (fully opaque) shrinks into the portfolio folder and is hidden behind its front
   const a = prog(t, FORM_IN, FORM_IN + 0.5, ease.out);
-  const d = prog(t, T_OUT + 0.9, T_OUT + 1.8, ease.inOut);
-  const vis = t > FORM_IN && t < T_OUT + 1.75;
+  const d = prog(t, T_OUT + 0.5, T_OUT + 1.35, ease.inOut);
+  const vis = t > FORM_IN && t < T_OUT + 1.3;
   form.style.opacity = vis ? a : 0; form.style.visibility = vis ? 'visible' : 'hidden';
   form.style.transformOrigin = '0 0'; form.style.zIndex = 5;
-  form.style.transform = `translate(${-(1 - a) * 120 + d * (FOLD_X + 60 - FXL)}px, ${d * (FOLD_Y + 10 - FYT)}px) scale(${1 - d * 0.82})`;
+  form.style.transform = `translate(${-(1 - a) * 40 + d * (FOLD_X + 60 - FXL)}px, ${d * (FOLD_Y + 10 - FYT)}px) scale(${1 - d * 0.82})`;
   fS.forEach((c, i) => { const ti = i < 5 ? FORM_IN + 0.5 + i * 0.22 : DATA_FIX; const k = prog(t, ti, ti + 0.35, ease.back); c.style.opacity = clamp(k); c.style.transform = `scale(${0.7 + 0.3 * k})`; });
   // energy estimate (Zainab's own working): the number is shown whole, the bar grows
-  const ek = prog(t, 4.6, 5.4, ease.out); fEn.style.width = ek * 40 + '%'; fKwh.style.opacity = prog(t, 4.6, 4.9); fEnS.style.opacity = prog(t, 5.0, 5.3);
-  fKwh.parentNode.parentNode.classList.toggle('hl', t > CASE_OK - 0.45 && t < CASE_OK + 1.6);
+  const ek = prog(t, 6.0, 6.8, ease.out); fEn.style.width = ek * 40 + '%'; fKwh.style.opacity = prog(t, 6.0, 6.3); fEnS.style.opacity = prog(t, 6.4, 6.7);
+  fKwh.parentNode.parentNode.classList.toggle('hl', t > CASE_OK + 0.3 && t < SRC_FAIL - 0.4);
   let ph;
   if (t < AI_IN + 0.6) ph = '<span class="muted">Waiting for draft…</span>';
   else if (t < SRC_FAIL) ph = `<span class="fs-aitxt"><span class="fs-aitag">AI</span>${PRIV_AI}</span>`;
@@ -226,56 +235,58 @@ on((t) => {
   if (t < AI_IN + 0.9) dh = '<span class="muted">—</span>';
   else if (t < DATA_FAIL) dh = `<span class="fs-aitxt"><span class="fs-aitag">AI</span>${DEC_AI}</span>`;
   else if (t < DEC_T) dh = `<span class="fs-aitxt"><span class="fs-aitag">AI</span>Approve. <span class="fs-del">All groups covered.</span></span>`;
-  else { const ty = typed(DEC_FIX, t, DEC_T, 64); dh = `<span class="fs-new">${ty}${ty.length < DEC_FIX.length ? '<i class="fs-caret"></i>' : ''}</span>`; }
+  else { const ty = typed(DEC_FIX, t, DEC_T, 80); dh = `<span class="fs-new">${ty}${ty.length < DEC_FIX.length ? '<i class="fs-caret"></i>' : ''}</span>`; }
   setHTML(fDec, dh);
-  const sst = t < AI_IN + 0.6 ? ['', 'Draft'] : t < 8.8 ? ['ai', 'AI draft'] : t < SIGN ? ['rev', 'In review'] : ['ok', 'Signed off'];
+  const sst = t < AI_IN + 0.6 ? ['', 'Draft'] : t < REV_IN ? ['ai', 'AI draft'] : t < SIGN ? ['rev', 'In review'] : ['ok', 'Signed off'];
   const cls = 'fs-status' + (sst[0] ? ' ' + sst[0] : ''); if (fSt.className !== cls) fSt.className = cls; if (fSt.textContent !== sst[1]) fSt.textContent = sst[1];
 });
 
 // AI colleague (top right, over the sky): each claim is struck only when its own check fails; returns as V2
-const ai = ui(aiHTML({ text: 'Draft ready. Cameras are <q>allowed under the 2024 Park Privacy Act</q>. <q>All groups covered.</q> Recommend: approve.', sure: 94, data: 'Council survey · adults 18+' }), 1874, 112, 'tr');
-on(cue(ai, AI_IN, T_OUT - 0.2, { from: 'right' }));
+const AI_V2 = 'Recommend to councillors: <b>approve with conditions</b>. Count people, never identify them. Delete footage after 24 h.';
+const ai = ui(aiHTML({ text: 'Draft ready. Cameras are <q>allowed under the 2024 Park Privacy Act</q>. <q>All groups covered.</q> <q>Recommend: approve.</q>', sure: 94, data: 'Council survey · adults 18+' }), 1874, 112, 'tr');
+on(cue(ai, AI_IN, T_OUT - 0.2, { from: 'down' })); // vertical slide: never crosses the right edge
 on((t) => {
   if (t < DATA_FAIL) aiSet(ai, { state: 'DRAFT', sure: 94 });
-  else if (t < SRC_FAIL) aiSet(ai, { state: 'RETURNED', mode: 'ret', sure: 0, label: 'Not trusted', strike: [1], dataX: true });
-  else if (t < V2) aiSet(ai, { state: 'RETURNED', mode: 'ret', sure: 0, label: 'Not trusted', strike: [0, 1], dataX: true });
-  else aiSet(ai, { state: 'V2 · RE-CHECKED', mode: 'v2', sure: 91, label: '91% sure · re-checked by Zainab', strike: [0, 1], data: 'Survey + under-18s', note: 'Under-18s asked · real law · council decides' });
+  else if (t < SRC_FAIL) aiSet(ai, { state: 'RETURNED', mode: 'ret', sure: 0, label: 'Not trusted', strike: [1, 2], dataX: true });
+  else if (t < V2) aiSet(ai, { state: 'RETURNED', mode: 'ret', sure: 0, label: 'Not trusted', strike: [0, 1, 2], dataX: true });
+  else aiSet(ai, { state: 'V2 · RE-CHECKED', mode: 'v2', sure: 91, label: '91% sure · re-checked by Zainab', data: 'Survey + under-18s', note: 'Under-18s asked · real law · council decides', text: AI_V2 });
 });
 
 // review: Data ✕ → re-checked ✓, Case ✓ (reason), Source ✕ → re-checked ✓, Authority ✓ (reason)
 const chk = checkStrip(1874, 20, 'tr');
-on(cue(chk, 8.8, T_OUT - 0.2, { from: 'down' }));
+on(cue(chk, REV_IN, T_OUT - 0.2, { from: 'down' }));
 const PLAN = [{ run: DATA_FAIL - 0.45, res: 'fail', fix: DATA_FIX }, { run: CASE_OK - 0.45, res: 'pass' }, { run: SRC_FAIL - 0.45, res: 'fail', fix: SRC_FIX }, { run: AUTH_OK - 0.45, res: 'pass' }];
 on((t) => chk.drive(t, PLAN));
-const LOW = 744; // lower slot in the left column, under the form
+const LOW = 758; // lower slot in the left column, under the form
 const findData = ui(findHTML('DATA CHECK · UNDER-18s MISSING', [['Data used', 'Council survey · adults 18+'], ['Missing', 'Under-18s: the park’s main users'], ['Action', { t: 'Ask young people. Add them.', cls: 'bad' }]]), FXL, LOW);
-on(cue(findData, DATA_FAIL + 0.1, CASE_OK - 0.5, { from: 'left' }));
+on(cue(findData, DATA_FAIL + 0.1, CASE_OK - 0.5, { from: 'left', dist: 14 }));
 on(findFix(findData, DATA_FIX + 0.45, 'DATA CHECK · UNDER-18s MISSING', 'DATA CHECK · RE-CHECKED', 'Young people asked and added.'));
-const whyCase = ui(findHTML('CASE CHECK · HOLDS', [['Why', 'Energy use is small (≈1,100 kWh a year). Holds for this park.']], true), FXL, LOW);
-on(cue(whyCase, CASE_OK - 0.1, SRC_FAIL - 0.3, { from: 'left' }));
+const whyCase = ui(findHTML('CASE CHECK · FITS THIS PARK', [['This park', '4 cameras · open park · daytime visitors'], ['Holds if', { t: 'cameras count people, never identify them.', cls: 'good' }], ['Energy', 'Small: ≈1,100 kWh a year.']], true), FXL, LOW);
+on(cue(whyCase, CASE_OK - 0.1, SRC_FAIL - 0.3, { from: 'left', dist: 14 }));
 const findSrc = ui(findHTML('SOURCE CHECK · LAW NOT FOUND', [['Claim', '“2024 Park Privacy Act”'], ['Searched', 'UK legislation: 0 results'], ['Asked', 'Priya (DPO): “No such Act.”'], ['Action', { t: 'Invented law. Remove it.', cls: 'bad' }]]), FXL, LOW);
-on(cue(findSrc, SRC_FAIL + 0.1, AUTH_OK - 0.5, { from: 'left' }));
+on(cue(findSrc, SRC_FAIL + 0.1, AUTH_OK - 0.5, { from: 'left', dist: 14 }));
 on(findFix(findSrc, SRC_FIX + 0.45, 'SOURCE CHECK · LAW NOT FOUND', 'SOURCE CHECK · RE-CHECKED', 'Replaced with UK GDPR + ICO guidance.'));
 const whyAuth = ui(findHTML('AUTHORITY CHECK · CLEAR', [['Who decides', 'Panel recommends; councillors decide.']], true), FXL, LOW);
-on(cue(whyAuth, AUTH_OK - 0.1, SIGN - 0.3, { from: 'left' }));
-const sign = ui(signHTML('Zainab', 15, 'Recommendation reviewed by'), FXL, LOW + 40);
+on(cue(whyAuth, AUTH_OK - 0.1, SIGN - 0.3, { from: 'left', dist: 14 }));
+const sign = ui(signHTML('Zainab', 15, 'Recommendation reviewed by'), FXL, LOW + 44);
 on(cue(sign, SIGN, T_OUT - 0.2, { from: 'pop' }));
 
 // portfolio: Zainab's own piece from this trailer only
 const folder = ui(folderHTML('Zainab', 'Saving…'), FOLD_X, FOLD_Y);
 folder.style.zIndex = 6;
-on(cue(folder, T_OUT + 0.3, PATH_IN - 0.3, { from: 'up' }));
-on((t) => { const s = t > T_OUT + 1.75 ? 'Impact assessment (NEW)' : 'Saving…'; const n = folder.querySelector('[data-items]'); if (n.textContent !== s) n.textContent = s; folder.firstChild.classList.toggle('glow', t > T_OUT + 1.75 && t < T_OUT + 2.3); });
+on(cue(folder, T_OUT + 0.3, TITLE_IN - 0.35, { from: 'up' }));
+on((t) => { const s = t > T_OUT + 1.3 ? 'Impact assessment (NEW)' : 'Saving…'; const n = folder.querySelector('[data-items]'); if (n.textContent !== s) n.textContent = s; folder.firstChild.classList.toggle('glow', t > T_OUT + 1.3 && t < T_OUT + 1.85); });
 
 // pathway (left, island on the right), then a bright stacked title above the whole island
 const path = ui(pathHTML({ next: 'Experience AI ethics lessons <em>(free, 11–14)</em> · Elements of AI <em>(free, 16+)</em>', award: 'DofE Bronze Skills section <em>(debating or public speaking)</em>', route: 'Citizenship GCSE, then A-level Law or Politics, or an EPQ', jobs: ['Policy adviser', 'Data protection officer', 'AI governance specialist'] }), 46, 170);
-on(cue(path, PATH_IN, TITLE_IN - 0.35, { from: 'left' }));
+on(cue(path, PATH_IN, TITLE_IN - 0.35, { from: 'left', dist: 14 }));
+// the title arrives top right (above the island, beside the pathway), then moves to the centre for the end
 const title = ui(endTitleHTML('Impact <span class="hl">Panel</span>', 'Check the AI’s draft before the council says yes.'), 960, 70);
 title.dataset.anchor = '';
 on((t) => {
-  const a = prog(t, TITLE_IN, TITLE_IN + 0.6, ease.back);
-  title.style.opacity = clamp(prog(t, TITLE_IN, TITLE_IN + 0.3)); title.style.visibility = t > TITLE_IN ? 'visible' : 'hidden';
-  title.style.transform = `translate(-50%, 0) scale(${(0.8 + 0.2 * a) * (1 + 0.025 * prog(t, TITLE_IN + 0.6, DUR, (k) => k))})`; title.style.transformOrigin = '50% 0';
+  const a = prog(t, TITLE_A, TITLE_A + 0.6, ease.back), m = prog(t, TITLE_IN - 0.2, TITLE_IN + 0.6, ease.inOut);
+  title.style.opacity = clamp(prog(t, TITLE_A, TITLE_A + 0.3)); title.style.visibility = t > TITLE_A ? 'visible' : 'hidden';
+  title.style.transform = `translate(calc(-50% + ${(1 - m) * 470}px), ${(1 - m) * -20}px) scale(${(0.8 + 0.2 * a) * (0.72 + 0.28 * m) * (1 + 0.025 * prog(t, TITLE_IN + 0.6, DUR, (k) => k))})`; title.style.transformOrigin = '50% 0';
 });
 
 st.onFrame((t) => A.forEach((f) => f(t)));
