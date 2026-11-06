@@ -200,5 +200,5 @@ By the end, learners can:
   3. "Translating the opening times into Polish could help one group; a person should check it. (48% sure)"
   4. "Sample reply: 'Done! Your computer is booked for 4 pm.' (90% sure)"
   5. "Prototype passes: all users served. (90% sure)"
-- **Reuse from the trailer:** personas, the task-by-task AI-or-not verdicts (the lab's fuller decision questions stay lab-only), decision record text ("Based on: all 5 users, asked at the desk and in Polish · We build: a clear sign, a times page, a booking form and a phone line · AI only for: Polish opening times, checked by a librarian"), sign-off and Tomasz's line. The options table is lab-only; the trailer skips it.
+- **Reuse from the trailer:** personas, the task-by-task AI-or-not verdicts (the lab's fuller decision questions stay lab-only), decision record text ("Based on: all 5 users, asked at the desk and in Polish · We build: a clear sign, a times page and a booking form · AI only for: Polish opening times, checked by a librarian"), sign-off and Tomasz's line. The options table is lab-only; the trailer skips it.
 - **Open questions:** the trailer fails only Data (stage 3), while this doc also uses Case (stage 6) and Authority (stage 5); check they fit the trailer's story. Confirm the GDS Service Standard wording.
