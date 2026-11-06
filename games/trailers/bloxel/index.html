@@ -1,0 +1,454 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Block Quest trailer</title>
+<style>
+@font-face { font-family: 'P2P'; src: url('../node_modules/@fontsource/press-start-2p/files/press-start-2p-latin-400-normal.woff2') format('woff2'); }
+html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: #000; }
+canvas { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; image-rendering: pixelated; display: block; }
+</style></head>
+<body><canvas id="g" width="240" height="135"></canvas><canvas id="u" width="320" height="180"></canvas>
+<script>
+// Two layers: the game world at 240x135 (8x, chunky tiles, ~100 px hero) and the UI/text at 320x180 (6x).
+const GW = 240, GH = 135, UW = 320, UH = 180, DUR = 33, T = 12, CAMY = 21, U = 4 / 3;
+const gc = document.getElementById('g'), uc = document.getElementById('u');
+const g = gc.getContext('2d'), u = uc.getContext('2d'); g.imageSmoothingEnabled = false; u.imageSmoothingEnabled = false;
+let C = g;
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x)), lerp = (a, b, k) => a + (b - a) * k, prog = (t, a, b) => clamp((t - a) / (b - a));
+const eio = (k) => k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+const eob = (k) => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(k - 1, 3) + c1 * Math.pow(k - 1, 2); };
+function hash(x, y = 0, z = 0) { let h = (x * 374761393 + y * 668265263 + z * 2147483647) | 0; h = (h ^ (h >>> 13)) * 1274126177; return ((h ^ (h >>> 16)) >>> 0) / 4294967295; }
+const px = (x, y, w, h, c) => { C.fillStyle = c; C.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); };
+function onUI(fn) { const p = C; C = u; fn(); C = p; }
+// clean pixel text: Press Start 2P only, at multiples of 8 px, snapped to whole pixels
+function txt(s, x, y, col = '#fff', size = 8, al = 'center', sh = '#000') {
+  u.font = `${size}px P2P`; u.textAlign = 'left'; const w = u.measureText(s).width;
+  const x0 = Math.round(al === 'center' ? x - w / 2 : al === 'right' ? x - w : x), y0 = Math.round(y), o = Math.max(1, size / 8);
+  if (sh) { u.fillStyle = sh; u.fillText(s, x0 + o, y0 + o); }
+  u.fillStyle = col; u.fillText(s, x0, y0); return w;
+}
+function panel(x, y, w, h, fill = '#13202b', edge = '#ffffff', e2 = null) {
+  onUI(() => { px(x, y, w, h, fill); if (edge) { px(x, y, w, 1, edge); px(x, y + h - 1, w, 1, edge); px(x, y, 1, h, edge); px(x + w - 1, y, 1, h, edge); } if (e2) { px(x + 1, y + h - 2, w - 2, 1, e2); } });
+}
+function caption(s, cx, cy, { fill = '#13202b', edge = '#ffe680', col = '#fff', size = 8 } = {}) {
+  u.font = `${size}px P2P`; const w = Math.ceil(u.measureText(s).width);
+  const pw = w + size * 2, ph = size + 12; panel(Math.round(cx - pw / 2), Math.round(cy - ph / 2), pw, ph, fill, edge);
+  txt(s, cx, cy + size / 2, col, size);
+}
+function banner(s, t, t0, t1, fill, edge) { if (t < t0 || t >= t1) return; const k = eio(prog(t, t0, t0 + 0.15)); const y = lerp(184, 150, k); panel(16, y, 288, 24, fill, edge); txt(s, UW / 2, y + 16, '#fff', 8); }
+
+// ---------- level: three 13x13 rooms side by side ----------
+const E13 = '.............';
+const ROOMS = [[E13, E13, E13, E13,
+'..........K..',
+E13,
+'......YYY....',
+'.....GGGGG...',
+E13, E13,
+'..YY.........',
+'GGGGG....GGGG',
+'GGGGGBBBBGGGG'], [E13, E13, E13, E13, E13, E13, E13,
+'.....YYY.....',
+'....GGGGG....',
+E13, E13,
+'GGGG.....GGGG',
+'GGGGBBBBBGGGG'], [E13, E13, E13, E13, E13, E13, E13, E13,
+'....YYY......',
+E13,
+'.YY..W..YY.E.',
+'GGGGGGGGGGGGG',
+'GGGGGGGGGGGGG']];
+const COLS = 39, LV = []; for (let r = 0; r < 13; r++) LV.push(ROOMS.map((R) => R[r]).join(''));
+const base = (c, r) => (c < 0 || c >= COLS || r < 0 || r > 12) ? '.' : LV[r][c];
+const key = (c, r) => c + ',' + r;
+// "harder = more spikes": every coin and the whole floor of the last room become spikes
+const HARD = []; {
+  for (let c = 19; c <= 36; c++) for (let r = 4; r <= 10; r++) {
+    const b = base(c, r);
+    if (b === 'Y') HARD.push([c, r]);
+    else if (r === 10 && c >= 25 && b === '.') HARD.push([c, r]);
+    else if (c === 31 && r === 9) HARD.push([c, r]);
+    else if (b === '.' && (r === 6 || r === 7) && c >= 24 && hash(c, r, 7) > 0.55 && base(c, r + 1) === '.' && base(c, r - 1) !== 'Y') HARD.push([c, r]);
+  }
+  HARD.sort((a, b) => a[0] - b[0] || b[1] - a[1]);
+}
+const HARDI = new Map(HARD.map(([c, r], i) => [key(c, r), i]));
+// ---------- tile art (12x12) ----------
+const COL = { G: ['#3fbf3f', '#2e9a2e', '#6be36b', '#1f7a2a'], R: ['#e83b3b', '#a51f1f', '#ff8a8a'], Y: ['#ffd23f', '#e0a21a', '#fff2a0'], P: ['#9b4ff0', '#6a24c0', '#e6d0ff'], B: ['#2e8ef0', '#1a5fc0', '#9fd4ff'], W: ['#f4f4f4', '#c9c9c9', '#888'], K: ['#ff6fb5', '#c03a80', '#ffd0e8'], O: ['#ff8a2a', '#c05a10', '#ffd0a0'], E: ['#f4f4f4', '#c9c9c9', '#3a2a1a'] };
+const FLAT = { G: '#3fbf3f', R: '#e83b3b', Y: '#ffd23f', P: '#9b4ff0', B: '#2e8ef0', W: '#f4f4f4', K: '#ff6fb5', O: '#ff8a2a', E: '#f4f4f4' };
+function drawTile(ch, x, y, t, c = 0, r = 0) {
+  if (ch === '.' || ch === 'E') return;
+  const k = COL[ch];
+  if (ch === 'G') { px(x, y, T, T, k[1]); for (let i = 0; i < 6; i++) px(x + Math.floor(hash(c, r, i) * 10), y + 3 + Math.floor(hash(c, r, i + 9) * 8), 2, 1, k[3]); if (base(c, r - 1) !== 'G') { px(x, y, T, 3, k[0]); px(x, y, T, 1, k[2]); for (let i = 0; i < T; i += 3) px(x + i, y + 3, 1, 1, k[0]); } px(x, y + T - 1, T, 1, k[3]); return; }
+  if (ch === 'R') { px(x, y + 8, T, 4, k[1]); px(x, y + 8, T, 1, '#ff6060'); for (let i = 0; i < 3; i++) for (let j = 0; j < 8; j++) { const w = Math.max(1, 4 - (j >> 1)); px(x + i * 4 + 2 - w / 2, y + 8 - j, w, 1, j > 5 ? '#ffffff' : k[0]); } return; }
+  if (ch === 'Y') { const w = Math.max(1, Math.round(Math.abs(Math.cos(t * 4 + c)) * 8)); px(x + 6 - w / 2, y + 2, w, 8, k[1]); px(x + 6 - w / 2 + (w > 3 ? 1 : 0), y + 3, Math.max(1, w - 2), 6, k[0]); if (w > 4) px(x + 5, y + 4, 1, 3, k[2]); return; }
+  if (ch === 'B') { px(x, y, T, T, k[0]); for (let i = 0; i < T; i += 4) px(x + ((i + Math.floor(t * 6)) % T), y + 1 + (i % 3), 3, 1, k[2]); px(x, y + 6, T, 6, k[1]); return; }
+  if (ch === 'W') { px(x, y, 12, 12, '#3a2a1a'); px(x + 1, y + 1, 10, 10, '#c98a3a'); px(x + 1, y + 1, 10, 1, '#f0b860'); px(x + 1, y + 5, 10, 1, '#8a5a20'); px(x + 6, y + 1, 1, 4, '#8a5a20'); px(x + 3, y + 6, 1, 5, '#8a5a20'); px(x + 9, y + 6, 1, 5, '#8a5a20'); return; }
+  if (ch === 'K') { const b = Math.round(Math.sin(t * 5) * 1); px(x + 2, y + 3 + b, 3, 2, k[0]); px(x + 7, y + 3 + b, 3, 2, k[0]); px(x + 1, y + 5 + b, 10, 2, k[0]); px(x + 2, y + 7 + b, 8, 1, k[0]); px(x + 3, y + 8 + b, 6, 1, k[0]); px(x + 5, y + 9 + b, 2, 1, k[0]); px(x + 3, y + 4 + b, 1, 1, k[2]); return; }
+}
+// pre-rendered spike tile so it can pop in and out with a scale
+const SPIKE = document.createElement('canvas'); SPIKE.width = SPIKE.height = 12; { C = SPIKE.getContext('2d'); drawTile('R', 0, 0, 0); C = g; }
+function spikeAt(x, y, k) { if (k <= 0) return; const s = k; g.drawImage(SPIKE, Math.round(x + 6 - 6 * s), Math.round(y + 12 - 12 * s), Math.round(12 * s), Math.round(12 * s)); }
+function enemy(x, y, t, squash = 0) {
+  const k = COL.P;
+  if (squash > 0) { const h = Math.max(2, Math.round(9 * (1 - squash))); px(x - 1, y + 12 - h, 14, h, k[0]); px(x + 2, y + 12 - h, 3, 1, '#fff'); px(x + 7, y + 12 - h, 3, 1, '#fff'); return; }
+  const b = Math.round(Math.abs(Math.sin(t * 6)));
+  px(x, y + 2 - b, 12, 10 + b, '#2a1040'); px(x + 1, y + 3 - b, 10, 9 + b, k[0]); px(x + 2, y + 2 - b, 8, 1, k[0]); px(x + 2, y + 3 - b, 3, 1, k[2]);
+  px(x + 3, y + 5 - b, 2, 3, '#fff'); px(x + 7, y + 5 - b, 2, 3, '#fff'); px(x + 4, y + 6 - b, 1, 2, '#000'); px(x + 8, y + 6 - b, 1, 2, '#000'); px(x + 1, y + 11, 3, 1, k[1]); px(x + 8, y + 11, 3, 1, k[1]);
+}
+
+// ---------- sprites with a dark outline ----------
+function makeSprite(rows, pal, outline = '#1a1020', white = false) {
+  const h = rows.length, w = rows[0].length, cv = document.createElement('canvas'); cv.width = w + 2; cv.height = h + 2; const c = cv.getContext('2d');
+  const on = (x, y) => y >= 0 && y < h && x >= 0 && x < w && rows[y][x] !== '.';
+  for (let y = -1; y <= h; y++) for (let x = -1; x <= w; x++) {
+    if (on(x, y)) { c.fillStyle = white ? '#ffffff' : pal[rows[y][x]]; c.fillRect(x + 1, y + 1, 1, 1); }
+    else if (outline && (on(x - 1, y) || on(x + 1, y) || on(x, y - 1) || on(x, y + 1))) { c.fillStyle = white ? '#ffffff' : outline; c.fillRect(x + 1, y + 1, 1, 1); }
+  }
+  return cv;
+}
+const HTOP = ['...OOOOOO...', '..OOOOOOOO..', '.OOssssssOO.', '.OOsswkswks.', '.OOssssssss.', '..OOOOOOOO..', '.sOOOyyOOOs.', '.sOOOOOOOOs.'];
+const HLEGS = { idle: ['..BBBBBBBB..', '..BBB..BBB..', '..DDD..DDD..'], a: ['..BBBBBBBB..', '.BBB....BBB.', 'DDD......DDD'], b: ['..BBBBBBBB..', '...BBBBBB...', '...DDDDDD...'], air: ['..BBBBBBBB..', '..BBB.BBB...', '..DD...DDD..'] };
+const HPAL = { O: '#ff7a2a', s: '#ffd0a8', w: '#ffffff', k: '#1a1a2a', y: '#ffe14a', B: '#2e5fd0', D: '#3a2a2a' };
+const HSPR = {}, HSPRW = {};
+for (const f in HLEGS) { const rows = f === 'air' ? ['s..OOOOOO..s', '.sOOOOOOOOs.', ...HTOP.slice(2, 6), '..OOOyyOOO..', '..OOOOOOOO..', ...HLEGS[f]] : [...HTOP, ...HLEGS[f]]; HSPR[f] = makeSprite(rows, HPAL); HSPRW[f] = makeSprite(rows, HPAL, '#ffffff', true); }
+function drawHero(x, feet, f, sx = 1, sy = 1, white = false) {
+  const s = (white ? HSPRW : HSPR)[f]; const w = Math.round(s.width * sx), h = Math.round(s.height * sy);
+  g.drawImage(s, Math.round(x - w / 2), Math.round(feet - h + 1), w, h);
+}
+// the child's dragon drawing (13x13): spikes, tail, snout, legs
+const DRAGON = [E13, E13, E13,
+'.........GGG.',
+'........GwkGG',
+'...S.S.SGGGGn',
+'..SGSGSGGGrr.',
+'..GGGGGGGG...',
+'S.GbbbbbGG...',
+'GGGbbbbbGG...',
+'.GGGGGGGG....',
+'..GG...GG....',
+'..DD...DD....'];
+const WING = [
+'v............',
+'Vvv..........',
+'VVVvv........',
+'.VVVVvv......',
+'.V.VV.Vv.....'];
+const FIRE = [[12, 6, 'F'], [12, 7, 'f'], [11, 7, 'F']];
+const DPAL = { G: '#2fbf6a', D: '#1f6a3a', S: '#ff6a2a', b: '#ffe680', w: '#ffffff', k: '#111111', n: '#1f6a3a', r: '#c0304a', V: '#c79bff', v: '#5a2ca0', F: '#ff8a2a', f: '#ffd23f' };
+const FWING = [
+'v..........',
+'Vvv........',
+'VVVvv......',
+'VVVVVvv....',
+'.VVVVVVvv..',
+'.VV.VVVVVvv',
+'..V..VV.VVV',
+'.........VV'];
+const DSPR = makeSprite(DRAGON, DPAL), WSPR = makeSprite(WING, DPAL), FWSPR = makeSprite(FWING, DPAL);
+const FROG = ['..GG..GG..', '.GwkGGwkG.', 'GGGGGGGGGG', 'GrrrrrrrrG', '.GGGGGGGG.', 'GG.G..G.GG'];
+const FROGSPR = makeSprite(FROG, { G: '#5ad15a', w: '#fff', k: '#000', r: '#c0304a' });
+
+// ---------- hero runs: deterministic run / jump arcs ----------
+const AIR = (k) => k === 'jump' || k === 'hurt';
+function makeRun(t0, x0, y0, segs) {
+  const S = []; let t = t0, x = x0, y = y0;
+  for (const s of segs) {
+    if (s[0] === 'idle') { S.push({ k: 'idle', t0: t, t1: t + s[1], x0: x, x1: x, y0: y, y1: y }); t += s[1]; }
+    else if (s[0] === 'run') { S.push({ k: 'run', t0: t, t1: t + s[2], x0: x, x1: s[1], y0: y, y1: y }); x = s[1]; t += s[2]; }
+    else { S.push({ k: s[0], t0: t, t1: t + s[4], x0: x, y0: y, x1: s[1], y1: s[2], ap: s[3] }); x = s[1]; y = s[2]; t += s[4]; }
+  }
+  const ev = [];
+  S.forEach((s, i) => {
+    const prev = S[i - 1], next = S[i + 1];
+    if (AIR(s.k) && (!prev || !AIR(prev.k))) ev.push({ k: 'take', t: s.t0, x: s.x0, y: s.y0 });
+    if (AIR(s.k) && next && AIR(next.k)) ev.push({ k: next.k === 'hurt' ? 'hurt' : 'stomp', t: s.t1, x: s.x1, y: s.y1 });
+    if (AIR(s.k) && (!next || !AIR(next.k))) ev.push({ k: 'land', t: s.t1, x: s.x1, y: s.y1 });
+  });
+  return { S, t0, ev, tEnd: t };
+}
+function arcY(s, k) {
+  const h0 = Math.max(0, s.y0 - s.ap), h1 = Math.max(0, s.y1 - s.ap), a = Math.sqrt(h0), b = Math.sqrt(h1), ka = a + b > 0 ? a / (a + b) : 0.5;
+  return k < ka ? s.ap + h0 * Math.pow((ka - k) / Math.max(1e-6, ka), 2) : s.ap + h1 * Math.pow((k - ka) / Math.max(1e-6, 1 - ka), 2);
+}
+function runAt(R, t) {
+  let land = 99, take = 99;
+  for (const e of R.ev) { if (e.t <= t) { if (e.k === 'land' || e.k === 'stomp') land = t - e.t; if (e.k === 'take' || e.k === 'stomp') take = t - e.t; } }
+  const s = R.S.find((q) => t >= q.t0 && t < q.t1);
+  if (!s) { const L = t < R.t0 ? R.S[0] : R.S[R.S.length - 1]; return { x: t < R.t0 ? L.x0 : L.x1, y: t < R.t0 ? L.y0 : L.y1, k: 'idle', vy: 0, land, take, seg: null }; }
+  const k = (t - s.t0) / (s.t1 - s.t0); const x = lerp(s.x0, s.x1, k);
+  let y = s.y0, vy = 0;
+  if (AIR(s.k)) { y = arcY(s, k); const k2 = Math.min(1, k + 0.01); vy = (arcY(s, k2) - y) / ((k2 - k) * (s.t1 - s.t0) + 1e-6); }
+  return { x, y, k: s.k, vy, land, take, seg: s };
+}
+function heroFrom(R, t, camX, { white = false } = {}) {
+  const p = runAt(R, t); let f = 'idle', sx = 1, sy = 1;
+  if (p.k === 'run') { f = ['a', 'idle', 'b', 'idle'][Math.floor(t * 14) % 4]; sy = 1 + 0.04 * Math.sin(t * 44); }
+  else if (AIR(p.k)) { f = 'air'; const st = clamp(Math.abs(p.vy) / 14, 0, 0.2); sy = 1 + st; sx = 1 - st * 0.7; if (p.take < 0.07) { sy = 1.22; sx = 0.82; } }
+  else { sy = 1 + 0.03 * Math.sin(t * 5); }
+  if (p.land < 0.14 && !AIR(p.k)) { const k = eio(p.land / 0.14); sy = lerp(0.8, 1, k); sx = lerp(1.2, 1, k); }
+  drawHero(p.x * T - camX, p.y * T - CAMY, f, sx, sy, white);
+  return p;
+}
+// running dust, take-off and landing puffs
+function dust(R, t, camX) {
+  const puff = (x, y, k, n, spread, seed) => { for (let i = 0; i < n; i++) { const a = (i / Math.max(1, n - 1) - 0.5) * spread, d = 3 + k * 9 * (0.6 + hash(i, seed) * 0.6); const s = Math.max(1, Math.round(3 * (1 - k))); px(x + Math.sin(a) * d - s / 2, y - Math.abs(Math.cos(a)) * d * 0.35 - k * 3 - s, s, s, k < 0.5 ? '#ffffff' : '#e6eef5'); } };
+  for (const e of R.ev) { const k = (t - e.t) / 0.4; if (k < 0 || k > 1) continue; const x = e.x * T - camX, y = e.y * T - CAMY; if (e.k === 'land') puff(x, y, k, 7, 3.0, e.t * 10); else if (e.k === 'take') puff(x, y, k, 4, 2.0, e.t * 10); else puff(x, y, k, 8, 6.2, e.t * 10); }
+  for (const s of R.S) { if (s.k !== 'run') continue; for (let tt = s.t0 + 0.05; tt < s.t1; tt += 0.1) { const k = (t - tt) / 0.32; if (k < 0 || k > 1) continue; const x = lerp(s.x0, s.x1, (tt - s.t0) / (s.t1 - s.t0)) * T - camX - 6, y = s.y0 * T - CAMY; const sz = Math.max(1, Math.round(3 * (1 - k))); px(x - k * 5 - sz / 2, y - 1 - k * 4 - sz, sz, sz, '#f0f4f8'); } }
+}
+// when does the hero touch each coin (sampled), so pickups and the counter only ever go up
+function coinTimes(R, cellFn, ta, tb) {
+  const got = new Map(); const coins = [];
+  for (let r = 0; r < 13; r++) for (let c = 0; c < COLS; c++) if (cellFn(c, r) === 'Y') coins.push([c, r]);
+  for (let t = ta; t <= tb; t += 1 / 120) { const p = runAt(R, t), hx = p.x * T, hy = p.y * T - 6; for (const [c, r] of coins) { const kk = key(c, r); if (got.has(kk)) continue; if (Math.abs(hx - (c + 0.5) * T) < 10 && Math.abs(hy - (r + 0.5) * T) < 11) got.set(kk, t); } }
+  return got;
+}
+function pickups(got, t, camX, plus = true) {
+  for (const [kk, tc] of got) { const k = (t - tc) / 0.7; if (k < 0 || k > 1) continue; const [c, r] = kk.split(',').map(Number); const x = (c + 0.5) * T - camX, y = (r + 0.5) * T - CAMY;
+    for (let i = 0; i < 6; i++) { const a = i / 6 * Math.PI * 2 + 0.3, d = 3 + k * 10; if (k < 0.6) px(x + Math.cos(a) * d - 1, y + Math.sin(a) * d - 1, 2, 2, i % 2 ? '#fff2a0' : '#ffffff'); }
+    if (plus) { u.globalAlpha = 1 - clamp((k - 0.6) / 0.4); txt('+1', x * U, (y - 8 - k * 12) * U, '#ffe14a', 8); u.globalAlpha = 1; } }
+}
+// ---------- the platform level ----------
+function sky(t, camX, a = 1) {
+  g.globalAlpha = a;
+  for (let y = 0; y < GH; y += 3) { const k = y / GH; px(0, y, GW, 3, `rgb(${Math.round(lerp(92, 170, k))},${Math.round(lerp(170, 225, k))},255)`); }
+  for (let k = 0; k < 6; k++) { const x = ((k * 67 - camX * 0.3 - t * 3) % 300 + 300) % 300 - 40, y = 8 + (k * 23) % 40; px(x, y, 26, 6, '#fff'); px(x + 5, y - 4, 14, 4, '#fff'); px(x + 2, y + 5, 22, 1, '#d8ecff'); }
+  for (let k = 0; k < 8; k++) { const x = ((k * 53 - camX * 0.55) % 330 + 330) % 330 - 40; px(x, 74, 30, 70, '#7ccf9a'); px(x + 4, 66, 22, 8, '#7ccf9a'); px(x + 4, 66, 22, 1, '#9ee0b6'); }
+  g.globalAlpha = 1;
+}
+function flag(camX, k, t) {
+  const x = 37 * T + 5 - camX, gy = 11 * T - CAMY;
+  px(x - 3, gy - 3, 8, 3, '#7a7a8a'); px(x, gy - 48, 2, 46, '#f4f4f4'); px(x + 1, gy - 48, 1, 46, '#b8b8c8'); px(x - 1, gy - 52, 4, 4, '#ffd23f');
+  const fy = Math.round(lerp(gy - 20, gy - 47, eio(k))), wv = Math.round(Math.sin(t * 8));
+  const col = k > 0.3 ? '#3fd35f' : '#e83b3b';
+  px(x + 2, fy, 10, 7, '#1a1020'); px(x + 2, fy + 1, 9 + wv, 5, col); if (k > 0.3) { px(x + 6, fy + 2, 1, 3, '#fff'); px(x + 5, fy + 3, 3, 1, '#fff'); }
+}
+function play(t, camX, o = {}) {
+  sky(t, camX);
+  const c0 = Math.floor(camX / T) - 1;
+  for (let r = 0; r < 13; r++) for (let c = c0; c < c0 + 23; c++) {
+    const x = c * T - camX, y = r * T - CAMY; let ch = o.cell ? o.cell(c, r) : base(c, r);
+    if (o.spikeK) { const k = o.spikeK(c, r); if (k > 0) { spikeAt(x, y, k); continue; } }
+    if (ch === 'Y' && o.got && o.got(c, r)) continue;
+    drawTile(ch, x, y, t, c, r);
+  }
+  if (o.enemies) o.enemies.forEach((e) => { if (e.gone) return; enemy(e.x * T - camX - 6, e.r * T - CAMY, t, e.squash || 0); });
+  flag(camX, o.flagK || 0, t);
+}
+function gotFn(map, t) { return (c, r) => { const tc = map.get(key(c, r)); return tc !== undefined && tc <= t; }; }
+function camFollow(R, t, lead = 100) { let s = 0; for (let i = 0; i < 6; i++) s += clamp(runAt(R, t - i * 0.05).x * T - lead, 0, COLS * T - GW); return s / 6; }
+
+// ---------- timeline ----------
+// 0-2.6 hand builds the board | 2.6-3.0 SNAP | 3.0-4.3 board becomes the level | 4.3-12.6 play | 12.7-22.8 AI helper
+// 22.8-25.8 art board | 25.8-27.6 dragon flies | 27.6-29.8 world montage | 29.8-33 title
+const R1 = makeRun(4.4, 1.0, 11, [['idle', 0.2], ['run', 4.0, 0.45], ['jump', 6.2, 7, 5.6, 0.6], ['run', 9.6, 0.55], ['jump', 12.2, 11, 6.4, 0.55], ['run', 15.4, 0.5], ['jump', 18.0, 8, 6.8, 0.55], ['run', 21.0, 0.5], ['jump', 23.2, 10.1, 7.0, 0.5], ['jump', 26.2, 11, 7.6, 0.6], ['run', 29.2, 0.5], ['jump', 33.2, 11, 8.6, 0.75], ['run', 36.4, 0.55], ['jump', 36.4, 11, 10.0, 0.35]]);
+const R1_STOMP = R1.ev.find((e) => e.k === 'stomp').t, R1_FLAG = R1.S[12].t1;
+const R1_GOT = coinTimes(R1, base, 4.4, 12.6);
+const R2 = makeRun(12.7, 23.0, 11, [['idle', 2.5], ['run', 24.4, 0.25], ['jump', 26.8, 10.1, 9.0, 0.45], ['hurt', 23.4, 11, 8.8, 0.55], ['idle', 2.95], ['run', 29.0, 0.8], ['jump', 33.6, 11, 8.55, 0.8], ['run', 36.4, 0.4], ['jump', 36.4, 11, 10.0, 0.35]]);
+const R2_HURT = R2.S[3].t0, R2_FLAG = R2.S[7].t1;
+const FAIR_T = 19.0, AI_SPIKES_T = 14.4;
+const fairCell = (c, r) => base(c, r);
+const R2_GOT = coinTimes(R2, fairCell, 19.3, 22.8);
+const END_CELL = (c, r) => (base(c, r) === 'W' || (r === 8 && base(c, r) === 'Y')) ? '.' : base(c, r);
+const R3 = makeRun(29.8, 22.6, 11, [['run', 36.4, 2.1], ['idle', 0.15], ['jump', 36.4, 11, 10.0, 0.35], ['idle', 0.2], ['jump', 36.4, 11, 10.0, 0.35]]);
+const R3_GOT = coinTimes(R3, END_CELL, 29.8, 33);
+const R3_FLAG = R3.S[0].t1;
+
+function hud(t, coins, hearts, lostT) {
+  panel(3, 3, 56, 16, '#13202b', '#ffe680');
+  onUI(() => drawTile('Y', 5, 5, 0));
+  txt('x ' + coins, 20, 15, '#fff', 8, 'left');
+  for (let i = 0; i < 3; i++) {
+    const hx = UW - 14 - (2 - i) * 13, hy = 6; const lost = i >= hearts; const k = lost ? prog(t, lostT, lostT + 0.4) : 0;
+    const col = lost ? '#5a4a5a' : '#ff5a7a', oy = lost ? Math.round(-Math.sin(k * Math.PI) * 4) : 0;
+    onUI(() => { px(hx - 1, hy - 1 + oy, 11, 10, '#13202b'); px(hx, hy + oy, 3, 2, col); px(hx + 5, hy + oy, 3, 2, col); px(hx, hy + 2 + oy, 8, 2, col); px(hx + 1, hy + 4 + oy, 6, 1, col); px(hx + 3, hy + 5 + oy, 2, 1, col); if (!lost) px(hx + 1, hy + oy, 1, 1, '#ffd0e0'); });
+  }
+}
+function helper(t, t0, l1, l2, col, sure) {
+  const y = Math.round(lerp(-46, 22, eio(prog(t, t0, t0 + 0.25))));
+  panel(6, y, 308, 42, '#13202b', '#16ffc6');
+  onUI(() => { px(12, y + 7, 22, 22, '#ffffff'); px(14, y + 9, 18, 18, '#e8f4ff'); px(17, y + 14, 4, 5, '#16c7a6'); px(25, y + 14, 4, 5, '#16c7a6'); px(19, y + 22, 8, 2, '#16c7a6'); px(22, y + 3, 2, 4, '#ffffff'); px(21, y + 1, 4, 3, '#16ffc6'); });
+  txt('AI LEVEL HELPER', 40, y + 12, '#16ffc6', 8, 'left');
+  txt(l1, 40, y + 25, col, 8, 'left');
+  if (sure) { onUI(() => { px(40, y + 30, 96, 6, '#2a3a49'); px(40, y + 30, Math.round(96 * sure), 6, '#16ffc6'); }); txt(Math.round(sure * 100) + '% SURE', 144, y + 37, '#ffffff', 8, 'left'); }
+  else if (l2) txt(l2, 40, y + 37, col, 8, 'left');
+}
+function boardTile(x, y, ch, s = 8) { px(x, y, s, s, FLAT[ch]); px(x, y, s, 1, '#ffffff88'); px(x, y + s - 1, s, 1, '#00000055'); }
+function table(dark = false) { for (let y = 0; y < GH; y += 3) px(0, y, GW, 3, dark ? (y % 6 ? '#2a2f4a' : '#262b45') : (y % 6 ? '#b07a48' : '#a8703f')); if (!dark) for (let k = 0; k < 30; k++) px(hash(k) * GW, hash(k, 2) * GH, 14, 1, '#9a6436'); }
+function hand(x, y, hold, t, fromLeft = false) {
+  // child's hand reaching in (from the bottom right, or from the left), pinching the next tile
+  const ax = fromLeft ? x - 120 : x + 70, ay = fromLeft ? y + 16 : y + 110;
+  for (let i = 0; i <= 14; i++) { const k = i / 14; const cx = lerp(x + 4, ax, k), cy = lerp(y + 8, ay, k); px(cx - 6, cy - 5, 13, 12, k > 0.22 ? '#3a7bd5' : '#f2c39b'); if (k > 0.22) px(cx - 6, cy + 5, 13, 2, '#2a5aa5'); }
+  if (hold) boardTile(x - 4, y - 7, hold);
+  px(x - 3, y - 1, 11, 9, '#f2c39b'); px(x - 3, y + 6, 11, 2, '#d99a6c');
+  px(x - 3, y - 4, 3, 5, '#f2c39b'); px(x + 1, y - 5, 3, 6, '#f2c39b'); px(x + 5, y - 4, 3, 5, '#f2c39b'); px(x - 6, y + 1, 4, 3, '#f2c39b');
+  px(x - 3, y - 4, 3, 1, '#ffe0c8'); px(x + 1, y - 5, 3, 1, '#ffe0c8'); px(x + 5, y - 4, 3, 1, '#ffe0c8');
+}
+// placements on the level board: row 12 is already down; the hand adds the rest
+const BX = 10, BY = 9, BS = 9;
+const PLACE = []; {
+  const order = []; for (let c = 0; c < 13; c++) if (ROOMS[0][11][c] !== '.') order.push([c, 11]);
+  for (let c = 5; c <= 9; c++) order.push([c, 7]); for (const c of [6, 7, 8]) order.push([c, 6]); order.push([2, 10], [3, 10], [10, 4]);
+  order.forEach(([c, r], i) => PLACE.push({ c, r, ch: ROOMS[0][r][c], t: 0.12 + i * 0.112 }));
+}
+const placedT = new Map(PLACE.map((p) => [key(p.c, p.r), p.t]));
+function handPath(t, list, bx, by, s, ent = [40, 60], ext = [90, 120]) {
+  const pos = (p) => [bx + p.c * s + s / 2, by + p.r * s + s / 2];
+  const n = list.length; const last = list[n - 1];
+  if (t < list[0].t) { const k = eio(prog(t, list[0].t - 0.3, list[0].t)); const [x, y] = pos(list[0]); return [lerp(x + ent[0], x, k), lerp(y + ent[1], y, k), list[0].ch]; }
+  if (t >= last.t) { const k = eio(prog(t, last.t + 0.05, last.t + 0.35)); const [x, y] = pos(last); return [lerp(x, x + ext[0], k), lerp(y, y + ext[1], k), null]; }
+  let i = 0; while (i < n - 1 && list[i + 1].t <= t) i++;
+  const a = pos(list[i]), b = pos(list[i + 1]); const k = eio(prog(t, list[i].t + 0.015, list[i + 1].t - 0.01));
+  return [lerp(a[0], b[0], k), lerp(a[1], b[1], k) - Math.sin(k * Math.PI) * 4, list[i + 1].ch];
+}
+function boardScene(t) {
+  table();
+  px(BX - 4, BY - 4, 13 * BS + 7, 13 * BS + 7, '#1e2126'); px(BX - 4, BY - 4, 13 * BS + 7, 1, '#3a3f46'); px(BX - 2, BY + 13 * BS + 3, 13 * BS + 7, 2, '#00000055');
+  for (let r = 0; r < 13; r++) for (let c = 0; c < 13; c++) {
+    px(BX + c * BS, BY + r * BS, 8, 8, '#2b2f36'); px(BX + c * BS + 1, BY + r * BS + 1, 6, 6, '#23262c');
+    const ch = ROOMS[0][r][c]; if (ch === '.') continue;
+    const tp = r === 12 ? -1 : placedT.get(key(c, r)); if (tp === undefined || t < tp) continue;
+    const k = clamp((t - tp) / 0.1); const s = Math.round(lerp(10, 8, k)); boardTile(BX + c * BS - (s - 8) / 2, BY + r * BS - (s - 8) / 2 - Math.round((1 - k) * 2), ch, s);
+  }
+}
+
+function frame(t) {
+  g.setTransform(1, 0, 0, 1, 0, 0); u.setTransform(1, 0, 0, 1, 0, 0); u.clearRect(0, 0, UW, UH); g.globalAlpha = 1; u.globalAlpha = 1;
+  if (t < 3.0) {
+    boardScene(t);
+    if (t < 2.62) { const [hx, hy, hold] = handPath(t, PLACE, BX, BY, BS); hand(hx, hy, hold, t); }
+    if (t < 2.55) { panel(176, 52, 130, 50, '#13202b', '#ffe680'); txt('BUILD', 241, 74, '#ffe680', 16); txt('A LEVEL', 241, 94, '#ffffff', 16); }
+    if (t >= 2.4) { const k = eio(prog(t, 2.4, 2.6)); const m = Math.round(lerp(14, 0, k)); const x0 = BX - 7 - m, y0 = BY - 7 - m, x1 = BX + 13 * BS + 6 + m, y1 = BY + 13 * BS + 6 + m; [[x0, y0, 1, 1], [x1, y0, -1, 1], [x0, y1, 1, -1], [x1, y1, -1, -1]].forEach(([x, y, dx, dy]) => { px(dx > 0 ? x : x - 9, y, 10, 2, '#ffffff'); px(x, dy > 0 ? y : y - 9, 2, 10, '#ffffff'); }); }
+    if (t >= 2.62) { g.globalAlpha = clamp(1 - (t - 2.62) / 0.38) * 0.95; px(0, 0, GW, GH, '#ffffff'); g.globalAlpha = 1; panel(176, 52, 130, 50, '#13202b', '#ffe680'); txt('SNAP!', 241, 88, '#ffe680', 24); }
+  } else if (t < 4.3) {
+    // the board's tiles lift and grow into the level
+    const k = eio(prog(t, 3.0, 4.2));
+    const k2 = eio(prog(t, 3.0, 3.3));
+    table(); sky(t, 0, k2);
+    g.globalAlpha = 1 - k2; px(BX - 4, BY - 4, 13 * BS + 7, 13 * BS + 7, '#1e2126'); g.globalAlpha = 1;
+    for (let r = 0; r < 13; r++) for (let c = 0; c < 21; c++) {
+      const ch = base(c, r); if (ch === '.') continue; const dx = c * T, dy = r * T - CAMY;
+      if (c < 13) {
+        const x = lerp(BX + c * BS, dx, k), y = lerp(BY + r * BS, dy, k) - Math.sin(k * Math.PI) * (6 + hash(c, r) * 8), s = lerp(8, 12, k);
+        if (k < 1) { g.globalAlpha = 1 - k; boardTile(x, y, ch, Math.round(s)); }
+        g.globalAlpha = k; g.save(); g.translate(Math.round(x), Math.round(y)); g.scale(s / 12, s / 12); drawTile(ch, 0, 0, t, c, r); g.restore(); g.globalAlpha = 1;
+      } else { g.globalAlpha = k * k; drawTile(ch, dx, dy, t, c, r); g.globalAlpha = 1; }
+    }
+    if (t < 3.15) { g.globalAlpha = clamp(1 - (t - 2.62) / 0.38) * 0.95; px(0, 0, GW, GH, '#ffffff'); g.globalAlpha = 1; }
+    if (t >= 3.1) caption('...AND PLAY IT!', UW / 2, 163);
+  } else if (t < 12.7) {
+    // real side-scrolling play: camera follows the hero
+    const camX = camFollow(R1, t);
+    const st = t - R1_STOMP;
+    const ex = st < 0 ? 23.2 + 0.9 * Math.sin((t - R1_STOMP) * 2.2) : 23.2;
+    play(t, camX, { got: gotFn(R1_GOT, t), enemies: [{ x: ex, r: 10, squash: st >= 0 ? clamp(st / 0.12) : 0, gone: st > 0.45 }], flagK: prog(t, R1_FLAG, R1_FLAG + 0.45) });
+    if (st >= 0 && st < 0.5) { const x = 23.2 * T - camX, y = 11 * T - CAMY - 4; for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2, d = 4 + st * 30; px(x + Math.cos(a) * d - 1, y + Math.sin(a) * d * 0.6 - 1, 2, 2, i % 2 ? '#e6d0ff' : '#ffffff'); } if (st < 0.45) { u.globalAlpha = 1 - clamp((st - 0.3) / 0.15); txt('STOMP!', (x + 26) * U, (y - 4 - st * 10) * U, '#e6d0ff', 8); u.globalAlpha = 1; } }
+    if (t >= 4.3) { const k = (t - 4.3) / 0.3; if (k < 1) { const x = 1 * T - camX, y = 11 * T - CAMY - 6; for (let i = 0; i < 10; i++) { const a = i / 10 * Math.PI * 2; px(x + Math.cos(a) * k * 14 - 1, y + Math.sin(a) * k * 14 - 1, 2, 2, '#ffffff'); } } if (t >= 4.38) heroFrom(R1, t, camX); }
+    dust(R1, t, camX); pickups(R1_GOT, t, camX);
+    if (t >= R1_FLAG) { const k = t - R1_FLAG; for (let i = 0; i < 24; i++) { const x = 37 * T - camX + (hash(i, 3) - 0.5) * 120 * Math.min(1, k * 2), y = 30 + (hash(i, 4) * 40) + k * k * 40 - Math.min(1, k * 3) * 20; px(x, y, 2, 2, ['#ffd23f', '#ff6fb5', '#3fd35f', '#2e8ef0', '#ffffff'][i % 5]); } }
+    let coins = 0; for (const tc of R1_GOT.values()) if (tc <= t) coins++;
+    hud(t, coins, 3, 0);
+    if (t >= 8.0 && t < 11.0) caption('YOUR BLOCKS. YOUR RULES.', UW / 2, 163);
+    if (t >= R1_FLAG && t < 12.55) { const k = eob(prog(t, R1_FLAG, R1_FLAG + 0.25)); u.save(); u.translate(150, 72); u.scale(k, k); u.translate(-150, -72); caption('ROOM CLEAR!', 150, 72, { size: 16, fill: '#1f9d55', edge: '#ffffff' }); u.restore(); }
+  } else if (t < 22.8) {
+    // AI Level Helper: "make it harder"
+    const camX = 228;
+    const spikeK = (c, r) => {
+      const i = HARDI.get(key(c, r)); if (i === undefined) return 0;
+      const tin = AI_SPIKES_T + i * 0.022; let k = t < tin ? 0 : eob(prog(t, tin, tin + 0.14));
+      if (!(c === 31 && r === 9)) { const tout = FAIR_T + (HARD.length - i) * 0.008; if (t >= tout) k *= 1 - prog(t, tout, tout + 0.1); }
+      return k;
+    };
+    play(t, camX, { spikeK, got: gotFn(R2_GOT, t), flagK: prog(t, R2_FLAG, R2_FLAG + 0.45) });
+    const ht = t - R2_HURT; const blink = ht > 0 && ht < 1.4 && Math.floor(ht * 12) % 2 === 0;
+    if (t < 12.85) { const k = (t - 12.7) / 0.15; const x = 23 * T - camX, y = 11 * T - CAMY - 6; for (let i = 0; i < 10; i++) { const a = i / 10 * Math.PI * 2; px(x + Math.cos(a) * k * 14 - 1, y + Math.sin(a) * k * 14 - 1, 2, 2, '#ffffff'); } }
+    else heroFrom(R2, t, camX, { white: blink });
+    dust(R2, t, camX); pickups(R2_GOT, t, camX);
+    if (ht >= 0 && ht < 0.5) { const x = 26.8 * T - camX, y = 10 * T - CAMY; for (let i = 0; i < 10; i++) { const a = i / 10 * Math.PI * 2, d = 3 + ht * 34; px(x + Math.cos(a) * d - 1, y + Math.sin(a) * d * 0.7 - 1, 2, 2, i % 2 ? '#ff8a8a' : '#ffffff'); } u.globalAlpha = 1 - clamp((ht - 0.35) / 0.15); txt('OUCH!', x * U, (y - 24 - ht * 10) * U, '#ff8a8a', 8); u.globalAlpha = 1; }
+    if (ht >= 0 && ht < 0.18) { g.globalAlpha = 0.35 * (1 - ht / 0.18); px(0, 0, GW, GH, '#ff2030'); g.globalAlpha = 1; }
+    if (t >= R2_FLAG) { const k = t - R2_FLAG; for (let i = 0; i < 24; i++) { const x = 37 * T - camX + (hash(i, 5) - 0.5) * 120 * Math.min(1, k * 2), y = 40 + (hash(i, 6) * 30) + k * k * 40 - Math.min(1, k * 3) * 20; px(x, y, 2, 2, ['#ffd23f', '#ff6fb5', '#3fd35f', '#2e8ef0', '#ffffff'][i % 5]); } }
+    let coins = R1_GOT.size; for (const tc of R2_GOT.values()) if (tc <= t) coins++;
+    hud(t, coins, t >= R2_HURT ? 2 : 3, R2_HURT);
+    if (t < 14.3) helper(t, 12.75, 'YOU: "MAKE IT HARDER."', '', '#ffffff', 0);
+    else if (t < 17.9) helper(t, 12.75, '"HARDER = MORE SPIKES!"', '', '#ffffff', 0.89);
+    else if (t < 19.3) helper(t, 12.75, 'YOU: "HARDER = ONE TRICKY JUMP.', 'KEEP IT FAIR."', '#ffe680', 0);
+    else helper(t, 12.75, '"ONE TRICKY JUMP, STILL FAIR."', '', '#ffffff', 0.82);
+    banner('IMPOSSIBLE! NOBODY CAN PLAY THIS.', t, 16.25, 17.85, '#c62828', '#ffffff');
+    banner('PLAYTESTED: HARD, BUT FUN!', t, R2_FLAG + 0.05, 22.8, '#1f9d55', '#ffffff');
+  } else if (t < 25.8) {
+    // art board: the child draws a dragon, the AI guesses
+    table(true);
+    px(BX - 4, BY - 4, 13 * BS + 7, 13 * BS + 7, '#11131f');
+    const cells = []; DRAGON.forEach((row, r) => row.split('').forEach((ch, c) => { if (ch !== '.') cells.push({ c, r, ch }); }));
+    cells.forEach((p, i) => p.t = 22.85 + i * (1.05 / cells.length));
+    const wings = []; WING.forEach((row, r) => row.split('').forEach((ch, c) => { if (ch !== '.') wings.push({ c, r, ch }); }));
+    const extra = [...wings.sort((a, b) => a.r - b.r || a.c - b.c), ...FIRE.map(([c, r, ch]) => ({ c, r, ch }))]; extra.forEach((p, i) => p.t = 24.85 + i * 0.022);
+    const all = [...cells, ...extra]; const at = new Map(all.map((p) => [key(p.c, p.r), p]));
+    for (let r = 0; r < 13; r++) for (let c = 0; c < 13; c++) {
+      px(BX + c * BS, BY + r * BS, 8, 8, '#1c2033'); const p = at.get(key(c, r)); if (!p || t < p.t) continue;
+      const k = clamp((t - p.t) / 0.08), s = Math.round(lerp(10, 8, k)); px(BX + c * BS - (s - 8) / 2, BY + r * BS - (s - 8) / 2, s, s, DPAL[p.ch]); px(BX + c * BS - (s - 8) / 2, BY + r * BS - (s - 8) / 2, s, 1, '#ffffff55');
+    }
+    if (t >= 25.35) for (let i = 0; i < 10; i++) { const k = ((t * 2.2 + i * 0.1) % 1); const x = BX + 13 * BS + k * 30, y = BY + 6.5 * BS + Math.sin(i * 2.1 + t * 9) * k * 8; const s = Math.max(1, Math.round(4 * (1 - k))); px(x, y, s, s, ['#ff8a2a', '#ffd23f', '#ff5a2a'][i % 3]); }
+    if (t < 24.05) { const [hx, hy, hold] = handPath(t, cells, BX, BY, BS); hand(hx, hy, null, t); }
+    else if (t >= 24.62 && t < 25.45) { const [hx, hy] = handPath(t, extra, BX, BY, BS, [-90, 10], [-120, 20]); hand(hx, hy, null, t, true); }
+    panel(166, 8, 150, 18, '#13202b', '#ffffff'); txt('ART BOARD', 241, 21, '#ffffff', 8);
+    if (t >= 24.0) {
+      const frog = t < 25.35; const k = eob(prog(t, frog ? 24.0 : 25.35, (frog ? 24.0 : 25.35) + 0.2));
+      panel(166, 32, 150, 72, '#13202b', '#16ffc6');
+      txt('AI HELPER', 241, 46, '#16ffc6', 8); txt('GUESSES', 241, 57, '#16ffc6', 8);
+      u.save(); u.translate(241, 72); u.scale(k, k); u.translate(-241, -72); txt(frog ? '"A FROG!"' : '"A DRAGON!"', frog ? 232 : 241, 76, '#ffffff', 8); u.restore();
+      if (frog) u.drawImage(FROGSPR, 276, 66, 12, 8);
+      const sure = frog ? 0.72 : 0.9; onUI(() => { px(186, 82, 114, 5, '#2a3a49'); px(186, 82, Math.round(114 * sure), 5, '#16ffc6'); }); txt(Math.round(sure * 100) + '% SURE', 241, 99, '#ffffff', 8);
+      if (t >= 24.45 && t < 25.3) { panel(166, 110, 150, 30, '#ffe680', '#13202b'); txt('YOU: "ADD WINGS', 241, 122, '#13202b', 8, 'center', null); txt('AND FIRE BREATH."', 241, 134, '#13202b', 8, 'center', null); }
+    }
+  } else if (t < 27.6) {
+    // the drawing comes to life: a big dragon flies through the level breathing fire
+    const k = prog(t, 25.8, 27.6), camX = lerp(10, 130, k);
+    play(t, camX, { enemies: [{ x: 23.2 + 0.9 * Math.sin(t * 2.2), r: 10 }] });
+    const Z = 3, dx = lerp(0, 120, k), dy = 26 + Math.sin(t * 5) * 4;
+    const flap = Math.sin(t * 14);
+    // fire stream ahead of the snout
+    const fx = dx + 13 * Z, fy = dy + 7 * Z;
+    if (t > 26.1) for (let i = 0; i < 46; i++) { const q = ((t * 3 + i / 46) % 1), x = fx + q * 90, y = fy + Math.sin(i * 7.3 + t * 20) * q * 12 + q * 12; const s = Math.max(1, Math.round(8 * (1 - q) + 1)); px(x - s / 2, y - s / 2, s, s, q < 0.25 ? '#fff2a0' : q < 0.6 ? '#ffd23f' : '#ff6a2a'); }
+    const wh = Math.round(FWSPR.height * Z * (0.5 + 0.5 * (flap * 0.5 + 0.5))), rootY = dy + 7 * Z;
+    g.drawImage(FWSPR, Math.round(dx - 4 * Z), Math.round(rootY - wh), FWSPR.width * Z, wh);
+    g.drawImage(DSPR, Math.round(dx), Math.round(dy), DSPR.width * Z, DSPR.height * Z);
+    panel(6, 6, 178, 18, '#13202b', '#16ffc6'); txt('"A DRAGON!" 90% SURE', 95, 19, '#ffffff', 8);
+  } else if (t < 29.8) {
+    // build a whole world: rooms pop in around this one, the hero hops room to room
+    for (let y = 0; y < GH; y += 3) px(0, y, GW, 3, y % 6 ? '#1a3a6a' : '#183663');
+    const k = eio(prog(t, 27.6, 27.95)); const p = lerp(6, 2, k), gap = lerp(14, 8, k), rs = 13 * p;
+    const THEMES = [['#8fd0ff', null], ['#2b3a7a', '#7a8aff'], ['#ffd9a0', '#d9a05a'], ['#5a3a6a', '#b07acf'], ['#e6f4ff', '#ffffff']];
+    const cx = GW / 2, cy = lerp(GH / 2, 52, k);
+    const order = []; for (let rr = 0; rr < 3; rr++) for (let cc = 0; cc < 5; cc++) order.push([cc, rr]);
+    const path = [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [4, 1], [3, 1], [2, 1], [1, 1], [0, 1], [0, 2], [1, 2], [2, 2], [3, 2], [4, 2]];
+    const ctr = (cc, rr) => [cx + (cc - 2) * (rs + gap), cy + (rr - 1) * (rs + gap)];
+    // path line
+    if (t > 28.3) { const n = Math.floor(prog(t, 28.3, 29.5) * 14 * 4); for (let i = 0; i < n; i++) { const a = path[Math.floor(i / 4)], b = path[Math.min(14, Math.floor(i / 4) + 1)], q = (i % 4) / 4; const [ax, ay] = ctr(...a), [bx, by] = ctr(...b); px(lerp(ax, bx, q) - 1, lerp(ay, by, q) - 1, 2, 2, '#ffe680'); } }
+    order.forEach(([cc, rr], i) => {
+      const centre = cc === 2 && rr === 1; const tin = 27.95 + hash(cc, rr, 3) * 0.45; const s = centre ? 1 : eob(prog(t, tin, tin + 0.18)); if (s <= 0) return;
+      const [ox, oy] = ctr(cc, rr); const room = ROOMS[(cc + rr * 2) % 3], th = THEMES[(cc * 2 + rr) % 5], flip = (cc + rr) % 2 === 1 && !centre;
+      const q = p * s, w = 13 * q; const x0 = ox - w / 2, y0 = oy - w / 2;
+      px(x0 - 1, y0 - 1, w + 2, w + 2, centre ? '#ffe680' : '#0e2244'); px(x0, y0, w, w, centre ? '#8fd0ff' : th[0]);
+      for (let r = 0; r < 13; r++) for (let c = 0; c < 13; c++) { const ch = room[r][flip ? 12 - c : c]; if (ch === '.') continue; px(x0 + c * q, y0 + r * q, Math.ceil(q), Math.ceil(q), ch === 'G' && th[1] && !centre ? th[1] : FLAT[ch]); }
+    });
+    if (t > 28.3) { const f = prog(t, 28.3, 29.5) * 14, i = Math.min(13, Math.floor(f)), q = f - i; const [ax, ay] = ctr(...path[i]), [bx, by] = ctr(...path[i + 1]); const hx = lerp(ax, bx, q), hy = lerp(ay, by, q) - Math.sin(q * Math.PI) * 8; g.drawImage(HSPR.air, Math.round(hx - 7), Math.round(hy - 12), 14, 13); }
+    if (t >= 27.75) caption('BUILD A WHOLE WORLD.', UW / 2, 156);
+  } else {
+    // bright, clean title card
+    const camX = 200 + (t - 29.8) * 8;
+    play(t, camX, { cell: END_CELL, got: gotFn(R3_GOT, t), flagK: 0.35 * prog(t, R3_FLAG, R3_FLAG + 0.25) });
+    heroFrom(R3, t, camX); dust(R3, t, camX); pickups(R3_GOT, t, camX, false);
+    const b = Math.round(Math.sin(t * 3) * 1.5); const sl = Math.round((1 - eob(prog(t, 29.8, 30.15))) * -110);
+    u.save(); u.translate(0, sl);
+    panel(14, 10, 292, 92, '#1b2a4a', '#ffe680', '#0e1830');
+    onUI(() => px(15, 11, 290, 1, '#ffffff55'));
+    txt('BLOCK QUEST', 160, 44 + b, '#ffd23f', 24, 'center', '#7a3a00');
+    txt('BUILD IT. PLAY IT.', 160, 64, '#ffffff', 8);
+    txt('TEACH THE AI WHAT FUN MEANS.', 160, 77, '#ffffff', 8);
+    onUI(() => px(44, 84, 232, 13, '#ffffff'));
+    txt('A DELTAOPS LEARNING GAME LAB', 160, 95, '#13202b', 8, 'center', null);
+    u.restore();
+  }
+}
+window.__render = (t) => { frame(t); return true; };
+window.__duration = DUR;
+Promise.all([document.fonts.load('8px P2P')]).then(() => { window.__ready = true; });
+</script></body></html>

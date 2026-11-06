@@ -1,0 +1,304 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Creative Producer trailer</title>
+<link rel="stylesheet" href="../engine/ui.css"><link rel="stylesheet" href="fs.css">
+<style>
+.cp-post { width: 364px; padding: 16px 22px 18px; }
+.cp-post .hd { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
+.cp-post .hd b { font: 800 26px 'Inter'; white-space: nowrap; }
+.cp-post .hd .fs-status { font-size: 17px; padding: 8px 14px; }
+.cp-pz { zoom: 0.84; position: relative; width: 380px; height: 537px; border-radius: 14px; overflow: hidden; box-shadow: 0 4px 14px rgba(0,0,0,.18); }
+.cp-pz svg, .cp-pz .ly { position: absolute; left: 0; top: 0; width: 380px; height: 537px; }
+.cp-ann { position: absolute; border: 5px dashed #e5484d; border-radius: 16px; background: rgba(229,72,77,.12); }
+.cp-ann span { position: absolute; left: 6px; bottom: 6px; background: #e5484d; color: #fff; font: 800 24px 'Inter'; padding: 7px 14px; border-radius: 10px; white-space: nowrap; }
+.cp-ann.ok { border-color: #16c79a; border-style: solid; background: rgba(22,199,154,.10); }
+.cp-ann.ok span { background: #16c79a; color: #06261f; }
+.cp-cred { width: 430px; padding: 22px 28px 16px; }
+.cp-cred h4 { font: 800 30px 'Inter'; margin: 6px 0 8px; }
+.cp-r { padding: 10px 0; border-top: 2px solid var(--fs-line); }
+.cp-r .nm { font: 800 19px 'Inter'; letter-spacing: .12em; text-transform: uppercase; color: var(--fs-muted); margin-bottom: 6px; }
+.cp-r .vl { font: 650 25px/1.32 'Inter'; }
+.lic { display: inline-block; margin-top: 6px; font: 800 18px 'Inter'; letter-spacing: .06em; border-radius: 999px; padding: 6px 14px; white-space: nowrap; }
+.lic.ok { background: var(--fs-mint); color: var(--fs-teal-d); }
+.lic.bad { background: var(--fs-red-bg); color: #c0262c; }
+.lic.ai { background: var(--fs-ai); color: #8a6400; }
+.cp-r .vl .muted { color: #a3afb8; }
+.cp-credit { overflow: hidden; height: 0; font: 650 18px/1.4 'Inter'; color: var(--fs-muted); text-align: center; }
+.cp-credit div:first-child { margin-top: 12px; }
+.cp-lbl { position: absolute; left: 50%; top: -24px; transform: translateX(-50%); font: 800 22px 'Inter'; letter-spacing: .12em; border-radius: 999px; padding: 8px 20px; white-space: nowrap; }
+</style>
+<script type="importmap">{"imports":{"three":"/three/three.module.js","three/addons/":"/three-addons/"}}</script></head>
+<body><div id="app"><div id="bg"></div><div id="ui"></div><div id="fx"></div></div>
+<script type="module">
+import * as THREE from 'three';
+import { createStage, prog, ease, lerp, clamp, within } from '../engine/stage.js';
+import { Vox, island, tree, house, person, particles, rand, noise2 } from '../engine/kit.js';
+import { el, cue, fader, titleCard } from '../engine/ui.js';
+import { Furn, table, chair, seated, standing, plant, screenPlane, monitor, laptop, draw, ICO, ui, briefHTML, briefChipHTML, aiHTML, findHTML, signHTML, folderHTML, pathHTML, endTitleHTML, aiSet, findFix, checkStrip, pin, place, showIO, fadeIO, typed, setHTML } from './fs.js';
+
+const DUR = 38.0;
+const st = createStage({ sky: ['#5db6ff', '#d9efff'], post: false });
+const { scene, camera, sun, hemi, rim } = st;
+rim.intensity = 0.5; st.dome.visible = false; st.renderer.setClearColor(0x000000, 0);
+document.getElementById('bg').style.background = 'linear-gradient(180deg, #4fb0ff 0%, #8fd0ff 55%, #dff2ff 100%)';
+sun.intensity = 2.8; sun.position.set(-50, 120, 70); hemi.intensity = 1.3; st.renderer.toneMappingExposure = 1.08;
+
+// ---------- island, studio shell, festival town ----------
+const v = new Vox(); v.jitter = 0.06;
+const isl = island(v, { rx: 37, rz: 27, top: 0, depth: 14, seed: 8, wobble: 3 });
+const F = 1;
+const OX0 = -19, OX1 = 6, OZ0 = -9, OZ1 = 8;
+for (let x = OX0; x <= OX1; x++) for (let z = OZ0; z <= OZ1; z++) v.set(x, 0, z, (x + z) % 2 ? '#dfe3e6' : '#d3d8dc');
+const WALL = '#f6f3ee', TRIM = '#ff8a4a';
+for (let x = OX0; x <= OX1; x++) for (let y = 1; y <= 7; y++) { const win = y >= 2 && y <= 5 && ((x - OX0) % 5 !== 0) && x > OX0 && x < OX1 && !(x >= -12 && x <= 0); v.set(x, y, OZ0, win ? null : (y === 7 ? TRIM : WALL)); }
+for (let z = OZ0; z <= OZ1; z++) for (let y = 1; y <= 7; y++) { const win = y >= 2 && y <= 5 && ((z - OZ0) % 5 !== 0) && z > OZ0 && z < OZ1 - 1; v.set(OX0, y, z, win ? null : (y === 7 ? TRIM : WALL)); }
+for (let z = OZ0; z <= OZ1; z++) if (z < -1 || z > 2) for (let y = 1; y <= 2; y++) v.set(OX1, y, z, y === 2 ? TRIM : WALL);
+for (let x = -34; x <= 34; x++) for (let z = -14; z <= -11; z++) if (isl.top(x, z) != null) v.set(x, 0, z, z === -12 && x % 4 === 0 ? '#f2f2ea' : '#5b6168');
+const HC = [['#d0573a', '#f1ebe0'], ['#5a6d80', '#efe2c9'], ['#3f8f7a', '#f4efe6'], ['#d0573a', '#efe2c9'], ['#6e5bf2', '#f1ebe0']];
+[[-30, -21, 7, 5, 4], [-21, -22, 6, 6, 5], [-12, -23, 8, 6, 6], [-1, -22, 6, 5, 4], [8, -21, 7, 5, 5]].forEach(([x, z, w, d, h], i) => house(v, x, 0, z, { w, d, h, roof: HC[i][0], wall: HC[i][1] }));
+// harbour green: paths, pond (harbour pool), stage, stalls, trees
+for (let x = 9; x <= 34; x++) for (let z = -9; z <= 22; z++) { if (isl.top(x, z) == null) continue; if (Math.abs(z - 4 - Math.sin(x / 4) * 2) < 1.1 || Math.abs(x - 15) < 1 && z > -9) v.set(x, 0, z, '#d9c9a0'); }
+for (let x = 21; x <= 33; x++) for (let z = 9; z <= 17; z++) if (Math.hypot((x - 27) / 5.4, (z - 13) / 3.8) < 1) v.set(x, 0, z, '#4fb6e8');
+// small boat on the pool
+v.box(25, 1, 12, 28, 1, 13, '#d0573a'); v.set(26, 2, 12, '#7a5232'); v.box(26, 3, 12, 26, 4, 12, '#f4f1ea');
+// stage
+v.box(19, 1, -8, 30, 2, -2, '#7a5233'); v.box(19, 3, -8, 30, 9, -8, '#f4efe6'); for (let x = 19; x <= 30; x++) v.set(x, 10, -8, x % 2 ? '#ff8a4a' : '#ffd23f');
+// stalls with striped awnings
+for (const [x, z] of [[11, 10], [11, 15], [17, 17]]) { v.box(x, 1, z, x + 2, 2, z + 2, '#f4efe6'); for (let i = 0; i <= 2; i++) for (let j = 0; j <= 2; j++) v.set(x + i, 4, z + j, (i + j) % 2 ? '#e5484d' : '#ffffff'); v.box(x, 3, z, x, 3, z, '#7a5232'); v.box(x + 2, 3, z + 2, x + 2, 3, z + 2, '#7a5232'); }
+for (const [x, z] of [[12, -5], [33, -1], [31, 3], [9, 20], [-22, 16], [-28, 8], [-31, 12], [26, 19], [22, 21]]) if (isl.top(x, z) != null) tree(v, x, 0, z, { kind: 'round' });
+for (const [x, z] of [[33, -6], [-34, 2], [-25, -16], [16, -17], [-30, -6]]) if (isl.top(x, z) != null) tree(v, x, 0, z, { kind: 'pine' });
+// lantern poles
+const LP = [[8, -10], [34, -10], [-34, -10]];
+for (const [x, z] of LP) if (isl.top(x, z) != null) for (let y = 1; y <= 9; y++) v.set(x, y, z, '#59636b');
+scene.add(v.mesh());
+// lantern strings (fine voxels)
+const f = new Furn();
+const LC = ['#ff5d6c', '#ffd23f', '#ff8a4a', '#16c79a', '#6e5bf2', '#f2a3c0'];
+const string = (a, b, n, sag = 2.2) => { for (let i = 0; i <= n; i++) { const k = i / n; const x = lerp(a[0], b[0], k), z = lerp(a[2], b[2], k), y = lerp(a[1], b[1], k) - Math.sin(k * Math.PI) * sag; f.box(x - 0.25, y - 0.5, z - 0.25, x + 0.25, y, z + 0.25, LC[i % LC.length]); } };
+string([-34.5, 9.5, -10], [8.5, 9.5, -10], 30, 1.6); string([8.5, 9.5, -10], [34.5, 9.5, -10], 20, 1.6);
+// stage banner
+screenPlane(scene, 10.6, 5.2, (g, w, h) => { const gr = g.createLinearGradient(0, 0, w, h); gr.addColorStop(0, '#2bb3a6'); gr.addColorStop(1, '#13808a'); g.fillStyle = gr; g.fillRect(0, 0, w, h); g.fillStyle = '#ffd23f'; g.font = `800 ${h * 0.2}px Inter, sans-serif`; g.textAlign = 'center'; g.fillText('LANTERN', w / 2, h * 0.42); g.fillText('FESTIVAL', w / 2, h * 0.66); g.fillStyle = '#ffffff'; g.font = `700 ${h * 0.1}px Inter, sans-serif`; g.fillText('SAT 14 NOV', w / 2, h * 0.86); }, { pos: [25, 6.6, -7.95], facing: 's', px: 512 });
+
+// ---------- studio interior ----------
+table(f, F, -12, -2, -1, 2, { top: '#f4efe6', leg: '#3d4a54' });
+const FAR = -2.9;
+const seatsFar = [-9.8, -6.5, -3.2];
+seatsFar.forEach((x) => chair(f, F, x, FAR, 's', { c: '#ff8a4a' }));
+chair(f, F, -13, 0, 'e', { c: '#ff8a4a' }); chair(f, F, 0, 0, 'w', { c: '#ff8a4a' });
+laptop(f, scene, F, seatsFar[0], -1.2, 'n', draw.doc('#ff8a4a'));
+laptop(f, scene, F, seatsFar[1], -1.2, 'n', draw.dark());
+laptop(f, scene, F, seatsFar[2], -1.2, 'n', draw.sheet('#6e5bf2'));
+laptop(f, scene, F, -11.4, 0, 'w', draw.chart('#ff8a4a')); laptop(f, scene, F, -1.6, 0, 'e', draw.doc());
+// drawing tablet + sketches on the table
+f.box(-7.2, F + 1.1, 0.3, -5.6, F + 1.18, 1.3, '#26323c'); f.box(-4.2, F + 1.1, 0.4, -3.2, F + 1.15, 1.6, '#ffffff'); f.box(-10.8, F + 1.1, 0.5, -9.8, F + 1.15, 1.7, '#fff3c4');
+// pinboard with mini posters on the back wall (fills the window gap)
+f.box(-12, F, OZ0 + 1, 1, F + 6, OZ0 + 1.25, '#f6f3ee');
+f.box(-11.5, F + 1.75, OZ0 + 1.25, 0.5, F + 5.5, OZ0 + 1.5, '#c99a5e');
+const PC = [['#0f5d63', '#ffd23f'], ['#ff5d6c', '#ffffff'], ['#6e5bf2', '#ffd23f'], ['#ffd23f', '#13202b'], ['#16c79a', '#ffffff'], ['#13202b', '#ff8a4a'], ['#3a8de0', '#ffffff'], ['#ff8a4a', '#13202b']];
+PC.forEach(([a, b], i) => { const x = -11 + (i % 4) * 2.9 + (i > 3 ? 0.8 : 0), y = F + (i > 3 ? 2.0 : 3.6); f.box(x, y, OZ0 + 1.5, x + 1.5, y + 1.5 + (i % 2) * 0.25, OZ0 + 1.75, a); f.box(x + 0.25, y + 0.25, OZ0 + 1.75, x + 1.25, y + 0.75, OZ0 + 2, b); });
+// easel with a printed proof
+f.box(1.5, F, -5, 1.75, F + 4, -4.75, '#7a5232'); f.box(3.25, F, -5, 3.5, F + 4, -4.75, '#7a5232'); f.box(1.25, F + 1.5, -4.75, 3.75, F + 1.75, -4.25, '#7a5232');
+f.box(1.5, F + 1.75, -4.75, 3.5, F + 4.5, -4.5, '#0f5d63'); f.box(1.75, F + 3.25, -4.5, 2.75, F + 4.25, -4.25, '#ffd23f'); f.box(2.25, F + 2.25, -4.5, 3.25, F + 3, -4.25, '#ff8a4a');
+// big printer
+f.box(2, F, 4.5, 4.75, F + 2, 6.5, '#e8edf0'); f.box(2.25, F + 2, 4.75, 4.5, F + 2.25, 6.25, '#9aa6b0'); f.box(2.5, F + 1.25, 6.5, 4.25, F + 1.5, 7.25, '#ffffff');
+// sofa
+f.box(-17.5, F, 3, -16, F + 1, 7.5, '#ffd23f'); f.box(-18, F, 3, -17.5, F + 2, 7.5, '#f2b81c'); f.box(-17.5, F + 1, 3, -16, F + 1.5, 3.5, '#f2b81c'); f.box(-17.5, F + 1, 7, -16, F + 1.5, 7.5, '#f2b81c');
+for (const [x, z] of [[OX0 + 1.5, OZ0 + 1.5], [OX1 - 1.5, OZ0 + 1.5], [OX1 - 1.5, 2.8], [-15, OZ1 - 0.8]]) plant(f, F, x, z);
+// paint shelf
+f.box(-18, F, -7.5, -17, F + 3, -4.5, '#9a6a3e'); for (let k = 0; k < 3; k++) for (let j = 0; j < 4; j++) f.box(-17.75, F + 0.5 + k, -7.25 + j * 0.75, -17.25, F + 1 + k, -6.75 + j * 0.75, LC[(k * 4 + j) % 6]);
+scene.add(f.mesh());
+
+// ---------- people ----------
+const S = 0.36;
+const P = (shirt, skin, hair, pants = '#2c3e66') => ({ shirt, skin, hair, pants, s: S });
+const team = [
+  seated(P('#6e5bf2', '#8a5a3a', '#1a120c'), seatsFar[0], FAR, 's', F),
+  seated(P('#ffd23f', '#e8b890', '#b5572a', '#34405a'), seatsFar[1], FAR, 's', F), // Leo
+  seated(P('#16c79a', '#c68a5e', '#2b1d14'), seatsFar[2], FAR, 's', F),
+  seated(P('#e5484d', '#f0c8a0', '#6b3a1e'), -13, 0, 'e', F),
+  seated(P('#3a8de0', '#7a4a2c', '#1a120c', '#3a3a3a'), 0, 0, 'w', F),
+];
+team.forEach((p) => scene.add(p));
+const LEO = team[1];
+const mentor = standing({ shirt: '#13202b', pants: '#4a5560', skin: '#6b4428', hair: '#1a120c', s: S }, 1.0, -6.4, 's', F);
+const lan = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.3, 0.06), new THREE.MeshLambertMaterial({ color: '#ff8a4a' })); lan.position.set(0, 1.6, -0.4); mentor.add(lan);
+scene.add(mentor);
+const walkers = [['#e5484d', '#c68a5e'], ['#3a8de0', '#8a5a3a'], ['#ffd23f', '#e0b08a'], ['#16c79a', '#a0683f'], ['#f2a3c0', '#7a4a2c']].map(([shirt, skin]) => { const p = person({ shirt, skin, hair: '#2b1d14', s: 0.34 }); scene.add(p); return p; });
+const band = [['#ff8a4a', '#7a4a2c'], ['#6e5bf2', '#e0b08a']].map(([shirt, skin], i) => { const p = standing({ shirt, skin, hair: '#1a120c', s: 0.34 }, 22 + i * 4, -5, 's', 3); scene.add(p); return p; });
+// ---------- camera + motion ----------
+// 0-2.6 brief | 3.0 poster (sketch) | 5.4 AI draft | 9.4 review: Data ✓ 10.25 · Case ✓ 12.35 (one-line reasons) | Source ✕ 14.35 (wrong licence) → re-checked 18.05 | Authority ✕ 19.05 (living artist's style) → re-checked 22.85 | 23.4 AI V2 | 24.4 sign-off + before/after | 28.0 portfolio | 31.6 pathway | 35.0 title
+const T_OUT = 28.0, PATH_IN = 31.6, TITLE_IN = 35.0;
+// key: [t, ang, dist, hgt, lookX, lookZ, ox, oy]  (ox/oy = where the look point sits, in px from screen centre)
+const CK = [
+  [0, -0.74, 132, 84, -2, 0, 0, 40],
+  [1.6, -0.64, 126, 80, -2, 0, 0, 40],
+  [3.6, -0.46, 160, 76, -2, 0, 470, 240],
+  [T_OUT, -0.26, 156, 74, -2, 0, 470, 240],
+  [T_OUT + 1.0, -0.22, 156, 74, -2, 0, 470, 190],
+  [TITLE_IN - 0.4, -0.08, 156, 74, -2, 0, 470, 190],
+  [TITLE_IN + 0.5, 0.0, 126, 76, -2, 0, 0, 230],
+  [DUR, 0.12, 122, 74, -2, 0, 0, 230],
+];
+const camAt = (t) => {
+  let i = 0; while (i < CK.length - 2 && t > CK[i + 1][0]) i++;
+  const a = CK[i], c = CK[i + 1]; const long = c[0] - a[0] > 3;
+  const k = long ? clamp((t - a[0]) / (c[0] - a[0])) : ease.inOut(clamp((t - a[0]) / (c[0] - a[0])));
+  return a.map((x, n) => lerp(x, c[n], k));
+};
+st.onFrame((t) => {
+  const [, ang, dist, hgt, lx, lz, ox, oy] = camAt(t);
+  camera.fov = 30; camera.setViewOffset(1920, 1080, -ox, -oy, 1920, 1080); camera.updateProjectionMatrix();
+  camera.position.set(Math.sin(ang) * dist + lx, hgt, Math.cos(ang) * dist + lz);
+  camera.lookAt(lx, 0, lz);
+  team.forEach((p, i) => { const b = p.userData.base; p.position.y = b.y + Math.max(0, Math.sin(t * 1.3 + i * 1.7)) * 0.05; p.rotation.x = 0; });
+  LEO.rotation.x = -0.18 * prog(t, 9.8, 10.6) * (1 - prog(t, 24.0, 24.8));
+  // mentor stays by the easel (clear of Leo)
+  mentor.position.set(1.0, F, -6.4); mentor.rotation.y = Math.PI; mentor.userData.walk(0);
+  walkers.forEach((p, i) => { const u = t * 0.032 + i * 0.2; const a = u * Math.PI * 2; const x = 20 + Math.cos(a) * 9, z = 6 + Math.sin(a) * 6.5; p.position.set(x, F, z); p.rotation.y = Math.atan2(-Math.sin(a), Math.cos(a)) + Math.PI; p.userData.walk(t * 8 + i); });
+  band.forEach((p, i) => { p.position.y = 3 + Math.max(0, Math.sin(t * 6 + i * 2)) * 0.35; });
+});
+
+// ---------- posters (SVG) ----------
+const lanternK = (x, y, c) => `<line x1="${x}" y1="186" x2="${x}" y2="${y - 50}" stroke="#0d0d0d" stroke-width="4"/><rect x="${x - 22}" y="${y - 54}" width="44" height="12" rx="3" fill="#0d0d0d"/><rect x="${x - 38}" y="${y - 44}" width="76" height="92" rx="32" fill="${c}" stroke="#0d0d0d" stroke-width="7"/><path d="M${x - 14} ${y - 40}v84M${x + 14} ${y - 40}v84" stroke="#0d0d0d" stroke-width="5"/><rect x="${x - 22}" y="${y + 46}" width="44" height="12" rx="3" fill="#0d0d0d"/><path d="M${x - 28} ${y - 26}q-6 20 0 40" stroke="#fff" stroke-width="6" fill="none" stroke-linecap="round"/>`;
+const lanternL = (x, y, r, c, c2) => `<path d="M${x} 186 Q${x + 6} ${y - r - 20} ${x} ${y - r}" stroke="#f4efe6" stroke-width="2" fill="none"/><circle cx="${x + 6}" cy="${y + 6}" r="${r}" fill="#00000033"/><circle cx="${x}" cy="${y}" r="${r}" fill="${c}"/><ellipse cx="${x}" cy="${y}" rx="${r * 0.55}" ry="${r}" fill="${c2}"/><ellipse cx="${x}" cy="${y}" rx="${r * 0.18}" ry="${r}" fill="${c}"/><rect x="${x - 8}" y="${y + r - 2}" width="16" height="8" fill="#f4efe6"/><path d="M${x} ${y + r + 6}v14" stroke="#f4efe6" stroke-width="3"/>`;
+const sketchL = (x, y, r) => `<path d="M${x} 186 L${x} ${y - r}" stroke="#9aa6b0" stroke-width="2"/><circle cx="${x}" cy="${y}" r="${r}" fill="none" stroke="#7f8b95" stroke-width="2.5" stroke-dasharray="7 4"/><ellipse cx="${x}" cy="${y}" rx="${r * 0.55}" ry="${r}" fill="none" stroke="#9aa6b0" stroke-width="2"/>`;
+const LANT = [[100, 290, 44], [200, 252, 36], [290, 312, 48]];
+const TXT = (c, c2) => `<text x="30" y="56" font-family="Inter" font-weight="800" font-size="19" letter-spacing="5" fill="${c2}">HARBOURSIDE</text><text x="28" y="112" font-family="Inter" font-weight="800" font-size="60" fill="${c}">Lantern</text><text x="28" y="170" font-family="Inter" font-weight="800" font-size="60" fill="${c}">Festival</text><text x="30" y="508" font-family="Inter" font-weight="800" font-size="19" letter-spacing="1.5" fill="${c2}">SAT 14 NOV · HARBOUR GREEN</text>`;
+const SVG = (inner) => `<svg viewBox="0 0 380 537" xmlns="http://www.w3.org/2000/svg">${inner}</svg>`;
+const ART_SKETCH = SVG(`<rect width="380" height="537" fill="#fbfaf6"/>${TXT('#8a96a0', '#9aa6b0')}${LANT.map(([x, y, r]) => sketchL(x, y, r)).join('')}<rect x="20" y="392" width="340" height="80" rx="10" fill="none" stroke="#9aa6b0" stroke-width="2.5" stroke-dasharray="8 5"/><text x="190" y="438" text-anchor="middle" font-family="Inter" font-weight="700" font-size="18" fill="#9aa6b0">photo?</text><text x="352" y="528" text-anchor="end" font-family="Inter" font-weight="700" font-size="13" fill="#9aa6b0">Leo’s sketch</text>`);
+const ART_BEFORE = SVG(`<rect width="380" height="537" fill="#1d1b4f"/>${[[40, 220], [330, 200], [250, 380], [60, 360], [170, 210]].map(([x, y]) => `<path d="M${x} ${y - 8}l3 5 5 3-5 3-3 5-3-5-5-3 5-3z" fill="#ffd76e"/>`).join('')}<circle cx="318" cy="96" r="40" fill="#ffd76e"/>${TXT('#ffffff', '#ff9fc4')}${lanternK(100, 290, '#ff4f8b')}${lanternK(200, 252, '#ff9f1c')}${lanternK(290, 312, '#ffd23f')}`);
+const ART_AFTER = SVG(`<defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0e6b70"/><stop offset="1" stop-color="#0b3f55"/></linearGradient></defs><rect width="380" height="537" fill="url(#g1)"/><path d="M0 200 Q95 230 190 200 T380 200" stroke="#f4efe6" stroke-width="2" fill="none"/>${[30, 80, 130, 180, 230, 280, 330].map((x, i) => `<path d="M${x - 10} ${206 + (i % 2) * 6}l10 16 10-16z" fill="${['#ffcf4a', '#ff8a6a', '#f4efe6'][i % 3]}"/>`).join('')}${TXT('#f4efe6', '#ffcf4a')}${lanternL(100, 290, 44, '#ffcf4a', '#ffe08a')}${lanternL(200, 252, 36, '#ff8a6a', '#ffb39a')}${lanternL(290, 312, 48, '#f4efe6', '#ffffff')}`);
+const PH_A = SVG(`<defs><linearGradient id="pa" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7b37a"/><stop offset=".55" stop-color="#f0865d"/><stop offset=".56" stop-color="#2d5f8a"/><stop offset="1" stop-color="#1e4466"/></linearGradient><clipPath id="ca"><rect x="20" y="392" width="340" height="80" rx="10"/></clipPath></defs><g clip-path="url(#ca)"><rect x="20" y="392" width="340" height="80" fill="url(#pa)"/><path d="M70 436h46l-8 9H78z M64 436l26-30v30z M210 436h58l-10 10h-40z M236 436v-36l22 36z" fill="#1b2433"/><circle cx="300" cy="420" r="11" fill="#ffe1a8"/></g>`);
+const PH_B = SVG(`<defs><linearGradient id="pbs" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7cc4ef"/><stop offset="1" stop-color="#e3f3fb"/></linearGradient><linearGradient id="pbw" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3b93c9"/><stop offset="1" stop-color="#1f5f8f"/></linearGradient><clipPath id="cb"><rect x="20" y="392" width="340" height="80" rx="10"/></clipPath></defs><g clip-path="url(#cb)">
+  <rect x="20" y="392" width="340" height="80" fill="url(#pbs)"/><circle cx="66" cy="408" r="9" fill="#fff4c2"/>
+  <ellipse cx="140" cy="404" rx="22" ry="6" fill="#fff" opacity=".9"/><ellipse cx="156" cy="400" rx="14" ry="6" fill="#fff" opacity=".9"/><ellipse cx="240" cy="410" rx="18" ry="5" fill="#fff" opacity=".85"/>
+  <path d="M20 440 Q60 426 110 434 T200 432 T262 438 V444 H20z" fill="#79a98a"/>
+  <rect x="20" y="440" width="340" height="32" fill="url(#pbw)"/>
+  <path d="M28 452h30M90 462h40M160 450h26M222 466h34M300 458h28" stroke="#bfe3f7" stroke-width="2" stroke-linecap="round" opacity=".8"/>
+  <rect x="20" y="441" width="120" height="7" fill="#c9b994"/><rect x="20" y="448" width="120" height="3" fill="#9d8c6a"/>
+  <path d="M84 458h34l-6 7H90z" fill="#d0573a"/><path d="M100 457V430l15 27z" fill="#fff"/><path d="M98 457V436l-11 21z" fill="#f4efe6"/>
+  <path d="M186 462h28l-5 6h-18z" fill="#13202b"/><path d="M200 461V438l12 23z" fill="#ffd23f"/>
+  <path d="M272 472l8-20h40l10 20z" fill="#6f6a62"/><path d="M276 472l10-14h22l8 14z" fill="#8a847a"/>
+  <path d="M291 452l3-38h12l3 38z" fill="#fbfaf6"/><path d="M292.3 438h15.4l.5 6h-16.4zM293.4 424h13.2l.5 6h-14.2z" fill="#d0392b"/>
+  <rect x="292" y="406" width="16" height="9" fill="#2d3a45"/><rect x="294" y="408" width="12" height="5" fill="#ffe9a8"/><path d="M290 406h20l-10-7z" fill="#d0392b"/>
+  <path d="M308 410l26-6v12z" fill="#fff3c4" opacity=".55"/></g>`);
+const posterInner = `<div class="cp-pz" data-pz><div class="ly" data-l="sk">${ART_SKETCH}</div><div class="ly" data-l="bf">${ART_BEFORE}</div><div class="ly" data-l="af">${ART_AFTER}</div><div class="ly" data-l="pa">${PH_A}</div><div class="ly" data-l="pb">${PH_B}</div>
+  <div class="cp-ann" data-a="art" style="left:40px;top:196px;width:304px;height:182px"><span>Copies Mira Kell’s style</span></div>
+  <div class="cp-ann" data-a="ph" style="left:12px;top:384px;width:356px;height:96px"><span>Licence: non-commercial only</span></div></div>
+  <div class="cp-credit" data-cr><div>Art: Leo · AI: layout ideas</div><div>Photo: Harbourside Archive, CC BY 4.0</div></div>`;
+
+
+// ---------- UI ----------
+// layout: poster + credits in a column on the left (x 46–860), AI colleague top right over the sky, island bottom right
+const A = []; const on = (f) => A.push(f);
+const fade = fader(); on((t) => fade(t < 0.4 ? 1 - prog(t, 0, 0.4) : t > DUR - 0.4 ? prog(t, DUR - 0.4, DUR) : 0));
+const brief = ui(briefHTML({ from: 'Harbourside Lantern Festival', task: 'Festival poster + AI-use statement', due: 'Friday' }), 46, 40);
+on(cue(brief, 0.3, 2.6, { from: 'down' }));
+const bchip = ui(briefChipHTML('Lantern Festival · Due <em>Friday</em>'), 46, 30);
+on(cue(bchip, 3.0, T_OUT - 0.2, { from: 'left' }));
+// name tags snap on fully opaque (no ghosting fades)
+const tagLeo = pin('<b>Leo, age 13</b><small>Creative producer</small>');
+const tagMentor = pin('<b>Sam Oyelaran</b><small>Mentor · graphic designer</small>', 'fs-tag mentor');
+const say = pin('“Every picture needs a credit.”', 'fs-say');
+on((t) => {
+  place(tagLeo, camera, [LEO.position.x, LEO.position.y + 4.2, LEO.position.z], showIO(t, 3.6, 4.9) + showIO(t, 7.4, T_OUT - 0.2), 0);
+  const mp = mentor.position; place(tagMentor, camera, [mp.x, mp.y + 4.3, mp.z], showIO(t, 4.9, 5.9), 0);
+  place(say, camera, [mp.x, mp.y + 4.3, mp.z], showIO(t, 5.9, 7.4), 0);
+});
+
+// timings
+const POST_IN = 3.0, AI_IN = 5.4, DRAFT = 6.0, CRED_IN = 7.0, DATA_OK = 10.25, CASE_OK = 12.35, SRC_FAIL = 14.35, PH_SWAP = 16.6, SRC_FIX = 17.6, AUTH_FAIL = 19.05, ART_SWAP = 20.4, STMT_T = 21.0, AUTH_FIX = 22.4, CR_T = 22.6, V2 = 23.4, SIGN = 24.4;
+const PX = 46, PY = 112, SH = 384; // poster card position; slide distance for before/after
+const FOLD_X = 60, FOLD_Y = 860; // portfolio folder (bottom left, island stays on the right)
+
+// poster card (after) and before card
+const pc = ui(`<div class="fs-card cp-post"><div class="hd"><b data-pt>Festival poster</b><span class="fs-status" data-st>Sketch</span></div>${posterInner}</div>`, PX, PY);
+const L = (k) => pc.querySelector(`[data-l="${k}"]`), AN = (k) => pc.querySelector(`[data-a="${k}"]`);
+const pSt = pc.querySelector('[data-st]'), pT = pc.querySelector('[data-pt]'), pCr = pc.querySelector('[data-cr]');
+const before = ui(`<div class="fs-card cp-post"><div class="hd"><b>Before</b><span class="fs-status rev">AI draft</span></div><div class="cp-pz"><div class="ly">${ART_BEFORE}</div><div class="ly">${PH_A}</div>
+  <div class="cp-ann" style="left:40px;top:196px;width:304px;height:182px"><span>Living artist’s style</span></div><div class="cp-ann" style="left:12px;top:384px;width:356px;height:96px"><span>Wrong licence</span></div></div></div>`, PX, PY);
+// the before card slides in only after the poster has moved clear (no double exposure)
+on(cue(before, SIGN + 0.65, T_OUT - 0.2, { from: 'left' }));
+on((t) => {
+  const a = prog(t, POST_IN, POST_IN + 0.5, ease.out);
+  const sh = prog(t, SIGN, SIGN + 0.6, ease.inOut) * SH; // slide right for before/after
+  const d = prog(t, T_OUT + 0.9, T_OUT + 1.8, ease.inOut); // into the portfolio, fully opaque
+  const vis = t > POST_IN && t < T_OUT + 1.75;
+  pc.style.opacity = vis ? a : 0; pc.style.visibility = vis ? 'visible' : 'hidden'; pc.style.zIndex = 5;
+  pc.style.transformOrigin = '0 0';
+  pc.style.transform = `translate(${-(1 - a) * 120 + sh + d * (FOLD_X + 150 - PX - SH)}px, ${d * (FOLD_Y - 20 - PY)}px) scale(${1 - d * 0.82})`;
+  const op2 = (k, v) => { L(k).style.opacity = clamp(v); };
+  op2('sk', 1 - prog(t, DRAFT, DRAFT + 0.6)); op2('bf', prog(t, DRAFT, DRAFT + 0.6) - prog(t, ART_SWAP, ART_SWAP + 0.8)); op2('af', prog(t, ART_SWAP, ART_SWAP + 0.8));
+  op2('pa', prog(t, DRAFT, DRAFT + 0.6) - prog(t, PH_SWAP, PH_SWAP + 0.8)); op2('pb', prog(t, PH_SWAP, PH_SWAP + 0.8));
+  pCr.style.height = prog(t, CR_T, CR_T + 0.5, ease.out) * 70 + 'px';
+  const an = (k, t0, t1, tok) => { const n = AN(k); n.style.opacity = fadeIO(t, t0, t1, 0.3); n.classList.toggle('ok', t > tok); const tx = t > tok ? (k === 'art' ? 'Own drawing ✓' : 'CC BY 4.0 · credited ✓') : (k === 'art' ? 'Copies Mira Kell’s style' : 'Non-commercial only'); const sp = n.querySelector('span'); if (sp.textContent !== tx) sp.textContent = tx; };
+  an('ph', SRC_FAIL, AUTH_FAIL - 0.6, SRC_FIX + 0.45); an('art', AUTH_FAIL, SIGN - 0.4, AUTH_FIX + 0.45);
+  const s = t < DRAFT ? ['', 'Sketch'] : t < 9.4 ? ['ai', 'AI draft'] : t < SIGN ? ['rev', 'In review'] : ['ok', 'Signed off'];
+  const cls = 'fs-status' + (s[0] ? ' ' + s[0] : ''); if (pSt.className !== cls) pSt.className = cls; if (pSt.textContent !== s[1]) pSt.textContent = s[1];
+  const ttl = t < SIGN + 0.2 ? 'Festival poster' : 'After'; if (pT.textContent !== ttl) pT.textContent = ttl;
+});
+
+// AI colleague (top right, over the sky): each claim is struck only when its own check fails; returns as V2
+const ai = ui(aiHTML({ text: 'Poster finished. Lanterns drawn <q>in the style of Mira Kell</q>. Photo is <q>royalty-free</q>.', sure: 93, data: 'Leo’s sketch · web image search' }), 1874, 112, 'tr');
+on(cue(ai, AI_IN, T_OUT - 0.2, { from: 'right' }));
+on((t) => {
+  if (t < SRC_FAIL) aiSet(ai, { state: 'DRAFT', sure: 93 });
+  else if (t < AUTH_FAIL) aiSet(ai, { state: 'RETURNED', mode: 'ret', sure: 0, label: 'Not trusted', strike: [1] });
+  else if (t < V2) aiSet(ai, { state: 'RETURNED', mode: 'ret', sure: 0, label: 'Not trusted', strike: [0, 1] });
+  else aiSet(ai, { state: 'V2 · RE-CHECKED', mode: 'v2', sure: 90, label: '90% sure · re-checked by Leo', strike: [0, 1], data: 'Leo’s drawing · archive photo', note: 'Own lanterns · photo licensed + credited' });
+});
+
+// credits & licences panel
+const cred = ui(`<div class="fs-card cp-cred"><span class="fs-lbl">Credits &amp; licences</span>
+  <div class="cp-r" style="margin-top:12px"><div class="nm">Lantern artwork</div><div class="vl" data-r="0"></div></div>
+  <div class="cp-r"><div class="nm">Harbour photo</div><div class="vl" data-r="1"></div></div>
+  <div class="cp-r"><div class="nm">Font</div><div class="vl">Open-source typeface<br><span class="lic ok">✓ Open Font Licence</span></div></div>
+  <div class="cp-r"><div class="nm">AI-use statement</div><div class="vl" data-r="3"></div></div></div>`, PX + SH, PY);
+on(cue(cred, CRED_IN, SIGN - 0.4, { from: 'right' }));
+const R = [0, 1, 3].map((i) => cred.querySelector(`[data-r="${i}"]`));
+const STMT = 'AI helped with layout and colour. Lanterns: my own drawing.';
+on((t) => {
+  setHTML(R[0], t < ART_SWAP + 0.4 ? '<span class="fs-aitxt"><span class="fs-aitag">AI</span>“In the style of Mira Kell”</span><br><span class="lic ' + (t > AUTH_FAIL ? 'bad">✕ Living artist · no permission' : 'ai">? Not checked') + '</span>' : '<span class="fs-new">Leo’s own drawing</span><br><span class="lic ok">✓ Own work · AI colour help</span>');
+  setHTML(R[1], t < PH_SWAP + 0.4 ? '<span class="fs-aitxt"><span class="fs-aitag">AI</span>“Royalty-free”</span><br><span class="lic ' + (t > SRC_FAIL ? 'bad">✕ Licence says non-commercial' : 'ai">? Not checked') + '</span>' : '<span class="fs-new">Harbourside Archive</span><br><span class="lic ok">✓ CC BY 4.0 · credited</span>');
+  const ty = typed(STMT, t, STMT_T, 60); // 59 chars → done by ≈22.0, before Authority is re-checked
+  setHTML(R[2], t < STMT_T ? '<span class="lic bad">✕ Missing</span>' : `<span class="fs-new">${ty}${ty.length < STMT.length ? '<i class="fs-caret"></i>' : ''}</span>`);
+});
+
+// review: Data ✓ and Case ✓ (one-line reasons), Source ✕ (licence) → re-checked, Authority ✕ (living artist's style) → re-checked
+const chk = checkStrip(1874, 20, 'tr');
+on(cue(chk, 9.4, T_OUT - 0.2, { from: 'down' }));
+const PLAN = [{ run: DATA_OK - 0.45, res: 'pass' }, { run: CASE_OK - 0.45, res: 'pass' }, { run: SRC_FAIL - 0.45, res: 'fail', fix: SRC_FIX }, { run: AUTH_FAIL - 0.45, res: 'fail', fix: AUTH_FIX }];
+on((t) => chk.drive(t, PLAN));
+const LOW = 712; // lower slot in the left column, under the poster and credits
+const whyData = ui(findHTML('DATA CHECK · NOTHING MISSING', [['Why', 'Inputs listed: Leo’s sketch and one web photo.']], true), PX, LOW);
+on(cue(whyData, DATA_OK - 0.1, CASE_OK - 0.5, { from: 'left' }));
+const whyCase = ui(findHTML('CASE CHECK · HOLDS', [['Why', 'Right date, place and size for this festival.']], true), PX, LOW);
+on(cue(whyCase, CASE_OK - 0.1, SRC_FAIL - 0.3, { from: 'left' }));
+const fSrc = ui(findHTML('SOURCE CHECK · WRONG LICENCE', [['AI said', '“Royalty-free”'], ['Licence', 'CC BY-NC: non-commercial only'], ['But', 'The festival sells tickets'], ['Action', { t: 'Use a photo we may use. Credit it.', cls: 'bad' }]]), PX, LOW);
+on(cue(fSrc, SRC_FAIL + 0.1, AUTH_FAIL - 0.5, { from: 'left' }));
+on(findFix(fSrc, SRC_FIX + 0.45, 'SOURCE CHECK · WRONG LICENCE', 'SOURCE CHECK · RE-CHECKED', 'Archive photo, CC BY 4.0, credited.'));
+const fAuth = ui(findHTML('AUTHORITY CHECK · NO PERMISSION', [['AI did', 'Copied Mira Kell’s style'], ['Problem', 'A living artist. She never agreed.'], ['Action', { t: 'Swap in my own drawing.', cls: 'bad' }]]), PX, LOW);
+on(cue(fAuth, AUTH_FAIL + 0.1, SIGN - 0.3, { from: 'left' }));
+on(findFix(fAuth, AUTH_FIX + 0.45, 'AUTHORITY CHECK · NO PERMISSION', 'AUTHORITY CHECK · RE-CHECKED', 'My own drawing + AI-use statement.'));
+const sign = ui(signHTML('Leo', 13), PX, LOW + 60);
+on(cue(sign, SIGN, T_OUT - 0.2, { from: 'pop' }));
+
+// portfolio: Leo's own piece from this trailer only
+const folder = ui(folderHTML('Leo', 'Saving…'), FOLD_X, FOLD_Y);
+folder.style.zIndex = 6;
+on(cue(folder, T_OUT + 0.3, PATH_IN - 0.3, { from: 'up' }));
+on((t) => { const s = t > T_OUT + 1.75 ? 'Festival poster (NEW)' : 'Saving…'; const n = folder.querySelector('[data-items]'); if (n.textContent !== s) n.textContent = s; folder.firstChild.classList.toggle('glow', t > T_OUT + 1.75 && t < T_OUT + 2.3); });
+
+// pathway (left, island on the right), then a bright stacked title above the whole island
+const path = ui(pathHTML({ next: 'iDEA creative badges <em>(free, online)</em>', award: 'Arts Award <em>(Explore or Bronze)</em>', route: 'GCSE Art &amp; Design or Media Studies, then a creative and digital apprenticeship', jobs: ['Content producer', 'Graphic designer', 'Marketing assistant'] }), 46, 200);
+on(cue(path, PATH_IN, TITLE_IN - 0.35, { from: 'left' }));
+const title = ui(endTitleHTML('Creative <span class="hl">Producer</span>', 'Make it with AI. Credit it honestly.'), 960, 70);
+title.dataset.anchor = '';
+on((t) => {
+  const a = prog(t, TITLE_IN, TITLE_IN + 0.6, ease.back);
+  title.style.opacity = clamp(prog(t, TITLE_IN, TITLE_IN + 0.3)); title.style.visibility = t > TITLE_IN ? 'visible' : 'hidden';
+  title.style.transform = `translate(-50%, 0) scale(${(0.8 + 0.2 * a) * (1 + 0.025 * prog(t, TITLE_IN + 0.6, DUR, (k) => k))})`; title.style.transformOrigin = '50% 0';
+});
+
+st.onFrame((t) => A.forEach((f) => f(t)));
+window.__duration = DUR;
+document.fonts.ready.then(() => { window.__ready = true; });
+</script></body></html>

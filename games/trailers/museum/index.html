@@ -1,0 +1,155 @@
+<!doctype html><html><head><meta charset="utf-8"><title>AI Time Traveller trailer</title>
+<link rel="stylesheet" href="../engine/ui.css"><link rel="stylesheet" href="../engine/brochure.css">
+<style>
+.ev { background: #fff; border-radius: 30px; padding: 22px 26px; box-shadow: 0 8px 0 rgba(0,0,0,.08), 0 14px 30px rgba(0,0,0,.12); }
+.ev small { font: 800 26px 'Inter'; letter-spacing: .1em; color: #46596a; } .ev small b { color: #c0392b; } .ev small b.ok { color: #1f9d55; }
+.ev .tiles { display: flex; gap: 14px; margin-top: 12px; }
+.ev .tile { width: 112px; height: 112px; border-radius: 18px; background: #f3ede4; display: grid; grid-template-rows: 1fr auto; place-items: center; padding: 8px 0 8px; font: 600 26px 'Inter'; color: #9a8f82; }
+.ev .tile svg { width: 44px; height: 44px; } .ev .tile svg * { fill: #d9cfc2; }
+.ev .tile.on { background: #e2f5ef; color: #13202b; box-shadow: inset 0 0 0 4px #16c79a; } .ev .tile.on svg * { fill: var(--c); }
+.lbl3 { background: #13202b; color: #fff; border-radius: 16px; padding: 10px 22px; font: 800 34px 'Inter'; white-space: nowrap; }
+</style>
+<script type="importmap">{"imports":{"three":"/three/three.module.js","three/addons/":"/three-addons/"}}</script></head>
+<body><div id="app"><div id="bg"></div><div id="ui"></div><div id="fx"></div></div>
+<script type="module">
+import * as THREE from 'three';
+import { createStage, prog, ease, lerp, clamp, within } from '../engine/stage.js';
+import { Vox, island, person, particles, rand, noise2 } from '../engine/kit.js';
+import { el, cue, fader, titleCard, toScreen } from '../engine/ui.js';
+import { burst } from '../engine/extras.js';
+import { makeLab, ICONS } from '../engine/lab.js';
+
+const DUR = 37;
+const st = createStage({ sky: ['#5db6ff', '#d9efff'], post: false });
+const { scene, camera, sun, hemi, rim } = st;
+rim.intensity = 0.5; st.dome.visible = false; st.renderer.setClearColor(0x000000, 0);
+document.getElementById('bg').style.background = 'linear-gradient(180deg, #62b9ff 0%, #a4d6ff 55%, #f4ead8 100%)';
+sun.intensity = 2.7; sun.position.set(-70, 120, 50); hemi.intensity = 1.25; st.renderer.toneMappingExposure = 1.08;
+
+// ---------- floating island (brochure island-rome) ----------
+const v = new Vox(); v.jitter = 0.06;
+const isl = island(v, { rx: 34, rz: 27, depth: 16, seed: 23, flat: true, wobble: 3 });
+const riverZ = (x) => 10 + x * 0.1;
+const inRiver = (x, z) => Math.abs(z - riverZ(x)) < 2.6;
+const cells = [];
+for (const [, c] of v.m) if (c[1] === 0) cells.push([c[0], c[2]]);
+for (const [x, z] of cells) {
+  const patch = Math.sin(x * 0.4) + Math.cos(z * 0.35) + rand(x, 7, z) * 0.9;
+  v.set(x, 0, z, patch > 1.1 ? '#8fd96a' : patch > 0 ? '#73c74f' : patch > -1 ? '#62b846' : '#53a83d');
+  if (inRiver(x, z)) { v.set(x, 0, z, null); v.set(x, -1, z, null); v.set(x, -2, z, '#c9b88a'); continue; }
+  const dz = z - riverZ(x);
+  if (dz < -2.5 && dz > -6.5 && x > -30 && x < 24) v.set(x, 0, z, (x + 40) % 3 === 0 ? '#a8703e' : (rand(x, 3, z) > .5 ? '#c4864c' : '#b87a42')); // quay planks
+  else if (x > -8 && x < 22 && z > -11 && dz <= -6.5) v.set(x, 0, z, rand(x, 5, z) > .5 ? '#d9d4c8' : '#c9c3b6'); // forum paving
+  else if (x > -24 && x < -8 && z > -12 && z < -5) v.set(x, 0, z, rand(x, 5, z) > .5 ? '#d9d4c8' : '#cfc9bc');
+}
+// edges: soil stripes
+for (const [, c] of v.m) { const [x, y, z] = c; if (y < 0 && y > -5 && rand(x, y, z) > 0.55) v.set(x, y, z, '#9a6a42'); }
+const ROOF = ['#c9502f', '#b8442a', '#d65d36'];
+function roman(x0, z0, x1, z1, h, { along = 'x', wall = '#f1e4c8' } = {}) {
+  for (let x = x0; x <= x1; x++) for (let z = z0; z <= z1; z++) for (let y = 1; y <= h; y++) { if (x > x0 && x < x1 && z > z0 && z < z1) continue; let c = y === 1 ? '#d9c8a6' : wall; if (y >= 2 && y <= 4 && ((z === z1 && (x - x0) % 4 === 2) || (x === x0 && (z - z0) % 4 === 2))) c = y === 4 ? wall : '#3b2a20'; if (y <= 3 && z === z1 && (x - x0) % 7 === 5) c = '#6e4024'; v.set(x, y, z, c); }
+  if (along === 'x') { const d = z1 - z0 + 1, R = Math.ceil(d / 2) + 1; for (let r = 0; r < R; r++) for (let x = x0 - 1; x <= x1 + 1; x++) { const c = ROOF[r % 3]; v.set(x, h + 1 + r, z0 - 1 + r, c); v.set(x, h + 1 + r, z1 + 1 - r, c); if (r > 0) { v.set(x0 - 1 < x && x < x1 + 1 ? x : x, h + r, z0 - 1 + r, x === x0 - 1 || x === x1 + 1 ? ROOF[1] : c); } } for (let r = 1; r < R; r++) for (let z = z0 - 1 + r; z <= z1 + 1 - r; z++) { v.set(x0, h + r, z, wall); v.set(x1, h + r, z, wall); } }
+  else { const d = x1 - x0 + 1, R = Math.ceil(d / 2) + 1; for (let r = 0; r < R; r++) for (let z = z0 - 1; z <= z1 + 1; z++) { const c = ROOF[r % 3]; v.set(x0 - 1 + r, h + 1 + r, z, c); v.set(x1 + 1 - r, h + 1 + r, z, c); } for (let r = 1; r < R; r++) for (let x = x0 - 1 + r; x <= x1 + 1 - r; x++) { v.set(x, h + r, z0, wall); v.set(x, h + r, z1, wall); } }
+}
+// temple (gable to the front), columns + steps
+{ const x0 = -1, x1 = 15, z0 = -26, z1 = -14; for (let x = x0; x <= x1; x++) for (let z = z0; z <= z1 + 4; z++) { const s = z > z1 ? z1 + 4 - z : 3; for (let y = 1; y <= Math.min(s, 3); y++) v.set(x, y, z, y % 2 ? '#e9dfc8' : '#ddd2ba'); }
+  for (let x = x0 + 2; x <= x1 - 2; x++) for (let z = z0 + 1; z <= z1 - 4; z++) for (let y = 4; y <= 11; y++) if (x === x0 + 2 || x === x1 - 2 || z === z0 + 1 || z === z1 - 4) v.set(x, y, z, '#efe7d4');
+  for (let x = x0 + 1; x <= x1 - 1; x += 2) for (let y = 4; y <= 11; y++) { v.set(x, y, z1 - 1, y === 4 || y === 11 ? '#e3d9c2' : '#f6f0e2'); v.set(x, y, z1 - 2, '#ece4d0'); }
+  for (let x = x0; x <= x1; x++) for (let z = z0; z <= z1; z++) v.set(x, 12, z, '#e6dcc6');
+  const R = 10; for (let r = 0; r < R; r++) for (let z = z0 - 1; z <= z1 + 1; z++) { const c = ROOF[r % 3]; v.set(x0 - 1 + r, 13 + r, z, c); v.set(x1 + 1 - r, 13 + r, z, c); } for (let r = 1; r < R; r++) for (let x = x0 - 1 + r; x <= x1 + 1 - r; x++) v.set(x, 12 + r, z1 + 1, '#efe7d4');
+}
+roman(-30, -8, -12, -2, 5, { along: 'x' }); roman(-24, -24, -6, -15, 5, { along: 'x' }); roman(20, -22, 30, -6, 5, { along: 'z' }); roman(21, -3, 30, 4, 5, { along: 'z' });
+// cypresses
+for (const [x, z] of [[-4, -14], [17, -12], [-8, -10], [19, -1]]) { for (let y = 1; y <= 2; y++) v.set(x, y, z, '#6e4a2a'); for (let y = 3; y <= 11; y++) { const r = y < 5 || y > 9 ? 0 : 1; for (let dx = -r; dx <= r; dx++) for (let dz = -r; dz <= r; dz++) v.set(x + dx, y, z + dz, rand(x + dx, y, z + dz) > .5 ? '#2e7d4f' : '#256b43'); } v.set(x, 12, z, '#2e7d4f'); }
+// round trees on the far bank
+for (const [x, z] of [[-24, 17], [-6, 20], [14, 19]]) { for (let y = 1; y <= 3; y++) v.set(x, y, z, '#6e4a2a'); for (let dx = -2; dx <= 2; dx++) for (let dy = 0; dy <= 3; dy++) for (let dz = -2; dz <= 2; dz++) if (Math.hypot(dx, dy - 1.5, dz) < 2.8) v.set(x + dx, 4 + dy, z + dz, rand(x + dx, dy, z + dz) > .5 ? '#5bbd4a' : '#4caf50'); }
+// quay: crane, amphorae, crates
+{ v.box(-22, 1, 4, -22, 7, 4, '#7a5232'); v.box(-22, 7, 4, -18, 7, 4, '#7a5232'); v.box(-18, 4, 4, -18, 6, 4, '#3b2a20');
+  for (const [x, z] of [[-16, 4], [-15, 3], [-14, 4], [-15, 5]]) { v.set(x, 1, z, '#b8642e'); v.set(x, 2, z, '#c8743a'); v.set(x, 3, z, '#a85a28'); }
+  v.box(-12, 1, 3, -10, 2, 5, '#a8703e'); v.box(-9, 1, 4, -8, 1, 5, '#b87a42'); v.box(-26, 1, 2, -25, 2, 3, '#a8703e'); }
+// bridge on the right
+for (let z = 6; z <= 15; z++) { const x0 = 20 + Math.round((z - 6) * 0); for (let x = 22; x <= 25; x++) v.set(x, 1, z, z % 2 ? '#a8703e' : '#b87a42'); v.set(21, 2, z, '#6e4024'); v.set(26, 2, z, '#6e4024'); }
+// market stalls
+const STALLS = [[4, -3, '#d8342c'], [11, -6, '#2f6fd8'], [7, 2, '#f2b632'], [14, 0, '#2f9a4f']];
+for (const [x, z, c] of STALLS) { for (const [dx, dz] of [[0, 0], [3, 0], [0, 2], [3, 2]]) v.box(x + dx, 1, z + dz, x + dx, 3, z + dz, '#6e4024'); v.box(x, 2, z, x + 3, 2, z + 2, '#a8703e'); for (let i = 0; i <= 3; i++) for (let j = -1; j <= 3; j++) v.set(x + i, 4 + (j < 0 || j > 2 ? 0 : 0), z + j, i % 2 ? '#f4f1ea' : c); v.set(x + 1, 3, z + 1, ['#e0a050', '#7ac04a', '#c8743a', '#e8d070'][(x + z + 40) % 4]); v.set(x + 2, 3, z + 1, '#c8743a'); }
+scene.add(v.mesh());
+// river water
+const water = (() => { const w = new Vox(); w.jitter = 0.03; for (const [x, z] of cells) if (inRiver(x, z)) { w.set(x, -1, z, '#4fb0e6'); w.set(x, 0, z, rand(x, 9, z) > .5 ? '#5bbcf0' : '#4fb3ea'); } const m = w.mesh({ castShadow: false }); m.material.transparent = true; m.material.opacity = 0.72; m.position.y = -0.3; return m; })(); scene.add(water);
+// boat (moves in)
+const boat = (() => { const b = new Vox(); /* hull + sail */ b.box(-4, 0, -1, 4, 0, 1, '#4a2e1c'); b.box(-5, 1, -2, 5, 1, 2, '#5a3a24'); b.box(-4, 1, -1, 4, 1, 1, '#6e4a2c'); b.box(0, 2, 0, 0, 9, 0, '#3b2a20'); for (let y = 4; y <= 9; y++) for (let x = -3; x <= 3; x++) b.set(x, y, 0.0 + 1, y === 6 ? '#c0392b' : '#f1ebe0'); return b.mesh({ scale: 0.75 }); })(); scene.add(boat);
+// feast table (AI's guess) and peacock
+const feast = (() => { const g = new THREE.Group(); const f = new Vox(); f.box(-4, 0, -2, 4, 1, 2, '#5a2f8a'); f.box(-5, 2, -3, 5, 2, 3, '#6e3fa8'); for (const [x, z, c] of [[-3, -1, '#d8d8d8'], [-1, 1, '#d8d8d8'], [1, -1, '#d8d8d8'], [3, 1, '#d8d8d8'], [-3, 1, '#8a5a3a'], [2, 0, '#c8a060']]) f.set(x, 3, z, c); g.add(f.mesh({ scale: 0.6 })); const p = new Vox(); p.box(0, 0, 0, 1, 1, 2, '#1f5fb8'); p.box(0, 2, 0, 0, 4, 0, '#1f6fd0'); p.set(0, 4, -1, '#e0a020'); for (let i = -3; i <= 3; i++) for (let j = 0; j < 4; j++) if (Math.abs(i) <= 3 - j * 0.5) p.set(i, 1 + j + Math.abs(i) * 0, 3 + j * 0, j === 3 ? '#1f8a6a' : (i + j) % 2 ? '#2f9a5a' : '#2b7ad0'); const pm = p.mesh({ scale: 0.45 }); pm.position.set(0.5, 2.2, 0); g.add(pm); g.position.set(8.5, 0.6, -9); return g; })(); scene.add(feast);
+// people
+const trav = person({ shirt: '#6e5bf2', pants: '#3b2a5a', skin: '#c68a5e', hair: '#2b1d14', s: 0.36 }); scene.add(trav);
+const folk = [['#d8342c', '#e0b08a'], ['#f2b632', '#8a5a3a'], ['#2f9a4f', '#5a3a28'], ['#2f6fd8', '#c68a5e']].map(([shirt, skin], i) => { const p = person({ shirt, skin, s: 0.34 }); scene.add(p); return p; });
+const gulls = [0, 1, 2].map(() => { const g = new THREE.Group(); const m = new THREE.MeshLambertMaterial({ color: '#ffffff' }); const b = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.4, 1.2), m); const w1 = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.1, 0.5), m); const w2 = w1.clone(); w1.position.x = -0.9; w2.position.x = 0.9; g.add(b, w1, w2); g.userData.w = [w1, w2]; scene.add(g); return g; });
+const sparkle = particles(24, { size: 0.5 }); sparkle.material = new THREE.MeshBasicMaterial({ color: '#ffe680' }); scene.add(sparkle);
+// traveller route: boat -> quay -> bread stall -> oyster stall -> amphora stall -> coin
+const TR = [[-2, 7], [-2, 5], [3, 4.5], [8, 3.5], [8.5, 1.5], [12, 0], [15, -1.5], [15, -3], [12, -4], [12.5, -7.5]];
+const TL = [0]; for (let i = 1; i < TR.length; i++) TL.push(TL[i - 1] + Math.hypot(TR[i][0] - TR[i - 1][0], TR[i][1] - TR[i - 1][1]));
+const trAt = (u) => { const d = clamp(u) * TL[TL.length - 1]; let i = 1; while (i < TL.length - 1 && TL[i] < d) i++; const k = (d - TL[i - 1]) / (TL[i] - TL[i - 1]); return [lerp(TR[i - 1][0], TR[i][0], k), lerp(TR[i - 1][1], TR[i][1], k), Math.atan2(TR[i][0] - TR[i - 1][0], TR[i][1] - TR[i - 1][1])]; };
+const FINDS = [[22.0, [8.5, 3, 3]], [23.2, [15.5, 3, 1]], [24.4, [12.5, 3, -5]], [25.5, [12.5, 3, -7]]];
+const pops = FINDS.map(([t0, at]) => burst(scene, { at, t0, n: 24, colors: ['#ffd23f', '#16c7a6', '#ffffff'], size: 0.35, speed: 4, up: 5, life: 1.1 }));
+
+// ---------- timeline ----------
+// 0-4 hook | 4-8.4 cards, tap A | 8.6-16.2 feast guess | 16.4-20.6 facilitator, tap B | 20.4-26 traveller finds evidence | 26-31 saved | 31-37 title
+st.onFrame((t) => {
+  const bx = t < 2 ? lerp(-30, -6, prog(t, 0, 2.6)) : lerp(-30, -6, prog(t, 0, 3.6, ease.out)); const boatX = t >= 19.4 ? lerp(-26, -2, prog(t, 19.4, 21.2, ease.out)) : bx;
+  boat.position.set(boatX, -0.6 + Math.sin(t * 2) * 0.1, riverZ(boatX) - 1.2); boat.rotation.z = Math.sin(t * 1.6) * 0.03;
+  const fk = t < 8.8 ? 0 : t < 20.4 ? prog(t, 8.8, 9.6, ease.back) : 1 - prog(t, 20.4, 21, ease.in); feast.scale.setScalar(Math.max(fk, 0.0001)); feast.visible = fk > 0.01;
+  // traveller
+  let tx, tz, ta, walk = 0;
+  if (t < 4.4) { tx = boatX + 0.3; tz = riverZ(boatX) - 0.9; ta = Math.PI; }
+  else if (t < 19.4) { const u = prog(t, 4.4, 8.4); tx = lerp(-2, 4, u); tz = lerp(7, 4.4, u); ta = 1.2; walk = u > 0 && u < 1; if (t > 8.6) { tx = lerp(4, 7.5, prog(t, 9, 11)); tz = lerp(4.4, -4, prog(t, 9, 11)); ta = Math.PI; walk = t < 11; } }
+  else if (t < 21.2) { tx = boatX + 0.3; tz = riverZ(boatX) - 0.9; ta = Math.PI; }
+  else { const u = prog(t, 21.2, 25.6, (q) => q); [tx, tz, ta] = trAt(u); walk = u < 1; }
+  trav.position.set(tx, 1.0 + (t < 4.4 || (t >= 19.4 && t < 21.2) ? -0.6 : 0), tz); trav.rotation.y = ta + Math.PI; trav.userData.walk(walk ? t * 8 : 0);
+  folk.forEach((p, i) => { const a = t * 0.18 + i * 1.57; const cx = [-16, 6, 0, 16][i], cz = [-11, -10, 0, 5][i]; const px = cx + Math.cos(a) * 3, pz = cz + Math.sin(a) * 2; p.position.set(px, 1, pz); p.rotation.y = -a + Math.PI; p.userData.walk(t * 7 + i); });
+  pops.forEach((f) => f(t));
+  for (let i = 0; i < 24; i++) { const ph = (t * 0.7 + i / 24) % 1; const a = i * 2.4; sparkle.setAt(i, 8.5 + Math.cos(a) * 3, 3 + ph * 4, -9 + Math.sin(a) * 2, t, t, t > 26 && t < 31 ? 0 : 0); } sparkle.done();
+  gulls.forEach((g, i) => { const a = t * 0.3 + i * 2.1; g.position.set(Math.cos(a) * (36 + i * 3), 24 + i * 2, Math.sin(a) * (28 + i * 2)); g.rotation.y = -a; const f = Math.sin(t * 8 + i) * 0.5; g.userData.w[0].rotation.z = f; g.userData.w[1].rotation.z = -f; });
+  // camera: brochure angle (front-left high)
+  let ang, dist, hgt, look = [0, 0, 0], dy = -1.5;
+  if (t < 4.2) { const k = prog(t, 0, 4.2); ang = lerp(-0.9, -0.42, ease.inOut(k)); dist = lerp(150, 116, ease.out(k)); hgt = lerp(104, 82, k); look = [0, 0, -2]; dy = 2; }
+  else if (t < 8.4) { const k = prog(t, 4.2, 8.4); ang = lerp(-0.42, -0.34, k); dist = lerp(80, 72, k); hgt = lerp(56, 50, k); look = [-2, 0, -1]; dy = -5; }
+  else if (t < 16.2) { const k = prog(t, 8.4, 16.2); ang = lerp(-0.34, -0.2, k); dist = lerp(64, 54, ease.inOut(k)); hgt = lerp(46, 40, ease.inOut(k)); look = [lerp(2, 13, ease.inOut(k)), lerp(0, 4, ease.inOut(k)), lerp(0, -13, ease.inOut(k))]; dy = -2; }
+  else if (t < 20.4) { const k = prog(t, 16.2, 20.4); ang = lerp(-0.2, -0.32, k); dist = lerp(46, 66, ease.inOut(k)); hgt = lerp(34, 48, ease.inOut(k)); look = [lerp(10, 2, ease.inOut(k)), 0, lerp(-6, 1, ease.inOut(k))]; }
+  else if (t < 26.2) { const k = prog(t, 20.4, 26.2); ang = lerp(-0.32, 0.08, ease.inOut(k)); dist = lerp(60, 44, k); hgt = lerp(44, 32, k); look = [lerp(2, tx + 2, prog(t, 20.6, 22)), 0, lerp(2, tz, prog(t, 20.6, 22))]; }
+  else if (t < 31) { const k = prog(t, 26.2, 31); ang = lerp(0.08, 0.3, k); dist = lerp(48, 66, k); hgt = lerp(34, 46, k); look = [lerp(12, 6, k), 0, lerp(-5, -4, k)]; }
+  else { const k = prog(t, 31, 37); ang = lerp(0.3, 0.7, k); dist = lerp(100, 150, k); hgt = lerp(70, 104, k); look = [0, 0, -2]; dy = 2; }
+  camera.fov = 30; camera.updateProjectionMatrix(); camera.position.set(Math.sin(ang) * dist + look[0], hgt + look[1], Math.cos(ang) * dist + look[2]); camera.lookAt(look[0], look[1] + dy, look[2]);
+});
+
+// ---------- UI ----------
+const ui = []; const A = (f) => ui.push(f);
+const L = makeLab(A);
+const fade = fader(); A((t) => fade(t < 0.5 ? 1 - prog(t, 0, 0.5) : t > DUR - 0.7 ? prog(t, DUR - 0.7, DUR) : 0));
+L.header({ name: 'AI Time Traveller', sub: 'MUSEUM', color: '#c0392b', shade: '#8e2a1f', icon: ICONS.temple, tag: 'Room 3', tagColor: '#f2b632', tagText: '#13202b', task: 'Plan a day in Londinium for a traveller arriving by boat', tOut: 30.8, size: 31 });
+L.pills({ stars: 5, xp: 1520, xpColor: '#c0392b', starsAfter: 8, xpAfter: 1640, tAfter: 26.4, tOut: 30.8 });
+const CARDS = [['A', 'Plan a Roman feast for them'], ['B', 'Plan their day from things found in London'], ['C', 'Show them the biggest buildings']];
+L.cards('ASK THE AI HELPER TO PLAN THE DAY', CARDS, 4.2, 8.6, 6.3, 0);
+L.helper('Romans ate feasts, so I planned peacock, dormice and oysters.', 66, 8.8, 16.2);
+const feastLbl = el('<div class="lbl3">A Roman feast</div>', { x: 0, y: 0, anchor: 'bc' }); A(cue(feastLbl, 9.6, 20.2));
+A((t) => { const p = toScreen(new THREE.Vector3(8.5, 6.2, -9), camera); feastLbl.style.left = p.x + 'px'; feastLbl.style.top = Math.max(p.y + 90, 400) + 'px'; feastLbl.style.left = Math.min(p.x, 860) + 'px'; });
+const travLbl = el('<div class="lbl3" style="background:#6e5bf2">Traveller</div>', { x: 0, y: 0, anchor: 'bc' }); const tc1 = cue(travLbl, 1.6, 4.4), tc2 = cue(travLbl, 21.2, 25.8); A((t) => (t < 12 ? tc1 : tc2)(t));
+A((t) => { const p = toScreen(new THREE.Vector3(trav.position.x, trav.position.y + 3.8, trav.position.z), camera); travLbl.style.left = p.x + 'px'; travLbl.style.top = Math.max(p.y, 290) + 'px'; });
+const tick = '<svg width="34" height="34" viewBox="0 0 24 24"><path d="M4 12l5 5L20 6" stroke="#13202b" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const bulb = '<svg width="34" height="34" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2zM9 19h6v2H9z" fill="#e5533d"/></svg>';
+const acc = (t) => t < 9.6 ? 50 : t < 21.4 ? 50 - 16 * prog(t, 9.6, 11) : 34 + 54 * prog(t, 21.8, 25.6);
+const cur = (t) => t < 9.6 ? 70 : 70 + 20 * prog(t, 9.6, 11);
+L.meters([{ icon: tick, label: 'Accuracy', fn: acc, badBelow: 50 }, { icon: bulb, label: 'Curiosity', fn: cur, dir: (t) => t < 21 ? 1 : 0 }], 9.4, 30.8, { x: 46, y: 900 });
+const EV = [['Jar', '#c8743a', '<path d="M9 3h6v3l2 3v8a4 4 0 0 1-4 4h-2a4 4 0 0 1-4-4V9l2-3z"/>'], ['Bread', '#d9a050', '<path d="M3 15a9 7 0 0 1 18 0v3H3z"/>'], ['Oysters', '#8a9aa6', '<ellipse cx="12" cy="13" rx="9" ry="6"/>'], ['Coin', '#e0b020', '<circle cx="12" cy="12" r="8"/>']];
+const evp = el(`<div class="ev"><small>EVIDENCE FOUND <b data-n>0/4</b></small><div class="tiles">${EV.map(([n, c, p]) => `<div class="tile" style="--c:${c}"><svg viewBox="0 0 24 24">${p}</svg>${n}</div>`).join('')}</div></div>`, { x: 680, y: 862 });
+A(cue(evp, 9.8, 30.8, { from: 'up' }));
+const EVT = [23.2, 22.0, 23.2, 25.5]; const order = [24.4, 22.0, 23.2, 25.5];
+A((t) => { let n = 0; evp.querySelectorAll('.tile').forEach((d, i) => { const on = t > order[i]; d.classList.toggle('on', on); if (on) n++; }); const b = evp.querySelector('[data-n]'); b.textContent = n + '/4'; b.classList.toggle('ok', n === 4); });
+L.alert('No sign of peacock or dormice in London’s finds', 13.6, 16.3, { y: 680 });
+L.facil('Who in Londinium ate like this? And who didn’t?', 16.4, 20.6, { color: '#e8b340', ink: '#4a2a0a', y: 560 });
+L.cards('TRY A CLEARER CARD', CARDS, 18.4, 21.4, 19.9, 1);
+L.helper('Found in London: oyster shells, wine jars and millstones for bread. A traveller ate at street stalls.', 88, 21.6, 26.2);
+L.saved('Day plan saved · backed by 4 finds', 26.4, 30.6, { y: 470 });
+const dimEnd = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:radial-gradient(ellipse at center, rgba(10,40,80,.25), rgba(10,40,80,.6))"></div>'); A(cue(dimEnd, 31.2, null, { from: 'fade', dur: 0.8 }));
+const title = titleCard('AI Time <span class="hl">Traveller</span>', 'Plan a day in the past. Ask the AI for its evidence.', { chip: 'A DeltaOps Learning AI lab · Museums' }); A(cue(title, 31.4, null, { from: 'pop', dur: 0.8 }));
+st.onFrame((t) => ui.forEach((f) => f(t)));
+window.__duration = DUR;
+document.fonts.ready.then(() => { window.__ready = true; });
+</script></body></html>

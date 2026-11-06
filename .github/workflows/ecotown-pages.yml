@@ -1,11 +1,11 @@
-# Public TEST version of Eco Town on GitHub Pages (no login).
+# Public TEST version of Eco Town on GitHub Pages (no login), plus the lab trailer page at /trailers/.
 # The secure version for classes is on Cloudflare Pages behind Cloudflare Access (see games/ecotown/README.md).
 name: Eco Town test site (GitHub Pages)
 
 on:
   push:
     branches: [claude/focused-cori-qeoveu, main]
-    paths: ['games/ecotown/**', '.github/workflows/ecotown-pages.yml']
+    paths: ['games/ecotown/**', 'trailers/**', '.github/workflows/ecotown-pages.yml']
   workflow_dispatch:
 
 permissions:
@@ -33,6 +33,8 @@ jobs:
         run: npm ci && node build.mjs
       - name: Mark as test build
         run: touch games/ecotown/dist/.nojekyll
+      - name: Add the trailer page at /trailers/
+        run: cp -r trailers games/ecotown/dist/trailers
       - uses: actions/upload-pages-artifact@v3
         with:
           path: games/ecotown/dist

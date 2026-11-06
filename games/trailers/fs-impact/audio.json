@@ -1,0 +1,25 @@
+{"dur": 37.5, "bpm": 92, "root": 62, "end": 37.1,
+ "sections": [
+  {"t": 0, "chords": [[0,4,7],[9,12,16],[5,9,12],[7,11,14]], "energy": 0.4},
+  {"t": 5.2, "chords": [[0,4,7],[5,9,12]], "energy": 0.45},
+  {"t": 9.2, "chords": [[9,12,16],[4,7,11]], "energy": 0.3, "shift": -2},
+  {"t": 12.1, "chords": [[5,9,12],[7,11,14]], "energy": 0.45},
+  {"t": 15.6, "chords": [[9,12,16],[4,7,11]], "energy": 0.32, "shift": -2},
+  {"t": 20.0, "chords": [[0,4,7],[7,11,14],[9,12,16],[5,9,12]], "energy": 0.55},
+  {"t": 25.6, "chords": [[0,4,7],[5,9,12]], "energy": 0.6},
+  {"t": 30.3, "chords": [[0,4,7,11],[5,9,12,16]], "energy": 0.35}
+ ],
+ "sfx": [
+  {"t":0.1,"type":"pop"},{"t":2.45,"type":"pop"},{"t":2.7,"type":"pop","vol":0.6},{"t":3.8,"type":"pop","vol":0.6},
+  {"t":5.2,"type":"pop"},{"t":5.7,"type":"pop"},{"t":6.4,"type":"pop","vol":0.6},{"t":6.9,"type":"pop","vol":0.5},
+  {"t":8.4,"type":"tap"},{"t":9.2,"type":"error"},{"t":9.3,"type":"pop","vol":0.5},
+  {"t":11.25,"type":"chime","vol":0.6},{"t":11.6,"type":"tap"},{"t":12.1,"type":"chime"},
+  {"t":12.9,"type":"tap"},{"t":13.5,"type":"pop","vol":0.7},
+  {"t":15.0,"type":"tap"},{"t":15.6,"type":"error"},{"t":16.25,"type":"pop"},{"t":16.7,"type":"error","vol":0.5},{"t":17.0,"type":"pop","vol":0.6},
+  {"t":18.4,"type":"tap"},{"t":18.8,"type":"chime","vol":0.7},
+  {"t":20.4,"type":"tap"},{"t":20.7,"type":"pop","vol":0.5},{"t":21.75,"type":"tap"},{"t":22.25,"type":"chime"},
+  {"t":22.75,"type":"tap"},{"t":23.25,"type":"pop","vol":0.7},{"t":24.8,"type":"chime"},
+  {"t":25.6,"type":"tap"},{"t":26.4,"type":"success"},{"t":26.6,"type":"pop","vol":0.6},
+  {"t":28.55,"type":"pop"},{"t":28.75,"type":"pop","vol":0.6},
+  {"t":30.45,"type":"chime"},{"t":31.3,"type":"pop"}
+ ]}

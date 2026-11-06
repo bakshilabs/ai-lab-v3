@@ -1,0 +1,591 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Impact Panel trailer</title>
+<link rel="stylesheet" href="../engine/ui.css">
+<!-- Layout template: fs-verify (title on sky, one right-hand card column, island hero on the left, Step pill, pointer, end title + pathway). -->
+<style>
+:root { --ink:#13202b; --teal:#16c79a; --tealD:#0c8f6d; --mint:#e3f7f0; --red:#e5484d; --redD:#b4232a; --redBg:#fde3e3; --mut:#5b6b78; --line:#e4e9ee; --soft:#f4f7f9; }
+#ui, #ui * { font-family: 'Inter', sans-serif; }
+.wcard { background:#fff; border-radius:28px; color:var(--ink); box-shadow:0 10px 0 rgba(10,30,40,.06), 0 18px 40px rgba(10,30,40,.18); }
+/* opening title + header chip */
+.otitle { width:1920px; text-align:center; color:#fff; }
+.otitle .chip2, .etitle .chip2 { display:inline-flex; align-items:center; gap:12px; background:#fff; color:var(--ink); border-radius:999px; padding:12px 26px; font:800 24px 'Inter'; letter-spacing:.08em; box-shadow:0 10px 26px rgba(8,28,44,.18); }
+.otitle .chip2::before, .etitle .chip2::before { content:''; width:14px; height:14px; border-radius:50%; background:var(--teal); }
+.otitle h1 { font:800 104px/1 'Inter'; letter-spacing:-.035em; margin:22px 0 0; text-shadow:0 8px 34px rgba(0,30,60,.35); }
+.otitle h2 { font:700 38px 'Inter'; margin:16px 0 0; text-shadow:0 4px 18px rgba(0,30,60,.4); }
+.labchip { display:flex; align-items:center; gap:18px; background:#fff; border-radius:999px; padding:12px 30px 12px 14px; box-shadow:0 12px 30px rgba(8,28,44,.18); color:var(--ink); white-space:nowrap; }
+.labchip .ic { width:50px; height:50px; border-radius:50%; background:var(--teal); display:grid; place-items:center; }
+.labchip .ic svg { width:30px; height:30px; }
+.labchip b { font:800 30px 'Inter'; letter-spacing:-.01em; }
+.labchip span.r { font:700 22px 'Inter'; color:var(--mut); }
+.labchip span.bar { width:2px; height:32px; background:var(--line); }
+/* brief */
+.brief { display:flex; align-items:stretch; padding:22px 30px; gap:0; }
+.brief .bic { flex:none; width:84px; height:84px; border-radius:22px; background:var(--teal); display:grid; place-items:center; margin-right:26px; align-self:center; }
+.brief .bic svg { width:50px; height:50px; }
+.brief .f { padding:2px 30px; border-left:3px solid var(--line); display:flex; flex-direction:column; justify-content:center; }
+.brief .f:first-of-type { border-left:0; padding-left:0; }
+.brief small { font:800 20px 'Inter'; letter-spacing:.14em; text-transform:uppercase; color:var(--mut); }
+.brief b { font:800 34px/1.15 'Inter'; margin-top:6px; white-space:nowrap; }
+.brief .due b { color:#c2410c; }
+/* 3D-anchored tags */
+.ntag { background:#fff; border-radius:16px; padding:10px 20px 11px; box-shadow:0 10px 24px rgba(8,28,44,.25); white-space:nowrap; text-align:center; }
+.ntag b { display:block; font:800 28px 'Inter'; color:var(--ink); }
+.ntag small { display:block; font:650 21px 'Inter'; color:var(--mut); margin-top:2px; }
+.ntag.m { background:var(--ink); } .ntag.m b { color:#fff; } .ntag.m small { color:#9fe8d2; }
+.ntag::after { content:''; position:absolute; left:50%; bottom:-12px; margin-left:-12px; border:12px solid transparent; border-top-color:#fff; border-bottom:0; }
+.ntag.m::after { border-top-color:var(--ink); }
+.say { background:#fff; color:var(--ink); border-radius:22px; padding:16px 26px; font:700 30px/1.2 'Inter'; white-space:nowrap; box-shadow:0 12px 26px rgba(8,28,44,.3); }
+.say::after { content:''; position:absolute; left:50%; bottom:-12px; margin-left:-12px; border:12px solid transparent; border-top-color:#fff; border-bottom:0; }
+/* in-world evidence over Hana's desk */
+.ev { display:flex; align-items:center; gap:12px; background:#fff; border:4px solid var(--red); border-radius:18px; padding:8px 20px 8px 8px; font:800 28px 'Inter'; color:var(--redD); white-space:nowrap; box-shadow:0 12px 26px rgba(8,28,44,.3); }
+.ev i { width:40px; height:40px; border-radius:50%; background:var(--red); display:grid; place-items:center; } .ev i svg { width:26px; height:26px; }
+.ev.ok { border-color:var(--teal); color:#08694f; } .ev.ok i { background:var(--teal); }
+.ev::after { content:''; position:absolute; left:50%; bottom:-14px; margin-left:-12px; border:12px solid transparent; border-top-color:var(--red); border-bottom:0; }
+.ev.ok::after { border-top-color:var(--teal); }
+/* work card (right column) */
+.doc { width:876px; overflow:hidden; }
+.doc .tb { display:flex; align-items:center; gap:14px; height:74px; padding:0 26px; border-bottom:2px solid var(--line); font:650 22px 'Inter'; color:var(--mut); }
+.doc .tb .fi { flex:none; width:32px; height:38px; border-radius:6px; background:#3d7be0; position:relative; }
+.doc .tb .fi::after { content:''; position:absolute; left:7px; right:7px; top:11px; height:3px; background:#fff; box-shadow:0 7px 0 #fff, 0 14px 0 #fff; }
+.doc .tb b { color:var(--ink); font-weight:800; font-size:24px; }
+.stchip { margin-left:auto; display:inline-flex; align-items:center; gap:10px; font:800 20px 'Inter'; letter-spacing:.1em; text-transform:uppercase; border-radius:999px; padding:9px 18px; background:#fff2c6; color:#8a6400; white-space:nowrap; }
+.stchip::before { content:''; width:12px; height:12px; border-radius:50%; background:currentColor; }
+.stchip.rev { background:#fff0e0; color:#c2410c; } .stchip.ret { background:var(--redBg); color:var(--redD); } .stchip.ok { background:var(--mint); color:var(--tealD); }
+.doc .mn { padding:22px 30px 6px; }
+.doc h3 { font:800 36px/1.15 'Inter'; letter-spacing:-.015em; margin:0; }
+.doc p.tx { font:500 26px/1.45 'Inter'; margin:12px 0 0; }
+.doc .src { margin-top:12px; border-top:2px solid var(--line); padding-top:10px; }
+.doc .src small { font:800 20px 'Inter'; letter-spacing:.14em; color:var(--mut); }
+.doc .src p { font:500 24px/1.38 'Inter'; margin:4px 0 0; }
+.del { color:var(--redD); text-decoration:line-through; text-decoration-thickness:3px; background:var(--redBg); border-radius:4px; }
+.ins { color:#08694f; background:#d6f5e9; border-radius:4px; }
+.flag { background:var(--redBg); box-shadow:0 0 0 3px var(--red); border-radius:6px; }
+.caret { display:inline-block; width:3px; height:1.05em; background:var(--ink); vertical-align:-3px; margin-left:2px; }
+.doc .rv { display:flex; align-items:center; gap:10px; padding:14px 26px; border-top:2px solid var(--line); background:#fbfcfd; min-height:78px; }
+.doc .rv .lab { font:800 20px 'Inter'; letter-spacing:.12em; color:var(--mut); margin-right:4px; }
+.btn { font:800 24px 'Inter'; background:var(--ink); color:#fff; border-radius:999px; padding:12px 26px; white-space:nowrap; }
+.btn.t { background:var(--teal); color:#062a20; }
+.chk { display:flex; align-items:center; gap:10px; font:800 24px 'Inter'; padding:8px 18px 8px 8px; border-radius:999px; background:#eef2f5; color:#7d8b97; border:3px solid transparent; white-space:nowrap; }
+.chk i { width:34px; height:34px; border-radius:50%; background:#d5dde3; display:grid; place-items:center; }
+.chk i svg { width:22px; height:22px; }
+.chk.run { border-color:var(--teal); color:var(--ink); background:#fff; }
+.chk.ok { background:var(--mint); color:#08694f; } .chk.ok i { background:var(--teal); }
+.chk.bad { background:var(--red); color:#fff; box-shadow:0 0 0 5px rgba(229,72,77,.22); } .chk.bad i { background:#fff; } .chk.bad i svg path { stroke:var(--red); }
+.find { display:flex; align-items:center; gap:14px; padding:0 26px; font:700 24px/1.25 'Inter'; color:var(--redD); background:#fff5f5; border-top:2px solid #f6cfd0; overflow:hidden; height:0; }
+.find i { flex:none; width:36px; height:36px; border-radius:50%; background:var(--red); display:grid; place-items:center; } .find i svg { width:22px; height:22px; }
+.find.ok { color:#08694f; background:#effbf6; border-top-color:#cdeee2; } .find.ok i { background:var(--teal); }
+.doc .ft { display:flex; align-items:center; gap:16px; height:84px; padding:0 26px; border-top:2px solid var(--line); background:#fbfcfd; font:700 24px 'Inter'; color:#8a98a4; }
+.doc .ft .pass { margin-left:auto; font:800 22px 'Inter'; background:#eef2f5; border-radius:999px; padding:10px 18px; color:var(--mut); white-space:nowrap; }
+.doc .ft .pass.ok { background:var(--mint); color:#08694f; }
+/* AI colleague */
+.ai { width:876px; background:var(--ink); color:#fff; border-radius:28px; padding:24px 30px 24px; box-shadow:0 14px 0 rgba(0,0,0,.14), 0 20px 40px rgba(5,15,25,.3); }
+.ai .hd { display:flex; align-items:center; gap:14px; }
+.ai .hd .bot { width:52px; height:52px; border-radius:16px; background:#233544; display:grid; place-items:center; }
+.ai .hd .bot i { display:block; width:28px; height:11px; border-radius:6px; background:var(--teal); box-shadow:0 0 12px rgba(22,199,154,.8); }
+.ai .hd b { font:800 28px 'Inter'; }
+.ai .hd .dr { margin-left:auto; font:800 20px 'Inter'; letter-spacing:.12em; background:#233544; color:#ffd36b; border-radius:999px; padding:8px 16px; }
+.ai .hd .dr.ret { background:var(--red); color:#fff; }
+.ai .hd .dr.v2 { background:var(--teal); color:#062a20; }
+.ai .sure.v2 { color:#9fe8d2; }
+.ai p { font:600 30px/1.3 'Inter'; margin:16px 0 0; }
+.ai p .del { color:#ffb3b5; background:rgba(229,72,77,.22); text-decoration-color:#ff6b70; }
+.ai .ftr { display:flex; align-items:center; gap:18px; margin-top:18px; }
+.ai .sure { display:flex; align-items:center; gap:14px; font:800 30px 'Inter'; white-space:nowrap; }
+.ai .sure .bar { width:150px; height:14px; border-radius:99px; background:#2c3e4e; overflow:hidden; }
+.ai .sure .bar i { display:block; height:100%; border-radius:99px; background:linear-gradient(90deg,#ffc83d,var(--teal)); }
+.ai .sure.low { color:#ff8f93; } .ai .sure.low .bar { display:none; }
+.ai .data { margin-left:auto; display:inline-flex; align-items:center; gap:10px; background:#233544; border-radius:999px; padding:9px 20px 9px 10px; font:650 23px 'Inter'; color:#dbe6ee; white-space:nowrap; }
+.ai .data b { background:#3a5063; color:#fff; border-radius:999px; padding:4px 12px; font:800 20px 'Inter'; letter-spacing:.1em; }
+.ai .data.bad { background:rgba(229,72,77,.25); color:#ffd0d1; } .ai .data.bad b { background:var(--red); }
+/* sign-off */
+.sign { display:inline-flex; align-items:center; gap:22px; background:#fff; border:4px solid var(--teal); border-radius:28px; padding:20px 34px 20px 20px; box-shadow:0 16px 36px rgba(10,60,50,.28); white-space:nowrap; color:var(--ink); }
+.sign .tick { width:80px; height:80px; border-radius:50%; background:var(--teal); display:grid; place-items:center; }
+.sign .tick svg { width:48px; height:48px; }
+.sign small { display:block; font:800 20px 'Inter'; letter-spacing:.14em; color:var(--tealD); }
+.sign b { display:block; font:800 40px 'Inter'; margin-top:2px; }
+.sign em { display:block; font-style:normal; font:700 24px 'Inter'; color:var(--mut); margin-top:4px; }
+/* step strip */
+.steps { display:flex; align-items:center; gap:16px; background:rgba(19,32,43,.9); color:#fff; border-radius:999px; padding:10px 28px 10px 10px; white-space:nowrap; }
+.steps .n { font:800 22px 'Inter'; background:var(--teal); color:#062a20; border-radius:999px; padding:8px 16px; }
+.steps .d { font:700 26px 'Inter'; }
+/* portfolio */
+.folder { width:876px; }
+.folder .tabf { display:inline-block; background:var(--teal); color:#062a20; font:800 24px 'Inter'; letter-spacing:.06em; border-radius:20px 20px 0 0; padding:12px 30px 10px; margin-left:26px; }
+.folder .body { background:#fff; border-radius:28px; border-top:10px solid var(--teal); padding:16px 24px; box-shadow:0 18px 40px rgba(8,28,44,.25); }
+.folder .it { display:flex; align-items:center; gap:18px; padding:14px 10px; border-bottom:2px solid var(--line); font:800 28px 'Inter'; color:var(--ink); }
+.folder .it:last-child { border-bottom:0; }
+.folder .it i { flex:none; width:42px; height:50px; border-radius:8px; background:#e8eef2; }
+.folder .it small { display:block; font:650 22px 'Inter'; color:var(--mut); margin-top:3px; }
+.folder .it.nw { background:#ecfaf4; border-radius:16px; border-bottom:0; }
+.folder .it.nw i { background:var(--teal); }
+.folder .it .new { margin-left:auto; font:800 20px 'Inter'; letter-spacing:.1em; background:var(--ink); color:#fff; border-radius:8px; padding:6px 12px; }
+/* end */
+.etitle { width:876px; color:#fff; }
+.etitle h1 { font:800 92px/1 'Inter'; letter-spacing:-.035em; margin:20px 0 0; text-shadow:0 6px 30px rgba(0,30,60,.3); white-space:nowrap; }
+.etitle h2 { font:700 34px/1.25 'Inter'; margin:14px 0 0; text-shadow:0 3px 16px rgba(0,30,60,.35); }
+.path { width:876px; padding:28px 34px 26px; }
+.path .top { display:flex; align-items:center; gap:16px; margin-bottom:8px; }
+.path .top .tag { font:800 20px 'Inter'; letter-spacing:.14em; background:var(--teal); color:#062a20; border-radius:10px; padding:8px 14px; }
+.path .top h3 { font:800 32px 'Inter'; margin:0; }
+.path .row { display:grid; grid-template-columns:150px 1fr; align-items:center; gap:18px; padding:14px 0; border-top:2px solid var(--line); }
+.path .row span { font:800 21px 'Inter'; letter-spacing:.12em; text-transform:uppercase; color:#07513e; }
+.path .row b { font:700 29px/1.25 'Inter'; }
+.path .row b em { font-style:normal; color:var(--mut); font-weight:600; }
+.path .jobs { display:flex; gap:10px; flex-wrap:wrap; }
+.path .jobs i { font:750 26px 'Inter'; font-style:normal; background:var(--mint); border-radius:999px; padding:8px 20px; }
+.path .lg { display:flex; justify-content:flex-end; padding-top:12px; border-top:2px solid var(--line); }
+.path .lg img { height:40px; }
+.cur { width:46px; height:56px; }
+.ring { width:70px; height:70px; border-radius:50%; border:5px solid var(--teal); }
+/* browser */
+.brw { width:876px; height:292px; overflow:hidden; display:grid; grid-template-rows:58px 52px 1fr 64px; }
+.brw .tabs { display:flex; align-items:flex-end; gap:6px; background:#e3e9ee; padding:0 12px; border-radius:28px 28px 0 0; }
+.brw .tab { font:700 22px 'Inter'; color:var(--mut); background:#d3dbe2; border-radius:14px 14px 0 0; padding:11px 18px; white-space:nowrap; display:none; }
+.brw .tab.on { background:#fff; color:var(--ink); }
+.brw .plus { font:800 30px/1 'Inter'; color:var(--ink); width:44px; height:44px; border-radius:50%; display:grid; place-items:center; margin:0 0 7px 6px; }
+.brw .plus.hit { background:#c4ced6; }
+.brw .url { margin:8px 18px 4px; background:var(--soft); border-radius:999px; padding:0 22px; display:flex; align-items:center; font:600 23px 'Inter'; color:#33414d; white-space:nowrap; overflow:hidden; }
+.brw .pg { padding:10px 28px 0; position:relative; }
+.brw .pg > div { position:absolute; left:28px; right:28px; top:10px; display:none; }
+.brw .pg h4 { font:800 30px/1.2 'Inter'; margin:0; display:flex; align-items:center; gap:14px; }
+.brw .pg h4 i { flex:none; width:42px; height:42px; border-radius:50%; display:grid; place-items:center; background:var(--red); }
+.brw .pg h4 i.g { background:var(--teal); }
+.brw .pg h4 i svg { width:26px; height:26px; }
+.brw .pg p { font:500 26px/1.35 'Inter'; color:#33414d; margin:8px 0 0 56px; }
+.brw .trail { display:flex; align-items:center; gap:6px; padding:0 18px; border-top:2px solid var(--line); background:#fbfcfd; }
+.brw .trail .lb { font:800 20px 'Inter'; letter-spacing:.1em; color:var(--mut); margin-right:6px; }
+.brw .trail span.s { font:800 22px 'Inter'; border-radius:999px; padding:6px 13px; white-space:nowrap; opacity:0; }
+.brw .trail span.s.x { background:var(--redBg); color:var(--redD); } .brw .trail span.s.o { background:var(--mint); color:#08694f; } .brw .trail span.s.n { background:#eef2f5; color:var(--ink); }
+.brw .trail span.ar { color:#9aa8b4; font:800 22px 'Inter'; opacity:0; }
+/* Impact Panel additions */
+.doc .rw { display:grid; grid-template-columns:124px 1fr; gap:14px; align-items:start; padding:10px 0; border-top:2px solid var(--line); }
+.doc .mn { padding-top:4px; }
+.doc .rw:first-child { border-top:0; }
+.doc .rw small { font:800 19px/1.9 'Inter'; letter-spacing:.13em; color:var(--mut); }
+.doc .rw p { font:500 24px/1.4 'Inter'; margin:0; }
+.aitag { display:inline-block; font:800 17px 'Inter'; letter-spacing:.06em; background:#fff2c6; color:#8a6400; border-radius:6px; padding:2px 7px; margin-right:8px; vertical-align:3px; }
+.doc .rv .lab { margin-right:8px; }
+.find { align-items:flex-start; }
+.find > span { padding:15px 0; }
+.find > i { margin-top:13px; }
+.find b { font-weight:800; }
+.say small { display:block; font:800 19px 'Inter'; letter-spacing:.1em; text-transform:uppercase; color:var(--tealD); margin-bottom:4px; }
+.ev.cam { border-color:var(--ink); color:var(--ink); } .ev.cam i { background:var(--ink); } .ev.cam::after { border-top-color:var(--ink); }
+.ev.cam.ok { border-color:var(--teal); color:#08694f; } .ev.cam.ok i { background:var(--teal); } .ev.cam.ok::after { border-top-color:var(--teal); }
+.dome { width:30px; height:30px; border-radius:50%; background:rgba(255,255,255,.92); border:4px solid var(--ink); box-shadow:0 4px 12px rgba(8,28,44,.3); display:grid; place-items:center; font:800 16px 'Inter'; color:var(--ink); }
+.ai p { font-size:28px; }
+.ai .hd .dr { transform-origin:100% 50%; }
+.ai .sure .bar { width:110px; } .ai .data { font-size:22px; padding-right:16px; }
+.sign { width:876px; box-sizing:border-box; white-space:normal; }
+.sign b { font-size:30px; line-height:1.15; }
+.folder .it span { line-height:1.15; }
+</style>
+<script type="importmap">{"imports":{"three":"/three/three.module.js","three/addons/":"/three-addons/"}}</script></head>
+<body><div id="app"><div id="bg"></div><div id="ui"></div><div id="fx"></div></div>
+<script type="module">
+import * as THREE from 'three';
+import { createStage, prog, ease, lerp, clamp, within } from '../engine/stage.js';
+import { Vox, island, tree, house, person, rand } from '../engine/kit.js';
+import { el, cue, fader, toScreen } from '../engine/ui.js';
+import { clouds, birds } from '../engine/extras.js';
+import { Furn, table, chair, seated, standing, plant, screenPlane, monitor, laptop, draw } from './fs.js';
+
+const DUR = 37.5;
+const st = createStage({ post: false });
+const { scene, camera, sun, hemi, rim } = st;
+rim.intensity = 0.55; st.dome.visible = false; st.renderer.setClearColor(0x000000, 0);
+document.getElementById('bg').style.background = 'linear-gradient(180deg, #4fb0ff 0%, #8fd0ff 52%, #dff2ff 100%)';
+sun.intensity = 2.8; sun.position.set(-60, 120, 70); hemi.intensity = 1.3; st.renderer.toneMappingExposure = 1.08;
+
+await document.fonts.load('800 40px Inter'); await document.fonts.load('600 40px Inter');
+
+// ---------- island + town ----------
+const v = new Vox(); v.jitter = 0.06;
+const isl = island(v, { rx: 37, rz: 27, top: 0, depth: 14, seed: 5, wobble: 3 });
+const F = 1; // ground / floor top
+// office floor and walls (cutaway: no roof, no front wall)
+const OX0 = -19, OX1 = 6, OZ0 = -9, OZ1 = 8;
+for (let x = OX0; x <= OX1; x++) for (let z = OZ0; z <= OZ1; z++) v.set(x, 0, z, (x + z) % 2 ? '#e2c79d' : '#d8bb8e');
+const WALL = '#f4f1ea', TRIM = '#16c79a', GLASS = null;
+for (let x = OX0; x <= OX1; x++) for (let y = 1; y <= 7; y++) {
+  const win = y >= 2 && y <= 5 && ((x - OX0) % 5 !== 0) && x > OX0 && x < OX1;
+  v.set(x, y, OZ0, win ? GLASS : (y === 7 ? TRIM : WALL));
+}
+for (let z = OZ0; z <= OZ1; z++) for (let y = 1; y <= 7; y++) {
+  const win = y >= 2 && y <= 5 && ((z - OZ0) % 5 !== 0) && z > OZ0 && z < OZ1 - 1;
+  v.set(OX0, y, z, win ? GLASS : (y === 7 ? TRIM : WALL));
+}
+// low half wall on the right with an entrance gap
+for (let z = OZ0; z <= OZ1; z++) if (z < -1 || z > 2) for (let y = 1; y <= 2; y++) v.set(OX1, y, z, y === 2 ? TRIM : WALL);
+// street behind
+for (let x = -34; x <= 34; x++) for (let z = -14; z <= -11; z++) if (isl.top(x, z) != null) v.set(x, 0, z, z === -12 && x % 4 === 0 ? '#f2f2ea' : '#5b6168');
+// houses behind the street
+const HC = [['#d0573a', '#f1ebe0'], ['#5a6d80', '#efe2c9'], ['#3f8f7a', '#f4efe6'], ['#d0573a', '#efe2c9'], ['#6e5bf2', '#f1ebe0']];
+[[-30, -21, 7, 5, 4], [-21, -22, 6, 6, 5], [-12, -23, 8, 6, 6], [-1, -22, 6, 5, 4], [8, -21, 7, 5, 5]].forEach(([x, z, w, d, h], i) => house(v, x, 0, z, { w, d, h, roof: HC[i][0], wall: HC[i][1] }));
+// council tower (civic building) left
+for (let x = -32; x <= -26; x++) for (let z = -8; z <= -2; z++) for (let y = 1; y <= 12; y++) { const e = x === -32 || x === -26 || z === -8 || z === -2; if (!e) continue; v.set(x, y, z, y % 3 === 0 && (x + z) % 2 ? '#2c4a63' : '#e9e2d3'); }
+for (let x = -33; x <= -25; x++) for (let z = -9; z <= -1; z++) v.set(x, 13, z, '#5a6d80');
+v.box(-30, 14, -6, -28, 16, -4, '#e9e2d3'); v.set(-29, 15, -3, '#ffd23f');
+// park on the right: paths, pond, trees, skate ramp, camera poles
+for (let x = 9; x <= 34; x++) for (let z = -9; z <= 22; z++) { if (isl.top(x, z) == null) continue; if (Math.abs(z - 4 - Math.sin(x / 4) * 2) < 1.1 || Math.abs(x - 19) < 1 && z > -9) v.set(x, 0, z, '#d9c9a0'); }
+for (let x = 23; x <= 31; x++) for (let z = 9; z <= 15; z++) if (Math.hypot((x - 27) / 4.2, (z - 12) / 3.2) < 1) v.set(x, 0, z, '#4fb6e8');
+for (const [x, z] of [[12, -5], [27, -4], [31, 3], [13, 13], [21, 18], [9, 20], [-22, 16], [-28, 8], [-31, 12], [26, 19]]) if (isl.top(x, z) != null) tree(v, x, 0, z, { kind: 'round' });
+for (const [x, z] of [[33, -6], [-34, 2], [-25, -16], [16, -17]]) if (isl.top(x, z) != null) tree(v, x, 0, z, { kind: 'pine' });
+// skate ramp
+for (let x = 22; x <= 30; x++) for (let z = -5; z <= -1; z++) { const k = Math.abs(x - 26); const hh = k >= 3 ? Math.min(3, k - 1) : 0; for (let y = 1; y <= hh; y++) v.set(x, y, z, '#b8c0c8'); if (hh === 0) v.set(x, 0, z, '#9aa3ab'); }
+// camera poles
+const POLES = [[14, 1], [24, 7], [18, 15], [29, -7]];
+for (const [x, z] of POLES) { for (let y = 1; y <= 7; y++) v.set(x, y, z, '#59636b'); v.set(x, 8, z, '#26323c'); v.set(x - 1, 8, z, '#26323c'); }
+// benches
+for (const [x, z] of [[16, 8], [21, 1]]) { v.box(x, 1, z, x + 2, 1, z, '#9a6a3e'); }
+scene.add(v.mesh());
+
+// ---------- furniture (fine voxels) ----------
+const f = new Furn();
+table(f, F, -12, -2, -1, 2, { top: '#e9dcc4', leg: '#6b5a48' });
+const FAR = -2.9;
+const seatsFar = [-10.3, -7.8, -5.3, -2.8];
+seatsFar.forEach((x) => chair(f, F, x, FAR, 's', { c: '#2f4858' }));
+chair(f, F, -13, 0, 'e', { c: '#2f4858' }); chair(f, F, 0, 0, 'w', { c: '#2f4858' });
+const lapDraw = [draw.doc(), draw.sheet(), draw.doc('#f5a524'), draw.chart()];
+seatsFar.forEach((x, i) => laptop(f, scene, F, x, -1.2, 'n', lapDraw[i]));
+laptop(f, scene, F, -11.4, 0, 'w', draw.sheet()); laptop(f, scene, F, -1.6, 0, 'e', draw.doc());
+// wall screen with park map
+const map = (g, w, h) => {
+  g.fillStyle = '#ffffff'; g.fillRect(0, 0, w, h); g.fillStyle = '#13202b'; g.fillRect(0, 0, w, h * 0.16);
+  g.fillStyle = '#ffffff'; g.font = `800 ${h * 0.09}px Inter, sans-serif`; g.fillText('HARBOUR PARK · AI CAMERAS', w * 0.04, h * 0.11);
+  g.fillStyle = '#bfe6a8'; g.fillRect(w * 0.04, h * 0.22, w * 0.92, h * 0.72);
+  g.fillStyle = '#7fc8f0'; g.beginPath(); g.ellipse(w * 0.72, h * 0.66, w * 0.12, h * 0.12, 0, 0, 7); g.fill();
+  g.strokeStyle = '#e9dcb4'; g.lineWidth = h * 0.04; g.beginPath(); g.moveTo(w * 0.04, h * 0.5); g.bezierCurveTo(w * 0.3, h * 0.3, w * 0.5, h * 0.75, w * 0.96, h * 0.5); g.stroke();
+  [[0.22, 0.42], [0.48, 0.62], [0.62, 0.34], [0.84, 0.8]].forEach(([a, b]) => { g.fillStyle = 'rgba(245,165,36,.35)'; g.beginPath(); g.arc(w * a, h * b, h * 0.12, 0, 7); g.fill(); g.fillStyle = '#e5484d'; g.beginPath(); g.arc(w * a, h * b, h * 0.035, 0, 7); g.fill(); });
+};
+f.box(-10.5, F + 2.0, OZ0 + 1, -1.5, F + 6.5, OZ0 + 1.25, '#26323c');
+screenPlane(scene, 8.6, 4.2, map, { pos: [-6, F + 4.25, OZ0 + 1.27], facing: 's', px: 640 });
+// side desks along the left wall
+for (const z of [3.5, 6.5]) { table(f, F, OX0 + 1, z - 1, OX0 + 2.6, z + 1, { top: '#f4efe6' }); monitor(f, scene, F, OX0 + 1.5, z, 'e', z > 5 ? draw.chart('#6e5bf2') : draw.sheet('#3a8de0'), { w: 1.4, h: 0.95 }); chair(f, F, OX0 + 3.6, z, 'w', { c: '#3a4a56' }); }
+for (const [x, z] of [[OX0 + 1.5, OZ0 + 1.5], [OX1 - 1.5, OZ0 + 1.5], [OX1 - 1.5, 6.5], [OX0 + 1.5, OZ1 - 1]]) plant(f, F, x, z);
+// water cooler + shelf
+f.box(OX1 - 3.5, F, OZ0 + 1, OX1 - 2.5, F + 1.75, OZ0 + 2, '#e8edf0'); f.box(OX1 - 3.25, F + 1.75, OZ0 + 1.25, OX1 - 2.75, F + 2.5, OZ0 + 1.75, '#8fd0f0');
+f.box(-18, F, -7.5, -17, F + 3, -4.5, '#9a6a3e'); for (let k = 0; k < 3; k++) f.box(-17.75, F + 0.5 + k, -7.25, -17, F + 1.25 + k, -4.75, ['#e5484d', '#16c79a', '#3a8de0'][k]);
+// park camera domes (fine)
+for (const [x, z] of POLES) f.box(x - 0.75, 8.5, z + 0.75, x + 0.25, 9, z + 1.25, '#26323c');
+scene.add(f.mesh());
+
+// ---------- people ----------
+const S = 0.36;
+const P = (shirt, skin, hair, pants = '#2c3e66') => ({ shirt, skin, hair, pants, s: S });
+const panel = [
+  seated(P('#3a8de0', '#e0b08a', '#3b2a1a'), seatsFar[0], FAR, 's', F),
+  seated(P('#16c79a', '#8a5a3a', '#1a120c', '#34405a'), seatsFar[1], FAR, 's', F), // Zainab
+  seated(P('#ff8a2a', '#c68a5e', '#d8a040'), seatsFar[2], FAR, 's', F),
+  seated(P('#6e5bf2', '#f0c8a0', '#6b3a1e'), seatsFar[3], FAR, 's', F),
+  seated(P('#e5484d', '#a0683f', '#2b1d14'), -13, 0, 'e', F),
+  seated(P('#ffd23f', '#e8b890', '#9a5a2a', '#3a3a3a'), 0, 0, 'w', F),
+  seated(P('#7fb0d0', '#d9a77c', '#2b1d14'), OX0 + 3.6, 3.5, 'w', F),
+  seated(P('#f2a3c0', '#7a4a2c', '#1a120c'), OX0 + 3.6, 6.5, 'w', F),
+];
+panel.forEach((p) => scene.add(p));
+const MAYA = panel[1];
+const mentor = standing({ shirt: '#13202b', pants: '#4a5560', skin: '#a8714a', hair: '#1a120c', s: S }, -0.5, -6.5, 's', F);
+// lanyard
+const lan = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.3, 0.06), new THREE.MeshLambertMaterial({ color: '#16c79a' })); lan.position.set(0, 1.6, -0.4); mentor.add(lan);
+scene.add(mentor);
+// park visitors and skaters
+const walkers = [['#e5484d', '#c68a5e'], ['#3a8de0', '#8a5a3a'], ['#ffd23f', '#e0b08a'], ['#16c79a', '#a0683f']].map(([shirt, skin], i) => { const p = person({ shirt, skin, hair: '#2b1d14', s: 0.34 }); scene.add(p); return p; });
+const skaters = [['#ff8a2a', '#7a4a2c'], ['#6e5bf2', '#e0b08a']].map(([shirt, skin]) => { const p = person({ shirt, skin, hair: '#1a120c', s: 0.34 }); scene.add(p); return p; });
+
+
+// young people from the park who join the panel when Data fails (hidden until then)
+const teens = [['#ff8a2a', '#7a4a2c', '#1a120c', '#3b3f46'], ['#b28cff', '#e0b08a', '#6b3a1e', '#2c3e66']].map(([shirt, skin, hair, pants]) => { const p = person({ shirt, skin, hair, pants, s: 0.32 }); p.visible = false; scene.add(p); return p; });
+const TEEN_AT = [[1.6, 3.6], [3.2, 3.9]];
+
+const cloudU = clouds(scene, { n: 8, spread: 300, y: [50, 80], z: [-220, -90], seed: 3 });
+const nBefore = scene.children.length;
+const birdU = birds(scene, { n: 6, center: [-4, 24, -10], radius: 40, seed: 5 });
+const birdG = scene.children.slice(nBefore);
+const BV = new THREE.Vector3();
+// birds shrink away before they reach a frame edge or the card column, so none is cut off
+const birdEdge = (t) => birdG.forEach((g) => { BV.copy(g.position).project(camera); const x = (BV.x + 1) * 960, y = (1 - BV.y) * 540; const m = Math.min(x, 1920 - x, y, 1080 - y); g.scale.setScalar(clamp((m - 70) / 90)); });
+
+// ---------- timeline ----------
+const T_DOC = 5.2, T_AI = 5.7;
+const C_DATA = 8.4, DATA_BAD = 9.2, TEEN_IN = 9.7, TEEN_OK = 11.25, C_DATA2 = 11.6, DATA_OK = 12.1;
+const C_CASE = 12.9, CASE_OK = 13.5;
+const C_SRC = 15.0, SRC_BAD = 15.6, BRW_IN = 16.25, PLUS = 18.4, BRW_OUT = 20.0, C_PRIV = 20.4, AI_BACK = 20.7, C_SRC2 = 21.75, SRC_OK = 22.25;
+const C_AUTH = 22.75, AUTH_OK = 23.25, ADV_T = 23.5, V2 = 24.8, T_SIGN = 25.6, AI_OUT = 26.1, SIGN_IN = 26.4;
+const T_FOLD = 28.2, T_END = 30.3, TITLE_IN = 30.45, PATH_IN = 31.3;
+
+// ---------- camera ----------
+// orbit shot: look point, angle, distance, height, view offset (positive ox pushes the scene left)
+const orbit = (look, ang, dist, hgt, ox = 0, oy = 0) => ({ look, ang, dist, hgt, ox, oy });
+const WIDE = (t) => { const k = prog(t, 0, 5.2, (q) => q); return orbit([0, 0, 0], lerp(-0.5, -0.36, k), lerp(150, 136, k), lerp(84, 78, k), 0, -90); };
+const MED = (t) => { const k = prog(t, 5.0, T_END, (q) => q); return orbit([1, 1, 3], lerp(-0.34, -0.24, k), lerp(98, 94, k), lerp(62, 58, k), 470, 40); };
+const END = (t) => { const k = prog(t, T_END, DUR, (q) => q); return orbit([0, -1, 0], lerp(-0.14, 0.06, k), lerp(152, 146, k), lerp(78, 74, k), 430, -30); };
+const mixO = (a, b, k) => ({ look: a.look.map((x, i) => lerp(x, b.look[i], k)), ang: lerp(a.ang, b.ang, k), dist: lerp(a.dist, b.dist, k), hgt: lerp(a.hgt, b.hgt, k), ox: lerp(a.ox, b.ox, k), oy: lerp(a.oy, b.oy, k) });
+function cam(t) {
+  let c;
+  if (t < 3.4) c = WIDE(t);
+  else if (t < 5.4) c = mixO(WIDE(t), MED(t), prog(t, 3.4, 5.4));
+  else if (t < T_END - 0.1) c = MED(t);
+  else if (t < T_END + 1.7) c = mixO(MED(t), END(t), prog(t, T_END - 0.1, T_END + 1.7));
+  else c = END(t);
+  camera.fov = 30;
+  camera.position.set(Math.sin(c.ang) * c.dist + c.look[0], c.hgt + c.look[1], Math.cos(c.ang) * c.dist + c.look[2]);
+  camera.lookAt(...c.look);
+  camera.setViewOffset(1920, 1080, c.ox, c.oy, 1920, 1080); camera.updateProjectionMatrix(); camera.updateMatrixWorld();
+}
+// teen walk: from the park path, through the entrance gap, to a spot beside the panel table
+const teenPath = (i, t) => {
+  const [tx, tz] = TEEN_AT[i]; const d = i * 0.25;
+  const pts = [[12 + i * 1.2, 0.6 + i * 0.6], [7, 0.4 + i * 0.6], [tx, tz]], ts = [TEEN_IN + d, TEEN_IN + 0.55 + d, TEEN_OK - 0.2 + d * 0.4];
+  if (t <= ts[0]) return [...pts[0], 0];
+  if (t >= ts[2]) return [tx, tz, 2];
+  const s = t < ts[1] ? 0 : 1; const k = prog(t, ts[s], ts[s + 1]); return [lerp(pts[s][0], pts[s + 1][0], k), lerp(pts[s][1], pts[s + 1][1], k), 1];
+};
+st.onFrame((t) => {
+  cam(t); cloudU(t); birdU(t); birdEdge(t);
+  panel.forEach((p, i) => { const b = p.userData.base; p.position.y = b.y + Math.max(0, Math.sin(t * 1.3 + i * 1.7)) * 0.05; });
+  MAYA.rotation.x = -0.15 * prog(t, 8.2, 8.8) * (1 - prog(t, 25.8, 26.4));
+  mentor.position.set(-0.5, F, -6.5); mentor.rotation.y = Math.PI; mentor.userData.walk(0);
+  mentor.children[2].rotation.y = Math.sin(t * 0.7) * 0.12;
+  walkers.forEach((p, i) => { const u = t * 0.035 + i * 0.25; const a = u * Math.PI * 2; const x = 21 + Math.cos(a) * 9, z = 5 + Math.sin(a) * 7; p.position.set(x, F, z); p.rotation.y = Math.atan2(-Math.sin(a), Math.cos(a)) + Math.PI; p.userData.walk(t * 8 + i); });
+  skaters.forEach((p, i) => { const ph = t * 1.4 + i * Math.PI; const x = 26 + Math.cos(ph) * 3.2; p.position.set(x, F + Math.max(0, Math.abs(Math.cos(ph)) * 2.3 - 0.5), -3 + i * 1.6); p.rotation.y = Math.sin(ph) > 0 ? -Math.PI / 2 : Math.PI / 2; });
+  teens.forEach((p, i) => {
+    p.visible = t >= TEEN_IN + i * 0.25; const [x, z, ph] = teenPath(i, t), [x2, z2] = teenPath(i, t + 0.05);
+    p.position.set(x, F, z);
+    p.rotation.y = ph === 2 ? 1.0 - i * 0.25 : Math.atan2(-(x2 - x), -(z2 - z) || -1e-6); // faces where it walks, then the panel
+    p.userData.walk(ph === 1 ? t * 10 + i : 0);
+  });
+});
+
+// ---------- UI ----------
+const ui = []; const A = (fn) => ui.push(fn);
+const fade = fader(); A((t) => fade(t < 0.5 ? 1 - prog(t, 0, 0.5) : t > DUR - 0.6 ? prog(t, DUR - 0.6, DUR) : 0));
+const SVG = {
+  tick: '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.2 4.2L19 7" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  cross: '<svg viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round"/></svg>',
+  dots: '<svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="2.2" fill="#fff"/><circle cx="12" cy="12" r="2.2" fill="#fff"/><circle cx="18" cy="12" r="2.2" fill="#fff"/></svg>',
+  scale: '<svg viewBox="0 0 24 24"><path d="M12 4v16M7 20h10M5 7h14" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/><path d="M5 7l-3 6h6zM19 7l-3 6h6z" fill="#fff"/></svg>',
+  cam: '<svg viewBox="0 0 24 24"><rect x="3" y="7" width="13" height="10" rx="2.5" fill="#fff"/><path d="M16 10.5l5-3v9l-5-3z" fill="#fff"/></svg>',
+  people: '<svg viewBox="0 0 24 24"><circle cx="8" cy="8" r="3.2" fill="#fff"/><circle cx="16.5" cy="9" r="2.8" fill="#fff"/><path d="M2.5 19c.6-4 3-6 5.5-6s4.9 2 5.5 6zM12.5 19c.5-3.4 2.3-5 4-5s3.6 1.6 4 5z" fill="#fff"/></svg>',
+  brief: '<svg viewBox="0 0 24 24"><path d="M8 4h8v3h4v13H4V7h4z" fill="#fff"/><path d="M10 5.6h4V7h-4z" fill="#16c79a"/><path d="M7 11h10M7 14.5h7" stroke="#16c79a" stroke-width="1.8"/></svg>',
+  cursor: '<svg class="cur" viewBox="0 0 46 56"><path d="M4 3l36 24-15 3 9 18-8 4-9-18-13 10z" fill="#13202b" stroke="#fff" stroke-width="3.5" stroke-linejoin="round"/></svg>',
+};
+const cls = (n, c, on) => n.classList.toggle(c, !!on);
+const setH = (n, h) => { if (n._h !== h) { n.innerHTML = h; n._h = h; } };
+const setT = (n, s) => { if (n.textContent !== s) n.textContent = s; };
+const COL = 1000; // left edge of the card column
+// cards fade and scale in place, so none ever slides past the right edge of the frame
+const cueS = (node, tIn, tOut, { dur = 0.4, outDur = 0.3 } = {}) => (t) => {
+  const a = prog(t, tIn, tIn + dur, ease.out), b = tOut == null ? 0 : prog(t, tOut, tOut + outDur, ease.in);
+  const v = clamp(a - b); node.style.opacity = v; node.style.visibility = v <= 0.001 ? 'hidden' : 'visible';
+  node.style.transformOrigin = '50% 50%'; node.style.transform = `scale(${0.95 + 0.05 * a - 0.03 * b})`;
+};
+const typedS = (s, t0, t1, t) => { const k = clamp((t - t0) / (t1 - t0)); return s.slice(0, Math.round(s.length * k)) + (k > 0 && k < 1 ? '<span class="caret"></span>' : ''); };
+
+// opening title moment, then the header chip
+const TITLE = 'Impact Panel', TAG = 'Check the AI’s draft before the council says yes.';
+const otitle = el(`<div class="otitle"><span class="chip2">DeltaOps Learning · Future Skills</span><h1>${TITLE}</h1><h2>${TAG}</h2></div>`, { x: 0, y: 70 });
+A(cue(otitle, 0.05, 2.3, { from: 'pop', dur: 0.6, outDur: 0.3 }));
+const labchip = el(`<div class="labchip"><span class="ic">${SVG.scale}</span><b>${TITLE}</b><span class="bar"></span><span class="r">DeltaOps Learning · Future Skills</span></div>`, { x: 44, y: 36 });
+A(cue(labchip, 2.6, T_END - 0.3, { from: 'fade', dur: 0.35, outDur: 0.3 }));
+
+// brief (clears completely before the assessment card arrives)
+const brief = el(`<div class="wcard brief"><span class="bic">${SVG.brief}</span>
+ <div class="f"><small>Brief from</small><b>Harbourside Council</b></div>
+ <div class="f"><small>Task</small><b>Impact assessment: AI cameras in Harbour Park</b></div>
+ <div class="f due"><small>Due</small><b>Friday</b></div></div>`, { x: 960, y: 1000, anchor: 'bc' });
+A(cue(brief, 2.4, 4.75, { from: 'up', outDur: 0.3 }));
+
+// 3D-anchored tags and speech
+const V3 = new THREE.Vector3();
+const follow = (node, at, dx = 0, dy = 0) => (t) => { const p3 = typeof at === 'function' ? at(t) : at; V3.set(...p3); const p = toScreen(V3, camera); node.style.left = (p.x + dx) + 'px'; node.style.top = (p.y - 10 + dy) + 'px'; };
+const headOf = (o, dy) => () => [o.position.x, o.position.y + dy, o.position.z];
+const tagZ = el(`<div class="ntag"><b>Zainab, age 15</b><small>Impact Panel · lead</small></div>`, { anchor: 'bc' });
+const tagP = el(`<div class="ntag m"><b>Priya Shah</b><small>Mentor · data protection officer</small></div>`, { anchor: 'bc' });
+const say1 = el(`<div class="say"><small>Priya · mentor</small>“Start with who it affects.”</div>`, { anchor: 'bc' });
+const say2 = el(`<div class="say"><small>Priya · data protection officer</small>“No such Act.”</div>`, { anchor: 'bc' });
+const say3 = el(`<div class="say"><small>Priya · mentor</small>“Clear advice, Zainab. Send it to councillors.”</div>`, { anchor: 'bc' });
+const evY = el(`<div class="ev"><i></i><span></span></div>`, { anchor: 'bc' });
+const evC = el(`<div class="ev cam"><i>${SVG.cam}</i><span>4 cameras</span></div>`, { anchor: 'bc' });
+const domes = POLES.map((_, i) => el(`<div class="dome">${i + 1}</div>`, { anchor: 'c' }));
+const P_HEAD = headOf(mentor, 4.25), Z_HEAD = headOf(MAYA, 3.7);
+A(cue(tagP, 2.7, 3.5, { outDur: 0.2 })); A(cue(say1, 3.8, 4.75, { outDur: 0.25 }));
+A(cue(tagZ, 6.4, 9.0, { outDur: 0.25 }));
+const tagZ2 = (t) => cue(tagZ, 22.4, 26.3, { outDur: 0.25 })(t);
+A((t) => { if (t >= 15) tagZ2(t); });
+A(cue(say2, 17.0, 19.7, { outDur: 0.25 })); A(cue(say3, SIGN_IN + 0.2, T_END - 0.3, { outDur: 0.3 }));
+A(cue(evY, DATA_BAD + 0.1, 14.8, { outDur: 0.25 }));
+A(cue(evC, 6.9, 15.0, { outDur: 0.25 }));
+domes.forEach((d, i) => A(cue(d, 7.0 + i * 0.08, 15.0)));
+A(follow(tagZ, Z_HEAD)); A(follow(tagP, P_HEAD)); A(follow(say1, P_HEAD)); A(follow(say2, P_HEAD)); A(follow(say3, P_HEAD));
+A(follow(evY, [2.4, F + 3.6, 3.75]));
+A(follow(evC, [14, 12.6, 1]));
+domes.forEach((d, i) => A(follow(d, [POLES[i][0] - 0.25, 10.1, POLES[i][1] + 1], 0, 10)));
+A((t) => {
+  const ok = t >= TEEN_OK; cls(evY.firstElementChild, 'ok', ok); setH(evY.querySelector('i'), ok ? SVG.people : SVG.cross);
+  setT(evY.querySelector('span'), ok ? 'Under-18s asked ✓' : 'Under-18s not asked');
+  if (within(t, TEEN_OK, TEEN_OK + 0.3)) evY.style.transform += ` scale(${1 + 0.08 * Math.sin(prog(t, TEEN_OK, TEEN_OK + 0.3) * Math.PI)})`;
+  const cok = t >= CASE_OK; cls(evC.firstElementChild, 'ok', cok); setH(evC.querySelector('i'), cok ? SVG.tick : SVG.cam);
+  if (within(t, CASE_OK, CASE_OK + 0.3)) evC.style.transform += ` scale(${1 + 0.08 * Math.sin(prog(t, CASE_OK, CASE_OK + 0.3) * Math.PI)})`;
+});
+
+// the impact assessment (the AI colleague's draft)
+const doc = el(`<div class="wcard doc">
+ <div class="tb"><span class="fi"></span><b>Impact assessment</b><span>· AI cameras in Harbour Park</span><span class="stchip" data-st>Draft</span></div>
+ <div class="mn">
+   <div class="rw"><small>WHO</small><p>Residents · park manager · DPO · environment · finance<span data-yp></span></p></div>
+   <div class="rw"><small>PRIVACY</small><p data-priv></p></div>
+   <div class="rw"><small>ADVICE</small><p data-adv></p></div>
+ </div>
+ <div class="rv"><span class="lab">REVIEW</span>
+   <span class="chk" data-c="0"><i>${SVG.dots}</i>Data</span><span class="chk" data-c="1"><i>${SVG.dots}</i>Case</span><span class="chk" data-c="2"><i>${SVG.dots}</i>Source</span><span class="chk" data-c="3"><i>${SVG.dots}</i>Authority</span></div>
+ <div class="find" data-find><i></i><span data-ft></span></div>
+ <div class="ft"><span data-sg>Reviewed by: not yet</span><span data-pass class="pass">Checks passed: 0 of 4</span><span data-sign class="btn t">Sign off</span></div>
+</div>`, { x: COL, y: 124 });
+A(cueS(doc, T_DOC, null));
+const Q = (s) => doc.querySelector(s);
+const chks = [0, 1, 2, 3].map((i) => Q(`[data-c="${i}"]`));
+// each check: [run, result, bad?] segments in order
+const PLAN = [[[C_DATA, DATA_BAD, true], [C_DATA2, DATA_OK, false]], [[C_CASE, CASE_OK, false]], [[C_SRC, SRC_BAD, true], [C_SRC2, SRC_OK, false]], [[C_AUTH, AUTH_OK, false]]];
+const chkState = (i, t) => { let s = 'idle'; for (const [r, d, bad] of PLAN[i]) { if (t >= d) s = bad ? 'bad' : 'ok'; else if (t >= r) s = 'run'; } return s; };
+const FINDS = [
+  [DATA_BAD, false, '<b>Data:</b> Survey asked adults 18+ only. Under-18s, the park’s main users, are missing.'],
+  [DATA_OK, true, '<b>Data:</b> Under-18s asked and added to the panel.'],
+  [CASE_OK, true, '<b>Case:</b> 4 cameras · open park · daytime visitors. Holds if cameras count people, never identify them.'],
+  [SRC_BAD, false, '<b>Source:</b> “2024 Park Privacy Act”: UK legislation search, 0 results.'],
+  [SRC_OK, true, '<b>Source:</b> UK GDPR and the ICO’s video surveillance guidance apply.'],
+  [AUTH_OK, true, '<b>Authority:</b> Panel recommends; councillors decide.'],
+];
+const PRIV_OLD = 'Allowed under the 2024 Park Privacy Act.', PRIV_NEW = 'UK GDPR and the ICO’s video surveillance guidance apply.';
+const ADV_NEW = 'Recommend to councillors: approve with conditions. Count people, never identify them. Delete footage after 24 h.';
+const YP = ' + young people (under 18)';
+A((t) => {
+  const stc = t < C_DATA ? ['', 'AI draft'] : t < DATA_BAD ? ['rev', 'In review'] : t < DATA_OK ? ['ret', 'Returned'] : t < SRC_BAD ? ['rev', 'In review'] : t < SRC_OK ? ['ret', 'Returned'] : t < T_SIGN ? ['rev', 'In review'] : ['ok', 'Signed off'];
+  const sc = Q('[data-st]'); const c2 = 'stchip' + (stc[0] ? ' ' + stc[0] : ''); if (sc.className !== c2) sc.className = c2; setT(sc, stc[1]);
+  chks.forEach((c, i) => {
+    const s = chkState(i, t); cls(c, 'run', s === 'run'); cls(c, 'ok', s === 'ok'); cls(c, 'bad', s === 'bad');
+    const ic = s === 'ok' ? SVG.tick : s === 'bad' ? SVG.cross : SVG.dots; const ii = c.querySelector('i'); if (ii.dataset.s !== ic) { ii.innerHTML = ic; ii.dataset.s = ic; }
+    const r = PLAN[i].find(([, d, bad]) => bad && within(t, d, d + 0.4)); const g = PLAN[i].find(([, d, bad]) => !bad && within(t, d, d + 0.3));
+    c.style.transform = r ? `translateX(${Math.sin((t - r[1]) * 60) * 5}px)` : g ? `scale(${1 + 0.08 * Math.sin(prog(t, g[1], g[1] + 0.3) * Math.PI)})` : '';
+  });
+  const npass = chks.filter((c) => c.classList.contains('ok')).length;
+  const ps = Q('[data-pass]'); setT(ps, `Checks passed: ${npass} of 4`); cls(ps, 'ok', npass === 4);
+  // the reason line: the latest check's one-line reason (red on a fail, green on a pass)
+  const fd = Q('[data-find]'); const k = prog(t, DATA_BAD + 0.1, DATA_BAD + 0.45, ease.out);
+  fd.style.height = k <= 0 ? '0px' : k < 1 ? (k * 66) + 'px' : 'auto';
+  let f = FINDS[0]; for (const x of FINDS) if (t >= x[0]) f = x;
+  cls(fd, 'ok', f[1]); setH(fd.querySelector('i'), f[1] ? SVG.tick : SVG.cross); setH(Q('[data-ft]'), f[2]);
+  // WHO: young people added once they have been asked
+  const yp = Q('[data-yp]'); setH(yp, t < TEEN_OK ? '' : typedS(YP, TEEN_OK, TEEN_OK + 0.4, t)); cls(yp, 'ins', within(t, TEEN_OK, DATA_OK));
+  // PRIVACY: the invented Act is flagged at Source ✕, struck at the click, the real guidance typed in
+  let ph;
+  if (t < C_PRIV) ph = `<span class="aitag">AI</span><span class="${within(t, SRC_BAD, C_PRIV) ? 'flag' : ''}">${PRIV_OLD}</span>`;
+  else if (t < SRC_OK - 0.35) ph = `<span class="del">${PRIV_OLD}</span> <span class="ins">${typedS(PRIV_NEW, C_PRIV + 0.2, C_PRIV + 1.2, t)}</span>`;
+  else ph = `<span class="${t < SRC_OK + 0.6 ? 'ins' : ''}">${PRIV_NEW}</span>`;
+  setH(Q('[data-priv]'), ph);
+  // ADVICE: "All groups covered." struck at Data ✕; Zainab's advice replaces the AI's once all four checks pass
+  let ah;
+  if (t < ADV_T) ah = `<span class="aitag">AI</span><span class="${t >= DATA_BAD ? 'del' : ''}">Approve. All groups covered.</span>`;
+  else if (t < ADV_T + 0.3) ah = `<span class="del">Approve. All groups covered.</span>`;
+  else ah = `<span class="${t < V2 + 0.4 ? 'ins' : ''}">${typedS(ADV_NEW, ADV_T + 0.3, V2 - 0.1, t)}</span>`;
+  setH(Q('[data-adv]'), ah);
+  // sign-off
+  const sg = Q('[data-sg]'), sb = Q('[data-sign]');
+  sb.style.opacity = t >= AUTH_OK ? 1 : 0.35; sb.style.transform = within(t, T_SIGN - 0.1, T_SIGN + 0.1) ? 'scale(.94)' : '';
+  setT(sg, t >= T_SIGN ? 'Reviewed by: Zainab, age 15' : 'Reviewed by: not yet'); sg.style.color = t >= T_SIGN ? '#13202b' : '';
+  sb.style.display = t >= T_SIGN + 0.1 ? 'none' : '';
+  // shrinks into the portfolio item's icon
+  if (t >= T_FOLD) { const k2 = prog(t, T_FOLD, T_FOLD + 0.5, ease.inOut); doc.style.transformOrigin = '0 0'; doc.style.transform = `translate(${k2 * 36}px, ${k2 * 110}px) scale(${1 - k2 * 0.95})`; doc.style.opacity = 1 - prog(t, T_FOLD + 0.3, T_FOLD + 0.5); doc.style.visibility = t > T_FOLD + 0.5 ? 'hidden' : 'visible'; }
+});
+
+// AI colleague (bottom slot): struck claim by claim as each check fails; returns as V2
+const SLOT = 744, SLOT2 = 780;
+const ai = el(`<div class="ai"><div class="hd"><span class="bot"><i></i></span><b>AI colleague</b><span class="dr" data-dr>DRAFT</span></div>
+ <p data-tx></p>
+ <div class="ftr"><span class="sure" data-sure><span class="bar"><i data-b style="width:0%"></i></span><span data-p>94% sure</span></span><span class="data" data-data></span></div></div>`, { x: COL, y: SLOT });
+const aiIn1 = cueS(ai, T_AI, 15.95, { outDur: 0.3 }), aiIn2 = cueS(ai, AI_BACK, AI_OUT, { outDur: 0.3 });
+A((t) => { (t < 18 ? aiIn1 : aiIn2)(t); ai.style.top = (t < 18 ? SLOT : SLOT2) + 'px'; });
+A((t) => {
+  const v2 = t >= V2, ret = t >= DATA_BAD && !v2;
+  const bw = v2 ? 91 * prog(t, V2, V2 + 0.4, ease.out) : 94 * prog(t, T_AI + 0.3, T_AI + 0.9, ease.out) * (1 - prog(t, DATA_BAD, DATA_BAD + 0.4));
+  ai.querySelector('[data-b]').style.width = bw + '%';
+  setT(ai.querySelector('[data-p]'), v2 ? '91% sure' : ret ? 'Not trusted' : '94% sure');
+  cls(ai.querySelector('[data-sure]'), 'low', ret); cls(ai.querySelector('[data-sure]'), 'v2', v2);
+  const actX = t >= SRC_BAD && !v2;
+  const tx = v2 ? 'Recommend to councillors: approve with conditions. Count people, never identify them. Delete footage after 24 h.'
+    : `<span class="${ret ? 'del' : ''}">Draft ready.</span> Cameras are <span class="${actX ? 'del' : ''}">allowed under the 2024 Park Privacy Act</span>. <span class="${ret ? 'del' : ''}">All groups covered. Recommend: approve.</span>`;
+  setH(ai.querySelector('[data-tx]'), tx);
+  const dd = ai.querySelector('[data-data]'); setH(dd, v2 ? '<b>DATA I USED</b>Survey + under-18s' : '<b>DATA I USED</b>Council survey · adults 18+'); cls(dd, 'bad', ret);
+  const dr = ai.querySelector('[data-dr]'); setT(dr, v2 ? 'V2 · RE-CHECKED BY ZAINAB' : ret ? 'RETURNED' : 'DRAFT'); cls(dr, 'ret', ret); cls(dr, 'v2', v2);
+  dr.style.transform = within(t, V2, V2 + 0.3) ? 'scale(1.1)' : '';
+});
+
+// browser: the Source check, looked up (bottom slot)
+const brw = el(`<div class="wcard brw">
+ <div class="tabs"><span class="tab" data-t="0">UK legislation search</span><span class="tab" data-t="1">ICO guidance</span><span class="plus">+</span></div>
+ <div class="url" data-u></div>
+ <div class="pg">
+  <div data-p="0"><h4><i>${SVG.cross}</i>0 results</h4><p>No “Park Privacy Act” in UK legislation, 2024 or any year.</p></div>
+  <div data-p="1"><h4><i class="g">${SVG.tick}</i>What does apply</h4><p>UK GDPR and the ICO’s video surveillance guidance.</p></div>
+ </div>
+ <div class="trail"><span class="lb">TRAIL</span><span class="s n">2024 Act</span><span class="ar">›</span><span class="s x">0 results</span><span class="ar">›</span><span class="s x">Priya: no such Act</span><span class="ar">›</span><span class="s o">UK GDPR + ICO ✓</span></div>
+</div>`, { x: COL, y: SLOT });
+A(cueS(brw, BRW_IN, BRW_OUT));
+const URLS = ['UK legislation · search: “Park Privacy Act 2024”', 'ICO guidance · video surveillance'];
+const tabT = [BRW_IN + 0.05, PLUS];
+A((t) => {
+  const n = tabT.filter((x) => t >= x).length, cur = n - 1;
+  brw.querySelectorAll('.tab').forEach((x, i) => { x.style.display = i < n ? 'block' : 'none'; cls(x, 'on', i === cur); });
+  cls(brw.querySelector('.plus'), 'hit', within(t, PLUS - 0.25, PLUS));
+  setT(brw.querySelector('[data-u]'), cur >= 0 ? URLS[cur] : 'New tab');
+  brw.querySelectorAll('[data-p]').forEach((x, i) => { const on = i === cur && t >= tabT[i] + 0.4; x.style.display = on ? 'block' : 'none'; x.style.opacity = prog(t, tabT[i] + 0.4, tabT[i] + 0.7); });
+  const ss = brw.querySelectorAll('.trail .s, .trail .ar'); const at = [BRW_IN + 0.2, 16.8, 16.8, 17.2, 17.2, PLUS + 0.5, PLUS + 0.5];
+  ss.forEach((x, i) => { x.style.opacity = prog(t, at[i], at[i] + 0.3); });
+});
+
+// sign-off card (bottom slot)
+const signC = el(`<div class="sign"><span class="tick">${SVG.tick}</span><span><small>SIGNED OFF · CHECKS PASSED 4 OF 4</small><b>Recommendation reviewed by: Zainab, age 15</b><em>For councillors to decide on Friday</em></span></div>`, { x: COL, y: SLOT + 30 });
+A(cue(signC, SIGN_IN, T_END - 0.4, { from: 'pop', outDur: 0.3 }));
+
+// steps strip
+const steps = el(`<div class="steps"><span class="n" data-n></span><span class="d" data-d></span></div>`, { x: 44, y: 1000 });
+A(cue(steps, 5.4, T_END - 0.3, { from: 'up' }));
+const STEPS = [[0, 'Step 1 of 7', 'Read the AI colleague’s draft'], [8.0, 'Step 2 of 7', 'Run the four checks'], [DATA_BAD + 0.3, 'Step 3 of 7', 'Ask the young people who use the park'], [12.6, 'Step 4 of 7', 'Check the case and the source'], [SRC_BAD + 0.3, 'Step 5 of 7', 'Look up the law it cites'], [BRW_OUT, 'Step 6 of 7', 'Fix it, finish the checks, sign it off'], [T_FOLD, 'Step 7 of 7', 'File it in your portfolio']];
+A((t) => { let s = STEPS[0]; for (const x of STEPS) if (t >= x[0]) s = x; setT(steps.querySelector('[data-n]'), s[1]); setT(steps.querySelector('[data-d]'), s[2]); });
+
+// portfolio folder (takes the assessment card's place; the sign-off card stays below it)
+const folder = el(`<div class="folder"><span class="tabf">PORTFOLIO · Zainab</span><div class="body">
+ <div class="it nw" data-nw><i></i><span>Impact assessment<small>Impact Panel · AI cameras in Harbour Park</small></span><span class="new">NEW</span></div></div></div>`, { x: COL, y: 150 });
+A(cueS(folder, T_FOLD + 0.35, T_END - 0.4, { dur: 0.3 }));
+A((t) => { const n = folder.querySelector('[data-nw]'); n.style.transform = `scale(${1 + 0.05 * Math.sin(prog(t, T_FOLD + 0.55, T_FOLD + 1.05) * Math.PI)})`; });
+
+// cursor (parks in the gap left of the cards, never over text)
+const cur = el(SVG.cursor, { x: 0, y: 0 }); cur.style.zIndex = 5;
+const ring = el('<div class="ring"></div>', { x: 0, y: 0, anchor: 'c' });
+const R = (sel, root = doc, fx = 0.5) => () => { const n = root.querySelector(sel); const r = n.getBoundingClientRect(); if (r.width > 0) return [r.left + r.width * fx, r.top + r.height * 0.55]; const q = n.parentElement.getBoundingClientRect(); return [q.right - 90, q.top + q.height * 0.55]; };
+const pill = (i) => R(`[data-c="${i}"]`);
+const plusP = R('.plus', brw);
+const PARK = (y) => () => [940, y];
+const PATH = [[7.4, [820, 1100]], [8.15, pill(0)], [8.7, pill(0)], [9.4, PARK(600)], [11.0, PARK(600)], [11.45, pill(0)], [11.95, pill(0)], [12.6, pill(1)], [13.2, pill(1)], [13.9, PARK(600)], [14.6, PARK(600)], [14.9, pill(2)], [15.3, pill(2)], [16.0, PARK(820)], [17.7, PARK(860)], [18.2, plusP], [18.7, plusP], [19.4, PARK(560)], [20.0, PARK(440)], [20.3, R('[data-priv]', doc, 0.3)], [20.7, R('[data-priv]', doc, 0.3)], [21.1, PARK(380)], [21.55, pill(2)], [22.1, pill(2)], [22.6, pill(3)], [23.0, pill(3)], [23.7, PARK(700)], [24.8, PARK(700)], [25.25, () => { const [x, y] = R('[data-sign]')(); return [x - 170, y + 14]; }], [25.55, R('[data-sign]')], [25.9, R('[data-sign]')], [26.4, R('[data-sign]')]];
+const CLICKS = [C_DATA, C_DATA2, C_CASE, C_SRC, PLUS, C_PRIV, C_SRC2, C_AUTH, T_SIGN];
+A((t) => {
+  const on = within(t, 7.4, 26.2); cur.style.opacity = on ? 1 - prog(t, 25.85, 26.15) : 0;
+  if (on) { let i = 0; while (i < PATH.length - 2 && t > PATH[i + 1][0]) i++; const [ta, pa] = PATH[i], [tb, pb] = PATH[i + 1]; const a = typeof pa === 'function' ? pa() : pa, b = typeof pb === 'function' ? pb() : pb; const k = prog(t, ta, tb, ease.inOut); const x = lerp(a[0], b[0], k), y = lerp(a[1], b[1], k); cur.style.left = x + 'px'; cur.style.top = y + 'px'; ring.style.left = (x + 4) + 'px'; ring.style.top = (y + 4) + 'px'; }
+  const c = CLICKS.find((x) => within(t, x, x + 0.45)); if (c != null && on) { const k = (t - c) / 0.45; ring.style.opacity = 1 - k; ring.style.transform = `translate(-50%,-50%) scale(${0.4 + k})`; } else ring.style.opacity = 0;
+});
+
+// end: whole island on the left in daylight; title and pathway on the right, held to the last frame
+const etitle = el(`<div class="etitle"><span class="chip2">DeltaOps Learning · Future Skills</span><h1>${TITLE}</h1><h2>${TAG}</h2></div>`, { x: COL, y: 60 });
+A(cue(etitle, TITLE_IN, null, { from: 'up', dur: 0.6 }));
+const path = el(`<div class="wcard path"><div class="top"><span class="tag">PATHWAY</span><h3>Where this skill goes next</h3></div>
+ <div class="row"><span>Next step</span><b>Experience AI lessons <em>(free, 11–14)</em><br>Elements of AI <em>(free, 16+)</em></b></div>
+ <div class="row"><span>Award</span><b>DofE Bronze Skills section <em>(debating or public speaking)</em></b></div>
+ <div class="row"><span>Route</span><b>Citizenship GCSE, then A-level Law or Politics, or an EPQ</b></div>
+ <div class="row"><span>Jobs</span><div class="jobs"><i>Policy adviser</i><i>Data protection officer</i><i>AI governance specialist</i></div></div>
+ <div class="lg"><img src="../assets/logo-learning.svg"></div></div>`, { x: COL, y: 350 });
+A(cue(path, PATH_IN, null, { from: 'up', dur: 0.6 }));
+
+st.onFrame((t) => ui.forEach((fn) => fn(t)));
+window.__duration = DUR;
+document.fonts.ready.then(() => { window.__ready = true; });
+</script></body></html>

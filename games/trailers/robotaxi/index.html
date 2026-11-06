@@ -1,0 +1,262 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Robo-Taxi Island trailer</title>
+<link rel="stylesheet" href="../engine/ui.css">
+<script type="importmap">{"imports":{"three":"/three/three.module.js","three/addons/":"/three-addons/"}}</script></head>
+<body><div id="app"><div id="bg"></div><div id="ui"></div><div id="fx"></div></div>
+<script type="module">
+import * as THREE from 'three';
+import { createStage, cameraTrack, prog, ease, lerp, clamp, within } from '../engine/stage.js';
+import { Vox, island, tree, house, person, taxi, scarecrow, duck, particles, PAL, rand, hex } from '../engine/kit.js';
+import { clouds, waterfall, roots, floatingRocks, grass, birds, butterflies, burst } from '../engine/extras.js';
+import { el, cue, helperCard, facilCard, badge, task, cardsHTML, alertHTML, kicker, titleCard, tap, recordPanel, setRecord, thumbs, fader, toScreen } from '../engine/ui.js';
+
+const DUR = 42;
+const st = createStage({ sky: ['#2f8fff', '#c8ecff'] });
+const { scene, camera, sun, hemi } = st;
+
+// ---------------- world ----------------
+const v = new Vox();
+const isl = island(v, { rx: 50, rz: 38, depth: 16, seed: 7 });
+const T = 0; // top y
+const loop = [[-30, -20], [30, -20], [30, 20], [-30, 20]];
+function distSeg(px, pz, a, b) { const dx = b[0] - a[0], dz = b[1] - a[1]; const L = dx * dx + dz * dz; let k = ((px - a[0]) * dx + (pz - a[1]) * dz) / L; k = clamp(k); const x = a[0] + k * dx, z = a[1] + k * dz; return [Math.hypot(px - x, pz - z), k]; }
+const roadCells = [];
+for (let x = -36; x <= 36; x++) for (let z = -26; z <= 26; z++) {
+  let best = 99, along = 0, horiz = true;
+  for (let i = 0; i < 4; i++) { const a = loop[i], b = loop[(i + 1) % 4]; const [d, k] = distSeg(x + 0.5, z + 0.5, a, b); if (d < best) { best = d; along = k * Math.hypot(b[0] - a[0], b[1] - a[1]); horiz = a[1] === b[1]; } }
+  if (best <= 3.2) {
+    let c = PAL.road;
+    if (best < 0.6 && Math.floor(along / 2) % 2 === 0) c = PAL.roadLine;
+    if (best > 2.6) c = '#9aa0a6';
+    v.set(x, T, z, c); roadCells.push([x, z, best]);
+  }
+}
+// zebra crossing on south road around x=-1..2
+for (let x = -2; x <= 2; x++) for (let z = 17; z <= 23; z++) if (x % 2 === 0) v.set(x, T, z, '#f4f4ee');
+// pavements near crossing
+for (let x = -6; x <= 6; x++) { v.set(x, T, 24, PAL.gravel); v.set(x, T, 16, PAL.gravel); }
+// pond inside the loop
+const pondCells = [];
+for (let x = -24; x <= -4; x++) for (let z = -14; z <= 4; z++) { const d = Math.hypot((x + 14) / 9, (z + 5) / 7); if (d < 1) { v.set(x, T, z, null); v.set(x, T - 1, z, '#3f7f9a'); pondCells.push([x, z]); } else if (d < 1.15) v.set(x, T, z, PAL.sand); }
+// farm east of the road
+for (let x = 35; x <= 46; x++) for (let z = -14; z <= 14; z++) { if (!isl.inside(x, z)) continue; const row = (x - 35) % 3; v.set(x, T, z, row === 0 ? '#8a5c38' : '#9a6a42'); if (row !== 0 && rand(x, 1, z) > 0.2) v.set(x, T + 1, z, rand(x, 2, z) > 0.5 ? '#e3c046' : '#b7d34a'); }
+// houses
+const wins = [];
+house(v, -12, T, 26, { w: 9, d: 6, h: 5, roof: '#d0573a', wall: '#f1ebe0', wins }); // school
+house(v, 5, T, 26, { w: 7, d: 6, h: 4, roof: '#e0a33a', wall: '#efe2c9', wins }); // bakery
+house(v, 6, T, -14, { w: 7, d: 6, h: 4, roof: PAL.roofSlate, wins, solar: true });
+house(v, 14, T, -2, { w: 7, d: 7, h: 4, roof: '#d0573a', wins });
+house(v, 4, T, 6, { w: 6, d: 6, h: 4, roof: PAL.roofSlate, wins });
+house(v, -40, T, -8, { w: 7, d: 6, h: 4, roof: '#d0573a', wins });
+house(v, 14, T, -32, { w: 7, d: 5, h: 4, roof: '#e0a33a', wins });
+// garage for Pip
+v.box(-42, T + 1, 10, -36, T + 5, 16, '#e9e4da'); v.box(-42, T + 6, 9, -36, T + 6, 17, '#13202b'); v.box(-36, T + 1, 11, -36, T + 4, 15, '#ffd23f');
+// trees
+const treeSpots = [[-44, 4], [-44, -20], [-36, -28], [-20, -30], [-2, -30], [22, -28], [40, -24], [44, 20], [24, 30], [-26, 30], [-40, 26], [20, 12], [-2, -8], [22, 12], [20, -12], [-34, -14]];
+for (const [x, z] of treeSpots) if (isl.inside(x, z)) tree(v, x, T, z, { kind: rand(x, 3, z) > 0.55 ? 'pine' : 'round' });
+// scarecrow (separate mesh so it can get a bbox)
+const crow = scarecrow({ s: 0.36 }); crow.position.set(35, T + 1, -3); scene.add(crow);
+for (let z = 25; z <= 40; z++) for (let x = 14; x <= 16; x++) if (v.has(x, T, z) && !v.has(x, T + 1, z)) { v.set(x, T, z, null); v.set(x, T - 1, z, '#3f7f9a'); pondCells.push([x, z]); }
+roots(v, isl.inside, { rx: 50, rz: 38, top: T, count: 70, seed: 7 });
+const grassCells = []; for (let x = -50; x <= 50; x++) for (let z = -38; z <= 38; z++) { const c = v.get(x, T, z); if (c && !v.has(x, T + 1, z) && rand(x, 77, z) > 0.62 && PAL.grass.some((g) => c.getHexString() === g.slice(1))) grassCells.push([x + 0.5, z + 0.5]); }
+const lampPos = [];
+for (let i = 0; i < 4; i++) { const a = loop[i], b = loop[(i + 1) % 4]; for (let k = 0.15; k < 1; k += 0.235) { const x = lerp(a[0], b[0], k), z = lerp(a[1], b[1], k); const nx = a[1] === b[1] ? 0 : 1, nz = a[1] === b[1] ? 1 : 0; for (const sg of [-1, 1]) { const px = Math.round(x + nx * sg * 4.6), pz = Math.round(z + nz * sg * 4.6); if (v.get(px, T, pz) && !v.has(px, T + 1, pz)) { v.box(px, T + 1, pz, px, T + 1, pz, '#9aa3ab'); lampPos.push([px + 0.5, pz + 0.5]); } } } }
+const world = v.mesh(); scene.add(world);
+const water = (() => { const w = new Vox(); w.jitter = 0.02; for (const [x, z] of pondCells) w.set(x, T - 1, z, '#53b9e6'); const m = w.mesh({ castShadow: false }); m.material.transparent = true; m.material.opacity = 0.85; m.position.y = 0.55; return m; })();
+scene.add(water);
+const upd = [];
+upd.push(clouds(scene, { n: 11, seed: 3 }));
+{ let ez = 38; while (v.has(15, T - 1, ez + 1)) ez++; upd.push(waterfall(scene, { x: 15.5, y: T - 0.5, z: ez + 0.5, dir: [0, 1], width: 3, length: 34 })); }
+upd.push(floatingRocks(scene, { n: 8, radius: 72, seed: 5 }));
+upd.push(grass(scene, grassCells, T));
+upd.push(birds(scene, { n: 9, center: [0, 34, -10], radius: 60 }));
+upd.push(butterflies(scene, pondCells.slice(0, 120), { n: 12, y: T }));
+const fw = [[-20, 20, -6, 33.8], [12, 24, 0, 34.4], [28, 18, 8, 35.0], [-6, 26, 10, 35.6], [18, 22, -12, 36.2], [-28, 22, 14, 36.8]].map(([x, y, z, t0], i) => burst(scene, { at: [x, y, z], t0, n: 90, colors: [['#16ffc6', '#59c7fc', '#ffffff'], ['#ffc83d', '#ff6a4a', '#ffffff'], ['#b28cff', '#ff7eb6', '#ffffff']][i % 3], size: 0.9, speed: 14, gravity: 6, up: 3, life: 2.4 }));
+fw.forEach((f) => { upd.push(f); });
+const fwMats = []; scene.traverse((o) => { if (o.isInstancedMesh && o.geometry.parameters && o.geometry.parameters.width === 0.9) { o.material = new THREE.MeshBasicMaterial({ color: 0xffffff }); } });
+st.onFrame((t) => upd.forEach((f) => f(t)));
+const starsP = particles(160, { size: 0.9 }); starsP.material = new THREE.MeshBasicMaterial({ color: 0xffffff }); scene.add(starsP);
+for (let i = 0; i < 160; i++) { const a = rand(i, 1) * Math.PI * 2, e = 0.15 + rand(i, 2) * 0.8; starsP.setAt(i, Math.cos(a) * 900 * Math.cos(e), 900 * Math.sin(e), Math.sin(a) * 900 * Math.cos(e), 0, 0, 1 + rand(i, 3) * 2); } starsP.done();
+const moon = new THREE.Mesh(new THREE.BoxGeometry(40, 40, 6), new THREE.MeshBasicMaterial({ color: 0xfff4c8 })); moon.position.set(-300, 420, -700); moon.lookAt(0, 0, 0); scene.add(moon);
+
+// lit windows + street lamps (emissive), road lights
+const winMat = new THREE.MeshBasicMaterial({ color: 0xffd66b, transparent: true, opacity: 0 });
+const winMesh = new THREE.InstancedMesh(new THREE.BoxGeometry(0.9, 0.9, 0.9), winMat, wins.length);
+const d3 = new THREE.Object3D(); wins.forEach((w, i) => { d3.position.set(...w); d3.updateMatrix(); winMesh.setMatrixAt(i, d3.matrix); }); scene.add(winMesh);
+const glow = particles(lampPos.length, { size: 0.8 }); glow.material = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true }); scene.add(glow);
+lampPos.forEach(([x, z], i) => { glow.setAt(i, x, T + 2.3, z, 0, 0, 0.7); glow.setColor(i, '#ffe2a0'); }); glow.done();
+// green ground rings appear under lamps in the finale
+const rings = particles(lampPos.length, { size: 1 }); rings.material = new THREE.MeshBasicMaterial({ color: 0x16ffc6, transparent: true, opacity: 0.0 }); scene.add(rings);
+lampPos.forEach(([x, z], i) => { rings.setAt(i, x, T + 1.05, z, 0, 0, 1); }); rings.done(); rings.scale.set(1, 0.08, 1); rings.position.y = 0.95;
+const headlight = new THREE.PointLight(0xfff0c0, 0, 22, 1.6); scene.add(headlight);
+const fireflies = particles(70, { size: 0.35 }); fireflies.material = new THREE.MeshBasicMaterial({ color: 0xd8ff7a, transparent: true, opacity: 0 }); scene.add(fireflies);
+
+// characters
+const pip = taxi({ s: 0.34 }); scene.add(pip);
+const kids = [person({ shirt: '#ff7a59', pants: '#2c3e66', skin: '#8d5a3b' }), person({ shirt: '#59c7fc', pants: '#3b3b5c', skin: '#e0b08a', hair: '#6b3e1e' }), person({ shirt: '#ffc83d', pants: '#2c3e66', skin: '#c68a5e' })];
+kids.forEach((k) => scene.add(k));
+const walker = person({ shirt: '#6e5bf2', skin: '#e0b08a' }); scene.add(walker);
+const scooterKid = person({ shirt: '#ff6a4a', pants: '#2c3e66', skin: '#a8714b', s: 0.28 });
+const scooter = new Vox(); scooter.box(-1, 0, -2, 1, 0, 2, '#59c7fc'); scooter.box(0, 1, -2, 0, 5, -2, '#59c7fc'); scooter.box(-1, 5, -2, 1, 5, -2, '#222'); scooter.set(0, -1, -2, '#222'); scooter.set(0, -1, 2, '#222');
+const scooterMesh = scooter.mesh({ scale: 0.28 }); const scooterG = new THREE.Group(); scooterMesh.position.y = 0.3; scooterKid.position.y = 0.55; scooterG.add(scooterMesh, scooterKid); scene.add(scooterG);
+const ducks = [0, 1, 2, 3].map((i) => { const d = duck(); scene.add(d); return d; });
+
+// ---------------- timeline ----------------
+const night = (t) => (t >= 23.5 ? 1 : 0);
+const fogK = (t) => (t < 23.5 ? 0 : t < 30.6 ? 1 : t < 33 ? 1 - prog(t, 30.6, 32.4) * 0.85 : 0);
+scene.fog = new THREE.Fog(0x22304f, 10, 4000);
+const skyDay = ['#bfe3ff', '#eef8ff'], skyDawn = ['#ffcfa8', '#d7ecff'], skyNight = ['#142650', '#4a6290'];
+function mixHex(a, b, k) { return '#' + hex(a).lerp(hex(b), k).getHexString(); }
+
+function drive(t, t0, t1, a, b, e = ease.inOut) { const k = e(clamp((t - t0) / (t1 - t0))); return [lerp(a[0], b[0], k), lerp(a[1], b[1], k)]; }
+function placePip(x, z, ang, brake = 0) { pip.position.set(x, T + 1, z); pip.rotation.set(-brake * 0.08, ang, 0); }
+
+st.onFrame((t) => {
+  const n = night(t);
+  st.setSky(n ? '#061a52' : '#1f78f0', n ? '#1f5ad0' : '#78c4ff');
+  st.dome.material.uniforms.sunAmt.value = n ? 0 : 1;
+  sun.intensity = n ? 1.5 : 3.1; sun.color.set(n ? 0xa9c2ff : 0xfff0d8); sun.castShadow = true;
+  hemi.intensity = n ? 1.0 : 1.35; hemi.color.set(n ? 0x7c9cff : 0xcfe8ff); hemi.groundColor.set(n ? 0x1a2550 : 0x7a5a3a);
+  st.rim.intensity = n ? 1.6 : 0.9; st.rim.color.set(n ? 0x6fb0ff : 0xbfe0ff);
+  starsP.visible = moon.visible = !!n;
+  st.fx.bloom.strength = n ? 0.6 : 0.3; st.fx.bloom.threshold = n ? 0.72 : 0.92;
+  st.fx.grade.uniforms.sat.value = n ? 1.3 : 1.22;
+  const wide = t < 3.8 ? false : (t < 8.5 || within(t, 8.5, 13) || t >= 33);
+  st.fx.setTilt(0.52, t < 3.8 ? 0 : wide ? 3.2 : 1.4);
+  winMat.opacity = n; scene.fog.near = 4000; scene.fog.far = 5000;
+  glow.material.color.set(0xffe2a0); glow.material.opacity = n ? 1 : 0;
+  const gk = t > 33.2 ? prog(t, 33.4, 36.8, (x) => x) : 0; const ng = Math.floor(lampPos.length * gk); rings.count = ng; rings.material.opacity = ng > 0 ? 0.9 : 0;
+  lampPos.forEach((_, i) => glow.setColor(i, i < ng ? '#16ffc6' : '#ffe2a0')); glow.instanceColor.needsUpdate = true;
+  headlight.intensity = n ? 16 : 0; headlight.position.copy(pip.position).add(new THREE.Vector3(Math.sin(pip.rotation.y) * 4, 2, Math.cos(pip.rotation.y) * 4));
+  fireflies.material.opacity = t > 33 ? prog(t, 33.5, 35) : 0;
+  for (let i = 0; i < 70; i++) { const a = rand(i, 1), b = rand(i, 2); fireflies.setAt(i, -40 + a * 80 + Math.sin(t * 0.9 + i) * 1.5, T + 2 + Math.sin(t * 1.7 + i * 3) * 1.2 + b * 4, -28 + b * 56 + Math.cos(t * 0.7 + i) * 1.5); }
+  fireflies.done();
+  // ducks paddle
+  ducks.forEach((d, i) => { const a = t * 0.25 + i * 1.6; d.position.set(-14 + Math.cos(a) * (5 - i * 0.6), T + 0.6, -5 + Math.sin(a) * (3.6 - i * 0.4)); d.rotation.y = -a; });
+  // walker in S2 crossing grass
+  walker.position.set(-35 + t * 1.6, T + 1, -3); walker.rotation.y = -Math.PI / 2; walker.userData.walk(t * 7);
+
+  // Pip by shot
+  pip.visible = t >= 3.8;
+  if (t < 8.5) { const [, z] = drive(t, 0, 8.5, [0, 12], [0, -6], (x) => x); placePip(-30.5, z, Math.PI); }
+  else if (t < 13) placePip(-31, 4, Math.PI);
+  else if (t < 18) { const [x, z] = drive(t, 13, 15.6, [-26, 18.6], [-7.5, 18.6], ease.out); placePip(x, z, Math.PI / 2, t > 15.0 && t < 15.9 ? 1 : 0); if (t > 16.8) { const [x2] = drive(t, 16.8, 18, [-7.5], [2], ease.in); placePip(x2, 18.6, Math.PI / 2); } }
+  else if (t < 23.5) { const [x, z] = drive(t, 18, 20.4, [31.4, 18], [31.4, 1.5], ease.out); placePip(x, z, Math.PI, within(t, 20.0, 20.7) ? 2.5 : 0); }
+  else if (t < 33) { const [x, z] = drive(t, 23.5, 25.8, [-22, 18.6], [-8, 18.6], ease.out); placePip(x, z, Math.PI / 2, within(t, 25.3, 26) ? 1.5 : 0); if (t > 32.0) { const [x2] = drive(t, 32.0, 33, [-8], [-2], ease.in); placePip(x2, 18.6, Math.PI / 2); } }
+  else { const u = (t - 33) * 0.05; const x = -8 + u * 120; placePip(Math.min(x, 26), 18.6, Math.PI / 2); }
+
+  // kids crossing in S4
+  kids.forEach((k, i) => { const z = within(t, 13, 18) ? lerp(25, 13, prog(t, 14.2 + i * 0.35, 17.6 + i * 0.2, (x) => x)) : 25; k.position.set(-1.6 + i * 2.1, T + 1, z); k.rotation.y = 0; k.userData.walk(t * 8 + i); k.visible = within(t, 13, 18); });
+  // scooter kid in S6/S7
+  scooterG.visible = t >= 23.5 && t < 33.5;
+  { const z = t < 29 ? lerp(26, 21.2, prog(t, 24, 26.2, ease.out)) : lerp(21.2, 12, prog(t, 31.4, 33.2)); scooterG.position.set(0.5, T + 0.5, z); scooterG.rotation.y = 0; }
+});
+
+st.onFrame(cameraTrack(camera, [
+  { t: 0, pos: [-30.5, 3.3, 13], look: [-31, 2.4, -12], fov: 46 },
+  { t: 3.8, pos: [-30.5, 3.3, 9.5], look: [-31.5, 2.4, -15], fov: 46, ease: (x) => x },
+  { t: 3.8001, cut: true, pos: [125, 82, 140], look: [0, -4, 0], fov: 26 },
+  { t: 8.5, pos: [86, 54, 100], look: [0, -2, 0], fov: 26 },
+  { t: 8.5001, cut: true, pos: [72, 64, 92], look: [0, -2, 0], fov: 28 },
+  { t: 13, pos: [64, 58, 84], look: [0, -2, 0], fov: 28 },
+  { t: 13.0001, cut: true, pos: [-12, 13, 3], look: [-5, 1.5, 21], fov: 32 },
+  { t: 18, pos: [-6, 11.5, 5], look: [-2, 1.5, 21], fov: 32 },
+  { t: 18.0001, cut: true, pos: [50, 13, 20], look: [32, 2, 3], fov: 30 },
+  { t: 23.5, pos: [47, 11, 14], look: [33, 2.5, 0], fov: 30 },
+  { t: 23.5001, cut: true, pos: [-13, 10, 5], look: [-4, 1.5, 21], fov: 32 },
+  { t: 33, pos: [-8, 9, 7], look: [-1, 1.5, 19], fov: 32 },
+  { t: 33.0001, cut: true, pos: [60, 40, 72], look: [0, -2, 0], fov: 28 },
+  { t: 42, pos: [130, 90, 150], look: [0, -4, 0], fov: 26 },
+]));
+
+// ---------------- overlay ----------------
+const ui = [];
+const add = (fn) => ui.push(fn);
+const fade = fader();
+add((t) => fade(t < 0.7 ? 1 - prog(t, 0, 0.7, (x) => x) : t > 41.2 ? prog(t, 41.2, 42, (x) => x) : 0));
+
+const k1 = kicker('Pip can drive.'); add(cue(k1, 0.5, 1.9, { from: 'up' }));
+const k1b = kicker('But Pip can’t <span style="color:#FFC83D">see</span>. Not yet.'); add(cue(k1b, 2.0, 3.65, { from: 'up' }));
+const k2 = kicker('Pip only knows what’s in its <span style="color:#16FFC6">Picture Book</span>.'); add(cue(k2, 4.6, 8.2, { from: 'up' }));
+const hud = el(`<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 2px,transparent 2px 5px)">
+  <div style="position:absolute;left:60px;top:56px;display:flex;gap:14px;align-items:center;color:#fff;font-weight:850;font-size:26px;letter-spacing:.16em"><span style="width:18px;height:18px;border-radius:50%;background:#FF5D4A"></span>PIP CAM · LEARNING MODE</div>
+  ${[[40,40,'tl'],[1880,40,'tr'],[40,1040,'bl'],[1880,1040,'br']].map(([x,y,c])=>`<div style="position:absolute;left:${x-(c[1]=='r'?70:0)}px;top:${y-(c[0]=='b'?70:0)}px;width:70px;height:70px;border:6px solid rgba(255,255,255,.85);border-${c[0]=='t'?'bottom':'top'}:0;border-${c[1]=='l'?'right':'left'}:0"></div>`).join('')}
+  <div style="position:absolute;right:70px;top:56px;color:#fff;font-weight:800;font-size:24px;letter-spacing:.1em">BOOK: 0 PICTURES</div></div>`, { x: 0, y: 0 });
+add((t) => { const a = t < 3.8 ? 1 : 0; hud.style.opacity = a; hud.style.visibility = a ? 'visible' : 'hidden'; });
+// "?" boxes in S2
+function bboxEl(cls = '') { const d = document.createElement('div'); d.className = 'bbox ' + cls; d.innerHTML = '<span></span>'; d.style.opacity = 0; document.getElementById('ui').appendChild(d); return d; }
+const box3 = new THREE.Box3();
+function placeBox(d, obj, label, vis, pad = 6) {
+  if (!vis) { d.style.opacity = 0; return; }
+  box3.setFromObject(obj); const c = [];
+  for (const x of [box3.min.x, box3.max.x]) for (const y of [box3.min.y, box3.max.y]) for (const z of [box3.min.z, box3.max.z]) c.push(toScreen(new THREE.Vector3(x, y, z), camera));
+  const xs = c.map((p) => p.x), ys = c.map((p) => p.y);
+  const x0 = Math.min(...xs) - pad, x1 = Math.max(...xs) + pad, y0 = Math.min(...ys) - pad, y1 = Math.max(...ys) + pad;
+  Object.assign(d.style, { left: x0 + 'px', top: y0 + 'px', width: (x1 - x0) + 'px', height: (y1 - y0) + 'px', opacity: vis });
+  d.firstChild.innerHTML = label;
+}
+const qTree = new THREE.Object3D(); qTree.position.set(-44, 6, 4); const qTreeHelper = new THREE.Mesh(new THREE.BoxGeometry(6, 9, 6)); qTreeHelper.visible = false; qTreeHelper.position.set(-34, 5.5, -14); scene.add(qTreeHelper);
+const qHouse = new THREE.Mesh(new THREE.BoxGeometry(7, 9, 6)); qHouse.visible = false; qHouse.position.set(-36.5, 4.5, -5); qHouse.scale.set(1, 1, 1); scene.add(qHouse);
+const bQ = [bboxEl('warn'), bboxEl('warn'), bboxEl('warn')];
+const bKids = kids.map(() => bboxEl());
+const bCrow = bboxEl(), bScoot = bboxEl('warn');
+add((t) => {
+  const qv = within(t, 5.0, 8.4) ? prog(t, 5.0, 5.4) : 0;
+  placeBox(bQ[0], walker, '???', within(t, 0.6, 3.8) ? prog(t, 0.6, 0.9) : 0);
+  placeBox(bQ[1], ducks[0], '???', within(t, 1.0, 3.8) ? prog(t, 1.0, 1.3) : 0, 10);
+  placeBox(bQ[2], qHouse, '???', within(t, 1.4, 3.8) ? prog(t, 1.4, 1.7) : 0);
+  kids.forEach((k, i) => placeBox(bKids[i], k, i === 1 ? 'Person · Very sure 91%' : 'Person', within(t, 14.4 + i * 0.25, 17.6) ? 1 : 0, 4));
+  placeBox(bCrow, crow, 'Person · Very sure 94%', within(t, 18.9, 23.4) ? 1 : 0, 6);
+  if (within(t, 24.4, 31.2)) { const lab = ['Bicycle? 48%', 'Person? 52%', 'Bin? 31%', 'Dog? 40%'][Math.floor(t / 0.38) % 4]; bScoot.className = 'bbox warn'; placeBox(bScoot, scooterG, lab, 1, 4); }
+  else if (within(t, 31.2, 33)) { bScoot.className = 'bbox'; placeBox(bScoot, scooterG, 'Person · Very sure 87%', 1, 4); }
+  else bScoot.style.opacity = 0;
+});
+
+// dim layer for card moments
+const dim = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:rgba(8,22,34,.55)"></div>', { x: 0, y: 0 });
+add((t) => { const a = within(t, 8.5, 13) ? prog(t, 8.5, 9.0) * (1 - prog(t, 12.6, 13)) : within(t, 29, 31) ? prog(t, 29, 29.3) * (1 - prog(t, 30.7, 31.1)) : 0; dim.style.opacity = a; dim.style.visibility = a > 0 ? 'visible' : 'hidden'; });
+
+const cards1 = el(cardsHTML('TEACH PIP · STAGE 1', [
+  { k: 'A', text: 'Put 3 <b>person</b> and 3 <b>car</b> pictures in Pip’s book.' },
+  { k: 'B', text: 'Add 3 person pictures only.' },
+  { k: 'C', text: 'Teach Pip about things on the road.', vague: true }], 0), { x: 960, y: 620, anchor: 'c' });
+add(cue(cards1, 9.95, 12.6, { from: 'fade', dur: 0.01 }));
+const cards1b = el(cardsHTML('TEACH PIP · STAGE 1', [
+  { k: 'A', text: 'Put 3 <b>person</b> and 3 <b>car</b> pictures in Pip’s book.' },
+  { k: 'B', text: 'Add 3 person pictures only.' },
+  { k: 'C', text: 'Teach Pip about things on the road.', vague: true }], -1), { x: 960, y: 620, anchor: 'c' });
+add(cue(cards1b, 8.8, 9.95, { from: 'up', outDur: 0.01 }));
+const tp1 = tap(560, 640); add((t) => tp1(t, 9.8));
+const book1 = el(`<div style="background:#fff;border-radius:24px;padding:20px 24px;box-shadow:0 10px 26px rgba(0,0,0,.25)"><div style="font-weight:850;font-size:18px;letter-spacing:.14em;color:#46596A;margin-bottom:12px">PIP’S PICTURE BOOK</div>${thumbs([{ i: 'person' }, { i: 'person' }, { i: 'person' }, { i: 'car', bg: '#E6F1FC', c: '#2b6cb0' }, { i: 'car', bg: '#E6F1FC', c: '#2b6cb0' }, { i: 'car', bg: '#E6F1FC', c: '#2b6cb0' }])}</div>`, { x: 960, y: 300, anchor: 'c' });
+add(cue(book1, 10.3, 12.6, { from: 'down' }));
+const h1 = el(helperCard('My book has 3 people and 3 cars. Let’s drive!', 90, { who: 'Pip' }), { x: 1260, y: 60 });
+add(cue(h1, 11.0, 12.6, { from: 'right' }));
+
+const bdg = el(badge('Robo-Taxi Island', 'AI road lab', '#E0A21A', '<svg width="30" height="30" viewBox="0 0 24 24"><path d="M3 14l2-6h14l2 6v5h-3v-2H6v2H3z" fill="#E0A21A"/></svg>'), { x: 40, y: 36 });
+add(cue(bdg, 13.2, 33, { from: 'left' }));
+const tk1 = el(task('Stage 1', 'Teach Pip to see'), { x: 40, y: 130 }); add(cue(tk1, 13.4, 23.4, { from: 'left' }));
+const tk4 = el(task('Stage 4', 'Pip at night'), { x: 40, y: 130 }); add(cue(tk4, 23.8, 33, { from: 'left' }));
+const rec = recordPanel('PIP’S RECORD'); rec.style.left = '1580px'; rec.style.top = '36px'; add(cue(rec, 13.6, 33, { from: 'right' }));
+add((t) => { const m = []; if (t > 15.4) m.push(true); if (t > 16.4) m.push(true); if (t > 20.7) m.push(false); if (t > 31.6) m.push(true); setRecord(rec, m); });
+const stopPill = el('<div class="saved" style="font-size:30px;padding:12px 28px;background:#0B7F74">STOPPING</div>', { x: 0, y: 0, anchor: 'bc' });
+add((t) => { const vis = within(t, 15.0, 16.8) || within(t, 20.2, 23.4) || within(t, 25.6, 31.2); stopPill.style.opacity = vis ? 1 : 0; if (vis) { const p = toScreen(pip.position.clone().add(new THREE.Vector3(0, 4.2, 0)), camera); stopPill.style.left = clamp(p.x, 140, 1780) + 'px'; stopPill.style.top = clamp(p.y, 90, 1000) + 'px'; stopPill.style.transform = 'translate(-50%,-100%)'; } });
+
+const al = el(alertHTML('False alarm! It’s a scarecrow.'), { x: 960, y: 140, anchor: 'c' }); add(cue(al, 20.6, 23.3));
+const fc1 = el(facilCard('Pip said 94% sure. Was it right? What does “% sure” really measure?'), { x: 1250, y: 760 }); add(cue(fc1, 21.2, 23.4, { from: 'up' }));
+
+const h2 = el(helperCard('Help! What is this? My book has no night pictures.', 48, { who: 'Pip' }), { x: 1260, y: 150 }); add(cue(h2, 25.9, 29.0, { from: 'right' }));
+const cards2 = el(cardsHTML('STAGE 4 · PICK A CARD', [
+  { k: 'A', text: 'Help Pip see better.', vague: true },
+  { k: 'B', text: 'Turn night on and watch the % drop.' },
+  { k: 'C', text: 'Add 2 night pictures of people on <b>scooters</b>.' }], 2), { x: 960, y: 620, anchor: 'c' });
+add(cue(cards2, 29.1, 30.8, { from: 'up' }));
+const tp2 = tap(1390, 640); add((t) => tp2(t, 29.6));
+const k3 = kicker('Pip only knows what <span style="color:#16FFC6">you</span> teach it.', { y: 960 }); add(cue(k3, 31.0, 32.9, { from: 'up' }));
+const k4 = kicker('Humans taught this car. Humans check this car.', { y: 960, size: 58 }); add(cue(k4, 33.8, 37.2, { from: 'up' }));
+const title = titleCard('Robo-Taxi <span class="hl">Island</span>', 'Teach it to see. Check what it sees.'); add(cue(title, 37.6, null, { from: 'pop', dur: 0.8 }));
+const dimEnd = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:radial-gradient(ellipse at center, rgba(5,15,30,.55), rgba(5,15,30,.8))"></div>', { x: 0, y: 0 });
+document.getElementById('ui').insertBefore(dimEnd, title); add(cue(dimEnd, 37.3, null, { from: 'fade', dur: 0.8 }));
+
+st.onFrame((t) => ui.forEach((fn) => fn(t)));
+window.__duration = DUR;
+document.fonts.ready.then(() => { window.__ready = true; });
+</script></body></html>
