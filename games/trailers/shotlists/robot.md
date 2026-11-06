@@ -29,7 +29,7 @@ Career skills · 0:44 · brochure voxel islands (four small blocky floating isla
 **Ending / pathway:** Rivet handing over to a human when unsure ("Amber light: Rivet hands over to a human"), then the title "Teach it. Test it. Make it safe." with the careers line (robot trainer, test engineer, data curator, safety engineer) on the same card.
 
 **Reviewer notes:**
-- Render status: restructured from 54.8 s to 43.8 s and checked with stills only (no full render yet). The Tidy Up and Rush Hour levels and the five-role crew strip were cut; the home and warehouse islands only appear in the closing wide shot. Re-render `out/robot.mp4` and re-run `audio.py robot` (cue sheet re-timed).
+- Render status: restructured from 54.8 s to 43.8 s and re-rendered (`out/robot.mp4`, 0:44), checked on a contact sheet. The Tidy Up and Rush Hour levels and the five-role crew strip were cut; the home and warehouse islands only appear in the closing wide shot.
 - No level numbers on screen: the task tags read "TASK" and the second level's banner reads "NEXT LEVEL". In the lab, Lending a Hand is Level 5.
 - Fixed from the last review: no labels left over from the previous beat (every panel is gone before the next one comes in); the level banner sits on the wall above the action; Rivet hands the cup from the resident's side (no arm through her head) and the carer stands beside Rivet to take the letter; the careers card is on the title card; the trailer ends on the title (no fade to black); the demo cursor is about 45% bigger and the demo labels are 30 px.
 - Sensitive content: a robot failing wheelchair users. It is handled gently ("Too high to reach", then "Just right, thank you!"), but check wording with the inclusion reviewer.
