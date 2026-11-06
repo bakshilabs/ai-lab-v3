@@ -95,8 +95,10 @@ export function createUI(root, labelsRoot, opts) {
       const host = P.dock.classList.contains('hide') || P.dock.classList.contains('mini') ? (P.toast ||= (() => { const n = h('<div id="toast" class="panel hide pop"></div>'); root.appendChild(n); return n; })()) : D.head;
       // the toast sits below the lens bar and any alert, never on top of them
       if (host === P.toast) { let y = 92; for (const el of [P.lensbar, P.alert]) if (!el.classList.contains('hide')) { const r = el.getBoundingClientRect(); y = Math.max(y, r.bottom + 10); } P.toast.style.top = y + 'px'; }
-      host.textContent = text; host.classList.add('on'); host.classList.remove('hide'); clearTimeout(this._ct);
-      this._ct = setTimeout(() => { host.classList.remove('on'); if (host === P.toast) host.classList.add('hide'); }, ms);
+      // only one caption at a time: hide the other place, and give each place its own timer
+      const other = host === D.head ? P.toast : D.head; if (other) { other.classList.remove('on'); if (other === P.toast) other.classList.add('hide'); }
+      host.textContent = text; host.classList.add('on'); host.classList.remove('hide'); clearTimeout(host._t);
+      host._t = setTimeout(() => { host.classList.remove('on'); if (host === P.toast) host.classList.add('hide'); }, ms);
     },
     // read aloud (auto for 8–12; 🔊 buttons replay on demand for everyone). voice: 'narrator' or 'helper' (Florence)
     say(text, voice = 'narrator') { if (!text) return; if (!this.readAloud) { globalThis.__sayLog?.push({ text, voice, missing: [], silent: true }); return; } speak(text, { voice }); },
@@ -133,12 +135,12 @@ export function createUI(root, labelsRoot, opts) {
     update(camera, canvas) {
       const w = canvas.clientWidth, hgt = canvas.clientHeight;
       // keep bubbles out from under the town card and the icon strip (top corners)
-      const avoid = [P.card, P.strip, P.facil].filter((e) => !e.classList.contains('hide')).map((e) => e.getBoundingClientRect());
+      const avoid = [P.card, P.strip, P.facil, P.lensbar, P.alert].filter((e) => !e.classList.contains('hide')).map((e) => e.getBoundingClientRect());
       for (const a of anchored) {
         const p = typeof a.data.at === 'function' ? a.data.at() : a.data.at; if (!p) continue;
         v3.copy(p).project(camera); const vis = v3.z < 1 && Math.abs(v3.x) < 1.1 && Math.abs(v3.y) < 1.1;
         let x = ((v3.x + 1) / 2) * w, y = ((1 - v3.y) / 2) * hgt;
-        if (a.node.classList.contains('bub')) { const bw = a.node.offsetWidth || 160, bh = a.node.offsetHeight || 34; x = Math.max(bw / 2 + 8, Math.min(w - bw / 2 - 8, x)); for (const r of avoid) if (x + bw / 2 > r.left && x - bw / 2 < r.right && y - bh < r.bottom && y > r.top) y = r.bottom + bh + 6; }
+        { const bw = a.node.offsetWidth || 160, bh = a.node.offsetHeight || 34; x = Math.max(bw / 2 + 8, Math.min(w - bw / 2 - 8, x)); for (const r of avoid) if (x + bw / 2 > r.left && x - bw / 2 < r.right && y - bh < r.bottom && y > r.top) y = r.bottom + bh + 6; } // never under the HUD, lens bar or alert
         a.node.style.display = vis ? '' : 'none'; a.node.style.left = x + 'px'; a.node.style.top = y + 'px';
       }
     },

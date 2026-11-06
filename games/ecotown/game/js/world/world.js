@@ -328,7 +328,7 @@ export function createWorld(stage, terrain) {
       const keys = [...new Set(placements.map((p) => p.k))];
       for (const k of keys) {
         const L = layers.get(k); const cell = cellsAfter.get(k); if (!L || !cell) continue;
-        const lv = ITEMS[cell.item || cell.mark]?.level; const mat = bad.has(k) ? GHOST_BAD : coded ? ghostMat(lv) : GHOST_MAT;
+        const pl = placements.filter((p) => p.k === k).pop(); const lv = ITEMS[pl?.item || pl?.mod || pl?.mark || cell.item || cell.mark]?.level; // colour by what is planned here const mat = bad.has(k) ? GHOST_BAD : coded ? ghostMat(lv) : GHOST_MAT;
         const { g } = buildMeshes(L, cell, mat);
         // flat plans (roads, paths, fields, town land) would vanish into the ground: give every planned tile a raised outline
         if (coded || bad.has(k)) g.add(outline(L, mat.color));

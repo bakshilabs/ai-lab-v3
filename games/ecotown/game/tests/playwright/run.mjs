@@ -55,7 +55,10 @@ for (const [id, check, vague, clear] of LEVELS) {
     await instruct(clear, 1);
   } else {
     await instruct(clear, 1); await p.waitForTimeout(2200); await shot(`${id}-plan-clear`);
-    await click(`#dock [data-actions] [data-c="${check}"]`); await p.waitForSelector('#dock [data-actions] [data-o]', { timeout: 30000 }); await shot(`${id}-hidden`);
+    await click(`#dock [data-actions] [data-c="${check}"]`);
+    const w = await Promise.race([p.waitForSelector('#dock [data-actions] [data-o]', { timeout: 40000 }).then(() => 'o'), p.waitForSelector('#dock [data-actions] [data-go]', { timeout: 40000 }).then(() => 'go')]);
+    if (w === 'go') { await shot(`${id}-view-checked`); await click('#dock [data-actions] [data-go]'); await p.waitForSelector('#dock [data-actions] [data-o]', { timeout: 30000 }); }
+    await shot(`${id}-hidden`);
     await click('#dock [data-actions] [data-o="0"]'); await click('#dock [data-actions] [data-go]');
   }
   if (!process.env.FAST) { await p.waitForSelector('#filmtitle', { timeout: 40000 }); await p.waitForTimeout(4200); await shot(`${id}-film`); }

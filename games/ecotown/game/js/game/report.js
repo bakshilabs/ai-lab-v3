@@ -8,7 +8,7 @@ import { esc, h } from '../ui/ui.js';
 
 const PETAL_NAME = { homes: 'Homes', food: 'Food', nature: 'Nature', health: 'Health', energy: 'Energy', community: 'Community', carbon: 'Carbon' };
 export function renderReport(app, G, s, shot) {
-  app.ui.only([]); for (const id of ['tray', 'helper', 'card', 'strip', 'facil']) app.ui.show(id, false);
+  app.ui.only([]); app.ui.caption(null); for (const id of ['tray', 'helper', 'card', 'strip', 'facil']) app.ui.show(id, false);
   const flowerSvg = app.ui.P.flower.querySelector('svg').outerHTML;
   // every mistake caught, including the biased residents' survey in level 6
   const rows = LEVEL_ORDER.map((id) => {

@@ -15,8 +15,10 @@ export function createChecks(app) {
   const clear = () => { if (kids) { stage.scene.remove(kids); kids = null; } world.setOverlay(null); world.setClay(false, app.reduce); world.setFlood(0); ui.labels.clear('lbl'); ui.lensbar(null); if (cloud) { cloud.visible = false; } };
 
   function carbonCloud(level, center) {
-    if (!cloud) { const v = new Vox(); for (let x = -6; x <= 6; x++) for (let y = -2; y <= 2; y++) for (let z = -4; z <= 4; z++) if ((x / 6.5) ** 2 + (y / 2.6) ** 2 + (z / 4.5) ** 2 < 1 + Math.sin(x * 1.3 + z) * 0.15) v.set(x, y, z, y > 0 ? '#8d959b' : '#6f777d'); cloud = v.mesh({ castShadow: false }); stage.scene.add(cloud); }
-    cloud.visible = true; cloud.position.copy(center).add(new THREE.Vector3(0, 18, 0)); cloud.scale.setScalar(Math.max(0.4, Math.min(2.6, level)) * 1.1);
+    if (!cloud) { const v = new Vox(); for (let x = -6; x <= 6; x++) for (let y = -2; y <= 2; y++) for (let z = -4; z <= 4; z++) if ((x / 6.5) ** 2 + (y / 2.6) ** 2 + (z / 4.5) ** 2 < 1 + Math.sin(x * 1.3 + z) * 0.15) v.set(x, y, z, y > 0 ? '#5d5650' : '#3f3a36'); cloud = v.mesh({ castShadow: false });
+      // its own dark, smoky material, so it stands out on the pale clay island (the clay tint doesn't apply to it)
+      cloud.traverse((o) => { if (o.isMesh) o.material = new THREE.MeshLambertMaterial({ vertexColors: true, transparent: true, opacity: 0.88 }); }); stage.scene.add(cloud); }
+    cloud.visible = true; cloud.position.copy(center).add(new THREE.Vector3(0, 16, 0)); cloud.scale.setScalar(Math.max(0.5, Math.min(1.7, level)));
   }
 
   const RUN = {
