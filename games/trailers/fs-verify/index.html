@@ -28,12 +28,18 @@
 /* 3D-anchored tags */
 .ntag { background:#fff; border-radius:16px; padding:10px 20px 11px; box-shadow:0 10px 24px rgba(8,28,44,.25); white-space:nowrap; text-align:center; }
 .ntag b { display:block; font:800 28px 'Inter'; color:var(--ink); }
-.ntag small { display:block; font:650 20px 'Inter'; color:var(--mut); margin-top:2px; }
+.ntag small { display:block; font:650 21px 'Inter'; color:var(--mut); margin-top:2px; }
 .ntag.m { background:var(--ink); } .ntag.m b { color:#fff; } .ntag.m small { color:#9fe8d2; }
 .ntag::after { content:''; position:absolute; left:50%; bottom:-12px; margin-left:-12px; border:12px solid transparent; border-top-color:#fff; border-bottom:0; }
 .ntag.m::after { border-top-color:var(--ink); }
 .say { background:#fff; color:var(--ink); border-radius:22px; padding:16px 26px; font:700 30px/1.2 'Inter'; white-space:nowrap; box-shadow:0 12px 26px rgba(8,28,44,.3); }
 .say::after { content:''; position:absolute; left:50%; bottom:-12px; margin-left:-12px; border:12px solid transparent; border-top-color:#fff; border-bottom:0; }
+/* in-world evidence over Hana's desk */
+.ev { display:flex; align-items:center; gap:12px; background:#fff; border:4px solid var(--red); border-radius:18px; padding:8px 20px 8px 8px; font:800 28px 'Inter'; color:var(--redD); white-space:nowrap; box-shadow:0 12px 26px rgba(8,28,44,.3); }
+.ev i { width:40px; height:40px; border-radius:50%; background:var(--red); display:grid; place-items:center; } .ev i svg { width:26px; height:26px; }
+.ev.ok { border-color:var(--teal); color:#08694f; } .ev.ok i { background:var(--teal); }
+.ev::after { content:''; position:absolute; left:50%; bottom:-14px; margin-left:-12px; border:12px solid transparent; border-top-color:var(--red); border-bottom:0; }
+.ev.ok::after { border-top-color:var(--teal); }
 /* work card (right column) */
 .doc { width:876px; overflow:hidden; }
 .doc .tb { display:flex; align-items:center; gap:14px; height:74px; padding:0 26px; border-bottom:2px solid var(--line); font:650 22px 'Inter'; color:var(--mut); }
@@ -47,14 +53,14 @@
 .doc h3 { font:800 36px/1.15 'Inter'; letter-spacing:-.015em; margin:0; }
 .doc p.tx { font:500 26px/1.45 'Inter'; margin:12px 0 0; }
 .doc .src { margin-top:12px; border-top:2px solid var(--line); padding-top:10px; }
-.doc .src small { font:800 19px 'Inter'; letter-spacing:.14em; color:var(--mut); }
-.doc .src p { font:500 22px/1.38 'Inter'; margin:4px 0 0; }
+.doc .src small { font:800 20px 'Inter'; letter-spacing:.14em; color:var(--mut); }
+.doc .src p { font:500 24px/1.38 'Inter'; margin:4px 0 0; }
 .del { color:var(--redD); text-decoration:line-through; text-decoration-thickness:3px; background:var(--redBg); border-radius:4px; }
 .ins { color:#08694f; background:#d6f5e9; border-radius:4px; }
 .flag { background:var(--redBg); box-shadow:0 0 0 3px var(--red); border-radius:6px; }
 .caret { display:inline-block; width:3px; height:1.05em; background:var(--ink); vertical-align:-3px; margin-left:2px; }
 .doc .rv { display:flex; align-items:center; gap:10px; padding:14px 26px; border-top:2px solid var(--line); background:#fbfcfd; min-height:78px; }
-.doc .rv .lab { font:800 19px 'Inter'; letter-spacing:.12em; color:var(--mut); margin-right:4px; }
+.doc .rv .lab { font:800 20px 'Inter'; letter-spacing:.12em; color:var(--mut); margin-right:4px; }
 .btn { font:800 24px 'Inter'; background:var(--ink); color:#fff; border-radius:999px; padding:12px 26px; white-space:nowrap; }
 .btn.t { background:var(--teal); color:#062a20; }
 .chk { display:flex; align-items:center; gap:10px; font:800 24px 'Inter'; padding:8px 18px 8px 8px; border-radius:999px; background:#eef2f5; color:#7d8b97; border:3px solid transparent; white-space:nowrap; }
@@ -75,7 +81,7 @@
 .ai .hd .bot { width:52px; height:52px; border-radius:16px; background:#233544; display:grid; place-items:center; }
 .ai .hd .bot i { display:block; width:28px; height:11px; border-radius:6px; background:var(--teal); box-shadow:0 0 12px rgba(22,199,154,.8); }
 .ai .hd b { font:800 28px 'Inter'; }
-.ai .hd .dr { margin-left:auto; font:800 19px 'Inter'; letter-spacing:.12em; background:#233544; color:#ffd36b; border-radius:999px; padding:8px 16px; }
+.ai .hd .dr { margin-left:auto; font:800 20px 'Inter'; letter-spacing:.12em; background:#233544; color:#ffd36b; border-radius:999px; padding:8px 16px; }
 .ai .hd .dr.ret { background:var(--red); color:#fff; }
 .ai .hd .dr.v2 { background:var(--teal); color:#062a20; }
 .ai .sure.v2 { color:#9fe8d2; }
@@ -85,9 +91,9 @@
 .ai .sure { display:flex; align-items:center; gap:14px; font:800 30px 'Inter'; white-space:nowrap; }
 .ai .sure .bar { width:150px; height:14px; border-radius:99px; background:#2c3e4e; overflow:hidden; }
 .ai .sure .bar i { display:block; height:100%; border-radius:99px; background:linear-gradient(90deg,#ffc83d,var(--teal)); }
-.ai .sure.low { color:#ff8f93; }
+.ai .sure.low { color:#ff8f93; } .ai .sure.low .bar { display:none; }
 .ai .data { margin-left:auto; display:inline-flex; align-items:center; gap:10px; background:#233544; border-radius:999px; padding:9px 20px 9px 10px; font:650 23px 'Inter'; color:#dbe6ee; white-space:nowrap; }
-.ai .data b { background:#3a5063; color:#fff; border-radius:999px; padding:4px 12px; font:800 18px 'Inter'; letter-spacing:.1em; }
+.ai .data b { background:#3a5063; color:#fff; border-radius:999px; padding:4px 12px; font:800 20px 'Inter'; letter-spacing:.1em; }
 .ai .data.bad { background:rgba(229,72,77,.25); color:#ffd0d1; } .ai .data.bad b { background:var(--red); }
 /* sign-off */
 .sign { display:inline-flex; align-items:center; gap:22px; background:#fff; border:4px solid var(--teal); border-radius:28px; padding:20px 34px 20px 20px; box-shadow:0 16px 36px rgba(10,60,50,.28); white-space:nowrap; color:var(--ink); }
@@ -110,7 +116,7 @@
 .folder .it small { display:block; font:650 22px 'Inter'; color:var(--mut); margin-top:3px; }
 .folder .it.nw { background:#ecfaf4; border-radius:16px; border-bottom:0; }
 .folder .it.nw i { background:var(--teal); }
-.folder .it .new { margin-left:auto; font:800 19px 'Inter'; letter-spacing:.1em; background:var(--ink); color:#fff; border-radius:8px; padding:6px 12px; }
+.folder .it .new { margin-left:auto; font:800 20px 'Inter'; letter-spacing:.1em; background:var(--ink); color:#fff; border-radius:8px; padding:6px 12px; }
 /* end */
 .etitle { width:876px; color:#fff; }
 .etitle h1 { font:800 92px/1 'Inter'; letter-spacing:-.035em; margin:20px 0 0; text-shadow:0 6px 30px rgba(0,30,60,.3); white-space:nowrap; }
@@ -132,21 +138,21 @@
 /* browser */
 .brw { width:876px; height:292px; overflow:hidden; display:grid; grid-template-rows:58px 52px 1fr 64px; }
 .brw .tabs { display:flex; align-items:flex-end; gap:6px; background:#e3e9ee; padding:0 12px; border-radius:28px 28px 0 0; }
-.brw .tab { font:700 21px 'Inter'; color:var(--mut); background:#d3dbe2; border-radius:14px 14px 0 0; padding:11px 18px; white-space:nowrap; display:none; }
+.brw .tab { font:700 22px 'Inter'; color:var(--mut); background:#d3dbe2; border-radius:14px 14px 0 0; padding:11px 18px; white-space:nowrap; display:none; }
 .brw .tab.on { background:#fff; color:var(--ink); }
 .brw .plus { font:800 30px/1 'Inter'; color:var(--ink); width:44px; height:44px; border-radius:50%; display:grid; place-items:center; margin:0 0 7px 6px; }
 .brw .plus.hit { background:#c4ced6; }
-.brw .url { margin:8px 18px 4px; background:var(--soft); border-radius:999px; padding:0 22px; display:flex; align-items:center; font:600 21px 'Inter'; color:#33414d; white-space:nowrap; overflow:hidden; }
+.brw .url { margin:8px 18px 4px; background:var(--soft); border-radius:999px; padding:0 22px; display:flex; align-items:center; font:600 23px 'Inter'; color:#33414d; white-space:nowrap; overflow:hidden; }
 .brw .pg { padding:10px 28px 0; position:relative; }
 .brw .pg > div { position:absolute; left:28px; right:28px; top:10px; display:none; }
 .brw .pg h4 { font:800 30px/1.2 'Inter'; margin:0; display:flex; align-items:center; gap:14px; }
 .brw .pg h4 i { flex:none; width:42px; height:42px; border-radius:50%; display:grid; place-items:center; background:var(--red); }
 .brw .pg h4 i.g { background:var(--teal); }
 .brw .pg h4 i svg { width:26px; height:26px; }
-.brw .pg p { font:500 25px/1.35 'Inter'; color:#33414d; margin:8px 0 0 56px; }
+.brw .pg p { font:500 26px/1.35 'Inter'; color:#33414d; margin:8px 0 0 56px; }
 .brw .trail { display:flex; align-items:center; gap:6px; padding:0 18px; border-top:2px solid var(--line); background:#fbfcfd; }
-.brw .trail .lb { font:800 19px 'Inter'; letter-spacing:.1em; color:var(--mut); margin-right:6px; }
-.brw .trail span.s { font:800 21px 'Inter'; border-radius:999px; padding:6px 13px; white-space:nowrap; opacity:0; }
+.brw .trail .lb { font:800 20px 'Inter'; letter-spacing:.1em; color:var(--mut); margin-right:6px; }
+.brw .trail span.s { font:800 22px 'Inter'; border-radius:999px; padding:6px 13px; white-space:nowrap; opacity:0; }
 .brw .trail span.s.x { background:var(--redBg); color:var(--redD); } .brw .trail span.s.o { background:var(--mint); color:#08694f; } .brw .trail span.s.n { background:#eef2f5; color:var(--ink); }
 .brw .trail span.ar { color:#9aa8b4; font:800 22px 'Inter'; opacity:0; }
 </style>
@@ -220,6 +226,16 @@ function desk(cx, cz, n = 2) {
   }
 }
 desk(-10, -7); desk(0, -7); desk(10, -7); desk(-10, 1); desk(0, 1); desk(10, 1);
+// Hana's own monitor shows what she finds: a failed journal search, then the council report
+const hanaTex = (bad) => tex(256, 150, (g, w, h) => {
+  g.fillStyle = bad ? '#fff1f1' : '#effbf6'; g.fillRect(0, 0, w, h); rr(g, 0, 0, w, 20, 0, '#13202b');
+  g.fillStyle = bad ? '#e5484d' : '#16c79a'; g.beginPath(); g.arc(58, 82, 34, 0, 7); g.fill();
+  g.strokeStyle = '#fff'; g.lineWidth = 9; g.lineCap = 'round'; g.beginPath();
+  if (bad) { g.moveTo(44, 68); g.lineTo(72, 96); g.moveTo(72, 68); g.lineTo(44, 96); } else { g.moveTo(42, 84); g.lineTo(54, 96); g.lineTo(76, 70); }
+  g.stroke(); g.fillStyle = '#13202b'; g.font = '800 30px Inter'; g.fillText(bad ? '0 results' : 'p. 4', 104, 78); g.fillStyle = '#5b6b78'; g.font = '700 22px Inter'; g.fillText(bad ? 'no journal' : '42 → 9', 104, 108);
+});
+const hanaBad = plane(1.8, 1.05, hanaTex(true), [-1.5, FL + 2.625, 0.52]), hanaOk = plane(1.8, 1.05, hanaTex(false), [-1.5, FL + 2.625, 0.53]);
+hanaBad.visible = hanaOk.visible = false;
 // plants, shelf, printer, water cooler
 const plant = (x, z) => { fb(x - 0.5, FL, z - 0.5, x + 0.5, FL + 1, z + 0.5, '#c46b3f'); for (let i = 0; i < 14; i++) { const a = rand(i, x, z) * 6.28, r = rand(i, z, x) * 0.9; fb(Math.round((x + Math.cos(a) * r) * 2) / 2 - 0.5, FL + 1 + Math.round(rand(i, 1, x) * 4) / 2, Math.round((z + Math.sin(a) * r) * 2) / 2 - 0.5, Math.round((x + Math.cos(a) * r) * 2) / 2, FL + 1.5 + Math.round(rand(i, 1, x) * 4) / 2, Math.round((z + Math.sin(a) * r) * 2) / 2, ['#3f9d4a', '#4caf50', '#5bbd5a'][i % 3]); } };
 plant(-15, -11); plant(15, -11); plant(-15, 7); plant(15.5, 7.5);
@@ -294,12 +310,18 @@ const SVG = {
 const cls = (n, c, on) => n.classList.toggle(c, !!on);
 const setH = (n, h) => { if (n._h !== h) { n.innerHTML = h; n._h = h; } };
 const COL = 1000; // left edge of the card column
+// cards fade and scale in place, so none ever slides past the right edge of the frame
+const cueS = (node, tIn, tOut, { dur = 0.4, outDur = 0.3 } = {}) => (t) => {
+  const a = prog(t, tIn, tIn + dur, ease.out), b = tOut == null ? 0 : prog(t, tOut, tOut + outDur, ease.in);
+  const v = clamp(a - b); node.style.opacity = v; node.style.visibility = v <= 0.001 ? 'hidden' : 'visible';
+  node.style.transformOrigin = '50% 50%'; node.style.transform = `scale(${0.95 + 0.05 * a - 0.03 * b})`;
+};
 
 // opening title moment, then the header chip
 const otitle = el(`<div class="otitle"><span class="chip2">DeltaOps Learning · Future Skills</span><h1>Verification Desk</h1><h2>Trace every source before you sign it off.</h2></div>`, { x: 0, y: 70 });
-A(cue(otitle, 0.3, 2.3, { from: 'pop', dur: 0.6 }));
+A(cue(otitle, 0.05, 2.3, { from: 'pop', dur: 0.6, outDur: 0.3 }));
 const labchip = el(`<div class="labchip"><span class="ic">${SVG.lens}</span><b>Verification Desk</b><span class="bar"></span><span class="r">DeltaOps Learning · Future Skills</span></div>`, { x: 44, y: 36 });
-A(cue(labchip, 2.7, 29.2, { from: 'fade', dur: 0.35 }));
+A(cue(labchip, 2.6, 28.9, { from: 'fade', dur: 0.35, outDur: 0.3 }));
 
 // brief
 const brief = el(`<div class="wcard brief"><span class="bic">${SVG.brief}</span>
@@ -314,8 +336,14 @@ const tagE = el(`<div class="ntag m"><b>Amara Osei</b><small>Desk Editor · ment
 const sayE = el(`<div class="say">“Good catch, Hana. It can go live.”</div>`, { anchor: 'bc' });
 const V3 = new THREE.Vector3();
 const follow = (node, obj, dy, dx = 0, ddy = 0) => (t) => { V3.set(obj.position.x, obj.position.y + dy, obj.position.z); const p = toScreen(V3, camera); node.style.left = (p.x + dx) + 'px'; node.style.top = (p.y - 10 + ddy) + 'px'; };
-A(cue(tagM, 6.6, 24.3)); A(cue(tagE, 2.8, 4.9)); A(cue(sayE, 24.6, 28.9));
-A(follow(tagM, MAYA, 3.75)); A(follow(tagE, MENTOR, 3.95)); A(follow(sayE, MENTOR, 3.95, 60, 0));
+const evH = el(`<div class="ev"><i></i><span></span></div>`, { anchor: 'bc' });
+A(cue(tagM, 6.6, 24.3)); A(cue(tagE, 2.8, 4.9)); A(cue(sayE, 24.6, 28.9)); A(cue(evH, 10.8, 24.3, { outDur: 0.25 }));
+A(follow(tagM, MAYA, 3.75)); A(follow(tagE, MENTOR, 3.95)); A(follow(sayE, MENTOR, 3.95, 60, 0)); A(follow(evH, MAYA, 3.75, 0, -104));
+A((t) => {
+  const ok = t >= T_FIXCLICK; cls(evH.firstElementChild, 'ok', ok); setH(evH.querySelector('i'), ok ? SVG.tick : SVG.cross); const tx = ok ? 'Council report ✓' : 'Journal not found'; const sp = evH.querySelector('span'); if (sp.textContent !== tx) sp.textContent = tx;
+  evH.style.transform += within(t, T_FIXCLICK, T_FIXCLICK + 0.3) ? ` scale(${1 + 0.08 * Math.sin(prog(t, T_FIXCLICK, T_FIXCLICK + 0.3) * Math.PI)})` : '';
+  hanaBad.visible = within(t, T_SFAIL, T_FIXCLICK); hanaOk.visible = t >= T_FIXCLICK;
+});
 
 // the story card
 const doc = el(`<div class="wcard doc">
@@ -330,7 +358,7 @@ const doc = el(`<div class="wcard doc">
  <div class="find" data-find><i>${SVG.cross}</i><span data-ft>Source: citation [1] can’t be traced</span></div>
  <div class="ft"><span data-sg>Reviewed by: not yet</span><span data-pass class="pass">Checks passed: 0 of 4</span><span data-sign class="btn t">Sign off</span></div>
 </div>`, { x: COL, y: 124 });
-A(cue(doc, 5.0, null, { from: 'right' }));
+A(cueS(doc, 5.0, null));
 const Q = (s) => doc.querySelector(s);
 const chks = [0, 1, 2, 3].map((i) => Q(`[data-c="${i}"]`));
 const T_RUN = 8.4, T_SFAIL = 10.6, T_FIXCLICK = 20.2, T_ACCEPT = 23.0, T_SIGN = 23.7;
@@ -374,18 +402,18 @@ A((t) => {
   const sgt = t >= T_SIGN ? 'Reviewed by: Hana, age 13' : 'Reviewed by: not yet'; if (sg.textContent !== sgt) sg.textContent = sgt;
   sg.style.color = t >= T_SIGN ? '#13202b' : ''; sb.style.visibility = t >= T_SIGN ? 'hidden' : '';
   // fly into the portfolio
-  if (t >= 26.4) { const k = prog(t, 26.4, 27.2, ease.inOut); doc.style.transformOrigin = '50% 0'; doc.style.transform = `translate(${k * 0}px, ${k * 250}px) scale(${1 - k * 0.8})`; doc.style.opacity = 1 - prog(t, 26.9, 27.2); doc.style.visibility = t > 27.2 ? 'hidden' : 'visible'; }
+  if (t >= 26.4) { const k = prog(t, 26.4, 26.9, ease.inOut); doc.style.transformOrigin = '0 0'; doc.style.transform = `translate(${k * 36}px, ${k * 110}px) scale(${1 - k * 0.95})`; doc.style.opacity = 1 - prog(t, 26.7, 26.9); doc.style.visibility = t > 26.9 ? 'hidden' : 'visible'; } // shrinks into the portfolio item's icon
 });
 
 // AI colleague (bottom slot)
-const SLOT = 724;
+const SLOT = 724, SLOT2 = 766; // SLOT2 clears the story card's sign-off row while its tracked changes make it taller
 const ai = el(`<div class="ai"><div class="hd"><span class="bot"><i></i></span><b>AI colleague</b><span class="dr" data-dr>DRAFT</span></div>
  <p><span data-pre>Ready to publish. </span><span data-claim>The 80% figure comes from a peer-reviewed study [1].</span></p>
  <div class="ftr"><span class="sure" data-sure><span class="bar"><i data-b style="width:0%"></i></span><span data-p>94% sure</span></span><span class="data" data-data><b>DATA I USED</b>news sites, 2019–2024</span></div></div>`, { x: COL, y: SLOT });
 // first visit 5.5–11.95 (clean exit before the browser slides in); returns as V2 after the fix
-const aiIn1 = cue(ai, 5.5, 11.95, { from: 'right', outDur: 0.3 }), aiIn2 = cue(ai, 22.2, 24.4, { from: 'right', outDur: 0.3 });
+const aiIn1 = cueS(ai, 5.5, 11.9, { outDur: 0.3 }), aiIn2 = cueS(ai, 22.2, 24.4, { outDur: 0.3 });
 const T_V2 = T_ACCEPT;
-A((t) => (t < 17 ? aiIn1 : aiIn2)(t));
+A((t) => { (t < 17 ? aiIn1 : aiIn2)(t); ai.style.top = (t < 17 ? SLOT : SLOT2) + 'px'; });
 A((t) => {
   const drop = prog(t, 10.8, 11.4), v2 = t >= T_V2;
   // the number reads 94% from the first frame; only the bar fills, so no misleading low value is ever on screen
@@ -396,7 +424,7 @@ A((t) => {
   cls(ai.querySelector('[data-sure]'), 'low', t >= 10.8 && !v2); cls(ai.querySelector('[data-sure]'), 'v2', v2);
   const cl = ai.querySelector('[data-claim]'); cls(cl, 'del', t >= 10.8 && !v2);
   const ct = v2 ? 'Flooded homes fell from 42 to 9, says the council’s 2023 review, p. 4.' : 'The 80% figure comes from a peer-reviewed study [1].'; if (cl.textContent !== ct) cl.textContent = ct;
-  ai.querySelector('[data-pre]').style.display = v2 ? 'none' : '';
+  ai.querySelector('[data-pre]').style.display = v2 ? 'none' : ''; cls(ai.querySelector('[data-pre]'), 'del', t >= 10.8 && !v2);
   setH(ai.querySelector('[data-data]'), v2 ? '<b>DATA I USED</b>council report, 2023' : '<b>DATA I USED</b>news sites, 2019–2024');
   const dr = ai.querySelector('[data-dr]'); const dt = v2 ? 'V2 · RE-CHECKED BY HANA' : t >= 10.8 ? 'RETURNED' : 'DRAFT'; if (dr.textContent !== dt) dr.textContent = dt; cls(dr, 'ret', t >= 10.8 && !v2); cls(dr, 'v2', v2);
   ai.querySelector('[data-dr]').style.transform = within(t, T_V2, T_V2 + 0.3) ? 'scale(1.1)' : '';
@@ -413,16 +441,16 @@ const brw = el(`<div class="wcard brw">
  </div>
  <div class="trail"><span class="lb">TRAIL</span><span class="s n">[1]</span><span class="ar">›</span><span class="s x">no journal</span><span class="ar">›</span><span class="s x">no publisher</span><span class="ar">›</span><span class="s o">council report ✓</span></div>
 </div>`, { x: COL, y: SLOT });
-A(cue(brw, 12.3, 19.9, { from: 'right' }));
+A(cueS(brw, 12.15, 19.9));
 const URLS = ['library search: “Bulletin of Small-Town Waterways”', 'who publishes “Bulletin of Small-Town Waterways”?', 'harbourside council: flood barrier review 2023'];
-const tabT = [13.0, 15.3, 17.6];
+const tabT = [12.2, 15.3, 17.6]; // the first search is open as the browser appears; the pointer opens the other two
 A((t) => {
   const n = tabT.filter((x) => t >= x).length, cur = n - 1;
   brw.querySelectorAll('.tab').forEach((x, i) => { x.style.display = i < n ? 'block' : 'none'; cls(x, 'on', i === cur); });
-  cls(brw.querySelector('.plus'), 'hit', tabT.some((x) => within(t, x - 0.25, x)));
+  cls(brw.querySelector('.plus'), 'hit', tabT.slice(1).some((x) => within(t, x - 0.25, x)));
   const u = brw.querySelector('[data-u]'); const us = cur >= 0 ? URLS[cur] : 'New tab'; if (u.textContent !== us) u.textContent = us;
   brw.querySelectorAll('[data-p]').forEach((x, i) => { const on = i === cur && t >= tabT[i] + 0.4; x.style.display = on ? 'block' : 'none'; x.style.opacity = prog(t, tabT[i] + 0.4, tabT[i] + 0.7); });
-  const ss = brw.querySelectorAll('.trail .s, .trail .ar'); const at = [12.6, 13.6, 13.6, 15.9, 15.9, 18.2, 18.2];
+  const ss = brw.querySelectorAll('.trail .s, .trail .ar'); const at = [12.4, 12.9, 12.9, 15.9, 15.9, 18.2, 18.2];
   ss.forEach((x, i) => { x.style.opacity = prog(t, at[i], at[i] + 0.3); });
 });
 
@@ -439,8 +467,8 @@ A((t) => { let s = STEPS[0]; for (const x of STEPS) if (t >= x[0]) s = x; const 
 // portfolio folder (takes the story card's place; the sign-off card stays below it)
 const folder = el(`<div class="folder"><span class="tabf">PORTFOLIO · Hana</span><div class="body">
  <div class="it nw" data-nw><i></i><span>Fact-check card<small>Verification Desk · flood-barrier story</small></span><span class="new">NEW</span></div></div></div>`, { x: COL, y: 150 });
-A(cue(folder, 26.9, 29.0, { from: 'up' }));
-A((t) => { const n = folder.querySelector('[data-nw]'); n.style.opacity = prog(t, 27.4, 27.7); n.style.transform = `scale(${t > 27.4 ? 1 + 0.06 * (1 - prog(t, 27.4, 27.9, ease.out)) : 0.9})`; });
+A(cueS(folder, 26.75, 29.0, { dur: 0.3 }));
+A((t) => { const n = folder.querySelector('[data-nw]'); n.style.transform = `scale(${1 + 0.05 * Math.sin(prog(t, 26.95, 27.45) * Math.PI)})`; });
 
 // cursor (parks in the gap left of the cards, never over text)
 const cur = el(SVG.cursor, { x: 0, y: 0 }); cur.style.zIndex = 5;
@@ -449,8 +477,8 @@ const ring = el('<div class="ring"></div>', { x: 0, y: 0, anchor: 'c' });
 const R = (sel, root = doc) => () => { const n = root.querySelector(sel); const r = n.getBoundingClientRect(); if (r.width > 0) return [r.left + r.width * 0.5, r.top + r.height * 0.55]; const q = n.parentElement.getBoundingClientRect(); return [q.right - 90, q.top + q.height * 0.55]; };
 const plusP = R('.plus', brw);
 const PARK = (y) => () => [940, y];
-const PATH = [[7.4, [820, 1100]], [8.25, R('[data-run]')], [8.6, R('[data-run]')], [9.4, PARK(560)], [12.6, PARK(760)], [12.95, plusP], [13.5, plusP], [14.2, PARK(860)], [14.8, PARK(860)], [15.25, plusP], [15.8, plusP], [16.5, PARK(860)], [17.1, PARK(860)], [17.55, plusP], [18.1, plusP], [18.8, PARK(600)], [19.6, PARK(600)], [20.15, R('[data-s1t]')], [20.5, R('[data-s1t]')], [21.2, PARK(560)], [23.0, PARK(640)], [23.35, () => { const [x, y] = R('[data-sign]')(); return [x - 170, y + 14]; }], [23.65, R('[data-sign]')], [24.0, R('[data-sign]')], [24.8, R('[data-sign]')]]; // after the click the pointer fades out in place instead of crossing the cards
-const CLICKS = [T_RUN, 13.0, 15.3, 17.6, T_FIXCLICK, T_SIGN];
+const PATH = [[7.4, [820, 1100]], [8.25, R('[data-run]')], [8.6, R('[data-run]')], [9.4, PARK(560)], [12.6, PARK(760)], [14.2, PARK(860)], [14.8, PARK(860)], [15.25, plusP], [15.8, plusP], [16.5, PARK(860)], [17.1, PARK(860)], [17.55, plusP], [18.1, plusP], [18.8, PARK(600)], [19.6, PARK(600)], [20.15, R('[data-s1t]')], [20.5, R('[data-s1t]')], [21.2, PARK(560)], [23.0, PARK(640)], [23.35, () => { const [x, y] = R('[data-sign]')(); return [x - 170, y + 14]; }], [23.65, R('[data-sign]')], [24.0, R('[data-sign]')], [24.8, R('[data-sign]')]]; // after the click the pointer fades out in place instead of crossing the cards
+const CLICKS = [T_RUN, 15.3, 17.6, T_FIXCLICK, T_SIGN];
 A((t) => {
   const on = within(t, 7.4, 24.6); cur.style.opacity = on ? 1 - prog(t, 24.2, 24.5) : 0;
   if (on) { let i = 0; while (i < PATH.length - 2 && t > PATH[i + 1][0]) i++; const [ta, pa] = PATH[i], [tb, pb] = PATH[i + 1]; const a = typeof pa === 'function' ? pa() : pa, b = typeof pb === 'function' ? pb() : pb; const k = prog(t, ta, tb, ease.inOut); const x = lerp(a[0], b[0], k), y = lerp(a[1], b[1], k); cur.style.left = x + 'px'; cur.style.top = y + 'px'; ring.style.left = (x + 4) + 'px'; ring.style.top = (y + 4) + 'px'; }
@@ -459,14 +487,14 @@ A((t) => {
 
 // end: whole island on the left in daylight; title and pathway on the right
 const etitle = el(`<div class="etitle"><span class="chip2">DeltaOps Learning · Future Skills</span><h1>Verification Desk</h1><h2>Trace every source before you sign it off.</h2></div>`, { x: COL, y: 70 });
-A(cue(etitle, 31.0, null, { from: 'up', dur: 0.6 }));
+A(cue(etitle, 29.2, null, { from: 'up', dur: 0.6 }));
 const path = el(`<div class="wcard path"><div class="top"><span class="tag">PATHWAY</span><h3>Where this skill goes next</h3></div>
  <div class="row"><span>Next step</span><b>Civic Online Reasoning lessons <em>(free)</em></b></div>
  <div class="row"><span>Award</span><b>Arts Award <em>(journalism project)</em></b></div>
  <div class="row"><span>Route</span><b>GCSE Media Studies, then A-level History or Politics</b></div>
  <div class="row"><span>Jobs</span><div class="jobs"><i>Fact-checker</i><i>Journalist</i><i>Librarian</i></div></div>
  <div class="lg"><img src="../assets/logo-learning.svg"></div></div>`, { x: COL, y: 400 });
-A(cue(path, 31.3, null, { from: 'up', dur: 0.6 }));
+A(cue(path, 30.1, null, { from: 'up', dur: 0.6 }));
 
 st.onFrame((t) => ui.forEach((fn) => fn(t)));
 window.__duration = DUR;
