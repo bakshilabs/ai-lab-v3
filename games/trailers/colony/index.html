@@ -58,7 +58,7 @@ import { Vox, particles, rand, noise2 } from '../engine/kit.js';
 import { el, cue, fader, titleCard, toScreen } from '../engine/ui.js';
 import { burst } from '../engine/extras.js';
 
-const DUR = 32.4;
+const DUR = 36.6;
 const st = createStage({ sky: ['#08143a', '#1a3f8f'], post: false });
 const { scene, camera, sun, hemi, rim } = st;
 st.dome.visible = false; st.renderer.setClearColor(0x000000, 0);
@@ -73,14 +73,15 @@ const bg = document.getElementById('bg'); bg.style.background = 'linear-gradient
 sun.intensity = 3.25; sun.color.set('#ffeccc'); sun.position.set(-60, 110, 70); hemi.intensity = 1.05; hemi.color.set('#d0dcff'); hemi.groundColor.set('#a0482a'); rim.intensity = 1.4; rim.color.set('#6fb4ff'); st.renderer.toneMappingExposure = 1.06;
 
 // ---------- timeline ----------
-const L1 = 3.0, BUILD = 11.0, L5 = 15.2, LIVE = 24.8, TITLE = 28.4;
+const L1 = 3.0, BUILD = 11.0, L5 = 18.3, CREWT = 27.9, LIVE = 30.1, TITLE = 33.1;
 const M1 = { cIn: 3.2, pickA: 3.8, aiIn: 4.1, lensIn: 5.4, alertIn: 5.9, c2In: 6.8, pickB: 7.4, fix: 7.7, chkIn: 7.9, chkOut: 10.5 };
 // level 1 payoff: the test drill bores down and brings up a blue ice core
 const DR = { rig: 8.3, bore: 8.6, up: 9.6, ok: 9.8 };
-// levels 2-4: three quick labelled beats (shelter, water loop, solar)
-const B2 = BUILD, B3 = BUILD + 1.2, B4 = BUILD + 2.4;
-const M5 = { cIn: 15.5, pickA: 16.2, aiIn: 16.5, lensIn: 18.5, alertIn: 19.1, c2In: 20.7, pickB: 21.3, fix: 21.6, chkIn: 21.8, chkOut: 24.3 };
+// levels 2-4: three labelled build beats of 2.4 s each (shelter, water loop, solar power)
+const B2 = BUILD, B3 = BUILD + 2.4, B4 = BUILD + 4.8, BD = 1.9; // BD: when each beat's tick lands
+const M5 = { cIn: 18.6, pickA: 19.3, aiIn: 19.6, lensIn: 21.6, alertIn: 22.2, c2In: 23.8, pickB: 24.4, fix: 24.7, chkIn: 24.9, chkOut: 27.4 };
 const HARV = M5.chkIn + 1.6;
+const CREWOK = CREWT + 1.6;
 
 // ---------- the red island (brochure island-mars) ----------
 const v = new Vox(); v.jitter = 0.05;
@@ -133,39 +134,81 @@ const iceCore = (() => { const q = new Vox(); q.jitter = 0.06; for (let y = 0; y
 const iceLight = new THREE.PointLight('#5cd0ff', 0, 18, 2); iceLight.position.set(DRX, 9, DRZ); scene.add(iceLight);
 const dust = burst(scene, { at: [DRX, 4.4, DRZ], t0: DR.bore + 0.1, n: 50, colors: ['#e8a06a', '#c46430', '#f0c08a'], size: 0.5, speed: 5, up: 5, life: 1.0, gravity: 8 });
 const spark = burst(scene, { at: [DRX, 8, DRZ], t0: DR.up + 0.25, n: 60, colors: ['#8fe4ff', '#ffffff', '#4fb3ea'], size: 0.45, speed: 7, up: 7, life: 1.2 });
-const crate = burst(scene, { at: [24.5, 8, -2], t0: HARV, n: 70, colors: ['#ff4a3a', '#5fc84a', '#7ae070', '#ffd23f'], size: 0.55, speed: 7, up: 9, life: 1.3 });
-// levels 2-4 build montage: inflatable module, regolith mound, porch; ice drill, tank, oxygen machine, pipes; solar field, batteries
-piece((pv) => { for (let x = 10; x <= 18; x++) for (let y = 4; y <= 9; y++) for (let z = -14; z <= -9; z++) { if (y === 9 && (x === 10 || x === 18 || z === -14 || z === -9)) continue; pv.set(x, y, z, y === 6 ? '#16c79a' : '#eef0f6'); } }, B2 + 0.1);
-piece((pv) => { for (let x = 7; x <= 21; x++) for (let y = 4; y <= 12; y++) for (let z = -16; z <= -8; z++) { const d = Math.hypot((x - 14) / 6.6, (y - 4) / 8.2) + (z === -16 ? 0.12 : 0); if (d > 1) continue; if (x >= 12 && x <= 16 && y <= 7 && z === -8) continue; pv.set(x, y, z, ['#b8582a', '#a84a24', '#c46430', '#9a4220'][Math.floor(rand(x, y, z) * 4)]); } }, B2 + 0.35, 999, { mode: 'rise', dur: 0.6 });
-piece((pv) => { pv.box(12, 4, -8, 16, 7, -5, '#eef0f6'); pv.box(12, 7, -8, 16, 7, -5, '#dfe3ee'); pv.box(13, 4, -5, 15, 6, -5, '#3a2aa8'); pv.box(12, 5, -5, 12, 5, -5, '#16c79a'); pv.box(16, 5, -5, 16, 5, -5, '#16c79a'); }, B2 + 0.75);
-piece((pv) => { pv.box(26, 4, -20, 28, 4, -18, '#6a6a7a'); pv.box(27, 5, -19, 27, 13, -19, '#9a9aa8'); pv.box(25, 13, -19, 29, 13, -19, '#c8c8d4'); pv.box(26, 5, -20, 26, 8, -20, '#9a9aa8'); pv.set(27, 14, -19, '#ff8a2a'); }, B3);
-piece((pv) => { pv.box(23, 4, -17, 26, 8, -14, '#eef0f6'); pv.box(23, 6, -17, 26, 6, -14, '#2f6fd8'); pv.box(24, 9, -16, 25, 9, -15, '#dfe3ee'); pv.box(22, 4, -18, 22, 5, -17, '#8fe4ff'); }, B3 + 0.15);
-piece((pv) => { pv.box(21, 4, -11, 22, 6, -9, '#dfe3ee'); pv.set(21, 6, -9, '#19f0c0'); pv.set(22, 6, -9, '#19f0c0'); pv.box(21, 7, -10, 21, 8, -10, '#9a9aa8'); }, B3 + 0.3);
-piece((pv) => { pv.box(27, 4, -18, 27, 4, -16, '#4fb3ea'); pv.box(24, 4, -13, 24, 4, -12, '#4fb3ea'); pv.box(22, 4, -12, 24, 4, -12, '#4fb3ea'); pv.box(17, 4, -8, 20, 4, -8, '#7ae0c8'); pv.box(20, 4, -10, 20, 4, -8, '#7ae0c8'); }, B3 + 0.45, 999, { mode: 'rise' });
+const crate = burst(scene, { at: [24.5, 10, -1.5], t0: HARV, n: 70, colors: ['#ff4a3a', '#5fc84a', '#7ae070', '#ffd23f'], size: 0.55, speed: 7, up: 9, life: 1.3 });
+
+// ---------- level 2: the habitat assembles module by module, then gets a Mars-soil (regolith) roof ----------
+const WH = '#eef0f6', WH2 = '#dfe3ee', TEAL = '#16c79a';
+const habMod = (pv, x0, x1, y0, y1, z0, z1, stripe) => { for (let x = x0; x <= x1; x++) for (let y = y0; y <= y1; y++) for (let z = z0; z <= z1; z++) { if (y === y1 && (x === x0 || x === x1 || z === z0 || z === z1)) continue; pv.set(x, y, z, y === stripe ? TEAL : (y === y1 ? WH2 : WH)); } };
+piece((pv) => { pv.box(8, 4, -14, 20, 4, -8, '#a8adb8'); pv.box(13, 4, -7, 15, 4, -5, '#a8adb8'); }, B2 + 0.05, 999, { mode: 'rise', G: 1, dur: 0.35 });
+piece((pv) => habMod(pv, 11, 17, 5, 11, -14, -8, 7), B2 + 0.3, 999, { dur: 0.4 });
+piece((pv) => habMod(pv, 8, 10, 5, 8, -13, -9, 6), B2 + 0.6, 999, { dur: 0.4 });
+piece((pv) => habMod(pv, 18, 20, 5, 8, -13, -9, 6), B2 + 0.8, 999, { dur: 0.4 });
+// airlock porch: frame and a green status light either side of the door (the door itself is a separate sliding panel)
+piece((pv) => { pv.box(13, 5, -7, 15, 8, -5, WH2); pv.box(13, 9, -7, 15, 9, -5, '#c8ccd8'); pv.set(14, 5, -5, '#3a4458'); pv.set(14, 6, -5, '#3a4458'); pv.set(14, 7, -5, '#3a4458'); pv.set(13, 8, -5, TEAL); pv.set(15, 8, -5, TEAL); }, B2 + 1.05, 999, { dur: 0.4 });
+const doorMat = new THREE.MeshLambertMaterial({ color: '#4a6a9a', emissive: new THREE.Color('#1a3a6a'), emissiveIntensity: 0.4 });
+const door = new THREE.Mesh(new THREE.BoxGeometry(1.0, 2.9, 0.2), doorMat); door.position.set(14.5, 6.5, -3.88); scene.add(door);
+// regolith shielding: Mars soil bricks piled on the roofs
+piece((pv) => { for (let x = 11; x <= 17; x++) for (let z = -14; z <= -8; z++) { const edge = x === 11 || x === 17 || z === -14 || z === -8; pv.set(x, edge ? 11 : 12, z, ['#b8582a', '#a84a24', '#c46430', '#9a4220'][Math.floor(rand(x, 12, z) * 4)]); if (!edge && !(x === 11 + 1 || x === 17 - 1 || z === -13 || z === -9)) pv.set(x, 13, z, '#b8582a'); } for (const [a, b] of [[8, 10], [18, 20]]) for (let x = a; x <= b; x++) for (let z = -13; z <= -9; z++) pv.set(x, 9, z, ['#b8582a', '#a84a24', '#c46430'][Math.floor(rand(x, 9, z) * 3)]); }, B2 + 1.5, 999, { mode: 'rise', G: 3, dur: 0.45 });
+const puff = burst(scene, { at: [14, 12, -11], t0: B2 + 1.55, n: 60, colors: ['#e8a06a', '#c46430', '#f0c08a'], size: 0.6, speed: 7, up: 4, life: 1.0, gravity: 6 });
+// habitat windows light up warm yellow
+const winMat = new THREE.MeshBasicMaterial({ color: '#ffd66b' });
+const wins = new THREE.Group(); for (const [x, y, z, w] of [[12.0, 8.6, -6.9, 1.2], [17.0, 8.6, -6.9, 1.2], [14.5, 10.4, -6.9, 1.6], [9.5, 6.6, -7.9, 1.2], [19.5, 6.6, -7.9, 1.2]]) { const m = new THREE.Mesh(new THREE.BoxGeometry(w, 1.0, 0.2), winMat); m.position.set(x, y, z); wins.add(m); } scene.add(wins);
+
+// ---------- level 3: buried ice -> drill -> pipes -> water tank -> oxygen machine ----------
+const iceMat = new THREE.MeshLambertMaterial({ vertexColors: true, emissive: new THREE.Color('#1a6aa8'), emissiveIntensity: 0.55 });
+piece((pv) => { for (let x = 25; x <= 30; x++) for (let z = -20; z <= -17; z++) { pv.set(x, 4, z, ['#8fe4ff', '#5cc8f8', '#b8f0ff', '#4fb3ea'][Math.floor(rand(x, 4, z) * 4)]); if (rand(x, 5, z) > 0.6 && (x === 25 || x === 30 || z === -20)) pv.set(x, 5, z, '#b8f0ff'); } }, B3 + 0.05, 999, { mode: 'rise', G: 1.5, dur: 0.4, mat: iceMat });
+const iceSpark = burst(scene, { at: [27.5, 5, -18.5], t0: B3 + 0.2, n: 40, colors: ['#8fe4ff', '#ffffff', '#4fb3ea'], size: 0.4, speed: 5, up: 6, life: 0.9 });
+piece((pv) => { for (const [x, z] of [[26, -20], [29, -20], [26, -17], [29, -17]]) pv.box(x, 5, z, x, 11, z, '#ffc83d'); pv.box(26, 12, -20, 29, 12, -17, '#ffb020'); pv.box(27, 5, -19, 28, 11, -18, '#9a9aa8'); pv.box(27, 13, -19, 28, 13, -18, '#e8573f'); }, B3 + 0.4, 999, { mode: 'rise', dur: 0.4 });
+// water tank with a rising blue gauge, and the oxygen machine next to the habitat
+piece((pv) => { habMod(pv, 23, 26, 5, 10, -15, -12, 99); pv.box(23, 7, -15, 26, 7, -12, '#2f6fd8'); }, B3 + 0.6, 999, { dur: 0.4 });
+const gauge = new THREE.Mesh(new THREE.BoxGeometry(1.8, 1, 0.25), new THREE.MeshLambertMaterial({ color: '#4fb3ff', emissive: new THREE.Color('#1a6ad8'), emissiveIntensity: 0.6 })); gauge.geometry.translate(0, 0.5, 0); gauge.position.set(25, 5.2, -10.85); scene.add(gauge);
+piece((pv) => { pv.box(21, 5, -11, 22, 7, -9, WH2); pv.set(21, 7, -9, '#19f0c0'); pv.set(22, 7, -9, '#19f0c0'); pv.box(21, 8, -10, 21, 9, -10, '#9a9aa8'); }, B3 + 0.9, 999, { dur: 0.4 });
+// pipes snake out from the drill, into the tank, on to the oxygen machine and the habitat
+const WP = [[27.5, -16.5], [27.5, -10.4], [23.4, -10.4]];
+const PIPE = []; { let s = 0; for (let j = 0; j < WP.length - 1; j++) { const [ax, az] = WP[j], [bx, bz] = WP[j + 1]; const L = Math.hypot(bx - ax, bz - az); for (let u = 0; u < L; u += 0.5) PIPE.push([lerp(ax, bx, u / L), lerp(az, bz, u / L), s + u]); s += L; } }
+const PIPE_LEN = WP.slice(1).reduce((a, p, j) => a + Math.hypot(p[0] - WP[j][0], p[1] - WP[j][1]), 0);
+const pipeM = new THREE.InstancedMesh(new THREE.BoxGeometry(0.75, 0.75, 0.75), new THREE.MeshLambertMaterial({ color: '#c8ccd8' }), PIPE.length); pipeM.frustumCulled = false; scene.add(pipeM);
+PIPE.forEach(([, , s], i) => pipeM.setColorAt(i, new THREE.Color(s < 7 ? '#4fb3ea' : '#7ae0c8')));
+const flow = particles(30, { size: 0.42, emissive: '#3aa8ff' }); scene.add(flow);
+
+// ---------- level 4: solar panels rise on posts and unfold; batteries glow ----------
+const SOL = []; for (const x of [-2.5, 1.5, 5.5]) for (const z of [-17.5, -14.5, -11.5, -8.5, -5.5]) SOL.push([x, z]);
+const solarMat = new THREE.MeshStandardMaterial({ color: '#2b4fb8', roughness: 0.3, metalness: 0.35, emissive: new THREE.Color('#0a1a60'), emissiveIntensity: 0.4 });
+const solarM = new THREE.InstancedMesh(new THREE.BoxGeometry(3.4, 0.22, 2.4), solarMat, SOL.length); solarM.frustumCulled = false; solarM.castShadow = true; scene.add(solarM);
+const postM = new THREE.InstancedMesh(new THREE.BoxGeometry(0.35, 1.6, 0.35), new THREE.MeshLambertMaterial({ color: '#9a9aa8' }), SOL.length); postM.frustumCulled = false; scene.add(postM);
 const battMat = new THREE.MeshLambertMaterial({ color: '#ffc83d', emissive: new THREE.Color('#ff9a00'), emissiveIntensity: 0.3 });
-piece((pv) => { for (const x of [-3, 1, 5]) { pv.box(x, 4, -1, x + 2, 5, 1, '#2a2f45'); } }, B4 + 0.5);
-piece((pv) => { for (const x of [-3, 1, 5]) pv.box(x, 6, -1, x + 2, 6, 1, '#ffc83d'); }, B4 + 0.5, 999, { mat: battMat });
-// level 5: the Planner's Mars-soil beds, a soil probe, then the hydroponic greenhouse
+piece((pv) => { for (const x of [-3, 1, 5]) { pv.box(x, 4, -1, x + 2, 5, 1, '#2a2f45'); } }, B4 + 1.3, 999, { mode: 'rise', dur: 0.35 });
+piece((pv) => { for (const x of [-3, 1, 5]) pv.box(x, 6, -1, x + 2, 6, 1, '#ffc83d'); }, B4 + 1.45, 999, { mat: battMat, dur: 0.35 });
+
+// ---------- level 5: the Planner's Mars-soil beds, a soil probe, then the voxel greenhouse ----------
 piece((pv) => { for (const z of [-4, -2, 0]) pv.box(20, 4, z, 28, 4, z, '#6e2e14'); }, M5.aiIn + 0.2, M5.fix, { mode: 'rise', G: 4 });
 piece((pv) => { pv.box(24, 5, -1, 24, 9, -1, '#e8e8f0'); pv.box(23, 10, -1, 25, 11, -1, '#2f9df0'); pv.set(24, 12, -1, '#ff4a3a'); }, M5.lensIn, M5.fix);
-piece((pv) => { pv.box(19, 4, -6, 29, 4, 2, '#dfe3ee'); for (const x of [19, 24, 29]) for (const z of [-6, 2]) pv.box(x, 5, z, x, 6, z, '#eef0f6'); pv.box(23, 5, 2, 25, 6, 2, '#3a2aa8'); }, M5.fix);
-piece((pv) => { for (const z of [-4, -2, 0]) for (let x = 20; x <= 28; x++) pv.set(x, 5, z, '#dfe3ee'); }, M5.fix + 0.15);
+// greenhouse: floor, white frame (posts, beams, stepped rafters and ridge), two plant racks under LED strips, clear glass panes
+const GF = M5.fix;
+piece((pv) => pv.box(19, 4, -6, 29, 4, 2, '#cfd5e0'), GF, 999, { mode: 'rise', G: 1, dur: 0.3 });
+piece((pv) => { const F = '#f4f6fb', S = '#8a94a8';
+  for (const [x, z] of [[19, -6], [29, -6], [19, 2], [29, 2], [22, 2], [26, 2]]) pv.box(x, 5, z, x, 10, z, F);
+  pv.box(19, 11, -6, 29, 11, -6, F); pv.box(19, 11, 2, 29, 11, 2, F); pv.box(19, 11, -6, 19, 11, 2, F); pv.box(29, 11, -6, 29, 11, 2, F);
+  pv.box(19, 5, -6, 29, 5, -6, S); pv.box(19, 5, 2, 22, 5, 2, S); pv.box(26, 5, 2, 29, 5, 2, S); pv.box(19, 5, -6, 19, 5, 2, S); pv.box(29, 5, -6, 29, 5, 2, S);
+  pv.box(22, 9, 2, 26, 9, 2, F);
+  for (const x of [19, 29]) for (let z = -6; z <= 2; z++) { const d = Math.abs(z + 2); pv.set(x, d >= 3 ? 11 : d >= 1 ? 12 : 13, z, F); }
+  pv.box(19, 13, -2, 29, 13, -2, F); }, GF + 0.15, 999, { dur: 0.4 });
+piece((pv) => { for (const z of [-4, 0]) { for (const x of [20, 28]) pv.box(x, 5, z, x, 10, z, '#8a90a0'); pv.box(20, 5, z, 28, 5, z, '#e8ecf2'); pv.box(21, 8, z, 27, 8, z, '#e8ecf2'); } }, GF + 0.3, 999, { mode: 'rise', G: 2, dur: 0.35 });
 const rackMat = new THREE.MeshLambertMaterial({ vertexColors: true, emissive: new THREE.Color('#1a8a3a'), emissiveIntensity: 0.0 });
-piece((pv) => { for (const z of [-4, -2, 0]) for (let x = 20; x <= 28; x++) { pv.set(x, 6, z, rand(x, z) > .5 ? '#4fd060' : '#7ae070'); if (rand(x, 3, z) > 0.62) pv.set(x, 7, z, '#ff4a3a'); else if (rand(x, 4, z) > 0.4) pv.set(x, 7, z, '#5fc84a'); } }, M5.fix + 0.5, 999, { mat: rackMat, mode: 'rise', G: 6, dur: 2.2 });
-piece((pv) => { for (let x = 19; x <= 29; x++) for (let y = 5; y <= 10; y++) for (let z = -6; z <= 2; z++) { const d = Math.hypot((z + 2) / 4.6, (y - 4.5) / 5.6); if (d > 1 || d < 0.78) continue; pv.set(x, y, z, '#a8ffd8'); } }, M5.fix + 0.3, 999, { mat: new THREE.MeshPhongMaterial({ color: '#9ff5d0', emissive: new THREE.Color('#2ad87a'), emissiveIntensity: 0.5, transparent: true, opacity: 0.3, depthWrite: false, shininess: 80 }) });
-const ghLight = new THREE.PointLight('#6dff9a', 0, 26, 2); ghLight.position.set(24, 9, -2); scene.add(ghLight);
+piece((pv) => { for (const z of [-4, 0]) for (let x = 20; x <= 28; x++) { for (const [y0, xa, xb] of [[6, 21, 27], [9, 21, 27]]) { if (x < xa || x > xb) continue; pv.set(x, y0, z, rand(x, y0, z) > .5 ? '#4fd060' : '#7ae070'); if (rand(x, 3 + y0, z) > 0.62) pv.set(x, y0 + 1, z, '#ff4a3a'); else if (rand(x, 4 + y0, z) > 0.35) pv.set(x, y0 + 1, z, '#5fc84a'); } } }, GF + 0.6, 999, { mat: rackMat, mode: 'rise', G: 2, dur: 1.4 });
+const ledG = new THREE.Group(); { const pink = new THREE.MeshBasicMaterial({ color: '#ff6ad5' }), white = new THREE.MeshBasicMaterial({ color: '#fff6fd' }); for (const z of [-4, 0]) for (const y of [7.75, 11.45]) for (let x = 20; x <= 28; x++) { const m = new THREE.Mesh(new THREE.BoxGeometry(1, 0.3, 0.32), x % 2 ? white : pink); m.position.set(x + 0.5, y, z + 1.12); ledG.add(m); }} scene.add(ledG);
+const glassMat = new THREE.MeshPhongMaterial({ color: '#d6f2ff', specular: new THREE.Color('#ffffff'), shininess: 120, transparent: true, opacity: 0.12, depthWrite: false, side: THREE.DoubleSide });
+const glass = new THREE.Group(); {
+  const add = (g, x, y, z, rx = 0, ry = 0) => { const m = new THREE.Mesh(g, glassMat); m.position.set(x, y, z); m.rotation.set(rx, ry, 0); m.renderOrder = 3; glass.add(m); };
+  add(new THREE.BoxGeometry(10.4, 6.6, 0.05), 24.5, 8.5, 2.5); add(new THREE.BoxGeometry(10.4, 6.6, 0.05), 24.5, 8.5, -5.5);
+  add(new THREE.BoxGeometry(0.05, 6.6, 7.6), 19.5, 8.5, -1.5); add(new THREE.BoxGeometry(0.05, 6.6, 7.6), 29.5, 8.5, -1.5);
+  const sl = Math.hypot(4, 2), a = Math.atan2(2, 4); add(new THREE.BoxGeometry(10.4, 0.05, sl), 24.5, 13, 0.5, a); add(new THREE.BoxGeometry(10.4, 0.05, sl), 24.5, 13, -3.5, -a);
+  const tri = new THREE.Shape([new THREE.Vector2(-4, 0), new THREE.Vector2(4, 0), new THREE.Vector2(0, 2)]); for (const x of [19.5, 29.5]) add(new THREE.ShapeGeometry(tri), x, 12, -1.5, 0, Math.PI / 2);
+} scene.add(glass);
+const ghLight = new THREE.PointLight('#ff8ae0', 0, 22, 2); ghLight.position.set(24.5, 9, -1.5); scene.add(ghLight);
 // toxic-soil warning glow over the beds after the soil test
 const toxMat = new THREE.MeshBasicMaterial({ color: '#ff3a2a', transparent: true, opacity: 0, depthWrite: false });
 const tox = new THREE.Mesh(new THREE.BoxGeometry(10.6, 0.12, 6.4), toxMat); tox.position.set(24.5, 5.15, -1.5); scene.add(tox);
-// habitat windows
-const winMat = new THREE.MeshBasicMaterial({ color: '#ffd66b' });
-const wins = new THREE.Group(); for (const [x, y] of [[9.5, 8], [18.5, 8], [14, 10]]) { const w = new THREE.Mesh(new THREE.BoxGeometry(1.4, 1, 0.2), winMat); w.position.set(x, y + 0.5, -7.85); wins.add(w); } scene.add(wins);
-
-// ---------- solar field (built in the montage) ----------
-const SOL = []; for (const x of [-2.5, 1.5, 5.5]) for (const z of [-17.5, -14.5, -11.5, -8.5, -5.5]) SOL.push([x, z]);
-const solarM = new THREE.InstancedMesh(new THREE.BoxGeometry(3.4, 0.22, 2.4), new THREE.MeshStandardMaterial({ color: '#2b4fb8', roughness: 0.3, metalness: 0.35, emissive: new THREE.Color('#0a1a60'), emissiveIntensity: 0.4 }), SOL.length); solarM.frustumCulled = false; solarM.castShadow = true; scene.add(solarM);
-const postM = new THREE.InstancedMesh(new THREE.BoxGeometry(0.35, 1.6, 0.35), new THREE.MeshLambertMaterial({ color: '#9a9aa8' }), SOL.length); postM.frustumCulled = false; scene.add(postM);
-const SOLT = B4;
 
 // ---------- Level 1: Planner's ghost colony on the dusty plain, slides to the ice plain ----------
 const ghost = new THREE.Group(); { const gv = new Vox(); gv.box(-3, 0, -3, 3, 6, 2, '#fff'); gv.box(-2, 7, -2, 2, 7, 1, '#fff'); gv.box(5, 0, -2, 10, 3, 3, '#fff'); for (let x = -10; x <= -5; x += 2) gv.box(x, 0, -3, x + 1, 1, 3, '#fff'); const gm = gv.mesh({ castShadow: false }); gm.material = ghostMat; ghost.add(gm); } scene.add(ghost);
@@ -175,13 +218,11 @@ const ICE = []; for (let x = -RX; x <= RX; x += 2) for (let z = -RZ; z <= RZ; z 
 const iceT = new THREE.InstancedMesh(new THREE.BoxGeometry(1.7, 0.16, 1.7), new THREE.MeshBasicMaterial({ color: '#3fe8ff', transparent: true, opacity: 0.9 }), ICE.length); iceT.frustumCulled = false; scene.add(iceT);
 const noIce = new THREE.Mesh(new THREE.TorusGeometry(10, 0.45, 6, 48), new THREE.MeshBasicMaterial({ color: '#ff3a2a' })); noIce.rotation.x = Math.PI / 2; noIce.scale.set(1.05, 0.75, 1); noIce.position.set(-22, 3.4, 6); scene.add(noIce);
 
-// ---------- potato sprouts in Mars soil (level 5) ----------
+// ---------- potato sprouts in Mars soil (level 5): tall green shoots that droop and turn brown ----------
 const SPR = []; for (const z of [-4, -2, 0]) for (let x = 20; x <= 28; x++) SPR.push([x + 0.5, z + 0.5]);
-const sprouts = particles(SPR.length, { size: 1.05 }); scene.add(sprouts);
-const SPG = new THREE.Color('#4fd040'), SPB = new THREE.Color('#6a4a22'), tmpC = new THREE.Color();
-// ---------- flow dots: water from the ice drill, oxygen to the habitat ----------
-const WP = [[27.5, -17.5], [27.5, -15.5], [24.5, -12.5], [22, -12.5], [21.5, -10], [20.5, -8.5], [16, -8.5]];
-const flow = particles(36, { size: 0.5, emissive: '#3aa8ff' }); scene.add(flow);
+const sprouts = new THREE.InstancedMesh((() => { const g = new THREE.BoxGeometry(0.6, 1.5, 0.6); g.translate(0, 0.75, 0); return g; })(), new THREE.MeshLambertMaterial({ color: '#ffffff' }), SPR.length); sprouts.frustumCulled = false; scene.add(sprouts);
+const leaves = new THREE.InstancedMesh(new THREE.BoxGeometry(1.1, 0.35, 1.1), new THREE.MeshLambertMaterial({ color: '#ffffff' }), SPR.length); leaves.frustumCulled = false; scene.add(leaves);
+const SPG = new THREE.Color('#4fd040'), SPL = new THREE.Color('#7ae070'), SPB = new THREE.Color('#6a4520'), SPB2 = new THREE.Color('#8a5a2a'), tmpC = new THREE.Color();
 // ---------- crew of four in role-coloured suits ----------
 function astro(col, s) {
   const g = new THREE.Group(); const mk = (fn) => { const q = new Vox(); q.jitter = 0.02; fn(q); return q.mesh({ scale: s }); };
@@ -193,13 +234,17 @@ function astro(col, s) {
   return g;
 }
 const CREW = ['#6e5bf2', '#16c79a', '#ff8a2a', '#2f9df0'].map((c) => { const a = astro(c, 0.52); a.visible = false; scene.add(a); return a; });
+// crew beat: out of the airlock one by one to a line in front of the habitat; then each walks its own path in the live view
+const DOOR = [14.5, -3.6];
+const CT = [[10.6, 0.6], [13.2, 1.9], [15.9, 1.9], [17.5, -0.4]];
+const CP = [[[10.6, 0.6], [9.2, 4.4], [5.6, 6.6]], [[13.2, 1.9], [12.6, 6.4], [9.4, 9.6]], [[15.9, 1.9], [15.6, 6.8], [18.4, 9.8]], [[17.5, -0.4], [17.8, 4.4], [24.5, 4.6]]];
+function walkPath(P, d) { for (let j = 0; j < P.length - 1; j++) { const [ax, az] = P[j], [bx, bz] = P[j + 1]; const L = Math.hypot(bx - ax, bz - az); if (d <= L || j === P.length - 2) { const k = clamp(d / L); return { x: lerp(ax, bx, k), z: lerp(az, bz, k), ang: Math.atan2(bx - ax, bz - az), end: d >= L && j === P.length - 2 }; } d -= L; } }
 // ---------- rover ----------
 const rover = new THREE.Group(); { const b = new Vox(); b.box(-3, 2, -2, 3, 3, 2, '#ffc83d'); b.box(-3, 1, -2, 3, 1, 2, '#3a4752'); b.box(-2, 4, -2, 1, 4, 2, '#2f9df0'); b.box(2, 4, 0, 2, 7, 0, '#eef0f6'); b.box(1, 8, -1, 3, 8, 1, '#c8c8d4'); rover.add(b.mesh({ scale: 0.5 })); }
 const wheels = []; for (const wx of [-1.3, 0.1, 1.5]) for (const wz of [-1.5, 1.5]) { const w = new THREE.Mesh(new THREE.BoxGeometry(1.0, 1.0, 0.6), new THREE.MeshLambertMaterial({ color: '#22222c' })); w.position.set(wx, 0.5, wz); rover.add(w); wheels.push(w); }
 scene.add(rover);
 const RV = [[2, 6], [-8, 11], [-20, 11], [-27, 5], [-18, 1], [-6, 4]];
-const conf = burst(scene, { at: [14, 12, -8], t0: LIVE + 1.0, n: 110, colors: ['#ffd23f', '#16c79a', '#ff6a4a', '#ffffff', '#6e5bf2'], size: 0.55, speed: 10, up: 9, life: 2.2 });
-const puff = burst(scene, { at: [14, 5, -12], t0: B2 + 0.35, n: 60, colors: ['#e8a06a', '#c46430', '#f0c08a'], size: 0.7, speed: 9, up: 4, life: 1.2, gravity: 6 });
+const conf = burst(scene, { at: [14, 13, -8], t0: LIVE + 0.4, n: 110, colors: ['#ffd23f', '#16c79a', '#ff6a4a', '#ffffff', '#6e5bf2'], size: 0.55, speed: 10, up: 9, life: 2.2 });
 const dObj = new THREE.Object3D();
 
 st.onFrame((t) => {
@@ -209,10 +254,20 @@ st.onFrame((t) => {
     if (p.mode === 'rise') { const s = Math.max(0.001, Math.min(ease.out(kk), out)); p.m.scale.y = s; p.m.position.y = p.G * (1 - s); }
     else { const s = Math.max(0.001, Math.min(kk >= 1 ? 1 : 0.7 + 0.3 * kk, out)); p.m.scale.y = s; p.m.position.y = p.G * (1 - s) + (1 - ease.out(kk)) * 12; }
   }
-  wins.visible = t > B2 + 0.85;
+  // habitat: windows switch on one after another; airlock door slides aside for the crew
+  wins.children.forEach((w, i) => { const k = prog(t, B2 + 1.25 + i * 0.07, B2 + 1.45 + i * 0.07, ease.back); w.visible = k > 0; w.scale.set(Math.max(k, 0.001), Math.max(k, 0.001), 1); });
+  door.visible = t > B2 + 1.3; door.position.x = 14.5 + 1.1 * prog(t, CREWT + 0.1, CREWT + 0.4, ease.inOut) - 1.1 * prog(t, LIVE - 0.4, LIVE - 0.1);
+  doorMat.emissiveIntensity = 0.4;
+  // water: gauge fills, pipes snake out, water and oxygen flow
+  { const f = prog(t, B3 + 1.0, B3 + 2.0, ease.inOut); gauge.visible = t > B3 + 0.95; gauge.scale.y = Math.max(0.001, 0.15 + 3.4 * f); }
+  PIPE.forEach(([x, z, s], i) => { const k = prog(t, B3 + 0.55 + (s / PIPE_LEN) * 0.75, B3 + 0.7 + (s / PIPE_LEN) * 0.75, ease.back); dObj.position.set(x, 4.4, z); dObj.rotation.set(0, 0, 0); dObj.scale.setScalar(Math.max(k, 0.001)); dObj.updateMatrix(); pipeM.setMatrixAt(i, dObj.matrix); }); pipeM.instanceMatrix.needsUpdate = true;
+  for (let i = 0; i < 30; i++) { const on = t > B3 + 1.35; const u = ((t * 0.22 + i / 30) % 1); const p = walkPath(WP, u * PIPE_LEN); flow.setColorAt(i, new THREE.Color(u < 0.55 ? '#4fb3ff' : '#3dffc8')); flow.setAt(i, p.x, 5.0, p.z, 0, t, on ? 1 : 0); } flow.done();
+  // power: posts rise, then each panel swings down from upright and unfolds its wings
   battMat.emissiveIntensity = 0.35 + 0.15 * Math.sin(t * 3);
-  SOL.forEach(([x, z], i) => { const t0 = SOLT + i * 0.04; const s = t > t0 ? prog(t, t0, t0 + 0.4, ease.back) : 0; dObj.position.set(x, 5.4 + (1 - s) * 6, z); dObj.rotation.set(-0.45, 0, 0); dObj.scale.setScalar(Math.max(s, 0.001)); dObj.updateMatrix(); solarM.setMatrixAt(i, dObj.matrix); dObj.position.set(x, 4.8, z); dObj.rotation.set(0, 0, 0); dObj.scale.set(1, Math.max(s, 0.001), 1); dObj.updateMatrix(); postM.setMatrixAt(i, dObj.matrix); });
-  solarM.instanceMatrix.needsUpdate = true; postM.instanceMatrix.needsUpdate = true;
+  SOL.forEach(([x, z], i) => { const tp = B4 + 0.05 + i * 0.025; const sp = prog(t, tp, tp + 0.3, ease.out); const tu = B4 + 0.35 + i * 0.065; const u = prog(t, tu, tu + 0.5, ease.back); const vis = sp > 0;
+    dObj.position.set(x, 5.4, z); dObj.rotation.set(lerp(-Math.PI / 2, -0.45, u), 0, 0); dObj.scale.set(vis ? Math.max(0.22, u) : 0.001, vis && t > tu ? 1 : 0.001, 1); dObj.updateMatrix(); solarM.setMatrixAt(i, dObj.matrix);
+    dObj.position.set(x, 4.8, z); dObj.rotation.set(0, 0, 0); dObj.scale.set(1, Math.max(sp, 0.001), 1); dObj.updateMatrix(); postM.setMatrixAt(i, dObj.matrix); });
+  solarM.instanceMatrix.needsUpdate = true; postM.instanceMatrix.needsUpdate = true; solarMat.emissiveIntensity = 0.4 + 0.5 * (prog(t, B4 + 1.6, B4 + 1.8) - prog(t, B4 + 1.9, B4 + 2.3));
   // ghost colony: blooms on the plain, slides to the ice plain after the clearer card
   { const on = within(t, M1.aiIn, M1.fix + 1.3); ghost.visible = on; const s = prog(t, M1.aiIn, M1.aiIn + 0.6, ease.back); const k = prog(t, M1.fix, M1.fix + 0.9); const fade = 1 - prog(t, M1.fix + 0.9, M1.fix + 1.3);
     ghost.position.set(lerp(GH_A[0], GH_B[0], k), lerp(GH_A[1], GH_B[1], k) + Math.sin(k * Math.PI) * 7, lerp(GH_A[2], GH_B[2], k)); ghost.scale.set(1, Math.max(0.001, s), 1); ghostMat.opacity = (0.72 + 0.12 * Math.sin(t * 6)) * fade; }
@@ -220,21 +275,28 @@ st.onFrame((t) => {
   { const on = within(t, M1.lensIn, M1.fix + 1.0); const r = 62 * prog(t, M1.lensIn, M1.lensIn + 1.2, (q) => q); radarRing.visible = on && r < 46; radarRing.position.set(-22, 3.6, 6); radarRing.scale.setScalar(Math.max(r, 0.01));
     ICE.forEach(([x, z, p], i) => { const d = Math.hypot(x + 22, z - 6); const s = on && d < r ? Math.min(1, (r - d) / 4) * (0.45 + p * 0.55) : 0; dObj.position.set(x + 0.5, hAt(x, z) + 1.1, z + 0.5); dObj.rotation.set(0, 0, 0); dObj.scale.set(Math.max(s, 0.001), s > 0 ? 1 : 0.001, Math.max(s, 0.001)); dObj.updateMatrix(); iceT.setMatrixAt(i, dObj.matrix); }); iceT.instanceMatrix.needsUpdate = true;
     noIce.visible = within(t, M1.alertIn - 0.2, M1.fix); noIce.material.color.set(Math.sin(t * 10) > -0.3 ? '#ff3a2a' : '#ff9a8a'); }
-  // sprouts in Mars soil: grow tall and green, then wilt brown after the soil test
-  SPR.forEach(([x, z], i) => { const g = prog(t, M5.aiIn + 0.5 + (i % 9) * 0.05, M5.aiIn + 1.3 + (i % 9) * 0.05, ease.back); const w = prog(t, M5.lensIn + 0.5 + (i % 5) * 0.08, M5.lensIn + 1.6 + (i % 5) * 0.08); const on = within(t, M5.aiIn + 0.5, M5.fix + 0.1); tmpC.copy(SPG).lerp(SPB, w); sprouts.setColorAt(i, tmpC); sprouts.setAt(i, x, 5.55 - 0.3 * w, z, w * 0.7, rand(i, 9) * 3, on ? g * (1 - w * 0.4) : 0); }); sprouts.done();
-  toxMat.opacity = within(t, M5.alertIn - 0.3, M5.fix) ? 0.55 + 0.2 * Math.sin(t * 9) : 0;
-  { const on = t > M5.fix + 0.3; const k = prog(t, M5.fix + 0.3, M5.fix + 1.5); ghLight.intensity = on ? k * (120 + 15 * Math.sin(t * 2)) : 0; rackMat.emissiveIntensity = on ? 0.8 * k : 0; }
-  for (let i = 0; i < 36; i++) { const on = t > B3 + 0.6; const u = ((t * 0.18 + i / 36) % 1); const segs = WP.length - 1; const f = u * segs; const j = Math.min(Math.floor(f), segs - 1), k = f - j; const x = lerp(WP[j][0], WP[j + 1][0], k), z = lerp(WP[j][1], WP[j + 1][1], k); flow.setColorAt(i, new THREE.Color(j < 4 ? '#4fb3ff' : '#3dffc8')); flow.setAt(i, x, 4.8, z, 0, t, on ? 1 : 0); } flow.done();
-  // crew: two at the farm in level 5 (the scientist runs the soil test), all four at work in the live view
+  // sprouts in Mars soil: grow tall and green, then droop and turn brown as the wilt banner lands
+  SPR.forEach(([x, z], i) => { const g = prog(t, M5.aiIn + 0.5 + (i % 9) * 0.05, M5.aiIn + 1.3 + (i % 9) * 0.05, ease.back); const w = prog(t, M5.alertIn - 0.35 + (i % 5) * 0.04, M5.alertIn + 0.3 + (i % 5) * 0.04, ease.out); const on = within(t, M5.aiIn + 0.5, M5.fix + 0.1) && g > 0; const sg = on ? g : 0.001; const tilt = w * 1.15 * (i % 2 ? 1 : -1);
+    tmpC.copy(SPG).lerp(SPB, w); sprouts.setColorAt(i, tmpC); dObj.position.set(x, 5.0, z); dObj.rotation.set(0, rand(i, 9) * 3, tilt); dObj.scale.set(sg, Math.max(0.001, sg * (1 - 0.45 * w)), sg); dObj.updateMatrix(); sprouts.setMatrixAt(i, dObj.matrix);
+    tmpC.copy(SPL).lerp(SPB2, w); leaves.setColorAt(i, tmpC); const hh = 1.5 * (1 - 0.45 * w); dObj.position.set(x + Math.sin(-tilt) * hh * sg, 5.0 + Math.cos(tilt) * hh * sg, z); dObj.scale.set(sg * (1 - 0.3 * w), sg, sg * (1 - 0.3 * w)); dObj.updateMatrix(); leaves.setMatrixAt(i, dObj.matrix); });
+  sprouts.instanceMatrix.needsUpdate = true; sprouts.instanceColor.needsUpdate = true; leaves.instanceMatrix.needsUpdate = true; leaves.instanceColor.needsUpdate = true;
+  toxMat.opacity = within(t, M5.alertIn - 0.35, M5.fix) ? 0.5 + 0.2 * Math.sin(t * 9) : 0;
+  // greenhouse: glass panes rise with the frame; LED strips switch on, plants glow
+  { const s = prog(t, GF + 0.2, GF + 0.6, ease.out); glass.visible = s > 0; glass.scale.y = Math.max(0.001, s); glass.position.y = 4 * (1 - s);
+    const led = prog(t, GF + 0.5, GF + 0.8); ledG.visible = t > GF + 0.3; ledG.children.forEach((m) => m.scale.setScalar(Math.max(0.001, prog(t, GF + 0.3, GF + 0.5, ease.back))));
+    ghLight.intensity = led * (55 + 8 * Math.sin(t * 2)); rackMat.emissiveIntensity = 0.55 * prog(t, GF + 0.8, GF + 1.8); }
+  // crew: two at the farm in level 5 (the scientist runs the soil test); all four step out of the airlock in level 6, then go to work
   CREW.forEach((c, i) => {
-    const farm = t > L5 + 0.2 && t < LIVE && (i === 1 || i === 3); const live = t >= LIVE;
-    c.visible = farm || live; if (!c.visible) return; let x, z, a, walk = 0, hop = 0;
-    if (!live) { x = i === 3 ? 17.4 : 30.6; z = i === 3 ? -1.2 : -2.2; a = i === 3 ? Math.PI / 2 : -Math.PI / 2; const tq = i === 3 ? M5.lensIn : M5.chkIn + 1.6; if (within(t, tq - 0.2, tq + 0.4)) hop = Math.sin(prog(t, tq - 0.2, tq + 0.4) * Math.PI) * 0.9; }
-    else { const P = i < 2 ? [[14, -4], [18, 4.8], [10, 7.5], [2, 4.5]] : [[16.5, -4], [18.4, -7.3], [22.6, -7.6], [25.6, -11.6], [27.8, -13]]; const pt = pathPoint(P, (t - LIVE) * 0.06 + (i % 2) * 0.04 + 0.1); x = pt.x + (i % 2) * 0.8; z = pt.z + (i % 2) * 0.5; a = pt.ang; walk = t * 8 + i; }
+    const farm = t > L5 + 0.2 && t < CREWT && (i === 1 || i === 3); const out = t >= CREWT;
+    let x, z, a, walk = 0, hop = 0, vis = farm;
+    if (farm) { x = i === 3 ? 17.3 : 31.8; z = i === 3 ? -1.2 : -2.2; a = i === 3 ? Math.PI / 2 : -Math.PI / 2; const tq = i === 3 ? M5.lensIn : HARV; if (within(t, tq - 0.2, tq + 0.4)) hop = Math.sin(prog(t, tq - 0.2, tq + 0.4) * Math.PI) * 0.9; }
+    else if (out && t < LIVE) { const te = CREWT + 0.35 + i * 0.3; vis = t > te; const k = prog(t, te, te + 1.0, ease.inOut); const mid = [DOOR[0], DOOR[1] + 1.4]; const P = [DOOR, mid, CT[i]]; const p = walkPath(P, k * (1.4 + Math.hypot(CT[i][0] - mid[0], CT[i][1] - mid[1]))); x = p.x; z = p.z; a = k < 1 ? p.ang : 0; walk = k < 1 ? t * 9 + i : 0; if (within(t, CREWOK - 0.1, CREWOK + 0.4)) hop = Math.sin(prog(t, CREWOK - 0.1, CREWOK + 0.4) * Math.PI) * 0.8; }
+    else if (out) { vis = true; const p = walkPath(CP[i], Math.max(0, t - LIVE - i * 0.12) * 2.2); x = p.x; z = p.z; a = p.end ? 0 : p.ang; walk = p.end ? 0 : t * 8 + i; }
+    c.visible = vis; if (!vis) return;
     c.position.set(x, hSm(x, z) + 1 + hop, z); c.rotation.y = a + Math.PI; c.userData.walk(walk);
   });
-  { rover.visible = true; const pt = pathPoint(RV, Math.max(0, t - LIVE + 0.5) * 0.045); rover.position.set(pt.x, hSm(pt.x, pt.z) + 1, pt.z); rover.rotation.y = pt.ang - Math.PI / 2; wheels.forEach((w) => (w.rotation.z = t > LIVE - 0.5 ? -t * 6 : 0)); }
-  conf(t); puff(t); dust(t); spark(t); crate(t);
+  { rover.visible = true; const pt = pathPoint(RV, Math.max(0, t - LIVE) * 0.045); rover.position.set(pt.x, hSm(pt.x, pt.z) + 1, pt.z); rover.rotation.y = pt.ang - Math.PI / 2; wheels.forEach((w) => (w.rotation.z = t > LIVE ? -t * 6 : 0)); }
+  conf(t); puff(t); dust(t); spark(t); crate(t); iceSpark(t);
   { const on = within(t, DR.rig + 0.3, BUILD - 0.1); drillStr.visible = on; const dn = prog(t, DR.bore, DR.up, ease.inOut), upk = prog(t, DR.up, DR.up + 0.4, ease.out); const y = 5 - 4.5 * dn + 9.5 * upk; drillStr.position.set(DRX, y, DRZ); drillStr.rotation.y = t > DR.bore && t < DR.up ? t * 14 : 0;
     const co = within(t, DR.up + 0.05, BUILD - 0.1); iceCore.visible = co; iceCore.position.set(DRX, y - 4 + 0.001, DRZ); iceCore.scale.y = Math.max(0.001, prog(t, DR.up, DR.up + 0.25)); iceCore.rotation.y = t * 0.8; iceLight.intensity = co ? 40 * prog(t, DR.up, DR.up + 0.4) * (1 - prog(t, BUILD - 0.4, BUILD - 0.1)) : 0; }
 
@@ -243,83 +305,95 @@ st.onFrame((t) => {
   // cam: orbit around a subject; sx shifts the subject sideways on screen (world units, + = right), dy lifts it
   const cam = (ang, dist, hgt, subj, sx = 0, dy = 0) => { const rx = Math.cos(ang), rz = -Math.sin(ang); look = [subj[0] - rx * sx, subj[1] - dy, subj[2] - rz * sx]; pos = [look[0] + Math.sin(ang) * dist, look[1] + hgt, look[2] + Math.cos(ang) * dist]; };
   const L1S = (k) => [lerp(-20, 12, k), lerp(3, 4, k), lerp(4, -8, k)];
+  const endCam = (k) => cam(lerp(-0.3, -0.42, k), lerp(150, 158, k), lerp(78, 82, k), [6, 0, -3], 0, lerp(-17, -16, k));
   if (t < L1) { const k = prog(t, 0, L1); cam(lerp(-1.0, -0.6, ease.inOut(k)), lerp(150, 104, ease.out(k)), lerp(108, 74, k), [2, 0, -4], 0, lerp(-10, 2, k)); }
   else if (t < BUILD) { const k = prog(t, L1, BUILD); const q = prog(t, M1.fix - 0.1, M1.fix + 1.1); const d = prog(t, DR.rig - 0.4, DR.rig + 0.5, ease.inOut); const S = L1S(q); cam(lerp(-0.5, -0.4, k), lerp(lerp(84, 80, k), 60, d), lerp(lerp(58, 56, k), 42, d), [lerp(S[0], DRX, d), lerp(S[1], 7, d), lerp(S[2], DRZ, d)], lerp(-13, -9, d), -4); }
-  else if (t < L5) { const k = prog(t, BUILD, L5); cam(lerp(-0.25, -0.05, k), lerp(96, 90, k), lerp(60, 56, k), [11, 5, -9], 3, -2); }
-  else if (t < LIVE) { const k = prog(t, L5, LIVE); cam(lerp(-0.75, -0.6, k), lerp(52, 47, k), lerp(40, 36, k), [24, 5, -1.5], -8, -3); }
-  else if (t < TITLE) { const k = prog(t, LIVE, TITLE); cam(lerp(0.25, 0.7, k), lerp(78, 72, k), lerp(44, 40, k), [12, 4, -5], 3, 3); }
-  else { const k = prog(t, TITLE, DUR); cam(lerp(0.7, 1.0, k), lerp(212, 226, k), lerp(136, 144, k), [4, 0, -2], 0, lerp(-27, -25, k)); }
+  else if (t < L5) {
+    // montage: one framing per build (clean cuts), each drifting slowly in
+    if (t < B3) { const k = prog(t, B2, B3); cam(lerp(-0.42, -0.32, k), lerp(56, 50, k), lerp(40, 36, k), [14, 6, -10], 6, -1); }
+    else if (t < B4) { const k = prog(t, B3, B4); cam(lerp(0.42, 0.52, k), lerp(54, 49, k), lerp(44, 40, k), [25, 6, -14], 6, -1); }
+    else { const k = prog(t, B4, L5); cam(lerp(-0.42, -0.3, k), lerp(56, 50, k), lerp(42, 38, k), [2, 5, -11], 6, -1); } }
+  else if (t < CREWT) { const k = prog(t, L5, CREWT); cam(lerp(-0.75, -0.6, k), lerp(54, 49, k), lerp(41, 37, k), [24, 6, -1.5], -8, -3); }
+  else if (t < LIVE) { const k = prog(t, CREWT, LIVE); cam(lerp(-0.05, 0.08, k), lerp(46, 43, k), lerp(34, 31, k), [15, 5, -1], 4, -1); }
+  else { const k = prog(t, LIVE, TITLE); cam(lerp(-0.2, 0.05, k), lerp(74, 70, k), lerp(42, 40, k), [13, 4, -4], 3, 3);
+    const e = prog(t, TITLE - 0.7, TITLE + 0.9, ease.inOut); if (e > 0) { const p0 = pos, l0 = look; endCam(prog(t, TITLE, DUR)); pos = pos.map((v, j) => lerp(p0[j], v, e)); look = look.map((v, j) => lerp(l0[j], v, e)); } }
   camera.fov = fov; camera.updateProjectionMatrix(); camera.position.set(...pos); camera.lookAt(...look);
 });
 
 // ================= UI =================
 const ui = []; const A = (f) => ui.push(f);
 const fade = fader(); A((t) => fade(t < 0.4 ? 1 - prog(t, 0, 0.4) : 0));
-const win = (t, a, b) => clamp(prog(t, a, a + 0.45, ease.out) - prog(t, b, b + 0.35, ease.in));
+// slide: panels stay fully opaque and slide in from / out to a screen edge, so there are never half-faded ghosts between beats
+function slide(node, tIn, tOut, { dx = 0, dy = 0, dur = 0.32, outDur = 0.26 } = {}) {
+  return (t) => { const a = prog(t, tIn, tIn + dur, ease.out); const b = tOut == null ? 0 : prog(t, tOut, tOut + outDur, ease.in); const vis = a > 0 && b < 1;
+    node.style.opacity = vis ? 1 : 0; node.style.visibility = vis ? 'visible' : 'hidden'; const m = (1 - a) + b;
+    const base = node.dataset.anchor === 'c' ? 'translate(-50%,-50%) ' : node.dataset.anchor === 'tr' ? 'translate(-100%,0) ' : node.dataset.anchor === 'bc' ? 'translate(-50%,-100%) ' : '';
+    node.style.transform = base + `translate(${dx * m}px, ${dy * m}px)`; };
+}
 const PLANET = (c) => `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6.2" fill="${c}"/><ellipse cx="12" cy="12" rx="11" ry="3.6" fill="none" stroke="${c}" stroke-width="1.8" transform="rotate(-20 12 12)"/><circle cx="10" cy="10" r="1.4" fill="#fff" opacity=".7"/></svg>`;
 const BC = '#e8573f', BS = '#b03a22';
+const HUD_OUT = TITLE - 0.55;
 // hook: the island, then the lab badge
 const hero = el(`<div class="hero" style="background:${BC};box-shadow:0 14px 0 ${BS},0 24px 60px rgba(90,30,10,.3)"><span class="ic">${PLANET(BC)}</span><span><b>Build a Space Colony</b><small>SPACE CAMP · AI LAB</small></span></div>`, { x: 960, y: 230, anchor: 'c' }); A(cue(hero, 0.4, 2.6, { from: 'pop', dur: 0.6 }));
 const heroSub = el('<div class="heroSub">Mars, Sol 1. A crew of four and one AI Planner.</div>', { x: 960, y: 400, anchor: 'c' }); A(cue(heroSub, 0.9, 2.6, { from: 'up' }));
-// header badge and per-level task (each task is fully gone before the next level banner)
-const badge = el(`<div class="b-badge" style="background:${BC};box-shadow:0 8px 0 ${BS},0 14px 30px rgba(0,0,0,.18)"><span class="ic">${PLANET(BC)}</span><span><b>Build a Space Colony</b><small>SPACE CAMP</small></span></div>`, { x: 46, y: 40 }); A(cue(badge, L1 + 0.1, TITLE - 0.5, { from: 'left' }));
-const LEVELS = [
-  [L1, BUILD - 0.45, 'L1/6', 'Choose a safe site for the colony', 'LEVEL 1', 'THE SITE', 1],
-  [L5, LIVE - 0.45, 'L5/6', 'Grow fresh food for a crew of four', 'LEVEL 5', 'FOOD', 5],
-];
-LEVELS.forEach(([t0, t1, tag, task, lv, short, n]) => {
-  const tk = el(`<div class="b-task" style="width:auto;max-width:1000px;font-size:32px"><span class="lv" style="background:#ffd23f;width:auto;padding:0 16px">${tag}</span>${task}</div>`, { x: 46, y: 176 }); A(cue(tk, t0 + 0.15, t1, { from: 'left' }));
-  lvPill(lv, short, n, t0 + 0.05, t0 + 1.8);
-});
-function lvPill(lv, short, n, a, b) { const lp = el(`<div class="lvp"><b>${lv}</b><span>${short}</span><div class="dots">${[0, 1, 2, 3, 4, 5].map((k) => `<i class="${k < n ? 'on' : ''}"></i>`).join('')}</div></div>`, { x: 1080, y: 92, anchor: 'c' }); A(cue(lp, a, b, { from: 'down', dur: 0.3, outDur: 0.25 })); }
-// levels 2-4: one task line that steps through the three levels, a level pill per beat, and a row of ticked beats
-const MB = [[B2, 'L2/6', 'Build a shelter from Mars soil', 'LEVEL 2', 'SHELTER', 2, 'Shelter', '#e8573f'], [B3, 'L3/6', 'Turn buried ice into a water loop', 'LEVEL 3', 'WATER', 3, 'Water loop', '#2f6fd8'], [B4, 'L4/6', 'Power the colony with sunlight', 'LEVEL 4', 'POWER', 4, 'Solar', '#ffc83d']];
-{ const tk = el('<div class="b-task" style="width:auto;max-width:1000px;font-size:32px"><span class="lv" style="background:#ffd23f;width:auto;padding:0 16px" data-l></span><span data-t></span></div>', { x: 46, y: 176 }); A(cue(tk, B2 + 0.1, L5 - 0.45, { from: 'left' }));
-  A((t) => { const i = MB.filter((m) => t >= m[0]).length - 1; if (i < 0) return; const m = MB[i]; if (tk.dataset.i !== String(i)) { tk.dataset.i = i; tk.querySelector('[data-l]').textContent = m[1]; tk.querySelector('[data-t]').textContent = m[2]; } });
-  MB.forEach((m, i) => lvPill(m[3], m[4], m[5], m[0] + 0.05, i < 2 ? MB[i + 1][0] - 0.3 : L5 - 0.5));
-  const row = el(`<div class="beats">${MB.map((m) => `<span><i style="background:${m[7]}"></i>${m[6]} <em>✓</em></span>`).join('')}</div>`, { x: 960, y: 985, anchor: 'c' }); A(cue(row, B2 + 0.6, L5 - 0.45, { from: 'up', dur: 0.3 }));
-  const sp = row.querySelectorAll('span'); A((t) => MB.forEach((m, i) => { const k = prog(t, m[0] + 0.75, m[0] + 1.05, ease.back); sp[i].style.opacity = k; sp[i].style.transform = `scale(${0.6 + 0.4 * k})`; })); }
-// stars and XP (stars reward catching mistakes)
+// header badge
+const badge = el(`<div class="b-badge" style="background:${BC};box-shadow:0 8px 0 ${BS},0 14px 30px rgba(0,0,0,.18)"><span class="ic">${PLANET(BC)}</span><span><b>Build a Space Colony</b><small>SPACE CAMP</small></span></div>`, { x: 46, y: 40 }); A(slide(badge, L1 + 0.1, HUD_OUT, { dx: -760 }));
+// one task line for the whole game: its text steps through the six levels (no fade between levels)
+const TASKS = [[L1, 'L1/6', 'Choose a safe site for the colony'], [B2, 'L2/6', 'Build a shelter from Mars soil'], [B3, 'L3/6', 'Turn buried ice into a water loop'], [B4, 'L4/6', 'Power the colony with sunlight'], [L5, 'L5/6', 'Grow fresh food for a crew of four'], [CREWT, 'L6/6', 'Move the crew of four in']];
+{ const tk = el('<div class="b-task" style="width:auto;max-width:1000px;font-size:32px"><span class="lv" style="background:#ffd23f;width:auto;padding:0 16px" data-l></span><span data-t></span></div>', { x: 46, y: 176 }); A(slide(tk, L1 + 0.15, HUD_OUT, { dx: -1100 }));
+  const lv = tk.querySelector('[data-l]');
+  A((t) => { const i = Math.max(0, TASKS.filter((m) => t >= m[0]).length - 1); const m = TASKS[i]; if (tk.dataset.i !== String(i)) { tk.dataset.i = i; lv.textContent = m[1]; tk.querySelector('[data-t]').textContent = m[2]; } const k = prog(t, m[0], m[0] + 0.35); lv.style.transform = `scale(${1 + 0.18 * Math.sin(Math.PI * k)})`; }); }
+// one level pill: drops in from the top at the start of each level, then goes back up before the next
+const PILLS = [[L1, 'LEVEL 1', 'THE SITE', 1], [B2, 'LEVEL 2', 'SHELTER', 2], [B3, 'LEVEL 3', 'WATER', 3], [B4, 'LEVEL 4', 'POWER', 4], [L5, 'LEVEL 5', 'FOOD', 5], [CREWT, 'LEVEL 6', 'CREW', 6]];
+{ const lp = el('<div class="lvp"><b data-a></b><span data-b></span><div class="dots">' + '<i></i>'.repeat(6) + '</div></div>', { x: 1080, y: 92, anchor: 'c' });
+  const fns = PILLS.map(([t0], i) => slide(lp, t0 + 0.05, t0 + (i >= 1 && i <= 3 ? 1.95 : 1.8), { dy: -170, dur: 0.28, outDur: 0.22 }));
+  A((t) => { let i = PILLS.filter((p) => t >= p[0]).length - 1; if (i < 0) i = 0; const p = PILLS[i]; if (lp.dataset.i !== String(i)) { lp.dataset.i = i; lp.querySelector('[data-a]').textContent = p[1]; lp.querySelector('[data-b]').textContent = p[2]; lp.querySelectorAll('.dots i').forEach((d, k) => d.classList.toggle('on', k < p[3])); } fns[i](t); }); }
+// levels 2-4: a row of ticked beats along the bottom
+const MB = [[B2, 'Shelter', '#e8573f'], [B3, 'Water loop', '#2f6fd8'], [B4, 'Solar power', '#ffc83d']];
+{ const row = el(`<div class="beats">${MB.map((m) => `<span><i style="background:${m[2]}"></i>${m[1]} <em>✓</em></span>`).join('')}</div>`, { x: 960, y: 985, anchor: 'c' }); A(slide(row, B2 + 0.2, L5 - 0.4, { dy: 260 }));
+  const sp = row.querySelectorAll('span'); A((t) => MB.forEach((m, i) => { const k = prog(t, m[0] + BD, m[0] + BD + 0.3, ease.back); sp[i].style.opacity = k > 0 ? 1 : 0; sp[i].style.transform = `scale(${Math.max(0.001, k)})`; })); }
+// stars and XP: awarded only when a fix is shown working (ice found, each build done, first harvest, crew moved in)
+const STAR_AT = [DR.ok, B2 + BD, B3 + BD, B4 + BD, HARV, CREWOK];
 { const STARSV = '<svg width="44" height="44" viewBox="0 0 24 24"><path d="M12 2.6l2.8 5.7 6.3.9-4.6 4.4 1.1 6.2L12 16.9l-5.6 2.9 1.1-6.2-4.6-4.4 6.3-.9z" fill="#ffc83d"/></svg>';
-  const n = el(`<div class="b-pills"><span>${STARSV}<b data-s></b></span><span><em class="xp" style="background:#5b4ce0">XP</em><b data-x></b></span></div>`, { x: 1874, y: 40, anchor: 'tr' }); A(cue(n, L1 + 0.3, TITLE - 0.5, { from: 'right' }));
-  // a star for each mistake caught and each step shown working: 7 by the end
-  const STAR_AT = [M1.alertIn, DR.ok, B2 + 0.75, B3 + 0.75, B4 + 0.75, M5.alertIn, HARV];
+  const n = el(`<div class="b-pills"><span>${STARSV}<b data-s></b></span><span><em class="xp" style="background:#5b4ce0">XP</em><b data-x></b></span></div>`, { x: 1874, y: 40, anchor: 'tr' }); A(slide(n, L1 + 0.3, HUD_OUT, { dx: 700 }));
+  const plus = el(`<div style="display:inline-flex;align-items:center;gap:8px;background:#ffd23f;color:#13202b;border-radius:999px;padding:8px 22px 8px 14px;font:800 34px 'Inter';white-space:nowrap;box-shadow:0 8px 0 #d8a417,0 12px 26px rgba(0,0,0,.3)">${STARSV.replace('fill="#ffc83d"', 'fill="#fff"')}+1 star</div>`, { x: 1505, y: 182, anchor: 'c' }); plus.style.zIndex = 40;
   const sp = n.querySelector('span');
   A((t) => { const c = STAR_AT.filter((q) => t > q).length; n.querySelector('[data-s]').textContent = c; n.querySelector('[data-x]').textContent = 60 + c * 120 + (t > LIVE + 0.4 ? 100 : 0);
-    const last = STAR_AT.filter((q) => t > q).pop(); const k = last != null ? prog(t, last, last + 0.4) : 1; sp.style.transform = `scale(${1 + 0.22 * Math.sin(Math.PI * k)})`; sp.style.transformOrigin = 'center'; }); }
-// colony ring: a compact progress card that only shows while it fills (montage, harvest, live)
-const SEG = [['Site', '#ffd23f', B2 + 0.25], ['Shelter', '#e8573f', B2 + 0.75], ['Water', '#2f6fd8', B3 + 0.75], ['Power', '#ff8a2a', B4 + 0.75], ['Food', '#16c79a', HARV], ['Crew', '#6e5bf2', LIVE + 0.5]];
+    const last = STAR_AT.filter((q) => t > q).pop(); const k = last != null ? prog(t, last, last + 0.4) : 1; sp.style.transform = `scale(${1 + 0.25 * Math.sin(Math.PI * k)})`; sp.style.transformOrigin = 'center';
+    const pk = last != null ? (t - last) / 1.1 : 2; const on = pk >= 0 && pk < 1 && t < HUD_OUT; plus.style.opacity = on ? Math.min(1, (1 - pk) * 4) : 0; plus.style.visibility = on ? 'visible' : 'hidden'; plus.style.transform = `translate(-50%,-50%) translateY(${-40 * Math.min(1, pk * 2)}px) scale(${on ? 0.7 + 0.3 * ease.back(Math.min(1, pk * 4)) : 1})`; }); }
+// colony ring: shows from the first build to the end, always opaque
+const SEG = [['Site', '#ffd23f', B2 + 0.25], ['Shelter', '#e8573f', B2 + BD], ['Water loop', '#2f6fd8', B3 + BD], ['Solar power', '#ff8a2a', B4 + BD], ['Food', '#16c79a', HARV], ['Crew', '#6e5bf2', CREWOK]];
 const C = 2 * Math.PI * 62, SL = C / SEG.length;
 const ringEl = el(`<div class="rg"><small>COLONY RING</small><svg width="170" height="170" viewBox="-85 -85 170 170"><circle r="62" fill="none" stroke="#eef1f4" stroke-width="28"/>${SEG.map(([, c], i) => `<circle data-g="${i}" r="62" fill="none" stroke="${c}" stroke-width="28" stroke-dasharray="0 ${C}" transform="rotate(${-90 + i * 360 / SEG.length + 2})"/>`).join('')}<text data-n x="0" y="14" text-anchor="middle" font-family="Inter" font-weight="800" font-size="42" fill="#13202b">0/6</text></svg><div class="last"><i data-c></i><span data-w></span><em>✓</em></div></div>`, { x: 46, y: 300 });
-A((t) => { const v = Math.max(win(t, BUILD + 0.15, L5 - 0.45), win(t, HARV - 0.3, TITLE - 0.45)); ringEl.style.opacity = v; ringEl.style.visibility = v < 0.001 ? 'hidden' : 'visible'; ringEl.style.transform = `translateX(${-(1 - v) * 80}px)`;
-  let n = 0; SEG.forEach(([, c, t0], i) => { const k = prog(t, t0, t0 + 0.6, ease.out); if (t > t0) n = i + 1; ringEl.querySelector(`[data-g="${i}"]`).setAttribute('stroke-dasharray', `${(SL - 4) * k} ${C}`); });
+ringEl.style.width = '270px'; ringEl.querySelector('.last').style.fontSize = '26px';
+A(slide(ringEl, BUILD + 0.15, HUD_OUT, { dx: -420 }));
+A((t) => { let n = 0; SEG.forEach(([, c, t0], i) => { const k = prog(t, t0, t0 + 0.6, ease.out); if (t > t0) n = i + 1; ringEl.querySelector(`[data-g="${i}"]`).setAttribute('stroke-dasharray', `${(SL - 4) * k} ${C}`); });
   ringEl.querySelector('[data-n]').textContent = n + '/6'; const L = SEG[Math.max(0, n - 1)]; ringEl.querySelector('[data-w]').textContent = L[0]; ringEl.querySelector('[data-c]').style.background = L[1]; ringEl.querySelector('.last').style.visibility = n ? 'visible' : 'hidden';
-  const pulse = within(t, LIVE + 0.9, LIVE + 1.7) ? 1 + 0.07 * Math.sin((t - LIVE - 0.9) * 12) : 1; ringEl.querySelector('svg').style.transform = `scale(${pulse})`; });
+  const pulse = within(t, CREWOK + 0.1, CREWOK + 0.9) ? 1 + 0.07 * Math.sin((t - CREWOK - 0.1) * 12) : 1; ringEl.querySelector('svg').style.transform = `scale(${pulse})`; });
 // the Planner card: plan, % sure, what it used and what it assumed
 function planner(text, sure, used, assumed, tIn, tOut, { tag = 'GUESS', tagColor = '#ffc83d' } = {}) {
   const chip = (c) => typeof c === 'string' ? `<span>${c}</span>` : `<span>${c[0]}<b>${c[1]}</b></span>`;
   const n = el(`<div class="b-helper pl"><div class="bot"><i></i><i></i></div><div class="who">Planner <em style="background:${tagColor}">${tag}</em></div><p>${text}</p><div class="sure"><div class="bar"><i style="width:${sure}%"></i></div><span>${sure}% sure</span></div><div class="ua"><div><small>USED</small>${used.map(chip).join('')}</div><div class="as"><small>ASSUMED</small>${assumed.map(chip).join('')}</div></div></div>`, { x: 1874, y: 176, anchor: 'tr' });
-  A(cue(n, tIn, tOut, { from: 'right' })); return n;
+  A(slide(n, tIn, tOut, { dx: 1000, dur: 0.36 })); return n;
 }
 const HAND = '<svg width="90" height="110" viewBox="0 0 90 110"><path d="M34 8c6 0 9 4 9 9v30l4-1c5-1 9 2 9 6l1-1c5-1 9 2 9 6l1 0c5-1 9 2 9 7v16c0 14-10 26-26 26H44c-9 0-15-4-20-11L8 72c-3-5-1-10 4-11 4-1 7 1 9 4l4 5V17c0-5 3-9 9-9z" fill="#fff" stroke="#13202b" stroke-width="5" stroke-linejoin="round"/></svg>';
 function cards(head, list, tIn, tOut, pickAt, pick) {
   const n = el(`<div><div class="b-head">${head}</div><div class="b-cards">${list.map(([k, s]) => `<div class="b-card"><span class="k">${k}</span>${s}</div>`).join('')}</div></div>`, { x: 46, y: 0 }); n.style.top = 'auto'; n.style.bottom = '44px';
-  A(cue(n, tIn, tOut, { from: 'up' }));
+  A(slide(n, tIn, tOut, { dy: 340, dur: 0.34, outDur: 0.24 }));
   const h = el(HAND, { x: 0, y: 0 });
   A((t) => { const vv = within(t, Math.max(tIn + 0.1, pickAt - 0.7), tOut); h.style.opacity = vv ? 1 : 0; n.querySelectorAll('.b-card')[pick].classList.toggle('pick', t > pickAt); const tx = 46 + pick * 614 + 590 - 30 - 34, ty = 1080 - 44 - 8 - 30 - 8; const k = prog(t, pickAt - 0.7, pickAt - 0.1, ease.out); h.style.left = lerp(tx + 220, tx, k) + 'px'; h.style.top = lerp(ty + 120, ty, k) + 'px'; h.style.transform = `scale(${t > pickAt && t < pickAt + 0.15 ? 0.88 : 1})`; });
 }
-function alertAt(text, tIn, tOut, { x = 980, y = 700 } = {}) { const n = el(`<div class="b-alert"><span class="x">✕</span>${text}</div>`, { x, y, anchor: 'c' }); A(cue(n, tIn, tOut)); }
-function saved(text, tIn, tOut, { x = 1000, y = 975 } = {}) { const n = el(`<div class="b-saved">${text}</div>`, { x, y, anchor: 'c' }); A(cue(n, tIn, tOut)); }
-function evid(role, color, body, tIn, tOut) { const n = el(`<div class="ev"><span class="hd" style="background:${color}"><i></i>${role}</span>${body}</div>`, { x: 1000, y: 935, anchor: 'c' }); A(cue(n, tIn, tOut, { from: 'up' })); return n; }
+function alertAt(text, tIn, tOut, { x = 980, y = 700 } = {}) { const n = el(`<div class="b-alert"><span class="x">✕</span>${text}</div>`, { x, y, anchor: 'c' }); A(cue(n, tIn, tOut, { dur: 0.35, outDur: 0.15 })); }
+function evid(role, color, body, tIn, tOut) { const n = el(`<div class="ev"><span class="hd" style="background:${color}"><i></i>${role}</span>${body}</div>`, { x: 1000, y: 935, anchor: 'c' }); A(slide(n, tIn, tOut, { dy: 360 })); return n; }
 
 // ---- Level 1 (quick setup): "best place" -> sunniest plain; the ice radar finds no ice there ----
 const C1 = [['A', 'Find the best place for our colony'], ['B', 'Flat, safe, and within 5 km of buried ice'], ['C', 'Next to the biggest crater']];
 cards('COMMANDER PLAYS A CARD', C1, M1.cIn, M1.aiIn - 0.25, M1.pickA, 0);
 planner('“Best” means flattest and sunniest: the dusty plain.', 88, ['Terrain map', 'Sunlight map'], ['Best = most sun'], M1.aiIn, M1.c2In - 0.3);
 alertAt('Ice radar: no ice here', M1.alertIn, M1.c2In - 0.2, { x: 760, y: 760 });
-cards('TRY A CLEARER CARD', C1, M1.c2In, M1.fix + 0.5, M1.pickB, 1);
-planner('The ice plain. Ice depth is uncertain, so drill a test hole first.', 71, ['Terrain', 'Sunlight', 'Ice radar'], ['Ice depth: not sure yet'], M1.chkIn, M1.chkOut, { tag: 'PLAN CHECKED', tagColor: '#16c79a' });
-const iceOk = el('<div class="bub ok"><i></i>Ice found ✓ 3 m down</div>', { x: 0, y: 0, anchor: 'bc' }); A(cue(iceOk, DR.ok, BUILD - 0.4));
+cards('TRY A CLEARER CARD', C1, M1.c2In, M1.fix + 0.4, M1.pickB, 1);
+planner('The ice plain. Ice depth is uncertain, so drill a test hole first.', 92, ['Terrain', 'Sunlight', 'Ice radar'], ['Ice depth: not sure yet'], M1.chkIn, M1.chkOut, { tag: 'PLAN CHECKED', tagColor: '#16c79a' });
+const iceOk = el('<div class="bub ok"><i></i>Ice found ✓ 3 m down</div>', { x: 0, y: 0, anchor: 'bc' }); A(cue(iceOk, DR.ok, BUILD - 0.4, { outDur: 0.2 }));
 A((t) => { if (!within(t, DR.ok - 0.1, BUILD)) return; const p = toScreen(new THREE.Vector3(DRX, 15, DRZ), camera); iceOk.style.left = clamp(p.x, 260, 900) + 'px'; iceOk.style.top = clamp(p.y, 330, 760) + 'px'; });
 // ---- Level 5 (main loop): Planner trusts a story; the soil test catches it; hydroponics fixes it ----
 const C5 = [['A', 'Grow lots of food without wasting water'], ['B', 'Clean water and LED lights. Test soil first.'], ['C', 'Ship all our food from Earth']];
@@ -327,18 +401,20 @@ cards('COMMANDER PLAYS A CARD', C5, M5.cIn, M5.aiIn - 0.25, M5.pickA, 0);
 const pg = planner('Plant potatoes straight into Mars soil, like in a famous space story.', 86, [['Space-farming stories', 'FICTION']], ['Mars soil = garden soil'], M5.aiIn, M5.c2In - 0.3);
 A((t) => { const b = pg.querySelector('.ua b'); const p = within(t, M5.aiIn + 1.4, M5.aiIn + 2.6) ? 1 + 0.18 * Math.max(0, Math.sin((t - M5.aiIn - 1.4) * 10)) : 1; b.style.transform = `scale(${p})`; });
 evid('SCIENTIST · SOIL TEST', '#2f9df0', '<div class="rw">Perchlorate in the soil<b class="no">0.6%</b></div><div class="rw">Toxic to people, stunts plants<b class="no">✕ unsafe</b></div>', M5.lensIn, M5.c2In - 0.3);
-const wilt = el('<div class="bub bad">✕ The seedlings wilt</div>', { x: 0, y: 0, anchor: 'bc' }); A(cue(wilt, M5.alertIn, M5.c2In - 0.2));
+const wilt = el('<div class="bub bad">✕ The seedlings wilt</div>', { x: 0, y: 0, anchor: 'bc' }); A(cue(wilt, M5.alertIn, M5.c2In - 0.2, { dur: 0.35, outDur: 0.15 }));
 A((t) => { if (!within(t, M5.alertIn - 0.1, M5.c2In + 0.3)) return; const p = toScreen(new THREE.Vector3(24.5, 10.5, -2), camera); wilt.style.left = clamp(p.x, 300, 1000) + 'px'; wilt.style.top = clamp(p.y, 360, 760) + 'px'; });
-cards('TRY A CLEARER CARD', C5, M5.c2In, M5.fix + 0.5, M5.pickB, 1);
-planner('Hydroponic racks under LED lights, in recycled water.', 74, ['Soil test', 'Greenhouse trials'], ['Peppers may fail here'], M5.chkIn, M5.chkOut, { tag: 'PLAN CHECKED', tagColor: '#16c79a' });
-saved('First harvest: lettuce and tomatoes', HARV, LIVE - 0.45);
+cards('TRY A CLEARER CARD', C5, M5.c2In, M5.fix + 0.4, M5.pickB, 1);
+planner('Hydroponic racks under LED lights, in recycled water.', 94, ['Soil test', 'Greenhouse trials'], ['LEDs give enough light'], M5.chkIn, M5.chkOut, { tag: 'PLAN CHECKED', tagColor: '#16c79a' });
+{ const n = el('<div class="b-saved" style="background:#13202b;box-shadow:0 8px 0 rgba(0,0,0,.25),0 14px 34px rgba(0,0,0,.35);display:inline-flex;align-items:center;gap:18px"><span style="width:44px;height:44px;border-radius:50%;background:#16c79a;display:grid;place-items:center;font-size:30px">✓</span>First harvest: lettuce and tomatoes</div>', { x: 1000, y: 975, anchor: 'c' }); A(slide(n, HARV, CREWT - 0.3, { dy: 220, dur: 0.3 })); }
+// ---- Level 6: the crew moves in ----
+{ const n = el('<div class="bub ok" style="background:#6e5bf2"><i style="background:#fff;box-shadow:none;border-radius:50%"></i>Crew of four moved in ✓</div>', { x: 1060, y: 975, anchor: 'c' }); A(slide(n, CREWOK - 0.05, LIVE - 0.25, { dy: 220, dur: 0.3, outDur: 0.2 })); }
 // ---- the colony living, and its name ----
-const live = el('<div class="tagp">● WATCH YOUR COLONY LIVE</div>', { x: 1080, y: 92, anchor: 'c' }); A(cue(live, LIVE + 0.1, TITLE - 0.45, { from: 'down' }));
-const nm = el('<div class="name"><div class="st"><small>YOUR COLONY HAS EARNED ITS NAME</small>Ice Harbour</div><br><div class="sub">Strongest: Water + Food · ready for a Mars year</div></div>', { x: 1060, y: 900, anchor: 'c' }); A(cue(nm, LIVE + 1.3, TITLE - 0.45, { from: 'pop', dur: 0.4 }));
-// ---- title card over the island, careers line under it ----
-const dim = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:linear-gradient(180deg, rgba(5,11,38,.55) 0%, rgba(5,11,38,.25) 45%, rgba(5,11,38,0) 60%, rgba(5,11,38,.35) 100%)"></div>'); A(cue(dim, TITLE - 0.1, null, { from: 'fade', dur: 0.5 }));
-const title = titleCard('Build a <span class="hl">Space Colony</span>', 'The AI plans in seconds. Your crew makes sure it survives.', { chip: 'A DeltaOps Learning AI lab · Space camps' }); title.style.placeItems = 'start center'; title.style.paddingTop = '70px'; title.querySelector('.logo').style.marginTop = '34px'; title.querySelector('.logo').style.height = '56px'; A(cue(title, TITLE + 0.1, null, { from: 'pop', dur: 0.7 }));
-{ const J = [['Life-support engineer', '#16c79a'], ['Space architect', '#e8573f'], ['Plant scientist', '#4fd060']]; const n = el(`<div class="jobs"><div class="list"><b>Real jobs:</b>${J.map(([j, c]) => `<span><i style="background:${c}"></i>${j}</span>`).join('')}</div></div>`, { x: 960, y: 960, anchor: 'c' }); A(cue(n, TITLE + 0.7, null, { from: 'up', dur: 0.4 })); }
+const live = el('<div class="tagp">● WATCH YOUR COLONY LIVE</div>', { x: 1080, y: 92, anchor: 'c' }); A(slide(live, LIVE + 0.1, HUD_OUT, { dy: -170, dur: 0.28 }));
+const nm = el('<div class="name"><div class="st"><small>YOUR COLONY HAS EARNED ITS NAME</small>Ice Harbour</div><br><div class="sub">Strongest: Water + Food · ready for a Mars year</div></div>', { x: 1060, y: 900, anchor: 'c' }); A(cue(nm, LIVE + 0.8, HUD_OUT, { from: 'pop', dur: 0.4, outDur: 0.25 }));
+// ---- title card over the island, careers line under it (it starts while the camera is still pulling back) ----
+const dim = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:linear-gradient(180deg, rgba(5,11,38,.5) 0%, rgba(5,11,38,.2) 36%, rgba(5,11,38,0) 46%)"></div>'); A(cue(dim, TITLE - 0.4, null, { from: 'fade', dur: 0.5 }));
+const title = titleCard('Build a <span class="hl">Space Colony</span>', 'The AI plans in seconds. Your crew makes sure it survives.', { chip: 'A DeltaOps Learning AI lab · Space camps' }); title.style.placeItems = 'start center'; title.style.paddingTop = '46px'; title.querySelector('.chip').style.marginBottom = '22px'; title.querySelector('h1').style.fontSize = '132px'; title.querySelector('h2').style.fontSize = '46px'; title.querySelector('h2').style.marginTop = '14px'; title.querySelector('.logo').style.marginTop = '22px'; title.querySelector('.logo').style.height = '50px'; A(cue(title, TITLE - 0.25, null, { from: 'pop', dur: 0.6 }));
+{ const J = [['Life-support engineer', '#16c79a'], ['Space architect', '#e8573f'], ['Plant scientist', '#4fd060']]; const n = el(`<div class="jobs"><div class="list"><b>Real jobs:</b>${J.map(([j, c]) => `<span><i style="background:${c}"></i>${j}</span>`).join('')}</div></div>`, { x: 960, y: 1000, anchor: 'c' }); A(slide(n, TITLE + 0.35, null, { dy: 200, dur: 0.4 })); }
 st.onFrame((t) => ui.forEach((f) => f(t)));
 window.__duration = DUR;
 document.fonts.ready.then(() => { window.__ready = true; });
