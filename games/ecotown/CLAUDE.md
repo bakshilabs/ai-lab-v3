@@ -59,6 +59,29 @@ Everything is merged to `main`. The working branch was `claude/focused-cori-qeov
 
 **Leftover:** an empty, login-protected Pages project `ecotown.pages.dev`. It can be deleted if the user agrees.
 
+## Beta revision (Nov 2026)
+All 49 notes in the beta tester's file were addressed; see README "How a level plays" and the commit history. Key decisions the user made:
+- **Helper name:** **Florence** (she). Code file names stay `plotter.*`.
+- **Clean first try:** a "spot the hidden guess" step earns the 3rd star.
+- **Town name:** chosen by the player on the start screen.
+- **Read aloud:** 🔊 buttons, plus recorded voices.
+
+**Rules and numbers:**
+- **Walking:** 15 minutes everywhere (`TARGETS.walkMinutes`).
+- **Carbon:** the town limit is 160 t; level 3's 70 t limit covers the homes' building materials only.
+- **Wetland:** protected for every item except path, green bridge, reed bed and keep-wild.
+
+**Voices:**
+- Kokoro-82M: narrator `bf_isabella`, Florence `af_bella`.
+- One pack per age band in `game/voice/`.
+- On the Worker, the packs live in Workers KV namespace `ecotown-voice` (id `3a1af6ebd5b444858c57df7c5a889038`, binding `VOICE`) and are served only with a passcode session.
+- To re-record, see `voice/README.md`.
+- Kokoro runs fine in a cloud session; it downloads from Hugging Face.
+
+**Play-through test:**
+- Run: `FAST=1 node game/tests/playwright/run.mjs <url> <junior|senior> <out> <w> <h> <cards|text> <flawed|clean|mixed>`.
+- Under software 3D a full run takes about 30 minutes; without `FAST` it takes much longer.
+
 ## Deploying from a cloud session
 - **API token:** if no Cloudflare token is configured, call `request_credential` for host `api.cloudflare.com`. The proxy then injects it, so curl can send any dummy `Authorization: Bearer x`.
 - **Deploy command:**
@@ -68,6 +91,7 @@ Everything is merged to `main`. The working branch was `claude/focused-cori-qeov
 - **Proxy:** Node's fetch skips the proxy without `NODE_USE_ENV_PROXY=1`.
 - **Wrangler** Pages uploads fail behind the proxy, which is why we deploy as a Worker with one API call.
 - **Migrations:** `deploy.mjs` retries without the Durable Object migration once it already exists, and keeps secret bindings.
+- **KV uploads** (voice packs) use curl inside `deploy.mjs`; Node fetch failed for them behind the proxy.
 - **Check after a deploy:**
   - `/` returns 200 with the passcode page;
   - `/assets/x.js` returns 403;
