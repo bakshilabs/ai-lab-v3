@@ -24,7 +24,7 @@ Client request · 0:30 · blocky sandbox world (a floating island made of cubes 
 **Ending / pathway:** Team scores, then the title card: "The Minecraft quiz where you check the AI." and "A DELTAOPS LEARNING QUIZ FOR THE WHOLE ROOM", with the required "not an official Minecraft product" disclaimer.
 
 **Reviewer notes:**
-- Render status: source changed in the fix round (30.2 s cut); `out/mcquiz.mp4` needs a re-render.
+- Render status: re-rendered as the 0:30 fix-round cut and checked on a contact sheet.
 - Fix round: the AI panel no longer covers the Diamond pad; the wrong-pad splash is shown from a low angle with "-10" floaters and a streak reset; Round 2 now checks the AI's reason on screen (lava test bench turns to obsidian); round/score/streak HUD added; the signboard animates the team scores; bright end card.
 - The second question is about obsidian (as is the first), so the check ties back to the first mistake. The AI is right in Round 3; the point is that the reason was tested, not trusted.
 - The team scores (9, 8, 6) are not linked to anything shown in the two questions.
