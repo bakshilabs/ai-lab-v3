@@ -128,7 +128,7 @@ const Q = [
   { t0: 4.4, tGo: 6.4, tRev: 9.0, tBack: 11.9, q: 'What do you need to build a Nether portal?', opts: ['Obsidian', 'Lava', 'Diamond'], ai: ['“Lava!”', 90], correct: 'A', picks: 'BBABACBBAABB' },
   { t0: 14.1, tGo: 19.1, tRev: 21.0, tBack: 99, q: 'How do you make obsidian?', opts: ['Smelt sand', 'Water + lava', 'Burn wood'], ai: ['“Water + lava.”', 85], why: 'Water poured onto still lava turns it into obsidian.', correct: 'B', picks: 'BBBBBBBABBBB' },
 ];
-const T_FIX = 11.95, T_TAP = 15.8, T_DEMO = 16.1, T_DEMO_END = 19.0, T_SCORE = 23.6, T_END = 26.0;
+const T_FIX = 11.95, T_TAP = 15.8, T_DEMO = 16.2, T_DEMO_END = 19.0, T_SCORE = 23.6, T_END = 26.0;
 const home = (i) => [-4.5 + (i % 6) * 1.8, 8, 10 + Math.floor(i / 6) * 2];
 const GRID = [[0, 0], [-1, 1], [1, 1], [-1, -1], [1, -1], [0, 1], [0, -1], [-1, 0], [1, 0]];
 const spot = (i, pad, picks) => { const r = [...picks.slice(0, i)].filter((c) => c === picks[i]).length; const g = GRID[(r + i * 0) % 9]; return [pad.x + 0.5 + g[0] * 1.45, 8, pad.z + 0.5 + g[1] * 1.45]; };
@@ -137,7 +137,7 @@ function playerPos(i, t) {
   let pos = h, y = 8, fall = 0, cheer = false, moving = false, rot = Math.PI, fallT = 0;
   // run-in from the walkway onto the stand
   if (t < Q[0].tGo) {
-    const sx = (h[0] < 0 || (h[0] === 0 && i % 2)) ? -11.5 : 11.5;
+    const sx = (h[0] < 0 ? -1 : 1) * Math.sqrt(15.5 * 15.5 - h[2] * h[2]);
     const k = eio(prog(t, 2.9 + i * 0.04, 4.1 + i * 0.04));
     pos = [lerp(sx, h[0], k), 0, h[2]]; y = lerp(7, 8, k); moving = k > 0 && k < 1;
     rot = moving ? (sx < 0 ? Math.PI / 2 : -Math.PI / 2) : Math.PI;
@@ -173,7 +173,7 @@ const pourSlab = new THREE.Mesh(new THREE.BoxGeometry(1, 0.2, 2), new THREE.Mesh
 const steam = new THREE.InstancedMesh(new THREE.BoxGeometry(0.35, 0.35, 0.35), new THREE.MeshLambertMaterial({ color: '#f2f6ff', transparent: true, opacity: 0.85 }), 60); steam.frustumCulled = false; scene.add(steam);
 const SPREAD0 = 16.95, SPREAD1 = 17.6; const flipAt = (bx) => lerp(SPREAD0, SPREAD1, (bx + 0.5 + 0.1) / 3.2);
 function bench(t) {
-  tray.position.y = lerp(-6, 0, eio(prog(t, 15.95, 16.5)));
+  tray.position.y = lerp(-6, 0, eio(prog(t, 15.85, 16.35)));
   // water column pours from above, then spreads over the lava
   const c = prog(t, 16.55, 16.95), cEnd = prog(t, 17.25, 17.5);
   const top = 14, bot = lerp(14, 8, c), topNow = lerp(top, 8, cEnd);
@@ -217,7 +217,7 @@ function drawSign(t) {
 const ui = document.getElementById('ui');
 const node = (html, css) => { const d = document.createElement('div'); d.innerHTML = html; Object.assign(d.style, { position: 'absolute', opacity: 0 }, css); ui.appendChild(d); return d; };
 const show = (n, t, a, b, from = 30) => { const v = clamp(prog(t, a, a + 0.3)) * (b == null ? 1 : 1 - prog(t, b, b + 0.25)); n.style.opacity = v; n.style.transform = `translateY(${(1 - Math.min(1, prog(t, a, a + 0.3))) * from}px)`; };
-const hook = node('<div class="big" style="font-size:64px;top:330px">HOW WELL DO YOU KNOW</div><div class="big" style="font-size:96px;top:440px;color:#7dffb0">MINECRAFT?</div>', { left: 0, top: 0, width: '1920px' });
+const hook = node('<div class="big" style="font-size:64px;top:120px">HOW WELL DO YOU KNOW</div><div class="big" style="font-size:96px;top:225px;color:#7dffb0">MINECRAFT?</div>', { left: 0, top: 0, width: '1920px' });
 // HUD: round chip (top left), room score + streak (top right)
 const hudRound = node('<div class="chip"><span id="rnd">ROUND 2 OF 5</span></div>', { left: '24px', top: '22px' });
 const hudScore = node('<div class="chip">ROOM SCORE <b id="sc">120</b><span class="sep"></span>STREAK <b id="st">2</b></div>', { right: '24px', top: '22px' });

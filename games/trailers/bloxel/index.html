@@ -217,8 +217,8 @@ function flag(camX, k, t) {
   const x = 37 * T + 5 - camX, gy = 11 * T - CAMY;
   px(x - 3, gy - 3, 8, 3, '#7a7a8a'); px(x, gy - 48, 2, 46, '#f4f4f4'); px(x + 1, gy - 48, 1, 46, '#b8b8c8'); px(x - 1, gy - 52, 4, 4, '#ffd23f');
   const fy = Math.round(lerp(gy - 20, gy - 47, eio(k))), wv = Math.round(Math.sin(t * 8));
-  const col = k > 0.5 ? '#3fd35f' : '#e83b3b';
-  px(x + 2, fy, 10, 7, '#1a1020'); px(x + 2, fy + 1, 9 + wv, 5, col); if (k > 0.5) { px(x + 6, fy + 2, 1, 3, '#fff'); px(x + 5, fy + 3, 3, 1, '#fff'); }
+  const col = k > 0.3 ? '#3fd35f' : '#e83b3b';
+  px(x + 2, fy, 10, 7, '#1a1020'); px(x + 2, fy + 1, 9 + wv, 5, col); if (k > 0.3) { px(x + 6, fy + 2, 1, 3, '#fff'); px(x + 5, fy + 3, 3, 1, '#fff'); }
 }
 function play(t, camX, o = {}) {
   sky(t, camX);
@@ -414,9 +414,9 @@ function frame(t) {
   } else if (t < 29.8) {
     // build a whole world: rooms pop in around this one, the hero hops room to room
     for (let y = 0; y < GH; y += 3) px(0, y, GW, 3, y % 6 ? '#1a3a6a' : '#183663');
-    const k = eio(prog(t, 27.6, 28.05)); const p = lerp(12, 2, k), gap = lerp(20, 8, k), rs = 13 * p;
+    const k = eio(prog(t, 27.6, 27.95)); const p = lerp(6, 2, k), gap = lerp(14, 8, k), rs = 13 * p;
     const THEMES = [['#8fd0ff', null], ['#2b3a7a', '#7a8aff'], ['#ffd9a0', '#d9a05a'], ['#5a3a6a', '#b07acf'], ['#e6f4ff', '#ffffff']];
-    const cx = GW / 2, cy = lerp(GH - rs / 2 + 30, 52, k);
+    const cx = GW / 2, cy = lerp(GH / 2, 52, k);
     const order = []; for (let rr = 0; rr < 3; rr++) for (let cc = 0; cc < 5; cc++) order.push([cc, rr]);
     const path = [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [4, 1], [3, 1], [2, 1], [1, 1], [0, 1], [0, 2], [1, 2], [2, 2], [3, 2], [4, 2]];
     const ctr = (cc, rr) => [cx + (cc - 2) * (rs + gap), cy + (rr - 1) * (rs + gap)];
@@ -434,7 +434,7 @@ function frame(t) {
   } else {
     // bright, clean title card
     const camX = 200 + (t - 29.8) * 8;
-    play(t, camX, { cell: END_CELL, got: gotFn(R3_GOT, t), flagK: 0.6 * prog(t, R3_FLAG, R3_FLAG + 0.3) });
+    play(t, camX, { cell: END_CELL, got: gotFn(R3_GOT, t), flagK: 0.35 * prog(t, R3_FLAG, R3_FLAG + 0.25) });
     heroFrom(R3, t, camX); dust(R3, t, camX); pickups(R3_GOT, t, camX, false);
     const b = Math.round(Math.sin(t * 3) * 1.5); const sl = Math.round((1 - eob(prog(t, 29.8, 30.15))) * -110);
     u.save(); u.translate(0, sl);
