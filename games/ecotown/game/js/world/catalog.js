@@ -4,7 +4,7 @@
 
 export const ITEMS = {
   // ---- Level 1: read the land
-  town:  { level: 'land', kind: 'mark', label: 'Town land', icon: '🏘', color: '#f2c14e', on: ['meadow', 'field', 'slope', 'coast', 'wood', 'wetland'] },
+  town:  { level: 'land', kind: 'mark', label: 'Town land', icon: '🏘', color: '#f2c14e', on: ['meadow', 'field', 'slope', 'coast', 'wood'] },
   wild:  { level: 'land', kind: 'mark', label: 'Keep wild', icon: '🌼', color: '#ff7eb6', on: ['meadow', 'field', 'slope', 'coast', 'wood', 'wetland'] },
 
   // ---- Level 2: getting around (cost in credits for the senior budget)
@@ -44,7 +44,7 @@ export const ITEMS = {
   compost:    { level: 'power', kind: 'build', label: 'Compost hub', icon: '🍂', color: '#8a5c38', on: ['town', 'field'], cost: 1, carbon: -1, food: 1 },
 
   // ---- Level 6: complete the town
-  school:      { level: 'heart', kind: 'build', label: 'Town school', icon: '🏫', color: '#ffd23f', on: ['town', 'field', 'slope', 'wetland', 'meadow'], cost: 6, community: 2, demand: 1, unique: true },
+  school:      { level: 'heart', kind: 'build', label: 'Town school', icon: '🏫', color: '#ffd23f', on: ['town', 'field', 'slope', 'meadow'], cost: 6, community: 2, demand: 1, unique: true },
   market:      { level: 'heart', kind: 'build', label: 'Market square', icon: '🧺', color: '#ff8a5c', on: ['town'], cost: 3, community: 3 },
   park:        { level: 'heart', kind: 'build', label: 'Park', icon: '🌳', color: '#4caf50', on: ['town', 'field', 'slope', 'meadow'], cost: 2, nature: 1, health: 1.5, community: 1 },
   greenbridge: { level: 'heart', kind: 'build', label: 'Green bridge', icon: '🌉', color: '#3f9d4a', on: ['field', 'slope', 'wetland', 'meadow', 'river'], cost: 3, nature: 2, walk: 1, link: true },
@@ -65,8 +65,8 @@ export const TARGETS = {
   families: 40,        // homes petal "enough"
   homesCarbon: 70,     // embodied carbon limit for Level 3's carbon lens
   carbonCeiling: 160,  // whole-town carbon ceiling (Carbon petal)
-  walkMinutes: 15,     // daily needs within a 15-minute walk
-  schoolWalk: 10,      // Level 6 clear-card target
+  walkMinutes: 15,     // the one walking rule: every home within a 15-minute walk of school (check, lens, charter, bubbles)
+  schoolWalk: 15,      // Level 6 planner default (same rule)
   townTiles: 18,       // land the town needs in Level 1
 };
 
@@ -74,11 +74,14 @@ export const TARGETS = {
 export function placeReason(id, t, st) {
   const it = ITEMS[id]; if (!it) return 'Unknown item';
   if (t.fixed) return 'Something is already here';
-  if (it.kind === 'mark') return t.zone === 'river' ? 'That is the river' : null;
+  if (t.zone === 'river' && !it.on.includes('river')) return it.kind === 'mark' ? 'That is the river' : 'Only a bridge can go on the river';
+  // one rule in every level: the wetland is protected (only paths, green bridges, reed beds and Keep wild)
+  if (t.zone === 'wetland' && !it.on.includes('wetland')) return 'Not on the wetland: it’s protected';
+  if (it.kind === 'mark') return null;
   if (it.kind === 'mod') { const b = st.item && ITEMS[st.item]; return b && b.home ? (st.mods && st.mods.includes(id) ? 'Already added' : null) : 'Add this to a home'; }
   if (st.item && st.locked) return 'Built in an earlier level';
   const ok = it.on.some((z) => (z === 'town' ? st.mark === 'town' && t.zone !== 'river' : z === t.zone && st.mark !== 'town'));
-  if (!ok) return it.on.includes('town') && it.on.length === 1 ? 'Build this on town land' : t.zone === 'river' ? 'Only a bridge can go on the river' : `Not on ${t.zone === 'wetland' ? 'the wetland' : t.zone === 'wood' ? 'the wood' : 'this land'}`;
+  if (!ok) return it.on.includes('town') && it.on.length === 1 ? 'Build this on town land' : st.mark === 'town' ? 'Not on town land' : `Not on ${t.zone === 'wood' ? 'the wood' : 'this land'}`;
   if (st.mark === 'wild' && it.kind === 'build') return 'You promised to keep this wild';
   return null;
 }

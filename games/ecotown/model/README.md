@@ -1,6 +1,9 @@
-# Plotter: the Eco Town language model
+# Florence: the Eco Town language model
 
-Plotter is the small language model behind the game's AI planning helper. It reads
+> The AI helper is called **Florence** in the game. The model files keep their original name (`plotter.json`, `plotter.bin`, `plotter.js`) so nothing else has to change.
+
+
+Florence is the small language model behind the game's AI planning helper. It reads
 `(level, instruction)` and returns a probability for each **slot** of that level
 (what the player *asked for*) plus `unknown`. It does not plan anything. The planner
 (`game/js/sim/planner.js`) turns slots into a plan and makes the AI's deliberate
@@ -212,7 +215,7 @@ plotter.predictFromEmbedding('food', emb, { W, b }?)  // same as predict().slots
   about 65 ms for a 10-word card and about 0.5 s for a 35-word paragraph on this
   machine. So call it when the player asks to see the highlights, or debounce it,
   rather than on every keystroke.
-* "Teach Plotter": `embed` + `head` give the game everything it needs to fit a
+* "Teach Florence": `embed` + `head` give the game everything it needs to fit a
   logistic head in the browser and pass it back as `headOverride`. The override may
   also carry `unknownW` / `unknownB`.
 * At load, the int8 weights are dequantised once: block matrices to float64 (faster
@@ -220,12 +223,12 @@ plotter.predictFromEmbedding('food', emb, { W, b }?)  // same as predict().slots
 
 ## Safety notes
 
-* Plotter **only classifies**. It never generates text. Every reply the helper
+* Florence **only classifies**. It never generates text. Every reply the helper
   shows is a template written by the game authors, chosen from the slots and the
   planner's result. Nothing a child types can make the helper say something new.
 * **Nothing typed is stored or sent anywhere.** The model runs entirely in the
   browser, from two static files. There are no network calls after load, no
-  logging, and no training on player input. "Teach Plotter" retraining happens in
+  logging, and no training on player input. "Teach Florence" retraining happens in
   page memory and is lost on reload unless the game saves it.
 * **Unknown handling**: off-topic, nonsense, rude and unsafe input is trained to
   `unknown` (test recall in the table above). The game should answer with the
@@ -256,5 +259,5 @@ plotter.predictFromEmbedding('food', emb, { W, b }?)  // same as predict().slots
   unknown.
 * Probabilities are confidence scores from a classifier, not calibrated
   likelihoods. The "% sure" numbers in the helper's lines are scripted by the game,
-  not taken from Plotter.
+  not taken from Florence.
 * English only (UK and US spellings of centre/center, colour, cosy/cozy).

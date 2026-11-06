@@ -27,7 +27,7 @@ export function createChecks(app) {
         if (wet) spec.set(t.k, { color: c?.mark === 'town' || (c?.item && ITEMS[c.item].home) ? '#e5533d' : '#3d9de0', pattern: 'waves' });
       }
       world.setOverlay(spec);
-      ui.lensbar(`🌊 ${esc(app.C.checks.flood.label.toUpperCase())} <span class="legend"><span><i style="background:#3d9de0"></i>Floods in winter</span><span><i style="background:#e5533d"></i>Town land that floods</span></span>`);
+      ui.lensbar(`🌊 ${esc(app.C.checks.flood.label)} <span class="legend"><span><i style="background:#3d9de0"></i>Floods in winter</span><span><i style="background:#e5533d"></i>Town on flood land</span></span>`);
       const flooded = [...cells].filter(([k, c]) => (c.mark === 'town' || (c.item && ITEMS[c.item].home)) && ['meadow', 'wetland'].includes(terrain.tiles.get(k)?.zone)).map(([k]) => k);
       for (let i = 0; i <= 20; i++) { world.setFlood(i / 20); await sleep(app.reduce ? 0 : 45); }
       if (flooded.length) ui.labels.set([{ at: world.tileTop(flooded[0]).add(new THREE.Vector3(0, 3, 0)), text: `${flooded.length} tiles under water`, cls: 'bad' }]);
@@ -42,33 +42,54 @@ export function createChecks(app) {
       }
       world.setOverlay(spec);
       const sp = sim.species; const chip = (n, e, on) => `<span>${e} ${n} ${on ? '✓' : '✕'}</span>`;
-      ui.lensbar(`🦋 ${esc(app.C.checks.nature.label.toUpperCase())} <span class="legend">${chip('Deer', '🦌', sp.deer)}${chip('Bees', '🐝', sp.bees)}${chip('Otters', '🦦', sp.otters)}${chip('Birds', '🐦', sp.birds)}${chip('Frogs', '🐸', sp.frogs)}</span>`);
+      ui.lensbar(`🦋 ${esc(app.C.checks.nature.label)} <span class="legend">${chip('Deer', '🦌', sp.deer)}${chip('Bees', '🐝', sp.bees)}${chip('Otters', '🦦', sp.otters)}${chip('Birds', '🐦', sp.birds)}${chip('Frogs', '🐸', sp.frogs)}</span>`);
       await sleep(app.reduce ? 200 : 900); return {};
     },
     async carbon(sim, cells) {
-      world.setClay(true, app.reduce); const spec = new Map(); const labels = [];
-      for (const h of sim.homes) { const e = ITEMS[h.item].embodied; spec.set(h.k, { color: e >= 20 ? '#5b6168' : e >= 8 ? '#9aa0a5' : '#7fd18a', pattern: 'dots', lift: Math.min(3, e / 10) }); }
+      // every tile that adds carbon is coloured: homes by their building materials, roads and car parks by their surface
+      world.setClay(true, app.reduce); const spec = new Map(); const labels = []; const j = app.G?.j;
+      const col = (e) => (e >= 20 ? '#e5533d' : e >= 6 ? '#ffb43d' : '#4caf50');
+      const keys = [];
+      for (const [k, c] of cells) {
+        const it = c.item && ITEMS[c.item]; if (!it) continue;
+        const e = it.home ? it.embodied + (c.mods || []).reduce((a, m) => a + (ITEMS[m].embodied || 0), 0) : it.carbon || 0;
+        if (e <= 0) continue; spec.set(k, { color: col(it.home ? e : e * 3), pattern: e >= 20 ? 'stripes' : 'solid', lift: Math.min(3, e / 10) }); keys.push(k);
+      }
       world.setOverlay(spec);
-      const homes = sim.homes.map((h) => terrain.tiles.get(h.k)); const c = homes.length ? homes.reduce((a, t) => { const [x, z] = tileCenter(t.gx, t.gz); a.x += x / homes.length; a.z += z / homes.length; return a; }, new THREE.Vector3()) : new THREE.Vector3();
-      const ratio = sim.homesCarbon / TARGETS.homesCarbon; carbonCloud(ratio, c);
-      labels.push({ at: c.clone().add(new THREE.Vector3(0, 24, 0)), text: `${sim.homesCarbon} t of ${TARGETS.homesCarbon} t`, cls: ratio > 1 ? 'bad' : 'ok' }); ui.labels.set(labels);
-      ui.lensbar(`☁ ${esc(app.C.checks.carbon.label.toUpperCase())} <span class="legend"><span><i style="background:#5b6168"></i>High</span><span><i style="background:#9aa0a5"></i>Medium</span><span><i style="background:#7fd18a"></i>Low</span></span>`);
+      const tiles = keys.map((k) => terrain.tiles.get(k)); const c = tiles.length ? tiles.reduce((a, t) => { const [x, z] = tileCenter(t.gx, t.gz); a.x += x / tiles.length; a.z += z / tiles.length; return a; }, new THREE.Vector3()) : new THREE.Vector3(2, 0, 2);
+      const homesLevel = app.levelId === 'homes';
+      const used = homesLevel ? sim.homesCarbon : sim.carbon, limit = homesLevel ? TARGETS.homesCarbon : TARGETS.carbonCeiling;
+      const ratio = used / limit;
+      if (!keys.length) { ui.labels.set([{ at: c.clone().add(new THREE.Vector3(0, 8, 0)), text: j ? 'Nothing built yet, so no carbon' : 'No carbon sources in this plan yet', cls: 'ok' }]); }
+      else { carbonCloud(ratio * 1.4, c); labels.push({ at: c.clone().add(new THREE.Vector3(0, 24, 0)), text: homesLevel ? `${j ? 'Building carbon' : 'Embodied carbon'}: ${used} of ${limit} ${j ? 'tonnes' : 't'}` : `${j ? 'Town carbon' : 'Town total'}: ${used} of ${limit} ${j ? 'tonnes' : 't'}`, cls: ratio > 1 ? 'bad' : 'ok' }); ui.labels.set(labels); }
+      ui.lensbar(`🌫 ${esc(app.C.checks.carbon.label)} <span class="legend"><span><i style="background:#e5533d"></i>High</span><span><i style="background:#ffb43d"></i>Medium</span><span><i style="background:#4caf50"></i>Low</span></span>`);
       await sleep(app.reduce ? 200 : 900); return { focusPoint: c };
     },
     async walk(sim, cells) {
       world.setClay(true, app.reduce); const spec = new Map(); const labels = [];
-      for (const h of sim.homes) { const m = sim.walk[h.k]; spec.set(h.k, { color: m <= 10 ? '#4caf50' : m <= 15 ? '#ffc83d' : '#e5533d', pattern: m > 15 ? 'stripes' : 'solid' }); labels.push({ at: world.tileTop(h.k).add(new THREE.Vector3(0, 6, 0)), text: `${m} min`, cls: m > 15 ? 'bad' : m <= 10 ? 'ok' : '' }); }
-      if (sim.schoolKey) spec.set(sim.schoolKey, { color: '#2f6fd8', pattern: 'solid' });
-      world.setOverlay(spec); ui.labels.set(labels.sort((a, b) => parseInt(b.text) - parseInt(a.text)).filter((_, i) => i % 3 === 0).slice(0, 7));
-      ui.lensbar(`🚶 ${esc(app.C.checks.walk.label.toUpperCase())} <span class="legend"><span><i style="background:#4caf50"></i>≤10 min</span><span><i style="background:#ffc83d"></i>≤15</span><span><i style="background:#e5533d"></i>Too far</span><span><i style="background:#2f6fd8"></i>School</span></span>`);
+      const W = TARGETS.walkMinutes;
+      for (const h of sim.homes) { const m = sim.walk[h.k]; spec.set(h.k, { color: m <= W ? '#4caf50' : '#e5533d', pattern: 'solid' }); labels.push({ k: h.k, m, at: world.tileTop(h.k).add(new THREE.Vector3(0, 6, 0)), text: `${m} min`, cls: m > W ? 'bad' : 'ok' }); }
+      if (sim.schoolKey) { spec.set(sim.schoolKey, { color: '#2f6fd8', pattern: 'solid' }); labels.push({ m: -1, at: world.tileTop(sim.schoolKey).add(new THREE.Vector3(0, 8, 0)), text: '🏫 School' }); }
+      // label the furthest homes and the nearest one, so the distances are easy to compare
+      const sorted = labels.filter((l) => l.m >= 0).sort((a, b) => b.m - a.m); const show = [...sorted.slice(0, 4), sorted[sorted.length - 1], ...labels.filter((l) => l.m < 0)].filter(Boolean);
+      world.setOverlay(spec); ui.labels.set([...new Set(show)]);
+      ui.lensbar(`🚶 ${esc(app.C.checks.walk.label)} <span class="legend"><span><i style="background:#4caf50"></i>${W} min or less</span><span><i style="background:#e5533d"></i>Too far (over ${W})</span><span><i style="background:#2f6fd8"></i>School</span></span>`);
       await sleep(app.reduce ? 200 : 900); return {};
     },
     async winter(sim) {
-      ui.lensbar(`❄ ${esc(app.C.checks.winter.label.toUpperCase())} <span class="legend"><span>Supply ${Math.round(sim.power.winterSupply)} · Demand ${Math.round(sim.power.demand)}</span></span>`);
-      app.winterTest = true;
-      for (let i = 0; i <= 24; i++) { stage.setTime(11 + (i / 24) * 11.5, i / 24); await sleep(app.reduce ? 0 : 60); }
-      world.setLights(sim.power.winterOK ? sim.homes.map((h) => h.k) : []);
-      await sleep(app.reduce ? 300 : 1400); return {};
+      const j = app.G?.j; const sup = Math.round(sim.power.winterSupply), dem = Math.round(sim.power.demand);
+      ui.lensbar(`❄ ${esc(app.C.checks.winter.label)} <span class="legend"><span>${j ? `⚡ Power ${sup} · homes need ${dem}` : `Supply ${sup} · Demand ${dem}`}</span></span>`);
+      app.winterTest = true; const homes = sim.homes.map((h) => h.k);
+      world.setLights(homes);
+      // dusk falls on a still, snowy night; if supply runs short, the windows go dark one by one
+      const keep = sim.power.winterOK ? homes.length : Math.floor(homes.length * Math.max(0, sup) / Math.max(1, dem));
+      const steps = 40;
+      for (let i = 0; i <= steps; i++) {
+        stage.setTime(14 + (i / steps) * 8.5, Math.min(1, i / 10));
+        if (i > steps * 0.55) { const f = (i - steps * 0.55) / (steps * 0.45); const n = Math.round(homes.length - (homes.length - keep) * f); world.setLights(homes.slice(0, n)); if (homes.length) ui.labels.set([{ at: world.tileTop(homes[0]).add(new THREE.Vector3(0, 10, 0)), text: sim.power.winterOK ? (j ? 'Lights on in every home' : 'All homes supplied') : `${j ? 'Lights on' : 'Supplied'}: ${n} of ${homes.length} homes`, cls: sim.power.winterOK ? 'ok' : n < homes.length ? 'bad' : '' }]); }
+        await sleep(app.reduce ? 0 : 95);
+      }
+      await sleep(app.reduce ? 300 : 1600); return {};
     },
     async street(sim, cells) {
       const isMove = app.levelId === 'move';
@@ -87,7 +108,7 @@ export function createChecks(app) {
       }
       await rig.toStreet(from, p.clone().add(new THREE.Vector3(0, 2, 0)), 1.6);
       const labels = sim.unsafeKeys.slice(0, 3).map((uk) => ({ at: world.tileTop(uk).add(new THREE.Vector3(0, 2.5, 0)), text: 'Too many cars to cross', cls: 'bad' }));
-      ui.labels.set(labels); ui.lensbar(`👀 ${esc(app.C.checks.street.label.toUpperCase())} · ${isMove ? '8:45 am' : 'midday'}`);
+      ui.labels.set(labels); ui.lensbar(`👀 ${esc(app.C.checks.street.label)} · ${isMove ? '8:45 am, school run' : 'midday'}`);
       return {};
     },
     async inside(sim) {
@@ -95,7 +116,7 @@ export function createChecks(app) {
       const type = Object.keys(counts).sort((a, b) => counts[b] - counts[a])[0] || 'timber';
       const temp = ITEMS[type]?.temp ?? 20; inside.build(type, temp);
       await rig.fade(() => { inside.root.visible = true; rig.mode = 'inside'; rig.apply(inside.pose()); });
-      ui.lensbar(`🏠 ${esc(app.C.checks.inside.label.toUpperCase())} · ${esc(inside.label)} · <b>${temp} °C</b> with the heating off`);
+      ui.lensbar(`🏠 ${esc(app.C.checks.inside.label)} · ${esc(inside.label)} · <b>${temp} °C</b> with the heating off`);
       return { temp };
     },
   };

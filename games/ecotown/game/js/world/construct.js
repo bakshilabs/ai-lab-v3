@@ -96,6 +96,19 @@ export function planStages(cell, vox, rec) {
     }
     // mods (solar, green roof, heat pump) and chimneys are the last "systems" stage
     const hasSolar = cell.mods?.includes('solar'), hasHP = cell.mods?.includes('heatpump');
+    if (!HOMES.has(id)) {
+      // civic buildings (school, hall, repair café) have their own steps, ending with the opening
+      add(L('Clearing the site', 'Site cleared and levelled'), ground, { dir: 'x', w: 0.5 });
+      add(L('Foundations', 'Foundations: a level base that spreads the weight'), found, { dir: 'x', w: 0.7, temp: true });
+      add(L('Strong wooden frame', 'Glulam timber frame'), frame, { w: 1, temp: true });
+      add(L('Water pipes and wires', 'Services: water (blue) and electrics (yellow)'), pipes, { w: 0.8, temp: true, xray: true });
+      add(L('Walls', 'Insulated walls'), walls, { w: 1.4 });
+      add(L('Big windows and doors', 'Glazing and entrances'), open, { w: 0.7 });
+      add(L('Roof', 'Roof'), roof, { w: 1 });
+      add(L(id === 'school' ? 'Bell tower and playground' : 'Signs and benches', id === 'school' ? 'Bell tower and playground' : 'Signage and seating'), sys, { w: 0.7 });
+      if (id === 'school' || id === 'hall') st.push({ label: L('Ribbon cut: it’s open!', 'Opening ceremony'), parts: P(), dir: 'up', w: 0.6, ribbon: true });
+      return st;
+    }
     add(L('Clearing the site', 'Site cleared and levelled'), ground, { dir: 'x', w: 0.5 });
     add(L('Foundations', 'Foundations: a level base that spreads the weight'), found, { dir: 'x', w: 0.7, temp: true });
     add(L(M.j, M.s), frame, { w: 1, temp: true });

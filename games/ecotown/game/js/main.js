@@ -13,7 +13,8 @@ import { createRig } from './camera/rig.js';
 import { createUI, h, esc } from './ui/ui.js';
 import { createGame } from './game/game.js';
 import { loadModel, modelReady } from './ai/plotter.js';
-import { CONTENT } from './game/content.js';
+import { CONTENT, NAME_IDEAS, cleanTownName } from './game/content.js';
+import { loadVoices } from './ui/voice.js';
 
 const $ = (s) => document.querySelector(s);
 const prefs = (() => { try { return JSON.parse(localStorage.getItem('ecotown.prefs') || '{}'); } catch { return {}; } })();
@@ -66,8 +67,8 @@ function settingsSheet() {
   P.innerHTML = `<h3 style="margin:0 0 6px">Settings</h3>${row('readAloud', 'Read aloud')}${row('reduce', 'Reduce motion')}${row('sound', 'Sound')}${row('facilitator', 'Facilitator notes')}
     <label>Text size<select data-k="text"><option value="normal">Normal</option><option value="large" ${s.text === 'large' ? 'selected' : ''}>Large</option></select></label>
     <label>Graphics<select data-k="quality">${['auto', 'low', 'mid', 'high'].map((q) => `<option ${s.quality === q ? 'selected' : ''}>${q}</option>`).join('')}</select></label>
-    <p style="font-size:.8em;color:#46596a">Plotter: ${modelReady() ? 'small language model (on this device)' : 'keyword reader (model not loaded)'}. Nothing you type is stored or sent.</p><button class="btn go" data-close>Done</button>`;
-  P.querySelectorAll('[data-k]').forEach((i) => (i.onchange = () => { s[i.dataset.k] = i.type === 'checkbox' ? i.checked : i.value; applySettings(); }));
+    <p style="font-size:.8em;color:#46596a">Florence: ${modelReady() ? 'small language model (on this device)' : 'keyword reader (model not loaded)'}. Voices: recorded on this device’s game files. Nothing you type is stored or sent.</p><button class="btn go" data-close>Done</button>`;
+  P.querySelectorAll('[data-k]').forEach((i) => (i.onchange = () => { s[i.dataset.k] = i.type === 'checkbox' ? i.checked : i.value; applySettings(); ui.refreshFacil(); }));
   P.querySelector('[data-close]').onclick = () => ui.show('settings', false);
   ui.show('settings', true);
 }
@@ -81,7 +82,7 @@ ui.P.views.addEventListener('click', async (e) => {
   if (v === 'street') { const k = home?.[0] || terrain.school; const p = world.tileTop(k); rig.toStreet(p.clone().add(new THREE.Vector3(-8, 2.1, -9)), p.clone().add(new THREE.Vector3(0, 1.5, 0))); }
   if (v === 'inside') { inside.build(home?.[1].item || 'timber', 20); await rig.fade(() => { inside.root.visible = true; rig.mode = 'inside'; rig.apply(inside.pose()); }); }
 });
-rig.onDoubleTap = (ndc) => { if (rig.mode !== 'sky') return; const k = world.pick(ndc, stage.camera); if (k) rig.focus(world.tileTop(k), { dist: 55 }, 1.1); };
+rig.onDoubleTap = (ndc) => { if (rig.mode !== 'sky' || rig.building) return; /* no fly-ins while painting tiles */ const k = world.pick(ndc, stage.camera); if (k) rig.focus(world.tileTop(k), { dist: 55 }, 1.1); };
 
 // ---------------- start screen
 async function start() {
@@ -90,18 +91,31 @@ async function start() {
   const quality = app.settings.quality === 'auto' ? probeTier(stage) : Promise.resolve(app.settings.quality);
   const scr = h(`<div id="start"><div class="card">
     <span class="chip">A DELTAOPS LEARNING AI LAB</span><h1>Eco <span>Town</span></h1>
-    <p style="font-weight:600;color:#46596a;margin:4px 0">Build a whole town with Plotter, an AI planning helper. Plotter is clever, and sometimes confidently wrong. Can you catch it?</p>
-    <div class="ages"><button class="age" data-band="junior"><b>Ages 8–12</b><span>Word tiles, picture chips, read aloud. Gentle consequences.</span></button><button class="age" data-band="senior"><b>Ages 13–17</b><span>Free-text instructions, real units, budgets, dilemmas and a bias check.</span></button></div>
+    <p style="font-weight:600;color:#46596a;margin:4px 0">Build a whole town with Florence, an AI planning helper. Florence is clever, and sometimes confidently wrong. Can you catch her mistakes?</p>
+    <div class="ages"><button class="age" data-band="junior"><b>Ages 8–12</b><span>Word tiles, picture chips and a friendly voice that reads everything aloud. Gentle consequences.</span></button><button class="age" data-band="senior"><b>Ages 13–17</b><span>Free-text instructions, real units, budgets and town-meeting dilemmas. 🔊 to hear any card.</span></button></div>
+    <p class="both">Both versions end with a bias check: who did Florence forget to ask?</p>
     <div class="opts"><label>Session <select data-session><option value="45">45 min</option><option value="60" selected>60 min</option><option value="90">90 min</option></select></label>
     <label><input type="checkbox" data-facil ${app.settings.facilitator ? 'checked' : ''}> Facilitator notes</label></div>
+    <p class="sessnote" data-sessnote></p>
     <p data-resume style="display:none"></p>
   </div></div>`);
   $('#layer').appendChild(scr); setTimeout(() => scr.querySelector('[data-band]')?.focus(), 100);
-  scr.querySelector('[data-session]').onchange = (e) => (app.session = +e.target.value);
-  scr.querySelector('[data-facil]').onchange = (e) => { app.settings.facilitator = e.target.checked; applySettings(); };
+  const SESS = { 45: 'Short: each town day lasts 8 seconds, and the move-in, the food level’s day and the town meetings are skipped.', 60: 'Standard: every part of every level, with a 14-second town day.', 90: 'Long: longer town days (22 seconds) and a full final day, with time to discuss.' };
+  const sn = scr.querySelector('[data-sessnote]'); sn.textContent = SESS[app.session];
+  scr.querySelector('[data-session]').onchange = (e) => { app.session = +e.target.value; sn.textContent = SESS[app.session]; };
+  scr.querySelector('[data-facil]').onchange = (e) => { app.settings.facilitator = e.target.checked; applySettings(); ui.refreshFacil(); };
   const band = await new Promise((res) => scr.querySelectorAll('[data-band]').forEach((b) => (b.onclick = () => res(b.dataset.band))));
-  initAudio(); sfx.good();
+  initAudio(); sfx.good(); loadVoices(band);
   app.band = band; ui.readAloud = app.settings.readAloud && band === 'junior' ? true : app.settings.readAloud && band === 'senior' ? false : app.settings.readAloud;
+  // name the town: one name, used everywhere (the header, the cards and the printed report)
+  const card = scr.querySelector('.card');
+  card.innerHTML = `<span class="chip">${band === 'junior' ? 'AGES 8–12' : 'AGES 13–17'}</span><h1>Name your <span>town</span></h1><p style="font-weight:600;color:#46596a">Pick a name or type your own.</p>
+    <div class="names">${NAME_IDEAS.map((n) => `<button class="tile" data-n="${n}">${n}</button>`).join('')}</div>
+    <div class="textin" style="margin-top:12px"><div class="field"><input data-name maxlength="24" placeholder="Your town’s name" aria-label="Town name" autocomplete="off"></div><button class="btn go" data-go>Start ➜</button></div><p class="nameerr" data-err></p>`;
+  const inp = card.querySelector('[data-name]'); inp.value = NAME_IDEAS[Math.floor(Math.random() * NAME_IDEAS.length)]; setTimeout(() => inp.focus(), 50);
+  card.querySelectorAll('[data-n]').forEach((b) => (b.onclick = () => { inp.value = b.dataset.n; inp.focus(); }));
+  app.townName = await new Promise((res) => { const go = () => { const n = cleanTownName(inp.value); if (!n) { card.querySelector('[data-err]').textContent = 'Please choose a friendly name, or pick one above.'; return; } res(n); }; card.querySelector('[data-go]').onclick = go; inp.onkeydown = (e) => { if (e.key === 'Enter') go(); }; });
+  sfx.good(); ui.setTownName(app.townName);
   scr.remove();
   const tier = await quality; if (app.settings.quality === 'auto') stage.setTier(tier);
   await modelP;
@@ -115,7 +129,8 @@ async function start() {
 }
 async function opening() {
   if (app.reduce) return;
-  ui.caption(app.band === 'junior' ? 'An empty island floats in the sky. Meadows, a river, an old wood… and room for a town.' : 'An empty island. Every decision from here is yours, and Plotter’s.', 6000);
+  ui.caption(app.band === 'junior' ? `Welcome to ${app.townName}! A small island with an old school, a dock and a beach. Meadows, a river, an old wood… and room for a town.` : `${app.townName}: a small island with an old school, a dock and a beach. Every decision from here is yours, and Florence’s.`, 6500);
+  ui.say(app.band === 'junior' ? 'A small island with an old school, a dock and a beach. Meadows, a river, an old wood, and room for a town.' : '', 'narrator');
   let skip = false; const btn = h('<button class="btn alt panel" style="right:12px;bottom:12px">Skip ⏭</button>'); $('#layer').appendChild(btn); btn.onclick = () => (skip = true);
   const shots = [[new THREE.Vector3(-30, 0, -6), 0.95, 70], [new THREE.Vector3(36, 0, -28), 0.5, 55], [new THREE.Vector3(2, 0, 2), 0.75, rig.frameDist()]];
   for (const [p, pitch, dist] of shots) { if (skip) break; await rig.focus(p, { dist, pitch, yaw: rig.sky.yaw + 0.6 }, 3.2); }
@@ -150,17 +165,18 @@ window.addEventListener('keydown', (e) => { const k = e.key.toLowerCase(), mod =
 window.addEventListener('dragstart', (e) => e.preventDefault());
 // Film preview: index.html?film=homes builds the town up to that level with the clear instructions, then plays its film.
 const filmParam = new URLSearchParams(location.search).get('film');
+app.townName = 'Eco Town';
 if (filmParam) filmPreview(filmParam); else start();
 async function filmPreview(level) {
   const { plan, applyPlacements } = await import('./sim/planner.js');
   const { createFilm } = await import('./game/film.js');
-  const CLEAR = { land: ['dry', 'sunny', 'keep_meadow'], move: ['safe_walking', 'cycling', 'cars_at_edge'], homes: ['warm', 'low_carbon', 'natural_materials'], food: ['enough_food', 'keep_hedges', 'bees'], power: ['enough_power', 'winter', 'night', 'storage', 'solar'], heart: ['walk_time', 'market', 'nature_links'] };
+  const CLEAR = { land: ['dry', 'sunny', 'keep_meadow'], move: ['safe_walking', 'cycling', 'cars_at_edge'], homes: ['warm', 'low_carbon', 'natural_materials'], food: ['enough_food', 'keep_hedges', 'bees'], power: ['enough_power', 'winter', 'night', 'storage', 'solar', 'save_water', 'compost'], heart: ['walk_time', 'market', 'nature_links'] };
   const order = Object.keys(CLEAR); let cells = new Map();
   for (const id of order.slice(0, order.indexOf(level))) { cells = applyPlacements(cells, plan(id, CLEAR[id], { terrain, cells, numbers: { minutes: 10 } }).placements); for (const c of cells.values()) c.locked = true; }
   for (const [k, c] of cells) world.setCell(k, c);
   const next = applyPlacements(cells, plan(level, CLEAR[level], { terrain, cells, numbers: { minutes: 10 } }).placements);
   const changed = new Set([...next.keys()].filter((k) => JSON.stringify(next.get(k)) !== JSON.stringify(cells.get(k))));
-  life.setTown(simulate(terrain, cells), cells, stage.q); ui.setBadge('FILM PREVIEW'); ui.setTask('L1/6', level);
+  life.setTown(simulate(terrain, cells), cells, stage.q); ui.setBadge('FILM PREVIEW'); ui.setTask(1, level);
   await rig.overview(0.1); app.film = createFilm(app); initAudio();
   window.__filmStart = performance.now();
   await app.film.play(level, changed, next, { band: 'junior' });

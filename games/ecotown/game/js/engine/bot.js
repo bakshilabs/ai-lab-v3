@@ -1,4 +1,4 @@
-// Plotter in the world: a small voxel drone. It flies to its plan and beams the ghost blocks down,
+// Florence in the world: a small voxel drone. She flies to her plan and beams the ghost blocks down,
 // shrugs when a check catches its mistake and spins when the plan passes.
 import * as THREE from 'three';
 import { Vox } from './voxel.js';

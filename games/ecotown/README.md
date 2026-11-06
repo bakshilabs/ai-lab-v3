@@ -2,7 +2,7 @@
 
 Eco Town is a six-level AI lab in the browser, in two versions: ages 8–12 and ages 13–17.
 
-Players build a sustainable town on a floating island with **Plotter**, an AI planning helper. Plotter reads the player's own instruction, plans exactly what it was told, and is sometimes confidently wrong. Players catch the mistake from the ground, using lenses, street view or inside view. They name the habit that caused it, write a clearer instruction, then build and watch residents live in the town.
+Players build a sustainable town on a floating island with **Florence**, an AI planning helper. Florence reads the player's own instruction, plans exactly what she was told, and is sometimes confidently wrong. Players catch the mistake from the ground, using lenses, street view or inside view. They name the habit that caused it, write a clearer instruction, then build and watch residents live in the town.
 
 - Design: [`DESIGN.md`](DESIGN.md)
 - Facilitator guide: [`LAB-GUIDE.md`](LAB-GUIDE.md)
@@ -18,7 +18,7 @@ cd games/ecotown/game && python3 -m http.server 8765
 
 Then open <http://localhost:8765/>. For schools, host the same folder on any static host and share the link.
 
-Once the page has loaded, nothing is fetched from the internet. three.js, the fonts and Plotter's model are served alongside the page. There are no accounts and no data collection, and nothing a player types is stored or sent.
+Once the page has loaded, nothing is fetched from the internet. three.js, the fonts and Florence's model are served alongside the page. There are no accounts and no data collection, and nothing a player types is stored or sent.
 
 ## Live site: passcodes for students, admin for the company
 
@@ -135,10 +135,22 @@ The ☰ menu has these settings:
 
 ## How a level plays
 
-1. **Brief.** A card unlocks the level's new lens.
-2. **Plan.** The player instructs Plotter with word tiles (default for 8–12), free text (default for 13–17) or a card. Plotter flies over, beams down a see-through plan and shows its reading and its "% sure".
-3. **Check.** The player chooses a lens or view. The island turns to pale clay and the honest simulation shows what the plan would really do.
-4. **Fix.** The player names Plotter's habit, writes a clearer instruction and builds.
+0. **Start.** Choose the age band and session length, then name the town. The name is used in the header, on the cards and on the printed report.
+1. **Brief.** A card shows what the level adds. Lenses build up: L1 flood, L2 rush-hour street view, L3 carbon, L4 nature, L5 winter test, L6 walking time. Street view and inside view are always available.
+2. **Plan.** The player instructs Florence with word tiles (default for 8–12), free text (default for 13–17) or a card. Florence flies over, beams down a see-through plan and shows her reading and her "% sure".
+3. **Check.** The player chooses a lens or view. The island turns to pale clay and the honest simulation shows what the plan would really do. Florence's guess stays on screen in a small card. Street and inside views stay until the player taps "Back to the island".
+4. **Fix.** The player names Florence's habit, writes a clearer instruction and builds.
+   - The right habit comes from **what Florence actually assumed** in that plan (each planner reading carries its habit). For example, "fast" read as "wide roads" is *took one word too far*. A wrong pick explains what that habit means and points back at her guess; after two wrong picks the answer is explained.
+   - **Clear first time?** The plan passes, then a short **"spot the hidden guess"** step asks what Florence still assumed (e.g. how much land 40 families need). So the lesson always happens, and good instructions can still earn 3 stars.
+   - **Stars** (shown with their rules on every level-complete card):
+
+     | Path | ★ 1 | ★ 2 | ★ 3 |
+     |---|---|---|---|
+     | Mistake first | Found it with the first check | Named the habit first time | The fixed plan passes |
+     | Clear first | Clear instruction first time | Spotted the hidden guess | The plan passed its check |
+
+     Level 6's bias check gives a bonus star.
+   - **Building:** tiles the selected tool can go on are lit up. The camera doesn't move on taps while building, and the tools panel can be folded away. One rule everywhere: nothing goes on the protected wetland except paths, green bridges, reed beds and "keep wild". Town land is capped at 18 tiles.
    - When the plan is accepted, a short letterboxed **construction film** shows how it is built, **system by system and layer by layer**. A numbered step strip follows along, read aloud for ages 8–12 and in more technical wording for 13–17. One featured tile is built slowly, then the rest of the plan goes up around it. Each film can be skipped, and with Reduce motion on it becomes a quick cut.
 
      | Level | Steps in the film |
@@ -150,28 +162,42 @@ The ☰ menu has these settings:
      | 5 | Turbine foundation, tower sections, generator housing, blades fitted, then a glowing cable to the town |
      | 6 | The school built step by step, then the ribbon is cut |
 
-5. **Move in.** The followed family arrives on the sky-ferry.
-6. **Live.** A day passes, with thought bubbles from residents. In the 13–17 version, "What residents said" lists the comments and repeated complaints can become a petition.
+5. **Move in** (level 3, when the homes are built). The followed family arrives on the sky-ferry and walks along the streets to their front door.
+6. **Live.** A day passes, with thought bubbles from residents (pinned to a real resident) and a family diary that changes from morning to evening and comes from the simulation. The level 5 day is a snowy winter day. In the 13–17 version, "What residents said" lists the comments and repeated complaints can become a petition.
 7. **Celebrate.** The level's builds replay as a time-lapse from the same angle, then the reward card appears. The 13–17 version adds a town-meeting dilemma.
 
 Level 6 adds three things before the final day:
 - a check of the AI's summary of residents' views (sampling bias):
-  - **8–12:** tap residents at the school gate to see how they travel;
-  - **13–17:** **Teach Plotter**. Plotter trains a real classifier in the browser on residents' comments, first from the car-park survey box only (drivers), and its summary says "Residents want more car parks". Students inspect the training data, add comments from the school gate or write and label their own, and retrain until the summary matches the town;
+  - **8–12:** Florence says she asked 10 people at the car park; the children ask 10 people at the school gate (🚗 drives / 🚶 walks), then Florence counts everyone and explains why her answer changed;
+  - **13–17:** **Teach Florence**. Florence trains a real classifier in the browser on residents' comments, first from the car-park survey box only (drivers), and her summary says "Residents want more car parks". Students inspect the training data, add comments from the school gate or write and label their own, and retrain until the summary matches the town;
 - a three-promise town charter;
 - a printable town report at the end.
+
+### Numbers the game uses (one rule each)
+- **Walking:** every home within **15 minutes** of school (check, lens, charter and bubbles all use `TARGETS.walkMinutes`).
+- **Carbon:** the town limit is **160 t** (header, report, charter). Level 3 also has a limit of **70 t** for the homes' building materials, labelled "building carbon".
+- **Level 5:** winter-night power, plus at least one rain garden or reed bed and one compost hub or repair café.
+
+### Read-aloud voices
+Lines are pre-recorded with **Kokoro-82M**, an open neural voice model (Apache-2.0):
+- **narrator:** British "Isabella";
+- **Florence:** "Bella".
+
+`voice/collect.mjs` gathers every sentence the game can say, and `voice/render.py` records them into one pack per age band (`game/voice/pack-*.json` and `.bin`). A sentence with no recording, such as one with a live number, is read by the device's most natural voice. Auto-read is on for ages 8–12; the 🔊 buttons on Florence's card and on every card replay a line in both versions.
+
+To re-record after changing text, see `voice/README.md`.
 
 ## Code map (`game/js`)
 
 | Folder | What it does |
 |---|---|
-| `engine/` | Renderer and post-processing (tilt-shift, bloom, grade), sky and time of day (`stage.js`); voxel mesher (`voxel.js`); kit and extras; residents, wildlife and the ferry (`life.js`); Plotter's drone (`bot.js`); WebAudio synth (`audio.js`) |
+| `engine/` | Renderer and post-processing (tilt-shift, bloom, grade), sky and time of day (`stage.js`); voxel mesher (`voxel.js`); kit and extras; residents, wildlife and the ferry (`life.js`); Florence's drone (`bot.js`); WebAudio synth (`audio.js`) |
 | `world/` | Terrain grid, zones, rim, mesas and canyons (`terrain.js`), construction stages (`construct.js`), build catalogue and placement rules (`catalog.js`), voxel builders (`builders.js`), the island in three.js (`world.js`), dollhouse rooms (`inside.js`) |
-| `sim/` | The honest simulation (`sim.js`) and Plotter's literal planner (`planner.js`) |
+| `sim/` | The honest simulation (`sim.js`) and Florence's literal planner (`planner.js`) |
 | `ai/` | `teach.js` trains the residents'-feedback classifier in the browser. `plotter.js` reads the instruction (small language model, falling back to keywords), plans, and replies from templates. `model.js` and `tokenizer.js` run the model; see `../model/README.md` |
 | `game/` | The level flow (`game.js`), level rules (`levels.js`), text for both versions (`content.js`), checks and lenses (`checks.js`), bubbles, the report |
 | `camera/rig.js` | Sky orbit, flights, street rails, follow and turntable shots |
-| `ui/ui.js` | The frame: town card, icon strip, Plotter dock, cards, labels and bubbles, read-aloud |
+| `ui/ui.js` | The frame: town card, icon strip, Florence dock, cards, labels and bubbles, read-aloud |
 
 ## Tests
 

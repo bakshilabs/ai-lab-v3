@@ -12,7 +12,7 @@ const COOKIE = 'eco_s';
 const BASE = {
   'Cache-Control': 'no-store, max-age=0', 'X-Robots-Tag': 'noindex, nofollow, noarchive', 'X-Frame-Options': 'DENY',
   'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'no-referrer', 'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
-  'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'",
+  'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'",
 };
 const TYPES = { html: 'text/html; charset=utf-8', js: 'text/javascript; charset=utf-8', css: 'text/css; charset=utf-8', json: 'application/json', bin: 'application/octet-stream', woff2: 'font/woff2' };
 const json = (o, status = 200, extra = {}) => new Response(JSON.stringify(o), { status, headers: { ...BASE, 'Content-Type': 'application/json', ...extra } });
@@ -86,6 +86,12 @@ export default {
     if (!r.ok) {
       if (file === '/index.html') return html(loginPage(r.reason === 'none' ? '' : MESSAGES[r.reason] || ''));
       return new Response('Login required', { status: 403, headers: { ...BASE, 'Content-Type': 'text/plain' } });
+    }
+    // recorded voices live in Workers KV (too big for the script); same session rule as every other game file
+    if (file.startsWith('/voice/') && env.VOICE) {
+      const name = file.slice(7); if (!/^pack-[a-z]+(-[a-f0-9]+)?\.(json|bin)$/.test(name)) return new Response('Not found', { status: 404, headers: BASE });
+      const v = await env.VOICE.get(name, 'arrayBuffer'); if (!v) return new Response('Not found', { status: 404, headers: BASE });
+      return new Response(v, { headers: { ...BASE, 'Content-Type': name.endsWith('.json') ? 'application/json' : 'audio/mpeg' } });
     }
     const body = FILES[file];
     if (body === undefined) return new Response('Not found', { status: 404, headers: BASE });

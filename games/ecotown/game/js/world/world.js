@@ -11,6 +11,10 @@ import { planStages } from './construct.js';
 
 const HEDGE_SAFE = new Set(['mixed', 'orchard', 'hives', 'hedge', 'path', 'cycle', 'park', 'allot', 'greenbridge']);
 const GHOST_MAT = new THREE.MeshBasicMaterial({ color: '#ffffff', transparent: true, opacity: 0.5, depthWrite: false });
+// the plan preview is colour-coded by what Florence plans to put there (her plan, before it is real)
+const GHOST_COL = { land: '#ffd23f', move: '#ff8a3d', homes: '#ff6f9a', food: '#7ddc5a', power: '#7fd0ff', heart: '#c79bff' };
+const ghostMats = new Map();
+const ghostMat = (lv) => { if (!ghostMats.has(lv)) ghostMats.set(lv, new THREE.MeshBasicMaterial({ color: GHOST_COL[lv] || '#ffffff', transparent: true, opacity: 0.62, depthWrite: false })); return ghostMats.get(lv); };
 const GHOST_BAD = new THREE.MeshBasicMaterial({ color: '#ffd0c8', transparent: true, opacity: 0.55, depthWrite: false });
 
 function zoneAtVoxel(x0, z0) {
@@ -46,7 +50,10 @@ export function createWorld(stage, terrain) {
     const tt = inTiles(x, z); const river = inRiverVoxel(x, z); const top = heightAt(x, z);
     const r = Math.hypot(x / RX, z / RZ);
     const beach = !tt && z > 18 && top <= 1;
-    const zone = tt ? zoneAtVoxel(x, z) : beach ? 'coast' : 'rim';
+    // zones blend at their edges, but the protected wetland is painted exactly on its own tiles, so what
+    // looks like wetland always follows the wetland rule
+    const tz = tt ? terrain.tiles.get(tt[0] + ',' + tt[1]).zone : null; const zw = tt ? zoneAtVoxel(x, z) : null;
+    const zone = tt ? (tz === 'wetland' || zw === 'wetland' ? tz : zw) : beach ? 'coast' : 'rim';
     const lime = !tt && isLimestone(x, z, top);
     let under = Math.round(13 * (1 - r * r * 0.7) + noise2(x / 3, z / 3, 86) * 4) + Math.max(0, top);
     const edge = !insideVoxel(x + 1, z) || !insideVoxel(x - 1, z) || !insideVoxel(x, z + 1) || !insideVoxel(x, z - 1);
@@ -108,16 +115,19 @@ export function createWorld(stage, terrain) {
     sails.position.set(millAt[0] + 0.5, millY + 11, millAt[1] + 3.2); sails.traverse((o) => { if (o.isMesh) o.castShadow = true; }); root.add(sails); }
   const islets = floatingRocks(scene, { n: 6, center: [0, -6, 0], radius: 95, seed: 8 });
   const waterMesh = water.mesh({ castShadow: false });
-  const uTime = { value: 0 };
+  const uTime = { value: 0 }; const uIce = { value: 0 };
   waterMesh.material = new THREE.MeshLambertMaterial({ vertexColors: true, transparent: true, opacity: 0.82 });
   waterMesh.material.onBeforeCompile = (sh) => {
-    sh.uniforms.uTime = uTime; sh.uniforms.uClay = WORLD.clay;
+    sh.uniforms.uTime = uTime; sh.uniforms.uClay = WORLD.clay; sh.uniforms.uIce = uIce;
     sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vWP;').replace('#include <begin_vertex>', '#include <begin_vertex>\nvWP = (modelMatrix * vec4(transformed, 1.0)).xyz;');
-    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform float uTime; uniform float uClay; varying vec3 vWP;')
+    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform float uTime; uniform float uClay; uniform float uIce; varying vec3 vWP;')
       .replace('#include <color_fragment>', `#include <color_fragment>
         float f = sin(vWP.z * 0.9 - uTime * 2.4 + sin(vWP.x * 1.7) * 0.8) * 0.5 + 0.5;
         diffuseColor.rgb *= 0.9 + 0.22 * smoothstep(0.75, 1.0, f);
-        diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.7, 0.86, 0.95), uClay * 0.6);`);
+        diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.7, 0.86, 0.95), uClay * 0.6);
+        float crack = step(0.93, fract(sin(dot(floor(vWP.xz * 1.3), vec2(12.9898, 78.233))) * 43758.5453));
+        diffuseColor.rgb = mix(diffuseColor.rgb, mix(vec3(0.86, 0.94, 1.0), vec3(0.7, 0.82, 0.92), crack), uIce * 0.85);
+        diffuseColor.a = mix(diffuseColor.a, 0.96, uIce);`);
   };
   waterMesh.position.y = -0.35; root.add(waterMesh);
   // waterfalls where the river pours off the island
@@ -251,14 +261,14 @@ export function createWorld(stage, terrain) {
     }
     // temporary stages vanish when the next permanent stage after them is complete
     stages.forEach((st, i) => { if (st.temp) { const nxt = stages.slice(i + 1).find((x) => !x.temp); st.hideAt = nxt ? nxt.t1 : dur; } });
-    g.visible = false; if (L.rotor) L.rotor.visible = false;
+    g.visible = false; if (L.rotor) { L.rotor.visible = false; L.group.attach(L.rotor); } // the rotor is fitted during the build, so it can't hide with the unfinished group
     const box = new THREE.Box3().setFromObject(g);
     builds.set(L.t.k, { L, g, stages, t: -delay, dur, top: box.isEmpty() ? L.oy + 2 : box.max.y, kind, cur: -1, onStage, cable: null, plane: { constant: L.oy } });
   }
   function endBuild(B) {
     for (const st of B.stages) { L_remove(B.L, st.group); }
     if (B.cable) { B.L.group.remove(B.cable); B.cable = null; }
-    B.g.visible = true;
+    B.g.visible = true; if (B.L.rotor && B.L.rotor.parent !== B.g) B.g.attach(B.L.rotor);
     if (B.L.rotor && !B.rotorDone) { B.L.rotor.visible = true; rotorDrops.push({ r: B.L.rotor, y: B.L.rotor.position.y, t: 0 }); }
     builds.delete(B.L.t.k);
   }
@@ -298,10 +308,14 @@ export function createWorld(stage, terrain) {
       const L = layers.get(k); if (!L) return;
       if (builds.has(k)) endBuild(builds.get(k));
       const prevTop = L.build ? new THREE.Box3().setFromObject(L.build).max.y : null; const prevItem = L.cellItem;
+      if (L.rotor && L.rotor.parent && L.rotor.parent !== L.build) L.rotor.parent.remove(L.rotor);
       if (L.build) { L.group.remove(L.build); dispose(L.build); L.build = null; L.rec = null; L.rotor = null; }
       L.cellItem = cell?.item || null;
       const has = cell && (cell.item || cell.mark);
-      L.deco.visible = !L.fixed && !(cell && cell.item) && !(cell && cell.mark === 'town');
+      L.deco.visible = !L.fixed && !(cell && cell.item) && !(cell && cell.mark === 'town') && !L.crowded;
+      // decoration trees on tiles next to a building are cleared, so their canopies don't grow into it
+      const tall = !!(cell && cell.item && !FLAT.has(cell.item));
+      for (const n of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const NL = layers.get((L.t.gx + n[0]) + ',' + (L.t.gz + n[1])); if (!NL) continue; if (tall) NL.crowdedBy = (NL.crowdedBy || new Set()).add(k); else NL.crowdedBy?.delete(k); NL.crowded = !!NL.crowdedBy?.size; if (!NL.build && !NL.fixed && NL.deco) NL.deco.visible = !NL.crowded; }
       if (L.hedge) L.hedge.visible = !(cell && cell.item) || HEDGE_SAFE.has(cell.item);
       if (!has) return;
       const { g, rec } = buildMeshes(L, cell); L.build = g; L.rec = rec; L.group.add(g);
@@ -309,12 +323,15 @@ export function createWorld(stage, terrain) {
       else if (animate) { pop(g, delay, { reduce }); const [cx, cz] = tileCenter(L.t.gx, L.t.gz); setTimeout(() => puff(cx, L.oy + 1.2, cz), delay * 1000); }
     },
     // Ghost plan: see-through blocks that appear one after another.
-    showGhost(placements, cellsAfter, { reduce = false, bad = new Set() } = {}) {
+    showGhost(placements, cellsAfter, { reduce = false, bad = new Set(), coded = true } = {}) {
       this.clearGhost(); let i = 0;
       const keys = [...new Set(placements.map((p) => p.k))];
       for (const k of keys) {
         const L = layers.get(k); const cell = cellsAfter.get(k); if (!L || !cell) continue;
-        const { g } = buildMeshes(L, cell, bad.has(k) ? GHOST_BAD : GHOST_MAT);
+        const lv = ITEMS[cell.item || cell.mark]?.level; const mat = bad.has(k) ? GHOST_BAD : coded ? ghostMat(lv) : GHOST_MAT;
+        const { g } = buildMeshes(L, cell, mat);
+        // flat plans (roads, paths, fields, town land) would vanish into the ground: give every planned tile a raised outline
+        if (coded || bad.has(k)) g.add(outline(L, mat.color));
         g.position.y += 0.05; L.ghost = g; L.group.add(g); pop(g, reduce ? 0 : i * 0.05, { reduce }); i++;
       }
       return i * 0.05 + 0.4;
@@ -328,7 +345,7 @@ export function createWorld(stage, terrain) {
       if (!spec) return;
       for (const [k, o] of spec) {
         const L = layers.get(k); if (!L) continue;
-        const m = new THREE.Mesh(OVERLAY_GEO, overlayMat(o.color, o.pattern));
+        const m = new THREE.Mesh(OVERLAY_GEO, overlayMat(o.color, o.pattern, o.opacity));
         m.position.set(L.ox + T / 2, L.oy + 1.2 + (o.lift || 0), L.oz + T / 2); m.rotation.x = -Math.PI / 2; m.renderOrder = 5;
         L.overlay = m; L.group.add(m);
       }
@@ -358,7 +375,7 @@ export function createWorld(stage, terrain) {
       return hit;
     },
     update(dt, t, { windStill = false } = {}) {
-      uTime.value = t; sails.rotation.z = -t * 0.6; cloudUpd(t); cloudSea(t * 0.4); islets(t); falls.forEach((f) => f(t));
+      uTime.value = t; uIce.value += ((stage.winter > 0.6 ? 1 : 0) - uIce.value) * Math.min(1, dt * 1.5); sails.rotation.z = -t * 0.6; cloudUpd(t); cloudSea(t * 0.4); islets(t); falls.forEach((f) => f(t));
       // clay fade
       this.clay += (this.clayTarget - this.clay) * Math.min(1, dt * 7); WORLD.clay.value = this.clay;
       // night lights fade with the sky
@@ -378,6 +395,15 @@ export function createWorld(stage, terrain) {
   return world;
 }
 
+// a raised coloured frame round a tile (plan preview)
+const OUT_MATS = new Map();
+function outline(L, color) {
+  const key = color.getHexString(); if (!OUT_MATS.has(key)) OUT_MATS.set(key, new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.95, depthWrite: false }));
+  const mat = OUT_MATS.get(key); const g = new THREE.Group(); const y = L.oy + 1.5, w = T - 0.6, th = 0.35;
+  const [cx, cz] = tileCenter(L.t.gx, L.t.gz);
+  for (const [dx, dz, sx, sz] of [[0, -w / 2, w, th], [0, w / 2, w, th], [-w / 2, 0, th, w], [w / 2, 0, th, w]]) { const m = new THREE.Mesh(new THREE.BoxGeometry(sx, 0.35, sz), mat); m.position.set(cx + dx, y, cz + dz); m.renderOrder = 6; g.add(m); }
+  return g;
+}
 function makeRotor() {
   const g = new THREE.Group(); const mat = new THREE.MeshLambertMaterial({ color: '#f4f6f8' });
   for (let i = 0; i < 3; i++) { const b = new THREE.Mesh(new THREE.BoxGeometry(0.5, 6.5, 0.3), mat); b.geometry.translate(0, 3.25, 0); b.rotation.z = (i * Math.PI * 2) / 3; g.add(b); }
@@ -399,9 +425,9 @@ function patternTex(kind) {
   const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace; patternCache.set(kind, tex); return tex;
 }
 const matCache = new Map();
-function overlayMat(color, pattern = 'solid') {
-  const key = color + pattern; if (matCache.has(key)) return matCache.get(key);
-  const m = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.86, depthWrite: false, map: pattern !== 'solid' ? patternTex(pattern) : null });
+function overlayMat(color, pattern = 'solid', opacity = 0.86) {
+  const key = color + pattern + opacity; if (matCache.has(key)) return matCache.get(key);
+  const m = new THREE.MeshBasicMaterial({ color, transparent: true, opacity, depthWrite: false, map: pattern !== 'solid' ? patternTex(pattern) : null });
   matCache.set(key, m); return m;
 }
 export { ZONES };

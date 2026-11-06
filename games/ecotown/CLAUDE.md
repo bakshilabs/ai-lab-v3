@@ -1,6 +1,6 @@
 # Eco Town: notes for the next Claude Code session
 
-Eco Town is a browser game (three.js voxel) with two versions, for ages 8–12 and 13–17. Players build a sustainable town with **Plotter**, an AI planner that is sometimes confidently wrong, and learn to catch its mistakes.
+Eco Town is a browser game (three.js voxel) with two versions, for ages 8–12 and 13–17. Players build a sustainable town with **Florence**, an AI planner that is sometimes confidently wrong, and learn to catch its mistakes.
 
 | For | See |
 |---|---|

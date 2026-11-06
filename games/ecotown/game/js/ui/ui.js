@@ -2,6 +2,7 @@
 // the town flower, world-anchored labels and bubbles, captions and read-aloud.
 import * as THREE from 'three';
 import { PETALS } from '../sim/sim.js';
+import { speak, stopSpeech, canSpeak } from './voice.js';
 
 export const $ = (s, r = document) => r.querySelector(s);
 export function h(html) { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; }
@@ -26,7 +27,10 @@ export function createUI(root, labelsRoot, opts) {
   mk('modal', 'modal');
   mk('settings', 'from-right');
   const D = { head: P.dock.querySelector('[data-head]'), speaker: P.dock.querySelector('[data-speaker]'), actions: P.dock.querySelector('[data-actions]') };
-  const facilEl = h('<div class="facil"></div>'); P.dock.prepend(facilEl);
+  // facilitator notes live in their own card (top left, under the town card), whatever else is on screen
+  mk('facil', 'from-left facilcard'); const facilEl = P.facil; let facilText = null;
+  // a dimmed backdrop behind centre cards, so they are always readable and nothing behind them can be clicked
+  const backdrop = h('<div id="backdrop" class="hide"></div>'); root.appendChild(backdrop);
   P.tray = D.actions; P.helper = D.speaker; P.tr = P.strip; P.views = P.strip; P.flower = P.flowerpop; P.badge = P.card; P.task = P.card;
   const dockState = { speaker: false, actions: false, head: false };
   const syncDock = () => { P.dock.classList.toggle('hide', !(dockState.speaker || dockState.actions)); D.speaker.style.display = dockState.speaker ? '' : 'none'; D.actions.style.display = dockState.actions ? '' : 'none'; P.dock.classList.toggle('talk-only', dockState.speaker && !dockState.actions); P.dock.classList.toggle('actions-only', !dockState.speaker && dockState.actions); };
@@ -37,52 +41,65 @@ export function createUI(root, labelsRoot, opts) {
       if (id === 'helper') { dockState.speaker = on; return syncDock(); }
       if (id === 'tray') { dockState.actions = on; return syncDock(); }
       if (id === 'caption') { if (!on) D.head.classList.remove('on'); return; }
-      if (id === 'facil') { facilEl.classList.toggle('on', on); return; }
+      if (id === 'facil') { facilEl.classList.toggle('hide', !on); return; }
+      if (id === 'modal') backdrop.classList.toggle('hide', !on);
       if (['badge', 'task', 'tr'].includes(id)) id = id === 'tr' ? 'strip' : 'card';
       if (id === 'views' || id === 'flower') id = 'strip';
       P[id]?.classList.toggle('hide', !on);
     },
-    only(ids) { for (const id of ['helper', 'tray', 'alert', 'lensbar', 'facil', 'modal', 'settings', 'caption']) this.show(id, ids.includes(id)); P.flowerpop.classList.add('hide'); },
+    only(ids) { for (const id of ['helper', 'tray', 'alert', 'lensbar', 'modal', 'settings', 'caption']) this.show(id, ids.includes(id)); P.flowerpop.classList.add('hide'); },
     setBadge(sub) { P.card.querySelector('[data-sub]').textContent = sub; this.show('card'); this.show('strip'); },
-    setTask(lv, text) {
-      P.card.querySelector('[data-goal]').textContent = text; const n = parseInt(String(lv).replace(/\D/g, '')) || 0;
+    setTownName(name) { P.card.querySelector('.brand').textContent = name || 'Eco Town'; },
+    // n: the current level number (1–6); earlier levels show as done, the current one is highlighted
+    setTask(n, text) {
+      P.card.querySelector('[data-goal]').textContent = text; n = +n || 0;
       P.card.querySelectorAll('[data-l]').forEach((e) => { const l = +e.dataset.l; e.classList.toggle('done', l < n); e.classList.toggle('on', l === n); });
       this.show('card');
     },
     setStars(n) { const b = P.card.querySelector('[data-stars]'); if (b.textContent !== String(n)) { b.textContent = n; b.parentElement.classList.remove('bump'); void b.offsetWidth; b.parentElement.classList.add('bump'); } this.show('card'); },
-    // Plotter speaks in the dock: { tag, tagCls, html, sure, sureLabel, why, thinking }
+    // Florence speaks in the dock: { tag, tagCls, html, sure, sureLabel, why, thinking, mini, say }
+    // mini: a small card kept on screen while the player checks her guess
     helper(o) {
-      if (!o) { this.show('helper', false); return; }
-      D.speaker.className = 'speaker' + (o.thinking ? ' thinking' : '') + (o.tagCls ? ' ' + o.tagCls : '');
-      D.speaker.innerHTML = `<div class="avatar"><div class="bot"><i></i><i></i></div></div><div class="say"><div class="name">${esc(o.name || 'Plotter')} <em class="${o.tagCls || ''}">${esc(o.tag || 'GUESS')}</em></div>
+      if (!o) { this.show('helper', false); P.dock.classList.remove('mini'); return; }
+      D.speaker.className = 'speaker' + (o.thinking ? ' thinking' : '') + (o.tagCls ? ' ' + o.tagCls : '') + (o.mini ? ' mini' : '');
+      P.dock.classList.toggle('mini', !!o.mini);
+      const line = o.say || (o.html ? h(`<div>${o.html}</div>`).textContent : '');
+      D.speaker.innerHTML = `<div class="avatar"><div class="bot"><i></i><i></i></div></div><div class="say"><div class="name">${esc(o.name || 'Florence')} <em class="${o.tagCls || ''}">${esc(o.tag || 'GUESS')}</em>${!o.thinking && line && canSpeak() ? '<button class="spk" data-spk aria-label="Read aloud" title="Read aloud">🔊</button>' : ''}</div>
         <div class="text">${o.html || ''}</div>${o.sure != null ? `<div class="sure"><div class="bar"><i></i></div><span>${o.sure}% ${esc(o.sureLabel || 'sure')}</span></div>` : ''}${o.why ? `<div class="why">${o.why}</div>` : ''}</div>`;
       this.show('helper');
+      D.speaker.querySelector('[data-spk]')?.addEventListener('click', () => speak(line, { voice: 'helper', force: true }));
       if (o.sure != null) requestAnimationFrame(() => requestAnimationFrame(() => { const i = D.speaker.querySelector('.sure .bar i'); if (i) i.style.width = o.sure + '%'; }));
-      if (o.say) this.say(o.say);
+      if (o.say && !o.mini) this.say(o.say, o.voice || 'helper');
     },
     tray(html, bind) { D.actions.innerHTML = html; this.show('tray', !!html); bind?.(D.actions); return D.actions; },
     alert(text, good = false, ms = 0) {
       P.alert.classList.toggle('good', good); P.alert.querySelector('.x').textContent = good ? '✓' : '✕'; P.alert.querySelector('[data-t]').textContent = text; this.show('alert');
-      this.say(text); clearTimeout(this._at); if (ms) this._at = setTimeout(() => this.show('alert', false), ms);
+      this.say(text, 'narrator'); clearTimeout(this._at); if (ms) this._at = setTimeout(() => this.show('alert', false), ms);
     },
     lensbar(html) { if (!html) return this.show('lensbar', false); P.lensbar.innerHTML = html; this.show('lensbar'); },
-    facil(text) { if (!text || !opts.facilitator()) return this.show('facil', false); facilEl.innerHTML = `<small>FACILITATOR</small> ${esc(text)}`; this.show('facil'); },
-    modal(html, { say } = {}) {
-      P.modal.innerHTML = html; this.show('modal'); if (say) this.say(say);
-      const first = P.modal.querySelector('button'); setTimeout(() => first?.focus(), 50);
-      return new Promise((res) => { P.modal.onclick = (e) => { const b = e.target.closest('[data-act]'); if (!b) return; P.modal.onclick = null; this.show('modal', false); res(b.dataset.act); }; });
+    // "Florence's plan" key, shown while her see-through plan is on the island
+    legend(kind) { if (kind !== 'plan') return this.lensbar(null); this.lensbar(`📐 FLORENCE’S PLAN <span class="legend"><span><i style="background:#ffd23f;opacity:.8"></i>See-through = planned, not built yet</span></span>`); },
+    facil(text) { facilText = text || null; this.refreshFacil(); },
+    refreshFacil() { if (!facilText || !opts.facilitator()) return this.show('facil', false); facilEl.innerHTML = `<small>FACILITATOR NOTE</small><p>${esc(facilText)}</p>`; this.show('facil'); },
+    async modal(html, { say } = {}) {
+      // never open a card over one that is still closing (it would look see-through)
+      if (!P.modal.classList.contains('hide') || performance.now() - (this._mClosed || 0) < 420) await new Promise((r) => setTimeout(r, Math.max(0, 420 - (performance.now() - (this._mClosed || 0)))));
+      P.modal.innerHTML = html + (say && canSpeak() ? '<button class="spk modalspk" data-spk aria-label="Read aloud" title="Read aloud">🔊</button>' : ''); this.show('modal'); if (say) this.say(say, 'narrator');
+      P.modal.querySelector('[data-spk]')?.addEventListener('click', (e) => { e.stopPropagation(); speak(say, { voice: 'narrator', force: true }); });
+      const first = P.modal.querySelector('button:not([data-spk])'); setTimeout(() => first?.focus(), 50);
+      return new Promise((res) => { P.modal.onclick = (e) => { const b = e.target.closest('[data-act]'); if (!b) return; P.modal.onclick = null; this.show('modal', false); this._mClosed = performance.now(); stopSpeech(); res(b.dataset.act); }; });
     },
     // short status line: shown as the dock's headline, or as a toast when the dock is hidden
     caption(text, ms = 3500) {
       if (!text) { D.head.classList.remove('on'); P.toast?.classList.add('hide'); return; }
-      const host = P.dock.classList.contains('hide') ? (P.toast ||= (() => { const n = h('<div id="toast" class="panel hide pop"></div>'); root.appendChild(n); return n; })()) : D.head;
+      const host = P.dock.classList.contains('hide') || P.dock.classList.contains('mini') ? (P.toast ||= (() => { const n = h('<div id="toast" class="panel hide pop"></div>'); root.appendChild(n); return n; })()) : D.head;
+      // the toast sits below the lens bar and any alert, never on top of them
+      if (host === P.toast) { let y = 92; for (const el of [P.lensbar, P.alert]) if (!el.classList.contains('hide')) { const r = el.getBoundingClientRect(); y = Math.max(y, r.bottom + 10); } P.toast.style.top = y + 'px'; }
       host.textContent = text; host.classList.add('on'); host.classList.remove('hide'); clearTimeout(this._ct);
       this._ct = setTimeout(() => { host.classList.remove('on'); if (host === P.toast) host.classList.add('hide'); }, ms);
     },
-    say(text) {
-      if (!this.readAloud || !('speechSynthesis' in window) || !text) return;
-      try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(String(text).replace(/[★✕✓☁🌊]/g, '')); u.lang = 'en-GB'; u.rate = 0.98; speechSynthesis.speak(u); } catch { /* speech unavailable */ }
-    },
+    // read aloud (auto for 8–12; 🔊 buttons replay on demand for everyone). voice: 'narrator' or 'helper' (Florence)
+    say(text, voice = 'narrator') { if (!text) return; if (!this.readAloud) { globalThis.__sayLog?.push({ text, voice, missing: [], silent: true }); return; } speak(text, { voice }); },
     views(active, enabled = ['sky', 'street', 'inside']) {
       for (const b of P.strip.querySelectorAll('[data-v]')) { b.classList.toggle('on', b.dataset.v === active); b.disabled = !enabled.includes(b.dataset.v); }
       this.show('strip');
@@ -111,14 +128,18 @@ export function createUI(root, labelsRoot, opts) {
   const anchored = []; const v3 = new THREE.Vector3();
   ui.labels = {
     set(list) { this.clear('lbl'); for (const l of list) add('lbl ' + (l.cls || ''), l); },
-    bubble(b) { const cur = anchored.filter((a) => a.node.classList.contains('bub')); if (cur.length >= 2) remove(cur[0]); add('bub ' + (b.bad ? 'bad' : ''), b); ui.say(b.text); setTimeout(() => remove(anchored.find((a) => a.data === b)), b.ms || 4200); },
+    bubble(b) { const cur = anchored.filter((a) => a.node.classList.contains('bub')); if (cur.length >= 2) remove(cur[0]); add('bub ' + (b.bad ? 'bad' : ''), b); ui.say(b.text, 'narrator'); setTimeout(() => remove(anchored.find((a) => a.data === b)), b.ms || 4200); },
     clear(kind) { for (const a of anchored.slice()) if (!kind || a.node.classList.contains(kind)) remove(a); },
     update(camera, canvas) {
       const w = canvas.clientWidth, hgt = canvas.clientHeight;
+      // keep bubbles out from under the town card and the icon strip (top corners)
+      const avoid = [P.card, P.strip, P.facil].filter((e) => !e.classList.contains('hide')).map((e) => e.getBoundingClientRect());
       for (const a of anchored) {
         const p = typeof a.data.at === 'function' ? a.data.at() : a.data.at; if (!p) continue;
         v3.copy(p).project(camera); const vis = v3.z < 1 && Math.abs(v3.x) < 1.1 && Math.abs(v3.y) < 1.1;
-        a.node.style.display = vis ? '' : 'none'; a.node.style.left = ((v3.x + 1) / 2) * w + 'px'; a.node.style.top = ((1 - v3.y) / 2) * hgt + 'px';
+        let x = ((v3.x + 1) / 2) * w, y = ((1 - v3.y) / 2) * hgt;
+        if (a.node.classList.contains('bub')) { const bw = a.node.offsetWidth || 160, bh = a.node.offsetHeight || 34; x = Math.max(bw / 2 + 8, Math.min(w - bw / 2 - 8, x)); for (const r of avoid) if (x + bw / 2 > r.left && x - bw / 2 < r.right && y - bh < r.bottom && y > r.top) y = r.bottom + bh + 6; }
+        a.node.style.display = vis ? '' : 'none'; a.node.style.left = x + 'px'; a.node.style.top = y + 'px';
       }
     },
   };

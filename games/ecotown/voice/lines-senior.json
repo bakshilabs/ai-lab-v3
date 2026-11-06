@@ -1,0 +1,1082 @@
+[
+ {
+  "s": "Start",
+  "voice": "narrator",
+  "key": "b725c998"
+ },
+ {
+  "s": "Next",
+  "voice": "narrator",
+  "key": "f80c1ead"
+ },
+ {
+  "s": "Test the plan",
+  "voice": "narrator",
+  "key": "c4ed29de"
+ },
+ {
+  "s": "Which evidence would test Florence’s plan?",
+  "voice": "narrator",
+  "key": "23d0d6c1"
+ },
+ {
+  "s": "Build",
+  "voice": "narrator",
+  "key": "352dcd24"
+ },
+ {
+  "s": "Accept Florence’s plan",
+  "voice": "narrator",
+  "key": "749f027d"
+ },
+ {
+  "s": "Finish building",
+  "voice": "narrator",
+  "key": "29008fb1"
+ },
+ {
+  "s": "Write an instruction for Florence",
+  "voice": "narrator",
+  "key": "edf9736b"
+ },
+ {
+  "s": "Send",
+  "voice": "narrator",
+  "key": "ffa49daa"
+ },
+ {
+  "s": "Free text",
+  "voice": "narrator",
+  "key": "97a9b83d"
+ },
+ {
+  "s": "Word tiles",
+  "voice": "narrator",
+  "key": "1db6efe9"
+ },
+ {
+  "s": "Use a card",
+  "voice": "narrator",
+  "key": "558a5202"
+ },
+ {
+  "s": "Which failure mode caused this?",
+  "voice": "narrator",
+  "key": "20213816"
+ },
+ {
+  "s": "Rewrite the instruction: goal + limit + check",
+  "voice": "narrator",
+  "key": "a9917a8d"
+ },
+ {
+  "s": "This evidence doesn’t show a problem.",
+  "voice": "narrator",
+  "key": "9a63fdf6"
+ },
+ {
+  "s": "Try another test.",
+  "voice": "narrator",
+  "key": "c522e9e4"
+ },
+ {
+  "s": "I can’t map that to a plan for this level.",
+  "voice": "narrator",
+  "key": "2eebb887"
+ },
+ {
+  "s": "Try including",
+  "voice": "narrator",
+  "key": "2b49c1ce"
+ },
+ {
+  "s": "confidence",
+  "voice": "narrator",
+  "key": "cb94b794"
+ },
+ {
+  "s": "GUESS",
+  "voice": "narrator",
+  "key": "ee033039"
+ },
+ {
+  "s": "PLAN TESTED",
+  "voice": "narrator",
+  "key": "ca78658c"
+ },
+ {
+  "s": "Evidence found",
+  "voice": "narrator",
+  "key": "595bfc5d"
+ },
+ {
+  "s": "Move-in",
+  "voice": "narrator",
+  "key": "a335581b"
+ },
+ {
+  "s": "A day in the town",
+  "voice": "narrator",
+  "key": "ff43ba5d"
+ },
+ {
+  "s": "Continue",
+  "voice": "narrator",
+  "key": "d53fd995"
+ },
+ {
+  "s": "Back to the island",
+  "voice": "narrator",
+  "key": "44fe896c"
+ },
+ {
+  "s": "Level complete",
+  "voice": "narrator",
+  "key": "d6e94325"
+ },
+ {
+  "s": "Stars",
+  "voice": "narrator",
+  "key": "be25d49d"
+ },
+ {
+  "s": "Well specified first time",
+  "voice": "narrator",
+  "key": "c087f7e1"
+ },
+ {
+  "s": "Town report",
+  "voice": "narrator",
+  "key": "f451b9ea"
+ },
+ {
+  "s": "New lens unlocked",
+  "voice": "narrator",
+  "key": "890f4cdb"
+ },
+ {
+  "s": "New test unlocked",
+  "voice": "narrator",
+  "key": "352957a7"
+ },
+ {
+  "s": "Residents’ petition",
+  "voice": "narrator",
+  "key": "32ca0bbc"
+ },
+ {
+  "s": "Correct.",
+  "voice": "narrator",
+  "key": "f0e97d04"
+ },
+ {
+  "s": "Not quite.",
+  "voice": "narrator",
+  "key": "21592efb"
+ },
+ {
+  "s": "Re-read Florence’s reading:",
+  "voice": "narrator",
+  "key": "bd7c1238"
+ },
+ {
+  "s": "It was",
+  "voice": "narrator",
+  "key": "bcee6dd4"
+ },
+ {
+  "s": "The plan passed, but Florence still made an unstated assumption.",
+  "voice": "narrator",
+  "key": "d46b1a50"
+ },
+ {
+  "s": "Which?",
+  "voice": "narrator",
+  "key": "29f8ba66"
+ },
+ {
+  "s": "Write an instruction first",
+  "voice": "narrator",
+  "key": "a2791dfc"
+ },
+ {
+  "s": "Florence’s guess",
+  "voice": "narrator",
+  "key": "2ac5a3f3"
+ },
+ {
+  "s": "I can’t map that to a plan for this level.",
+  "voice": "helper",
+  "key": "320d890c"
+ },
+ {
+  "s": "Correct.",
+  "voice": "helper",
+  "key": "a145e3c3"
+ },
+ {
+  "s": "Not quite.",
+  "voice": "helper",
+  "key": "7bb0b1ac"
+ },
+ {
+  "s": "Re-read Florence’s reading:",
+  "voice": "helper",
+  "key": "34d0f845"
+ },
+ {
+  "s": "It was",
+  "voice": "helper",
+  "key": "33d6f6a3"
+ },
+ {
+  "s": "Florence maximised one measurable proxy for a vague word (“best” → flattest, “fast” → wide roads) and ignored everything else.",
+  "voice": "helper",
+  "key": "eb0e0388"
+ },
+ {
+  "s": "Also called specification gaming.",
+  "voice": "helper",
+  "key": "1eca76bd"
+ },
+ {
+  "s": "Proxy optimisation",
+  "voice": "narrator",
+  "key": "5374e20c"
+ },
+ {
+  "s": "Florence optimised for the typical case (an average day, a typical user) instead of the worst case or every group.",
+  "voice": "helper",
+  "key": "a5a860b6"
+ },
+ {
+  "s": "Average-case assumption",
+  "voice": "narrator",
+  "key": "9c9de7cd"
+ },
+ {
+  "s": "Florence’s data left out something that matters, so she couldn’t account for it.",
+  "voice": "helper",
+  "key": "0658e72e"
+ },
+ {
+  "s": "Missing or biased data",
+  "voice": "narrator",
+  "key": "fcab7f21"
+ },
+ {
+  "s": "The instruction had more than one reading and Florence chose the literal one.",
+  "voice": "helper",
+  "key": "6da0fe14"
+ },
+ {
+  "s": "Specification ambiguity",
+  "voice": "narrator",
+  "key": "75adc2e4"
+ },
+ {
+  "s": "Found the evidence with your first test",
+  "voice": "narrator",
+  "key": "9005ed3b"
+ },
+ {
+  "s": "Identified the failure mode first time",
+  "voice": "narrator",
+  "key": "ee57c546"
+ },
+ {
+  "s": "Fixed specification passes",
+  "voice": "narrator",
+  "key": "df27ec18"
+ },
+ {
+  "s": "Found the unstated assumption",
+  "voice": "narrator",
+  "key": "ded8d854"
+ },
+ {
+  "s": "The plan passed its test",
+  "voice": "narrator",
+  "key": "419d6118"
+ },
+ {
+  "s": "Flood-risk lens.",
+  "voice": "narrator",
+  "key": "fc95566e"
+ },
+ {
+  "s": "Overlay the winter flood extent on the plan.",
+  "voice": "narrator",
+  "key": "dfcdaa6d"
+ },
+ {
+  "s": "Florence will select 18 tiles of land for 40 households.",
+  "voice": "narrator",
+  "key": "1736a547"
+ },
+ {
+  "s": "You set the brief.",
+  "voice": "narrator",
+  "key": "ea4bd5fa"
+ },
+ {
+  "s": "A day on the chosen site",
+  "voice": "narrator",
+  "key": "fdbc0214"
+ },
+ {
+  "s": "Which assumption did Florence make that your brief didn’t state?",
+  "voice": "narrator",
+  "key": "320c51c3"
+ },
+ {
+  "s": "The brief gave no site area.",
+  "voice": "helper",
+  "key": "32f948bc"
+ },
+ {
+  "s": "Site agreed",
+  "voice": "narrator",
+  "key": "66251b9d"
+ },
+ {
+  "s": "Surveyors stake out the site boundary.",
+  "voice": "narrator",
+  "key": "dbbaae88"
+ },
+ {
+  "s": "Site chosen: dry ground, no flood risk.",
+  "voice": "narrator",
+  "key": "0c4464b1"
+ },
+ {
+  "s": "Surveyors staked the boundary.",
+  "voice": "narrator",
+  "key": "8672b389"
+ },
+ {
+  "s": "Next: streets and routes.",
+  "voice": "narrator",
+  "key": "e26a46c0"
+ },
+ {
+  "s": "Site chosen, but part of it floods.",
+  "voice": "narrator",
+  "key": "e5e336a8"
+ },
+ {
+  "s": "Rush-hour ground truth.",
+  "voice": "narrator",
+  "key": "880d2bfb"
+ },
+ {
+  "s": "Observe the route at 8:45 am peak.",
+  "voice": "narrator",
+  "key": "a7dde119"
+ },
+ {
+  "s": "Connect homes to the island school and the ferry.",
+  "voice": "narrator",
+  "key": "13ddf515"
+ },
+ {
+  "s": "Who is “everyone”?",
+  "voice": "narrator",
+  "key": "89790184"
+ },
+ {
+  "s": "Peak hour on the new network",
+  "voice": "narrator",
+  "key": "1b4a853f"
+ },
+ {
+  "s": "Which assumption is still in the plan?",
+  "voice": "narrator",
+  "key": "4c19860e"
+ },
+ {
+  "s": "Florence assumed shortest-path routing.",
+  "voice": "helper",
+  "key": "bb9f8a45"
+ },
+ {
+  "s": "Real desire lines differ; planners survey them.",
+  "voice": "helper",
+  "key": "d2e3c92c"
+ },
+ {
+  "s": "Network open",
+  "voice": "narrator",
+  "key": "26ce37be"
+ },
+ {
+  "s": "Paths, lanes and crossings are laid.",
+  "voice": "narrator",
+  "key": "0eadb1b1"
+ },
+ {
+  "s": "Walked to school: no busy crossings.",
+  "voice": "narrator",
+  "key": "2c7614bc"
+ },
+ {
+  "s": "Afternoon: the cycle lanes were busy.",
+  "voice": "narrator",
+  "key": "ec1d5808"
+ },
+ {
+  "s": "Evening: low traffic.",
+  "voice": "narrator",
+  "key": "9a6c724d"
+ },
+ {
+  "s": "School run: unsafe crossings on the route.",
+  "voice": "narrator",
+  "key": "45beed37"
+ },
+ {
+  "s": "Carbon lens.",
+  "voice": "narrator",
+  "key": "f947ae57"
+ },
+ {
+  "s": "Embodied carbon of the building materials.",
+  "voice": "narrator",
+  "key": "9cf3389a"
+ },
+ {
+  "s": "Embodied-carbon limit: 70 t for the homes’ materials.",
+  "voice": "narrator",
+  "key": "f1ff7046"
+ },
+ {
+  "s": "Households: 40.",
+  "voice": "narrator",
+  "key": "6532b596"
+ },
+ {
+  "s": "First week in the new homes",
+  "voice": "narrator",
+  "key": "6f501028"
+ },
+ {
+  "s": "Florence assumed a fixed household size per dwelling.",
+  "voice": "helper",
+  "key": "855200e3"
+ },
+ {
+  "s": "Real housing needs a mix of sizes.",
+  "voice": "helper",
+  "key": "e3bd622b"
+ },
+ {
+  "s": "Housing delivered",
+  "voice": "narrator",
+  "key": "005e2143"
+ },
+ {
+  "s": "Construction: walls, floors, roofs.",
+  "voice": "narrator",
+  "key": "39cc7764"
+ },
+ {
+  "s": "Moved in.",
+  "voice": "narrator",
+  "key": "6375a8f8"
+ },
+ {
+  "s": "Warm with the heating off.",
+  "voice": "narrator",
+  "key": "0bfdc103"
+ },
+ {
+  "s": "Afternoon: neighbours met.",
+  "voice": "narrator",
+  "key": "39ec69fa"
+ },
+ {
+  "s": "First night in the new homes.",
+  "voice": "narrator",
+  "key": "c5ee6d38"
+ },
+ {
+  "s": "Cold with the heating off.",
+  "voice": "narrator",
+  "key": "7d5bb9c4"
+ },
+ {
+  "s": "Habitat & species lens.",
+  "voice": "narrator",
+  "key": "cb482411"
+ },
+ {
+  "s": "Habitat and species presence after the plan.",
+  "voice": "narrator",
+  "key": "ee73da8b"
+ },
+ {
+  "s": "Food need is set by households.",
+  "voice": "narrator",
+  "key": "96772145"
+ },
+ {
+  "s": "Habitats are part of the test.",
+  "voice": "narrator",
+  "key": "d6278429"
+ },
+ {
+  "s": "A day in the food system",
+  "voice": "narrator",
+  "key": "dae9181a"
+ },
+ {
+  "s": "Florence assumed a fixed food demand per household (1 unit per 3).",
+  "voice": "helper",
+  "key": "30f5dac7"
+ },
+ {
+  "s": "Real demand varies with diet and family size.",
+  "voice": "helper",
+  "key": "ae35f9de"
+ },
+ {
+  "s": "Food system running",
+  "voice": "narrator",
+  "key": "9462ce1a"
+ },
+ {
+  "s": "Fields ploughed and sown; orchard and hives planted.",
+  "voice": "narrator",
+  "key": "3ae858f1"
+ },
+ {
+  "s": "Harvest started; the hedgerows still buzz.",
+  "voice": "narrator",
+  "key": "d032d9d1"
+ },
+ {
+  "s": "Food supply covers every household.",
+  "voice": "narrator",
+  "key": "9c8bf973"
+ },
+ {
+  "s": "Dinner from local produce.",
+  "voice": "narrator",
+  "key": "c7d0d4c7"
+ },
+ {
+  "s": "Harvest started, but the pollinators have gone.",
+  "voice": "narrator",
+  "key": "a1ab1d84"
+ },
+ {
+  "s": "Food supply fell short.",
+  "voice": "narrator",
+  "key": "13a14b8c"
+ },
+ {
+  "s": "Worst-case power test.",
+  "voice": "narrator",
+  "key": "a1f156b1"
+ },
+ {
+  "s": "Worst-case test: a still winter night.",
+  "voice": "narrator",
+  "key": "e137dd56"
+ },
+ {
+  "s": "Size power for a still winter night.",
+  "voice": "narrator",
+  "key": "8588d455"
+ },
+ {
+  "s": "Batteries only help if something charges them.",
+  "voice": "narrator",
+  "key": "8a50687a"
+ },
+ {
+  "s": "Also manage rainwater and waste.",
+  "voice": "narrator",
+  "key": "056c0206"
+ },
+ {
+  "s": "A still winter day",
+  "voice": "narrator",
+  "key": "13a5a688"
+ },
+ {
+  "s": "Florence assumed uniform demand per home.",
+  "voice": "helper",
+  "key": "8955526c"
+ },
+ {
+  "s": "Real demand varies; planners add a safety margin.",
+  "voice": "helper",
+  "key": "36ec2112"
+ },
+ {
+  "s": "Utilities running",
+  "voice": "narrator",
+  "key": "8cea1aaf"
+ },
+ {
+  "s": "Installation: turbine tower, blades, panels, storage.",
+  "voice": "narrator",
+  "key": "413bc47d"
+ },
+ {
+  "s": "A still, freezing winter day.",
+  "voice": "narrator",
+  "key": "107fa996"
+ },
+ {
+  "s": "Meltwater handled by the rain gardens.",
+  "voice": "narrator",
+  "key": "f0f2cb15"
+ },
+ {
+  "s": "Coldest night of the year; lights stayed on.",
+  "voice": "narrator",
+  "key": "0577d85a"
+ },
+ {
+  "s": "Blackout on the coldest night.",
+  "voice": "narrator",
+  "key": "f7e1cd6d"
+ },
+ {
+  "s": "Walking-time lens.",
+  "voice": "narrator",
+  "key": "8082ed75"
+ },
+ {
+  "s": "Walking time from every home to school.",
+  "voice": "narrator",
+  "key": "2ed571d9"
+ },
+ {
+  "s": "Place the new school.",
+  "voice": "narrator",
+  "key": "ffac740c"
+ },
+ {
+  "s": "Then the market, park and nature links.",
+  "voice": "narrator",
+  "key": "a2e352d1"
+ },
+ {
+  "s": "Opening day",
+  "voice": "narrator",
+  "key": "bffd3026"
+ },
+ {
+  "s": "Florence assumed one walking speed.",
+  "voice": "helper",
+  "key": "1afa064d"
+ },
+ {
+  "s": "Accessibility audits use slower speeds for younger children and wheelchair users.",
+  "voice": "helper",
+  "key": "c2902286"
+ },
+ {
+  "s": "Town centre complete",
+  "voice": "narrator",
+  "key": "c093b176"
+ },
+ {
+  "s": "Civic buildings, step by step.",
+  "voice": "narrator",
+  "key": "85c95c4e"
+ },
+ {
+  "s": "School 12 minutes away on foot.",
+  "voice": "narrator",
+  "key": "48b52a33"
+ },
+ {
+  "s": "Afternoon: the market opened.",
+  "voice": "narrator",
+  "key": "7ab248ca"
+ },
+ {
+  "s": "Evening: festival in the square.",
+  "voice": "narrator",
+  "key": "6759a179"
+ },
+ {
+  "s": "Longest walk to school: 22 minutes.",
+  "voice": "narrator",
+  "key": "b9a944c3"
+ },
+ {
+  "s": "Ribbon-cutting time!",
+  "voice": "narrator",
+  "key": "50906f49"
+ },
+ {
+  "s": "Opening ceremony.",
+  "voice": "narrator",
+  "key": "d53af986"
+ },
+ {
+  "s": "“Best” = the flattest land, easiest to build on, next to water.",
+  "voice": "helper",
+  "key": "4f860b1e"
+ },
+ {
+  "s": "Florence turned “best” into “flattest” and forgot about floods and wildlife.",
+  "voice": "helper",
+  "key": "730cc9c3"
+ },
+ {
+  "s": "Flat land.",
+  "voice": "helper",
+  "key": "1c1ea5f5"
+ },
+ {
+  "s": "Sunny, south-facing land.",
+  "voice": "helper",
+  "key": "66b5a3dd"
+ },
+ {
+  "s": "Land that stays dry in winter.",
+  "voice": "helper",
+  "key": "851404c6"
+ },
+ {
+  "s": "Keep the meadow wild.",
+  "voice": "helper",
+  "key": "6ba7b750"
+ },
+ {
+  "s": "Keep the wood wild.",
+  "voice": "helper",
+  "key": "561d4f9c"
+ },
+ {
+  "s": "Keep the wetland wild.",
+  "voice": "helper",
+  "key": "8986154e"
+ },
+ {
+  "s": "Near the river.",
+  "voice": "helper",
+  "key": "e1e0dfea"
+ },
+ {
+  "s": "Near the coast.",
+  "voice": "helper",
+  "key": "882bfa8e"
+ },
+ {
+  "s": "Florence didn’t know that the flat land by the river floods every winter.",
+  "voice": "helper",
+  "key": "17afc693"
+ },
+ {
+  "s": "“Easy for everyone” = easy for drivers: a wide road and a drop-off car park at the school.",
+  "voice": "helper",
+  "key": "a56d1c89"
+ },
+ {
+  "s": "Florence planned for a typical grown-up who drives, not for children walking to school.",
+  "voice": "helper",
+  "key": "24b1eb96"
+ },
+ {
+  "s": "Safe footpaths and crossings.",
+  "voice": "helper",
+  "key": "bea84e98"
+ },
+ {
+  "s": "Cycle lanes.",
+  "voice": "helper",
+  "key": "27ca37ba"
+ },
+ {
+  "s": "A tram stop.",
+  "voice": "helper",
+  "key": "b0f7d438"
+ },
+ {
+  "s": "Cars park at the edge of town.",
+  "voice": "helper",
+  "key": "75bb2dc6"
+ },
+ {
+  "s": "No cars in town.",
+  "voice": "helper",
+  "key": "53fa7adc"
+ },
+ {
+  "s": "“Fast” = wide roads for cars.",
+  "voice": "helper",
+  "key": "f2335a3e"
+ },
+ {
+  "s": "Florence turned “fast” into “wide roads for cars” and forgot about children crossing.",
+  "voice": "helper",
+  "key": "3075a6cf"
+ },
+ {
+  "s": "Everyone, including children and people without cars: footpaths and cycle lanes.",
+  "voice": "helper",
+  "key": "e8b2c7e3"
+ },
+ {
+  "s": "“Strong” = concrete and steel.",
+  "voice": "helper",
+  "key": "07668524"
+ },
+ {
+  "s": "Florence chased “strong” and chose concrete, forgetting carbon and warmth.",
+  "voice": "helper",
+  "key": "1e62eb5e"
+ },
+ {
+  "s": "Timber terrace, Straw-bale cottages.",
+  "voice": "helper",
+  "key": "a66ac106"
+ },
+ {
+  "s": "Straw-bale cottages.",
+  "voice": "helper",
+  "key": "d03da1db"
+ },
+ {
+  "s": "Green roofs.",
+  "voice": "helper",
+  "key": "c6161149"
+ },
+ {
+  "s": "Reclaimed-brick terrace.",
+  "voice": "helper",
+  "key": "1baf4269"
+ },
+ {
+  "s": "Cohousing court, Timber terrace, Straw-bale cottages.",
+  "voice": "helper",
+  "key": "c253f31e"
+ },
+ {
+  "s": "Cohousing court, Straw-bale cottages.",
+  "voice": "helper",
+  "key": "50fd0703"
+ },
+ {
+  "s": "Cohousing court, Reclaimed-brick terrace.",
+  "voice": "helper",
+  "key": "a329fbe1"
+ },
+ {
+  "s": "Straw-bale cottages, Timber terrace.",
+  "voice": "helper",
+  "key": "85e2c510"
+ },
+ {
+  "s": "Timber terrace, Straw-bale cottages, Reclaimed-brick terrace.",
+  "voice": "helper",
+  "key": "b8d38aee"
+ },
+ {
+  "s": "Straw-bale cottages, Reclaimed-brick terrace.",
+  "voice": "helper",
+  "key": "2e90b1b9"
+ },
+ {
+  "s": "“Cheap” = concrete flats (cheapest per home).",
+  "voice": "helper",
+  "key": "44675d3c"
+ },
+ {
+  "s": "Florence chased “cheap” and chose concrete, forgetting carbon and warmth.",
+  "voice": "helper",
+  "key": "f04abfec"
+ },
+ {
+  "s": "“Tall” = concrete tower blocks.",
+  "voice": "helper",
+  "key": "a0b1fa5d"
+ },
+ {
+  "s": "Florence chased “tall” and chose concrete, forgetting carbon and warmth.",
+  "voice": "helper",
+  "key": "b67acaea"
+ },
+ {
+  "s": "“As many as possible” = concrete flats.",
+  "voice": "helper",
+  "key": "4022c029"
+ },
+ {
+  "s": "Florence chased “lots of” and chose concrete, forgetting carbon and warmth.",
+  "voice": "helper",
+  "key": "61bbc5b2"
+ },
+ {
+  "s": "Cohousing court, Straw-bale cottages, Timber terrace.",
+  "voice": "helper",
+  "key": "bdff2768"
+ },
+ {
+  "s": "Cohousing court, Timber terrace, Straw-bale cottages, Reclaimed-brick terrace.",
+  "voice": "helper",
+  "key": "baca3806"
+ },
+ {
+  "s": "Cohousing court, Straw-bale cottages, Reclaimed-brick terrace.",
+  "voice": "helper",
+  "key": "23d29be1"
+ },
+ {
+  "s": "Straw-bale cottages, Timber terrace, Reclaimed-brick terrace.",
+  "voice": "helper",
+  "key": "8af59990"
+ },
+ {
+  "s": "Homes = the usual kind: concrete flats.",
+  "voice": "helper",
+  "key": "fdf708cc"
+ },
+ {
+  "s": "Florence built the usual kind of home, concrete flats, without thinking about carbon or warmth.",
+  "voice": "helper",
+  "key": "2a632055"
+ },
+ {
+  "s": "“As much food as possible” = plough every free field into big fields.",
+  "voice": "helper",
+  "key": "4aef7f77"
+ },
+ {
+  "s": "Florence chased “as much as possible” and ploughed up every hedge.",
+  "voice": "helper",
+  "key": "e55dd685"
+ },
+ {
+  "s": "Keep the hedges.",
+  "voice": "helper",
+  "key": "007cfb61"
+ },
+ {
+  "s": "Beehives and flowers for bees.",
+  "voice": "helper",
+  "key": "1d1b8d8f"
+ },
+ {
+  "s": "Leave room for wildlife.",
+  "voice": "helper",
+  "key": "2bd5331a"
+ },
+ {
+  "s": "Allotments near homes.",
+  "voice": "helper",
+  "key": "ebb51646"
+ },
+ {
+  "s": "An orchard.",
+  "voice": "helper",
+  "key": "cc29611f"
+ },
+ {
+  "s": "Enough food for 42 families (14 baskets).",
+  "voice": "helper",
+  "key": "86e10049"
+ },
+ {
+  "s": "Florence didn’t know the bees and deer live in the hedges.",
+  "voice": "helper",
+  "key": "0567186f"
+ },
+ {
+  "s": "Enough clean power on an average day: solar roofs on every home.",
+  "voice": "helper",
+  "key": "ba3772af"
+ },
+ {
+  "s": "Florence planned for an average sunny day, not for a still, dark winter night.",
+  "voice": "helper",
+  "key": "9027e8f5"
+ },
+ {
+  "s": "Enough power for a still winter night.",
+  "voice": "helper",
+  "key": "9dc82f47"
+ },
+ {
+  "s": "3 wind turbines.",
+  "voice": "helper",
+  "key": "577e70d0"
+ },
+ {
+  "s": "3 batteries to store energy for the night.",
+  "voice": "helper",
+  "key": "3a33605f"
+ },
+ {
+  "s": "Solar roofs, with the sunshine stored in batteries.",
+  "voice": "helper",
+  "key": "c35338fc"
+ },
+ {
+  "s": "1 wind turbine.",
+  "voice": "helper",
+  "key": "2d8ba48b"
+ },
+ {
+  "s": "Rain gardens and a reed bed.",
+  "voice": "helper",
+  "key": "456ffa7a"
+ },
+ {
+  "s": "A repair café.",
+  "voice": "helper",
+  "key": "fc25dc1e"
+ },
+ {
+  "s": "A compost hub.",
+  "voice": "helper",
+  "key": "78d85600"
+ },
+ {
+  "s": "“The middle” = the centre of the island.",
+  "voice": "helper",
+  "key": "f6791765"
+ },
+ {
+  "s": "Florence read “the middle” as the middle of the island, not the middle of the homes.",
+  "voice": "helper",
+  "key": "b63bfccb"
+ },
+ {
+  "s": "School within a 15-minute walk of every home.",
+  "voice": "helper",
+  "key": "8ff855fa"
+ },
+ {
+  "s": "Footpaths so every home is within 15 minutes.",
+  "voice": "helper",
+  "key": "7772c419"
+ },
+ {
+  "s": "School next to the homes.",
+  "voice": "helper",
+  "key": "ccbee3ac"
+ },
+ {
+  "s": "Green bridges linking the wood, hedges and wetland.",
+  "voice": "helper",
+  "key": "7200c6b0"
+ },
+ {
+  "s": "A market square in the heart of town.",
+  "voice": "helper",
+  "key": "94c1785a"
+ },
+ {
+  "s": "A safe footpath to the school.",
+  "voice": "helper",
+  "key": "82255e6e"
+ }
+]

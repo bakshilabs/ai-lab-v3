@@ -21,6 +21,7 @@ export function walkField(terrain, cells, destKeys) {
     const c = cellOf(cells, t.k); const it = c.item && ITEMS[c.item];
     if (t.zone === 'river') return it && (c.item === 'bridge' || c.item === 'greenbridge') ? 1 : Infinity;
     if (it && it.walk) return it.walk;
+    if (c.mark === 'town') return 2; // town land has streets and alleys between the buildings
     if (t.zone === 'wetland') return 6;
     if (t.zone === 'wood') return 4;
     return 3;
@@ -130,11 +131,15 @@ export function simulate(terrain, cells, extra = {}) {
   health += (avgTemp >= 18 ? 2 : -2) - R.flooded - unsafe + (R.homes.length && R.walkAvg <= 10 ? 2 : 0) + (count.path || 0) * 0.5;
   community += schoolKey && schools.length > 1 ? 2 : 0;
 
+  // senior town-meeting choices (extra families or carbon) count everywhere: petals, header, charter
+  R.families += extra.addFamilies || 0; R.familiesSafe += extra.addFamilies || 0; carbon += extra.addCarbon || 0;
   const need = Math.max(13, Math.ceil(R.families / 3));
   const natureStart = extra.natureStart || natureBaseline(terrain);
   R.count = count; R.hedges = hedges; R.woodIntact = woodIntact; R.meadowIntact = meadowIntact; R.wetIntact = wetIntact;
   R.homesCarbon = homesCarbon; R.carbon = Math.round(carbon); R.food = food; R.foodNeed = need; R.nature = Math.round(nature * 10) / 10; R.natureStart = natureStart;
   R.health = health; R.community = community; R.avgTemp = Math.round(avgTemp); R.cars = cars;
+  R.drains = (count.raingarden || 0) + (count.reedbed || 0); R.waste = (count.compost || 0) + (count.repair || 0);
+  R.carbonCeiling = TARGETS.carbonCeiling; R.carbonOK = R.carbon <= TARGETS.carbonCeiling;
   R.species = {
     deer: woodIntact >= 5 && hedges >= 4,
     bees: (hedges >= 4 || (count.hives || 0) >= 1) && (meadowIntact >= 6 || (count.orchard || 0) >= 2 || (count.hives || 0) >= 2),

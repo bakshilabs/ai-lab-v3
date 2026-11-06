@@ -8,13 +8,13 @@ import { ITEMS } from '../world/catalog.js';
 import { h, esc } from '../ui/ui.js';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-const FILMS = {
+export const FILMS = {
   land: { title: 'Surveying the land', icon: '📐', lines: { j: 'Surveyors mark out the town with posts and flags.', s: 'Surveyors stake out the site boundary.' }, crew: 'survey' },
   move: { title: 'Laying the streets', icon: '🚧', lines: { j: 'The road roller lays paths and lanes, tile by tile.', s: 'Paths, lanes and crossings are laid.' }, crew: 'roller' },
   homes: { title: 'Building the homes', icon: '🏗', lines: { j: 'Builders raise the homes, layer by layer.', s: 'Construction: walls, floors, roofs.' }, crew: 'crane' },
   food: { title: 'Ploughing and planting', icon: '🚜', lines: { j: 'The tractor ploughs, sows and plants. Watch it grow!', s: 'Fields ploughed and sown; orchard and hives planted.' }, crew: 'tractor' },
   power: { title: 'Installing the power', icon: '🔧', lines: { j: 'Engineers raise the turbine and fit the panels.', s: 'Installation: turbine tower, blades, panels, storage.' }, crew: 'install' },
-  heart: { title: 'Opening the town heart', icon: '✂', lines: { j: 'The new school and square are built. Ribbon-cutting time!', s: 'Civic buildings completed and opened.' }, crew: 'crane' },
+  heart: { title: 'Building the new school', icon: '🏫', lines: { j: 'The new school is built, step by step.', s: 'Civic buildings, step by step.' }, crew: 'crane' },
 };
 
 export function createFilm(app) {
@@ -64,7 +64,8 @@ export function createFilm(app) {
       const tall = (k) => { const c = cells.get(k); const it = c?.item && ITEMS[c.item]; return it && !['road', 'carpark', 'path', 'cycle', 'tram', 'bridge', 'bigfield', 'mixed', 'allot', 'raingarden', 'reedbed', 'compost', 'hedge', 'hives'].includes(c.item); };
       const ordered = keys.slice().sort((a, b) => world.tileTop(a).x - world.tileTop(b).x);
       const pickItem = (...ids) => { for (const id of ids) { const k = ordered.find((kk) => cells.get(kk)?.item === id); if (k) return k; } return null; };
-      const hero = { land: ordered[Math.floor(ordered.length / 2)], move: pickItem('cycle', 'path', 'road'), homes: pickItem('timber', 'straw', 'cohousing', 'earth', 'reclaimed', 'concrete'),
+      const townKeys = ordered.filter((k) => cells.get(k)?.mark === 'town' && !cells.get(k)?.item);
+      const hero = { land: townKeys[Math.floor(townKeys.length / 2)] || ordered[Math.floor(ordered.length / 2)], move: pickItem('cycle', 'path', 'road'), homes: pickItem('timber', 'straw', 'cohousing', 'earth', 'reclaimed', 'concrete'),
         food: pickItem('mixed', 'bigfield', 'allot', 'orchard'), power: pickItem('wind', 'battery'), heart: pickItem('school', 'market', 'hall') }[levelId] || keys.find(tall) || ordered[Math.floor(ordered.length / 2)];
       const heroP = world.tileTop(hero); const centre = keys.reduce((v, k) => v.add(world.tileTop(k)), new THREE.Vector3()).multiplyScalar(1 / keys.length);
       // UI: letterbox + title, everything else away
@@ -78,10 +79,11 @@ export function createFilm(app) {
       // crew
       const crewUpd = [];
       const st = () => world.buildState(hero);
-      if (F.crew === 'crane' && tall(hero)) { const away = heroP.clone().sub(stage.camera.position).setY(0).normalize(); crewUpd.push(crane(heroP.clone().add(away.multiplyScalar(-11)).add(new THREE.Vector3(-6, 0, 0)), 20)); }
       if (['crane', 'install', 'survey'].includes(F.crew)) for (let i = 0; i < 3; i++) { const w = worker(i, F.crew === 'survey' ? '#ffffff' : '#ffd23f'); const a = (i / 3) * Math.PI * 2; crewUpd.push((t) => { w.position.set(heroP.x + Math.cos(a + t * 0.3) * 4.6, heroP.y, heroP.z + Math.sin(a + t * 0.3) * 4.6); w.rotation.y = -(a + t * 0.3); w.userData.walk(t * 8); }); }
       if (F.crew === 'survey') {
-        const corners = ordered.filter((k, i) => i % 3 === 0);
+        // flags and the surveyor stay on the town land (never in the wetland ponds or the wild meadow)
+        const tk = townKeys.length ? townKeys : ordered; const cxz = tk.reduce((v, k) => v.add(world.tileTop(k)), new THREE.Vector3()).multiplyScalar(1 / tk.length);
+        const corners = tk.filter((k, i) => i % 2 === 0).sort((a, b) => { const pa = world.tileTop(a), pb = world.tileTop(b); return Math.atan2(pa.z - cxz.z, pa.x - cxz.x) - Math.atan2(pb.z - cxz.z, pb.x - cxz.x); });
         corners.forEach((k, i) => setTimeout(() => { flag(world.tileTop(k)); audio.tap(); }, 600 + i * 260));
         // a surveyor with a measuring staff walks the boundary
         const sv = worker(0, '#ffffff'); const staff = new THREE.Mesh(new THREE.BoxGeometry(0.15, 3, 0.15), new THREE.MeshLambertMaterial({ color: '#ffd23f' })); staff.position.set(0.5, 1.5, 0); sv.add(staff);
@@ -99,6 +101,7 @@ export function createFilm(app) {
       const onStage = (i, st, all) => {
         steps.innerHTML = all.map((x, j) => `<span class="${j < i ? 'done' : j === i ? 'on' : ''}"><i>${j + 1}</i>${esc(band === 'junior' ? x.label.j : x.label.s)}</span>`).join('');
         audio.tap(); if (band === 'junior') ui.say(all[i].label.j);
+        if (st.ribbon) { const rb = ribbon(heroP.clone().add(new THREE.Vector3(0, 0, -4.2))); ui.say(band === 'junior' ? 'Ribbon-cutting time!' : 'Opening ceremony.'); setTimeout(() => { rb.r.visible = false; world.confetti(heroP.clone().add(new THREE.Vector3(0, 4, -4)), 60); audio.good(); }, 900); }
       };
       world.setCell(hero, cells.get(hero), { build: { dur: heroDur, delay: 0.6, onStage } });
       const isTall = ['wind', 'concrete', 'school', 'hall'].includes(cells.get(hero)?.item);
@@ -110,9 +113,11 @@ export function createFilm(app) {
         const yaw = rig.sky.yaw + (i / 12) * Math.PI * 2, pitch = 0.6;
         const cam = new THREE.Vector3(Math.sin(yaw) * Math.cos(pitch), Math.sin(pitch), Math.cos(yaw) * Math.cos(pitch)).multiplyScalar(dist0).add(tgt);
         const dir = tgt.clone().sub(cam); const len = dir.length(); ray.set(cam, dir.normalize()); ray.far = len - 4;
-        const hits = ray.intersectObjects(world.root.children, true).filter((h) => h.object.visible).length + Math.abs(Math.sin((yaw - rig.sky.yaw) / 2)) * 0.5;
+        const hits = ray.intersectObjects([...world.root.children, ...props.children], true).filter((h) => h.object.visible).length + Math.abs(Math.sin((yaw - rig.sky.yaw) / 2)) * 0.5;
         if (hits < best) { best = hits; yawOut = yaw; }
       }
+      // the crane stands on the far side of the build from the camera, so its cable never crosses the view
+      if (F.crew === 'crane' && tall(hero)) { const away = new THREE.Vector3(-Math.sin(yawOut), 0, -Math.cos(yawOut)); const side = new THREE.Vector3(away.z, 0, -away.x); crewUpd.push(crane(heroP.clone().add(away.multiplyScalar(9)).add(side.multiplyScalar(5)), 20)); }
       if (!this.skip && levelId === 'land') await rig.focus(centre, { dist: 72, pitch: 0.85, yaw: rig.sky.yaw }, 1.2);
       else if (!this.skip) await rig.focus(heroP.clone().add(new THREE.Vector3(0, cells.get(hero)?.item === 'wind' ? 5 : isTall ? 6 : 2, 0)), { dist: cells.get(hero)?.item === 'wind' ? 64 : isTall ? 52 : levelId === 'food' || levelId === 'move' ? 34 : 24, pitch: levelId === 'food' || levelId === 'move' ? 0.95 : cells.get(hero)?.item === 'wind' ? 0.42 : isTall ? 0.35 : 0.55, yaw: yawOut }, 1.4);
       const t0 = performance.now();
@@ -126,9 +131,9 @@ export function createFilm(app) {
       ordered.forEach((k, i) => { if (k !== hero) world.setCell(k, cells.get(k), { build: { dur: 1.8, delay: i * 0.1 } }); });
       const t1 = performance.now(); while (!this.skip && world.builds.size && performance.now() - t1 < 30000) await sleep(80);
       world.finishBuilds();
-      if (levelId === 'heart') { const rb = ribbon(heroP.clone().add(new THREE.Vector3(0, 0, -4.2))); await sleep(400); rb.r.visible = false; }
       world.confetti(heroP.clone().add(new THREE.Vector3(0, 8, 0)), 70); audio.good();
-      if (!this.skip) await rig.focus(centre, { dist: 80, pitch: 0.7 }, 1.2);
+      // a wide shot of the whole result before the film ends (also after Skip)
+      await rig.overview(this.skip ? 0.6 : 1.6); if (!this.skip) await sleep(900);
       stage.updaters.splice(stage.updaters.indexOf(loop), 1);
       clear(); title.remove(); skipBtn.remove(); this._steps?.remove(); bars.classList.remove('on'); ui.show('card'); ui.show('strip'); app.bot.show(true); this.playing = false;
     },

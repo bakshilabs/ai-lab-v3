@@ -1,11 +1,11 @@
-// Plotter's planner. It optimises exactly what the instruction asked for and nothing else.
+// Florence's planner. It optimises exactly what the instruction asked for and nothing else.
 // The AI's mistakes come from here, from literal readings and typical-case assumptions,
 // never from a script: leave out "dry" and it really does pick the flattest land, the floodplain.
 import { ITEMS, TARGETS, placeReason } from '../world/catalog.js';
 import { key, neighbours, tileCenter } from '../world/terrain.js';
 import { cellOf, simulate, walkField, routeFrom } from './sim.js';
 
-// How familiar Plotter is with each kind of request (1 = done it many times). Shown in senior mode.
+// How familiar Florence is with each kind of request (1 = done it many times). Shown in senior mode.
 const EXPERIENCE = { winter: 0.82, night: 0.88, storage: 0.88, walk_time: 0.95, everyone: 0.92, natural_materials: 0.93, reuse: 0.92, keep_hedges: 0.95, bees: 0.95, dry: 0.96, nature_links: 0.9 };
 
 export function plan(level, slotList, ctx) {
@@ -43,6 +43,8 @@ const PLANNERS = {
     const reading = [], assumptions = [];
     const generic = slots.has('best') || slots.size === 0;
     if (generic) { reading.push('“Best” = the flattest land, easiest to build on, next to water.'); assumptions.push('Flat land is the best land.'); }
+    // which habit a flawed reading shows (graded against what Florence actually assumed, not a fixed answer)
+    let habit = null, habitWhy = ''; // set below from what the plan really does
     if (slots.has('flat')) reading.push('Flat land.');
     if (slots.has('sunny')) reading.push('Sunny, south-facing land.');
     if (slots.has('dry')) reading.push('Land that stays dry in winter.');
@@ -60,24 +62,32 @@ const PLANNERS = {
       for (const z of ['meadow', 'wood', 'wetland']) if (slots.has('keep_' + z) && t.zone === z) s -= 100;
       return s;
     };
-    const cand = tilesOf(ctx).filter((t) => t.zone !== 'river' && !t.fixed && t.gx > 2); // the far bank is cut off by the river
+    // the wetland is protected in every level, and the far bank is cut off by the river
+    const cand = tilesOf(ctx).filter((t) => t.zone !== 'river' && t.zone !== 'wetland' && !t.fixed && t.gx > 2);
     const seed = cand.reduce((a, b) => (score(b) > score(a) ? b : a));
     const region = new Set([seed.k]); const sc = new Map(cand.map((t) => [t.k, score(t)]));
     while (region.size < TARGETS.townTiles) {
       let best = null, bs = -Infinity;
       for (const k of region) for (const n of neighbours(ctx.terrain.tiles, ctx.terrain.tiles.get(k))) {
-        if (region.has(n.k) || !sc.has(n.k)) continue;
+        if (region.has(n.k) || !sc.has(n.k) || sc.get(n.k) <= -50) continue; // never grow into land the instruction protects
         const v = sc.get(n.k) - 0.01 * distTo(n, tileCenter(seed.gx, seed.gz));
         if (v > bs) { bs = v; best = n.k; }
       }
       if (!best) break; region.add(best);
     }
     const placements = [...region].map((k) => ({ k, mark: 'town' }));
-    for (const t of cand) for (const z of ['meadow', 'wood', 'wetland']) if (slots.has('keep_' + z) && t.zone === z && !region.has(t.k)) placements.push({ k: t.k, mark: 'wild' });
+    // which habit does this plan show? (only when it really floods or clears the wood)
+    const flooded = [...region].filter((k) => ['meadow', 'wetland'].includes(ctx.terrain.tiles.get(k).zone)).length, wooded = [...region].filter((k) => ctx.terrain.tiles.get(k).zone === 'wood').length;
+    if (flooded >= 2 || wooded >= 2) {
+      if (generic) { habit = 'one_word'; habitWhy = 'Florence turned “best” into “flattest” and forgot about floods and wildlife.'; }
+      else if (flooded >= 2) { habit = 'missing'; habitWhy = 'Florence didn’t know that the flat land by the river floods every winter.'; }
+      else { habit = 'missing'; habitWhy = 'Florence didn’t know the old wood is home to deer and birds.'; }
+    }
+    for (const t of cand) for (const z of ['meadow', 'wood']) if (slots.has('keep_' + z) && t.zone === z && !region.has(t.k)) placements.push({ k: t.k, mark: 'wild' });
     // fit: how close the chosen land comes to the best land *by Plotter's own reading*
     const mean = [...region].reduce((a, k) => a + sc.get(k), 0) / region.size;
     const top = [...sc.values()].sort((a, b) => b - a).slice(0, region.size); const best = top.reduce((a, b) => a + b, 0) / top.length;
-    return { placements, reading, assumptions, tested: 'how flat and buildable the land looks from the sky', fit: Math.max(0.5, Math.min(1, best > 0 ? mean / best : 0.6)) };
+    return { placements, reading, assumptions, habit, habitWhy, tested: 'how flat and buildable the land looks from the sky', fit: Math.max(0.5, Math.min(1, best > 0 ? mean / best : 0.6)) };
   },
 
   // ---------- Level 2: getting around
@@ -86,6 +96,8 @@ const PLANNERS = {
     const walkish = ['safe_walking', 'cycling', 'tram', 'no_cars', 'cars_at_edge'].some((s) => slots.has(s));
     const carMode = !walkish && !slots.has('everyone');
     if (carMode) { reading.push(slots.has('fast') ? '“Fast” = wide roads for cars.' : '“Easy for everyone” = easy for drivers: a wide road and a drop-off car park at the school.'); assumptions.push('Most people travel by car.'); }
+    const habit = !carMode ? null : slots.has('fast') ? 'one_word' : 'typical';
+    const habitWhy = !carMode ? '' : slots.has('fast') ? 'Florence turned “fast” into “wide roads for cars” and forgot about children crossing.' : 'Florence planned for a typical grown-up who drives, not for children walking to school.';
     if (slots.has('everyone') && !walkish) reading.push('Everyone, including children and people without cars: footpaths and cycle lanes.');
     if (slots.has('safe_walking')) reading.push('Safe footpaths and crossings.');
     if (slots.has('cycling')) reading.push('Cycle lanes.');
@@ -109,11 +121,12 @@ const PLANNERS = {
     if (slots.has('tram')) { const edge = town.filter((t) => !route.includes(t.k) && free(ctx, t, 'tram')).sort((a, b) => (field.get(a.k) ?? 99) - (field.get(b.k) ?? 99))[0]; if (edge) placements.push({ k: edge.k, item: 'tram' }); }
     if (slots.has('cars_at_edge')) {
       const dock = terr.tiles.get(terr.dock);
-      const edge = tilesOf(ctx).filter((t) => t.mark !== 'town' && free(ctx, t, 'carpark') && cellOf(ctx.cells, t.k).mark !== 'town' && neighbours(terr.tiles, t).some((n) => cellOf(ctx.cells, n.k).mark === 'town') && !neighbours(terr.tiles, t).includes(school))
+      // only on dry, buildable edge land (never the floodplain meadow or the wetland)
+      const edge = tilesOf(ctx).filter((t) => ['field', 'slope'].includes(t.zone) && free(ctx, t, 'carpark') && cellOf(ctx.cells, t.k).mark !== 'town' && neighbours(terr.tiles, t).some((n) => cellOf(ctx.cells, n.k).mark === 'town') && !neighbours(terr.tiles, t).includes(school))
         .sort((a, b) => distTo(a, tileCenter(dock.gx, dock.gz)) - distTo(b, tileCenter(dock.gx, dock.gz)))[0];
       if (edge && !placements.some((p) => p.k === edge.k)) placements.push({ k: edge.k, item: 'carpark' });
     }
-    return { placements, reading, assumptions, tested: carMode ? 'journey time for a car' : 'journey time on foot and by bike', fit: 0.95 };
+    return { placements, reading, assumptions, habit, habitWhy, tested: carMode ? 'journey time for a car' : 'journey time on foot and by bike', fit: 0.95 };
   },
 
   // ---------- Level 3: homes
@@ -133,6 +146,9 @@ const PLANNERS = {
       const why = slots.has('strong') ? '“Strong” = concrete and steel.' : slots.has('tall') ? '“Tall” = concrete tower blocks.' : slots.has('cheap') ? '“Cheap” = concrete flats (cheapest per home).' : slots.has('many') ? '“As many as possible” = concrete flats.' : 'Homes = the usual kind: concrete flats.';
       reading.push(why); assumptions.push('Strong and many matter most; carbon was not mentioned.');
     }
+    const word = slots.has('strong') ? 'strong' : slots.has('tall') ? 'tall' : slots.has('cheap') ? 'cheap' : slots.has('many') ? 'lots of' : null;
+    const habit = eco ? null : word ? 'one_word' : 'typical';
+    const habitWhy = eco ? '' : word ? `Florence chased “${word}” and chose concrete, forgetting carbon and warmth.` : 'Florence built the usual kind of home, concrete flats, without thinking about carbon or warmth.';
     if (slots.has('green_roofs')) reading.push('Green roofs.');
     types = [...new Set(types)];
     const town = townTiles(ctx).filter((t) => free(ctx, t, types[0]));
@@ -145,7 +161,7 @@ const PLANNERS = {
       if (slots.has('green_roofs')) placements.push({ k: t.k, mod: 'greenroof' });
     }
     if (fam < TARGETS.families) assumptions.push(`Only room for ${fam} of ${TARGETS.families} families on this town land.`);
-    return { placements, reading, assumptions, tested: eco ? 'carbon, warmth and families housed' : 'strength and families housed', fit: Math.min(1, fam / TARGETS.families) };
+    return { placements, reading, assumptions, habit, habitWhy, tested: eco ? 'carbon, warmth and families housed' : 'strength and families housed', fit: Math.min(1, fam / TARGETS.families) };
   },
 
   // ---------- Level 4: food
@@ -154,7 +170,9 @@ const PLANNERS = {
     const sim0 = simulate(ctx.terrain, ctx.cells); const need = sim0.foodNeed;
     const maxMode = slots.has('max_food') || (!slots.has('enough_food') && !['bees', 'keep_hedges', 'wildlife', 'allotments', 'orchard', 'local'].some((s) => slots.has(s)));
     if (maxMode) { reading.push('“As much food as possible” = plough every free field into big fields.'); assumptions.push('More food is always better.'); }
-    else reading.push(`Enough food for ${sim0.families} families (${need} food).`);
+    else reading.push(`Enough food for ${sim0.families} families (${need} baskets).`);
+    const habit = maxMode ? 'one_word' : !slots.has('keep_hedges') && !slots.has('bees') && !slots.has('wildlife') ? 'missing' : null;
+    const habitWhy = maxMode ? 'Florence chased “as much as possible” and ploughed up every hedge.' : habit ? 'Florence didn’t know the bees and deer live in the hedges.' : '';
     if (slots.has('keep_hedges')) reading.push('Keep the hedges.');
     if (slots.has('bees')) reading.push('Beehives and flowers for bees.');
     if (slots.has('wildlife')) reading.push('Leave room for wildlife.');
@@ -176,7 +194,7 @@ const PLANNERS = {
       const id = slots.has('keep_hedges') && t.hedge ? 'mixed' : maxMode || !slots.has('keep_hedges') ? 'bigfield' : 'mixed';
       put(t, id); used.add(t.k);
     }
-    return { placements, reading, assumptions, tested: 'food produced', fit: Math.min(1, food / need) };
+    return { placements, reading, assumptions, habit, habitWhy, tested: 'food produced', fit: Math.min(1, food / need) };
   },
 
   // ---------- Level 5: water, power and waste
@@ -196,12 +214,17 @@ const PLANNERS = {
       const useSolar = slots.has('solar') || slots.has('storage');
       if (useSolar) { reading.push('Solar roofs, with the sunshine stored in batteries.'); for (const t of homes.slice(0, Math.ceil(homes.length / 2))) if (!cellOf(ctx.cells, t.k).mods.includes('solar')) placements.push({ k: t.k, mod: 'solar' }); }
       const c = centroid(homes);
-      const land = tilesOf(ctx).filter((t) => ['field', 'coast', 'slope'].includes(t.zone) && free(ctx, t, 'wind')).sort((a, b) => distTo(a, c) - distTo(b, c));
+      // turbines keep one tile clear of homes, allotments, orchards and the wetland
+      const busy = (n) => { const nc = cellOf(ctx.cells, n.k); return n.zone === 'wetland' || n.fixed || nc.mark === 'town' || ['allot', 'orchard', 'hives', 'market', 'school'].includes(nc.item) || (nc.item && ITEMS[nc.item].home); };
+      const land = tilesOf(ctx).filter((t) => ['field', 'coast', 'slope'].includes(t.zone) && free(ctx, t, 'wind') && !neighbours(ctx.terrain.tiles, t).some(busy)).sort((a, b) => distTo(a, c) - distTo(b, c));
       const nWind = slots.has('wind') || !useSolar ? 3 : 1;
       let winter = sim0.power.winterSupply;
       for (const t of land.slice(0, nWind)) { placements.push({ k: t.k, item: 'wind' }); winter += 1; }
       reading.push(`${nWind} wind turbine${nWind > 1 ? 's' : ''}.`);
-      const spots = townTiles(ctx).filter((t) => free(ctx, t, 'battery')).concat(land.slice(nWind).filter((t) => free(ctx, t, 'battery')));
+      // batteries sit at the edge of town (next to it, not between the houses or in the orchard)
+      const taken = new Set(placements.map((p) => p.k));
+      const edgeSpots = tilesOf(ctx).filter((t) => ['field', 'slope'].includes(t.zone) && !taken.has(t.k) && free(ctx, t, 'battery') && neighbours(ctx.terrain.tiles, t).some((n) => cellOf(ctx.cells, n.k).mark === 'town') && !neighbours(ctx.terrain.tiles, t).some((n) => ['orchard', 'allot', 'hives'].includes(cellOf(ctx.cells, n.k).item))).sort((a, b) => distTo(a, c) - distTo(b, c));
+      const spots = edgeSpots.length ? edgeSpots : townTiles(ctx).filter((t) => !taken.has(t.k) && free(ctx, t, 'battery'));
       let b = 0; while (winter < demand && b < spots.length) { placements.push({ k: spots[b].k, item: 'battery' }); winter += 4; b++; }
       if (b) reading.push(`${b} batter${b > 1 ? 'ies' : 'y'} to store energy for the night.`);
       if (winter < demand) assumptions.push('Not enough space to cover every still winter night.');
@@ -213,7 +236,8 @@ const PLANNERS = {
     if (slots.has('compost')) { reading.push('A compost hub.'); const t = townFree()[0]; if (t) placements.push({ k: t.k, item: 'compost' }); }
     const after = simulate(ctx.terrain, applyPlacements(ctx.cells, placements)).power;
     const ok = worst ? after.winterSupply / Math.max(1, after.demand) : after.avg / Math.max(1, after.demand);
-    return { placements, reading, assumptions, tested: worst ? 'a still winter night' : 'an average day', fit: Math.min(1, ok) };
+    const habit = worst ? null : 'typical'; const habitWhy = worst ? '' : 'Florence planned for an average sunny day, not for a still, dark winter night.';
+    return { placements, reading, assumptions, habit, habitWhy, tested: worst ? 'a still winter night' : 'an average day', fit: Math.min(1, ok) };
   },
 
   // ---------- Level 6: complete the town
@@ -234,6 +258,17 @@ const PLANNERS = {
       school = cand.reduce((a, b) => (distTo(b, [0, 0]) < distTo(a, [0, 0]) ? b : a));
     }
     if (school) placements.push({ k: school.k, item: 'school' });
+    // "within N minutes": if the furthest homes are still too far, lay footpaths (boardwalks over the wetland) along their routes
+    if (school && slots.has('walk_time')) {
+      for (let guard = 0; guard < 6; guard++) {
+        const f = walkField(ctx.terrain, applyPlacements(ctx.cells, placements), [school.k]);
+        const far = homes.slice().sort((a, b) => (f.get(b) ?? 0) - (f.get(a) ?? 0))[0]; if (!far || (f.get(far) ?? 0) <= minutes) break;
+        let added = 0; for (const k of routeFrom(ctx.terrain, f, far)) { const t = ctx.terrain.tiles.get(k); if (k !== school.k && free(ctx, t, 'path') && !placements.some((p) => p.k === k)) { placements.push({ k, item: 'path' }); added++; } }
+        if (!added) break;
+      }
+      const f = walkField(ctx.terrain, applyPlacements(ctx.cells, placements), [school.k]); const w = Math.max(...homes.map((k) => f.get(k) ?? 99));
+      reading.push(w <= minutes ? `Footpaths so every home is within ${minutes} minutes.` : `Footpaths added; the furthest home is ${Math.round(w)} minutes away.`);
+    }
     const c = centroid(homes.map((k) => ctx.terrain.tiles.get(k)));
     const townFree = () => townTiles(ctx).filter((t) => !placements.some((p) => p.k === t.k) && free(ctx, t, 'market')).sort((a, b) => distTo(a, c) - distTo(b, c));
     if (slots.has('market')) { reading.push('A market square in the heart of town.'); const t = townFree()[0]; if (t) placements.push({ k: t.k, item: 'market' }); }
@@ -250,7 +285,9 @@ const PLANNERS = {
     }
     const after = simulate(ctx.terrain, applyPlacements(ctx.cells, placements));
     const fit = slots.has('walk_time') ? Math.min(1, minutes / Math.max(1, after.walkMax)) : 0.92;
-    return { placements, reading, assumptions, tested: slots.has('walk_time') || slots.has('near_homes') ? 'walking time from every home' : 'distance from the edges of the island', fit };
+    const near = slots.has('walk_time') || slots.has('near_homes');
+    const habit = near ? null : 'literal'; const habitWhy = near ? '' : 'Florence read “the middle” as the middle of the island, not the middle of the homes.';
+    return { placements, reading, assumptions, habit, habitWhy, tested: near ? 'walking time from every home' : 'distance from the edges of the island', fit };
   },
 };
 

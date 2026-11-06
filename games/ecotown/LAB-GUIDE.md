@@ -5,7 +5,7 @@
 **Read with:** [Eco Town: game design](DESIGN.md) (`games/ecotown/DESIGN.md`). That document holds the core loop, the six levels, the living town, the camera grammar and the town-flower scoring. This guide does not repeat it. It adds what a facilitator and a builder still need: learning outcomes, careers, roles, minute-by-minute session plans, assessment, a **discussion session for every level plus a final one**, accessibility, safety and build notes. Research behind both: `research/eco-town-world-building.md`, `research/eco-town-living-town.md`, `research/eco-town-cameras-acts.md`.
 
 ## 1. Summary
-Children start with an empty floating island and build a whole sustainable town over six levels: where to build, how people move, what homes are made of, how food is grown, how water, power and waste work, and what the town heart becomes. At each level an AI planning helper turns their instruction into a "ghost" plan with a "% sure", and it is confidently wrong in a way the sky view hides: "Find the best land" becomes the flat floodplain (82% sure). Children catch each mistake by switching to a lens, the street view or the inside view, then give a clearer card ("Dry, sunny land. Keep the meadow wild."). Residents move in and live with the choices. Children learn that AI optimises one word, assumes the typical case, misses data and reads literally, and that checking from the ground fixes it.
+Children name their town, start with a small floating island (an old school, a dock and a beach) and build a whole sustainable town over six levels: where to build, how people move, what homes are made of, how food is grown, how water, power and waste work, and what the town heart becomes. At each level an AI planning helper turns their instruction into a "ghost" plan with a "% sure", and it is confidently wrong in a way the sky view hides: "Find the best land" becomes the flat floodplain (82% sure). Children catch each mistake by switching to a lens, the street view or the inside view, then give a clearer card ("Dry, sunny land. Keep the meadow wild."). Residents move in and live with the choices. Children learn that AI optimises one word, assumes the typical case, misses data and reads literally, and that checking from the ground fixes it.
 
 ## 2. Learning outcomes
 - By the end, learners can name which of the AI's four habits (one word, typical case, missing data, literal reading) caused a given mistake.
@@ -29,9 +29,9 @@ Children start with an empty floating island and build a whole sustainable town 
 
 ## 4. Setting, look and characters
 - **Visual style:** the brochure's floating voxel island (flat-colour blocks, soft upper-left light, rounded app UI, badge "Eco Town · SCHOOL CLUB · L1/6"). See DESIGN.md, "Camera grammar".
-- **AI helper:** the **Planning Helper** (working name **Plotter**, to check), in the navy helper card with a mint "GUESS" tag, which becomes "PLAN CHECKED" after a fix. It says "I guess…" and "My plan…", never "I feel".
+- **AI helper:** the **Planning Helper** named **Florence**, in the navy helper card with a mint "GUESS" tag, which becomes "PLAN CHECKED" after a fix. It says "I guess…" and "My plan…", never "I feel".
 - **Residents:** tiny blocky families with a followed family who keeps a three-line diary (DESIGN.md, "The living town").
-- **Fictional names (to check before release):** Eco Town, Plotter, the followed family's surname, town titles (Cycle Town, Orchard Valley, Wild Garden Village, Market Town). Check that "Eco Town" isn't the name of a real development or organisation that would confuse partners (the UK government ran an "eco-towns" programme around 2007–2010: to verify).
+- **Fictional names (to check before release):** Eco Town, Florence, the followed family's surname, town titles (Cycle Town, Orchard Valley, Wild Garden Village, Market Town). Check that "Eco Town" isn't the name of a real development or organisation that would confuse partners (the UK government ran an "eco-towns" programme around 2007–2010: to verify).
 
 ## 5. Core loop and structure
 The seven acts (Brief → Plan → Check → Fix → Move in → Live → Celebrate) and the six-level table are in DESIGN.md. Summary of the mistakes:
@@ -43,7 +43,7 @@ The seven acts (Brief → Plan → Check → Fix → Move in → Live → Celebr
 | 3. Homes | "Build strong homes" → concrete and steel (85%) | Carbon lens; inside view | "Warm, low-carbon homes from local timber and straw." |
 | 4. Food | "Grow as much food as possible" → plough every field and hedge (79%) | Nature lens: bees and deer leave | "Enough food, and keep the hedges for the bees." |
 | 5. Water, power, waste | "Make enough clean power" → solar roofs only, for an average day (90%) | Winter test: blackout | "Enough power for a still winter night. Store the sunshine." |
-| 6. Complete the town | "Put the school in the middle" → island centre, in the wetland (81%) | Walking-time lens: 25 min | "School within a 10-minute walk of every home." |
+| 6. Complete the town | "Put the school in the middle" → the middle of the island, far from the homes | Walking-time lens: over 15 min | "School within a 15-minute walk of every home." |
 
 **"Unsure but right" moment (added):** in Level 5, after the clearer card, the helper says "Wind, battery and rain gardens. I haven't planned for winter before: 74% sure the lights stay on." The winter test passes. (The trailer shows 87% for this line; use the lower figure in the lab so the moment reads clearly.) DESIGN.md's rule that the AI is sometimes less sure after a clearer card is the basis.
 
@@ -67,7 +67,7 @@ DESIGN.md says Levels 4 and 5 merge in shorter versions. Level debriefs (section
 
 | Min | Activity |
 |---|---|
-| 0–4 | Warm-up: "Sky or street?": two photos of the same place from above and from the pavement; what can each see? Honesty line: "Plotter is pretend. We wrote its plans." |
+| 0–4 | Warm-up: "Sky or street?": two photos of the same place from above and from the pavement; what can each see? Honesty line: "Florence is pretend. We wrote her plans." |
 | 4–33 | Levels 1, 2, 3, 4+5 and 6 (about 6 minutes each, including a 1–2 minute level debrief) |
 | 33–43 | Final discussion (10 min) |
 | 43–45 | Exit check; town report |
@@ -94,7 +94,13 @@ DESIGN.md says Levels 4 and 5 merge in shorter versions. Level debriefs (section
 **Short of time:** merge Levels 4 and 5, cut level debriefs to one question each, keep the Level 1 debrief in full and at least 10 minutes of final discussion.
 
 ## 8. Assessment
-- **Stars** reward spotting and fixing the AI's mistakes, not how the town looks (DESIGN.md). Per level: ★ opened the right lens or view, ★★ named the AI's habit, ★★★ chose or wrote the clearer card.
+- **Stars** reward spotting and fixing the AI's mistakes, not how the town looks (DESIGN.md). Every level-complete card lists the three rules with ✓ or ☆:
+  - **after a mistake:** ★ found it with the first check · ★ named Florence's habit first time · ★ the fixed plan passes;
+  - **clear first time:** ★ clear instruction · ★ spotted Florence's **hidden guess** (what she still assumed, e.g. how much land 40 families need) · ★ the plan passed its check;
+  - Level 6's bias check adds a bonus star.
+- **Which habit is right** depends on what Florence actually assumed in that plan. A wrong pick explains the habit and points back at her guess; after two wrong picks the game explains the answer and moves on.
+- **Facilitator notes** (start screen or ☰) show a short prompt at every step of every level, in a yellow card at the top right.
+- **Read aloud:** recorded voices (a British narrator; Florence has her own voice). It is on automatically for 8–12; 🔊 buttons replay any card in both versions.
 - **Artefacts:** the town report (map, town flower, town title, the six mistakes caught) and the followed family's diary.
 - **Exit check:**
   1. "An AI is told 'Find the best land' and picks the flattest field by the river. What did it miss?" (Flooding; it optimised one word.)
@@ -247,8 +253,8 @@ Goldsmith Street in Norwich is a street of about 100 council homes built to a ve
 
 ## 11A. Facilitator notes for the game build
 - **Construction films.** Each film is a natural pause point. Ask: "Why does the frame go up before the walls? Why do pipes and wires go in before the walls close?" For 13–17: "Which step carries most of the carbon?" (Foundations and the frame for concrete; the walls store carbon for timber and straw.)
-- **Free text (13–17).** Students type their own instructions. Plotter highlights the words it picked up and explains its "% sure". Off-topic or unsafe text gets "I can't map that to a plan for this level." Nothing typed is stored or sent.
-- **Teach Plotter (13–17, Level 6).** Let the group look at the training examples before they fix anything: "Who is missing from this data?" A strong answer: "Only people who drove to the car-park box." Then retrain with the school-gate comments, or with examples students write and label themselves, and compare the new summary.
+- **Free text (13–17).** Students type their own instructions. Florence highlights the words she picked up and explains her "% sure". Off-topic or unsafe text gets "I can't map that to a plan for this level." Nothing typed is stored or sent.
+- **Teach Florence (13–17, Level 6).** Let the group look at the training examples before they fix anything: "Who is missing from this data?" A strong answer: "Only people who drove to the car-park box." Then retrain with the school-gate comments, or with examples students write and label themselves, and compare the new summary.
 
 ## 12. Build notes
 - **From DESIGN.md:** scenes, levels, cameras, the living town and scoring.

@@ -1,124 +1,197 @@
 // Words for the two versions. Junior (8–12): short, plain, read aloud. Senior (13–17): technical names,
 // real units, dilemmas. Numbers in messages come from the simulation, never from this file.
+// Florence is the AI planning helper (she). Her habits are defined here in general terms; what she
+// actually assumed in a plan comes from the planner (plan.habit, plan.habitWhy).
 
 export const HABITS = ['one_word', 'typical', 'missing', 'literal'];
+export const HELPER = 'Florence';
 
 export const CONTENT = {
   junior: {
     name: 'Ages 8–12',
-    helperName: 'Plotter',
+    helperName: HELPER,
     habits: {
-      one_word: { label: 'Took one word too far', icon: '🎯', explain: 'Plotter chased one word, like “best” or “most”, and forgot everything else.' },
-      typical: { label: 'Only thought of a normal day', icon: '📅', explain: 'Plotter planned for the usual case: a sunny day, or people who drive. Not everyone, not every day.' },
-      missing: { label: 'Was missing information', icon: '🧩', explain: 'Plotter didn’t know something important, like floods or where the bees live.' },
-      literal: { label: 'Read the words too exactly', icon: '📏', explain: 'Plotter did exactly what the words said, not what we meant.' },
+      one_word: { label: 'Took one word too far', icon: '🎯', explain: 'Florence chased one word, like “best”, “fast” or “most”, and forgot everything else.' },
+      typical: { label: 'Only thought of a normal day', icon: '📅', explain: 'Florence planned for a normal day or a typical person, not for everyone or for the hardest day.' },
+      missing: { label: 'Was missing information', icon: '🧩', explain: 'Florence didn’t have a fact she needed, so she couldn’t plan for it.' },
+      literal: { label: 'Read the words too exactly', icon: '📏', explain: 'Florence did exactly what the words said, not what you meant.' },
     },
     checks: {
-      flood: { label: 'Flood lens', icon: '🌊' }, carbon: { label: 'Carbon lens', icon: '☁' }, nature: { label: 'Nature lens', icon: '🦋' },
+      flood: { label: 'Flood lens', icon: '🌊' }, carbon: { label: 'Carbon lens', icon: '🌫' }, nature: { label: 'Nature lens', icon: '🦋' },
       winter: { label: 'Winter test', icon: '❄' }, walk: { label: 'Walking-time lens', icon: '🚶' }, street: { label: 'Street view', icon: '👀' }, inside: { label: 'Inside view', icon: '🏠' },
     },
     ui: {
-      start: 'Start', next: 'Next', check: 'Check Plotter’s plan', how: 'How will you check the plan?', build: 'Build it', usePlan: 'Use Plotter’s plan', done: 'Done building',
-      tell: 'Tell Plotter what to do', send: 'Send to Plotter', typeInstead: 'Type it instead', useTiles: 'Use word tiles', useCards: 'Use a card',
-      whyWrong: 'Why did Plotter get it wrong?', tryClearer: 'Give Plotter a clearer instruction', nothingHere: 'No problem shows up here. Try another way to check.',
+      start: 'Start', next: 'Next', check: 'Check Florence’s plan', how: 'How will you check Florence’s plan?', build: 'Build it', usePlan: 'Use Florence’s plan', done: 'Done building',
+      tell: 'Tell Florence what to do', send: 'Send to Florence', typeInstead: 'Type it instead', useTiles: 'Use word tiles', useCards: 'Use a card',
+      whyWrong: 'Why did Florence get it wrong?', tryClearer: 'Give Florence a clearer instruction', nothingHere: 'No problem shows up here. Try another way to check.',
       unknown: 'I don’t know how to plan that yet.', tryWords: 'Try words like', sure: 'sure', plotterGuess: 'GUESS', checked: 'PLAN CHECKED',
-      foundIt: 'You found the problem!', moveIn: 'Moving day', live: 'A day in your town', foundations: 'Foundations set!', continue: 'Continue', back: 'Back to the island',
-      reward: 'Level complete', stars: 'Stars', firstTry: 'Clear first time!', report: 'Town report', newLens: 'New lens unlocked', petition: 'Residents are worried',
+      foundIt: 'You found the problem!', moveIn: 'Moving day', live: 'A day in your town', continue: 'Continue', back: 'Back to the island',
+      reward: 'Level complete', stars: 'Stars', firstTry: 'Clear first time!', report: 'Town report', newLens: 'New lens unlocked', newTest: 'New test unlocked', petition: 'Residents are worried',
+      correct: 'Correct!', notQuite: 'Not quite.', lookAgain: 'Look at Florence’s guess again:', itWas: 'It was', hidden: 'Florence still guessed one thing. Which one?',
+      emptyText: 'Type an instruction first', guessCard: 'Florence’s guess',
+    },
+    stars: {
+      flawed: ['Found the problem with your first check', 'Named Florence’s habit first time', 'Fixed the plan so it passes'],
+      clean: ['Clear instruction first time', 'Spotted Florence’s hidden guess', 'The plan passed its check'],
     },
   },
   senior: {
     name: 'Ages 13–17',
-    helperName: 'Plotter',
+    helperName: HELPER,
     habits: {
-      one_word: { label: 'Proxy optimisation', icon: '🎯', explain: 'Plotter maximised one measurable proxy (“best” → flattest, “most food”) and ignored everything the instruction didn’t mention. Also called specification gaming.' },
-      typical: { label: 'Average-case assumption', icon: '📅', explain: 'Plotter optimised for the typical case (an average day, a typical commuter who drives) instead of the worst case or every group.' },
-      missing: { label: 'Missing or biased data', icon: '🧩', explain: 'Plotter’s data didn’t include something that matters (flood maps, habitats, who was asked), so it couldn’t account for it.' },
-      literal: { label: 'Specification ambiguity', icon: '📏', explain: 'The instruction had more than one reading and Plotter chose the literal one (“the middle” of the island, not of the homes).' },
+      one_word: { label: 'Proxy optimisation', icon: '🎯', explain: 'Florence maximised one measurable proxy for a vague word (“best” → flattest, “fast” → wide roads) and ignored everything else. Also called specification gaming.' },
+      typical: { label: 'Average-case assumption', icon: '📅', explain: 'Florence optimised for the typical case (an average day, a typical user) instead of the worst case or every group.' },
+      missing: { label: 'Missing or biased data', icon: '🧩', explain: 'Florence’s data left out something that matters, so she couldn’t account for it.' },
+      literal: { label: 'Specification ambiguity', icon: '📏', explain: 'The instruction had more than one reading and Florence chose the literal one.' },
     },
     checks: {
-      flood: { label: 'Flood-risk lens', icon: '🌊' }, carbon: { label: 'Embodied-carbon lens', icon: '☁' }, nature: { label: 'Habitat & species lens', icon: '🦋' },
+      flood: { label: 'Flood-risk lens', icon: '🌊' }, carbon: { label: 'Carbon lens', icon: '🌫' }, nature: { label: 'Habitat & species lens', icon: '🦋' },
       winter: { label: 'Worst-case power test', icon: '❄' }, walk: { label: 'Walking-time lens', icon: '🚶' }, street: { label: 'Street view (ground truth)', icon: '👀' }, inside: { label: 'Inside view (thermal)', icon: '🏠' },
     },
     ui: {
-      start: 'Start', next: 'Next', check: 'Test the plan', how: 'Which evidence would test this plan?', build: 'Build', usePlan: 'Accept Plotter’s plan', done: 'Finish building',
-      tell: 'Write an instruction for Plotter', send: 'Send', typeInstead: 'Free text', useTiles: 'Word tiles', useCards: 'Use a card',
+      start: 'Start', next: 'Next', check: 'Test the plan', how: 'Which evidence would test Florence’s plan?', build: 'Build', usePlan: 'Accept Florence’s plan', done: 'Finish building',
+      tell: 'Write an instruction for Florence', send: 'Send', typeInstead: 'Free text', useTiles: 'Word tiles', useCards: 'Use a card',
       whyWrong: 'Which failure mode caused this?', tryClearer: 'Rewrite the instruction: goal + limit + check', nothingHere: 'This evidence doesn’t show a problem. Try another test.',
       unknown: 'I can’t map that to a plan for this level.', tryWords: 'Try including', sure: 'confidence', plotterGuess: 'GUESS', checked: 'PLAN TESTED',
-      foundIt: 'Evidence found', moveIn: 'Move-in', live: 'A day in the town', foundations: 'Decisions locked', continue: 'Continue', back: 'Back to the island',
-      reward: 'Level complete', stars: 'Stars', firstTry: 'Well specified first time', report: 'Town report', newLens: 'New test unlocked', petition: 'Residents’ petition',
+      foundIt: 'Evidence found', moveIn: 'Move-in', live: 'A day in the town', continue: 'Continue', back: 'Back to the island',
+      reward: 'Level complete', stars: 'Stars', firstTry: 'Well specified first time', report: 'Town report', newLens: 'New lens unlocked', newTest: 'New test unlocked', petition: 'Residents’ petition',
+      correct: 'Correct.', notQuite: 'Not quite.', lookAgain: 'Re-read Florence’s reading:', itWas: 'It was', hidden: 'The plan passed, but Florence still made an unstated assumption. Which?',
+      emptyText: 'Write an instruction first', guessCard: 'Florence’s guess',
+    },
+    stars: {
+      flawed: ['Found the evidence with your first test', 'Identified the failure mode first time', 'Fixed specification passes'],
+      clean: ['Well specified first time', 'Found the unstated assumption', 'The plan passed its test'],
     },
   },
 };
 
 // Per-level text. j = junior, s = senior. {n} placeholders are filled from the simulation.
+// newThing: what this level adds (shown on the brief card). hidden: the "spot the hidden guess" step for
+// a clean first try (answer is option 0; options are shuffled on screen).
 export const LEVEL_TEXT = {
   land: {
     title: 'Read the land',
     goal: { j: 'Choose where your town will grow', s: 'Site selection: where should the town grow?' },
-    brief: { j: 'Families are coming! Plotter will find land for 40 families.', s: 'Plotter will select 18 tiles of land for 40 households. You set the brief.' },
+    brief: { j: 'Families are coming! Florence will find land for 40 families.', s: 'Florence will select 18 tiles of land for 40 households. You set the brief.' },
+    newThing: { lens: 'flood', j: 'See which land floods in winter.', s: 'Overlay the winter flood extent on the plan.' },
     flaw: { flood: { j: 'The meadow floods every winter', s: '{n} of 18 town tiles are on the floodplain' }, nature: { j: 'The old wood would be cut down', s: '{n} town tiles would clear ancient woodland' } },
     tiles: ['Find', 'the best', 'flat', 'sunny', 'dry', 'land', 'that never floods', 'near the river', 'by the beach', 'keep the meadow wild', 'keep the wood', 'keep the wetland', 'with lots of space'],
-    cards: [['Find the best land', 'vague'], ['Dry, sunny land. Keep the meadow wild.', 'clear'], ['Next to the beach', 'other']],
-    debrief: 'What did “best” mean to Plotter? What does “best” mean to an otter, or to a family in winter?',
+    cards: [['Find the best land, with lots of space.', 'vague'], ['Dry, sunny land. Keep the meadow wild.', 'clear'], ['Land by the beach, close to the sea.', 'other']],
+    debrief: 'What did “best” mean to Florence? What does “best” mean to an otter, or to a family in winter?',
     fact: { j: 'Rivers spread over flat meadows in winter. That’s why they’re called floodplains.', s: 'Floodplains are flat because rivers built them by flooding. Planners check flood maps before choosing a site.', src: 'Environment Agency, “Flood map for planning” (gov.uk)' },
-    diary: { j: 'We chose our new home today. The sun shines on the slope!', s: 'Site chosen: dry, south-facing, meadow protected.' },
+    complete: { j: 'Land chosen!', s: 'Site agreed' },
+    live: { j: 'A day on your new town land', s: 'A day on the chosen site' },
+    hidden: {
+      j: { q: 'You never said how big the town should be. What did Florence guess?', options: ['How much land the town needs', 'That the river will move', 'That families want to live on the beach'], why: 'Florence guessed 18 tiles of land for 40 families. A good guess, but still a guess!' },
+      s: { q: 'Which assumption did Florence make that your brief didn’t state?', options: ['Site area: 18 tiles for 40 households', 'The river will change course', 'Households prefer coastal plots'], why: 'The brief gave no site area. Florence inferred 18 tiles from 40 households; a planner would confirm the density.' },
+    },
+    facil: { brief: 'Ask: what makes land “good” for a town? Who else uses this land?', check: 'Let pupils choose the lens. Ask them to predict what it will show first.', habit: 'Point back at Florence’s guess: which word did she turn into a number?', build: 'Painting is capped at 18 tiles. Ask what each extra tile costs nature.', live: 'Ask what the family will notice in their first winter.' },
   },
   move: {
     title: 'Getting around',
     goal: { j: 'Design the streets: cars, bikes or feet?', s: 'Movement network: how do people reach school and the ferry?' },
-    brief: { j: 'Children need to get to the island school. Tell Plotter how.', s: 'Connect homes to the island school and the ferry. Who is “everyone”?' },
+    brief: { j: 'Children need to get to the island school. Tell Florence how.', s: 'Connect homes to the island school and the ferry. Who is “everyone”?' },
+    newThing: { lens: 'street', test: true, label: { j: 'Rush-hour street view', s: 'Rush-hour ground truth' }, j: 'Stand in the street at 8:45 am, when children walk to school.', s: 'Observe the route at 8:45 am peak.' },
     flaw: { street: { j: '8:45 am: children can’t cross', s: '{n} car tiles on the children’s route at 8:45 am' } },
     tiles: ['Make it', 'easy', 'safe', 'for everyone', 'to get to school', 'walking', 'cycling', 'footpaths', 'a tram', 'cars stay at the edge', 'no cars', 'fast'],
-    cards: [['Make it easy for everyone to get to school', 'vague'], ['Safe walking and cycling routes. Cars stay at the edge.', 'clear'], ['Build a tram line', 'other']],
+    cards: [['Make it easy for everyone to get to school.', 'vague'], ['Safe walking and cycling. Cars stay at the edge.', 'clear'], ['Build a tram line all the way to school.', 'other']],
     debrief: 'Who was the plan easy for? What does “everyone” include?',
     fact: { j: 'In Goldsmith Street, Norwich, cars park at the edge so children can play safely between the homes.', s: 'Goldsmith Street (Norwich, Stirling Prize 2019) keeps parking at the edges so the streets between homes stay safe.', src: 'Architizer, “Goldsmith Street wins the Stirling Prize” (2019)' },
-    diary: { j: 'I walked to school by myself today!', s: 'Walked to school: no busy crossings.' },
+    complete: { j: 'Streets open!', s: 'Network open' },
+    live: { j: 'A school morning on the new streets', s: 'Peak hour on the new network' },
+    hidden: {
+      j: { q: 'Florence’s plan works! But she still guessed something. What?', options: ['Which way children walk to school', 'That everyone owns a car', 'That it never rains'], why: 'Florence guessed children take the shortest way. Real children sometimes go a different way, so planners ask them!' },
+      s: { q: 'Which assumption is still in the plan?', options: ['Route choice: children take the shortest path', 'Every household owns a car', 'Weather never affects travel'], why: 'Florence assumed shortest-path routing. Real desire lines differ; planners survey them.' },
+    },
+    facil: { brief: 'Ask: who walks, who cycles, who can’t drive?', check: 'Street view is set to 8:45 am. Ask why that time matters.', habit: '“Easy” for whom? Compare a parent driving and a 9-year-old walking.', build: 'Ask pupils to trace the route a child takes to the school gate.', live: 'Listen for what residents say about crossing roads.' },
   },
   homes: {
     title: 'Homes',
     goal: { j: 'Build homes for the first 40 families', s: 'Housing: 40 households, under the embodied-carbon limit' },
-    brief: { j: 'Plotter will build the homes. What should they be like?', s: 'Embodied-carbon limit: 70 t for the homes. Families: 40.' },
-    flaw: { carbon: { j: 'Carbon cloud: {n}× over the limit', s: 'Embodied carbon {n}× the 70 t limit' }, inside: { j: 'Brrr! {n} °C inside with the heating off', s: 'Indoor temperature {n} °C with heating off' } },
+    brief: { j: 'Florence will build the homes. What should they be like?', s: 'Embodied-carbon limit: 70 t for the homes’ materials. Households: 40.' },
+    newThing: { lens: 'carbon', j: 'See how much carbon goes into building the homes.', s: 'Embodied carbon of the building materials.' },
+    flaw: { carbon: { j: 'Carbon cloud: {n}× over the homes’ limit', s: 'Embodied carbon {n}× the 70 t limit' }, inside: { j: 'Brrr! {n} °C inside with the heating off', s: 'Indoor temperature {n} °C with heating off' } },
     tiles: ['Build', 'strong', 'cheap', 'warm', 'low-carbon', 'homes', 'from wood', 'and straw', 'reused bricks', 'with green roofs', 'lots of', 'tall'],
-    cards: [['Build strong homes', 'vague'], ['Warm, low-carbon homes from local timber and straw.', 'clear'], ['Tall tower blocks', 'other']],
-    debrief: '“Strong” made Plotter choose concrete. What else should a home be?',
+    cards: [['Build strong homes that will last for years.', 'vague'], ['Warm, low-carbon homes from timber and straw.', 'clear'], ['Tall tower blocks with lots of flats.', 'other']],
+    debrief: '“Strong” made Florence choose concrete. What else should a home be?',
     fact: { j: 'Wood and straw store carbon that plants took from the air. Making concrete releases lots of it.', s: 'Cement production causes roughly 8% of global CO₂ emissions; timber and straw store carbon.', src: 'Chatham House, “Making Concrete Change” (2018)' },
-    diary: { j: 'Our new house smells of wood. It’s cosy!', s: 'Moved in. Warm with the heating off.' },
+    complete: { j: 'Homes built!', s: 'Housing delivered' },
+    live: { j: 'Moving day in the new homes', s: 'First week in the new homes' },
+    hidden: {
+      j: { q: 'The homes are great! But Florence still guessed one thing. What?', options: ['How many people live in each home', 'That homes don’t need windows', 'That it’s always summer'], why: 'Florence guessed 3 or 4 families per building. Real families come in all sizes!' },
+      s: { q: 'Which assumption is still in the plan?', options: ['Household size per dwelling', 'Homes need no glazing', 'Winters are mild every year'], why: 'Florence assumed a fixed household size per dwelling. Real housing needs a mix of sizes.' },
+    },
+    facil: { brief: 'Ask: what makes a home good? Strong, warm, cheap, kind to the planet?', check: 'The carbon lens counts the materials only. Ask where that carbon comes from.', habit: 'Which single word did Florence chase?', build: 'Try swapping one concrete block for straw and watch the carbon number.', live: 'Ask how the family feels inside on a cold day.' },
   },
   food: {
     title: 'Food',
     goal: { j: 'Grow food for the whole town', s: 'Food system: enough food without losing biodiversity' },
-    brief: { j: 'Everyone needs food. Tell Plotter how to grow it.', s: 'Food need is set by households. Habitats are part of the test.' },
+    brief: { j: 'Everyone needs food. Tell Florence how to grow it.', s: 'Food need is set by households. Habitats are part of the test.' },
+    newThing: { lens: 'nature', j: 'See where animals and bees live, and whether they stay.', s: 'Habitat and species presence after the plan.' },
     flaw: { nature: { j: 'The bees and deer have left', s: 'Pollinators and deer lost: {n} hedgerow tiles removed' } },
     tiles: ['Grow', 'as much food as possible', 'enough food', 'for everyone', 'keep the hedges', 'for the bees', 'beehives', 'an orchard', 'allotments', 'near our homes', 'and wildlife'],
-    cards: [['Grow as much food as possible', 'vague'], ['Enough food, and keep the hedges for the bees.', 'clear'], ['Bring all our food in by lorry', 'other']],
+    cards: [['Grow as much food as we possibly can.', 'vague'], ['Enough food, and keep the hedges for the bees.', 'clear'], ['Bring all our food in by lorry each week.', 'other']],
     debrief: '“Most food possible”: who paid for it? What does “enough” mean instead of “most”?',
     fact: { j: 'Hedges are homes and highways for bees, birds and hedgehogs.', s: 'UK hedgerows support over 600 plant, 1,500 insect, 65 bird and 20 mammal species.', src: 'People’s Trust for Endangered Species, “Hedgerows” (ptes.org)' },
-    diary: { j: 'We picked apples from the orchard. The bees were busy!', s: 'Food sorted; the hedgerows still buzz.' },
+    complete: { j: 'First harvest!', s: 'Food system running' },
+    live: { j: 'Harvest day in your town', s: 'A day in the food system' },
+    hidden: {
+      j: { q: 'Lots of food and happy bees! What did Florence still guess?', options: ['How much food each family eats', 'That bees don’t like flowers', 'That people only eat apples'], why: 'Florence guessed one basket of food feeds 3 families. Real families eat different amounts!' },
+      s: { q: 'Which assumption is still in the plan?', options: ['Food demand per household', 'Pollinators avoid orchards', 'Diets contain only fruit'], why: 'Florence assumed a fixed food demand per household (1 unit per 3). Real demand varies with diet and family size.' },
+    },
+    facil: { brief: 'Ask: is “as much as possible” ever a good goal?', check: 'The nature lens shows who lives here. Ask who lost their home.', habit: 'Which word made Florence plough every hedge?', build: 'Ask pupils to keep food over the line without losing the bees.', live: 'Ask where the food in the shop came from.' },
   },
   power: {
     title: 'Water, power and waste',
-    goal: { j: 'Keep the town running all year', s: 'Energy: meet demand in the worst case, not the average' },
-    brief: { j: 'Homes need power, even on the darkest winter night.', s: 'Size the system for a still winter night. Batteries only help if something charges them.' },
+    goal: { j: 'Power, rain and rubbish: keep the town running all year', s: 'Utilities: worst-case power, rainwater and waste' },
+    brief: { j: 'Homes need power on the darkest winter night. Rain needs somewhere to go, and rubbish too.', s: 'Size power for a still winter night. Batteries only help if something charges them. Also manage rainwater and waste.' },
+    newThing: { lens: 'winter', test: true, j: 'Test the town on the coldest, stillest winter night.', s: 'Worst-case test: a still winter night.' },
     flaw: { winter: { j: 'Still winter night: blackout', s: 'Winter-night supply {n} of demand' } },
     tiles: ['Make', 'enough', 'clean power', 'for a still', 'winter night', 'store the sunshine', 'batteries', 'wind turbines', 'solar roofs', 'rain gardens', 'a repair café', 'compost'],
-    cards: [['Make enough clean power', 'vague'], ['Enough power for a still winter night. Store the sunshine.', 'clear'], ['Buy power from the city', 'other']],
+    cards: [['Make enough clean, green power for every home.', 'vague'], ['Winter-night power with batteries, rain gardens and compost.', 'clear'], ['Buy all our power from the big city.', 'other']],
     debrief: 'Solar roofs worked on an average day. Why test a still winter night?',
     fact: { j: 'Batteries save sunshine from the day to use at night.', s: 'Grid planners size systems for peak winter demand, not average demand.', src: 'National Grid ESO, “Winter Outlook” reports' },
-    diary: { j: 'It snowed! Our lights stayed on all night.', s: 'Coldest night of the year; lights stayed on.' },
+    complete: { j: 'Lights on!', s: 'Utilities running' },
+    live: { j: 'A snowy winter day in your town', s: 'A still winter day' },
+    hidden: {
+      j: { q: 'The lights stay on! What did Florence still guess?', options: ['How much power each home uses', 'That the sun shines at night', 'That winter never comes'], why: 'Florence guessed every home uses the same amount of power. Some homes use more!' },
+      s: { q: 'Which assumption is still in the plan?', options: ['Demand per home on a winter night', 'Solar output at night', 'No winter peak'], why: 'Florence assumed uniform demand per home. Real demand varies; planners add a safety margin.' },
+    },
+    facil: { brief: 'Ask: when does a town need the most power?', check: 'The winter test runs a still, cold night. Ask what happens to solar and wind.', habit: 'Average day or hardest day? Which did Florence plan for?', build: 'Rain gardens soak up rain; compost and repair cut waste. Ask pupils why each matters.', live: 'Watch the windows: do the lights stay on all night?' },
   },
   heart: {
     title: 'Complete the town',
-    goal: { j: 'Finish the town your way', s: 'Town centre: school, market and nature links' },
+    goal: { j: 'Where should the new school go?', s: 'Town centre: school, market and nature links' },
     brief: { j: 'The little island school is full. Where should the new school go?', s: 'Place the new school. Then the market, park and nature links.' },
-    flaw: { walk: { j: 'That’s the wetland: {n} min from home', s: 'Longest walk to school: {n} min' } },
-    tiles: ['Put', 'the school', 'in the middle', 'within a 10-minute walk', 'of every home', 'next to the homes', 'a market', 'a safe route', 'green bridges', 'for nature'],
-    cards: [['Put the school in the middle', 'vague'], ['School within a 10-minute walk of every home.', 'clear'], ['Next to the main road', 'other']],
+    newThing: { lens: 'walk', j: 'See how many minutes each home is from school.', s: 'Walking time from every home to school.' },
+    flaw: { walk: { j: 'Too far! {n} min walk from the furthest home', s: 'Longest walk to school: {n} min' } },
+    tiles: ['Put', 'the school', 'in the middle', 'within a 15-minute walk', 'of every home', 'next to the homes', 'a market', 'a safe route', 'green bridges', 'for nature'],
+    cards: [['Put the new school right in the middle.', 'vague'], ['School within a 15-minute walk of every home.', 'clear'], ['Put the school next to the main road.', 'other']],
     debrief: '“The middle” of what? What should “middle” mean for a school?',
     fact: { j: 'A 15-minute town means you can walk to school, shops and the park.', s: 'The “15-minute city” idea: daily needs within a short walk or cycle.', src: 'C40 Cities, “15-minute cities” (c40knowledgehub.org)' },
-    diary: { j: 'The new school is just round the corner. Festival tonight!', s: 'School 8 minutes away. Festival in the square.' },
+    complete: { j: 'Town complete!', s: 'Town centre complete' },
+    live: { j: 'Opening day at the new school', s: 'Opening day' },
+    hidden: {
+      j: { q: 'Every home is close to school! What did Florence still guess?', options: ['How fast children walk', 'That the school is a shop', 'That everyone drives to school'], why: 'Florence guessed every child walks at the same speed. Little ones and wheelchair users may take longer!' },
+      s: { q: 'Which assumption is still in the plan?', options: ['Walking speed: 3 minutes per tile for everyone', 'The school doubles as a shop', 'All pupils arrive by car'], why: 'Florence assumed one walking speed. Accessibility audits use slower speeds for younger children and wheelchair users.' },
+    },
+    facil: { brief: 'Ask: what does “the middle” mean: of the island, or of the homes?', check: 'The walking lens shows minutes from every home. Ask which home is furthest.', habit: 'Florence did exactly what the words said. What did we mean?', build: 'Ask pupils to check the furthest home after they move the school.', live: 'Ask who walks to school now, and who might still struggle.' },
   },
 };
+
+// Diary lines from what the simulation says is true: [morning, afternoon, evening] per level.
+export function diaryLines(id, s, junior) {
+  const J = (j, sn) => (junior ? j : sn);
+  const L = {
+    land: [s.townFlooded === 0 ? J('We chose our new land. It stays dry, even in winter!', 'Site chosen: dry ground, no flood risk.') : J('Our new land gets soggy in winter…', 'Site chosen, but part of it floods.'), J('The surveyors put flags all round the town land.', 'Surveyors staked the boundary.'), J('Tonight we dream about our new homes.', 'Next: streets and routes.')],
+    move: [s.unsafeCrossings === 0 ? J('I walked to school by myself today!', 'Walked to school: no busy crossings.') : J('Mum had to help me across the busy road.', 'School run: unsafe crossings on the route.'), J('We cycled to the beach after school.', 'Afternoon: the cycle lanes were busy.'), J('The streets are quiet tonight.', 'Evening: low traffic.')],
+    homes: [s.avgTemp >= 18 ? J('Our new house smells of wood. It’s cosy!', 'Moved in. Warm with the heating off.') : J('Brrr, our new house is cold inside.', 'Moved in. Cold with the heating off.'), J('We met our new neighbours.', 'Afternoon: neighbours met.'), J('Our first night in the new house!', 'First night in the new homes.')],
+    food: [s.species.bees ? J('We picked apples. The bees were busy!', 'Harvest started; the hedgerows still buzz.') : J('No bees came to the flowers this year…', 'Harvest started, but the pollinators have gone.'), s.food >= s.foodNeed ? J('There’s enough food in the shop for everyone.', 'Food supply covers every household.') : J('The shop ran out of food.', 'Food supply fell short.'), J('Soup made from our own vegetables tonight!', 'Dinner from local produce.')],
+    power: [J('It snowed! The town is white and still.', 'A still, freezing winter day.'), J('The rain garden drank up the melting snow.', 'Meltwater handled by the rain gardens.'), s.power.winterOK ? J('Cold, still night, and our lights stayed on!', 'Coldest night of the year; lights stayed on.') : J('The lights went out on the coldest night.', 'Blackout on the coldest night.')],
+    heart: [s.walkMax <= 15 ? J(`The new school is only ${s.walkMax} minutes’ walk away!`, `School ${s.walkMax} minutes away on foot.`) : J('The new school is a long walk away…', `Longest walk to school: ${s.walkMax} minutes.`), J('Market day in the square!', 'Afternoon: the market opened.'), J('Festival tonight!', 'Evening: festival in the square.')],
+  };
+  return L[id];
+}
 
 // Dilemmas (senior only): a choice at the end of a level with honest trade-offs.
 export const DILEMMAS = {
@@ -127,3 +200,13 @@ export const DILEMMAS = {
   power: { text: 'A neighbour island offers to sell you power on still nights, but it comes from gas.', options: [{ label: 'Buy it', effect: { carbon: 20, energy: 0.3 } }, { label: 'Build more storage', effect: { cost: 6 } }] },
   heart: { text: 'The park or 4 more homes on the last free tile?', options: [{ label: 'Park', effect: { health: 1, nature: 1 } }, { label: 'Homes', effect: { families: 4, carbon: 8 } }] },
 };
+
+// Town names offered on the start screen, and a tiny filter for typed names.
+export const NAME_IDEAS = ['Willow Bay', 'Otter Bend', 'Bramble Hill', 'Sunny Hollow', 'Kestrel Cove', 'Meadowmere'];
+const BLOCK_ANY = /(fuck|shit|cunt|bitch|bastard|wank|twat|nazi|porn)/i;          // anywhere, even run together
+const BLOCK_WORD = /\b(piss|dick|cock|slag|sex|sexy|arse|arsehole|poo|willy|boob|boobs|tits|crap|bum|butt)\b/i; // whole words only (so Sussex, Poole are fine)
+export function cleanTownName(raw) {
+  const t = String(raw || '').replace(/[^A-Za-z0-9 '\-]/g, '').replace(/\s+/g, ' ').trim().slice(0, 24);
+  if (!t || BLOCK_ANY.test(t.replace(/[^a-z]/gi, '')) || BLOCK_WORD.test(t)) return null;
+  return t.replace(/\b\w/g, (c) => c.toUpperCase());
+}

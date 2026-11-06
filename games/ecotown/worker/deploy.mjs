@@ -13,6 +13,23 @@ const auth = { Authorization: `Bearer ${process.env.CF_API_TOKEN || 'proxy-injec
 const form = new FormData(); const files = [];
 const walk = (d) => { for (const f of fs.readdirSync(d)) { const p = path.join(d, f); if (fs.statSync(p).isDirectory()) walk(p); else if (f !== '_headers') files.push(p); } };
 walk(DIST);
+// voice packs are too big for the Worker script: they go to Workers KV (namespace "ecotown-voice"), served only with a session
+const VOICE_FILES = files.filter((p) => p.includes(`${path.sep}voice${path.sep}`)); for (const v of VOICE_FILES) files.splice(files.indexOf(v), 1);
+const KVAPI = `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT}/storage/kv/namespaces`;
+let kvId = null;
+if (VOICE_FILES.length) {
+  const list = await (await fetch(KVAPI + '?per_page=100', { headers: auth })).json();
+  if (!list.success) { console.error('KV list failed', JSON.stringify(list.errors)); process.exit(1); }
+  kvId = list.result.find((n) => n.title === 'ecotown-voice')?.id;
+  if (!kvId) { const c = await (await fetch(KVAPI, { method: 'POST', headers: { ...auth, 'Content-Type': 'application/json' }, body: JSON.stringify({ title: 'ecotown-voice' }) })).json(); if (!c.success) { console.error('KV create failed', JSON.stringify(c.errors)); process.exit(1); } kvId = c.result.id; }
+  // only upload files that aren't there yet (pack bins are content-hashed; the small index files always)
+  const keys = new Set(); let cursor = ''; do { const r = await (await fetch(`${KVAPI}/${kvId}/keys?limit=1000${cursor ? '&cursor=' + cursor : ''}`, { headers: auth })).json(); for (const k of r.result || []) keys.add(k.name); cursor = r.result_info?.cursor || ''; } while (cursor);
+  for (const f of VOICE_FILES) {
+    const name = path.basename(f); if (name.endsWith('.bin') && keys.has(name)) continue;
+    const r = await (await fetch(`${KVAPI}/${kvId}/values/${encodeURIComponent(name)}`, { method: 'PUT', headers: { ...auth, 'Content-Type': 'application/octet-stream' }, body: fs.readFileSync(f) })).json();
+    if (!r.success) { console.error('KV upload failed', name, JSON.stringify(r.errors)); process.exit(1); } console.log('voice uploaded', name, fs.statSync(f).size);
+  }
+}
 let index = 'export default {\n';
 files.forEach((p, i) => {
   const rel = '/' + path.relative(DIST, p).split(path.sep).join('/'); const name = `f${i}`;
@@ -27,7 +44,7 @@ form.append('admin.html', new Blob([fs.readFileSync(path.join(here, 'admin.html'
 const upload = async (withMigration) => {
   const f = new FormData(); for (const [k, v] of form.entries()) f.append(k, v, k);
   f.append('metadata', new Blob([JSON.stringify({ main_module: 'worker.js', compatibility_date: '2025-01-01',
-    bindings: [{ type: 'durable_object_namespace', name: 'CODES', class_name: 'CodeStore' }],
+    bindings: [{ type: 'durable_object_namespace', name: 'CODES', class_name: 'CodeStore' }, ...(kvId ? [{ type: 'kv_namespace', name: 'VOICE', namespace_id: kvId }] : [])],
     keep_bindings: ['secret_text'], ...(withMigration ? { migrations: { new_tag: 'v1', new_sqlite_classes: ['CodeStore'] } } : {}) })], { type: 'application/json' }));
   return (await fetch(API, { method: 'PUT', headers: auth, body: f })).json();
 };

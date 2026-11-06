@@ -1,0 +1,1167 @@
+[
+ {
+  "s": "Start",
+  "voice": "narrator",
+  "key": "b725c998"
+ },
+ {
+  "s": "Next",
+  "voice": "narrator",
+  "key": "f80c1ead"
+ },
+ {
+  "s": "Check Florence’s plan",
+  "voice": "narrator",
+  "key": "5c25da0d"
+ },
+ {
+  "s": "How will you check Florence’s plan?",
+  "voice": "narrator",
+  "key": "81cc7c89"
+ },
+ {
+  "s": "Build it",
+  "voice": "narrator",
+  "key": "05fc4911"
+ },
+ {
+  "s": "Use Florence’s plan",
+  "voice": "narrator",
+  "key": "44534502"
+ },
+ {
+  "s": "Done building",
+  "voice": "narrator",
+  "key": "ae51545c"
+ },
+ {
+  "s": "Tell Florence what to do",
+  "voice": "narrator",
+  "key": "9719eefb"
+ },
+ {
+  "s": "Send to Florence",
+  "voice": "narrator",
+  "key": "4ce34859"
+ },
+ {
+  "s": "Type it instead",
+  "voice": "narrator",
+  "key": "762b85db"
+ },
+ {
+  "s": "Use word tiles",
+  "voice": "narrator",
+  "key": "bb486898"
+ },
+ {
+  "s": "Use a card",
+  "voice": "narrator",
+  "key": "558a5202"
+ },
+ {
+  "s": "Why did Florence get it wrong?",
+  "voice": "narrator",
+  "key": "797c9cc0"
+ },
+ {
+  "s": "Give Florence a clearer instruction",
+  "voice": "narrator",
+  "key": "916f4c46"
+ },
+ {
+  "s": "No problem shows up here.",
+  "voice": "narrator",
+  "key": "c96877e7"
+ },
+ {
+  "s": "Try another way to check.",
+  "voice": "narrator",
+  "key": "df0182f4"
+ },
+ {
+  "s": "I don’t know how to plan that yet.",
+  "voice": "narrator",
+  "key": "fcabb0cd"
+ },
+ {
+  "s": "Try words like",
+  "voice": "narrator",
+  "key": "221f530b"
+ },
+ {
+  "s": "sure",
+  "voice": "narrator",
+  "key": "c0a56919"
+ },
+ {
+  "s": "GUESS",
+  "voice": "narrator",
+  "key": "ee033039"
+ },
+ {
+  "s": "PLAN CHECKED",
+  "voice": "narrator",
+  "key": "2e7fe8e6"
+ },
+ {
+  "s": "You found the problem!",
+  "voice": "narrator",
+  "key": "19c4509e"
+ },
+ {
+  "s": "Moving day",
+  "voice": "narrator",
+  "key": "1a50ebe4"
+ },
+ {
+  "s": "A day in your town",
+  "voice": "narrator",
+  "key": "b0bc5d55"
+ },
+ {
+  "s": "Continue",
+  "voice": "narrator",
+  "key": "d53fd995"
+ },
+ {
+  "s": "Back to the island",
+  "voice": "narrator",
+  "key": "44fe896c"
+ },
+ {
+  "s": "Level complete",
+  "voice": "narrator",
+  "key": "d6e94325"
+ },
+ {
+  "s": "Stars",
+  "voice": "narrator",
+  "key": "be25d49d"
+ },
+ {
+  "s": "Clear first time!",
+  "voice": "narrator",
+  "key": "35851777"
+ },
+ {
+  "s": "Town report",
+  "voice": "narrator",
+  "key": "f451b9ea"
+ },
+ {
+  "s": "New lens unlocked",
+  "voice": "narrator",
+  "key": "890f4cdb"
+ },
+ {
+  "s": "New test unlocked",
+  "voice": "narrator",
+  "key": "352957a7"
+ },
+ {
+  "s": "Residents are worried",
+  "voice": "narrator",
+  "key": "7cd19faf"
+ },
+ {
+  "s": "Correct!",
+  "voice": "narrator",
+  "key": "e7e96ed9"
+ },
+ {
+  "s": "Not quite.",
+  "voice": "narrator",
+  "key": "21592efb"
+ },
+ {
+  "s": "Look at Florence’s guess again:",
+  "voice": "narrator",
+  "key": "08076dd7"
+ },
+ {
+  "s": "It was",
+  "voice": "narrator",
+  "key": "bcee6dd4"
+ },
+ {
+  "s": "Florence still guessed one thing.",
+  "voice": "narrator",
+  "key": "c8fb4934"
+ },
+ {
+  "s": "Which one?",
+  "voice": "narrator",
+  "key": "a797802e"
+ },
+ {
+  "s": "Type an instruction first",
+  "voice": "narrator",
+  "key": "337d84e5"
+ },
+ {
+  "s": "Florence’s guess",
+  "voice": "narrator",
+  "key": "2ac5a3f3"
+ },
+ {
+  "s": "I don’t know how to plan that yet.",
+  "voice": "helper",
+  "key": "fb038d1e"
+ },
+ {
+  "s": "Correct!",
+  "voice": "helper",
+  "key": "ae45f83a"
+ },
+ {
+  "s": "Not quite.",
+  "voice": "helper",
+  "key": "7bb0b1ac"
+ },
+ {
+  "s": "Look at Florence’s guess again:",
+  "voice": "helper",
+  "key": "c649c65e"
+ },
+ {
+  "s": "It was",
+  "voice": "helper",
+  "key": "33d6f6a3"
+ },
+ {
+  "s": "Florence chased one word, like “best”, “fast” or “most”, and forgot everything else.",
+  "voice": "helper",
+  "key": "cdcbea64"
+ },
+ {
+  "s": "Took one word too far",
+  "voice": "narrator",
+  "key": "2a9edaf6"
+ },
+ {
+  "s": "Florence planned for a normal day or a typical person, not for everyone or for the hardest day.",
+  "voice": "helper",
+  "key": "94fe3574"
+ },
+ {
+  "s": "Only thought of a normal day",
+  "voice": "narrator",
+  "key": "376e1c34"
+ },
+ {
+  "s": "Florence didn’t have a fact she needed, so she couldn’t plan for it.",
+  "voice": "helper",
+  "key": "156ab732"
+ },
+ {
+  "s": "Was missing information",
+  "voice": "narrator",
+  "key": "6062b087"
+ },
+ {
+  "s": "Florence did exactly what the words said, not what you meant.",
+  "voice": "helper",
+  "key": "54aca0d0"
+ },
+ {
+  "s": "Read the words too exactly",
+  "voice": "narrator",
+  "key": "335021c4"
+ },
+ {
+  "s": "Found the problem with your first check",
+  "voice": "narrator",
+  "key": "37d6e6a1"
+ },
+ {
+  "s": "Named Florence’s habit first time",
+  "voice": "narrator",
+  "key": "f00769ee"
+ },
+ {
+  "s": "Fixed the plan so it passes",
+  "voice": "narrator",
+  "key": "f1282574"
+ },
+ {
+  "s": "Clear instruction first time",
+  "voice": "narrator",
+  "key": "b55be974"
+ },
+ {
+  "s": "Spotted Florence’s hidden guess",
+  "voice": "narrator",
+  "key": "b938e5ee"
+ },
+ {
+  "s": "The plan passed its check",
+  "voice": "narrator",
+  "key": "18aa4bf4"
+ },
+ {
+  "s": "Flood lens.",
+  "voice": "narrator",
+  "key": "4bcc9ae6"
+ },
+ {
+  "s": "See which land floods in winter.",
+  "voice": "narrator",
+  "key": "cc40edbe"
+ },
+ {
+  "s": "Families are coming!",
+  "voice": "narrator",
+  "key": "98c81ad8"
+ },
+ {
+  "s": "Florence will find land for 40 families.",
+  "voice": "narrator",
+  "key": "8c6bbc6b"
+ },
+ {
+  "s": "A day on your new town land",
+  "voice": "narrator",
+  "key": "716b5a9e"
+ },
+ {
+  "s": "The meadow floods every winter",
+  "voice": "narrator",
+  "key": "b8943513"
+ },
+ {
+  "s": "The old wood would be cut down",
+  "voice": "narrator",
+  "key": "556ec089"
+ },
+ {
+  "s": "You never said how big the town should be.",
+  "voice": "narrator",
+  "key": "aa36844b"
+ },
+ {
+  "s": "What did Florence guess?",
+  "voice": "narrator",
+  "key": "7ce26119"
+ },
+ {
+  "s": "Florence guessed 18 tiles of land for 40 families.",
+  "voice": "helper",
+  "key": "e053c392"
+ },
+ {
+  "s": "A good guess, but still a guess!",
+  "voice": "helper",
+  "key": "77c6fec0"
+ },
+ {
+  "s": "Land chosen!",
+  "voice": "narrator",
+  "key": "4f1e96b0"
+ },
+ {
+  "s": "Surveyors mark out the town with posts and flags.",
+  "voice": "narrator",
+  "key": "cb80cafb"
+ },
+ {
+  "s": "We chose our new land.",
+  "voice": "narrator",
+  "key": "17be8d91"
+ },
+ {
+  "s": "It stays dry, even in winter!",
+  "voice": "narrator",
+  "key": "1467fd55"
+ },
+ {
+  "s": "The surveyors put flags all round the town land.",
+  "voice": "narrator",
+  "key": "9b0094be"
+ },
+ {
+  "s": "Tonight we dream about our new homes.",
+  "voice": "narrator",
+  "key": "1d7afe25"
+ },
+ {
+  "s": "Our new land gets soggy in winter…",
+  "voice": "narrator",
+  "key": "5d7e5445"
+ },
+ {
+  "s": "Rush-hour street view.",
+  "voice": "narrator",
+  "key": "0aa2232b"
+ },
+ {
+  "s": "Children need to get to the island school.",
+  "voice": "narrator",
+  "key": "d4179d33"
+ },
+ {
+  "s": "Tell Florence how.",
+  "voice": "narrator",
+  "key": "bcaf4417"
+ },
+ {
+  "s": "A school morning on the new streets",
+  "voice": "narrator",
+  "key": "095c3ad7"
+ },
+ {
+  "s": "8:45 am: children can’t cross",
+  "voice": "narrator",
+  "key": "f9cb8f79"
+ },
+ {
+  "s": "Florence’s plan works!",
+  "voice": "narrator",
+  "key": "0a5465c6"
+ },
+ {
+  "s": "But she still guessed something.",
+  "voice": "narrator",
+  "key": "5e3b8c07"
+ },
+ {
+  "s": "What?",
+  "voice": "narrator",
+  "key": "112e6feb"
+ },
+ {
+  "s": "Florence guessed children take the shortest way.",
+  "voice": "helper",
+  "key": "01d697b7"
+ },
+ {
+  "s": "Real children sometimes go a different way, so planners ask them!",
+  "voice": "helper",
+  "key": "737e1fe2"
+ },
+ {
+  "s": "Streets open!",
+  "voice": "narrator",
+  "key": "dae7b7cb"
+ },
+ {
+  "s": "The road roller lays paths and lanes, tile by tile.",
+  "voice": "narrator",
+  "key": "8d335fa5"
+ },
+ {
+  "s": "I walked to school by myself today!",
+  "voice": "narrator",
+  "key": "f994d957"
+ },
+ {
+  "s": "We cycled to the beach after school.",
+  "voice": "narrator",
+  "key": "773b8dcf"
+ },
+ {
+  "s": "The streets are quiet tonight.",
+  "voice": "narrator",
+  "key": "752441f6"
+ },
+ {
+  "s": "Mum had to help me across the busy road.",
+  "voice": "narrator",
+  "key": "16d6a9e5"
+ },
+ {
+  "s": "Carbon lens.",
+  "voice": "narrator",
+  "key": "f947ae57"
+ },
+ {
+  "s": "See how much carbon goes into building the homes.",
+  "voice": "narrator",
+  "key": "3d272b78"
+ },
+ {
+  "s": "Florence will build the homes.",
+  "voice": "narrator",
+  "key": "961e6e23"
+ },
+ {
+  "s": "What should they be like?",
+  "voice": "narrator",
+  "key": "3f2e25ee"
+ },
+ {
+  "s": "Moving day in the new homes",
+  "voice": "narrator",
+  "key": "823e293a"
+ },
+ {
+  "s": "The homes are great!",
+  "voice": "narrator",
+  "key": "acd1d5cf"
+ },
+ {
+  "s": "But Florence still guessed one thing.",
+  "voice": "narrator",
+  "key": "1c77a497"
+ },
+ {
+  "s": "Florence guessed 3 or 4 families per building.",
+  "voice": "helper",
+  "key": "dae34ae4"
+ },
+ {
+  "s": "Real families come in all sizes!",
+  "voice": "helper",
+  "key": "61fc2d6a"
+ },
+ {
+  "s": "Homes built!",
+  "voice": "narrator",
+  "key": "9f530643"
+ },
+ {
+  "s": "Builders raise the homes, layer by layer.",
+  "voice": "narrator",
+  "key": "ddfcbbaa"
+ },
+ {
+  "s": "Our new house smells of wood.",
+  "voice": "narrator",
+  "key": "33e527c0"
+ },
+ {
+  "s": "It’s cosy!",
+  "voice": "narrator",
+  "key": "f2e83fc6"
+ },
+ {
+  "s": "We met our new neighbours.",
+  "voice": "narrator",
+  "key": "e3c5edfc"
+ },
+ {
+  "s": "Our first night in the new house!",
+  "voice": "narrator",
+  "key": "08c2804b"
+ },
+ {
+  "s": "Brrr, our new house is cold inside.",
+  "voice": "narrator",
+  "key": "de585824"
+ },
+ {
+  "s": "Nature lens.",
+  "voice": "narrator",
+  "key": "9f4bccb9"
+ },
+ {
+  "s": "See where animals and bees live, and whether they stay.",
+  "voice": "narrator",
+  "key": "302867c6"
+ },
+ {
+  "s": "Everyone needs food.",
+  "voice": "narrator",
+  "key": "7125203e"
+ },
+ {
+  "s": "Tell Florence how to grow it.",
+  "voice": "narrator",
+  "key": "b83d9686"
+ },
+ {
+  "s": "Harvest day in your town",
+  "voice": "narrator",
+  "key": "0565477f"
+ },
+ {
+  "s": "The bees and deer have left",
+  "voice": "narrator",
+  "key": "ddd3c108"
+ },
+ {
+  "s": "Lots of food and happy bees!",
+  "voice": "narrator",
+  "key": "db96f9e4"
+ },
+ {
+  "s": "What did Florence still guess?",
+  "voice": "narrator",
+  "key": "7d5f02bb"
+ },
+ {
+  "s": "Florence guessed one basket of food feeds 3 families.",
+  "voice": "helper",
+  "key": "797184be"
+ },
+ {
+  "s": "Real families eat different amounts!",
+  "voice": "helper",
+  "key": "88e941d2"
+ },
+ {
+  "s": "First harvest!",
+  "voice": "narrator",
+  "key": "64d54cd2"
+ },
+ {
+  "s": "The tractor ploughs, sows and plants.",
+  "voice": "narrator",
+  "key": "fc4ffa65"
+ },
+ {
+  "s": "Watch it grow!",
+  "voice": "narrator",
+  "key": "5f43b07e"
+ },
+ {
+  "s": "We picked apples.",
+  "voice": "narrator",
+  "key": "c0e1e7a9"
+ },
+ {
+  "s": "The bees were busy!",
+  "voice": "narrator",
+  "key": "5e0e1721"
+ },
+ {
+  "s": "There’s enough food in the shop for everyone.",
+  "voice": "narrator",
+  "key": "fe8f324a"
+ },
+ {
+  "s": "Soup made from our own vegetables tonight!",
+  "voice": "narrator",
+  "key": "643fb71e"
+ },
+ {
+  "s": "No bees came to the flowers this year…",
+  "voice": "narrator",
+  "key": "03acf799"
+ },
+ {
+  "s": "The shop ran out of food.",
+  "voice": "narrator",
+  "key": "b7b37dd3"
+ },
+ {
+  "s": "Winter test.",
+  "voice": "narrator",
+  "key": "a4cf6027"
+ },
+ {
+  "s": "Test the town on the coldest, stillest winter night.",
+  "voice": "narrator",
+  "key": "578026ce"
+ },
+ {
+  "s": "Homes need power on the darkest winter night.",
+  "voice": "narrator",
+  "key": "618cb61e"
+ },
+ {
+  "s": "Rain needs somewhere to go, and rubbish too.",
+  "voice": "narrator",
+  "key": "6e53b1bb"
+ },
+ {
+  "s": "A snowy winter day in your town",
+  "voice": "narrator",
+  "key": "99f45f66"
+ },
+ {
+  "s": "Still winter night: blackout",
+  "voice": "narrator",
+  "key": "74da2c56"
+ },
+ {
+  "s": "The lights stay on!",
+  "voice": "narrator",
+  "key": "ddcce081"
+ },
+ {
+  "s": "Florence guessed every home uses the same amount of power.",
+  "voice": "helper",
+  "key": "3d3585b2"
+ },
+ {
+  "s": "Some homes use more!",
+  "voice": "helper",
+  "key": "627379d4"
+ },
+ {
+  "s": "Lights on!",
+  "voice": "narrator",
+  "key": "da04ea2d"
+ },
+ {
+  "s": "Engineers raise the turbine and fit the panels.",
+  "voice": "narrator",
+  "key": "93f550f4"
+ },
+ {
+  "s": "It snowed!",
+  "voice": "narrator",
+  "key": "b6b1f350"
+ },
+ {
+  "s": "The town is white and still.",
+  "voice": "narrator",
+  "key": "644d960d"
+ },
+ {
+  "s": "The rain garden drank up the melting snow.",
+  "voice": "narrator",
+  "key": "900f8dbd"
+ },
+ {
+  "s": "Cold, still night, and our lights stayed on!",
+  "voice": "narrator",
+  "key": "62c66c82"
+ },
+ {
+  "s": "The lights went out on the coldest night.",
+  "voice": "narrator",
+  "key": "861f14ca"
+ },
+ {
+  "s": "Walking-time lens.",
+  "voice": "narrator",
+  "key": "8082ed75"
+ },
+ {
+  "s": "See how many minutes each home is from school.",
+  "voice": "narrator",
+  "key": "da84792f"
+ },
+ {
+  "s": "The little island school is full.",
+  "voice": "narrator",
+  "key": "188fe423"
+ },
+ {
+  "s": "Where should the new school go?",
+  "voice": "narrator",
+  "key": "4372097a"
+ },
+ {
+  "s": "Opening day at the new school",
+  "voice": "narrator",
+  "key": "8e830892"
+ },
+ {
+  "s": "Every home is close to school!",
+  "voice": "narrator",
+  "key": "dcbd2198"
+ },
+ {
+  "s": "Florence guessed every child walks at the same speed.",
+  "voice": "helper",
+  "key": "f2637def"
+ },
+ {
+  "s": "Little ones and wheelchair users may take longer!",
+  "voice": "helper",
+  "key": "81214ed1"
+ },
+ {
+  "s": "Town complete!",
+  "voice": "narrator",
+  "key": "de0b6612"
+ },
+ {
+  "s": "The new school is built, step by step.",
+  "voice": "narrator",
+  "key": "ffc338e4"
+ },
+ {
+  "s": "The new school is only 12 minutes’ walk away!",
+  "voice": "narrator",
+  "key": "8c7f615a"
+ },
+ {
+  "s": "Market day in the square!",
+  "voice": "narrator",
+  "key": "9cd1519c"
+ },
+ {
+  "s": "Festival tonight!",
+  "voice": "narrator",
+  "key": "ff555008"
+ },
+ {
+  "s": "The new school is a long walk away…",
+  "voice": "narrator",
+  "key": "4cd8b769"
+ },
+ {
+  "s": "Ribbon-cutting time!",
+  "voice": "narrator",
+  "key": "50906f49"
+ },
+ {
+  "s": "Opening ceremony.",
+  "voice": "narrator",
+  "key": "d53af986"
+ },
+ {
+  "s": "“Best” = the flattest land, easiest to build on, next to water.",
+  "voice": "helper",
+  "key": "4f860b1e"
+ },
+ {
+  "s": "Florence turned “best” into “flattest” and forgot about floods and wildlife.",
+  "voice": "helper",
+  "key": "730cc9c3"
+ },
+ {
+  "s": "Flat land.",
+  "voice": "helper",
+  "key": "1c1ea5f5"
+ },
+ {
+  "s": "Sunny, south-facing land.",
+  "voice": "helper",
+  "key": "66b5a3dd"
+ },
+ {
+  "s": "Land that stays dry in winter.",
+  "voice": "helper",
+  "key": "851404c6"
+ },
+ {
+  "s": "Keep the meadow wild.",
+  "voice": "helper",
+  "key": "6ba7b750"
+ },
+ {
+  "s": "Keep the wood wild.",
+  "voice": "helper",
+  "key": "561d4f9c"
+ },
+ {
+  "s": "Keep the wetland wild.",
+  "voice": "helper",
+  "key": "8986154e"
+ },
+ {
+  "s": "Near the river.",
+  "voice": "helper",
+  "key": "e1e0dfea"
+ },
+ {
+  "s": "Near the coast.",
+  "voice": "helper",
+  "key": "882bfa8e"
+ },
+ {
+  "s": "Florence didn’t know that the flat land by the river floods every winter.",
+  "voice": "helper",
+  "key": "17afc693"
+ },
+ {
+  "s": "“Easy for everyone” = easy for drivers: a wide road and a drop-off car park at the school.",
+  "voice": "helper",
+  "key": "a56d1c89"
+ },
+ {
+  "s": "Florence planned for a typical grown-up who drives, not for children walking to school.",
+  "voice": "helper",
+  "key": "24b1eb96"
+ },
+ {
+  "s": "Safe footpaths and crossings.",
+  "voice": "helper",
+  "key": "bea84e98"
+ },
+ {
+  "s": "Cycle lanes.",
+  "voice": "helper",
+  "key": "27ca37ba"
+ },
+ {
+  "s": "A tram stop.",
+  "voice": "helper",
+  "key": "b0f7d438"
+ },
+ {
+  "s": "Cars park at the edge of town.",
+  "voice": "helper",
+  "key": "75bb2dc6"
+ },
+ {
+  "s": "No cars in town.",
+  "voice": "helper",
+  "key": "53fa7adc"
+ },
+ {
+  "s": "“Fast” = wide roads for cars.",
+  "voice": "helper",
+  "key": "f2335a3e"
+ },
+ {
+  "s": "Florence turned “fast” into “wide roads for cars” and forgot about children crossing.",
+  "voice": "helper",
+  "key": "3075a6cf"
+ },
+ {
+  "s": "Everyone, including children and people without cars: footpaths and cycle lanes.",
+  "voice": "helper",
+  "key": "e8b2c7e3"
+ },
+ {
+  "s": "“Strong” = concrete and steel.",
+  "voice": "helper",
+  "key": "07668524"
+ },
+ {
+  "s": "Florence chased “strong” and chose concrete, forgetting carbon and warmth.",
+  "voice": "helper",
+  "key": "1e62eb5e"
+ },
+ {
+  "s": "Timber terrace, Straw-bale cottages.",
+  "voice": "helper",
+  "key": "a66ac106"
+ },
+ {
+  "s": "Straw-bale cottages.",
+  "voice": "helper",
+  "key": "d03da1db"
+ },
+ {
+  "s": "Green roofs.",
+  "voice": "helper",
+  "key": "c6161149"
+ },
+ {
+  "s": "Reclaimed-brick terrace.",
+  "voice": "helper",
+  "key": "1baf4269"
+ },
+ {
+  "s": "Cohousing court, Timber terrace, Straw-bale cottages.",
+  "voice": "helper",
+  "key": "c253f31e"
+ },
+ {
+  "s": "Cohousing court, Straw-bale cottages.",
+  "voice": "helper",
+  "key": "50fd0703"
+ },
+ {
+  "s": "Cohousing court, Reclaimed-brick terrace.",
+  "voice": "helper",
+  "key": "a329fbe1"
+ },
+ {
+  "s": "Straw-bale cottages, Timber terrace.",
+  "voice": "helper",
+  "key": "85e2c510"
+ },
+ {
+  "s": "Timber terrace, Straw-bale cottages, Reclaimed-brick terrace.",
+  "voice": "helper",
+  "key": "b8d38aee"
+ },
+ {
+  "s": "Straw-bale cottages, Reclaimed-brick terrace.",
+  "voice": "helper",
+  "key": "2e90b1b9"
+ },
+ {
+  "s": "“Cheap” = concrete flats (cheapest per home).",
+  "voice": "helper",
+  "key": "44675d3c"
+ },
+ {
+  "s": "Florence chased “cheap” and chose concrete, forgetting carbon and warmth.",
+  "voice": "helper",
+  "key": "f04abfec"
+ },
+ {
+  "s": "“Tall” = concrete tower blocks.",
+  "voice": "helper",
+  "key": "a0b1fa5d"
+ },
+ {
+  "s": "Florence chased “tall” and chose concrete, forgetting carbon and warmth.",
+  "voice": "helper",
+  "key": "b67acaea"
+ },
+ {
+  "s": "“As many as possible” = concrete flats.",
+  "voice": "helper",
+  "key": "4022c029"
+ },
+ {
+  "s": "Florence chased “lots of” and chose concrete, forgetting carbon and warmth.",
+  "voice": "helper",
+  "key": "61bbc5b2"
+ },
+ {
+  "s": "Cohousing court, Straw-bale cottages, Timber terrace.",
+  "voice": "helper",
+  "key": "bdff2768"
+ },
+ {
+  "s": "Cohousing court, Timber terrace, Straw-bale cottages, Reclaimed-brick terrace.",
+  "voice": "helper",
+  "key": "baca3806"
+ },
+ {
+  "s": "Cohousing court, Straw-bale cottages, Reclaimed-brick terrace.",
+  "voice": "helper",
+  "key": "23d29be1"
+ },
+ {
+  "s": "Straw-bale cottages, Timber terrace, Reclaimed-brick terrace.",
+  "voice": "helper",
+  "key": "8af59990"
+ },
+ {
+  "s": "Homes = the usual kind: concrete flats.",
+  "voice": "helper",
+  "key": "fdf708cc"
+ },
+ {
+  "s": "Florence built the usual kind of home, concrete flats, without thinking about carbon or warmth.",
+  "voice": "helper",
+  "key": "2a632055"
+ },
+ {
+  "s": "“As much food as possible” = plough every free field into big fields.",
+  "voice": "helper",
+  "key": "4aef7f77"
+ },
+ {
+  "s": "Florence chased “as much as possible” and ploughed up every hedge.",
+  "voice": "helper",
+  "key": "e55dd685"
+ },
+ {
+  "s": "Keep the hedges.",
+  "voice": "helper",
+  "key": "007cfb61"
+ },
+ {
+  "s": "Beehives and flowers for bees.",
+  "voice": "helper",
+  "key": "1d1b8d8f"
+ },
+ {
+  "s": "Leave room for wildlife.",
+  "voice": "helper",
+  "key": "2bd5331a"
+ },
+ {
+  "s": "Allotments near homes.",
+  "voice": "helper",
+  "key": "ebb51646"
+ },
+ {
+  "s": "An orchard.",
+  "voice": "helper",
+  "key": "cc29611f"
+ },
+ {
+  "s": "Enough food for 42 families (14 baskets).",
+  "voice": "helper",
+  "key": "86e10049"
+ },
+ {
+  "s": "Florence didn’t know the bees and deer live in the hedges.",
+  "voice": "helper",
+  "key": "0567186f"
+ },
+ {
+  "s": "Enough clean power on an average day: solar roofs on every home.",
+  "voice": "helper",
+  "key": "ba3772af"
+ },
+ {
+  "s": "Florence planned for an average sunny day, not for a still, dark winter night.",
+  "voice": "helper",
+  "key": "9027e8f5"
+ },
+ {
+  "s": "Enough power for a still winter night.",
+  "voice": "helper",
+  "key": "9dc82f47"
+ },
+ {
+  "s": "3 wind turbines.",
+  "voice": "helper",
+  "key": "577e70d0"
+ },
+ {
+  "s": "3 batteries to store energy for the night.",
+  "voice": "helper",
+  "key": "3a33605f"
+ },
+ {
+  "s": "Solar roofs, with the sunshine stored in batteries.",
+  "voice": "helper",
+  "key": "c35338fc"
+ },
+ {
+  "s": "1 wind turbine.",
+  "voice": "helper",
+  "key": "2d8ba48b"
+ },
+ {
+  "s": "Rain gardens and a reed bed.",
+  "voice": "helper",
+  "key": "456ffa7a"
+ },
+ {
+  "s": "A repair café.",
+  "voice": "helper",
+  "key": "fc25dc1e"
+ },
+ {
+  "s": "A compost hub.",
+  "voice": "helper",
+  "key": "78d85600"
+ },
+ {
+  "s": "“The middle” = the centre of the island.",
+  "voice": "helper",
+  "key": "f6791765"
+ },
+ {
+  "s": "Florence read “the middle” as the middle of the island, not the middle of the homes.",
+  "voice": "helper",
+  "key": "b63bfccb"
+ },
+ {
+  "s": "School within a 15-minute walk of every home.",
+  "voice": "helper",
+  "key": "8ff855fa"
+ },
+ {
+  "s": "Footpaths so every home is within 15 minutes.",
+  "voice": "helper",
+  "key": "7772c419"
+ },
+ {
+  "s": "School next to the homes.",
+  "voice": "helper",
+  "key": "ccbee3ac"
+ },
+ {
+  "s": "Green bridges linking the wood, hedges and wetland.",
+  "voice": "helper",
+  "key": "7200c6b0"
+ },
+ {
+  "s": "A market square in the heart of town.",
+  "voice": "helper",
+  "key": "94c1785a"
+ },
+ {
+  "s": "A safe footpath to the school.",
+  "voice": "helper",
+  "key": "82255e6e"
+ }
+]

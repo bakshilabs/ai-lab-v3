@@ -9,7 +9,8 @@ export function createRig(stage, canvas, fadeEl) {
   const cam = stage.camera;
   const sky = { target: new THREE.Vector3(0, 1, -2), yaw: -40 * DEG, pitch: 34 * DEG, dist: 220, vy: 0, vp: 0 };
   const rig = {
-    mode: 'sky', reduce: false, locked: false, sky, onTap: null, onDoubleTap: null, onHover: null,
+    // building: while a build tool is selected, taps must place tiles, not move the camera (no fly-in, no spin-on)
+    mode: 'sky', reduce: false, locked: false, building: false, sky, onTap: null, onDoubleTap: null, onHover: null,
     street: null, flight: null, turntable: 0, follow: null,
     // distance that makes the island ~75% of the screen width (or height on portrait screens)
     frameDist(span = 100, fill = 0.92) {
@@ -61,7 +62,7 @@ export function createRig(stage, canvas, fadeEl) {
       if (this.mode === 'sky') {
         if (this.turntable) sky.yaw += this.turntable * dt;
         sky.yaw += sky.vy; sky.pitch = clamp(sky.pitch + sky.vp, 25 * DEG, 60 * DEG);
-        sky.vy *= Math.pow(0.04, dt); sky.vp *= Math.pow(0.04, dt);
+        const damp = this.building ? 0.00002 : 0.04; sky.vy *= Math.pow(damp, dt); sky.vp *= Math.pow(damp, dt); // no drifting while building
         this.apply(this.skyPose());
       } else if (this.mode === 'street' && this.street) {
         const s = this.street; const b = s.base;
@@ -85,12 +86,12 @@ export function createRig(stage, canvas, fadeEl) {
     const dx = e.clientX - p.x, dy = e.clientY - p.y; p.x = e.clientX; p.y = e.clientY; moved += Math.abs(dx) + Math.abs(dy);
     if (rig.locked) return;
     if (pts.size === 2) { const [a, b] = [...pts.values()]; const d = Math.hypot(a.x - b.x, a.y - b.y); if (pinch0) sky.dist = clamp(dist0 * (pinch0 / d), 45, rig.frameDist() * 1.35); return; }
-    if (rig.mode === 'sky' && moved > 6) { const cap = 0.06; sky.vy = clamp(-dx * 0.0045, -cap, cap); sky.vp = clamp(dy * 0.0035, -cap, cap); }
+    if (rig.mode === 'sky' && moved > (rig.building ? 14 : 6)) { const cap = 0.06; sky.vy = clamp(-dx * 0.0045, -cap, cap); sky.vp = clamp(dy * 0.0035, -cap, cap); }
     if (rig.mode === 'street' && rig.street && moved > 6) { rig.street.yaw = clamp(rig.street.yaw - dx * 0.004, -0.7, 0.7); rig.street.pitch = clamp(rig.street.pitch + dy * 0.003, -0.25, 0.3); }
   });
   const up = (e) => {
     const was = pts.has(e.pointerId); pts.delete(e.pointerId); if (pts.size < 2) pinch0 = 0;
-    if (!was || moved > 8 || performance.now() - downAt > 450) return;
+    if (!was || moved > (rig.building ? 14 : 8) || performance.now() - downAt > 450) return;
     const now = performance.now();
     if (now - lastTap < 320) { rig.onDoubleTap?.(ndc(e), e); lastTap = 0; } else { lastTap = now; rig.onTap?.(ndc(e), e); }
   };

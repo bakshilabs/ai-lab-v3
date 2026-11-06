@@ -26,6 +26,10 @@ for (const f of ['plotter.json', 'plotter.bin']) {
 // 2. fonts
 for (const f of fs.readdirSync(path.join(SRC, 'fonts'))) fs.copyFileSync(path.join(SRC, 'fonts', f), path.join(A, 'fonts', f));
 
+// 2b. recorded voices (one pack per age band; already content-hashed by voice/render.py)
+const VO = path.join(SRC, 'voice');
+if (fs.existsSync(VO)) { fs.mkdirSync(path.join(OUT, 'voice'), { recursive: true }); for (const f of fs.readdirSync(VO)) if (/^pack-/.test(f)) fs.copyFileSync(path.join(VO, f), path.join(OUT, 'voice', f)); }
+
 // 3. JS bundle: resolve the 'three' import map entries to the vendored files
 const vendor = path.join(SRC, 'vendor');
 const res = await build({
