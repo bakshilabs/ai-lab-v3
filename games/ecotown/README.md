@@ -22,10 +22,10 @@ Once the page has loaded, nothing is fetched from the internet. three.js, the fo
 
 ## Live site: passcodes for students, admin for the company
 
-- **Students:** **https://ecotown.vs-code-iloader.workers.dev**. They type the passcode they were given, for example `OTTER-4821`, and play free between the batch's start and end dates.
+- **Students:** **https://ecotown.deltaops.workers.dev**. They type the passcode they were given, for example `OTTER-4821`, and play free between the batch's start and end dates.
   - **One active session per passcode:** logging in on a second device stops the first within about a minute, with "This passcode is now being used on another device".
   - After the end date, the code shows "Your free access has ended. Ask your teacher." This is where the paywall will go; see `docs/FUTURE-PAYWALL.md`.
-- **Admin (company only):** **https://ecotown.vs-code-iloader.workers.dev/admin**, behind Cloudflare Access ("Sign in with Cloudflare", allowed email on the policy). From there you can:
+- **Admin (company only):** **https://ecotown.deltaops.workers.dev/admin**, behind Cloudflare Access ("Sign in with Cloudflare", allowed email on the policy). From there you can:
   - **create a batch:** school or teacher, number of codes, free-from and free-until dates;
   - **print code cards** or download a **CSV** to send to the teacher;
   - **see usage:** used codes, playing now, last login;
