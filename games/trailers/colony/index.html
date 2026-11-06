@@ -20,11 +20,11 @@
 .pl p { font-size: 38px; }
 .pl .ua { grid-column: 2; display: grid; gap: 12px; margin-top: 16px; }
 .pl .ua div { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
-.pl .ua small { font: 800 22px 'Inter'; letter-spacing: .1em; color: #dfe8f2; width: 150px; }
-.pl .ua span { background: #e2f5ef; color: #13202b; border-radius: 999px; padding: 4px 16px; font: 700 28px 'Inter'; white-space: nowrap; }
+.pl .ua small { font: 800 26px 'Inter'; letter-spacing: .1em; color: #dfe8f2; width: 172px; }
+.pl .ua span { background: #e2f5ef; color: #13202b; border-radius: 999px; padding: 5px 18px; font: 700 31px 'Inter'; white-space: nowrap; }
 .pl .ua .as span { background: rgba(255,200,61,.16); color: #ffd98a; border: 3px dashed #ffc83d; padding: 2px 14px; }
-.pl .ua span b { background: #e8573f; color: #fff; border-radius: 8px; padding: 2px 10px; margin-left: 10px; font-size: 22px; letter-spacing: .08em; display: inline-block; }
-.b-card { width: 556px; font-size: 34px; }
+.pl .ua span b { background: #e8573f; color: #fff; border-radius: 8px; padding: 2px 10px; margin-left: 10px; font-size: 26px; letter-spacing: .08em; display: inline-block; }
+.b-card { width: 590px; font-size: 32px; padding: 22px 26px; }
 .ev { width: 800px; background: #fff; border-radius: 30px; padding: 18px 28px 22px; box-shadow: 0 8px 0 rgba(0,0,0,.08), 0 14px 30px rgba(0,0,0,.14); color: #13202b; }
 .ev .hd { display: inline-flex; align-items: center; gap: 12px; border-radius: 999px; padding: 8px 22px; font: 800 26px 'Inter'; letter-spacing: .1em; color: #fff; }
 .ev .hd i { width: 14px; height: 14px; border-radius: 50%; background: #fff; display: block; }
@@ -33,13 +33,19 @@
 .ev .no { background: #fde8e4; color: #c0392b; } .ev .yes { background: #e2f5ef; color: #1f9d55; }
 .bub { background: #fff; border-radius: 18px; padding: 10px 22px; font: 800 34px 'Inter'; color: #13202b; box-shadow: 0 6px 18px rgba(0,0,0,.25); white-space: nowrap; }
 .bub.bad { background: #e8473a; color: #fff; }
+.bub.ok { background: #1f9d55; color: #fff; font-size: 40px; padding: 14px 28px; display: inline-flex; align-items: center; gap: 16px; }
+.bub.ok i { width: 34px; height: 34px; border-radius: 8px; background: #8fe4ff; box-shadow: inset 0 -6px 0 #3fa8e8; display: block; }
+.beats { display: flex; gap: 20px; }
+.beats span { display: inline-flex; align-items: center; gap: 14px; background: #13202b; color: #fff; border-radius: 999px; padding: 16px 34px 16px 18px; font: 800 40px 'Inter'; white-space: nowrap; box-shadow: 0 10px 30px rgba(0,0,0,.3); }
+.beats span i { width: 36px; height: 36px; border-radius: 50%; display: block; }
+.beats span em { font-style: normal; color: #16c79a; }
 .tagp { white-space: nowrap; display: inline-flex; align-items: center; gap: 14px; background: #16c79a; color: #13202b; border-radius: 999px; padding: 12px 30px; font: 800 30px 'Inter'; letter-spacing: .08em; box-shadow: 0 8px 24px rgba(0,0,0,.25); }
 .name { text-align: center; }
 .name .st { display: inline-block; background: #ffd23f; color: #13202b; border-radius: 999px; padding: 20px 50px; font: 800 56px 'Inter'; white-space: nowrap; box-shadow: 0 10px 0 #d8a417, 0 16px 40px rgba(0,0,0,.3); }
 .name .st small { font: 800 26px 'Inter'; letter-spacing: .12em; display: block; color: #6b4a00; margin-bottom: 2px; }
 .name .sub { display: inline-block; margin-top: 18px; background: #13202b; color: #fff; border-radius: 999px; padding: 12px 30px; font: 700 30px 'Inter'; white-space: nowrap; }
 .jobs .list { display: flex; justify-content: center; align-items: center; gap: 16px; }
-.jobs .list b { white-space: nowrap; font: 800 38px 'Inter'; color: #fff; text-shadow: 0 3px 14px rgba(60,20,0,.55); }
+.jobs .list b { white-space: nowrap; font: 800 38px 'Inter'; color: #fff; text-shadow: 0 3px 14px rgba(0,10,40,.7); }
 .jobs .list span { white-space: nowrap; display: inline-flex; align-items: center; gap: 12px; border-radius: 999px; padding: 12px 30px 12px 14px; font: 800 36px 'Inter'; color: #13202b; background: #fff; box-shadow: 0 8px 0 rgba(0,0,0,.1), 0 14px 30px rgba(0,0,0,.2); }
 .jobs .list span i { width: 32px; height: 32px; border-radius: 50%; display: block; }
 </style>
@@ -52,23 +58,29 @@ import { Vox, particles, rand, noise2 } from '../engine/kit.js';
 import { el, cue, fader, titleCard, toScreen } from '../engine/ui.js';
 import { burst } from '../engine/extras.js';
 
-const DUR = 38.0;
-const st = createStage({ sky: ['#f0a868', '#ffe2bc'], post: false });
+const DUR = 32.4;
+const st = createStage({ sky: ['#08143a', '#1a3f8f'], post: false });
 const { scene, camera, sun, hemi, rim } = st;
 st.dome.visible = false; st.renderer.setClearColor(0x000000, 0);
-// bright Martian daytime: butterscotch overhead fading to a pale peach haze, warm high sun (brochure-bright, not dusk)
-const bg = document.getElementById('bg'); bg.style.background = 'linear-gradient(180deg, #e8955a 0%, #f4b77e 38%, #fbd3a4 70%, #ffe8c8 100%)';
+// deep-space backdrop (as in the sister Mars lab): dark navy to cobalt with crisp stars, a small blue Earth and Phobos; a bright warm key light keeps the red island reading bright and chunky
+const bg = document.getElementById('bg'); bg.style.background = 'linear-gradient(180deg, #050b26 0%, #0c1f5a 55%, #1b4596 100%)';
 { const c = document.createElement('canvas'); c.width = 1920; c.height = 1080; c.style.cssText = 'position:absolute;inset:0'; const g = c.getContext('2d');
-  const gr = g.createRadialGradient(330, 150, 0, 330, 150, 520); gr.addColorStop(0, 'rgba(255,252,236,.95)'); gr.addColorStop(0.12, 'rgba(255,246,222,.7)'); gr.addColorStop(1, 'rgba(255,236,200,0)'); g.fillStyle = gr; g.fillRect(0, 0, 1920, 1080);
-  g.fillStyle = '#fffdf2'; g.beginPath(); g.arc(330, 150, 40, 0, 7); g.fill();
-  for (let i = 0; i < 9; i++) { const y = 120 + rand(i, 1) * 520, x = rand(i, 2) * 1920, w = 260 + rand(i, 3) * 420; g.fillStyle = `rgba(255,240,220,${0.18 + rand(i, 4) * 0.16})`; g.beginPath(); g.ellipse(x, y, w, 10 + rand(i, 5) * 12, 0, 0, 7); g.fill(); }
+  for (let i = 0; i < 280; i++) { const x = rand(i, 1) * 1920, y = rand(i, 2) * 1080, r = rand(i, 3) > 0.9 ? 2.4 : 1.3; g.fillStyle = `rgba(255,255,255,${0.45 + rand(i, 4) * 0.55})`; g.fillRect(x, y, r * 2, r * 2); }
+  const gr = g.createRadialGradient(1750, 560, 0, 1750, 560, 60); gr.addColorStop(0, 'rgba(120,190,255,.55)'); gr.addColorStop(1, 'rgba(120,190,255,0)'); g.fillStyle = gr; g.fillRect(1650, 460, 200, 200);
+  g.fillStyle = '#4fa8ff'; g.beginPath(); g.arc(1750, 560, 11, 0, 7); g.fill(); g.fillStyle = '#9ad8ff'; g.beginPath(); g.arc(1747, 556, 4, 0, 7); g.fill();
+  g.fillStyle = '#b9a89a'; g.beginPath(); g.arc(170, 600, 16, 0, 7); g.fill(); g.fillStyle = '#8a7a6e'; g.beginPath(); g.arc(175, 604, 5, 0, 7); g.fill();
   bg.appendChild(c); }
-sun.intensity = 3.1; sun.color.set('#fff3e0'); sun.position.set(-60, 110, 70); hemi.intensity = 1.25; hemi.color.set('#ffe2c4'); hemi.groundColor.set('#a8502e'); rim.intensity = 0.9; rim.color.set('#ffd2a0'); st.renderer.toneMappingExposure = 1.05;
+sun.intensity = 3.25; sun.color.set('#ffeccc'); sun.position.set(-60, 110, 70); hemi.intensity = 1.05; hemi.color.set('#d0dcff'); hemi.groundColor.set('#a0482a'); rim.intensity = 1.4; rim.color.set('#6fb4ff'); st.renderer.toneMappingExposure = 1.06;
 
 // ---------- timeline ----------
-const L1 = 3.0, BUILD = 9.8, L5 = 13.0, LIVE = 27.0, TITLE = 33.0;
-const M1 = { cIn: 3.2, pickA: 3.8, aiIn: 4.1, lensIn: 5.4, alertIn: 5.9, c2In: 6.8, pickB: 7.4, fix: 7.7, chkIn: 7.9, chkOut: 9.5 };
-const M5 = { cIn: 13.3, pickA: 14.1, aiIn: 14.5, lensIn: 17.8, alertIn: 18.5, c2In: 21.2, pickB: 21.9, fix: 22.2, chkIn: 22.5, chkOut: 25.8 };
+const L1 = 3.0, BUILD = 11.0, L5 = 15.2, LIVE = 24.8, TITLE = 28.4;
+const M1 = { cIn: 3.2, pickA: 3.8, aiIn: 4.1, lensIn: 5.4, alertIn: 5.9, c2In: 6.8, pickB: 7.4, fix: 7.7, chkIn: 7.9, chkOut: 10.5 };
+// level 1 payoff: the test drill bores down and brings up a blue ice core
+const DR = { rig: 8.3, bore: 8.6, up: 9.6, ok: 9.8 };
+// levels 2-4: three quick labelled beats (shelter, water loop, solar)
+const B2 = BUILD, B3 = BUILD + 1.2, B4 = BUILD + 2.4;
+const M5 = { cIn: 15.5, pickA: 16.2, aiIn: 16.5, lensIn: 18.5, alertIn: 19.1, c2In: 20.7, pickB: 21.3, fix: 21.6, chkIn: 21.8, chkOut: 24.3 };
+const HARV = M5.chkIn + 1.6;
 
 // ---------- the red island (brochure island-mars) ----------
 const v = new Vox(); v.jitter = 0.05;
@@ -113,17 +125,26 @@ const ghostMat = new THREE.MeshBasicMaterial({ color: '#19e6c0', transparent: tr
 // level 1 fix: survey pegs and a flag on the ice plain
 piece((pv) => { for (let x = -4; x <= 30; x += 4) { pv.box(x, 4, -19, x, 5, -19, '#f4f1ea'); pv.box(x, 4, 2, x, 5, 2, '#f4f1ea'); } for (let z = -19; z <= 2; z += 4) { pv.box(-4, 4, z, -4, 5, z, '#f4f1ea'); pv.box(30, 4, z, 30, 5, z, '#f4f1ea'); } pv.box(-4, 4, -19, 30, 4, -19, '#ffd23f'); pv.box(-4, 4, 2, 30, 4, 2, '#ffd23f'); pv.box(-4, 4, -19, -4, 4, 2, '#ffd23f'); pv.box(30, 4, -19, 30, 4, 2, '#ffd23f'); }, M1.fix + 0.6, BUILD + 0.3, { mode: 'rise', dur: 0.6 });
 piece((pv) => { pv.box(-4, 4, 3, -4, 11, 3, '#e8e8f0'); pv.box(-3, 9, 3, 0, 11, 3, '#16c79a'); }, M1.fix + 0.7);
+// level 1 payoff: a yellow test-drill rig on the ice plain bores a hole and lifts out a blue ice core
+const DRX = 3.5, DRZ = -11.5;
+piece((pv) => { for (const [x, z] of [[1, -14], [5, -14], [1, -10], [5, -10]]) pv.box(x, 4, z, x, 11, z, '#ffc83d'); pv.box(1, 12, -14, 5, 12, -10, '#ffb020'); pv.box(1, 4, -14, 5, 4, -14, '#e8a020'); pv.box(1, 4, -10, 5, 4, -10, '#e8a020'); pv.box(2, 13, -13, 4, 13, -11, '#e8573f'); pv.box(6, 4, -13, 7, 6, -11, '#eef0f6'); pv.set(6, 6, -12, '#16c79a'); }, DR.rig, BUILD - 0.35, { mode: 'rise', dur: 0.45 });
+const drillStr = (() => { const q = new Vox(); q.jitter = 0.02; q.box(0, 0, 0, 0, 8, 0, '#9a9aa8'); q.set(0, 0, 0, '#3a3a48'); const m = q.mesh(); m.geometry.translate(-0.5, 0, -0.5); scene.add(m); return m; })();
+const iceCore = (() => { const q = new Vox(); q.jitter = 0.06; for (let y = 0; y < 4; y++) q.set(0, y, 0, ['#8fe4ff', '#5cc8f8', '#b8f0ff', '#4fb3ea'][y]); const m = q.mesh({ emissive: '#1a6aa8' }); m.geometry.translate(-0.5, 0, -0.5); m.scale.set(1.9, 1, 1.9); scene.add(m); return m; })();
+const iceLight = new THREE.PointLight('#5cd0ff', 0, 18, 2); iceLight.position.set(DRX, 9, DRZ); scene.add(iceLight);
+const dust = burst(scene, { at: [DRX, 4.4, DRZ], t0: DR.bore + 0.1, n: 50, colors: ['#e8a06a', '#c46430', '#f0c08a'], size: 0.5, speed: 5, up: 5, life: 1.0, gravity: 8 });
+const spark = burst(scene, { at: [DRX, 8, DRZ], t0: DR.up + 0.25, n: 60, colors: ['#8fe4ff', '#ffffff', '#4fb3ea'], size: 0.45, speed: 7, up: 7, life: 1.2 });
+const crate = burst(scene, { at: [24.5, 8, -2], t0: HARV, n: 70, colors: ['#ff4a3a', '#5fc84a', '#7ae070', '#ffd23f'], size: 0.55, speed: 7, up: 9, life: 1.3 });
 // levels 2-4 build montage: inflatable module, regolith mound, porch; ice drill, tank, oxygen machine, pipes; solar field, batteries
-piece((pv) => { for (let x = 10; x <= 18; x++) for (let y = 4; y <= 9; y++) for (let z = -14; z <= -9; z++) { if (y === 9 && (x === 10 || x === 18 || z === -14 || z === -9)) continue; pv.set(x, y, z, y === 6 ? '#16c79a' : '#eef0f6'); } }, BUILD + 0.1);
-piece((pv) => { for (let x = 7; x <= 21; x++) for (let y = 4; y <= 12; y++) for (let z = -16; z <= -8; z++) { const d = Math.hypot((x - 14) / 6.6, (y - 4) / 8.2) + (z === -16 ? 0.12 : 0); if (d > 1) continue; if (x >= 12 && x <= 16 && y <= 7 && z === -8) continue; pv.set(x, y, z, ['#b8582a', '#a84a24', '#c46430', '#9a4220'][Math.floor(rand(x, y, z) * 4)]); } }, BUILD + 0.5, 999, { mode: 'rise', dur: 0.7 });
-piece((pv) => { pv.box(12, 4, -8, 16, 7, -5, '#eef0f6'); pv.box(12, 7, -8, 16, 7, -5, '#dfe3ee'); pv.box(13, 4, -5, 15, 6, -5, '#3a2aa8'); pv.box(12, 5, -5, 12, 5, -5, '#16c79a'); pv.box(16, 5, -5, 16, 5, -5, '#16c79a'); }, BUILD + 0.9);
-piece((pv) => { pv.box(26, 4, -20, 28, 4, -18, '#6a6a7a'); pv.box(27, 5, -19, 27, 13, -19, '#9a9aa8'); pv.box(25, 13, -19, 29, 13, -19, '#c8c8d4'); pv.box(26, 5, -20, 26, 8, -20, '#9a9aa8'); pv.set(27, 14, -19, '#ff8a2a'); }, BUILD + 1.2);
-piece((pv) => { pv.box(23, 4, -17, 26, 8, -14, '#eef0f6'); pv.box(23, 6, -17, 26, 6, -14, '#2f6fd8'); pv.box(24, 9, -16, 25, 9, -15, '#dfe3ee'); }, BUILD + 1.4);
-piece((pv) => { pv.box(21, 4, -11, 22, 6, -9, '#dfe3ee'); pv.set(21, 6, -9, '#19f0c0'); pv.set(22, 6, -9, '#19f0c0'); pv.box(21, 7, -10, 21, 8, -10, '#9a9aa8'); }, BUILD + 1.6);
-piece((pv) => { pv.box(27, 4, -18, 27, 4, -16, '#4fb3ea'); pv.box(24, 4, -13, 24, 4, -12, '#4fb3ea'); pv.box(22, 4, -12, 24, 4, -12, '#4fb3ea'); pv.box(17, 4, -8, 20, 4, -8, '#7ae0c8'); pv.box(20, 4, -10, 20, 4, -8, '#7ae0c8'); }, BUILD + 1.75, 999, { mode: 'rise' });
+piece((pv) => { for (let x = 10; x <= 18; x++) for (let y = 4; y <= 9; y++) for (let z = -14; z <= -9; z++) { if (y === 9 && (x === 10 || x === 18 || z === -14 || z === -9)) continue; pv.set(x, y, z, y === 6 ? '#16c79a' : '#eef0f6'); } }, B2 + 0.1);
+piece((pv) => { for (let x = 7; x <= 21; x++) for (let y = 4; y <= 12; y++) for (let z = -16; z <= -8; z++) { const d = Math.hypot((x - 14) / 6.6, (y - 4) / 8.2) + (z === -16 ? 0.12 : 0); if (d > 1) continue; if (x >= 12 && x <= 16 && y <= 7 && z === -8) continue; pv.set(x, y, z, ['#b8582a', '#a84a24', '#c46430', '#9a4220'][Math.floor(rand(x, y, z) * 4)]); } }, B2 + 0.35, 999, { mode: 'rise', dur: 0.6 });
+piece((pv) => { pv.box(12, 4, -8, 16, 7, -5, '#eef0f6'); pv.box(12, 7, -8, 16, 7, -5, '#dfe3ee'); pv.box(13, 4, -5, 15, 6, -5, '#3a2aa8'); pv.box(12, 5, -5, 12, 5, -5, '#16c79a'); pv.box(16, 5, -5, 16, 5, -5, '#16c79a'); }, B2 + 0.75);
+piece((pv) => { pv.box(26, 4, -20, 28, 4, -18, '#6a6a7a'); pv.box(27, 5, -19, 27, 13, -19, '#9a9aa8'); pv.box(25, 13, -19, 29, 13, -19, '#c8c8d4'); pv.box(26, 5, -20, 26, 8, -20, '#9a9aa8'); pv.set(27, 14, -19, '#ff8a2a'); }, B3);
+piece((pv) => { pv.box(23, 4, -17, 26, 8, -14, '#eef0f6'); pv.box(23, 6, -17, 26, 6, -14, '#2f6fd8'); pv.box(24, 9, -16, 25, 9, -15, '#dfe3ee'); pv.box(22, 4, -18, 22, 5, -17, '#8fe4ff'); }, B3 + 0.15);
+piece((pv) => { pv.box(21, 4, -11, 22, 6, -9, '#dfe3ee'); pv.set(21, 6, -9, '#19f0c0'); pv.set(22, 6, -9, '#19f0c0'); pv.box(21, 7, -10, 21, 8, -10, '#9a9aa8'); }, B3 + 0.3);
+piece((pv) => { pv.box(27, 4, -18, 27, 4, -16, '#4fb3ea'); pv.box(24, 4, -13, 24, 4, -12, '#4fb3ea'); pv.box(22, 4, -12, 24, 4, -12, '#4fb3ea'); pv.box(17, 4, -8, 20, 4, -8, '#7ae0c8'); pv.box(20, 4, -10, 20, 4, -8, '#7ae0c8'); }, B3 + 0.45, 999, { mode: 'rise' });
 const battMat = new THREE.MeshLambertMaterial({ color: '#ffc83d', emissive: new THREE.Color('#ff9a00'), emissiveIntensity: 0.3 });
-piece((pv) => { for (const x of [-3, 1, 5]) { pv.box(x, 4, -1, x + 2, 5, 1, '#2a2f45'); } }, BUILD + 2.5);
-piece((pv) => { for (const x of [-3, 1, 5]) pv.box(x, 6, -1, x + 2, 6, 1, '#ffc83d'); }, BUILD + 2.5, 999, { mat: battMat });
+piece((pv) => { for (const x of [-3, 1, 5]) { pv.box(x, 4, -1, x + 2, 5, 1, '#2a2f45'); } }, B4 + 0.5);
+piece((pv) => { for (const x of [-3, 1, 5]) pv.box(x, 6, -1, x + 2, 6, 1, '#ffc83d'); }, B4 + 0.5, 999, { mat: battMat });
 // level 5: the Planner's Mars-soil beds, a soil probe, then the hydroponic greenhouse
 piece((pv) => { for (const z of [-4, -2, 0]) pv.box(20, 4, z, 28, 4, z, '#6e2e14'); }, M5.aiIn + 0.2, M5.fix, { mode: 'rise', G: 4 });
 piece((pv) => { pv.box(24, 5, -1, 24, 9, -1, '#e8e8f0'); pv.box(23, 10, -1, 25, 11, -1, '#2f9df0'); pv.set(24, 12, -1, '#ff4a3a'); }, M5.lensIn, M5.fix);
@@ -131,7 +152,7 @@ piece((pv) => { pv.box(19, 4, -6, 29, 4, 2, '#dfe3ee'); for (const x of [19, 24,
 piece((pv) => { for (const z of [-4, -2, 0]) for (let x = 20; x <= 28; x++) pv.set(x, 5, z, '#dfe3ee'); }, M5.fix + 0.15);
 const rackMat = new THREE.MeshLambertMaterial({ vertexColors: true, emissive: new THREE.Color('#1a8a3a'), emissiveIntensity: 0.0 });
 piece((pv) => { for (const z of [-4, -2, 0]) for (let x = 20; x <= 28; x++) { pv.set(x, 6, z, rand(x, z) > .5 ? '#4fd060' : '#7ae070'); if (rand(x, 3, z) > 0.62) pv.set(x, 7, z, '#ff4a3a'); else if (rand(x, 4, z) > 0.4) pv.set(x, 7, z, '#5fc84a'); } }, M5.fix + 0.5, 999, { mat: rackMat, mode: 'rise', G: 6, dur: 2.2 });
-piece((pv) => { for (let x = 19; x <= 29; x++) for (let y = 5; y <= 10; y++) for (let z = -6; z <= 2; z++) { const d = Math.hypot((z + 2) / 4.6, (y - 4.5) / 5.6); if (d > 1 || d < 0.78) continue; pv.set(x, y, z, '#a8ffd8'); } }, M5.fix + 0.3, 999, { mat: new THREE.MeshPhongMaterial({ color: '#9ff5d0', emissive: new THREE.Color('#2aa86a'), emissiveIntensity: 0.25, transparent: true, opacity: 0.26, depthWrite: false, shininess: 80 }) });
+piece((pv) => { for (let x = 19; x <= 29; x++) for (let y = 5; y <= 10; y++) for (let z = -6; z <= 2; z++) { const d = Math.hypot((z + 2) / 4.6, (y - 4.5) / 5.6); if (d > 1 || d < 0.78) continue; pv.set(x, y, z, '#a8ffd8'); } }, M5.fix + 0.3, 999, { mat: new THREE.MeshPhongMaterial({ color: '#9ff5d0', emissive: new THREE.Color('#2ad87a'), emissiveIntensity: 0.5, transparent: true, opacity: 0.3, depthWrite: false, shininess: 80 }) });
 const ghLight = new THREE.PointLight('#6dff9a', 0, 26, 2); ghLight.position.set(24, 9, -2); scene.add(ghLight);
 // toxic-soil warning glow over the beds after the soil test
 const toxMat = new THREE.MeshBasicMaterial({ color: '#ff3a2a', transparent: true, opacity: 0, depthWrite: false });
@@ -144,7 +165,7 @@ const wins = new THREE.Group(); for (const [x, y] of [[9.5, 8], [18.5, 8], [14, 
 const SOL = []; for (const x of [-2.5, 1.5, 5.5]) for (const z of [-17.5, -14.5, -11.5, -8.5, -5.5]) SOL.push([x, z]);
 const solarM = new THREE.InstancedMesh(new THREE.BoxGeometry(3.4, 0.22, 2.4), new THREE.MeshStandardMaterial({ color: '#2b4fb8', roughness: 0.3, metalness: 0.35, emissive: new THREE.Color('#0a1a60'), emissiveIntensity: 0.4 }), SOL.length); solarM.frustumCulled = false; solarM.castShadow = true; scene.add(solarM);
 const postM = new THREE.InstancedMesh(new THREE.BoxGeometry(0.35, 1.6, 0.35), new THREE.MeshLambertMaterial({ color: '#9a9aa8' }), SOL.length); postM.frustumCulled = false; scene.add(postM);
-const SOLT = BUILD + 1.9;
+const SOLT = B4;
 
 // ---------- Level 1: Planner's ghost colony on the dusty plain, slides to the ice plain ----------
 const ghost = new THREE.Group(); { const gv = new Vox(); gv.box(-3, 0, -3, 3, 6, 2, '#fff'); gv.box(-2, 7, -2, 2, 7, 1, '#fff'); gv.box(5, 0, -2, 10, 3, 3, '#fff'); for (let x = -10; x <= -5; x += 2) gv.box(x, 0, -3, x + 1, 1, 3, '#fff'); const gm = gv.mesh({ castShadow: false }); gm.material = ghostMat; ghost.add(gm); } scene.add(ghost);
@@ -173,12 +194,12 @@ function astro(col, s) {
 }
 const CREW = ['#6e5bf2', '#16c79a', '#ff8a2a', '#2f9df0'].map((c) => { const a = astro(c, 0.52); a.visible = false; scene.add(a); return a; });
 // ---------- rover ----------
-const rover = new THREE.Group(); { const b = new Vox(); b.box(-3, 2, -2, 3, 3, 2, '#9a9aaa'); b.box(-3, 1, -2, 3, 1, 2, '#3a2aa8'); b.box(-2, 4, -2, 1, 4, 2, '#1f3a9a'); b.box(2, 4, 0, 2, 7, 0, '#9a9aaa'); b.box(1, 8, -1, 3, 8, 1, '#c8c8d4'); rover.add(b.mesh({ scale: 0.5 })); }
+const rover = new THREE.Group(); { const b = new Vox(); b.box(-3, 2, -2, 3, 3, 2, '#ffc83d'); b.box(-3, 1, -2, 3, 1, 2, '#3a4752'); b.box(-2, 4, -2, 1, 4, 2, '#2f9df0'); b.box(2, 4, 0, 2, 7, 0, '#eef0f6'); b.box(1, 8, -1, 3, 8, 1, '#c8c8d4'); rover.add(b.mesh({ scale: 0.5 })); }
 const wheels = []; for (const wx of [-1.3, 0.1, 1.5]) for (const wz of [-1.5, 1.5]) { const w = new THREE.Mesh(new THREE.BoxGeometry(1.0, 1.0, 0.6), new THREE.MeshLambertMaterial({ color: '#22222c' })); w.position.set(wx, 0.5, wz); rover.add(w); wheels.push(w); }
 scene.add(rover);
 const RV = [[2, 6], [-8, 11], [-20, 11], [-27, 5], [-18, 1], [-6, 4]];
 const conf = burst(scene, { at: [14, 12, -8], t0: LIVE + 1.0, n: 110, colors: ['#ffd23f', '#16c79a', '#ff6a4a', '#ffffff', '#6e5bf2'], size: 0.55, speed: 10, up: 9, life: 2.2 });
-const puff = burst(scene, { at: [14, 5, -12], t0: BUILD + 0.5, n: 60, colors: ['#e8a06a', '#c46430', '#f0c08a'], size: 0.7, speed: 9, up: 4, life: 1.2, gravity: 6 });
+const puff = burst(scene, { at: [14, 5, -12], t0: B2 + 0.35, n: 60, colors: ['#e8a06a', '#c46430', '#f0c08a'], size: 0.7, speed: 9, up: 4, life: 1.2, gravity: 6 });
 const dObj = new THREE.Object3D();
 
 st.onFrame((t) => {
@@ -188,7 +209,7 @@ st.onFrame((t) => {
     if (p.mode === 'rise') { const s = Math.max(0.001, Math.min(ease.out(kk), out)); p.m.scale.y = s; p.m.position.y = p.G * (1 - s); }
     else { const s = Math.max(0.001, Math.min(kk >= 1 ? 1 : 0.7 + 0.3 * kk, out)); p.m.scale.y = s; p.m.position.y = p.G * (1 - s) + (1 - ease.out(kk)) * 12; }
   }
-  wins.visible = t > BUILD + 1.0;
+  wins.visible = t > B2 + 0.85;
   battMat.emissiveIntensity = 0.35 + 0.15 * Math.sin(t * 3);
   SOL.forEach(([x, z], i) => { const t0 = SOLT + i * 0.04; const s = t > t0 ? prog(t, t0, t0 + 0.4, ease.back) : 0; dObj.position.set(x, 5.4 + (1 - s) * 6, z); dObj.rotation.set(-0.45, 0, 0); dObj.scale.setScalar(Math.max(s, 0.001)); dObj.updateMatrix(); solarM.setMatrixAt(i, dObj.matrix); dObj.position.set(x, 4.8, z); dObj.rotation.set(0, 0, 0); dObj.scale.set(1, Math.max(s, 0.001), 1); dObj.updateMatrix(); postM.setMatrixAt(i, dObj.matrix); });
   solarM.instanceMatrix.needsUpdate = true; postM.instanceMatrix.needsUpdate = true;
@@ -202,8 +223,8 @@ st.onFrame((t) => {
   // sprouts in Mars soil: grow tall and green, then wilt brown after the soil test
   SPR.forEach(([x, z], i) => { const g = prog(t, M5.aiIn + 0.5 + (i % 9) * 0.05, M5.aiIn + 1.3 + (i % 9) * 0.05, ease.back); const w = prog(t, M5.lensIn + 0.5 + (i % 5) * 0.08, M5.lensIn + 1.6 + (i % 5) * 0.08); const on = within(t, M5.aiIn + 0.5, M5.fix + 0.1); tmpC.copy(SPG).lerp(SPB, w); sprouts.setColorAt(i, tmpC); sprouts.setAt(i, x, 5.55 - 0.3 * w, z, w * 0.7, rand(i, 9) * 3, on ? g * (1 - w * 0.4) : 0); }); sprouts.done();
   toxMat.opacity = within(t, M5.alertIn - 0.3, M5.fix) ? 0.55 + 0.2 * Math.sin(t * 9) : 0;
-  { const on = t > M5.fix + 0.3; const k = prog(t, M5.fix + 0.3, M5.fix + 1.5); ghLight.intensity = on ? k * (60 + 10 * Math.sin(t * 2)) : 0; rackMat.emissiveIntensity = on ? 0.5 * k : 0; }
-  for (let i = 0; i < 36; i++) { const on = t > BUILD + 2.0; const u = ((t * 0.18 + i / 36) % 1); const segs = WP.length - 1; const f = u * segs; const j = Math.min(Math.floor(f), segs - 1), k = f - j; const x = lerp(WP[j][0], WP[j + 1][0], k), z = lerp(WP[j][1], WP[j + 1][1], k); flow.setColorAt(i, new THREE.Color(j < 4 ? '#4fb3ff' : '#3dffc8')); flow.setAt(i, x, 4.8, z, 0, t, on ? 1 : 0); } flow.done();
+  { const on = t > M5.fix + 0.3; const k = prog(t, M5.fix + 0.3, M5.fix + 1.5); ghLight.intensity = on ? k * (120 + 15 * Math.sin(t * 2)) : 0; rackMat.emissiveIntensity = on ? 0.8 * k : 0; }
+  for (let i = 0; i < 36; i++) { const on = t > B3 + 0.6; const u = ((t * 0.18 + i / 36) % 1); const segs = WP.length - 1; const f = u * segs; const j = Math.min(Math.floor(f), segs - 1), k = f - j; const x = lerp(WP[j][0], WP[j + 1][0], k), z = lerp(WP[j][1], WP[j + 1][1], k); flow.setColorAt(i, new THREE.Color(j < 4 ? '#4fb3ff' : '#3dffc8')); flow.setAt(i, x, 4.8, z, 0, t, on ? 1 : 0); } flow.done();
   // crew: two at the farm in level 5 (the scientist runs the soil test), all four at work in the live view
   CREW.forEach((c, i) => {
     const farm = t > L5 + 0.2 && t < LIVE && (i === 1 || i === 3); const live = t >= LIVE;
@@ -212,8 +233,10 @@ st.onFrame((t) => {
     else { const P = i < 2 ? [[14, -4], [18, 4.8], [10, 7.5], [2, 4.5]] : [[16.5, -4], [18.4, -7.3], [22.6, -7.6], [25.6, -11.6], [27.8, -13]]; const pt = pathPoint(P, (t - LIVE) * 0.06 + (i % 2) * 0.04 + 0.1); x = pt.x + (i % 2) * 0.8; z = pt.z + (i % 2) * 0.5; a = pt.ang; walk = t * 8 + i; }
     c.position.set(x, hSm(x, z) + 1 + hop, z); c.rotation.y = a + Math.PI; c.userData.walk(walk);
   });
-  { const on = t > LIVE - 0.5; rover.visible = on; const pt = pathPoint(RV, (t - LIVE + 0.5) * 0.045); rover.position.set(pt.x, hSm(pt.x, pt.z) + 1, pt.z); rover.rotation.y = pt.ang - Math.PI / 2; wheels.forEach((w) => (w.rotation.z = -t * 6)); }
-  conf(t); puff(t);
+  { rover.visible = true; const pt = pathPoint(RV, Math.max(0, t - LIVE + 0.5) * 0.045); rover.position.set(pt.x, hSm(pt.x, pt.z) + 1, pt.z); rover.rotation.y = pt.ang - Math.PI / 2; wheels.forEach((w) => (w.rotation.z = t > LIVE - 0.5 ? -t * 6 : 0)); }
+  conf(t); puff(t); dust(t); spark(t); crate(t);
+  { const on = within(t, DR.rig + 0.3, BUILD - 0.1); drillStr.visible = on; const dn = prog(t, DR.bore, DR.up, ease.inOut), upk = prog(t, DR.up, DR.up + 0.4, ease.out); const y = 5 - 4.5 * dn + 9.5 * upk; drillStr.position.set(DRX, y, DRZ); drillStr.rotation.y = t > DR.bore && t < DR.up ? t * 14 : 0;
+    const co = within(t, DR.up + 0.05, BUILD - 0.1); iceCore.visible = co; iceCore.position.set(DRX, y - 4 + 0.001, DRZ); iceCore.scale.y = Math.max(0.001, prog(t, DR.up, DR.up + 0.25)); iceCore.rotation.y = t * 0.8; iceLight.intensity = co ? 40 * prog(t, DR.up, DR.up + 0.4) * (1 - prog(t, BUILD - 0.4, BUILD - 0.1)) : 0; }
 
   // ================= cameras =================
   let pos, look; const fov = 30;
@@ -221,11 +244,11 @@ st.onFrame((t) => {
   const cam = (ang, dist, hgt, subj, sx = 0, dy = 0) => { const rx = Math.cos(ang), rz = -Math.sin(ang); look = [subj[0] - rx * sx, subj[1] - dy, subj[2] - rz * sx]; pos = [look[0] + Math.sin(ang) * dist, look[1] + hgt, look[2] + Math.cos(ang) * dist]; };
   const L1S = (k) => [lerp(-20, 12, k), lerp(3, 4, k), lerp(4, -8, k)];
   if (t < L1) { const k = prog(t, 0, L1); cam(lerp(-1.0, -0.6, ease.inOut(k)), lerp(150, 104, ease.out(k)), lerp(108, 74, k), [2, 0, -4], 0, lerp(-10, 2, k)); }
-  else if (t < BUILD) { const k = prog(t, L1, BUILD); const q = prog(t, M1.fix - 0.1, M1.fix + 1.1); cam(lerp(-0.5, -0.4, k), lerp(84, 80, k), lerp(58, 56, k), L1S(q), lerp(-13, -13, q), lerp(-4, -4, q)); }
+  else if (t < BUILD) { const k = prog(t, L1, BUILD); const q = prog(t, M1.fix - 0.1, M1.fix + 1.1); const d = prog(t, DR.rig - 0.4, DR.rig + 0.5, ease.inOut); const S = L1S(q); cam(lerp(-0.5, -0.4, k), lerp(lerp(84, 80, k), 60, d), lerp(lerp(58, 56, k), 42, d), [lerp(S[0], DRX, d), lerp(S[1], 7, d), lerp(S[2], DRZ, d)], lerp(-13, -9, d), -4); }
   else if (t < L5) { const k = prog(t, BUILD, L5); cam(lerp(-0.25, -0.05, k), lerp(96, 90, k), lerp(60, 56, k), [11, 5, -9], 3, -2); }
   else if (t < LIVE) { const k = prog(t, L5, LIVE); cam(lerp(-0.75, -0.6, k), lerp(52, 47, k), lerp(40, 36, k), [24, 5, -1.5], -8, -3); }
   else if (t < TITLE) { const k = prog(t, LIVE, TITLE); cam(lerp(0.25, 0.7, k), lerp(78, 72, k), lerp(44, 40, k), [12, 4, -5], 3, 3); }
-  else { const k = prog(t, TITLE, DUR); cam(lerp(0.7, 1.0, k), lerp(165, 180, k), lerp(106, 114, k), [4, 0, -2], 0, lerp(-27, -25, k)); }
+  else { const k = prog(t, TITLE, DUR); cam(lerp(0.7, 1.0, k), lerp(212, 226, k), lerp(136, 144, k), [4, 0, -2], 0, lerp(-27, -25, k)); }
   camera.fov = fov; camera.updateProjectionMatrix(); camera.position.set(...pos); camera.lookAt(...look);
 });
 
@@ -242,23 +265,33 @@ const heroSub = el('<div class="heroSub">Mars, Sol 1. A crew of four and one AI 
 const badge = el(`<div class="b-badge" style="background:${BC};box-shadow:0 8px 0 ${BS},0 14px 30px rgba(0,0,0,.18)"><span class="ic">${PLANET(BC)}</span><span><b>Build a Space Colony</b><small>SPACE CAMP</small></span></div>`, { x: 46, y: 40 }); A(cue(badge, L1 + 0.1, TITLE - 0.5, { from: 'left' }));
 const LEVELS = [
   [L1, BUILD - 0.45, 'L1/6', 'Choose a safe site for the colony', 'LEVEL 1', 'THE SITE', 1],
-  [BUILD, L5 - 0.45, 'L2–4', 'Build the shelter, water and power', 'LEVELS 2–4', 'BUILD', 4],
   [L5, LIVE - 0.45, 'L5/6', 'Grow fresh food for a crew of four', 'LEVEL 5', 'FOOD', 5],
 ];
 LEVELS.forEach(([t0, t1, tag, task, lv, short, n]) => {
   const tk = el(`<div class="b-task" style="width:auto;max-width:1000px;font-size:32px"><span class="lv" style="background:#ffd23f;width:auto;padding:0 16px">${tag}</span>${task}</div>`, { x: 46, y: 176 }); A(cue(tk, t0 + 0.15, t1, { from: 'left' }));
-  const lp = el(`<div class="lvp"><b>${lv}</b><span>${short}</span><div class="dots">${[0, 1, 2, 3, 4, 5].map((k) => `<i class="${k < n ? 'on' : ''}"></i>`).join('')}</div></div>`, { x: 1080, y: 92, anchor: 'c' }); A(cue(lp, t0 + 0.05, t0 + 1.8, { from: 'down' }));
+  lvPill(lv, short, n, t0 + 0.05, t0 + 1.8);
 });
+function lvPill(lv, short, n, a, b) { const lp = el(`<div class="lvp"><b>${lv}</b><span>${short}</span><div class="dots">${[0, 1, 2, 3, 4, 5].map((k) => `<i class="${k < n ? 'on' : ''}"></i>`).join('')}</div></div>`, { x: 1080, y: 92, anchor: 'c' }); A(cue(lp, a, b, { from: 'down', dur: 0.3, outDur: 0.25 })); }
+// levels 2-4: one task line that steps through the three levels, a level pill per beat, and a row of ticked beats
+const MB = [[B2, 'L2/6', 'Build a shelter from Mars soil', 'LEVEL 2', 'SHELTER', 2, 'Shelter', '#e8573f'], [B3, 'L3/6', 'Turn buried ice into a water loop', 'LEVEL 3', 'WATER', 3, 'Water loop', '#2f6fd8'], [B4, 'L4/6', 'Power the colony with sunlight', 'LEVEL 4', 'POWER', 4, 'Solar', '#ffc83d']];
+{ const tk = el('<div class="b-task" style="width:auto;max-width:1000px;font-size:32px"><span class="lv" style="background:#ffd23f;width:auto;padding:0 16px" data-l></span><span data-t></span></div>', { x: 46, y: 176 }); A(cue(tk, B2 + 0.1, L5 - 0.45, { from: 'left' }));
+  A((t) => { const i = MB.filter((m) => t >= m[0]).length - 1; if (i < 0) return; const m = MB[i]; if (tk.dataset.i !== String(i)) { tk.dataset.i = i; tk.querySelector('[data-l]').textContent = m[1]; tk.querySelector('[data-t]').textContent = m[2]; } });
+  MB.forEach((m, i) => lvPill(m[3], m[4], m[5], m[0] + 0.05, i < 2 ? MB[i + 1][0] - 0.3 : L5 - 0.5));
+  const row = el(`<div class="beats">${MB.map((m) => `<span><i style="background:${m[7]}"></i>${m[6]} <em>✓</em></span>`).join('')}</div>`, { x: 960, y: 985, anchor: 'c' }); A(cue(row, B2 + 0.6, L5 - 0.45, { from: 'up', dur: 0.3 }));
+  const sp = row.querySelectorAll('span'); A((t) => MB.forEach((m, i) => { const k = prog(t, m[0] + 0.75, m[0] + 1.05, ease.back); sp[i].style.opacity = k; sp[i].style.transform = `scale(${0.6 + 0.4 * k})`; })); }
 // stars and XP (stars reward catching mistakes)
 { const STARSV = '<svg width="44" height="44" viewBox="0 0 24 24"><path d="M12 2.6l2.8 5.7 6.3.9-4.6 4.4 1.1 6.2L12 16.9l-5.6 2.9 1.1-6.2-4.6-4.4 6.3-.9z" fill="#ffc83d"/></svg>';
   const n = el(`<div class="b-pills"><span>${STARSV}<b data-s></b></span><span><em class="xp" style="background:#5b4ce0">XP</em><b data-x></b></span></div>`, { x: 1874, y: 40, anchor: 'tr' }); A(cue(n, L1 + 0.3, TITLE - 0.5, { from: 'right' }));
-  const CATCH = [M1.alertIn, M5.alertIn], DONE = [M1.chkIn, BUILD + 2.6, M5.chkIn + 1.6, LIVE + 0.4];
-  A((t) => { const c = CATCH.filter((q) => t > q).length; const d = DONE.filter((q) => t > q).length; n.querySelector('[data-s]').textContent = c; n.querySelector('[data-x]').textContent = 60 + c * 150 + d * 100; }); }
+  // a star for each mistake caught and each step shown working: 7 by the end
+  const STAR_AT = [M1.alertIn, DR.ok, B2 + 0.75, B3 + 0.75, B4 + 0.75, M5.alertIn, HARV];
+  const sp = n.querySelector('span');
+  A((t) => { const c = STAR_AT.filter((q) => t > q).length; n.querySelector('[data-s]').textContent = c; n.querySelector('[data-x]').textContent = 60 + c * 120 + (t > LIVE + 0.4 ? 100 : 0);
+    const last = STAR_AT.filter((q) => t > q).pop(); const k = last != null ? prog(t, last, last + 0.4) : 1; sp.style.transform = `scale(${1 + 0.22 * Math.sin(Math.PI * k)})`; sp.style.transformOrigin = 'center'; }); }
 // colony ring: a compact progress card that only shows while it fills (montage, harvest, live)
-const SEG = [['Site', '#ffd23f', BUILD + 0.4], ['Shelter', '#e8573f', BUILD + 1.0], ['Water', '#2f6fd8', BUILD + 1.8], ['Power', '#ff8a2a', BUILD + 2.6], ['Food', '#16c79a', M5.chkIn + 2.0], ['Crew', '#6e5bf2', LIVE + 0.5]];
+const SEG = [['Site', '#ffd23f', B2 + 0.25], ['Shelter', '#e8573f', B2 + 0.75], ['Water', '#2f6fd8', B3 + 0.75], ['Power', '#ff8a2a', B4 + 0.75], ['Food', '#16c79a', HARV], ['Crew', '#6e5bf2', LIVE + 0.5]];
 const C = 2 * Math.PI * 62, SL = C / SEG.length;
 const ringEl = el(`<div class="rg"><small>COLONY RING</small><svg width="170" height="170" viewBox="-85 -85 170 170"><circle r="62" fill="none" stroke="#eef1f4" stroke-width="28"/>${SEG.map(([, c], i) => `<circle data-g="${i}" r="62" fill="none" stroke="${c}" stroke-width="28" stroke-dasharray="0 ${C}" transform="rotate(${-90 + i * 360 / SEG.length + 2})"/>`).join('')}<text data-n x="0" y="14" text-anchor="middle" font-family="Inter" font-weight="800" font-size="42" fill="#13202b">0/6</text></svg><div class="last"><i data-c></i><span data-w></span><em>✓</em></div></div>`, { x: 46, y: 300 });
-A((t) => { const v = Math.max(win(t, BUILD + 0.15, L5 - 0.45), win(t, M5.chkIn + 1.5, TITLE - 0.5)); ringEl.style.opacity = v; ringEl.style.visibility = v < 0.001 ? 'hidden' : 'visible'; ringEl.style.transform = `translateX(${-(1 - v) * 80}px)`;
+A((t) => { const v = Math.max(win(t, BUILD + 0.15, L5 - 0.45), win(t, HARV - 0.3, TITLE - 0.45)); ringEl.style.opacity = v; ringEl.style.visibility = v < 0.001 ? 'hidden' : 'visible'; ringEl.style.transform = `translateX(${-(1 - v) * 80}px)`;
   let n = 0; SEG.forEach(([, c, t0], i) => { const k = prog(t, t0, t0 + 0.6, ease.out); if (t > t0) n = i + 1; ringEl.querySelector(`[data-g="${i}"]`).setAttribute('stroke-dasharray', `${(SL - 4) * k} ${C}`); });
   ringEl.querySelector('[data-n]').textContent = n + '/6'; const L = SEG[Math.max(0, n - 1)]; ringEl.querySelector('[data-w]').textContent = L[0]; ringEl.querySelector('[data-c]').style.background = L[1]; ringEl.querySelector('.last').style.visibility = n ? 'visible' : 'hidden';
   const pulse = within(t, LIVE + 0.9, LIVE + 1.7) ? 1 + 0.07 * Math.sin((t - LIVE - 0.9) * 12) : 1; ringEl.querySelector('svg').style.transform = `scale(${pulse})`; });
@@ -270,10 +303,10 @@ function planner(text, sure, used, assumed, tIn, tOut, { tag = 'GUESS', tagColor
 }
 const HAND = '<svg width="90" height="110" viewBox="0 0 90 110"><path d="M34 8c6 0 9 4 9 9v30l4-1c5-1 9 2 9 6l1-1c5-1 9 2 9 6l1 0c5-1 9 2 9 7v16c0 14-10 26-26 26H44c-9 0-15-4-20-11L8 72c-3-5-1-10 4-11 4-1 7 1 9 4l4 5V17c0-5 3-9 9-9z" fill="#fff" stroke="#13202b" stroke-width="5" stroke-linejoin="round"/></svg>';
 function cards(head, list, tIn, tOut, pickAt, pick) {
-  const n = el(`<div><div class="b-head">${head}</div><div class="b-cards">${list.map(([k, s]) => `<div class="b-card"><span class="k">${k}</span>${s}</div>`).join('')}</div></div>`, { x: 46, y: 846 });
+  const n = el(`<div><div class="b-head">${head}</div><div class="b-cards">${list.map(([k, s]) => `<div class="b-card"><span class="k">${k}</span>${s}</div>`).join('')}</div></div>`, { x: 46, y: 0 }); n.style.top = 'auto'; n.style.bottom = '44px';
   A(cue(n, tIn, tOut, { from: 'up' }));
   const h = el(HAND, { x: 0, y: 0 });
-  A((t) => { const vv = within(t, Math.max(tIn + 0.1, pickAt - 0.7), tOut); h.style.opacity = vv ? 1 : 0; n.querySelectorAll('.b-card')[pick].classList.toggle('pick', t > pickAt); const tx = 46 + pick * 580 + 60, ty = 990; const k = prog(t, pickAt - 0.7, pickAt - 0.1, ease.out); h.style.left = lerp(tx + 260, tx, k) + 'px'; h.style.top = lerp(ty + 140, ty, k) + 'px'; h.style.transform = `scale(${t > pickAt && t < pickAt + 0.15 ? 0.88 : 1})`; });
+  A((t) => { const vv = within(t, Math.max(tIn + 0.1, pickAt - 0.7), tOut); h.style.opacity = vv ? 1 : 0; n.querySelectorAll('.b-card')[pick].classList.toggle('pick', t > pickAt); const tx = 46 + pick * 614 + 590 - 30 - 34, ty = 1080 - 44 - 8 - 30 - 8; const k = prog(t, pickAt - 0.7, pickAt - 0.1, ease.out); h.style.left = lerp(tx + 220, tx, k) + 'px'; h.style.top = lerp(ty + 120, ty, k) + 'px'; h.style.transform = `scale(${t > pickAt && t < pickAt + 0.15 ? 0.88 : 1})`; });
 }
 function alertAt(text, tIn, tOut, { x = 980, y = 700 } = {}) { const n = el(`<div class="b-alert"><span class="x">✕</span>${text}</div>`, { x, y, anchor: 'c' }); A(cue(n, tIn, tOut)); }
 function saved(text, tIn, tOut, { x = 1000, y = 975 } = {}) { const n = el(`<div class="b-saved">${text}</div>`, { x, y, anchor: 'c' }); A(cue(n, tIn, tOut)); }
@@ -286,10 +319,10 @@ planner('“Best” means flattest and sunniest: the dusty plain.', 88, ['Terrai
 alertAt('Ice radar: no ice here', M1.alertIn, M1.c2In - 0.2, { x: 760, y: 760 });
 cards('TRY A CLEARER CARD', C1, M1.c2In, M1.fix + 0.5, M1.pickB, 1);
 planner('The ice plain. Ice depth is uncertain, so drill a test hole first.', 71, ['Terrain', 'Sunlight', 'Ice radar'], ['Ice depth: not sure yet'], M1.chkIn, M1.chkOut, { tag: 'PLAN CHECKED', tagColor: '#16c79a' });
-// ---- Levels 2-4: fast build montage ----
-saved('Shelter, water loop and solar power: built', BUILD + 0.7, L5 - 0.5);
+const iceOk = el('<div class="bub ok"><i></i>Ice found ✓ 3 m down</div>', { x: 0, y: 0, anchor: 'bc' }); A(cue(iceOk, DR.ok, BUILD - 0.4));
+A((t) => { if (!within(t, DR.ok - 0.1, BUILD)) return; const p = toScreen(new THREE.Vector3(DRX, 15, DRZ), camera); iceOk.style.left = clamp(p.x, 260, 900) + 'px'; iceOk.style.top = clamp(p.y, 330, 760) + 'px'; });
 // ---- Level 5 (main loop): Planner trusts a story; the soil test catches it; hydroponics fixes it ----
-const C5 = [['A', 'Grow lots of food without wasting water'], ['B', 'Fresh food in clean water under lights. Test soil first.'], ['C', 'Ship all our food from Earth']];
+const C5 = [['A', 'Grow lots of food without wasting water'], ['B', 'Clean water and LED lights. Test soil first.'], ['C', 'Ship all our food from Earth']];
 cards('COMMANDER PLAYS A CARD', C5, M5.cIn, M5.aiIn - 0.25, M5.pickA, 0);
 const pg = planner('Plant potatoes straight into Mars soil, like in a famous space story.', 86, [['Space-farming stories', 'FICTION']], ['Mars soil = garden soil'], M5.aiIn, M5.c2In - 0.3);
 A((t) => { const b = pg.querySelector('.ua b'); const p = within(t, M5.aiIn + 1.4, M5.aiIn + 2.6) ? 1 + 0.18 * Math.max(0, Math.sin((t - M5.aiIn - 1.4) * 10)) : 1; b.style.transform = `scale(${p})`; });
@@ -298,13 +331,13 @@ const wilt = el('<div class="bub bad">✕ The seedlings wilt</div>', { x: 0, y: 
 A((t) => { if (!within(t, M5.alertIn - 0.1, M5.c2In + 0.3)) return; const p = toScreen(new THREE.Vector3(24.5, 10.5, -2), camera); wilt.style.left = clamp(p.x, 300, 1000) + 'px'; wilt.style.top = clamp(p.y, 360, 760) + 'px'; });
 cards('TRY A CLEARER CARD', C5, M5.c2In, M5.fix + 0.5, M5.pickB, 1);
 planner('Hydroponic racks under LED lights, in recycled water.', 74, ['Soil test', 'Greenhouse trials'], ['Peppers may fail here'], M5.chkIn, M5.chkOut, { tag: 'PLAN CHECKED', tagColor: '#16c79a' });
-saved('First harvest: lettuce and tomatoes', M5.chkIn + 1.6, LIVE - 0.45);
+saved('First harvest: lettuce and tomatoes', HARV, LIVE - 0.45);
 // ---- the colony living, and its name ----
-const live = el('<div class="tagp">● WATCH YOUR COLONY LIVE</div>', { x: 1080, y: 92, anchor: 'c' }); A(cue(live, LIVE + 0.1, TITLE - 0.5, { from: 'down' }));
-const nm = el('<div class="name"><div class="st"><small>YOUR COLONY HAS EARNED ITS NAME</small>Ice Harbour</div><br><div class="sub">Strongest: Water + Food · ready for a Mars year</div></div>', { x: 1060, y: 900, anchor: 'c' }); A(cue(nm, LIVE + 1.2, TITLE - 0.5, { from: 'pop', dur: 0.4 }));
+const live = el('<div class="tagp">● WATCH YOUR COLONY LIVE</div>', { x: 1080, y: 92, anchor: 'c' }); A(cue(live, LIVE + 0.1, TITLE - 0.45, { from: 'down' }));
+const nm = el('<div class="name"><div class="st"><small>YOUR COLONY HAS EARNED ITS NAME</small>Ice Harbour</div><br><div class="sub">Strongest: Water + Food · ready for a Mars year</div></div>', { x: 1060, y: 900, anchor: 'c' }); A(cue(nm, LIVE + 1.3, TITLE - 0.45, { from: 'pop', dur: 0.4 }));
 // ---- title card over the island, careers line under it ----
-const dim = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:radial-gradient(ellipse at 50% 40%, rgba(110,40,10,.14), rgba(110,40,10,.34))"></div>'); A(cue(dim, TITLE - 0.1, null, { from: 'fade', dur: 0.5 }));
-const title = titleCard('Build a <span class="hl">Space Colony</span>', 'The AI plans in seconds. Your crew makes sure it survives.', { chip: 'A DeltaOps Learning AI lab · Space camps' }); title.style.placeItems = 'start center'; title.style.paddingTop = '150px'; A(cue(title, TITLE + 0.1, null, { from: 'pop', dur: 0.7 }));
+const dim = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:linear-gradient(180deg, rgba(5,11,38,.55) 0%, rgba(5,11,38,.25) 45%, rgba(5,11,38,0) 60%, rgba(5,11,38,.35) 100%)"></div>'); A(cue(dim, TITLE - 0.1, null, { from: 'fade', dur: 0.5 }));
+const title = titleCard('Build a <span class="hl">Space Colony</span>', 'The AI plans in seconds. Your crew makes sure it survives.', { chip: 'A DeltaOps Learning AI lab · Space camps' }); title.style.placeItems = 'start center'; title.style.paddingTop = '70px'; title.querySelector('.logo').style.marginTop = '34px'; title.querySelector('.logo').style.height = '56px'; A(cue(title, TITLE + 0.1, null, { from: 'pop', dur: 0.7 }));
 { const J = [['Life-support engineer', '#16c79a'], ['Space architect', '#e8573f'], ['Plant scientist', '#4fd060']]; const n = el(`<div class="jobs"><div class="list"><b>Real jobs:</b>${J.map(([j, c]) => `<span><i style="background:${c}"></i>${j}</span>`).join('')}</div></div>`, { x: 960, y: 960, anchor: 'c' }); A(cue(n, TITLE + 0.7, null, { from: 'up', dur: 0.4 })); }
 st.onFrame((t) => ui.forEach((f) => f(t)));
 window.__duration = DUR;
