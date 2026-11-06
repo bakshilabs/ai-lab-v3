@@ -32,7 +32,7 @@
 .ntag.m { background:var(--ink); } .ntag.m b { color:#fff; } .ntag.m small { color:#9fe8d2; }
 .ntag::after { content:''; position:absolute; left:50%; bottom:-12px; margin-left:-12px; border:12px solid transparent; border-top-color:#fff; border-bottom:0; }
 .ntag.m::after { border-top-color:var(--ink); }
-.ntag.nd { box-shadow:0 0 0 4px var(--red), 0 10px 24px rgba(8,28,44,.25); } .ntag.nd small { color:var(--redD); font-weight:800; letter-spacing:.08em; } .ntag.nd::after { border-top-color:var(--red); }
+.ntag.nd { padding:8px 16px 9px; } .ntag.nd b { font-size:24px; } .ntag.nd { box-shadow:0 0 0 4px var(--red), 0 10px 24px rgba(8,28,44,.25); } .ntag.nd small { color:var(--redD); font-weight:800; letter-spacing:.08em; } .ntag.nd::after { border-top-color:var(--red); }
 .ntag.nd.ok { box-shadow:0 0 0 4px var(--teal), 0 10px 24px rgba(8,28,44,.25); } .ntag.nd.ok small { color:#08694f; } .ntag.nd.ok::after { border-top-color:var(--teal); }
 .say { background:#fff; color:var(--ink); border-radius:22px; padding:16px 26px; font:700 30px/1.2 'Inter'; white-space:nowrap; box-shadow:0 12px 26px rgba(8,28,44,.3); }
 .say::after { content:''; position:absolute; left:50%; bottom:-12px; margin-left:-12px; border:12px solid transparent; border-top-color:#fff; border-bottom:0; }
@@ -353,7 +353,7 @@ A(follow(tagM, AISHA, 3.75)); A(follow(tagE, MENTOR, 3.95)); A(follow(sayE, MENT
 const ndO = el(`<div class="ntag nd"><b>No smartphone</b><small>NOT IN DATA</small></div>`, { anchor: 'bc' });
 const ndP = el(`<div class="ntag nd"><b>Polish speaker</b><small>NOT IN DATA</small></div>`, { anchor: 'bc' });
 A(cue(ndO, 10.7, 24.3, { outDur: 0.25 })); A(cue(ndP, 10.85, 24.3, { outDur: 0.25 }));
-A(follow(ndO, OLD, 3.9, 120, 0)); A(follow(ndP, PL, 3.9, -110, 0));
+A(follow(ndO, OLD, 3.9, 222, 0)); A(follow(ndP, PL, 3.9, 50, 0)); // both tags sit right of Aisha's label, clear of the cards
 A((t) => [ndO, ndP].forEach((n) => { const ok = t >= T_FIX; cls(n.firstElementChild, 'ok', ok); setT(n.querySelector('small'), ok ? 'IN THE DATA ✓' : 'NOT IN DATA'); }));
 
 // the plan card
@@ -391,7 +391,7 @@ A((t) => {
   const sc = Q('[data-st]'); const c2 = 'stchip' + (s[0] ? ' ' + s[0] : ''); if (sc.className !== c2) sc.className = c2; setT(sc, s[1]);
   const sec = t < T_DEC ? 0 : 1; setT(Q('[data-sec]'), sec ? '· Decision record' : '· Users');
   doc.querySelectorAll('section[data-v]').forEach((n, i) => { n.style.display = i === sec ? 'block' : 'none'; });
-  doc.querySelectorAll('.per').forEach((n, i) => { const t0 = 5.05 + i * 0.25; // the card grows as each user arrives n.style.display = t >= t0 ? '' : 'none'; n.style.opacity = prog(t, t0, t0 + 0.3); n.style.transform = `translateY(${(1 - prog(t, t0, t0 + 0.4, ease.out)) * 16}px)`; const bad = n.hasAttribute('data-bad') && t >= T_DFAIL; cls(n, 'bad', bad); n.querySelector('.ns').style.opacity = bad ? 1 : 0; });
+  doc.querySelectorAll('.per').forEach((n, i) => { const t0 = 5.05 + i * 0.25; /* the card grows as each user arrives */ n.style.display = t >= t0 ? '' : 'none'; n.style.opacity = prog(t, t0, t0 + 0.3); n.style.transform = `translateY(${(1 - prog(t, t0, t0 + 0.4, ease.out)) * 16}px)`; const bad = n.hasAttribute('data-bad') && t >= T_DFAIL; cls(n, 'bad', bad); n.querySelector('.ns').style.opacity = bad ? 1 : 0; });
   D.forEach((x, i) => typed(Q(`[data-d${i}]`), x, DT[i][0], DT[i][1], t));
   const run = Q('[data-run]'); run.style.display = t < T_RUN + 0.15 ? '' : 'none'; run.style.transform = within(t, T_RUN - 0.05, T_RUN + 0.15) ? 'scale(.94)' : '';
   chks.forEach((c, i) => {
@@ -404,7 +404,7 @@ A((t) => {
   const npass = chks.filter((c) => c.classList.contains('ok')).length;
   const ps = Q('[data-pass]'); setT(ps, `Checks passed: ${npass} of 4`); cls(ps, 'ok', npass === 4);
   const fd = Q('[data-find]'); fd.style.height = 66 * prog(t, T_DFAIL + 0.1, T_DFAIL + 0.45, ease.out) + 'px';
-  doc.querySelectorAll('[data-pr]').forEach((n, i) => { const d = chkT[i + 1][1]; n.style.height = 50 * prog(t, d, d + 0.3, ease.out) * (1 - prog(t, T_FOLD, T_FOLD + 0.3, ease.inOut)) + 'px'; n.style.borderTopWidth = t < d || t > T_FOLD + 0.3 ? '0' : '2px'; });
+  doc.querySelectorAll('[data-pr]').forEach((n, i) => { const d = chkT[i + 1][1]; const fo = 1 - prog(t, T_FOLD, T_FOLD + 0.3, ease.inOut); n.style.height = 50 * prog(t, d, d + 0.3, ease.out) * fo + 'px'; n.style.opacity = prog(t, d + 0.1, d + 0.3) * clamp(fo * 2 - 1); n.style.borderTopWidth = t < d || t > T_FOLD + 0.3 ? '0' : '2px'; });
   const ok = t >= T_FIX, rr = within(t, T_RECHK, T_FIX); cls(fd, 'ok', ok); cls(fd, 'rr', rr); setH(fd.querySelector('i'), ok ? SVG.tick : rr ? SVG.dots : SVG.cross);
   setT(fd.querySelector('[data-ft]'), ok ? 'Data: all 5 users now included ✓' : rr ? 'Re-running Data with the new user list…' : 'Data: survey only asked smartphone users, in English');
   const sg = Q('[data-sg]'), sb = Q('[data-sign]');
@@ -448,7 +448,7 @@ A((t) => qtree.querySelectorAll('.q').forEach((n, i) => { const t0 = 15.4 + i * 
 
 // sign-off card (bottom slot)
 const signC = el(`<div class="sign"><span class="tick">${SVG.tick}</span><span><small>SIGNED OFF · THURSDAY</small><b>Reviewed by: Aisha, age 13</b><em>Checks passed: 4 of 4</em></span></div>`, { x: COL, y: SLOT + 40 });
-A(cue(signC, 24.6, 29.0, { from: 'pop' }));
+A(cue(signC, 24.6, 28.8, { from: 'pop', outDur: 0.3 }));
 
 // steps strip
 const steps = el(`<div class="steps"><span class="n" data-n></span><span class="d" data-d></span></div>`, { x: 44, y: 1000 });
@@ -459,7 +459,7 @@ A((t) => { let s = STEPS[0]; for (const x of STEPS) if (t >= x[0]) s = x; setT(s
 // portfolio folder
 const folder = el(`<div class="folder"><span class="tabf">PORTFOLIO · Aisha</span><div class="body">
  <div class="it nw" data-nw><i></i><span>Decision record<small>Should It Be AI? · library times</small></span><span class="new">NEW</span></div></div></div>`, { x: COL, y: 150 });
-A(cueS(folder, 26.75, 29.0, { dur: 0.3 }));
+A(cueS(folder, 26.75, 28.8, { dur: 0.3 }));
 A((t) => { const n = folder.querySelector('[data-nw]'); n.style.transform = `scale(${1 + 0.05 * Math.sin(prog(t, 26.95, 27.45) * Math.PI)})`; });
 
 // cursor (parks in the gap left of the cards)
@@ -468,7 +468,7 @@ const ring = el('<div class="ring"></div>', { x: 0, y: 0, anchor: 'c' });
 // a hidden target (the Sign off button once pressed) falls back to the right end of its row, so the cursor never flies to the corner
 const R = (sel, root = doc) => () => { const n = root.querySelector(sel); const r = n.getBoundingClientRect(); if (r.width > 0) return [r.left + r.width * 0.5, r.top + r.height * 0.55]; const q = n.parentElement.getBoundingClientRect(); return [q.right - 90, q.top + q.height * 0.55]; };
 const PARK = (y) => () => [940, y];
-const PATH = [[8.6, [820, 1100]], [9.45, R('[data-run]')], [9.8, R('[data-run]')], [10.6, PARK(560)], [22.9, PARK(600)], [23.55, () => { const [x, y] = R('[data-sign]')(); return [x - 170, y + 14]; }], [23.95, R('[data-sign]')], [24.25, R('[data-sign]')], [25.1, R('[data-sign]')]]; // after the click the pointer fades out in place instead of crossing the cards
+const PATH = [[8.6, [820, 1100]], [9.45, R('[data-run]')], [9.8, R('[data-run]')], [10.6, PARK(430)], [22.9, PARK(480)], /* parks high, clear of the in-world NOT IN DATA tags */ [23.55, () => { const [x, y] = R('[data-sign]')(); return [x - 170, y + 14]; }], [23.95, R('[data-sign]')], [24.25, R('[data-sign]')], [25.1, R('[data-sign]')]]; // after the click the pointer fades out in place instead of crossing the cards
 const CLICKS = [T_RUN, T_SIGN];
 A((t) => {
   const on = within(t, 8.6, 24.8); cur.style.opacity = on ? 1 - prog(t, 24.4, 24.7) : 0;
@@ -478,7 +478,7 @@ A((t) => {
 
 // end: whole island on the left in daylight; title and pathway on the right
 const etitle = el(`<div class="etitle"><span class="chip2">DeltaOps Learning · Future Skills</span><h1>Should It Be AI?</h1><h2>Start with the user. Then decide if AI belongs.</h2></div>`, { x: COL, y: 70 });
-A(cue(etitle, 29.2, null, { from: 'up', dur: 0.6 }));
+A(cue(etitle, 29.15, null, { from: 'up', dur: 0.6 }));
 const path = el(`<div class="wcard path"><div class="top"><span class="tag">PATHWAY</span><h3>Where this skill goes next</h3></div>
  <div class="row"><span>Next step</span><b>Apps for Good <em>(free, with your school)</em></b></div>
  <div class="row"><span>Award</span><b>iDEA Bronze Award <em>(free, online)</em></b></div>

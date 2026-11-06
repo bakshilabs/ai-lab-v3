@@ -456,7 +456,7 @@ A((t) => {
 
 // sign-off card (bottom slot)
 const signC = el(`<div class="sign"><span class="tick">${SVG.tick}</span><span><small>SIGNED OFF · 3:42 PM</small><b>Reviewed by: Hana, age 13</b><em>Checks passed: 4 of 4</em></span></div>`, { x: COL, y: SLOT + 40 });
-A(cue(signC, 24.6, 29.0, { from: 'pop' }));
+A(cue(signC, 24.6, 28.8, { from: 'pop', outDur: 0.3 }));
 
 // steps strip
 const steps = el(`<div class="steps"><span class="n" data-n></span><span class="d" data-d></span></div>`, { x: 44, y: 1000 });
@@ -467,7 +467,7 @@ A((t) => { let s = STEPS[0]; for (const x of STEPS) if (t >= x[0]) s = x; const 
 // portfolio folder (takes the story card's place; the sign-off card stays below it)
 const folder = el(`<div class="folder"><span class="tabf">PORTFOLIO · Hana</span><div class="body">
  <div class="it nw" data-nw><i></i><span>Fact-check card<small>Verification Desk · flood-barrier story</small></span><span class="new">NEW</span></div></div></div>`, { x: COL, y: 150 });
-A(cueS(folder, 26.75, 29.0, { dur: 0.3 }));
+A(cueS(folder, 26.75, 28.8, { dur: 0.3 }));
 A((t) => { const n = folder.querySelector('[data-nw]'); n.style.transform = `scale(${1 + 0.05 * Math.sin(prog(t, 26.95, 27.45) * Math.PI)})`; });
 
 // cursor (parks in the gap left of the cards, never over text)
@@ -487,7 +487,7 @@ A((t) => {
 
 // end: whole island on the left in daylight; title and pathway on the right
 const etitle = el(`<div class="etitle"><span class="chip2">DeltaOps Learning · Future Skills</span><h1>Verification Desk</h1><h2>Trace every source before you sign it off.</h2></div>`, { x: COL, y: 70 });
-A(cue(etitle, 29.2, null, { from: 'up', dur: 0.6 }));
+A(cue(etitle, 29.15, null, { from: 'up', dur: 0.6 }));
 const path = el(`<div class="wcard path"><div class="top"><span class="tag">PATHWAY</span><h3>Where this skill goes next</h3></div>
  <div class="row"><span>Next step</span><b>Civic Online Reasoning lessons <em>(free)</em></b></div>
  <div class="row"><span>Award</span><b>Arts Award <em>(journalism project)</em></b></div>
