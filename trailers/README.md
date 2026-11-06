@@ -18,7 +18,9 @@ python3 -m http.server 8000
 
 Fonts load from Google Fonts. Everything else is local.
 
-The same pages are published as shared links:
+Once `main` holds this folder and GitHub Pages is switched on, `.github/workflows/pages.yml` publishes it at https://bakshilabs.github.io/ai-lab-v3/ (shot lists at `/shotlists.html`). It redeploys on every push to `main` that changes `trailers/`.
+
+The same pages are also published as shared links:
 - Trailer page: https://claude.ai/artifact/6pdXoP3jib9e98Ef8qLy4n
 - Shot lists: https://claude.ai/artifact/75jvyWAj7ofKaBHJS9kMSG
 
