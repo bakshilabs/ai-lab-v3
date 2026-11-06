@@ -28,7 +28,7 @@ Career skills · 0:37 · brochure voxel island, Mars version (a blocky red-orang
 **Ending / pathway:** The colony earns its name ("Ice Harbour"), then the title "The AI plans in seconds. Your crew makes sure it survives." with the careers line (life-support engineer, space architect, plant scientist) on the same card.
 
 **Reviewer notes:**
-- Render status: Described from the current source; video re-rendering.
+- Render status: Described from the current source; video re-rendered and checked on a contact sheet.
 - Levels 2–4 are three labelled build beats (2.4 s each) with no AI mistake, and Level 6 is a short crew beat; the storm/power and crew-life loops from the lab are not in the trailer.
 - HUD panels slide in and out fully opaque (no cross-fades), so no half-faded panel sits over the action between beats.
 - Facts to check (the lab design document marks some "to verify"): "Perchlorate in the soil 0.6%"; "within 5 km of buried ice" and the ice-radar picture are illustrative.
