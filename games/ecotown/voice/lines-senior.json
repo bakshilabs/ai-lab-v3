@@ -205,6 +205,51 @@
   "key": "2ac5a3f3"
  },
  {
+  "s": "Run another test",
+  "voice": "narrator",
+  "key": "fe3b8b16"
+ },
+ {
+  "s": "No issue found: accept the plan",
+  "voice": "narrator",
+  "key": "5beb2820"
+ },
+ {
+  "s": "Keep testing if the evidence doesn’t cover your brief yet; accept the plan when it does.",
+  "voice": "narrator",
+  "key": "3d5f9f35"
+ },
+ {
+  "s": "Planned, not built yet",
+  "voice": "narrator",
+  "key": "6a661205"
+ },
+ {
+  "s": "After building",
+  "voice": "narrator",
+  "key": "273a8b5e"
+ },
+ {
+  "s": "Before you accept: a test you haven’t run shows a problem.",
+  "voice": "narrator",
+  "key": "caf12dfe"
+ },
+ {
+  "s": "Not followed, and why:",
+  "voice": "narrator",
+  "key": "5c5a49a0"
+ },
+ {
+  "s": "How Florence handled the brief",
+  "voice": "narrator",
+  "key": "4cce51cb"
+ },
+ {
+  "s": "[object Object]",
+  "voice": "narrator",
+  "key": "b07fa198"
+ },
+ {
   "s": "I can’t map that to a plan for this level.",
   "voice": "helper",
   "key": "320d890c"
@@ -298,6 +343,36 @@
   "s": "The plan passed its test",
   "voice": "narrator",
   "key": "419d6118"
+ },
+ {
+  "s": "Tested the plan before building",
+  "voice": "narrator",
+  "key": "73ba034c"
+ },
+ {
+  "s": "Completed the missing requirement",
+  "voice": "narrator",
+  "key": "bcdc1bd1"
+ },
+ {
+  "s": "Final plan passes",
+  "voice": "narrator",
+  "key": "a9183c6c"
+ },
+ {
+  "s": "I won’t ignore flood risk: homes on flood land would be under water every winter, so I kept the town on dry land.",
+  "voice": "helper",
+  "key": "db965746"
+ },
+ {
+  "s": "I won’t clear the wetland: it is protected, and it soaks up the winter floods.",
+  "voice": "helper",
+  "key": "43fc39e6"
+ },
+ {
+  "s": "I won’t clear the old wood: the deer and birds live there.",
+  "voice": "helper",
+  "key": "227247ff"
  },
  {
   "s": "Flood-risk lens.",
@@ -825,6 +900,31 @@
   "key": "e8b2c7e3"
  },
  {
+  "s": "Step-free routes: dropped kerbs and no steps, wide enough for wheelchairs and buggies.",
+  "voice": "helper",
+  "key": "c9d971de"
+ },
+ {
+  "s": "Gentle slopes: footpaths graded where the land climbs.",
+  "voice": "helper",
+  "key": "800738fe"
+ },
+ {
+  "s": "Longer green-man time at crossings for slower walkers.",
+  "voice": "helper",
+  "key": "2de60641"
+ },
+ {
+  "s": "A step-free ramp onto the ferry.",
+  "voice": "helper",
+  "key": "3a34fd30"
+ },
+ {
+  "s": "Lit footpaths for dark winter mornings.",
+  "voice": "helper",
+  "key": "7f587d2b"
+ },
+ {
   "s": "“Strong” = concrete and steel.",
   "voice": "helper",
   "key": "07668524"
@@ -1078,5 +1178,140 @@
   "s": "A safe footpath to the school.",
   "voice": "helper",
   "key": "82255e6e"
+ },
+ {
+  "s": "92 percent confidence.",
+  "voice": "helper",
+  "key": "13dd19cf"
+ },
+ {
+  "s": "17 of 18 town tiles are on the floodplain",
+  "voice": "narrator",
+  "key": "7ae823bf"
+ },
+ {
+  "s": "90 percent confidence.",
+  "voice": "helper",
+  "key": "4762618d"
+ },
+ {
+  "s": "Site agreed 3 stars.",
+  "voice": "narrator",
+  "key": "94b071c9"
+ },
+ {
+  "s": "Network open 3 stars.",
+  "voice": "narrator",
+  "key": "2e087fc4"
+ },
+ {
+  "s": "Embodied carbon 3.0× the 70 t limit",
+  "voice": "narrator",
+  "key": "4e8b2a71"
+ },
+ {
+  "s": "89 percent confidence.",
+  "voice": "helper",
+  "key": "c1d18ce3"
+ },
+ {
+  "s": "Cosy and warm, heating off!",
+  "voice": "narrator",
+  "key": "540c3b8e"
+ },
+ {
+  "s": "I walked to school by myself!",
+  "voice": "narrator",
+  "key": "6b341120"
+ },
+ {
+  "s": "Housing delivered 3 stars.",
+  "voice": "narrator",
+  "key": "281d2457"
+ },
+ {
+  "s": "88 percent confidence.",
+  "voice": "helper",
+  "key": "4678c234"
+ },
+ {
+  "s": "Habitat & species lens: Deer, bees, otters, birds and frogs all stay.",
+  "voice": "narrator",
+  "key": "cd0d672b"
+ },
+ {
+  "s": "Food system running 3 stars.",
+  "voice": "narrator",
+  "key": "e73b5378"
+ },
+ {
+  "s": "Winter-night supply 0/12 of demand",
+  "voice": "narrator",
+  "key": "bcd03309"
+ },
+ {
+  "s": "75 percent confidence.",
+  "voice": "helper",
+  "key": "224d76c4"
+ },
+ {
+  "s": "Snowy night, and our lights stayed on!",
+  "voice": "narrator",
+  "key": "9119930c"
+ },
+ {
+  "s": "The rain garden soaked up the puddles!",
+  "voice": "narrator",
+  "key": "38348979"
+ },
+ {
+  "s": "Utilities running 3 stars.",
+  "voice": "narrator",
+  "key": "d591f1cb"
+ },
+ {
+  "s": "Walking-time lens: Longest walk 15 min (town rule 15 min).",
+  "voice": "narrator",
+  "key": "d88b674d"
+ },
+ {
+  "s": "Balanced data: 30% vs 10% really",
+  "voice": "narrator",
+  "key": "b811278e"
+ },
+ {
+  "s": "Kept: Every home within 15 minutes’ walk of school.",
+  "voice": "narrator",
+  "key": "c6ff3bff"
+ },
+ {
+  "s": "Kept: Town carbon under the 160 t limit.",
+  "voice": "narrator",
+  "key": "c63bf58a"
+ },
+ {
+  "s": "Kept: Lights on through a still winter night.",
+  "voice": "narrator",
+  "key": "c8798677"
+ },
+ {
+  "s": "I can walk to the new school!",
+  "voice": "narrator",
+  "key": "b414ec85"
+ },
+ {
+  "s": "Town centre complete 3 stars.",
+  "voice": "narrator",
+  "key": "7223465c"
+ },
+ {
+  "s": "Love the cycle lane!",
+  "voice": "narrator",
+  "key": "66d60928"
+ },
+ {
+  "s": "Listen to the bees buzzing!",
+  "voice": "narrator",
+  "key": "9bee4bf6"
  }
 ]

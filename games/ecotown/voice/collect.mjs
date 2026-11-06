@@ -19,6 +19,7 @@ const out = await p.evaluate(async () => {
   const { makeTerrain } = await import('./js/world/terrain.js');
   const { applyPlacements } = await import('./js/sim/planner.js');
   const V = await import('./js/ui/voice.js');
+  const { WONT_LINES } = await import('./js/ai/plotter.js');
   const res = { junior: [], senior: [] };
   const add = (band, text, voice) => { for (const s of V.sentences(text)) if (!/\{n\}/.test(s)) res[band].push({ s, voice }); };
   for (const band of ['junior', 'senior']) {
@@ -26,7 +27,8 @@ const out = await p.evaluate(async () => {
     for (const v of Object.values(C.ui)) add(band, v, 'narrator');
     for (const k of ['unknown', 'correct', 'notQuite', 'lookAgain', 'itWas']) add(band, C.ui[k], 'helper');
     for (const h of Object.values(C.habits)) { add(band, h.explain, 'helper'); add(band, `${C.ui.correct} ${h.label}`, 'narrator'); }
-    for (const r of [...C.stars.flawed, ...C.stars.clean]) add(band, `★ ${r}`, 'narrator');
+    for (const r of [...C.stars.flawed, ...C.stars.clean, ...C.stars.missed]) add(band, `★ ${r}`, 'narrator');
+    for (const w of WONT_LINES) add(band, w, 'helper');
     for (const [id, L] of Object.entries(LEVEL_TEXT)) {
       const N = L.newThing; const label = N.label ? pick(N.label) : C.checks[N.lens].label;
       add(band, `${label}. ${pick(N)} ${pick(L.brief)}`, 'narrator'); add(band, pick(L.live), 'narrator');
@@ -45,6 +47,7 @@ const out = await p.evaluate(async () => {
     combos.push(CLEAR[lv]);
     for (const pick of combos) { const pl = plan(lv, pick, { terrain, cells, numbers: { minutes: 15 } }); for (const r of [...pl.reading, pl.habitWhy]) if (r) for (const band of ['junior', 'senior']) add(band, r, 'helper'); }
     for (const sl of slots) { const pl = plan(lv, [sl], { terrain, cells, numbers: { minutes: 15 } }); for (const r of [...pl.reading, pl.habitWhy]) if (r) for (const band of ['junior', 'senior']) add(band, r, 'helper'); }
+    if (lv === 'move') for (const text of ['step-free wheelchair gentle slopes lit paths, time to cross for slower walkers, accessible ferry ramp']) for (const pick of [CLEAR.move, ['safe_walking', 'everyone']]) { const pl = plan(lv, pick, { terrain, cells, numbers: {}, text }); for (const r of pl.reading) for (const band of ['junior', 'senior']) add(band, r, 'helper'); }
     cells = applyPlacements(cells, plan(lv, CLEAR[lv], { terrain, cells, numbers: { minutes: 15 } }).placements); for (const c of cells.values()) if (c.item) c.locked = true;
   }
   return { res, helper: HELPER };

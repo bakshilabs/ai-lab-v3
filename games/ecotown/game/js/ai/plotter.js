@@ -64,6 +64,7 @@ const WONT = {
   ],
 };
 // only claimed when the plan really kept to the rule (checked on the honest simulation)
+export const WONT_LINES = Object.values(WONT).flat().map(([, why]) => why); // for the voice recorder
 function wontDo(level, text, after) { const t = String(text || '').toLowerCase(); return (WONT[level] || []).filter(([re, , kept]) => re.test(t) && kept(after)).map(([, why]) => why); }
 
 // Read + plan + reply. ctx: { terrain, cells }
