@@ -4,7 +4,7 @@ name: Eco Town test site (GitHub Pages)
 
 on:
   push:
-    branches: [claude/focused-cori-qeoveu, main]
+    branches: [main]
     paths: ['games/ecotown/**', 'trailers/**', '.github/workflows/ecotown-pages.yml']
   workflow_dispatch:
 
