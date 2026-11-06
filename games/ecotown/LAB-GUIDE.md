@@ -34,7 +34,7 @@ Children name their town, start with a small floating island (an old school, a d
 - **Fictional names (to check before release):** Eco Town, Florence, the followed family's surname, town titles (Cycle Town, Orchard Valley, Wild Garden Village, Market Town). Check that "Eco Town" isn't the name of a real development or organisation that would confuse partners (the UK government ran an "eco-towns" programme around 2007–2010: to verify).
 
 ## 5. Core loop and structure
-The seven acts (Brief → Plan → Check → Fix → Move in → Live → Celebrate) and the six-level table are in DESIGN.md. Summary of the mistakes:
+**The game is free building with an AI Lab inside it** (Nov 2026 update). Players open straight onto the island and build; build categories unlock as the town grows (land and paths → homes → food → power and water → town heart). Florence gives short tips from the simulation and invites players into the **AI Lab** when their town hits a problem a mission teaches. Each of the six lessons is an AI Lab mission (Brief → Plan → Check → Fix → build film → reward), played on Florence's practice island; afterwards players choose whether to use her fixed plan in their own town, and the mission's lens becomes a tool they can use on their town. Details in DESIGN.md and the README ("How the game plays"). Summary of the mistakes:
 
 | Level | Instruction → AI guess (% sure) | Caught by | Clearer card |
 |---|---|---|---|
@@ -61,6 +61,8 @@ Rotate each level. Each role owns one lens or view, so every child has evidence 
 | **Resident Voice** | Speaks for the followed family; reads bubbles | Family portrait and diary |
 
 ## 7. Session plans
+**Choose "In order (class)" on the start screen** for a class: only the next AI Lab mission opens, and Florence invites players to it as soon as it is ready, so the class stays roughly together. Between missions, players build freely; that build time is where they grow the town enough to unlock the next mission (homes at 6 tiles of town land, food at 12 families, power at 24, town heart at 36). A useful rhythm is "mission, debrief, build" for each level below. If a group is slow to unlock the next mission, tell them to choose **Use Florence's plan** at the end of a mission: that adds her fixed plan to their town and moves them on. "Any order" suits clubs, museums and home play.
+
 DESIGN.md says Levels 4 and 5 merge in shorter versions. Level debriefs (section 9A) happen inside the play time.
 
 **45 minutes** (Levels 1, 2, 3, 4+5 merged, 6 short)
@@ -98,7 +100,8 @@ DESIGN.md says Levels 4 and 5 merge in shorter versions. Level debriefs (section
   - **after a mistake:** ★ found it with the first check · ★ named Florence's habit first time · ★ the fixed plan passes;
   - **clear first time:** ★ clear instruction · ★ spotted Florence's **hidden guess** (what she still assumed, e.g. how much land 40 families need) · ★ the plan passed its check;
   - Level 6's bias check adds a bonus star.
-  - **the plan missed something:** ★ checked the plan before building · ★ added what the plan missed · ★ the finished town passes.
+  - **the plan missed something:** ★ checked the plan before building · ★ told Florence what her plan missed · ★ her new plan passes.
+  - Missions can be replayed; the best run's stars count.
 - **Checking:** after each check that shows no problem, children choose **Check another way** or **No problem found: use this plan**. Ask them to say what the check tested before they accept. If they accept too early, the game shows the problem before building, so nothing is lost.
 - **Level 2, "everyone":** the step-free check follows the route to school and the ferry as a wheelchair user would. Ask: who else needs a step-free route? (buggies, older residents, a child with a broken leg.)
 - **Level card wording:** "No problem found", "Florence misunderstood" or "The plan missed something", with a sentence saying what happened and which check caught it.
@@ -246,7 +249,7 @@ Goldsmith Street in Norwich is a street of about 100 council homes built to a ve
 ## 10. Accessibility and inclusion
 - **Reading level:** cards under 12 words with icons; bubbles of 8 words or fewer, read aloud; all lines voiced and captioned.
 - **Colour-blind-safe:** lenses use patterns as well as colour (flood waves, carbon dots, walking-time numbers); petals have icons and an "enough" line.
-- **Motor-friendly:** large tap-to-place targets, undo within a level, no time limits, street view on rails. Reduce motion and a mini-map (DESIGN.md).
+- **Motor-friendly:** large tap-to-place targets, remove anything at any time, no time limits (the town clock can be paused), street view on rails. Reduce motion and a mini-map (DESIGN.md).
 - **No devices:** an A2 island map with acetate lens overlays, paper build tiles and a facilitator script of plans and outcomes.
 
 ## 11. Safety, ethics and data

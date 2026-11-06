@@ -1,34 +1,46 @@
-// The session: six levels, each in seven acts (Brief, Plan, Check, Fix, Move in, Live, Celebrate),
-// then the charter, the residents' summary check, a full day and the town report.
-// Stars: three per level. Flawed first plan: found it with the first check · named the habit first time ·
+// The game: free building on the island, with Florence's tips, and the AI Lab.
+// Build mode never blocks: the player builds, the town lives (day clock, residents, bubbles), and
+// categories unlock as the town grows (progress.js). Florence gives short tips from the honest simulation
+// (advisor.js) and invites the player into the AI Lab when the town hits a problem a mission teaches.
+// An AI Lab mission is one of the six lessons (brief, instruct Florence, check, name the habit, clearer
+// instruction), played on Florence's practice island (seed.js). It ends with the construction film, the
+// stars, and a choice: use Florence's fixed plan in your town, or keep your town as it is.
+// Stars: three per mission. Flawed first plan: found it with the first check · named the habit first time ·
 // fixed plan passes. Clean first plan: clear first time · spotted the hidden guess · plan passes its check.
 import * as THREE from 'three';
 import { ITEMS, TARGETS, placeReason } from '../world/catalog.js';
 import { simulate, cellOf, emptyCell, natureBaseline } from '../sim/sim.js';
 import { ask, read as readInstr } from '../ai/plotter.js';
 import { LEVELS, LEVEL_ORDER, checksFor } from './levels.js';
-import { CONTENT, LEVEL_TEXT, DILEMMAS, HABITS, diaryLines } from './content.js';
+import { CONTENT, LEVEL_TEXT, DILEMMAS, HABITS, SANDBOX, diaryLines } from './content.js';
 import { createChecks } from './checks.js';
 import { bubblesFor } from './bubbles.js';
-import { esc } from '../ui/ui.js';
+import { esc, LEVEL_ICONS } from '../ui/ui.js';
 import { renderReport } from './report.js';
 import { createFilm } from './film.js';
 import * as Teach from '../ai/teach.js';
 import { getModel } from '../ai/plotter.js';
 import { accessCheck } from '../sim/access.js';
+import { TIERS, SANDBOX_TOWN_CAP, unlocked, newlyUnlocked, labReady, townGoals, townComplete } from './progress.js';
+import { RULES, newAdvisor, nextTip, tipText } from './advisor.js';
+import { seedTo } from './seed.js';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-const SAVE = 'ecotown.save.v2';
+const SAVE = 'ecotown.save.v3';
 const shuffle = (a) => { const b = a.slice(); for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
 const STOP = new Set(['a', 'an', 'the', 'and', 'or', 'of', 'to', 'for', 'in', 'on', 'at', 'by', 'with', 'is', 'it', 'be', 'that', 'this', 'our', 'we', 'us', 'please', 'all', 'some', 'old', 'new', 'make', 'put', 'build', 'find', 'grow']);
+// the lens each mission unlocks for free building (the move mission's street test is a view; its lens is the step-free check)
+export const LAB_LENS = { land: 'flood', move: 'access', homes: 'carbon', food: 'nature', power: 'winter', heart: 'walk' };
+const DAY_SECONDS = 150; // one town day in build mode, 6:00 to 22:00
 
 export function createGame(app) {
   const { world, ui, rig, stage, terrain, life, audio } = app;
   const G = app.G = {
-    band: app.band, C: CONTENT[app.band], j: app.band === 'junior', cells: new Map(), stars: 0, levelStars: {}, starMarks: {}, bonus: {}, mistakes: [], diary: [], instructions: {}, charter: [],
-    outcomes: {}, budget: app.band === 'senior' ? 150 : Infinity, spent: 0, li: 0, extra: { families: 0, carbon: 0 }, townName: app.townName || 'Eco Town', inputMode: null, draft: {}, reflection: '',
+    band: app.band, C: CONTENT[app.band], S: SANDBOX[app.band], j: app.band === 'junior', cells: new Map(), stars: 0, levelStars: {}, starMarks: {}, bonus: {}, mistakes: [], diary: [], instructions: {}, charter: [],
+    outcomes: {}, credits: app.band === 'senior' ? 60 : Infinity, li: 0, extra: { families: 0, carbon: 0 }, townName: app.townName || 'Eco Town', inputMode: null, draft: {}, reflection: '',
+    labs: {}, ever: [], classMode: !!app.classMode, full: !!app.sandboxFull, day: 1, movedIn: false, completeShown: false, busy: false,
   };
-  app.C = G.C; app.hour = 12.5;
+  app.C = G.C; app.hour = 8; app.levelId = null; app.inLab = false;
   const checks = createChecks(app);
   const film = app.film = createFilm(app);
   const T = (id) => LEVEL_TEXT[id];
@@ -38,21 +50,26 @@ export function createGame(app) {
   const help = (o) => ui.helper({ name: G.C.helperName, ...o });
   const facil = (id, step) => ui.facil(T(id)?.facil?.[step] || null);
 
-  app.refreshLights = () => { const s = sim(); world.setLights(!s.homes.length ? [] : (s.power.winterOK || !G.levelStars.power ? s.homes.map((x) => x.k) : s.homes.slice(0, Math.floor(s.homes.length * 0.4)).map((x) => x.k))); };
+  // before power is unlocked the town is on the old island grid; after that, a still night shows whether the town's own power copes
+  app.refreshLights = () => { const s = sim(); world.setLights(!s.homes.length ? [] : (s.power.winterOK || !G.ever.includes('power') || (app.inLab && app.levelId !== 'power') ? s.homes.map((x) => x.k) : s.homes.slice(0, Math.floor(s.homes.length * 0.4)).map((x) => x.k))); };
   function showCells(cells = G.cells, animateKeys = null) {
     let i = 0;
     for (const t of terrain.tiles.values()) { const c = cells.get(t.k); const anim = animateKeys?.has(t.k); world.setCell(t.k, c || emptyCell(), { animate: anim, delay: anim ? (i++) * 0.06 : 0, reduce: app.reduce }); if (anim) setTimeout(() => audio.pop(i), i * 60); }
     life.setTown(sim(cells), cells, stage.q); app.refreshLights();
   }
-  // one of the level's three stars (i = 0, 1, 2); each can be earned once
-  function star(i, why = '') {
-    const id = app.levelId; const m = (G.starMarks[id] ||= [false, false, false]); if (m[i]) return;
-    m[i] = true; G.stars++; G.levelStars[id] = (G.levelStars[id] || 0) + 1; ui.setStars(G.stars); if (why) ui.caption(`★ ${why}`, 2600);
-  }
-  function bonusStar(why) { const id = app.levelId; G.bonus[id] = (G.bonus[id] || 0) + 1; G.stars++; ui.setStars(G.stars); ui.caption(`★ ${why}`, 2800); }
+  // stars: three per mission, the best run counts. `run` holds this run's marks while a mission is played.
+  let run = null;
+  const totalStars = () => Object.values(G.levelStars).reduce((a, b) => a + b, 0) + Object.values(G.bonus).reduce((a, b) => a + b, 0);
+  const shownStars = () => totalStars() + (run ? Math.max(0, run.marks.filter(Boolean).length - (G.levelStars[run.id] || 0)) + (run.bonus && !G.bonus[run.id] ? 1 : 0) : 0);
+  function star(i, why = '') { if (!run || run.marks[i]) return; run.marks[i] = true; G.stars = shownStars(); ui.setStars(G.stars); if (why) ui.caption(`★ ${why}`, 2600); }
+  function bonusStar(why) { if (!run) return; run.bonus = true; G.stars = shownStars(); ui.setStars(G.stars); ui.caption(`★ ${why}`, 2800); }
   function flower(flash = true) { const s = sim(); ui.carbonInfo = { used: s.carbon, limit: TARGETS.carbonCeiling }; ui.flower(s.petals, G.townName, { flash }); }
-  function save() { try { localStorage.setItem(SAVE, JSON.stringify({ band: G.band, li: G.li + 1, stars: G.stars, levelStars: G.levelStars, starMarks: G.starMarks, bonus: G.bonus, mistakes: G.mistakes, diary: G.diary, instructions: G.instructions, cells: [...G.cells], extra: G.extra, spent: G.spent, session: app.session, townName: G.townName, inputMode: G.inputMode, paths: G.paths, outcomes: G.outcomes })); } catch { /* storage off */ } }
-  G.load = (data) => { Object.assign(G, { li: data.li, stars: data.stars, levelStars: data.levelStars || {}, starMarks: data.starMarks || {}, bonus: data.bonus || {}, mistakes: data.mistakes || [], diary: data.diary || [], extra: data.extra || G.extra, spent: data.spent || 0, instructions: data.instructions || {}, townName: data.townName || G.townName, inputMode: data.inputMode || null, paths: data.paths || {}, outcomes: data.outcomes || {} }); G.cells = new Map(data.cells); ui.setTownName(G.townName); };
+  const KEEP = ['band', 'levelStars', 'starMarks', 'bonus', 'mistakes', 'diary', 'instructions', 'extra', 'credits', 'townName', 'inputMode', 'paths', 'outcomes', 'labs', 'ever', 'classMode', 'day', 'movedIn', 'completeShown', 'charter', 'reflection'];
+  function save() {
+    if (app.inLab || G.full) return; // a mission's practice island is never saved as the player's town
+    try { const d = { cells: [...G.cells], li: 1 }; for (const k of KEEP) d[k] = G[k]; if (d.credits === Infinity) d.credits = null; localStorage.setItem(SAVE, JSON.stringify(d)); } catch { /* storage off: keep playing */ }
+  }
+  G.load = (data) => { for (const k of KEEP) if (data[k] != null) G[k] = data[k]; if (G.credits == null) G.credits = G.j ? Infinity : 60; G.cells = new Map(data.cells || []); G.stars = totalStars(); };
   G.paths = {};
 
   // ---------------- input: word tiles (junior default), free text (senior default), cards (fallback)
@@ -225,190 +242,341 @@ export function createGame(app) {
     }
   }
 
-  // ---------------- building: accept the plan, then paint and adjust
+
   const ctxFor = (cells) => ({ moveTiles: [...cells.values()].filter((c) => c.item && ITEMS[c.item].level === 'move').length, hasSchool: [...cells.values()].some((c) => c.item === 'school'), access: app.levelId === 'move' ? accessCheck(terrain, cells) : null });
+  const planCost = (pl) => pl.reduce((a, p) => a + (ITEMS[p.item || p.mod || p.mark]?.cost || 0), 0);
+  const isOpen = (cat) => G.ever.includes(cat);
+
+  // ================= FREE BUILDING =================
   // tint every tile the selected tool may go on, so players can see where things are allowed
-  function showAllowed(id, tool) {
+  function showAllowed(tool) {
     const spec = new Map();
     for (const t of terrain.tiles.values()) {
       const c = cellOf(G.cells, t.k); let ok;
-      if (tool === 'erase') ok = (c.item && ITEMS[c.item].level === id && !c.locked) || (id === 'land' && c.mark && !c.locked);
-      else ok = !placeReason(tool, t, c) && !(ITEMS[tool].kind === 'build' && c.item === tool);
+      if (tool === 'erase') ok = !t.fixed && (!!c.item || !!c.mark || c.mods.length > 0);
+      else ok = !placeReason(tool, t, c) && !(ITEMS[tool].kind === 'build' && c.item === tool) && !(ITEMS[tool].kind === 'mark' && (c.item || c.mark === tool));
       if (ok) spec.set(t.k, { color: tool === 'erase' ? '#ff9a8a' : '#fff3a8', pattern: 'dots', opacity: 0.55 });
     }
     world.setOverlay(spec);
   }
-  async function buildAct(id, res) {
-    const lv = LEVELS[id];
-    world.clearGhost(); ui.legend(null); G.cells = res.after; G.spent += planCost(res.plan.placements);
-    const changed = new Set(res.plan.placements.map((p) => p.k));
-    // the plan becomes real in a short film (construction, installation, farming…)
-    await film.play(id, changed, G.cells, { band: G.band });
-    life.setTown(sim(), G.cells, stage.q); app.refreshLights(); flower(true); await rig.overview(1.0);
-    let tool = lv.palette[0]; let collapsed = false;
-    rig.building = true; facil(id, 'build');
-    const canvas = stage.renderer.domElement; const leave = () => { world.clearGhost(); app._hk = null; ui.labels.clear('lbl'); };
-    canvas.addEventListener('pointerleave', leave);
-    return new Promise((resolve) => {
-      const render = () => {
-        const s = sim(); const needs = lv.needs(s, ctxFor(G.cells), G.j); const ok = lv.pass(s, ctxFor(G.cells));
-        const bud = G.budget !== Infinity ? `<span class="${G.spent <= G.budget ? 'ok' : ''}">Budget ${G.spent}/${G.budget} credits</span>` : '';
-        ui.tray(`<div class="buildhead"><h3>${esc(G.j ? 'Paint and place: pick a tool, then tap a lit-up tile' : 'Adjust the plan: pick a tool, then tap a highlighted tile')}</h3><button class="btn alt small" data-fold aria-expanded="${!collapsed}">${collapsed ? '▴ Tools' : '▾ Hide tools'}</button></div>
-          <div class="palette ${collapsed ? 'folded' : ''}">${lv.palette.map((idd) => { const it = ITEMS[idd]; return `<button class="pal ${tool === idd ? 'on' : ''}" data-t="${idd}"><i style="background:${it.color}">${it.icon}</i><span>${esc(it.label)}${!G.j && it.cost ? `<small>${it.cost} cr${it.families ? ` · ${it.families} hh` : ''}${it.embodied ? ` · ${it.embodied} t` : ''}${it.food ? ` · ${it.food} food` : ''}</small>` : ''}</span></button>`; }).join('')}<button class="pal ${tool === 'erase' ? 'on' : ''}" data-t="erase"><i style="background:#eef2f5">⌫</i><span>Remove</span></button></div>
-          <div class="needs"><b class="when">${esc(G.C.ui.afterBuild)}:</b>${needs.map((n) => `<span class="${n.ok ? 'ok' : ''}">${n.ok ? '✓' : '•'} ${esc(n.label)}</span>`).join('')}${bud}</div>
-          <div class="row" style="justify-content:flex-end"><button class="btn go" data-done ${ok && G.spent <= G.budget ? '' : 'disabled'}>${esc(G.C.ui.done)} ✓</button></div>`, (tr) => {
-          tr.querySelectorAll('[data-t]').forEach((b) => (b.onclick = () => { tool = b.dataset.t; showAllowed(id, tool); render(); }));
-          tr.querySelector('[data-fold]').onclick = () => { collapsed = !collapsed; render(); };
-          tr.querySelector('[data-done]').onclick = () => { rig.onTap = null; rig.onHover = null; rig.building = false; canvas.removeEventListener('pointerleave', leave); world.clearGhost(); world.setOverlay(null); ui.labels.clear('lbl'); ui.facil(null); resolve(); };
-        });
-      };
-      rig.onTap = (ndc) => {
-        const k = world.pick(ndc, stage.camera); if (!k) return; const t = terrain.tiles.get(k); const c = { ...cellOf(G.cells, k), mods: [...cellOf(G.cells, k).mods] };
-        if (tool === 'erase') {
-          if (c.locked) return ui.caption('Built in an earlier level', 1800);
-          const it = c.item && ITEMS[c.item]; if (c.mods.length && !c.locked) { c.mods.pop(); } else if (it && it.level === id) { G.spent -= it.cost || 0; c.item = null; } else if (c.mark && id === 'land') c.mark = null; else return;
-        } else {
-          const it = ITEMS[tool]; const why = placeReason(tool, t, c); if (why) { audio.bad(); return ui.caption(why, 1800); }
-          if (tool === 'town' && c.mark !== 'town' && sim().townTiles >= TARGETS.townTiles) { audio.bad(); return ui.caption(`Town land is full (${TARGETS.townTiles} of ${TARGETS.townTiles}). Remove a tile first.`, 2600); }
-          if (G.spent + (it.cost || 0) > G.budget) return ui.caption('Over budget', 1800);
-          if (it.unique) for (const [kk, cc] of G.cells) if (cc.item === tool && !cc.locked) { G.cells.set(kk, { ...cc, item: null }); world.setCell(kk, G.cells.get(kk)); }
-          if (it.kind === 'mark') c.mark = tool; else if (it.kind === 'mod') c.mods.push(tool); else { if (c.item && ITEMS[c.item].level === id) G.spent -= ITEMS[c.item].cost || 0; c.item = tool; }
-          G.spent += it.cost || 0;
-        }
-        G.cells.set(k, c); world.clearGhost(); app._hk = null; world.setCell(k, c, { build: { dur: 0.7 }, reduce: app.reduce }); audio.pop(); life.setTown(sim(), G.cells, stage.q); app.refreshLights(); flower(true); showAllowed(id, tool); render();
-      };
-      rig.onHover = (ndc) => { if (tool === 'erase') return; const k = world.pick(ndc, stage.camera); if (k === app._hk) return; app._hk = k; if (!k) { ui.labels.clear('lbl'); return world.clearGhost(); } const c = cellOf(G.cells, k); const why = placeReason(tool, terrain.tiles.get(k), c); const nc = { ...c, mods: [...c.mods] }; const it = ITEMS[tool]; if (it.kind === 'mark') nc.mark = tool; else if (it.kind === 'mod') nc.mods.push(tool); else nc.item = tool; world.showGhost([{ k }], new Map([[k, nc]]), { reduce: true, bad: why ? new Set([k]) : new Set() }); ui.labels.set(why ? [{ at: world.tileTop(k).add(new THREE.Vector3(0, 4, 0)), text: why, cls: 'bad' }] : []); };
-      showAllowed(id, tool); render();
+  // why `tool` can't go on tile k in free building (null if it can)
+  function sandboxReason(tool, t, c, { free = false } = {}) {
+    const it = ITEMS[tool]; const why = placeReason(tool, t, c); if (why) return why;
+    if (it.kind === 'mark' && c.item) return G.S.removeFirst;
+    if (it.kind === 'mark' && c.mark === tool) return G.S.already;
+    if (it.kind === 'build' && c.item === tool) return G.S.already;
+    if (tool === 'town' && sim().townTiles >= SANDBOX_TOWN_CAP) return G.S.townFull(SANDBOX_TOWN_CAP);
+    if (!free && (it.cost || 0) > G.credits) return G.S.noCredits;
+    return null;
+  }
+  // put `tool` on tile k (or erase there). Returns true if the town changed.
+  // free: a mission's plan, used in the town, is paid for by the AI Lab (13–17 credits are not spent)
+  function placeAt(k, tool, { free = false } = {}) {
+    const t = terrain.tiles.get(k); if (!t) return false;
+    const c = { ...cellOf(G.cells, k), mods: [...cellOf(G.cells, k).mods], locked: false };
+    if (tool === 'erase') {
+      if (t.fixed) return false;
+      if (c.mods.length) { const m = c.mods.pop(); refund(m); }
+      else if (c.item) { refund(c.item); c.item = null; }
+      else if (c.mark) c.mark = null;
+      else return false;
+    } else {
+      const it = ITEMS[tool]; const why = sandboxReason(tool, t, c, { free }); if (why) { if (!free) { audio.bad(); ui.caption(why, 2000); } return false; }
+      if (it.unique) for (const [kk, cc] of G.cells) if (cc.item === tool) { refund(tool); G.cells.set(kk, { ...cc, item: null }); world.setCell(kk, G.cells.get(kk)); }
+      if (it.kind === 'mark') c.mark = tool; else if (it.kind === 'mod') c.mods.push(tool); else { if (c.item) refund(c.item); c.item = tool; }
+      if (G.credits !== Infinity && !free) G.credits -= it.cost || 0;
+    }
+    G.cells.set(k, c); world.setCell(k, c, { build: { dur: 0.7 }, reduce: app.reduce });
+    return true;
+  }
+  const refund = (id) => { if (G.credits !== Infinity) G.credits += ITEMS[id]?.cost || 0; };
+
+  const sb = {
+    tool: 'town', cat: 'land', folded: false, paused: false, running: false, bubbles: [], nextBub: 0, nextTipCheck: 0, adv: newAdvisor(), tipT: 0, saveT: 0, tick: 0, lens: null, goalsOpen: false,
+  };
+  const CAT_ICON = Object.fromEntries(LEVEL_ORDER.map((id, i) => [id, LEVEL_ICONS[i]]));
+  const catLabel = (id) => `${CAT_ICON[id]} ${G.S.cats[id]}`;
+  function clockText() { const hh = Math.floor(app.hour), mm = Math.floor((app.hour - hh) * 4) * 15; return `${hh}:${String(mm).padStart(2, '0')}`; }
+
+  // the build bar: category tabs, the palette of the open category, erase, the clock and the town's numbers
+  function renderBar() {
+    if (!sb.running) return;
+    const s = sim(); const items = isOpen(sb.cat) ? LEVELS[sb.cat].palette : [];
+    const tier = TIERS.find((t) => t.id === sb.cat);
+    const cr = G.credits !== Infinity ? `<span class="${G.credits > 0 ? 'ok' : ''}">💰 ${G.credits} ${G.S.credits}</span>` : '';
+    ui.tray(`<div class="buildhead"><div class="cats" role="tablist" aria-label="${esc(G.S.buildWhat)}">${LEVEL_ORDER.map((id) => `<button class="cat ${sb.cat === id ? 'on' : ''} ${isOpen(id) ? '' : 'locked'}" data-cat="${id}" role="tab" aria-selected="${sb.cat === id}">${catLabel(id)}${isOpen(id) ? '' : ' 🔒'}</button>`).join('')}</div>
+        <div class="row barctl"><span class="clock" data-clock title="${esc(G.S.dayClock)}">🕖 ${clockText()} · ${esc(G.S.day)} ${G.day}</span><button class="btn alt small" data-pause aria-label="${esc(sb.paused ? G.S.play : G.S.pause)}" title="${esc(sb.paused ? G.S.play : G.S.pause)}">${sb.paused ? '▶' : '❚❚'}</button><button class="btn alt small" data-fold aria-expanded="${!sb.folded}">${sb.folded ? '▴ ' + esc(G.S.tools) : '▾'}</button></div></div>
+      <div class="palette ${sb.folded ? 'folded' : ''}">${isOpen(sb.cat) ? items.map((idd) => { const it = ITEMS[idd]; return `<button class="pal ${sb.tool === idd ? 'on' : ''}" data-t="${idd}"><i style="background:${it.color}">${it.icon}</i><span>${esc(it.label)}${!G.j && it.cost ? `<small>${it.cost} cr${it.families ? ` · ${it.families} hh` : ''}${it.embodied ? ` · ${it.embodied} t` : ''}${it.food ? ` · ${it.food} food` : ''}</small>` : ''}</span></button>`; }).join('') + `<button class="pal ${sb.tool === 'erase' ? 'on' : ''}" data-t="erase"><i style="background:#fff">🧽</i><span>${esc(G.S.erase)}</span></button>`
+        : `<p class="lockmsg">🔒 ${esc(G.S.unlocksWhen)} ${esc(pick(tier.need))}. <span>${esc(G.S.now)}: ${esc(progressNow(tier.id, s))}</span></p>`}</div>
+      <div class="needs townnums"><span class="ok">🏘 ${esc(G.S.townLand)} ${s.townTiles}/${SANDBOX_TOWN_CAP}</span><span class="${s.familiesSafe >= TARGETS.families ? 'ok' : ''}">👪 ${s.familiesSafe}/${TARGETS.families} ${esc(G.S.families)}</span>${cr}</div>`, (tr) => {
+      tr.querySelectorAll('[data-cat]').forEach((b) => (b.onclick = () => { sb.cat = b.dataset.cat; if (isOpen(sb.cat)) { sb.tool = LEVELS[sb.cat].palette[0]; showAllowed(sb.tool); } else world.setOverlay(null); sb.folded = false; audio.tap(); renderBar(); }));
+      tr.querySelectorAll('[data-t]').forEach((b) => (b.onclick = () => { sb.tool = b.dataset.t; showAllowed(sb.tool); renderBar(); }));
+      tr.querySelector('[data-fold]').onclick = () => { sb.folded = !sb.folded; renderBar(); };
+      tr.querySelector('[data-pause]').onclick = () => { sb.paused = !sb.paused; renderBar(); };
     });
   }
-  const planCost = (pl) => pl.reduce((a, p) => a + (ITEMS[p.item || p.mod || p.mark]?.cost || 0), 0);
+  function progressNow(cat, s) {
+    if (cat === 'homes') return `${s.townTiles} ${G.S.tiles}`;
+    if (cat === 'heart') return `${s.families} ${G.S.families}, ${G.S.food} ${s.food}/${s.foodNeed}`;
+    return `${s.families} ${G.S.families}`;
+  }
+  // the town card: the next town goal, and the six missions on the track (lit = unlocked, ticked = done)
+  function renderCard() {
+    const s = sim(); const goals = townGoals(s, ctxFor(G.cells)); const next = goals.find((g) => !g.ok);
+    ui.setBadge(G.j ? 'BUILD YOUR TOWN' : 'FREE BUILD');
+    ui.setTask(0, next ? `${G.S.nextGoal}: ${G.S.goal[next.id](s)}` : G.S.allGoals);
+    ui.setTrack(LEVEL_ORDER.map((id) => (G.labs[id] ? 'done' : labReady(id, G.ever, G.labs, G.classMode) ? 'on' : '')));
+    ui.setStars(G.stars = totalStars());
+  }
+  // lens buttons in the icon strip, one per mission done
+  function renderLenses() { ui.setLenses(LEVEL_ORDER.filter((id) => G.labs[id]).map((id) => ({ id: LAB_LENS[id], icon: G.C.checks[LAB_LENS[id]].icon, label: G.C.checks[LAB_LENS[id]].label, on: sb.lens === LAB_LENS[id] }))); }
+  async function toggleLens(id) {
+    if (G.busy) return;
+    if (sb.lens) { const was = sb.lens; sb.lens = null; await checks.leave(); renderLenses(); if (sb.tool) showAllowed(sb.tool); if (was === id) return; }
+    sb.lens = id; world.setOverlay(null); renderLenses();
+    const r = await checks.run(id, sim(), G.cells, {});
+    if (sb.lens !== id) return;
+    if (r.info?.summary) ui.caption(`${G.C.checks[id].label}: ${r.info.summary}`, 5000);
+    ui.P.lensbar.insertAdjacentHTML('beforeend', `<button class="btn small alt lensx" data-lensx>✕ ${esc(G.S.closeLens)}</button>`);
+    ui.P.lensbar.querySelector('[data-lensx]').onclick = () => toggleLens(id);
+  }
 
-  // ---------------- move in (only when new homes are built), live, celebrate
-  async function moveInAct(id) {
-    const s = sim(); if (id !== 'homes' || !s.homes.length) return;
-    ui.only([]); ui.setTask(LEVELS[id].n, G.C.ui.moveIn);
+  // after every change: the world, the flower, the bar, unlocks, Florence's tips and the autosave
+  function changed() {
+    const s = sim();
+    life.setTown(s, G.cells, stage.q); app.refreshLights(); flower(true);
+    sb.bubbles = s.homes.length ? bubblesFor(s, G.cells, terrain, G.j, 'final') : [];
+    const before = G.ever; G.ever = unlocked(s, G.ever, G.full); const fresh = newlyUnlocked(before, G.ever);
+    if (fresh.length) announceUnlock(fresh);
+    if (!G.movedIn && s.homes.length) moveIn(s);
+    renderBar(); renderCard();
+    if (!fresh.length) adviseSoon(400);
+    if (!G.completeShown && !sb.celebrating && townComplete(s, ctxFor(G.cells))) { sb.celebrating = true; setTimeout(celebrateTown, 1500); }
+    clearTimeout(sb.saveT); sb.saveT = setTimeout(save, 800);
+  }
+  // one alert for everything that opened at once; Florence's tip is about the first of them
+  function announceUnlock(ids) {
+    if (!sb.running) return;
+    audio.reward(); ui.alert(`${ids.map((id) => `${CAT_ICON[id]} ${G.S.cats[id]}`).join(' · ')}: ${G.S.unlocked}`, true, 2600);
+    const id = ids[0]; const lab = ids.find((x) => labReady(x, G.ever, G.labs, G.classMode) && !G.labs[x]) || null;
+    showTip({ id: 'unlock-' + id, text: pick(G.S.unlockTip[id]) + (lab ? ' ' + G.S.labReady : ''), lab });
+    sb.adv.last = performance.now();
+  }
+  function adviseSoon(ms) { clearTimeout(sb.tipT); sb.tipT = setTimeout(advise, ms); }
+  function advise() {
+    if (!sb.running || sb.paused || G.busy || sb.lens) return;
+    const s = sim(); const rule = nextTip(sb.adv, s, { open: G.ever, hasSchool: ctxFor(G.cells).hasSchool }, performance.now());
+    if (!rule) return;
+    const lab = rule.lab && !G.labs[rule.lab] && labReady(rule.lab, G.ever, G.labs, G.classMode) ? rule.lab : null;
+    const lens = rule.lab && G.labs[rule.lab] && rule.lens === LAB_LENS[rule.lab] ? rule.lens : null;
+    showTip({ id: rule.id, text: tipText(rule, s, G.j), lab, lens });
+  }
+  // Florence's tip: one line in the dock, above the build bar. Never blocks; fades after a while.
+  let tipShown = null;
+  function showTip({ id, text, lab = null, lens = null }) {
+    tipShown = id;
+    help({ tag: G.S.tipTag, tagCls: 'tip', html: `<p>${esc(text)}</p><div class="row tiprow">${lab ? `<button class="btn small go" data-tiplab="${lab}">🧪 ${esc(G.S.showInLab)}</button>` : ''}${lens ? `<button class="btn small alt" data-tiplens="${lens}">${G.C.checks[lens].icon} ${esc(G.S.useLens)}</button>` : ''}<button class="btn small alt" data-tipx aria-label="${esc(G.S.dismiss)}">✕</button></div>`, say: text, voice: 'helper' });
+    const el = ui.P.helper;
+    el.querySelector('[data-tiplab]')?.addEventListener('click', () => { hideTip(); openLab(lab); });
+    el.querySelector('[data-tiplens]')?.addEventListener('click', () => { hideTip(); toggleLens(lens); });
+    el.querySelector('[data-tipx]').onclick = () => hideTip();
+    clearTimeout(sb.tipHide); sb.tipHide = setTimeout(() => { if (tipShown === id) hideTip(); }, lab ? 20000 : 12000);
+  }
+  function hideTip() { tipShown = null; if (!app.inLab) ui.helper(null); }
+  // the first family arrives on the sky-ferry, once, without taking the camera away
+  function moveIn(s) {
+    G.movedIn = true; if (app.reduce) return;
     const home = s.homes[0].k; life.family.home = home; for (const m of life.family.members) m.visible = true;
-    app.moveIn = 0; const dur = app.reduce ? 1.5 : 8;
-    rig.followTarget(() => { const p = life.familyPos() || world.tileTop(home); return { pos: p.clone().add(new THREE.Vector3(-14, 11, 16)), look: p }; });
-    ui.caption(G.j ? 'Here they come! The family arrives on the sky-ferry.' : 'Move-in: the first family arrives.', dur * 1000);
-    const t0 = performance.now(); await new Promise((r) => { const step = () => { app.moveIn = Math.min(1, (performance.now() - t0) / (dur * 1000)); if (app.moveIn < 1) requestAnimationFrame(step); else r(); }; step(); });
-    app.moveIn = null; await rig.overview(1.2);
+    ui.caption(G.S.moveIn, 6000);
+    app.moveIn = 0; const t0 = performance.now(); const step = () => { if (app.moveIn == null) return; app.moveIn = Math.min(1, (performance.now() - t0) / 8000); if (app.moveIn < 1) requestAnimationFrame(step); else app.moveIn = null; }; step();
   }
-  async function liveAct(id, seconds, { final = false } = {}) {
-    const s = sim(); ui.only([]); ui.setTask(LEVELS[id].n, final ? 'A whole day in your town' : pick(T(id).live)); ui.views('sky'); app.bot.show(false);
-    const winter = id === 'power' && !final; if (winter) app.winterTest = true;
-    const list = s.homes.length ? bubblesFor(s, G.cells, terrain, G.j, final ? 'final' : id) : []; const pois = poiList(s);
-    const lines = diaryLines(final ? 'heart' : id, s, G.j); let shown = -1;
-    let skip = false; ui.tray(`<div class="row liverow"><span class="clock" data-clock>7:00</span><span class="diary" data-diary></span>${!G.j ? '<button class="btn alt" data-said>What residents said</button>' : ''}<button class="btn alt" data-skip>Skip ⏭</button></div>`, (tr) => { tr.querySelector('[data-skip]').onclick = () => (skip = true); const ws = tr.querySelector('[data-said]'); if (ws) ws.onclick = () => saidList(list); });
-    ui.caption(final ? `A day in ${G.townName}` : pick(T(id).live), 3000);
-    const t0 = performance.now(); let bi = 0, pi = 0, nextB = 2, nextP = 0;
-    while (!skip) {
-      const el = (performance.now() - t0) / 1000; if (el > seconds) break;
-      app.hour = 7 + (el / seconds) * 14; stage.setTime(app.hour, winter ? 1 : 0);
-      const ck = ui.P.tray.querySelector('[data-clock]'); if (ck) { const hh = Math.floor(app.hour), mm = Math.floor((app.hour - hh) * 4) * 15; ck.textContent = `${hh}:${String(mm).padStart(2, '0')}`; }
-      const part = app.hour < 11 ? 0 : app.hour < 16 ? 1 : 2;
-      if (part !== shown) { shown = part; const dd = ui.P.tray.querySelector('[data-diary]'); if (dd) { dd.textContent = `📔 ${['Morning', 'Afternoon', 'Evening'][part]}: “${lines[part]}”`; dd.classList.remove('flash'); void dd.offsetWidth; dd.classList.add('flash'); } }
-      if (el >= nextP && pois.length && !app.reduce && rig.mode === 'sky') { const p = pois[pi++ % pois.length]; rig.focus(p, { dist: 70, pitch: 0.6, yaw: rig.sky.yaw + 0.5 }, 3.2); nextP = el + 6; }
-      if (el >= nextB && list.length) {
-        const b = list[bi++ % list.length]; const who = life.residentNear(b.k);
-        if (who) ui.labels.bubble({ at: () => who.position.clone().add(new THREE.Vector3(0, 2.6, 0)), text: b.text, bad: b.bad });
-        nextB = el + 3.4;
-      }
-      await sleep(50);
+  // the living town: a slow day, residents' bubbles, a new day each evening (senior: households pay credits)
+  function tick() {
+    if (!sb.running || sb.paused || G.busy) return;
+    app.hour += (16 / DAY_SECONDS) * 0.2;
+    if (app.hour >= 22) newDay();
+    stage.setTime(app.hour, 0);
+    const ck = ui.P.tray.querySelector('[data-clock]'); if (ck) ck.textContent = `🕖 ${clockText()} · ${G.S.day} ${G.day}`;
+    const now = performance.now();
+    if (sb.bubbles.length && now > sb.nextBub && rig.mode === 'sky' && !sb.lens) {
+      const b = sb.bubbles[Math.floor(Math.random() * sb.bubbles.length)]; const who = life.residentNear(b.k);
+      if (who) ui.labels.bubble({ at: () => who.position.clone().add(new THREE.Vector3(0, 2.6, 0)), text: b.text, bad: b.bad, quiet: true });
+      sb.nextBub = now + 9000;
     }
-    ui.labels.clear('bub'); app.winterTest = false; app.hour = 12.5; stage.setTime(12.5, 0); app.refreshLights(); if (rig.mode !== 'sky') ui.views('sky'); await rig.overview(1.1);
-    // senior: residents' petition when the same problem keeps coming up
-    const bad = list.filter((b) => b.bad); if (!G.j && bad.length >= 3) { const top = bad[0]; await ui.modal(`<div class="ribbon">${esc(G.C.ui.petition)}</div><div class="big">📜</div><h2>“${esc(top.text)}”</h2><p>${bad.length} residents signed. You can fix it in the next level, or explain your trade-off at the town meeting.</p><button class="btn go" data-act="ok">${esc(G.C.ui.continue)}</button>`); }
+    if (now > sb.nextTipCheck) { sb.nextTipCheck = now + 5000; if (!tipShown) advise(); }
   }
-  function saidList(list) { ui.modal(`<div class="ribbon">What residents said</div><div style="text-align:left">${list.map((b, i) => `<div class="row" style="align-items:center;margin:4px 0"><span style="flex:1">${b.bad ? '☹' : '☺'} ${esc(b.text)}</span><button class="btn small alt" data-act="pin${i}">📍</button></div>`).join('')}</div><button class="btn go" data-act="close">Close</button>`).then((a) => { if (a.startsWith('pin')) rig.focus(world.tileTop(list[+a.slice(3)].k), { dist: 45 }, 1.2); }); }
-  function poiList(s) { const out = []; if (s.homes[0]) out.push(world.tileTop(s.homes[0].k)); if (s.schoolKey) out.push(world.tileTop(s.schoolKey)); for (const [k, c] of G.cells) if (['market', 'orchard', 'wind', 'park'].includes(c.item)) { out.push(world.tileTop(k)); if (out.length > 5) break; } if (!out.length) { const town = [...G.cells].filter(([, c]) => c.mark === 'town').map(([k]) => world.tileTop(k)); if (town.length) out.push(town.reduce((a, b) => a.add(b), new THREE.Vector3()).multiplyScalar(1 / town.length)); } return out; }
+  function newDay() {
+    app.hour = 6; G.day++; const s = sim();
+    const line = diaryLines('heart', s, G.j)[G.day % 3]; if (s.homes.length && !G.diary.includes(line)) G.diary = [...G.diary, line].slice(-8);
+    if (G.credits !== Infinity) { const pay = Math.round(s.familiesSafe * 1.5 + s.community); G.credits += pay; ui.caption(`${G.S.day} ${G.day}: +${pay} ${G.S.credits} ${G.S.fromHouseholds}`, 3500); }
+    else ui.caption(`${G.S.newDay} ${G.day}`, 2200);
+    renderBar(); save();
+  }
+  function bindTaps() {
+    const canvas = stage.renderer.domElement;
+    rig.onTap = (ndc) => {
+      if (!sb.running || G.busy || sb.lens || !sb.tool || !isOpen(sb.cat) && sb.tool !== 'erase') return;
+      const k = world.pick(ndc, stage.camera); if (!k) return;
+      if (placeAt(k, sb.tool)) { world.clearGhost(); app._hk = null; audio.pop(); showAllowed(sb.tool); changed(); }
+    };
+    rig.onHover = (ndc) => {
+      if (!sb.running || G.busy || sb.lens || sb.tool === 'erase' || !isOpen(sb.cat)) return;
+      const k = world.pick(ndc, stage.camera); if (k === app._hk) return; app._hk = k;
+      if (!k) { ui.labels.clear('lbl'); return world.clearGhost(); }
+      const c = cellOf(G.cells, k); const why = sandboxReason(sb.tool, terrain.tiles.get(k), c); const nc = { ...c, mods: [...c.mods] }; const it = ITEMS[sb.tool];
+      if (it.kind === 'mark') nc.mark = sb.tool; else if (it.kind === 'mod') nc.mods.push(sb.tool); else nc.item = sb.tool;
+      world.showGhost([{ k }], new Map([[k, nc]]), { reduce: true, bad: why ? new Set([k]) : new Set() });
+      ui.labels.set(why ? [{ at: world.tileTop(k).add(new THREE.Vector3(0, 4, 0)), text: why, cls: 'bad' }] : []);
+    };
+    canvas.addEventListener('pointerleave', () => { world.clearGhost(); app._hk = null; ui.labels.clear('lbl'); });
+  }
+  function startBuilding() {
+    sb.running = true; rig.building = true; app.levelId = null; app.inLab = false; app.briefMinutes = null;
+    ui.only([]); ui.views('sky'); ui.facil(null); ui.show('card'); ui.show('strip');
+    showCells(G.cells); world.setOverlay(null); if (isOpen(sb.cat)) showAllowed(sb.tool);
+    changed(); renderLenses(); setMusic('calm');
+    if (sb.afterLab) { const msg = sb.afterLab; sb.afterLab = null; setTimeout(() => ui.caption(msg, 5000), 2800); } // after any unlock alert
+  }
+  function stopBuilding() { sb.running = false; rig.building = false; clearTimeout(sb.tipT); world.clearGhost(); world.setOverlay(null); ui.labels.clear(); ui.tray(''); hideTip(); }
+  const setMusic = (m) => app.setMusic?.(m);
 
-  // one plain sentence per level for the level card and the report: what happened to the brief, and who caught it
-  function outcomeFor(id, s2) {
-    const oc = { ...(G.outcomes[id] || { kind: 'clean', detail: '' }) };
-    const b = app.briefMinutes, W = TARGETS.walkMinutes;
-    if (id === 'heart' && b && s2.walkMax > b) oc.detail += ` ${G.j ? 'You' : 'The brief'} asked for a ${b}-minute walk; the longest route is ${s2.walkMax} minutes. That meets the town’s ${W}-minute rule, but not ${G.j ? 'your' : 'the'} brief.`;
-    G.outcomes[id] = oc; return oc;
+  // ================= THE AI LAB =================
+  // the board: six missions, locked / ready / done, plus the whole-day and the report
+  async function labBoard() {
+    if (G.busy) return;
+    const rows = LEVEL_ORDER.map((id, i) => {
+      const done = G.labs[id]; const ready = labReady(id, G.ever, G.labs, G.classMode); const tier = TIERS.find((t) => t.id === id);
+      const why = !isOpen(id) ? `🔒 ${G.S.unlocksWhen} ${pick(tier.need)}` : !ready ? `🔒 ${G.S.classFirst}` : done ? `${'★'.repeat(done.stars)}${'☆'.repeat(3 - done.stars)} · ${G.S.playAgain}` : G.S.ready;
+      return `<button class="labrow ${done ? 'done' : ''} ${ready ? '' : 'locked'}" data-act="${ready ? 'lab:' + id : 'none'}" ${ready ? '' : 'aria-disabled="true"'}><span class="ic">${LEVEL_ICONS[i]}</span><span class="t"><b>${i + 1}. ${esc(T(id).title)}</b><small>${esc(pick(T(id).goal))}</small></span><span class="st">${esc(why)}</span></button>`;
+    }).join('');
+    G.busy = true; // the town waits while the board is open
+    const a = await ui.modal(`<div class="ribbon">🧪 ${esc(G.S.labTitle)}</div><p>${esc(pick(G.S.labIntro))}</p><div class="labs">${rows}</div>
+      <div class="row" style="justify-content:center;margin-top:10px"><button class="btn alt" data-act="day">🌇 ${esc(G.S.watchDay)}</button><button class="btn alt" data-act="report">📜 ${esc(G.C.ui.report)}</button><button class="btn go" data-act="close">${esc(G.S.backToBuilding)}</button></div>`);
+    G.busy = false;
+    if (a === 'none') return labBoard();
+    if (a.startsWith('lab:')) return openLab(a.slice(4));
+    if (a === 'day') return wholeDay();
+    if (a === 'report') return showReport();
   }
-  async function celebrateAct(id, levelChanged) {
-    // same-angle before/after: hide this level's builds, then pop them back in
-    ui.only([]); await rig.overview(1.0);
-    for (const k of levelChanged) world.setCell(k, emptyCell()); await sleep(app.reduce ? 200 : 600);
-    let i = 0; for (const k of levelChanged) world.setCell(k, G.cells.get(k), { build: { dur: 0.8, delay: (i++) * 0.06 }, reduce: app.reduce });
-    await sleep(app.reduce ? 300 : 1200 + i * 60); world.finishBuilds();
-    rig.startTurntable(app.reduce ? 0 : 0.1);
-    if (!G.j && DILEMMAS[id] && app.session !== 45) {
-      const d = DILEMMAS[id]; const a = await ui.modal(`<div class="ribbon">Town meeting</div><h2>${esc(d.text)}</h2><div class="row" style="justify-content:center">${d.options.map((o, i) => `<button class="btn ${i ? 'alt' : 'go'}" data-act="${i}">${esc(o.label)}</button>`).join('')}</div>`);
-      const e = d.options[+a].effect; G.extra.families += e.families || 0; G.extra.carbon += e.carbon || 0; G.diary.push(`Town meeting: ${d.options[+a].label}.`);
-    }
-    for (const c of G.cells.values()) if (c.item || c.mark) c.locked = true;
-    const s2 = sim(); G.diary.push(diaryLines(id, s2, G.j)[0]); flower(true); audio.reward(); world.confetti(new THREE.Vector3(10, 20, 8), 200);
-    const st = G.levelStars[id] || 0; const marks = G.starMarks[id] || [false, false, false]; const rules = G.C.stars[G.paths[id] || 'flawed'];
-    const [statLabel, statVal] = LEVELS[id].stat(s2, G.j); const oc = outcomeFor(id, s2);
-    const heading = pick(T(id).complete);
-    await ui.modal(`<div class="ribbon green">${esc(G.C.ui.reward)} · ${esc(T(id).title)}</div><div class="stars3">${[0, 1, 2].map((i) => `<span class="${i < st ? 'on' : ''}">★</span>`).join('')}</div><h2>${esc(heading)}</h2>
-      <ul class="starlist">${rules.map((r, i) => `<li class="${marks[i] ? 'got' : ''}">${marks[i] ? '★' : '☆'} ${esc(r)}</li>`).join('')}${G.bonus[id] ? `<li class="got">★ Bonus: found Florence’s biased survey</li>` : ''}</ul>
-      <div class="outcome ${oc.kind}"><small>${esc(G.C.ui.outcomeHead)}</small><b>${esc(G.C.ui.outcome[oc.kind])}</b><p>${esc(oc.detail)}</p></div>
-      <div class="stats"><div><small>${esc(statLabel)}</small>${esc(statVal)}</div><div><small>Town</small>${esc(G.townName)}</div><div><small>${G.j ? 'Fact' : 'Evidence'}</small>${esc(pick(T(id).fact))}</div></div>
-      <button class="btn go" data-act="next">${esc(G.C.ui.continue)} ➜</button>`, { say: `${heading} ${st} stars.` });
-    rig.startTurntable(0); save();
+  async function openLab(id) {
+    if (G.busy || !id) return; if (sb.lens) { sb.lens = null; await checks.leave(); renderLenses(); }
+    G.busy = true; stopBuilding();
+    try { await runLab(id); } finally { G.busy = false; startBuilding(); }
   }
 
-  // ---------------- one level
-  async function runLevel(id) {
-    app.levelId = id; const lv = LEVELS[id]; const L = T(id); const short = app.session === 45;
-    ui.setBadge(`${G.j ? 'SCHOOL CLUB' : 'AI LAB'} · L${lv.n}/6`); ui.setTask(lv.n, pick(L.goal)); ui.helper(null); ui.facil(null); ui.views(null, []); guess = null;
+  // one mission, on Florence's practice island
+  async function runLab(id) {
+    const real = G.cells; const lv = LEVELS[id]; const L = T(id);
+    app.levelId = id; app.inLab = true; document.documentElement.dataset.lab = 'on'; guess = null;
+    run = { id, marks: [false, false, false], bonus: false }; G.paths[id] = null; G.instructions[id] = []; G.mistakes = G.mistakes.filter((m) => m.level !== id);
+    G.cells = seedTo(terrain, id); showCells(G.cells);
+    ui.setBadge(`🧪 AI LAB · ${lv.n}/6`); ui.setTask(lv.n, pick(L.goal)); ui.helper(null); ui.facil(null); ui.views(null, []);
     stage.setTime(12); app.hour = 12.5; await rig.overview(1.4);
-    // Act 1: brief, with what this level adds (a new lens or test)
+    // brief, with what this mission adds (a new lens or test). "Not now" goes straight back to building.
     const N = L.newThing; const lens = G.C.checks[N.lens]; const newLabel = N.label ? pick(N.label) : lens.label;
     facil(id, 'brief');
-    await ui.modal(`<div class="ribbon">${esc(N.test ? G.C.ui.newTest : G.C.ui.newLens)}</div><div class="big">${lens.icon}</div><h2>${esc(newLabel)}</h2><p>${esc(pick(N))}</p><div class="levelbar"><b>LEVEL ${lv.n} OF 6</b><span>${esc(L.title)}</span><span class="dots">${[1, 2, 3, 4, 5, 6].map((i) => `<i class="${i <= lv.n ? 'on' : ''}"></i>`).join('')}</span></div><p class="brief">${esc(pick(L.brief))}</p><button class="btn go" data-act="go">${esc(G.C.ui.start)} ➜</button>`, { say: `${newLabel}. ${pick(N)} ${pick(L.brief)}` });
+    const go = await ui.modal(`<div class="ribbon">🧪 ${esc(G.S.labTitle)} · ${esc(N.test ? G.C.ui.newTest : G.C.ui.newLens)}</div><div class="big">${lens.icon}</div><h2>${esc(newLabel)}</h2><p>${esc(pick(N))}</p><div class="levelbar"><b>${esc(G.S.mission)} ${lv.n} OF 6</b><span>${esc(L.title)}</span><span class="dots">${[1, 2, 3, 4, 5, 6].map((i) => `<i class="${G.labs[LEVEL_ORDER[i - 1]] || i === lv.n ? 'on' : ''}"></i>`).join('')}</span></div><p class="brief">${esc(pick(L.brief))}</p><p class="practice">${esc(pick(G.S.practice))}</p><div class="row" style="justify-content:center"><button class="btn alt" data-act="later">${esc(G.S.notNow)}</button><button class="btn go" data-act="go">${esc(G.C.ui.start)} ➜</button></div>`, { say: `${newLabel}. ${pick(N)} ${pick(L.brief)}` });
+    if (go === 'later') return leaveLab(real);
     stage.setTime(12.5);
-    // Act 2: plan
+    // plan
     let res = await round(id, G.C.ui.tell); G.instructions[id] = [res.text];
-    // Act 3: check
+    // check
     facil(id, 'check');
     const briefMin = (r) => { app.briefMinutes = id === 'heart' ? r.read.numbers?.minutes || null : null; };
     briefMin(res);
-    let chk = await checkAct(id, res);
+    const chk = await checkAct(id, res);
     const checkName = (c) => G.C.checks[c]?.label || c;
     if (chk.missed) {
       G.paths[id] = 'missed';
-      G.outcomes[id] = { kind: 'missed', detail: G.j ? `Florence’s plan left out: ${chk.missed.join('; ')}. You added it while building.` : `The plan did not cover: ${chk.missed.join('; ')}. Completed during the build.` };
+      G.outcomes[id] = { kind: 'missed', detail: G.j ? `Florence’s plan left out: ${chk.missed.join('; ')}. You told her what was missing.` : `The plan did not cover: ${chk.missed.join('; ')}. Added in a revised instruction.` };
+      res = await retry(id, res, G.S.tellMissing, briefMin);
+      star(1, G.C.stars.missed[1]); star(2, G.C.stars.missed[2]);
     } else if (!chk.flawed) {
       G.paths[id] = 'clean'; const guessed = await hiddenAct(id);
       G.outcomes[id] = { kind: 'clean', detail: `${G.j ? 'Florence’s first plan passed the' : 'First plan passed the'} ${chk.tried.map(checkName).join(', ')} check${chk.tried.length > 1 ? 's' : ''}. ${G.j ? '' : 'Unstated assumption: '}${guessed}` };
     } else {
       G.paths[id] = 'flawed';
-      // Act 4: fix (habit, clearer instruction, auto re-test until it passes)
+      // fix: name the habit, then a clearer instruction, re-tested automatically until it passes
       ui.facil(`${res.plan.habitWhy ? `This plan: ${res.plan.habitWhy} ` : ''}${L.facil?.habit || ''}`); await habitAct(id, res); ui.facil(L.debrief);
       const m = G.mistakes.filter((x) => x.level === id).pop();
       const found = fmt(L.flaw[chk.which], chk.rv);
       G.outcomes[id] = { kind: ['one_word', 'literal'].includes(m?.habit) ? 'flawed' : 'missed', habit: m?.habit,
         detail: `${G.C.habits[m?.habit]?.label || ''}: ${m?.why || ''} ${chk.late ? (G.j ? 'Shown by' : 'Shown before building by') : (G.j ? 'You caught it with' : 'Caught by you with')} the ${checkName(chk.which)}: ${found}.` };
-      for (;;) {
-        world.clearGhost(); res = await round(id, G.C.ui.tryClearer); G.instructions[id].push(res.text); briefMin(res);
-        const again = await checkAct(id, res, { auto: true });
-        if (!again.flawed) { audio.good(); app.bot.cheer(); world.confetti(app.bot.group.position.clone(), 90); ui.alert(G.C.ui.checked, true, 1800); star(2, G.C.stars.flawed[2]); help({ tag: G.C.ui.checked, tagCls: 'ok', html: `<ul>${res.plan.reading.map((r) => `<li>${esc(r)}</li>`).join('')}</ul>`, sure: res.sure, sureLabel: G.C.ui.sure }); break; }
-        help({ tag: 'STILL WRONG', tagCls: 'bad', html: `<p>${esc(G.j ? 'Still a problem. Add what must be protected or tested.' : 'Still failing the test. Add a limit or a test condition.')}</p>`, say: G.j ? 'Still a problem. Add what must be protected or tested.' : '', voice: 'helper' });
-      }
+      res = await retry(id, res, G.C.ui.tryClearer, briefMin);
+      star(2, G.C.stars.flawed[2]);
       ui.facil(null);
     }
-    ui.views('sky', []);
-    await buildAct(id, res);
-    if (G.paths[id] === 'missed' && !G.outcomes[id]?.habit) { star(1, G.C.stars.missed[1]); star(2, G.C.stars.missed[2]); }
-    const changed = new Set([...G.cells].filter(([, c]) => !c.locked && (c.item || c.mark)).map(([k]) => k));
-    ui.helper(null);
-    if (id === 'heart') await heartExtras();
-    // Acts 5–7 (a 45-minute session skips the move-in and the food level's day)
-    facil(id, 'live');
-    if (!short) await moveInAct(id);
-    if (!(short && id === 'food')) await liveAct(id, short ? 8 : app.session === 60 ? 14 : 22);
-    ui.facil(null);
-    await celebrateAct(id, changed);
+    // the fixed plan is built on the practice island, system by system, layer by layer
+    ui.views('sky', []); world.clearGhost(); ui.legend(null); ui.helper(null); ui.tray('');
+    G.cells = res.after; const changedKeys = new Set(res.plan.placements.map((p) => p.k));
+    await film.play(id, changedKeys, G.cells, { band: G.band });
+    life.setTown(sim(), G.cells, stage.q); app.refreshLights(); await rig.overview(1.0);
+    if (id === 'heart') await biasCheck();
+    // senior: a town meeting with an honest trade-off (it changes the player's real town numbers)
+    if (!G.j && DILEMMAS[id]) {
+      const d = DILEMMAS[id]; const a = await ui.modal(`<div class="ribbon">Town meeting</div><h2>${esc(d.text)}</h2><div class="row" style="justify-content:center">${d.options.map((o, i) => `<button class="btn ${i ? 'alt' : 'go'}" data-act="${i}">${esc(o.label)}</button>`).join('')}</div>`);
+      const e = d.options[+a].effect; G.extra.families += e.families || 0; G.extra.carbon += e.carbon || 0; G.diary.push(`Town meeting: ${d.options[+a].label}.`);
+    }
+    // the reward card, then: use Florence's plan in your town, or keep your town as it is
+    const s2 = sim(); audio.reward(); world.confetti(new THREE.Vector3(10, 20, 8), 200); rig.startTurntable(app.reduce ? 0 : 0.1);
+    const stars = run.marks.filter(Boolean).length; const rules = G.C.stars[G.paths[id] || 'flawed'];
+    const [statLabel, statVal] = lv.stat(s2, G.j); const oc = outcomeFor(id, s2);
+    const heading = pick(L.complete); const newLens = G.C.checks[LAB_LENS[id]];
+    const choice = await ui.modal(`<div class="ribbon green">🧪 ${esc(G.S.missionDone)} · ${esc(L.title)}</div><div class="stars3">${[0, 1, 2].map((i) => `<span class="${i < stars ? 'on' : ''}">★</span>`).join('')}</div><h2>${esc(heading)}</h2>
+      <ul class="starlist">${rules.map((r, i) => `<li class="${run.marks[i] ? 'got' : ''}">${run.marks[i] ? '★' : '☆'} ${esc(r)}</li>`).join('')}${run.bonus ? `<li class="got">★ Bonus: found Florence’s biased survey</li>` : ''}</ul>
+      <div class="outcome ${oc.kind}"><small>${esc(G.C.ui.outcomeHead)}</small><b>${esc(G.C.ui.outcome[oc.kind])}</b><p>${esc(oc.detail)}</p></div>
+      <div class="stats"><div><small>${esc(statLabel)}</small>${esc(statVal)}</div><div><small>${esc(G.S.newTool)}</small>${newLens.icon} ${esc(newLens.label)}</div><div><small>${G.j ? 'Fact' : 'Evidence'}</small>${esc(pick(L.fact))}</div></div>
+      <p class="usenote">${esc(pick(G.S.useQuestion))}</p>
+      <div class="row" style="justify-content:center"><button class="btn alt" data-act="keep">${esc(G.S.keepMine)}</button><button class="btn go" data-act="use">✓ ${esc(G.S.usePlan)}</button></div>`, { say: `${heading} ${stars} stars.` });
+    rig.startTurntable(0);
+    // keep the best run's stars
+    G.levelStars[id] = Math.max(G.levelStars[id] || 0, stars); if (run.bonus) G.bonus[id] = 1;
+    G.labs[id] = { stars: G.levelStars[id] }; G.diary.push(diaryLines(id, s2, G.j)[0]);
+    const placements = res.plan.placements; run = null;
+    await leaveLab(real, choice === 'use' ? placements : null);
+    if (id === 'heart') await charterAct();
+  }
+  // retry until the plan has no problem left on any check and meets the mission's needs
+  async function retry(id, res, heading, briefMin) {
+    const lv = LEVELS[id];
+    for (;;) {
+      world.clearGhost(); res = await round(id, heading); G.instructions[id].push(res.text); briefMin(res);
+      const again = await checkAct(id, res, { auto: true });
+      if (!again.flawed) {
+        const sA = sim(res.after); const cx = ctxFor(res.after);
+        if (lv.pass(sA, cx)) {
+          audio.good(); app.bot.cheer(); world.confetti(app.bot.group.position.clone(), 90); ui.alert(G.C.ui.checked, true, 1800);
+          help({ tag: G.C.ui.checked, tagCls: 'ok', html: `<ul>${res.plan.reading.map((r) => `<li>${esc(r)}</li>`).join('')}</ul>`, sure: res.sure, sureLabel: G.C.ui.sure });
+          await sleep(1400); return res;
+        }
+        const missed = lv.needs(sA, cx, G.j).filter((n) => !n.ok).map((n) => n.label.replace(/^\P{L}+/u, ''));
+        help({ tag: 'STILL MISSING', tagCls: 'bad', html: `<p>${esc(G.C.ui.outcome.missed)}: ${esc(missed.join('; '))}</p>`, say: `${G.C.ui.outcome.missed}: ${missed.join('; ')}`, voice: 'helper' });
+        heading = G.S.tellMissing; continue;
+      }
+      help({ tag: 'STILL WRONG', tagCls: 'bad', html: `<p>${esc(G.j ? 'Still a problem. Add what must be protected or tested.' : 'Still failing the test. Add a limit or a test condition.')}</p>`, say: G.j ? 'Still a problem. Add what must be protected or tested.' : '', voice: 'helper' });
+    }
+  }
+  // back to the player's own town. Using the plan adds what fits (never over what the player built).
+  async function leaveLab(real, placements = null) {
+    world.clearGhost(); ui.legend(null); ui.helper(null); ui.tray(''); ui.facil(null); await checks.leave();
+    G.cells = real; app.inLab = false; app.levelId = null; app.briefMinutes = null; delete document.documentElement.dataset.lab; run = null;
+    stage.setTime(app.hour = 12.5, 0);
+    if (placements) {
+      const keys = new Set(); let skipped = 0;
+      for (const p of placements) {
+        const tool = p.item || p.mod || p.mark; if (!tool || !ITEMS[tool]) continue;
+        const t = terrain.tiles.get(p.k); const c = cellOf(G.cells, p.k);
+        if (ITEMS[tool].kind === 'build' && c.item) { skipped++; continue; }
+        if (sandboxReason(tool, t, c, { free: true })) { skipped++; continue; }
+        if (placeAt(p.k, tool, { free: true })) keys.add(p.k); else skipped++;
+      }
+      showCells(G.cells, keys);
+      sb.afterLab = keys.size ? G.S.planUsed(keys.size, skipped) : G.S.planDidntFit;
+    } else showCells(G.cells);
+    await rig.overview(1.0); save();
   }
 
-  // ---------------- Level 6 extras: residents' summary check (sampling bias) and the charter
+  // ---------------- the town heart mission's extras: the residents' summary check (sampling bias), then the charter on the player's own town
   // 13–17: Florence really learns a residents'-feedback classifier from examples, in the browser.
   async function teachFlorence(shareWalk) {
     const truthShare = Math.max(0.1, Math.min(0.9, 1 - shareWalk / 100));
@@ -432,7 +600,7 @@ export function createGame(app) {
       audio.tap();
     }
   }
-  async function heartExtras() {
+  async function biasCheck() {
     const s = sim(); const cycle = [...G.cells.values()].filter((c) => ['cycle', 'path', 'tram'].includes(c.item)).length; const cars = s.cars;
     const shareWalk = Math.max(55, Math.round(100 * (cycle + 1) / (cycle + cars + 1.5)));
     const gate = { walkers: Math.round(10 * shareWalk / 100), drivers: 10 - Math.round(10 * shareWalk / 100) };
@@ -452,6 +620,8 @@ export function createGame(app) {
       G.mistakes.push({ level: 'heart', habit: 'missing', why: 'Florence only asked drivers at the car park, so her summary left out everyone who walks.', bias: true });
       await sleep(1200); await continueBtn();
     }
+  }
+  async function charterAct() {
     // the charter: three promises, checked against the simulation
     const PROMISES = [
       [`Every home within ${TARGETS.walkMinutes} minutes’ walk of school`, (x) => x.walkMax <= TARGETS.walkMinutes], [`Town carbon under the ${TARGETS.carbonCeiling} t limit`, (x) => x.carbonOK], ['Lights on through a still winter night', (x) => x.power.winterOK],
@@ -469,18 +639,70 @@ export function createGame(app) {
     await ui.modal(`<div class="ribbon green">${esc(G.townName)} charter</div>${G.charter.map((c) => `<p style="text-align:left;color:var(--ink)">${c.kept ? '✅ Kept:' : '⚠️ Not yet:'} ${esc(c.text)}</p>`).join('')}<button class="btn go" data-act="ok">${esc(G.C.ui.continue)}</button>`, { say: G.charter.map((c) => `${c.kept ? 'Kept' : 'Not yet'}: ${c.text}.`).join(' ') });
   }
 
-  // ---------------- the whole session
+  // one plain sentence per mission for the reward card and the report: what happened to the brief, and who caught it
+  function outcomeFor(id, s2) {
+    const oc = { ...(G.outcomes[id] || { kind: 'clean', detail: '' }) };
+    const b = app.briefMinutes, W = TARGETS.walkMinutes;
+    if (id === 'heart' && b && s2.walkMax > b) oc.detail += ` ${G.j ? 'You' : 'The brief'} asked for a ${b}-minute walk; the longest route is ${s2.walkMax} minutes. That meets the town’s ${W}-minute rule, but not ${G.j ? 'your' : 'the'} brief.`;
+    G.outcomes[id] = oc; return oc;
+  }
+
+  // ================= A WHOLE DAY, THE TOWN COMPLETE, THE REPORT =================
+  function poiList(s) { const out = []; if (s.homes[0]) out.push(world.tileTop(s.homes[0].k)); if (s.schoolKey) out.push(world.tileTop(s.schoolKey)); for (const [k, c] of G.cells) if (['market', 'orchard', 'wind', 'park'].includes(c.item)) { out.push(world.tileTop(k)); if (out.length > 5) break; } return out; }
+  async function wholeDay(seconds = 30) {
+    if (G.busy) return; G.busy = true; stopBuilding();
+    try {
+      const s = sim(); ui.only([]); ui.setTask(0, `A day in ${G.townName}`); ui.views('sky'); app.bot.show(false);
+      const list = s.homes.length ? bubblesFor(s, G.cells, terrain, G.j, 'final') : []; const pois = poiList(s);
+      const lines = diaryLines('heart', s, G.j); let shown = -1; let skip = false;
+      ui.tray(`<div class="row liverow"><span class="clock" data-clock>7:00</span><span class="diary" data-diary></span><button class="btn alt" data-skip>Skip ⏭</button></div>`, (tr) => { tr.querySelector('[data-skip]').onclick = () => (skip = true); });
+      ui.caption(`A day in ${G.townName}`, 3000);
+      const t0 = performance.now(); let bi = 0, pi = 0, nextB = 2, nextP = 0;
+      while (!skip) {
+        const el = (performance.now() - t0) / 1000; if (el > seconds) break;
+        app.hour = 7 + (el / seconds) * 14; stage.setTime(app.hour, 0);
+        const ck = ui.P.tray.querySelector('[data-clock]'); if (ck) ck.textContent = clockText();
+        const part = app.hour < 11 ? 0 : app.hour < 16 ? 1 : 2;
+        if (part !== shown) { shown = part; const dd = ui.P.tray.querySelector('[data-diary]'); if (dd) { dd.textContent = `📔 ${['Morning', 'Afternoon', 'Evening'][part]}: “${lines[part]}”`; dd.classList.remove('flash'); void dd.offsetWidth; dd.classList.add('flash'); } }
+        if (el >= nextP && pois.length && !app.reduce && rig.mode === 'sky') { const p = pois[pi++ % pois.length]; rig.focus(p, { dist: 70, pitch: 0.6, yaw: rig.sky.yaw + 0.5 }, 3.2); nextP = el + 6; }
+        if (el >= nextB && list.length) { const b = list[bi++ % list.length]; const who = life.residentNear(b.k); if (who) ui.labels.bubble({ at: () => who.position.clone().add(new THREE.Vector3(0, 2.6, 0)), text: b.text, bad: b.bad }); nextB = el + 3.4; }
+        await sleep(50);
+      }
+      ui.labels.clear('bub'); app.hour = 12.5; stage.setTime(12.5, 0); await rig.overview(1.1);
+    } finally { G.busy = false; startBuilding(); }
+  }
+  async function celebrateTown() {
+    sb.celebrating = false;
+    if (G.busy || G.completeShown || !townComplete(sim(), ctxFor(G.cells))) return; // busy: it comes back on the next change
+    G.completeShown = true; G.busy = true; stopBuilding();
+    try {
+      audio.reward(); world.confetti(new THREE.Vector3(10, 20, 8), 240); rig.startTurntable(app.reduce ? 0 : 0.1);
+      const s = sim(); flower(true);
+      const a = await ui.modal(`<div class="ribbon green">${esc(G.S.completeRibbon)}</div><div class="big">🌸</div><h2>${esc(G.townName)}: ${esc(s.title)}</h2><p>${esc(pick(G.S.completeText))}</p><div class="row" style="justify-content:center"><button class="btn alt" data-act="keep">${esc(G.S.keepBuilding)}</button><button class="btn alt" data-act="report">📜 ${esc(G.C.ui.report)}</button><button class="btn go" data-act="day">🌇 ${esc(G.S.watchDay)}</button></div>`, { say: `${G.townName}: ${s.title}. ${pick(G.S.completeText)}` });
+      rig.startTurntable(0); G.busy = false;
+      if (a === 'day') return wholeDay(40);
+      if (a === 'report') return showReport();
+    } finally { if (G.busy) { G.busy = false; } if (!sb.running && !G.busy) startBuilding(); }
+  }
+  async function showReport() {
+    if (G.busy) return; G.busy = true; stopBuilding(); ui.show('card', false); ui.show('strip', false);
+    stage.setTime(18.6); app.refreshLights(); await rig.overview(0.8); await sleep(300);
+    renderReport(app, G, sim(), app.snapshot(), { onClose: () => { G.busy = false; startBuilding(); } });
+  }
+
+  // ================= THE WHOLE SESSION =================
   G.run = async () => {
-    ui.setStars(G.stars); ui.setTownName(G.townName); showCells(G.cells); flower(false);
-    const order = LEVEL_ORDER;
-    for (; G.li < order.length; G.li++) { await runLevel(order[G.li]); }
-    // final: watch your town live (90-minute sessions get the full day), then the report
-    ui.views('sky'); await liveAct('heart', app.session === 90 ? 40 : 16, { final: true });
-    app.bot.show(false); stage.setTime(18.6); app.refreshLights(); await rig.overview(0.8); await sleep(300);
-    const shot = app.snapshot();
-    renderReport(app, G, sim(), shot);
-    try { localStorage.removeItem(SAVE); } catch { /* */ }
+    G.ever = unlocked(sim(), G.ever, G.full); G.stars = totalStars();
+    ui.setStars(G.stars); ui.setTownName(G.townName); flower(false);
+    ui.onLab = () => labBoard(); ui.onLens = (id) => toggleLens(id);
+    bindTaps(); startBuilding();
+    setInterval(tick, 200);
+    // the first tip comes straight away, so a new player knows where to begin
+    sb.adv.last = -Infinity; adviseSoon(1200);
+    // class mode: Florence invites the class to the first mission that is ready
+    if (G.classMode) { const id = LEVEL_ORDER.find((l) => !G.labs[l]); if (id && labReady(id, G.ever, G.labs, true)) setTimeout(() => showTip({ id: 'class-' + id, text: G.S.classInvite, lab: id }), 1500); }
   };
+  G.openLab = openLab; G.labBoard = labBoard; G.placeAt = (k, tool) => { const ok = placeAt(k, tool); if (ok) changed(); return ok; }; G.sim = sim; G.advisor = sb.adv;
   G.saved = () => { try { const d = JSON.parse(localStorage.getItem(SAVE) || 'null'); return d && d.band === G.band ? d : null; } catch { return null; } };
   return G;
 }

@@ -60,8 +60,23 @@ Everything is merged to `main`. The working branch was `claude/focused-cori-qeov
 
 **Leftover:** an empty, login-protected Pages project `ecotown.pages.dev`. It can be deleted if the user agrees.
 
+## Free-build redesign (Nov 2026, after the beta)
+The user found the guided six-level sequence exhausting ("prompt after prompt, a tunnel") and asked for a StarCraft-style city builder: **build first, get tips from Florence, step into the AI Lab, come back to building**. Decisions the user made:
+- **Replace** the guided flow. A start-screen option "AI Lab missions: Any order / In order (class)" keeps the lessons in order for classes.
+- **Lab entry:** the 🧪 button (and the mission track on the town card), plus Florence's tips, which offer "Show me in the AI Lab" when the town hits a problem a mission teaches.
+- **Grow to unlock:** land and paths → homes (6 town tiles) → food (12 families) → power and water (24) → town heart (36, or 24 with enough food). See `game/js/game/progress.js`.
+- **Light tips:** one line, at most one every 25 s, only when a rule turns true, not repeated until fixed (`game/js/game/advisor.js`).
+
+How it is built:
+- `game.js`: free building (`renderBar`, `placeAt`, `changed`, `tick`), Florence's tips (`advise`, `showTip`), the Lab board (`labBoard`) and missions (`runLab`, `retry`, `leaveLab`), the whole day, town complete and the report. The old per-level instruct/check/habit/hidden-guess code is unchanged inside missions.
+- Missions run on **Florence's practice island** (`seed.js`: earlier levels built from their clear slots), never on the player's town. The reward card asks "Use Florence's plan" (adds what fits, never over the player's builds) or "Keep my town". Finishing a mission puts its lens in the top-right strip (`LAB_LENS`).
+- Town land cap in free building is 30 (`SANDBOX_TOWN_CAP`); the land mission still plans 18.
+- Save key `ecotown.save.v3` (autosaved); v2 saves are ignored. `?sandbox=full` opens every category (nothing saved).
+- Senior: credits (start 60, households pay each evening) replace the old fixed 150-credit budget.
+- `tests/progress.test.mjs` covers tiers, tips and each mission on the practice island; `tests/playwright/run.mjs` plays the new flow. `tests/playwright/a11y.mjs` checks keyboard access to the build bar and the Lab board, and that "Carry on building" restores the town.
+
 ## Beta revision (Nov 2026)
-All 49 notes in the beta tester's file were addressed; see README "How a level plays" and the commit history. Key decisions the user made:
+All 49 notes in the beta tester's file were addressed; see README "How the game plays" and the commit history. Key decisions the user made:
 - **Helper name:** **Florence** (she). Code file names stay `plotter.*`.
 - **Clean first try:** a "spot the hidden guess" step earns the 3rd star.
 - **Town name:** chosen by the player on the start screen.
@@ -99,10 +114,10 @@ All 49 notes in the beta tester's file were addressed; see README "How a level p
   - `/admin` redirects (302) to `…cloudflareaccess.com`.
 
 ## Tests
-From `games/ecotown/game` (73 tests, all passing at handoff):
+From `games/ecotown/game` (87 tests, all passing at handoff):
 
 ```bash
-node --test tests/sim.test.mjs tests/model.test.mjs tests/teach.test.mjs tests/syntax.test.mjs tests/codes.test.mjs tests/playtest.test.mjs
+node --test tests/sim.test.mjs tests/model.test.mjs tests/teach.test.mjs tests/syntax.test.mjs tests/codes.test.mjs tests/playtest.test.mjs tests/progress.test.mjs
 ```
 
 There's also a Playwright play-through: `tests/playwright/run.mjs`. See the README.

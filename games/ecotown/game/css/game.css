@@ -277,3 +277,36 @@ html[data-motion="reduce"] #letterbox i { transition: none; }
 .reflecthow { margin: 0 0 6px; color: #46596a; font-weight: 600; font-size: .9em; }
 .reflectchips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
 .reflectchips .tile { font-size: .85em; }
+
+/* ---------- free building: build bar, tips, AI Lab board, lab tint */
+.buildhead .cats { display: flex; flex-wrap: wrap; gap: 4px; flex: 1; min-width: 0; }
+.buildhead .cats::-webkit-scrollbar { display: none; }
+.cat { flex: none; min-height: 40px; padding: 4px 11px; border-radius: 999px; background: #fff; font-weight: 800; font-size: .85em; box-shadow: inset 0 0 0 2px var(--edge); white-space: nowrap; }
+.cat.on { background: var(--yellow); box-shadow: inset 0 -3px 0 #e3a91f; }
+.cat.locked { color: var(--ink2); opacity: .7; }
+.buildhead .barctl { flex: none; gap: 4px; align-items: center; flex-wrap: nowrap; }
+.buildhead .clock { font-weight: 800; font-size: .85em; color: var(--ink2); white-space: nowrap; }
+.lockmsg { margin: 4px 2px; font-weight: 700; color: var(--ink2); grid-column: 1 / -1; }
+.lockmsg span { font-weight: 600; opacity: .85; }
+.needs.townnums span { background: var(--paper2); color: var(--ink); }
+.needs.townnums span.ok { background: #dff3e6; color: var(--green-d); }
+.speaker .name em.tip { background: var(--mint); color: #fff; }
+.tiprow { gap: 6px; margin-top: 4px; }
+.tiprow .btn.small { min-height: 38px; padding: 4px 12px; }
+.tiprow .btn.alt { color: var(--ink); }
+#card .track { cursor: pointer; }
+.ib.lab { background: #e9f7f2; box-shadow: inset 0 0 0 2px #9fd4c2; }
+#strip .lenses { display: contents; }
+.labs { display: grid; gap: 6px; margin-top: 8px; text-align: left; }
+.labrow { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 14px; background: #fff; box-shadow: inset 0 0 0 2px var(--edge), inset 0 -3px 0 var(--edge); min-height: 56px; width: 100%; text-align: left; }
+.labrow .ic { font-size: 1.5em; flex: none; }
+.labrow .t { flex: 1; display: flex; flex-direction: column; } .labrow .t small { color: var(--ink2); font-weight: 600; }
+.labrow .st { flex: none; font-weight: 800; font-size: .82em; color: var(--green-d); max-width: 42%; text-align: right; }
+.labrow.done .st { color: #c98a00; }
+.labrow.locked { opacity: .55; cursor: default; } .labrow.locked .st { color: var(--ink2); }
+.practice, .usenote { font-size: .88em; color: var(--ink2); font-weight: 600; }
+.lensx { margin-left: 8px; }
+/* in the AI Lab the island reads as Florence's practice copy: a cooler, blueprint tint on the frame */
+html[data-lab="on"] #gl { filter: saturate(.8) hue-rotate(-8deg) brightness(1.03); }
+html[data-lab="on"] #card { box-shadow: var(--shadow), inset 0 0 0 3px #7fc8e8; }
+@media (max-width: 560px) { .buildhead { flex-wrap: wrap; } .buildhead .cats { flex-basis: 100%; } .labrow .st { max-width: 36%; } }

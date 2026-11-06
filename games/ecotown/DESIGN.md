@@ -19,6 +19,18 @@ This design brings together three research reports:
 
 The trailer is `games/trailers/ecotown/` (`out/ecotown.mp4`).
 
+## How the game is structured (Nov 2026 update)
+
+The first build was one long guided sequence: six levels, each a fixed chain of cards (brief, instruct, check, fix, paint, move in, live, celebrate). Players found it tiring: prompt after prompt, with no time just to build. The game is now a **free-building game with an AI Lab inside it**, in the spirit of classic city builders:
+
+- **Build first.** The game opens on the island with a build bar. Categories unlock as the town grows (land and paths → homes at 6 town tiles → food at 12 families → power and water at 24 → town heart at 36). Nothing ever blocks the player; the town lives while they build (a day clock, residents, bubbles, lights at night).
+- **Florence advises.** Short, rare tips from the honest simulation, only when something changes (at most one every 25 s, never repeated until fixed). When a tip matches a lesson, it offers "Show me in the AI Lab".
+- **The AI Lab.** The six lessons below are now **missions**, opened from the 🧪 button or Florence's invites. Each runs the acts below on Florence's practice island, ends with the construction film and stars, and asks: use her fixed plan in your town, or keep yours? Finishing a mission gives the player its lens to check their own town.
+- **Class mode** keeps the missions in order for schools.
+- **Town complete** when the scoring below is met; the whole-day sequence and the town report are available any time.
+
+The acts below now describe one AI Lab mission. "Move in" and "Live" happen continuously in free building instead of inside each mission.
+
 ## Core loop for each level
 
 Each level runs through seven acts:
