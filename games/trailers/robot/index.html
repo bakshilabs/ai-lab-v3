@@ -4,7 +4,6 @@
 .lvl { white-space: nowrap; display: inline-flex; align-items: center; gap: 28px; background: #13202b; color: #fff; border-radius: 40px; padding: 26px 50px; box-shadow: 0 14px 40px rgba(0,0,0,.3); }
 .lvl b { font: 800 36px 'Inter'; color: #ffd23f; letter-spacing: .06em; }
 .lvl span { font: 800 60px 'Inter'; }
-.dots { display: flex; gap: 10px; } .dots i { width: 22px; height: 22px; border-radius: 50%; background: #3a4752; display: block; } .dots i.on { background: #16c79a; }
 .lens { white-space: nowrap; display: inline-flex; align-items: center; gap: 14px; background: #2f6fd8; color: #fff; border-radius: 999px; padding: 12px 30px; font: 800 30px 'Inter'; letter-spacing: .08em; box-shadow: 0 8px 24px rgba(0,0,0,.25); }
 .bub { position: relative; background: #fff; border-radius: 20px; padding: 10px 22px; font: 800 30px 'Inter'; color: #13202b; box-shadow: 0 8px 22px rgba(0,0,0,.22); white-space: nowrap; }
 .bub::after { content: ''; position: absolute; left: 50%; bottom: -12px; margin-left: -12px; border: 12px solid transparent; border-top-color: #fff; border-bottom: 0; }
@@ -19,9 +18,9 @@
 .rolep small { font: 800 22px 'Inter'; letter-spacing: .12em; color: #46596a; }
 .demos { background: #fff; border-radius: 30px; padding: 18px 30px 20px; box-shadow: 0 8px 0 rgba(0,0,0,.08), 0 14px 30px rgba(0,0,0,.12); display: flex; align-items: center; gap: 24px; }
 .demos .n { font: 900 84px/1 'Inter'; color: #13202b; min-width: 70px; text-align: center; }
-.demos small { font: 800 26px 'Inter'; letter-spacing: .12em; color: #46596a; display: block; }
+.demos small { font: 800 28px 'Inter'; letter-spacing: .12em; color: #46596a; display: block; }
 .demos .dd { display: flex; gap: 10px; margin-top: 10px; } .demos .dd i { width: 34px; height: 34px; border-radius: 9px; display: block; background: #e6ebee; }
-.demos .ch { display: flex; gap: 8px; margin-top: 10px; } .demos .ch span { font: 700 22px 'Inter'; padding: 4px 12px; border-radius: 999px; background: #eef1f3; color: #8a96a3; } .demos .ch span.on { background: #e2f5ef; color: #0f7a55; }
+.demos .ch { display: flex; gap: 8px; margin-top: 10px; } .demos .ch span { font: 700 30px 'Inter'; padding: 6px 16px; border-radius: 999px; background: #eef1f3; color: #8a96a3; } .demos .ch span.on { background: #e2f5ef; color: #0f7a55; }
 .res { width: 600px; background: #fff; border-radius: 30px; padding: 24px 28px 26px; box-shadow: 0 8px 0 rgba(0,0,0,.08), 0 14px 30px rgba(0,0,0,.14); }
 .res small { display: block; font: 800 24px 'Inter'; letter-spacing: .12em; color: #46596a; }
 .g10 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin: 16px 0 18px; }
@@ -45,11 +44,10 @@
 .rc i { display: block; width: 64px; height: 64px; border-radius: 50%; margin-bottom: 12px; box-shadow: inset 0 -6px 0 rgba(0,0,0,.18); }
 .rc b { display: block; font: 800 36px/1.1 'Inter'; color: #13202b; }
 .rc span { display: block; font: 600 25px/1.25 'Inter'; color: #46596a; margin-top: 8px; }
-.careers { width: 1340px; background: #fff; border-radius: 44px; padding: 46px 60px 52px; box-shadow: 0 20px 60px rgba(0,20,40,.35); text-align: center; }
-.careers h3 { font: 800 76px/1.05 'Bricolage Grotesque', 'Inter'; color: #13202b; letter-spacing: -0.02em; margin: 24px 0 30px; }
-.jobs { display: flex; flex-wrap: wrap; justify-content: center; gap: 18px; }
-.jobs span { font: 800 44px 'Inter'; border-radius: 999px; padding: 14px 32px; color: #13202b; }
-.jobs span.more { background: #eef1f3; color: #46596a; }
+.jobs { display: flex; flex-wrap: nowrap; align-items: center; gap: 16px; white-space: nowrap; }
+.jobs b { font: 800 38px 'Inter'; color: #fff; text-shadow: 0 3px 14px rgba(0,20,40,.5); margin-right: 6px; }
+.jobs span { display: inline-flex; align-items: center; gap: 12px; border-radius: 999px; padding: 12px 30px 12px 14px; font: 800 36px 'Inter'; color: #13202b; background: #fff; box-shadow: 0 8px 0 rgba(0,0,0,.1), 0 14px 30px rgba(0,0,0,.2); }
+.jobs span i { width: 32px; height: 32px; border-radius: 50%; display: block; }
 .big { transform-origin: center; }
 .title .hl { background: none; color: #ffd23f; -webkit-text-fill-color: #ffd23f; text-shadow: 0 8px 40px rgba(0,20,40,.35); }
 .big .b-badge { padding: 22px 80px 22px 24px; gap: 30px; }
@@ -65,7 +63,9 @@ import { Vox, island, tree, person, rand } from '../engine/kit.js';
 import { el, cue, fader, titleCard, toScreen } from '../engine/ui.js';
 import { burst, birds } from '../engine/extras.js';
 
-const DUR = 54.8;
+const DUR = 43.8;
+// story beats: Sort It 0–29.2 · L2 Lending a Hand 29.2–36.8 · handover 36.8–39.6 · title + careers 39.6–43.8
+const CH = 29.2, HO = 36.8, END = 39.6;
 const V3 = THREE.Vector3;
 const st = createStage({ post: false, shadowSize: 2048 });
 const { scene, camera, sun, hemi, rim } = st;
@@ -322,8 +322,6 @@ scene.add(fine((B) => {
 const hr = makeRivet({ L1: 1.8, L2: 1.7, mobile: true }); hr.root.position.copy(add3(H0, [2.2, 0, -2.3])); hr.root.rotation.y = Math.PI; scene.add(hr.root);
 const med = item('med');
 const SHELF = [0.2, 2.0 + 0.325, -4.5], TBOX = [4.5, 1.8, -2.5], HREST = [2.0, 3.2, -3.8];
-const hTrack = track([[29.0, ...up(SHELF, 0.6), 0], [29.3, ...SHELF, 0], [29.45, ...SHELF, 1], [29.75, ...up(SHELF, 0.6), 1], [30.3, ...up(TBOX, 0.5), 1], [30.5, ...TBOX, 1], [30.6, ...TBOX, 0], [30.9, ...up(TBOX, 0.8), 0], [31.6, ...HREST, 0]]);
-const medRing = ring(0.5, '#ff3b30', 0.1), medOk = ring(0.45, '#16c79a', 0.1);
 
 // ======================= ISLAND 3: the warehouse floor (Rush Hour) =======================
 scene.add(fine((B, v) => {
@@ -376,8 +374,9 @@ wheelchair(add3(C0, [4.6, 0, -1.2]), Math.PI - 0.35); seated({ shirt: '#59c7fc',
 const cr = makeRivet({ L1: 1.8, L2: 1.7, mobile: true }); scene.add(cr.root);
 const cup = item('cup'), env = item('env');
 const handRing = ring(0.55, '#ff3b30', 0.1);
-const CUPREST = [2.5, 2.7, 0.5], HIGH = [2.0, 2.75, -0.5], LOW = [2.0, 1.45, -0.62];
-const cTrack = track([[37.2, ...CUPREST, 1], [37.9, ...HIGH, 1], [38.9, ...HIGH, 1], [39.5, ...LOW, 1], [39.7, ...LOW, 1], [39.85, ...LOW, 0], [40.4, 2.4, 2.4, 0.4, 0]]);
+const CR0 = [4.3, 0, 0.9], CUPREST = [3.4, 2.6, 0.6], HIGH = [2.75, 2.6, -0.85], LOW = [2.3, 1.42, -0.72];
+const cTrack = track([[31.0, ...CUPREST, 1], [31.8, ...HIGH, 1], [34.8, ...HIGH, 1], [35.4, ...LOW, 1], [35.5, ...LOW, 1], [35.6, ...LOW, 0], [36.2, 3.2, 2.5, 0.4, 0]]);
+const FIXT = 35.6; // cup let go at the lower height: wheelchair users 2/2
 
 // ---------------- the frame update ----------------
 const FOLD = { yaw: 0.2, a1: 1.45, a2: -1.75, w: -1.6 }, WAVE = { yaw: 0.35, a1: 1.1, a2: 0.45, w: 0.95 };
@@ -397,12 +396,12 @@ st.onFrame((t) => {
   if (t > 2.5) lightC = (within(t, 2.6, 2.75) ? LIGHT.off : LIGHT.green);
   if (within(t, F2.failT, F2.failT + 0.9) || within(t, F3.failT, F3.failT + 0.9)) lightC = flash(t, F2.failT, F2.failT + 0.9) || flash(t, F3.failT, F3.failT + 0.9) ? LIGHT.red : '#ff7a6a';
   ws.light(lightC); ws.eyesOn(t > 2.8);
-  if (t < 5.0 || t > 40.0) {
+  if (t < 5.0 || t > END) {
     let a;
     if (t < 2.9) a = FOLD;
     else { const w = { ...WAVE, w: WAVE.w + Math.sin(t * 9) * 0.35, yaw: WAVE.yaw + Math.sin(t * 2.2) * 0.12 }; a = t < 3.6 ? lerpA(FOLD, w, prog(t, 2.9, 3.6, ease.back)) : w; }
     if (within(t, 4.4, 5.0)) a = lerpA(a, ws.ik(ws.toLocal(new V3(...REST))), prog(t, 4.4, 5.0));
-    ws.setA(a); ws.grip(t > 40 ? 0.5 + 0.5 * Math.sin(t * 9) : 0);
+    ws.setA(a); ws.grip(t > END ? 0.5 + 0.5 * Math.sin(t * 9) : 0);
   } else { const k = wsTrack(t); ws.reach(new V3(k[1], k[2], k[3])); ws.grip(k[4]); }
   wsTip = ws.tipW();
   for (const it of WI) {
@@ -420,53 +419,36 @@ st.onFrame((t) => {
   { const on = within(t, 13.8, 20.6) || within(t, 26.0, 29.2); gate.visible = on; const s = on ? Math.max(0.001, Math.min(prog(t, 13.8, 14.2, ease.back), prog(t, 26.0, 26.4, ease.back) + (t < 26 ? 1 : 0))) : 0.001; gate.scale.set(1, s, 1); }
   // ghost trails: the first three overlap; the varied ones fan out
   TRAILS.forEach(([D], i) => { const first = i < 3; const win = first ? (within(t, D.t0, 13.6) || within(t, 20.6, 25.9)) : within(t, D.t0, 25.9); for (let k = 0; k < TN; k++) { const u = k / (TN - 1); const ts = D.t0 + u * (D.end - D.t0); const p = D.track(ts); const on = win && t >= ts; tmpO.position.set(p[1], p[2], p[3]); tmpO.scale.setScalar(on ? (k % 2 ? 0.7 : 1) : 0); tmpO.rotation.set(0, 0, 0); tmpO.updateMatrix(); trail.setMatrixAt(i * TN + k, tmpO.matrix); } }); trail.instanceMatrix.needsUpdate = true;
-  KIDS.forEach((k, i) => { const hop = within(t, 40.95 + i * 0.22, 41.45 + i * 0.22) ? Math.sin(prog(t, 40.95 + i * 0.22, 41.45 + i * 0.22, (q) => q) * Math.PI) * 0.6 : 0; const cheer = within(t, 27.5, 28.6) ? Math.abs(Math.sin((t - 27.5) * 8 + i)) * 0.3 : 0; k.position.y = hop + cheer + Math.abs(Math.sin(t * 1.3 + i)) * 0.03; });
+  KIDS.forEach((k, i) => { const hop = within(t, END + 0.6 + i * 0.2, END + 1.1 + i * 0.2) ? Math.sin(prog(t, END + 0.6 + i * 0.2, END + 1.1 + i * 0.2, (q) => q) * Math.PI) * 0.6 : 0; const cheer = within(t, 27.5, 28.6) ? Math.abs(Math.sin((t - 27.5) * 8 + i)) * 0.3 : 0; k.position.y = hop + cheer + Math.abs(Math.sin(t * 1.3 + i)) * 0.03; });
 
-  // ---- home ----
-  { const k = hTrack(t); hr.reach(add3(H0, [k[1], k[2], k[3]])); hr.grip(k[4]); hr.light(within(t, 30.85, 32.0) ? (flash(t, 30.85, 32.0) ? LIGHT.red : '#ff7a6a') : within(t, 32.0, 33.2) ? LIGHT.green : LIGHT.green); hr.eyesOn(true);
-    const tip = hr.tipW();
-    if (t < 29.45 || t >= 32.0) { med.position.copy(add3(H0, SHELF)); med.scale.setScalar(t >= 32.0 ? Math.max(0.001, prog(t, 32.0, 32.35, ease.back)) : 1); }
-    else if (t < 30.58) { med.position.copy(tip); med.scale.setScalar(1); }
-    else { const kk = prog(t, 30.58, 30.85, ease.in); med.position.copy(add3(H0, [TBOX[0], lerp(TBOX[1], 0.95, kk), TBOX[2]])); med.rotation.z = kk * 0.5; }
-    if (t >= 32.0) med.rotation.z = 0;
-    medRing.visible = within(t, 30.9, 32.0); medRing.position.copy(add3(H0, [TBOX[0], 1.03, TBOX[2]])); medRing.scale.setScalar(1.6 + 0.12 * Math.sin(t * 14));
-    medOk.visible = within(t, 32.0, 33.0); medOk.position.copy(add3(H0, [SHELF[0], 2.03, SHELF[2]]));
-  }
+  // ---- home (seen only in the closing wide shot) ----
+  { hr.reach(add3(H0, HREST)); hr.grip(0); hr.light(LIGHT.green); hr.eyesOn(true); med.position.copy(add3(H0, SHELF)); }
 
-  // ---- warehouse ----
-  { let rz = 12, wx = -5.5, sp = 0, col = LIGHT.green, rr = 2.4, rc = '#ff3b30';
-    if (t < 34.3) { rz = lerp(10.0, 2.0, prog(t, 33.0, 34.3, (k) => k)); wx = lerp(-5.5, -0.2, prog(t, 33.2, 34.3, (k) => k)); sp = 1; }
-    else if (t < 35.0) { rz = 2.0; wx = -0.2; col = flash(t, 34.3, 35.0) ? LIGHT.red : '#ff7a6a'; }
-    else if (t < 35.9) { rz = 10.0; wx = -5.5; }
-    else { const fast = prog(t, 35.9, 36.35, (k) => k); rz = t < 36.35 ? lerp(10.0, 5.6, fast) : lerp(5.6, 3.1, prog(t, 36.35, 37.2, ease.out)); wx = lerp(-5.5, 2.6, prog(t, 35.9, 37.2, (k) => k)); sp = t < 36.35 ? 1 : 0.4; if (t > 36.35) { col = LIGHT.amber; rr = lerp(2.4, 1.3, prog(t, 36.35, 36.7)); rc = '#ffa21a'; } }
-    xr.root.position.copy(add3(X0, [0, 0, rz])); xr.setA(TUCK); xr.grip(0); xr.light(col); xr.eyesOn(true);
-    worker.position.copy(add3(X0, [wx, 0, 0.2])); worker.rotation.y = -Math.PI / 2; worker.userData.walk(within(t, 34.3, 35.9) ? 0 : t * 9);
-    picker.userData.walk(0); picker2.userData.walk(0);
-    const showR = within(t, 33.0, 35.0) || within(t, 35.9, 37.3);
-    stopRing.visible = stopFill.visible = showR; stopRing.material.color.set(rc); stopFill.material.color.set(rc);
-    stopRing.position.copy(add3(X0, [0, 0.12, rz])); stopRing.scale.setScalar(rr / 2.4 * (t > 34.3 && t < 35 ? 1 + 0.06 * Math.sin(t * 16) : 1)); stopFill.position.copy(add3(X0, [0, 0.11, rz])); stopFill.scale.setScalar(rr);
-    const ka = prog(t, 35.0, 35.5, (k) => k), kr = prog(t, 35.4, 35.9, (k) => k);
-    amberZ.visible = t > 35.0 && t < 37.4; amberZ.scale.x = Math.max(0.001, ka); redZ.visible = t > 35.4 && t < 37.4; redZ.scale.x = Math.max(0.001, kr);
-    estop.visible = t > 35.75; estop.scale.setScalar(Math.max(0.001, prog(t, 35.75, 36.1, ease.back)));
-  }
+  // ---- warehouse (seen only in the closing wide shot): slow zone painted, Rivet working ----
+  { xr.root.position.copy(add3(X0, [0, 0, 3.1])); xr.setA(TUCK); xr.grip(0); xr.light(LIGHT.amber); xr.eyesOn(true);
+    worker.position.copy(add3(X0, [2.6, 0, 0.2])); worker.rotation.y = -Math.PI / 2; worker.userData.walk(0); picker.userData.walk(0); picker2.userData.walk(0);
+    stopRing.visible = stopFill.visible = false; amberZ.visible = redZ.visible = true; amberZ.scale.x = redZ.scale.x = 1; estop.visible = true; }
 
   // ---- care home ----
-  { const split = t < 42.0;
-    if (split) { cr.root.position.copy(add3(C0, [2.6, 0, 1.9])); cr.root.rotation.y = Math.PI; const k = cTrack(t); cr.reach(add3(C0, [k[1], k[2], k[3]])); cr.grip(k[4]); cr.light(within(t, 38.0, 38.9) ? LIGHT.amber : LIGHT.green);
-      const tip = cr.tipW(); if (t < 39.8) cup.position.copy(tip); else cup.position.copy(add3(C0, [LOW[0], LOW[1] - 0.05, LOW[2]]));
+  { const split = t < HO;
+    if (split) { cr.root.position.copy(add3(C0, CR0)); cr.root.rotation.y = -Math.PI / 2; const k = cTrack(t); cr.reach(add3(C0, [k[1], k[2], k[3]])); cr.grip(k[4]);
+      cr.light(within(t, 31.9, 33.5) ? (flash(t, 31.9, 33.5) ? LIGHT.amber : '#ffcf7a') : LIGHT.green);
+      const tip = cr.tipW(); if (t < FIXT) cup.position.copy(tip); else cup.position.copy(add3(C0, [LOW[0], LOW[1] - 0.05, LOW[2]]));
       cup.visible = true; env.visible = false;
-      handRing.visible = within(t, 38.0, 38.9); handRing.position.copy(add3(C0, [2.0, 1.25, -0.75])); handRing.scale.setScalar(1 + 0.1 * Math.sin(t * 14));
-      carer.position.copy(add3(C0, [-2.8, 0, -2.6])); carer.rotation.y = Math.PI; carer.userData.walk(0);
+      handRing.visible = within(t, 32.0, 33.5); handRing.position.copy(add3(C0, [2.05, 1.3, -0.95])); handRing.scale.setScalar(1 + 0.1 * Math.sin(t * 14));
+      carer.position.copy(add3(C0, [-3.6, 0, -2.8])); carer.rotation.y = Math.PI; carer.userData.walk(0);
     } else {
-      const mv = prog(t, 43.2, 44.2, ease.out); const rx = lerp(1.2, -3.0, mv), rz = lerp(2.5, 1.6, mv);
+      // handover: Rivet rolls up with a letter, sees she is asleep, and hands it to the carer standing beside it
+      const mv = prog(t, HO, HO + 0.5, ease.out); const rx = lerp(-0.4, -1.5, mv), rz = 0.7;
       cr.root.position.copy(add3(C0, [rx, 0, rz])); cr.root.rotation.y = -Math.PI / 2;
-      const carry = [rx - 1.4, 2.3, rz]; const give = [-4.3, 2.05, 0.75];
-      const k = prog(t, 45.2, 45.6); const tp = L3(carry, give, k); cr.reach(add3(C0, tp)); const g = t < 45.7 ? 1 : 1 - prog(t, 45.7, 45.85);
-      cr.grip(g); cr.light(within(t, 44.3, 45.75) ? (Math.sin(t * 7) > -0.6 ? LIGHT.amber : '#ffcf7a') : LIGHT.green);
-      const cw = prog(t, 44.5, 45.3, (q) => q); carer.position.copy(add3(C0, L3([-2.8, 0, -2.6], [-4.3, 0, -0.05], cw))); carer.userData.walk(cw > 0 && cw < 1 ? t * 9 : 0);
-      if (cw < 1 && cw > 0) faceTo(carer, carer.position.x + (-4.3 + 2.8), carer.position.z + (-0.05 + 2.6)); else if (cw >= 1) carer.rotation.y = Math.PI; else carer.rotation.y = Math.PI;
-      env.visible = true; cup.visible = true; cup.position.copy(add3(C0, [LOW[0], LOW[1] - 0.05, LOW[2]]));
-      if (t < 45.7) env.position.copy(cr.tipW()); else env.position.copy(add3(C0, L3(give, [-4.3, 1.75, 0.5], prog(t, 45.7, 45.95))));
+      const carry = [rx - 0.9, 2.8, rz], give = [-3.05, 1.75, 0.7];
+      const k = prog(t, 37.85, 38.2); cr.reach(add3(C0, L3(carry, give, k))); const g = t < 38.25 ? 1 : 1 - prog(t, 38.25, 38.4);
+      cr.grip(g); cr.light(within(t, 37.0, END) ? (Math.sin(t * 7) > -0.6 ? LIGHT.amber : '#ffcf7a') : LIGHT.green);
+      const C_A = [-7.6, 0, 1.3], C_B = [-3.85, 0, 0.7];
+      const cw = prog(t, 36.9, 37.85, (q) => q); carer.position.copy(add3(C0, L3(C_A, C_B, cw))); carer.userData.walk(cw > 0 && cw < 1 ? t * 9 : 0);
+      if (cw < 1) faceTo(carer, carer.position.x + (C_B[0] - C_A[0]), carer.position.z + (C_B[2] - C_A[2])); else faceTo(carer, carer.position.x + 1, carer.position.z);
+      env.visible = true; env.rotation.y = Math.PI / 2; cup.visible = true; cup.position.copy(add3(C0, [LOW[0], LOW[1] - 0.05, LOW[2]]));
+      if (t < 38.25) env.position.copy(cr.tipW()); else env.position.copy(add3(C0, L3(give, [-3.25, 1.5, 0.7], prog(t, 38.25, 38.5))));
       handRing.visible = false;
     }
     visitor.userData.walk(0); R.userData.walk(0); W1.userData.walk(0);
@@ -484,13 +466,10 @@ st.onFrame((t) => {
   else if (t < 22.2) { const k = prog(t, 20.6, 22.2); at(W0, L3([1.6, 8.0, 12.6], [1.2, 8.4, 12.2], k), [-0.8, 0.6, -0.6], 36); }
   else if (t < 26.0) { const k = prog(t, 22.2, 26.0); at(W0, L3([0.8, 8.4, 11.8], [0.0, 7.8, 10.8], k), [-1.0, 1.8, -0.2], 36); }
   else if (t < 29.2) { const k = prog(t, 26.0, 29.2); at(W0, L3([2.8, 5.8, 11.2], [2.0, 5.4, 10.2], k), [-0.2, 2.0, 0.2], 36); }
-  else if (t < 33.0) { const k = prog(t, 29.2, 33.0); at(H0, L3([4.6, 7.0, 9.6], [3.8, 6.4, 8.6], k), [1.6, 1.5, -2.6], 36); }
-  else if (t < 37.2) { const k = prog(t, 33.0, 37.2); at(X0, L3([11.5, 15, 18], [9.5, 13.4, 16.4], k), [0, 0.5, 1.8], 36); }
-  else if (t < 40.8) { const k = prog(t, 37.2, 40.8); at(C0, L3([-3.6, 5.6, 7.6], [-3.0, 5.2, 6.8], k), [2.0, 1.6, -0.6], 36); }
-  else if (t < 43.2) { const k = prog(t, 40.8, 43.2); at(W0, L3([-3.0, 8.8, 19.0], [3.0, 8.2, 18.0], k), [0, 1.8, -1.2], 38); }
-  else if (t < 47.4) { const k = prog(t, 43.2, 47.4); at(C0, L3([-6.6, 5.4, 8.6], [-6.0, 5.0, 7.6], k), [-4.0, 1.7, 0.0], 38); }
-  else if (t < 48.8) { const k = prog(t, 47.4, 48.8); const a = 0.12; const w = [Math.sin(a) * 175, 92, -70 + Math.cos(a) * 175]; const e = [C0.x - 6.0, C0.y + 5.0, C0.z + 7.6]; pos = L3(e, w, k); look = L3([C0.x - 4.0, C0.y + 1.7, C0.z], [0, -6, -70], k); fov = lerp(36, 34, k); focus = k < 0.5 ? C0 : new V3(0, 0, -70); shadowR = k < 0.5 ? 34 : 140; }
-  else wide(lerp(0.12, 0.42, prog(t, 48.8, DUR, (q) => q)));
+  else if (t < HO) { const k = prog(t, CH, HO); at(C0, L3([0.2, 5.4, 9.6], [0.7, 5.0, 8.9], k), [2.3, 1.5, -0.9], 36); }
+  else if (t < END) { const k = prog(t, HO, END); at(C0, L3([-3.2, 6.4, 11.4], [-3.0, 6.0, 10.6], k), [-3.6, 1.5, 0.2], 34); }
+  else if (t < END + 1.2) { const k = prog(t, END, END + 1.2, ease.inOut); const a = 0.12; const w = [Math.sin(a) * 175, 92, -70 + Math.cos(a) * 175]; const e = [C0.x - 3.0, C0.y + 6.0, C0.z + 10.6]; pos = L3(e, w, k); look = L3([C0.x - 3.6, C0.y + 1.5, C0.z + 0.2], [0, -6, -70], k); fov = 34; focus = k < 0.5 ? C0 : new V3(0, 0, -70); shadowR = k < 0.5 ? 34 : 140; }
+  else wide(lerp(0.12, 0.3, prog(t, END + 1.2, DUR, (q) => q)));
   camera.fov = fov; camera.updateProjectionMatrix(); camera.position.set(...pos); camera.lookAt(...look);
   // the sun follows the island in view so shadows stay crisp
   sun.position.set(focus.x - 60, focus.y + 110, focus.z + 50); sun.target.position.copy(focus); sun.target.updateMatrixWorld();
@@ -498,59 +477,52 @@ st.onFrame((t) => {
 });
 
 // ======================= UI =======================
-const fade = fader(); A((t) => fade(t < 0.5 ? 1 - prog(t, 0, 0.5) : t > DUR - 0.7 ? prog(t, DUR - 0.7, DUR) : 0));
+const fade = fader(); A((t) => fade(t < 0.5 ? 1 - prog(t, 0, 0.5) : 0));
 const ROBOT = (c) => `<svg viewBox="0 0 24 24"><rect x="3.5" y="7.5" width="17" height="12.5" rx="4" fill="${c}"/><rect x="6.5" y="10.5" width="11" height="6" rx="3" fill="#13202b"/><circle cx="9.5" cy="13.5" r="1.6" fill="#16ffc6"/><circle cx="14.5" cy="13.5" r="1.6" fill="#16ffc6"/><rect x="11" y="3" width="2" height="4.5" fill="${c}"/><circle cx="12" cy="3" r="2" fill="#ffc83d"/></svg>`;
 const TEAL = '#0e9c8e', TEALS = '#0b7468';
 const badgeHTML = `<div class="b-badge" style="background:${TEAL};box-shadow:0 8px 0 ${TEALS},0 14px 30px rgba(0,0,0,.18)"><span class="ic">${ROBOT(TEAL)}</span><span><b>Train a Robot</b><small>ROBOT WORKSHOP</small></span></div>`;
 // hook: the big badge after Rivet wakes
 const bigBadge = el(`<div class="big">${badgeHTML}</div>`, { x: 960, y: 900, anchor: 'c' }); A(cue(bigBadge, 3.3, 4.5));
-// header: badge + level task
-const badge = el(badgeHTML, { x: 46, y: 40 }); A(cue(badge, 4.6, 47.3, { from: 'left' }));
-const TASKS = [['L1', 'Sort It: teach Rivet to sort the recycling', 4.9, 28.9], ['L2', 'Tidy Up: help the family tidy before Gran visits', 29.4, 32.8], ['L4', 'Rush Hour: share the warehouse floor safely', 33.3, 37.0], ['L5', 'Lending a Hand: a drink for every resident', 37.5, 40.6], ['LIVE', 'Tea time: Rivet helps the carers', 43.5, 47.2]];
+// header: badge + level task (all of it leaves before the closing swoop)
+const HDR_OUT = END - 0.25;
+const badge = el(badgeHTML, { x: 46, y: 40 }); A(cue(badge, 4.6, HDR_OUT, { from: 'left' }));
+const TASKS = [['TASK', 'Sort It: teach Rivet to sort the recycling', 4.9, 28.85], ['TASK', 'Lending a Hand: a drink for every resident', 30.5, 36.45], ['LIVE', 'Tea time: Rivet helps the carers', 36.95, HDR_OUT]];
 TASKS.forEach(([tag, task, a, b]) => { const n = el(`<div class="b-task" style="width:auto;max-width:1150px;font-size:34px"><span class="lv" style="background:#ffd23f;color:#13202b;width:auto;padding:0 16px;box-shadow:inset 0 -6px 0 #e3a91f">${tag}</span>${task}</div>`, { x: 46, y: 176 }); A(cue(n, a, b, { from: 'left' })); });
 { const STARSV = '<svg width="44" height="44" viewBox="0 0 24 24"><path d="M12 2.6l2.8 5.7 6.3.9-4.6 4.4 1.1 6.2L12 16.9l-5.6 2.9 1.1-6.2-4.6-4.4 6.3-.9z" fill="#ffc83d"/></svg>';
-  const n = el(`<div class="b-pills"><span>${STARSV}<b data-s></b></span><span><em class="xp" style="background:${TEAL}">XP</em><b data-x></b></span></div>`, { x: 1874, y: 40, anchor: 'tr' }); A(cue(n, 4.8, 47.3, { from: 'right' }));
-  const steps = [27.6, 32.1, 36.8, 40.0, 46.0]; A((t) => { const k = steps.filter((s) => t > s).length; n.querySelector('[data-s]').textContent = 3 + k; n.querySelector('[data-x]').textContent = 420 + k * 180; }); }
-// level banners
-const banner = (n, name, t0) => { const b = el(`<div class="lvl"><b>LEVEL ${n} OF 6</b><span>${name}</span><div class="dots">${[1, 2, 3, 4, 5, 6].map((k) => `<i class="${k <= n ? 'on' : ''}"></i>`).join('')}</div></div>`, { x: 960, y: 650, anchor: 'c' }); A(cue(b, t0, t0 + 1.0)); };
-banner(2, 'Tidy Up', 29.2); banner(4, 'Rush Hour', 33.0); banner(5, 'Lending a Hand', 37.2);
+  const n = el(`<div class="b-pills"><span>${STARSV}<b data-s></b></span><span><em class="xp" style="background:${TEAL}">XP</em><b data-x></b></span></div>`, { x: 1874, y: 40, anchor: 'tr' }); A(cue(n, 4.8, HDR_OUT, { from: 'right' }));
+  const steps = [27.6, FIXT, 38.3]; A((t) => { const k = steps.filter((s) => t > s).length; n.querySelector('[data-s]').textContent = 3 + k; n.querySelector('[data-x]').textContent = 420 + k * 180; }); }
+// level banner for the second loop (no level numbers: the trailer shows two of the lab's six levels): on its own, above the action, gone before any panel arrives
+{ const b = el(`<div class="lvl"><b>NEXT LEVEL</b><span>Lending a Hand</span></div>`, { x: 960, y: 250, anchor: 'c' }); A(cue(b, CH + 0.05, CH + 0.95)); }
 // the role badge moves on as the crew rotate jobs
-const ROLEW = [['demo', 4.9, 13.6], ['test', 13.8, 20.4], ['data', 20.6, 26.0], ['test', 26.2, 29.0], ['task', 29.4, 32.8], ['safe', 33.3, 37.0], ['test', 37.5, 40.6]];
+const ROLEW = [['demo', 4.9, 13.6], ['test', 13.8, 20.4], ['data', 20.6, 26.0], ['test', 26.2, 28.85], ['test', 30.5, 36.45]];
 ROLEW.forEach(([r, a, b]) => { const n = el(`<div class="rolep"><i style="background:${ROLE[r][1]}"></i><span><small>YOUR ROLE</small><br>${ROLE[r][0]}</span></div>`, { x: 1874, y: 1040, anchor: 'tr' }); n.firstChild.style.transform = 'translateY(-100%)'; A(cue(n, a, b, { from: 'right' })); });
 // helper card: the Training Assistant
-function helper(text, sure, tIn, tOut, { tag = 'PLAN', tagColor = '#ffc83d', y = 176 } = {}) {
-  const n = el(`<div class="b-helper"><div class="bot"><i></i><i></i></div><div class="who">Training Assistant <em style="background:${tagColor}">${tag}</em></div><p>${text}</p><div class="sure"><div class="bar"><i style="width:${sure}%"></i></div><span>${sure}% sure</span></div></div>`, { x: 1874, y, anchor: 'tr' });
-  A(cue(n, tIn, tOut, { from: 'right' })); return n;
+function helper(text, sure, tIn, tOut, { tag = 'PLAN', tagColor = '#ffc83d', y = 176, left = false, w = 820 } = {}) {
+  const n = el(`<div class="b-helper" style="width:${w}px"><div class="bot"><i></i><i></i></div><div class="who">Training Assistant <em style="background:${tagColor}">${tag}</em></div><p>${text}</p><div class="sure"><div class="bar"><i style="width:${sure}%"></i></div><span>${sure}% sure</span></div></div>`, left ? { x: 46, y } : { x: 1874, y, anchor: 'tr' });
+  A(cue(n, tIn, tOut, { from: left ? 'left' : 'right', dur: 0.25, outDur: 0.25 })); return n;
 }
-helper('Learned from 3 demos. All upright bottles, all from the middle.', 94, 11.4, 13.7);
-helper('Learned from 7 varied demos. I know there are kinds I haven’t seen.', 85, 27.6, 29.1, { tag: 'PLAN CHECKED', tagColor: '#16c79a' });
-helper('‘Tidy’ means nothing on surfaces. Everything goes in the toy box.', 88, 29.6, 30.9);
+helper('Learned from 3 demos. All upright bottles, all from the middle.', 94, 11.4, 13.6);
+helper('Learned from 7 varied demos. I know there are kinds I haven’t seen.', 85, 27.6, 28.85, { tag: 'PLAN CHECKED', tagColor: '#16c79a' });
+helper('Learned from staff demos. Hold every cup out at standing height.', 93, 30.5, 31.85, { y: 330, left: true, w: 720 });
 // 3D-anchored bubbles
-function bub3(text, cls, tIn, tOut, at, dy = 0, maxX = 1560, minX = 360, minY = 330) { const n = el(`<div class="bub ${cls}">${text}</div>`, { anchor: 'bc' }); A(cue(n, tIn, tOut)); A((t) => { if (!within(t, tIn - 0.1, tOut + 0.5)) return; const p = toScreen(at(t), camera); n.style.left = clamp(p.x, minX, maxX) + 'px'; n.style.top = clamp(p.y - dy, minY, 1000) + 'px'; }); return n; }
+function bub3(text, cls, tIn, tOut, at, dy = 0, maxX = 1560, minX = 360, minY = 330) { const n = el(`<div class="bub ${cls}">${text}</div>`, { anchor: 'bc' }); A(cue(n, tIn, tOut, { outDur: 0.25 })); A((t) => { if (!within(t, tIn - 0.1, tOut + 0.5)) return; const p = toScreen(at(t), camera); n.style.left = clamp(p.x, minX, maxX) + 'px'; n.style.top = clamp(p.y - dy, minY, 1000) + 'px'; }); return n; }
 bub3('I’ve got it. <em>94% sure</em>', 'say', 11.0, 13.6, () => ws.headW().add(new V3(0, 0.5, 0)), 0, 800, 360, 420);
 bub3('Grabbed thin air', 'bad', F2.failT + 0.05, F2.failT + 0.95, () => new V3(SQ[0], 2.4, SQ[2]), 0, 1560, 860);
 bub3('Lying down: missed', 'bad', F3.failT + 0.05, F3.failT + 1.0, () => new V3(LY[0], 2.4, LY[2]), 0, 1560, 860);
-bub3('Gran’s medicine', 'bad', 30.9, 32.0, () => add3(H0, [TBOX[0], 1.5, TBOX[2]]));
-bub3('Gran’s medicine', 'ok', 29.25, 29.9, () => add3(H0, [SHELF[0], 2.9, SHELF[2]]));
-bub3('Back on its shelf', 'ok', 32.15, 33.0, () => add3(H0, [SHELF[0], 2.9, SHELF[2]]));
-bub3('!', 'warn', 34.3, 35.0, () => worker.position.clone().add(new V3(0, 3.6, 0)));
-bub3('It slows down when I’m near', 'ok', 36.4, 37.25, () => worker.position.clone().add(new V3(0, 3.4, 0)));
-bub3('E-STOP', 'bad', 35.9, 37.25, () => add3(X0, [3.6, 2.6, 5.4]));
-bub3('Too high to reach', 'bad', 38.0, 38.9, () => add3(C0, [2.0, 2.0, -1.2]));
-bub3('Just right, thank you!', 'ok', 39.9, 40.8, () => add3(C0, [2.0, 2.9, -1.5]));
-bub3('Zzz', 'zz', 43.3, 47.3, () => add3(C0, [-5.6, 3.0, -0.8]));
-bub3('Not sure. She’s asleep. Can you help?', 'say', 44.3, 45.7, () => cr.headW().add(new V3(0, 0.5, 0)));
-bub3('Thanks, Rivet. I’ll take it from here.', 'ok', 45.95, 47.3, () => carer.position.clone().add(new V3(0, 3.4, 0)));
-// child's hand cursor (drags the gripper / paints zones)
-const HAND = '<svg width="90" height="110" viewBox="0 0 90 110"><path d="M34 8c6 0 9 4 9 9v30l4-1c5-1 9 2 9 6l1-1c5-1 9 2 9 6l1 0c5-1 9 2 9 7v16c0 14-10 26-26 26H44c-9 0-15-4-20-11L8 72c-3-5-1-10 4-11 4-1 7 1 9 4l4 5V17c0-5 3-9 9-9z" fill="#f6c9a0" stroke="#13202b" stroke-width="5" stroke-linejoin="round"/></svg>';
-const hand = el(`<div style="position:relative">${HAND}<div data-r style="position:absolute;left:4px;top:-22px;width:60px;height:60px;border-radius:50%;border:6px solid #fff;box-shadow:0 0 0 4px rgba(255,138,42,.7)"></div></div>`);
+bub3('Too high to reach', 'bad', 32.05, 33.45, () => add3(C0, [2.0, 3.25, -1.5]), 0, 1560, 760);
+bub3('Just right, thank you!', 'ok', FIXT + 0.05, 36.45, () => add3(C0, [2.0, 3.25, -1.5]), 0, 1560, 760);
+bub3('Zzz', 'zz', HO + 0.1, 38.2, () => add3(C0, [-5.6, 2.9, -0.8]));
+bub3('Not sure. She’s asleep. Can you help?', 'say', 37.0, 38.2, () => cr.headW().add(new V3(0, 1.2, 0)), 0, 1500, 760);
+bub3('Thanks, Rivet. I’ll take it from here.', 'ok', 38.3, HDR_OUT, () => carer.position.clone().add(new V3(0, 3.5, 0)), 0, 1500, 760);
+// child's hand cursor (drags the gripper)
+const HAND = '<svg width="132" height="161" viewBox="0 0 90 110"><path d="M34 8c6 0 9 4 9 9v30l4-1c5-1 9 2 9 6l1-1c5-1 9 2 9 6l1 0c5-1 9 2 9 7v16c0 14-10 26-26 26H44c-9 0-15-4-20-11L8 72c-3-5-1-10 4-11 4-1 7 1 9 4l4 5V17c0-5 3-9 9-9z" fill="#f6c9a0" stroke="#13202b" stroke-width="5" stroke-linejoin="round"/></svg>';
+const hand = el(`<div style="position:relative">${HAND}<div data-r style="position:absolute;left:6px;top:-32px;width:88px;height:88px;border-radius:50%;border:8px solid #fff;box-shadow:0 0 0 5px rgba(255,138,42,.75)"></div></div>`);
 A((t) => {
   let p = null, press = false;
   const dragA = within(t, D1.t0 - 0.25, D3.end) , dragB = within(t, V1.t0 - 0.25, V2.end);
   if (dragA || dragB) { p = toScreen(wsTip.clone().add(new V3(0, 0.25, 0)), camera); const k = wsTrack(t); press = k[4] > 0.4; }
-  if (within(t, 35.0, 35.9)) { const u = t < 35.45 ? prog(t, 35.0, 35.5, (k) => k) : prog(t, 35.4, 35.9, (k) => k); const z = t < 35.45 ? 4.4 - ((t * 7) % 2) * 4.4 : 1.6 - ((t * 7) % 2) * 3.2; p = toScreen(add3(X0, [lerp(-3.6, 3.6, u), 0.1, z]), camera); press = true; }
   hand.style.opacity = p ? 1 : 0; if (!p) return;
-  hand.style.left = (p.x - 30) + 'px'; hand.style.top = (p.y - 6) + 'px'; hand.style.transform = `scale(${press ? 0.9 : 1})`;
+  hand.style.left = (p.x - 44) + 'px'; hand.style.top = (p.y - 8) + 'px'; hand.style.transform = `scale(${press ? 0.9 : 1})`;
   hand.querySelector('[data-r]').style.opacity = press ? 1 : 0;
 });
 // demonstrations counter
@@ -562,9 +534,7 @@ A((t) => { const done = TRAILS.map(([D]) => t > D.dropT); demos.querySelector('[
 const lens = (txt, a, b, bgc = '#2f6fd8', ink = '#fff') => { const n = el(`<div class="lens" style="background:${bgc};color:${ink}">${txt}</div>`, { x: 960, y: 118, anchor: 'c' }); A(cue(n, a, b, { from: 'down' })); };
 lens('● TEST BENCH · 10 TRIALS', 13.9, 20.4, '#13202b');
 lens('CAUSE: DEMOS TOO SIMILAR', 20.7, 25.9, '#8a5cf0');
-lens('● RE-TEST · 10 TRIALS', 26.1, 29.0, '#13202b');
-lens('● SAFETY LENS', 33.3, 37.1, '#ffd23f', '#13202b');
-lens('FIX: RESIDENTS DEMONSTRATE TOO', 38.95, 40.7, '#8a5cf0');
+lens('● RE-TEST · 10 TRIALS', 26.1, 28.85, '#13202b');
 // test bench results: prediction beside measurement
 function results(pred, marks, cellT, mT, measured, good, a, b) {
   const n = el(`<div class="res"><small>TEST BENCH RESULTS</small><div class="g10">${marks.map(() => '<i></i>').join('')}</div><div class="pm"><div><em>PREDICTED</em><b>${pred}</b></div><div class="m${good ? ' good' : ''}" data-m><em>MEASURED</em><b>–</b></div></div></div>`, { x: 46, y: 330 });
@@ -572,35 +542,29 @@ function results(pred, marks, cellT, mT, measured, good, a, b) {
   A((t) => { if (!within(t, a - 0.1, b + 0.5)) return; n.querySelectorAll('.g10 i').forEach((c, i) => { const on = t > cellT[i]; c.className = on ? (marks[i] ? 'ok' : 'no') : ''; c.textContent = on ? (marks[i] ? '✓' : '✕') : ''; c.style.transform = on && t < cellT[i] + 0.15 ? 'scale(1.12)' : ''; }); const m = n.querySelector('[data-m]'); m.querySelector('b').textContent = t > mT ? measured : '–'; m.style.transform = t > mT && t < mT + 0.25 ? 'scale(1.1)' : ''; m.style.opacity = t > mT ? 1 : 0.4; });
 }
 results('94%', [1, 0, 0, 1, 0, 0, 1, 0, 0, 1], [T1.dropT + 0.1, F2.failT + 0.1, F3.failT + 0.1, ...[0, 1, 2, 3, 4, 5, 6].map((k) => 18.5 + k * 0.11)], 19.3, '4/10', false, 14.0, 20.4);
-results('85%', [1, 1, 1, 0, 1, 1, 1, 1, 1, 1], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((k) => 26.4 + k * 0.11), 27.6, '9/10', true, 26.2, 29.0);
+results('85%', [1, 1, 1, 0, 1, 1, 1, 1, 1, 1], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((k) => 26.4 + k * 0.11), 27.6, '9/10', true, 26.2, 28.85);
 const sure = el('<div class="b-saved" style="font-size:52px">Sure isn’t the same as right.</div>', { x: 960, y: 980, anchor: 'c' }); A(cue(sure, 19.4, 20.45));
+// a card the hand taps
+function tapCard(n, card, pickAt, tOut, dx = 80, dy = 120) { const h = el(HAND); A((t) => { const v = within(t, pickAt - 0.7, tOut); h.style.opacity = v ? 1 : 0; card.classList.toggle('pick', t > pickAt); const r = { x: parseFloat(n.style.left) + card.offsetLeft + dx, y: parseFloat(n.style.top) + card.offsetTop + dy }; const k = prog(t, pickAt - 0.7, pickAt - 0.1, ease.out); h.style.left = lerp(r.x + 240, r.x, k) + 'px'; h.style.top = lerp(r.y + 130, r.y, k) + 'px'; h.style.transform = `scale(${t > pickAt && t < pickAt + 0.15 ? 0.88 : 1})`; }); }
 // fix: clearer cards (vary the demos, not more of the same)
 { const list = [['A', 'Do the same demo 20 more times'], ['B', 'Show it lots of ways: lying down, squashed, at the edge'], ['C', 'Tell the robot to be more careful']];
   const n = el(`<div><div class="b-head">HOW DO WE FIX IT?</div><div class="ccards">${list.map(([k, s]) => `<div class="b-card"><span class="k">${k}</span>${s}</div>`).join('')}</div></div>`, { x: 46, y: 812 });
   A(cue(n, 20.6, 22.3, { from: 'up' }));
   const h = el(HAND); const pickAt = 21.6, pick = 1;
-  A((t) => { const v = within(t, pickAt - 0.8, 22.3); h.style.opacity = v ? 1 : 0; n.querySelectorAll('.b-card')[pick].classList.toggle('pick', t > pickAt); const tx = 46 + pick * 612 + 80, ty = 960; const k = prog(t, pickAt - 0.8, pickAt - 0.1, ease.out); h.style.left = lerp(tx + 260, tx, k) + 'px'; h.style.top = lerp(ty + 140, ty, k) + 'px'; h.style.transform = `scale(${t > pickAt && t < pickAt + 0.15 ? 0.88 : 1})`; }); }
-// alerts
-const alert = (txt, a, b, good = false, y = 960) => { const n = el(`<div class="b-alert" style="${good ? 'color:#1f9d55' : ''}"><span class="x" style="${good ? 'background:#16c79a' : ''}">${good ? '✓' : '✕'}</span>${txt}</div>`, { x: 960, y, anchor: 'c' }); A(cue(n, a, b)); };
-alert('Gran’s medicine went in the toy box!', 30.95, 32.0);
-alert('Clearer card: medicine stays on its shelf', 32.05, 32.95, true);
-alert('Near miss!', 34.35, 35.0);
-alert('Slow zone and stop zone painted', 35.45, 36.35, true);
+  A((t) => { const v = within(t, pickAt - 0.8, 22.3); h.style.opacity = v ? 1 : 0; n.querySelectorAll('.b-card')[pick].classList.toggle('pick', t > pickAt); const tx = 46 + pick * 612 + 80, ty = 950; const k = prog(t, pickAt - 0.8, pickAt - 0.1, ease.out); h.style.left = lerp(tx + 260, tx, k) + 'px'; h.style.top = lerp(ty + 140, ty, k) + 'px'; h.style.transform = `scale(${t > pickAt && t < pickAt + 0.15 ? 0.88 : 1})`; }); }
 // care home: results split by person
 { const n = el(`<div class="res"><small>TEST RESULTS · BY PERSON</small><div class="row"><span>Standing visitors</span><b>6/6</b></div><div class="row"><span>Staff</span><b>2/2</b></div><div class="row no" data-w><span>Wheelchair users</span><b>0/2</b></div><div class="avg" data-a>Overall 8/10 looked fine…</div></div>`, { x: 46, y: 330 });
-  A(cue(n, 37.6, 40.7, { from: 'left' }));
-  A((t) => { const w = n.querySelector('[data-w]'); const fixed = t > 39.85; w.className = 'row ' + (fixed ? 'fixed' : 'no'); w.querySelector('b').textContent = fixed ? '2/2' : '0/2'; w.querySelector('b').style.background = fixed ? '#16c79a' : '#ff5d4a'; w.style.transform = t > 39.85 && t < 40.1 ? 'scale(1.05)' : ''; n.querySelector('[data-a]').textContent = fixed ? 'Everyone can take a cup now.' : 'Overall 8/10 hid who it fails.'; }); }
-// team roles
-{ const RC = [['task', 'Writes the job card'], ['demo', 'Shows Rivet how'], ['data', 'Checks the mix of demos'], ['test', 'Runs the 10 trials'], ['safe', 'Paints zones, holds the e-stop']];
-  const head = el('<div class="b-head" style="font-size:34px">THE TRAINING CREW · 5 ROLES</div>', { x: 960, y: 710, anchor: 'c' }); A(cue(head, 40.85, 42.8, { from: 'up' }));
-  RC.forEach(([r, txt], i) => { const n = el(`<div class="rc"><i style="background:${ROLE[r][1]}"></i><b>${ROLE[r][0]}</b><span>${txt}</span></div>`, { x: 46 + i * 370, y: 775 }); A(cue(n, 40.95 + i * 0.22, 42.8, { from: 'up' })); }); }
+  A(cue(n, 32.0, 36.45, { from: 'left' }));
+  A((t) => { const w = n.querySelector('[data-w]'); const fixed = t > FIXT; w.className = 'row ' + (fixed ? 'fixed' : 'no'); w.querySelector('b').textContent = fixed ? '2/2' : '0/2'; w.querySelector('b').style.background = fixed ? '#16c79a' : '#ff5d4a'; w.style.transform = fixed && t < FIXT + 0.25 ? 'scale(1.05)' : ''; n.querySelector('[data-a]').textContent = fixed ? 'Everyone can take a cup now.' : 'Overall 8/10 hid who it fails.'; }); }
+// care home: the children's clearer card
+{ const n = el(`<div><div class="b-head">CLEARER CARD</div><div class="ccards"><div class="b-card" style="width:760px"><span class="k">✎</span>Residents show Rivet too: sitting down as well as standing</div></div></div>`, { x: 640, y: 790 });
+  A(cue(n, 33.55, 34.75, { from: 'up' })); tapCard(n, n.querySelector('.b-card'), 34.05, 34.75, 30, 40); }
 // ending caption
-const endCap = el('<div class="b-saved" style="font-size:46px;background:#13202b"><span style="color:#ffa21a">●</span> Amber light: Rivet hands over to a human</div>', { x: 960, y: 980, anchor: 'c' }); A(cue(endCap, 44.4, 47.2));
-// careers card
-const dim = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:radial-gradient(ellipse at center, rgba(5,20,40,.25), rgba(5,20,40,.6))"></div>'); A(cue(dim, 47.6, null, { from: 'fade', dur: 0.8 }));
-const careers = el(`<div class="careers"><div class="chip">AFTER THE LAB</div><h3>Real jobs: robot trainer, test engineer, data curator, safety engineer…</h3><div class="jobs"><span style="background:#ffe6d3">Robot trainer</span><span style="background:#dff7ee">Test engineer</span><span style="background:#ece5ff">Data curator</span><span style="background:#fff3c4">Safety engineer</span><span class="more">…and more</span></div></div>`, { x: 960, y: 540, anchor: 'c' });
-A(cue(careers, 47.9, 50.4));
-const title = titleCard('Train a <span class="hl">Robot</span>', 'Teach it. Test it. Make it safe.', { chip: 'A DeltaOps Learning AI lab · Ages 8–14' }); A(cue(title, 50.7, null, { from: 'pop', dur: 0.8 }));
+const endCap = el('<div class="b-saved" style="font-size:46px;background:#13202b"><span style="color:#ffa21a">●</span> Amber light: Rivet hands over to a human</div>', { x: 960, y: 980, anchor: 'c' }); A(cue(endCap, 37.05, HDR_OUT));
+// closing: title card with the careers line on it (no separate careers card, no fade to black)
+const dim = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:radial-gradient(ellipse at center, rgba(5,20,40,.18), rgba(5,20,40,.5))"></div>'); A(cue(dim, END + 0.3, null, { from: 'fade', dur: 0.6 }));
+const title = titleCard('Train a <span class="hl">Robot</span>', 'Teach it. Test it. Make it safe.', { chip: 'A DeltaOps Learning AI lab · Ages 8–14' }); title.style.placeItems = 'start center'; title.style.paddingTop = '120px'; A(cue(title, END + 0.4, null, { from: 'pop', dur: 0.7 }));
+{ const J = [['Robot trainer', '#ff8a2a'], ['Test engineer', '#1f9d55'], ['Data curator', '#8a5cf0'], ['Safety engineer', '#ffd23f']]; const n = el(`<div class="jobs"><b>Real jobs:</b>${J.map(([j, c]) => `<span><i style="background:${c}"></i>${j}</span>`).join('')}</div>`, { x: 960, y: 950, anchor: 'c' }); A(cue(n, END + 0.9, null, { from: 'up', dur: 0.4 })); }
 
 st.onFrame((t) => ui.forEach((f) => f(t)));
 window.__duration = DUR;

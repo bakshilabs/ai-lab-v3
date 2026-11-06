@@ -1,6 +1,6 @@
 # Train a Robot: design document
 
-> Strand: Career skills · Ages: 8–14 · Session: 45 / 60 / 90 min · Trailer: `games/trailers/robot/` (`out/robot.mp4`, not yet rendered)
+> Strand: Career skills · Ages: 8–14 · Session: 45 / 60 / 90 min · Trailer: `games/trailers/robot/` (`out/robot.mp4`, 0:44 once re-rendered: Level 1, then Level 5 and its hand-over)
 
 Source research: `research/new-labs/train-a-robot.md`. Facts marked "(to verify)" were not confirmed in that research and must be checked before build or print.
 
@@ -221,6 +221,6 @@ Minutes for each phase. Every version starts by saying the Assistant is scripted
 - **Scenes and assets:** workshop island (belt, bins, hopper, pegboard, crate); home with toy box and medicine shelf; warehouse floor with aisles, workers, a second robot and the zone painter; care-home lounge with residents of varied heights and wheelchairs; quarry tunnel with mud, dust and a puddle, plus a tidy simulator twin; Test Bench grid with replay; person filter.
 - **Scripted AI responses:** every vague, clear and distractor line in the section 5 table, plus: L1 card A "same demo 20 more times" (still 4/10) and card C "be more careful" (no change); L2 card C "tidy it like a hotel" (beds made, toys still on the floor); L3 camera-check bonus (overhead says picked, side camera shows hovering, from [DeepMind](https://deepmind.google/discover/blog/specification-gaming-the-flip-side-of-ai-ingenuity/)); L4 card C "be careful" (on time 60%); L5 asleep resident (52%); L6 amber "I'm not sure. Human, please take over."; a track-record tally "Predictions vs tests: ✓✓✕✕".
 - **Reuse from the trailer:** Rivet and crate; workshop, home, warehouse and care-home islands; demo trails and counter; PREDICTED/MEASURED card; cause lens; fix cards and hand; safety lens and zones; by-person card; role pill and five-role strip; careers card. Level 3 and the rescue island are new.
-- **Trailer alignment:** keep the trailer's 3 initial demos, then 7 varied ones (the research said 5); the trailer ends on the care-home hand-over, not the rescue.
+- **Trailer alignment:** keep the trailer's 3 initial demos, then 7 varied ones (the research said 5). The trailer shows only Level 1 and Level 5 (shown as "NEXT LEVEL", with no level numbers), uses the shorter Level 5 card "Residents show Rivet too: sitting down as well as standing", and ends on the care-home hand-over, not the rescue.
 - **Open questions:** rename the care home and check the new name; an optional "Ripe or Not?" strawberry level for rural venues ([Ingenia](https://ingenia.org.uk/articles/robots-in-the-field/)).
 - **To verify:** OpenAI Rubik's Cube rates (60%, 20%); Tesla Optimus camera-only pivot; Gemini Robotics 1.5 demos and ASIMOV update; ISO/TS 15066 values (130 N, 140 N) against Annex A; ISO 13482 edition; SRT-H details (17 hours, 41% slower); teleoperator pay (never use in product); Dogtooth figures (company-stated); NGSS MS-ETS1 and KS2 maths wording. No study was found on children's intuitions about precision and recall.

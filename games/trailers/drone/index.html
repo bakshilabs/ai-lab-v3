@@ -84,9 +84,10 @@ import { el, cue, fader, titleCard, toScreen } from '../engine/ui.js';
 import { burst } from '../engine/extras.js';
 import { makeLab } from '../engine/lab.js';
 
-const DUR = 53.5;
-// beat times
-const TM = { chk: 5.0, mon: 9.6, wed: 16.4, fri: 21.6, sat: 34.6, car: 45.6, ttl: 48.8 };
+// beat times: hook, checklist (3 s), Monday montage (3.8 s), Friday search loop, Saturday medicine loop, title + careers
+const TM = { chk: 2.4, mon: 5.4, fri: 9.2, sat: 24.4, end: 35.8 };
+const F = TM.fri, S = TM.sat, E = TM.end;
+const DUR = E + 5.0;
 const st = createStage({ sky: ['#5db6ff', '#d9efff'], post: false });
 const { scene, camera, sun, hemi, rim } = st;
 rim.intensity = 0.5; st.dome.visible = false; st.renderer.setClearColor(0x000000, 0);
@@ -106,14 +107,11 @@ const WX = {
   storm: { a: '#253d63', b: '#45678f', c: '#8aa6c6', sunI: 1.7, sunC: '#e4ecff', hemiI: 1.25, hemiC: '#c4d4ea', water: '#2a8fae', exp: 1.12, night: 0.25, storm: 1, cloud: '#6f7f96' },
   morn:  { a: '#2f9bff', b: '#86ccff', c: '#fff0d6', sunI: 2.8, sunC: '#fff0d0', hemiI: 1.25, hemiC: '#d8ecff', water: '#43a9e6', exp: 1.08, night: 0, storm: 0, cloud: '#ffffff' },
 };
-const WSEQ = [[0, 'sun'], [TM.wed, 'wed'], [TM.fri, 'night'], [TM.sat, 'storm'], [TM.car, 'morn']];
-const mixC = (a, b, k) => C(a).lerp(C(b), k);
+// every weather change sits on a hard cut, so it switches cleanly (no washed-out crossfades)
+const WSEQ = [[0, 'sun'], [TM.fri, 'night'], [TM.sat, 'storm'], [TM.end, 'morn']];
 function wx(t) {
   let i = 0; while (i < WSEQ.length - 1 && t >= WSEQ[i + 1][0]) i++;
-  const cur = WX[WSEQ[i][1]], prev = WX[WSEQ[Math.max(i - 1, 0)][1]];
-  const k = i === 0 ? 1 : prog(t, WSEQ[i][0] - 0.25, WSEQ[i][0] + 0.35);
-  const o = {}; for (const key in cur) o[key] = typeof cur[key] === 'number' ? lerp(prev[key], cur[key], k) : '#' + mixC(prev[key], cur[key], k).getHexString();
-  return o;
+  return WX[WSEQ[i][1]];
 }
 
 // ---------- terrain: Kestrel Isle and Wren Holm on a brochure diorama slab ----------
@@ -129,6 +127,11 @@ const isRunway = (x, z) => x >= -16 && x <= 6 && z >= -1 && z <= 2;
 const hillD = (x, z) => Math.hypot((x + 25) / 9, (z + 13) / 7);
 const STRATA = ['#c9a86a', '#a88458', '#d8bf86', '#8f7a5e', '#b99764'];
 const HEATH = ['#8e4f9a', '#9b5aa6', '#7d4489', '#a86bb0', '#8e4f9a'];
+// sheep and the walker on the moor: their ground is flattened so nothing pokes through them
+const SHEEP_AT = [[8, -11, 0.4], [11, -8.5, 2.2], [6.5, -7.5, 1.0], [-1, -15.5, -0.6], [0, -9.5, 2.8]];
+const WK = [3, -13];
+const FLAT = [...SHEEP_AT.map(([x, z]) => [x, z]), WK];
+const onFlat = (x, z) => FLAT.some(([a, b]) => Math.hypot(x - a, z - b) < 3.2);
 for (let x = X0; x <= X1; x++) for (let z = Z0; z <= Z1; z++) {
   const edge = x === X0 || x === X1 || z === Z0 || z === Z1;
   for (let y = BOT; y < BED; y++) if (edge || y === BED - 1 || y === BOT) { const b = Math.floor((y - BOT + noise2(x / 4, z / 4, 3) * 2.2) / 2.2); v.set(x, y, z, STRATA[((b % 5) + 5) % 5]); }
@@ -141,7 +144,7 @@ for (let x = X0; x <= X1; x++) for (let z = Z0; z <= Z1; z++) {
   const patch = Math.sin(x * 0.4) + Math.cos(z * 0.33) + rand(x, 7, z) * 0.9;
   const grassC = patch > 1.2 ? '#8fd96a' : patch > 0.2 ? '#73c74f' : patch > -0.8 ? '#62b846' : '#53a83d';
   top = grassC;
-  if (r < 1 && isMoor(x, z)) { h = 2 + (noise2(x / 5, z / 5, 8) > 0.55 ? 1 : 0); const n = rand(x, 9, z); top = n > 0.9 ? '#7a9a48' : n > 0.84 ? '#a77a4a' : HEATH[Math.floor(rand(x, 3, z) * 5)]; }
+  if (r < 1 && isMoor(x, z)) { h = onFlat(x, z) ? 2 : 2 + (noise2(x / 5, z / 5, 8) > 0.55 ? 1 : 0); const n = rand(x, 9, z); top = n > 0.9 ? '#7a9a48' : n > 0.84 ? '#a77a4a' : HEATH[Math.floor(rand(x, 3, z) * 5)]; }
   else if (r < 1 && hillD(x, z) < 1) { const d = hillD(x, z); h = 1 + Math.round(4.5 * (1 - d * d)); }
   else if (r < 1 && isField(x, z)) {
     if (x <= -3) top = (z % 2) ? '#e6c65a' : '#dbb94c';
@@ -232,10 +235,11 @@ const ROLES = [['Pilot in command', '#ff6a4a'], ['Visual observer', '#ffc83d'], 
 const SKIN = ['#c68a5e', '#8d5a3b', '#e0b08a', '#a8714b', '#e8c09a'], HAIR = ['#2b1d14', '#d8a040', '#2b1d14', '#7a4a2c', '#1a1a1a'];
 const team = ROLES.map(([, c], i) => { const p = person({ shirt: c, skin: SKIN[i], hair: HAIR[i], s: 0.27 }); scene.add(p); return p; });
 const scout = person({ shirt: '#6e5bf2', skin: SKIN[3], hair: HAIR[3], s: 0.27 }); scene.add(scout);
-const walker = person({ shirt: '#d8342c', pants: '#2c3e66', skin: '#e0b08a', hair: '#7a4a2c', s: 0.3 }); scene.add(walker);
-const WK = [3, -14]; walker.position.set(WK[0], hAt(...WK) + 1.3, WK[1]); walker.rotation.set(0, 0.5, -Math.PI / 2);
-const foil = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.5, 1.4), new THREE.MeshLambertMaterial({ color: '#ffd23f', emissive: new THREE.Color('#a87a10'), emissiveIntensity: 0.5 })); foil.position.set(WK[0] + 1.1, hAt(...WK) + 1.5, WK[1] + 0.5); foil.rotation.y = 0.5; scene.add(foil);
-const SHEEP = [[9, -12, 0.4], [12, -12.5, 2.2], [8, -8.5, 1.0], [13, -14.5, -0.6], [10.5, -16.5, 2.8]].map(([x, z, a]) => { const s = sheep({ s: 0.3 }); s.position.set(x, hAt(x, z) + 1, z); s.rotation.y = a; scene.add(s); return s; });
+const walker = person({ shirt: '#d8342c', pants: '#2c3e66', skin: '#e0b08a', hair: '#7a4a2c', s: 0.4 }); scene.add(walker);
+// Ellie lies on her back in the heather, arms by her sides: a clear person shape from above
+walker.position.set(WK[0], hAt(...WK) + 1.45, WK[1] - 1.6); walker.rotation.set(Math.PI / 2, 0.5, 0, 'YXZ');
+const foil = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.3, 2.2), new THREE.MeshLambertMaterial({ color: '#ffd23f', emissive: new THREE.Color('#a87a10'), emissiveIntensity: 0.5 })); foil.position.set(WK[0] + 0.45, hAt(...WK) + 1.75, WK[1] - 0.6); foil.rotation.y = 0.5; scene.add(foil);
+const SHEEP = SHEEP_AT.map(([x, z, a]) => { const s = sheep({ s: 0.42 }); s.position.set(x, hAt(x, z) + 1, z); s.rotation.y = a; scene.add(s); return s; });
 const rescuers = [0, 1, 2].map((i) => { const p = person({ shirt: '#ff8a2a', pants: '#2a2f36', skin: SKIN[i + 1], s: 0.3 }); const torch = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.3, 0.3), new THREE.MeshBasicMaterial({ color: '#fffbe0' })); torch.position.set(-0.15, 7.3 * 0.3, -0.45); torch.userData.fxHide = true; p.add(torch); scene.add(p); return p; });
 const nurse = person({ shirt: '#59c7fc', pants: '#2c3e66', skin: '#8d5a3b', s: 0.3 }); nurse.position.set(39, 2, 11.5); scene.add(nurse);
 const nurseArm = new THREE.Mesh(new THREE.BoxGeometry(0.3, 1.0, 0.3), new THREE.MeshLambertMaterial({ color: '#59c7fc' })); scene.add(nurseArm);
@@ -265,7 +269,7 @@ const NR = 700; const rain = new THREE.InstancedMesh(new THREE.BoxGeometry(0.07,
 const whitecaps = particles(140, { size: 1 }); whitecaps.geometry = new THREE.BoxGeometry(1.2, 0.18, 0.5); whitecaps.material = new THREE.MeshBasicMaterial({ color: '#ffffff', transparent: true, opacity: 0.85 }); scene.add(whitecaps);
 const WC = []; for (let i = 0; i < 600 && WC.length < 140; i++) { const x = X0 + 1 + rand(i, 41) * 106, z = Z0 + 1 + rand(i, 42) * 58; if (inIsl(x, z) > 1.1 && inHolm(x, z) > 1.15) WC.push([x, z]); }
 const dust = particles(24, { size: 0.35 }); dust.material = new THREE.MeshBasicMaterial({ color: '#e8dcc0', transparent: true, opacity: 0.8 }); scene.add(dust);
-const conf = burst(scene, { at: [PADS.clinic[0], 5, PADS.clinic[1]], t0: 44.7, n: 80, colors: ['#ffd23f', '#16c7a6', '#ff6a4a', '#ffffff', '#59c7fc'], size: 0.45, speed: 7, up: 8, life: 1.8 });
+const conf = burst(scene, { at: [PADS.clinic[0], 5, PADS.clinic[1]], t0: S + 9.8, n: 80, colors: ['#ffd23f', '#16c7a6', '#ff6a4a', '#ffffff', '#59c7fc'], size: 0.45, speed: 7, up: 8, life: 1.8 });
 
 // ---------- thermal and colour-lens materials (swapped in for the Night Search views) ----------
 const uMode = { value: 0 };
@@ -284,12 +288,12 @@ vec3 pal(float t){ t = clamp(t, 0.0, 1.0);
 void main(){
   float l = dot(vC, vec3(0.2126, 0.7152, 0.0722)); float sh = 0.82 + 0.18 * max(vN.y, 0.0) + 0.06 * vN.x;
   vec3 col;
-  if (uMode < 0.5) { float h = uHeat >= 0.0 ? uHeat + l * 0.08 : 0.07 + sqrt(l) * 0.2; col = pal(h * sh); }
+  if (uMode < 0.5) { float sh2 = 0.7 + 0.3 * max(vN.y, 0.0) + 0.08 * vN.x; float h = uHeat >= 0.0 ? uHeat + l * 0.08 : 0.07 + sqrt(l) * 0.2; col = pal(h * (uHeat >= 0.0 ? sh2 : sh)); }
   else { bool red = vC.r > 0.22 && vC.g < 0.1 && vC.b < 0.12 && vC.r > 4.0 * vC.g; if (red && uHeat > -0.5) col = vec3(1.0, 0.18, 0.12) * (0.9 + 0.1 * sh); else { float g = (0.12 + sqrt(l) * 0.42) * sh; col = vec3(g * 0.92, g * 0.97, g * 1.08); } }
   gl_FragColor = vec4(col, 1.0); }`;
 const FXM = [];
 function addFx(root, heat = -1) { root.traverse((o) => { if (!o.isMesh || o.isInstancedMesh || o.userData.fxHide) return; const vc = !!o.geometry.attributes.color; const col = o.material.color ? o.material.color.clone() : new THREE.Color('#888'); const m = new THREE.ShaderMaterial({ vertexShader: TH_V, fragmentShader: TH_F, vertexColors: vc, uniforms: { uMode, uHeat: { value: heat }, uCol: { value: col } } }); o.userData.fx = m; o.userData.orig = o.material; FXM.push(o); }); }
-addFx(walker, 0.5); SHEEP.forEach((s) => addFx(s, 0.86)); rescuers.forEach((p) => addFx(p, 0.9)); addFx(drone, 0.32); addFx(nurse, 0.88); addFx(foil, 0.3);
+addFx(walker, 0.78); SHEEP.forEach((s) => addFx(s, 0.86)); rescuers.forEach((p) => addFx(p, 0.9)); addFx(drone, 0.32); addFx(nurse, 0.88); addFx(foil, 0.3);
 scene.children.forEach((o) => { if (!o.userData.fx && o.isMesh && !o.isInstancedMesh && !o.userData.fxHide && o !== st.dome && !FXM.includes(o)) addFx(o); });
 team.forEach((p) => addFx(p, 0.9)); addFx(scout, 0.9); addFx(TB, -1); addFx(sock, -1);
 let curMode = -1;
@@ -301,50 +305,49 @@ function setMode(mode) { // -1 normal, 0 thermal, 1 red lens
   wat.visible = true;
 }
 wat.userData.fx.uniforms.uCol.value = new THREE.Color('#0c1a3a');
-const fxMode = (t) => (within(t, 22.8, 26.4) || within(t, 30.4, 32.2)) ? 0 : within(t, 28.6, 30.4) ? 1 : -1;
+// Friday camera views (offsets from F): aerial 0–1.4, thermal 1.4–4.2, zoom on the 'person' 4.2–6.4,
+// thermal again with the new rule 6.4–11.0, zoom on the flag 11.0–12.8, rescue 12.8–15.2
+const FV = { th1: F + 1.4, zm1: F + 4.2, th2: F + 6.4, zm2: F + 11.0, res: F + 12.8 };
+const fxMode = (t) => (within(t, FV.th1, FV.zm1) || within(t, FV.th2, FV.zm2)) ? 0 : -1;
 
 // ---------- drone path ----------
 const flightMon = R_MON_OK;
 const flightSat = { R: [[14, 8], [28, 9.5], [42, 13]] }; flightSat.L = segLen(flightSat.R);
+// Saturday offsets from S: aerial 0–1.2, planning 1.2–7.4, flight 7.4–9.8, landed 9.8–11.4
+const SV = { plan: S + 1.2, fly: S + 7.4, land: S + 9.8 };
 function dronePose(t) {
   const [hx, hz] = PADS.harbour, gh = hAt(hx, hz) + 1;
-  if (t < 2.4) return { p: [hx, gh, hz], yaw: 0.6, spin: prog(t, 1.6, 2.4), tilt: 0 };
-  if (t < TM.chk) { const k = prog(t, 2.4, TM.chk, ease.inOut); return { p: [hx + k * 1.5, gh + k * 9, hz - k * 1], yaw: 0.6 + k * 0.4, spin: 1, tilt: 0.05 }; }
-  if (t < TM.mon) return { p: [hx, gh, hz], yaw: 0.6, spin: prog(t, 8.6, 9.4), tilt: 0 };
-  if (t < 14.6) return { p: [hx, gh + 6 + Math.sin(t * 2) * 0.2, hz], yaw: 0.6, spin: 1, tilt: 0 };
-  if (t < TM.wed) { const u = prog(t, 14.6, TM.wed, (q) => q) * 0.5; const [x, z, a] = along(flightMon.R, flightMon.L, u); return { p: [x, 7, z], yaw: a + Math.PI, spin: 1, tilt: 0.25 }; }
-  if (t < TM.fri) { const k = prog(t, TM.wed, TM.fri, (q) => q); return { p: [lerp(-1, 8, k), 10, lerp(15, 9, k)], yaw: 2.2, spin: 1, tilt: 0.12 }; }
-  if (t < 30.4) { const k = prog(t, TM.fri, 30.4, (q) => q); return { p: [lerp(2, 9, k), 14 + Math.sin(t) * 0.3, lerp(-3, -6, k)], yaw: 2.6, spin: 1, tilt: 0.08 }; }
-  if (t < TM.sat) { const k = prog(t, 30.4, 32.4); return { p: [lerp(9, WK[0] + 0.8, k), lerp(14, 10, k), lerp(-6, WK[1] + 0.6, k)], yaw: 2.6, spin: 1, tilt: 0 }; }
+  if (t < TM.chk) return { p: [hx, gh, hz], yaw: 0.6, spin: 0, tilt: 0 };
+  if (t < TM.mon) { const k = prog(t, TM.chk + 2.0, TM.mon, ease.inOut); return { p: [hx, gh + k * 5, hz], yaw: 0.6, spin: prog(t, TM.chk + 1.5, TM.chk + 2.0), tilt: 0 }; }
+  if (t < TM.mon + 2.6) return { p: [hx, gh + 6 + Math.sin(t * 2) * 0.2, hz], yaw: 0.6, spin: 1, tilt: 0 };
+  if (t < F) { const u = prog(t, TM.mon + 2.6, F, (q) => q) * 0.3; const [x, z, a] = along(flightMon.R, flightMon.L, u); return { p: [x, 7, z], yaw: a + Math.PI, spin: 1, tilt: 0.25 }; }
+  if (t < FV.res) { const k = prog(t, F, FV.res, (q) => q); return { p: [lerp(2, 9, k), 14 + Math.sin(t) * 0.3, lerp(-3, -6, k)], yaw: 2.6, spin: 1, tilt: 0.08 }; }
+  if (t < S) { const k = prog(t, FV.res, FV.res + 1.4); return { p: [lerp(9, WK[0] + 0.8, k), lerp(14, 10, k), lerp(-6, WK[1] + 0.6, k)], yaw: 2.6, spin: 1, tilt: 0 }; }
   const [lx, lz] = PADS.light, lg = hAt(lx, lz) + 1;
-  if (t < 42.2) return { p: [lx, lg, lz], yaw: -Math.PI / 2 + 0.2, spin: prog(t, 41.4, 42.2), tilt: 0, box: 1 };
+  if (t < SV.fly) return { p: [lx, lg, lz], yaw: -Math.PI / 2 + 0.2, spin: prog(t, SV.fly - 0.8, SV.fly), tilt: 0, box: 1 };
   const [cx, cz] = PADS.clinic, cg = hAt(cx, cz) + 1;
-  if (t < 44.6) { const k = prog(t, 42.2, 44.6, (q) => q); const [x, z, a] = along(flightSat.R, flightSat.L, k); const y = lerp(lg, cg, k) + Math.sin(Math.PI * k) * 6 + Math.sin(t * 9) * 0.15; return { p: [x, y, z], yaw: a + Math.PI, spin: 1, tilt: 0.3, roll: Math.sin(t * 5) * 0.12, box: 1 }; }
-  if (t < TM.car) return { p: [cx, cg, cz], yaw: -1.2, spin: 1 - prog(t, 44.8, 45.4), tilt: 0, box: 1 };
-  const k = (t - TM.car); return { p: [LX - 4 + Math.cos(k * 0.5) * 3, 12 + Math.sin(k) * 0.4, LZ + 6], yaw: k * 0.3, spin: 1, tilt: 0.05 };
+  if (t < SV.land) { const k = prog(t, SV.fly, SV.land, (q) => q); const [x, z, a] = along(flightSat.R, flightSat.L, k); const y = lerp(lg, cg, k) + Math.sin(Math.PI * k) * 6 + Math.sin(t * 9) * 0.15; return { p: [x, y, z], yaw: a + Math.PI, spin: 1, tilt: 0.3, roll: Math.sin(t * 5) * 0.12, box: 1 }; }
+  if (t < E) return { p: [cx, cg, cz], yaw: -1.2, spin: 1 - prog(t, SV.land + 0.2, SV.land + 0.8), tilt: 0, box: 1 };
+  const k = (t - E); return { p: [LX - 4 + Math.cos(k * 0.5) * 3, 12 + Math.sin(k) * 0.4, LZ + 6], yaw: k * 0.3, spin: 1, tilt: 0.05 };
 }
 const fieldWalk = [[0.5, 15.5], [0.5, 9]];
 
 // ---------- camera ----------
 const orb = (ang, dist, hgt, lk) => ({ pos: [Math.sin(ang) * dist + lk[0], hgt + lk[1], Math.cos(ang) * dist + lk[2]], look: lk });
 function cam(t) {
-  if (t < 2.6) { const k = prog(t, 0, 2.6); const o = orb(lerp(-0.75, -0.5, ease.inOut(k)), lerp(185, 150, ease.out(k)), lerp(125, 100, k), [2, -6, 2]); return { ...o, fov: 30 }; }
-  if (t < TM.chk) { const d = dronePose(t).p; const k = prog(t, 2.6, TM.chk); return { pos: [lerp(-39, -40, k), lerp(2.8, 3.4, k), lerp(15, 16, k)], look: [d[0], d[1] + 2.2, d[2]], fov: 42 }; }
-  if (t < TM.mon) { const k = prog(t, TM.chk, TM.mon); return { pos: [lerp(-41, -40, k), lerp(10.5, 9.5, k), lerp(22, 20, k)], look: [-35.5, 2.6, 6.5], fov: 36 }; }
-  if (t < 14.6) { const k = prog(t, TM.mon, 14.6); return { pos: [lerp(14, 13, k), lerp(112, 106, k), lerp(78, 74, k)], look: [lerp(14, 13, k), 0, 4], fov: 34 }; }
-  if (t < TM.wed) { const d = dronePose(t).p; return { pos: [d[0] - 6, d[1] + 11, d[2] + 20], look: [d[0] + 4, d[1] - 2, d[2] - 4], fov: 40 }; }
-  if (t < 18.8 || within(t, 20.4, TM.fri)) { const k = prog(t, TM.wed, TM.fri); return { pos: [lerp(5, 7, k), 32, lerp(38, 35, k)], look: [lerp(8, 9, k), 0, 10], fov: 34 }; }
-  if (t < 20.4) { const k = prog(t, 18.8, 20.4); return { pos: [lerp(3.6, 3.4, k), 5.6, lerp(20.5, 19.5, k)], look: [-0.4, 2.0, 9], fov: 52 }; }
-  if (t < 22.8) { const k = prog(t, TM.fri, 22.8); return { pos: [lerp(-34, -30, k), lerp(52, 46, k), lerp(42, 38, k)], look: [6, 0, -8], fov: 30 }; }
-  if (t < 26.4 || within(t, 30.4, 32.2)) { const k = within(t, 30.4, 32.2) ? 1 : prog(t, 22.8, 26.4); return { pos: [lerp(5, 5.5, k), 25, lerp(5, 4, k)], look: [10, 0, -17], fov: 34 }; }
-  if (t < 28.6) { const k = prog(t, 26.4, 28.6); return { pos: [5, 11, 0], look: [9.5, 3, -14], fov: lerp(30, 22, ease.out(k)) }; }
-  if (t < 30.4) { const k = prog(t, 28.6, 30.4); return { pos: [-2, 15, lerp(1, 0, k)], look: [4, 2.5, -17.5], fov: 28 }; }
-  if (t < TM.sat) { const k = prog(t, 32.2, TM.sat); return { pos: [lerp(5, 4.5, k), lerp(24, 22, k), lerp(6, 5, k)], look: [2.5, 1, -13], fov: 34 }; }
-  if (t < 35.8) { const k = prog(t, TM.sat, 35.8); const o = orb(lerp(0.5, 0.42, k), 150, 92, [8, -6, 6]); return { ...o, fov: 30 }; }
-  if (t < 42.2) { const k = prog(t, 35.8, 42.2); return { pos: [lerp(14, 13, k), lerp(116, 110, k), lerp(84, 80, k)], look: [lerp(14, 13, k), 0, 6], fov: 34 }; }
-  if (t < 44.4) { const d = dronePose(t).p; return { pos: [d[0] - 10, d[1] + 5, d[2] + 11], look: [d[0] + 5, d[1] - 2, d[2] - 1], fov: 40 }; }
-  if (t < TM.car) { const k = prog(t, 44.4, TM.car); const d = dronePose(44.4).p; return { pos: [lerp(d[0] - 10, 33, k), lerp(d[1] + 5, 10, k), lerp(d[2] + 11, 25, k)], look: [lerp(d[0] + 5, 41, k), lerp(d[1] - 2, 3, k), lerp(d[2] - 1, 12, k)], fov: 40 }; }
-  const k = prog(t, TM.car, DUR); const o = orb(lerp(0.55, 1.0, k), lerp(160, 175, k), lerp(105, 112, k), [2, -6, 0]); return { ...o, fov: 30 };
+  if (t < TM.chk) { const k = prog(t, 0, TM.chk); const o = orb(lerp(-0.75, -0.55, ease.inOut(k)), lerp(185, 158, ease.out(k)), lerp(125, 106, k), [2, -6, 2]); return { ...o, fov: 30 }; }
+  if (t < TM.mon) { const k = prog(t, TM.chk, TM.mon); const lift = prog(t, TM.chk + 2.0, TM.mon, ease.inOut); return { pos: [lerp(-42, -41, k), lerp(13, 12.5, k), lerp(24, 22.5, k)], look: [-35.5, 2.6 + lift * 3.5, 6.5], fov: 36 }; }
+  if (t < F) { const k = prog(t, TM.mon, F); return { pos: [lerp(14, 13, k), lerp(112, 106, k), lerp(78, 74, k)], look: [lerp(14, 13, k), 0, 4], fov: 34 }; }
+  if (t < FV.th1) { const k = prog(t, F, FV.th1); return { pos: [lerp(-34, -31, k), lerp(52, 47, k), lerp(42, 39, k)], look: [6, 0, -8], fov: 30 }; }
+  if (t < FV.zm1 || within(t, FV.th2, FV.zm2)) { const k = within(t, FV.th2, FV.zm2) ? 0.5 + 0.5 * prog(t, FV.th2, FV.zm2) : 0.5 * prog(t, FV.th1, FV.zm1); return { pos: [lerp(10.2, 9.6, k), lerp(32, 30.5, k), lerp(-3.5, -4.0, k)], look: [lerp(10.0, 9.6, k), 0, -12.6], fov: 38 }; }
+  if (t < FV.th2) { const k = prog(t, FV.zm1, FV.th2); const sp = SHEEP_AT[0]; return { pos: [sp[0] + 1, 14, sp[1] - 9], look: [sp[0], 3.6, sp[1]], fov: lerp(40, 32, ease.out(k)) }; }
+  if (t < FV.res) { const k = prog(t, FV.zm2, FV.res); return { pos: [WK[0] - 4, 15, WK[1] + 9.5], look: [WK[0], 3.4, WK[1] - 0.8], fov: lerp(40, 32, ease.out(k)) }; }
+  if (t < S) { const k = prog(t, FV.res, S); return { pos: [lerp(5, 4.5, k), lerp(24, 22, k), lerp(7, 6, k)], look: [2.5, 1, -12], fov: 34 }; }
+  if (t < SV.plan) { const k = prog(t, S, SV.plan); const o = orb(lerp(0.5, 0.43, k), 150, 92, [8, -6, 6]); return { ...o, fov: 30 }; }
+  if (t < SV.fly) { const k = prog(t, SV.plan, SV.fly); return { pos: [lerp(14, 13, k), lerp(116, 110, k), lerp(84, 80, k)], look: [lerp(14, 13, k), 0, 6], fov: 34 }; }
+  if (t < SV.land - 0.2) { const d = dronePose(t).p; return { pos: [d[0] - 10, d[1] + 5, d[2] + 11], look: [d[0] + 5, d[1] - 2, d[2] - 1], fov: 40 }; }
+  if (t < E) { const k = prog(t, SV.land - 0.2, E); const d = dronePose(SV.land - 0.2).p; return { pos: [lerp(d[0] - 10, 33, k), lerp(d[1] + 5, 10, k), lerp(d[2] + 11, 25, k)], look: [lerp(d[0] + 5, 41, k), lerp(d[1] - 2, 3, k), lerp(d[2] - 1, 12, k)], fov: 40 }; }
+  const k = prog(t, E, DUR); const o = orb(lerp(0.55, 0.9, k), lerp(160, 172, k), lerp(105, 111, k), [2, -6, 0]); return { ...o, fov: 30 };
 }
 
 // ---------- frame update ----------
@@ -369,35 +372,36 @@ st.onFrame((t) => {
   // drone
   const dp = dronePose(t); drone.position.set(...dp.p); drone.rotation.set(0, dp.yaw, 0); drone.rotateX(-(dp.tilt || 0)); drone.rotateZ(dp.roll || 0);
   drone.userData.props.forEach((p, i) => { p.rotation.y = (i % 2 ? -1 : 1) * t * 40 * dp.spin + i; }); drone.userData.disc.opacity = 0.32 * dp.spin;
-  drone.userData.box.visible = !!dp.box; drone.visible = mode < 0 && !within(t, 22.8, 30.4);
+  drone.userData.box.visible = !!dp.box; drone.visible = mode < 0 && !within(t, FV.th1, FV.res);
   // lift-off dust
-  for (let i = 0; i < 24; i++) { const a = i / 24 * Math.PI * 2, ph = (t * 1.4 + rand(i, 5)) % 1; const on = within(t, 2.0, 4.0) ? 1 : 0; dust.setAt(i, PADS.harbour[0] + Math.cos(a) * (1 + ph * 4), 2.2 + ph * 0.6, PADS.harbour[1] + Math.sin(a) * (1 + ph * 4), 0, 0, on * (1 - ph)); } dust.done();
+  for (let i = 0; i < 24; i++) { const a = i / 24 * Math.PI * 2, ph = (t * 1.4 + rand(i, 5)) % 1; const on = within(t, TM.chk + 1.8, TM.mon) ? 1 : 0; dust.setAt(i, PADS.harbour[0] + Math.cos(a) * (1 + ph * 4), 2.2 + ph * 0.6, PADS.harbour[1] + Math.sin(a) * (1 + ph * 4), 0, 0, on * (1 - ph)); } dust.done();
   // night spotlight on the walker
-  const spotOn = within(t, 31.8, TM.sat) && mode < 0; spot.visible = spotOn; spot.material.opacity = 0.2 * prog(t, 31.8, 32.6);
+  const spotOn = within(t, FV.res + 1.0, TM.sat) && mode < 0; spot.visible = spotOn; spot.material.opacity = 0.2 * prog(t, FV.res + 1.0, FV.res + 1.6);
   if (spotOn) { const gy = hAt(...WK) + 1; const top = drone.position.y; spot.scale.set(1, (top - gy) / 10, 1); spot.position.set(drone.position.x, (top + gy) / 2, drone.position.z); }
   spotLight.intensity = spotOn ? 40 : 0; spotLight.position.set(WK[0] + 0.5, hAt(...WK) + 4, WK[1]);
-  foil.visible = t > 33.6 && t < TM.sat; walker.visible = within(t, TM.fri, TM.sat);
-  SHEEP.forEach((s, i) => { s.visible = t < TM.sat || t > TM.car; s.rotation.y += 0; s.position.y = hAt(s.position.x, s.position.z) + 1 + (i === 1 && within(t, 26.4, 28.6) ? 0 : 0); });
+  foil.visible = t > FV.res + 1.4 && t < TM.sat; walker.visible = within(t, TM.fri, TM.sat);
+  SHEEP.forEach((s, i) => { s.visible = t < TM.sat || t > E; });
   // rescuers walk in along the moor path
-  rescuers.forEach((p, i) => { const on = within(t, 32.0, TM.sat); p.visible = on; const k = prog(t, 32.0, 33.9, (q) => q); const tgt = [[WK[0] - 1.5, WK[1] + 1.8], [WK[0] - 0.8, WK[1] - 1.8], [WK[0] + 3.2, WK[1] + 1.6]][i]; const st0 = [-2 - i * 2.2, -5 + i * 1.2]; const x = lerp(st0[0], tgt[0], k), z = lerp(st0[1], tgt[1], k); p.position.set(x, hSm(x, z) + 1, z); p.rotation.y = Math.atan2(tgt[0] - st0[0], tgt[1] - st0[1]) + Math.PI + (k >= 1 ? 0 : 0); if (k >= 1) p.rotation.y = Math.atan2(WK[0] - x, WK[1] - z) + Math.PI; p.userData.walk(k < 1 ? t * 9 + i : 0); });
+  rescuers.forEach((p, i) => { const on = within(t, FV.res, TM.sat); p.visible = on; const k = prog(t, FV.res, FV.res + 1.8, (q) => q); const tgt = [[WK[0] - 1.5, WK[1] + 1.8], [WK[0] - 0.8, WK[1] - 1.8], [WK[0] + 3.2, WK[1] + 1.6]][i]; const st0 = [-2 - i * 2.2, -5 + i * 1.2]; const x = lerp(st0[0], tgt[0], k), z = lerp(st0[1], tgt[1], k); p.position.set(x, hSm(x, z) + 1, z); p.rotation.y = Math.atan2(tgt[0] - st0[0], tgt[1] - st0[1]) + Math.PI + (k >= 1 ? 0 : 0); if (k >= 1) p.rotation.y = Math.atan2(WK[0] - x, WK[1] - z) + Math.PI; p.userData.walk(k < 1 ? t * 9 + i : 0); });
   // team at the harbour pad
-  team.forEach((p, i) => { const vis = t < TM.mon; p.visible = vis; const a = -0.3 + i * 0.55; const x = PADS.harbour[0] - 1 + Math.cos(a) * 4.4, z = PADS.harbour[1] + 1 + Math.sin(a) * 4.0; p.position.set(x, hAt(x, z) + 1 + (t < TM.chk && t > 3.2 ? Math.max(0, Math.sin((t - 3.2) * 9 + i)) * 0.4 : 0), z); p.rotation.y = Math.atan2(PADS.harbour[0] - x, PADS.harbour[1] - z) + Math.PI; p.userData.walk(0); });
+  team.forEach((p, i) => { const vis = t < TM.mon; p.visible = vis; const a = -0.3 + i * 0.55; const x = PADS.harbour[0] - 1 + Math.cos(a) * 4.4, z = PADS.harbour[1] + 1 + Math.sin(a) * 4.0; p.position.set(x, hAt(x, z) + 1 + (t > TM.chk + 2.0 ? Math.max(0, Math.sin((t - TM.chk - 2.0) * 9 + i)) * 0.4 : 0), z); p.rotation.y = Math.atan2(PADS.harbour[0] - x, PADS.harbour[1] - z) + Math.PI; p.userData.walk(0); });
   // Wednesday scout walks the field
-  { const on = within(t, 18.6, TM.fri); scout.visible = on; const k = prog(t, 18.6, 20.6, (q) => q); const x = lerp(fieldWalk[0][0], fieldWalk[1][0], k), z = lerp(fieldWalk[0][1], fieldWalk[1][1], k); scout.position.set(x, hAt(x, z) + 1, z); scout.rotation.y = 0; scout.userData.walk(k < 1 ? t * 8 : 0); }
+  { const on = false; scout.visible = on; const k = prog(t, 18.6, 20.6, (q) => q); const x = lerp(fieldWalk[0][0], fieldWalk[1][0], k), z = lerp(fieldWalk[0][1], fieldWalk[1][1], k); scout.position.set(x, hAt(x, z) + 1, z); scout.rotation.y = 0; scout.userData.walk(k < 1 ? t * 8 : 0); }
   // nurse at the clinic waves
-  nurse.visible = t > TM.sat && t < TM.car + 0.1; nurse.rotation.y = -2.4; nurseArm.visible = nurse.visible && t > 44.6; nurseArm.position.set(39.4, 4.3, 11.2); nurseArm.rotation.z = Math.sin(t * 10) * 0.4;
+  nurse.visible = t > TM.sat && t < E + 0.1; nurse.rotation.y = -2.4; nurseArm.visible = nurse.visible && t > SV.land; nurseArm.position.set(39.4, 4.3, 11.2); nurseArm.rotation.z = Math.sin(t * 10) * 0.4;
   // routes
-  drawRoute(R_MON_AI, t, 10.6, 11.6, 14.6, 7, (x, z) => (t > 12.9 && inFRZ(x, z)) ? '#ff2a1a' : '#ff8a2a');
-  drawRoute(R_MON_OK, t, 14.0, 15.0, TM.wed, 7);
-  drawRoute(R_SAT_AI, t, 36.0, 37.0, 41.4, 7, (x, z) => t > 38.0 ? '#ff2a1a' : '#ff8a2a');
-  drawRoute(R_SAT_OK, t, 41.4, 42.1, 42.4, 7);
-  frz.visible = within(t, 12.6, 15.4); { const k = prog(t, 12.6, 13.4, ease.back); frz.scale.set(Math.max(k, 0.01), Math.max(prog(t, 12.6, 13.2), 0.01), Math.max(k, 0.01)); }
-  ndvi.material.opacity = within(t, 16.9, TM.fri) && !within(t, 18.8, 20.4) ? 0.88 * prog(t, 16.9, 17.6) : 0; ndvi.visible = ndvi.material.opacity > 0.01;
+  const M = TM.mon;
+  drawRoute(R_MON_AI, t, M + 0.6, M + 1.2, M + 2.4, 7, (x, z) => (t > M + 1.5 && inFRZ(x, z)) ? '#ff2a1a' : '#ff8a2a');
+  drawRoute(R_MON_OK, t, M + 2.4, M + 3.0, F, 7);
+  drawRoute(R_SAT_AI, t, SV.plan + 0.3, SV.plan + 1.1, SV.plan + 4.8, 7, (x, z) => t > SV.plan + 2.0 ? '#ff2a1a' : '#ff8a2a');
+  drawRoute(R_SAT_OK, t, SV.plan + 4.8, SV.plan + 5.5, SV.fly, 7);
+  frz.visible = within(t, M + 1.2, F); { const k = prog(t, M + 1.2, M + 1.9, ease.back); frz.scale.set(Math.max(k, 0.01), Math.max(prog(t, M + 1.2, M + 1.7), 0.01), Math.max(k, 0.01)); }
+  ndvi.visible = false;
   // wind arrows across the strait (Saturday)
-  const aOn = within(t, 37.9, 42.2) ? prog(t, 37.9, 38.5) : 0; ARW.forEach(([x, y, z], i) => { const xx = ((x - t * 9 + 300) % 100) - 48; dO.position.set(xx, y, z); dO.rotation.set(0, 0, 0); dO.scale.setScalar(aOn * (2.2 + 0.3 * Math.sin(i))); dO.updateMatrix(); arrows.setMatrixAt(i, dO.matrix); }); arrows.instanceMatrix.needsUpdate = true; arrows.visible = aOn > 0 && mode < 0;
+  const aOn = within(t, SV.plan + 1.8, SV.fly + 2.4) ? prog(t, SV.plan + 1.8, SV.plan + 2.4) : 0; ARW.forEach(([x, y, z], i) => { const xx = ((x - t * 9 + 300) % 100) - 48; dO.position.set(xx, y, z); dO.rotation.set(0, 0, 0); dO.scale.setScalar(aOn * (2.2 + 0.3 * Math.sin(i))); dO.updateMatrix(); arrows.setMatrixAt(i, dO.matrix); }); arrows.instanceMatrix.needsUpdate = true; arrows.visible = aOn > 0 && mode < 0;
   // rain (storm), around what the camera sees
-  const rOn = w.storm > 0.5 && t < TM.car ? 1 : 0; rain.visible = rOn > 0 && mode < 0;
-  if (rOn) { const c = cam(t), lk = c.look, cp = c.pos; const near = t > 42.2; for (let i = 0; i < NR; i++) { const ph = (t * 1.6 + rand(i, 51)) % 1; let bx, bz, by; if (near) { bx = lerp(cp[0], lk[0], 0.55) + (rand(i, 52) - 0.5) * 50; bz = lerp(cp[2], lk[2], 0.55) + (rand(i, 53) - 0.5) * 34; by = 26 - ph * 30; } else { bx = (rand(i, 52) - 0.5) * 120; bz = (rand(i, 53) - 0.5) * 70; by = 50 - ph * 52; } dO.position.set(bx - ph * 4, by, bz); dO.rotation.set(0, 0, 0.35); dO.scale.set(1, near ? 1 : 2.4, 1); dO.updateMatrix(); rain.setMatrixAt(i, dO.matrix); } rain.instanceMatrix.needsUpdate = true; }
+  const rOn = w.storm > 0.5 && t < E ? 1 : 0; rain.visible = rOn > 0 && mode < 0;
+  if (rOn) { const c = cam(t), lk = c.look, cp = c.pos; const near = t > SV.fly; for (let i = 0; i < NR; i++) { const ph = (t * 1.6 + rand(i, 51)) % 1; let bx, bz, by; if (near) { bx = lerp(cp[0], lk[0], 0.55) + (rand(i, 52) - 0.5) * 50; bz = lerp(cp[2], lk[2], 0.55) + (rand(i, 53) - 0.5) * 34; by = 26 - ph * 30; } else { bx = (rand(i, 52) - 0.5) * 120; bz = (rand(i, 53) - 0.5) * 70; by = 50 - ph * 52; } dO.position.set(bx - ph * 4, by, bz); dO.rotation.set(0, 0, 0.35); dO.scale.set(1, near ? 1 : 2.4, 1); dO.updateMatrix(); rain.setMatrixAt(i, dO.matrix); } rain.instanceMatrix.needsUpdate = true; }
   conf(t);
   // camera
   const c = cam(t); camera.fov = c.fov; camera.updateProjectionMatrix(); camera.position.set(...c.pos); camera.lookAt(...c.look);
@@ -407,15 +411,14 @@ st.onFrame((t) => {
 const ui = []; const A = (f) => ui.push(f);
 const LB = makeLab(A);
 const fade = fader(); A((t) => fade(t < 0.5 ? 1 - prog(t, 0, 0.5) : t > DUR - 0.7 ? prog(t, DUR - 0.7, DUR) : 0));
-const flash = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:#fff"></div>'); A((t) => { const f = [TM.fri, 22.8, 26.4, 28.6, 30.4, 32.2, TM.sat].reduce((m, c) => Math.max(m, t >= c && t < c + 0.25 ? 1 - (t - c) / 0.25 : 0), 0); flash.style.opacity = f * 0.55; flash.style.visibility = f > 0 ? 'visible' : 'hidden'; });
 // header badge
 const DRONE_IC = (c) => `<svg viewBox="0 0 24 24"><g stroke="${c}" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></g><g fill="${c}"><ellipse cx="5" cy="5" rx="4" ry="1.4"/><ellipse cx="19" cy="5" rx="4" ry="1.4"/><ellipse cx="5" cy="19" rx="4" ry="1.4"/><ellipse cx="19" cy="19" rx="4" ry="1.4"/><rect x="8.5" y="9" width="7" height="6" rx="2"/></g></svg>`;
 const badge = el(`<div class="b-badge" style="background:#2f6fd8;box-shadow:0 8px 0 #1f4fa8,0 14px 30px rgba(0,0,0,.18)"><span class="ic">${DRONE_IC('#2f6fd8')}</span><span><b style="font-size:42px">Become a Drone Pilot</b><small style="font-size:24px">STORM WEEK ON KESTREL ISLE</small></span></div>`, { x: 46, y: 40 });
-A(cue(badge, 0.7, TM.car - 0.3, { from: 'left' }));
-// task bar per beat
-const TASKS = [[1.0, TM.chk, 'WEEK', '#ffd23f', 'Six days on the island. A storm is coming.'], [TM.chk, TM.mon, 'FIRST', '#ffd23f', 'Every flight starts with the checklist'], [TM.mon + 0.8, TM.wed, 'MON', '#16c7a6', 'Photo of the lighthouse for the newsletter'], [TM.wed + 0.8, TM.fri, 'WED', '#16c7a6', 'Find the sick wheat. Spray only what needs it.'], [TM.fri + 0.8, TM.sat, 'FRI', '#16c7a6', 'A walker is missing on the moor. Red jacket.'], [TM.sat + 0.8, TM.car, 'SAT', '#16c7a6', 'Ferry cancelled: fly medicine to the clinic']];
-TASKS.forEach(([a, b, tag, col, txt]) => { const n = el(`<div class="b-task" style="width:auto;max-width:980px;font-size:32px;padding:14px 40px 14px 18px"><span class="lv" style="background:${col};color:#13202b;width:auto;height:62px;padding:0 16px;box-shadow:none;font-size:28px">${tag}</span>${txt}</div>`, { x: 46, y: 172 }); A(cue(n, a, b - 0.2, { from: 'left' })); });
-// week calendar: the storm builds
+A(cue(badge, 0.5, E - 0.4, { from: 'left' }));
+// task bar per beat (each one is fully gone before the next cut)
+const TASKS = [[0.7, TM.chk, 'WEEK', '#ffd23f', 'Six days on the island. A storm is coming.'], [TM.chk + 0.05, TM.mon, 'FIRST', '#ffd23f', 'Every flight starts with the checklist'], [TM.mon + 0.6, F, 'MON', '#16c7a6', 'Photo of the lighthouse for the newsletter'], [F + 0.6, S, 'FRI', '#16c7a6', 'A walker is missing on the moor. Red jacket.'], [S + 0.6, E, 'SAT', '#16c7a6', 'Ferry cancelled: fly medicine to the clinic']];
+TASKS.forEach(([a, b, tag, col, txt]) => { const n = el(`<div class="b-task" style="width:auto;max-width:980px;font-size:32px;padding:14px 40px 14px 18px"><span class="lv" style="background:${col};color:#13202b;width:auto;height:62px;padding:0 16px;box-shadow:none;font-size:28px">${tag}</span>${txt}</div>`, { x: 46, y: 172 }); A(cue(n, a, b - 0.4, { from: 'left' })); });
+// week calendar: the storm builds (the whole widget arrives complete, then the days light up in turn)
 const IC = {
   sun: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5" fill="#ffc83d"/><g stroke="#ffc83d" stroke-width="2.2" stroke-linecap="round"><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/></g></svg>',
   part: '<svg viewBox="0 0 24 24"><circle cx="9" cy="9" r="4.5" fill="#ffc83d"/><path d="M7 19h11a4 4 0 0 0 0-8 5 5 0 0 0-9.6 1.5A3.3 3.3 0 0 0 7 19z" fill="#c9d6e2"/></svg>',
@@ -426,11 +429,11 @@ const IC = {
 };
 const DAYS = [['MON', 'sun'], ['TUE', 'sun'], ['WED', 'part'], ['THU', 'wind'], ['FRI', 'night'], ['SAT', 'storm']];
 const cal = el(`<div class="cal">${DAYS.map(([d, ic], i) => `<div class="d" data-d="${i}">${d}${IC[ic]}</div>`).join('')}</div>`, { x: 1874, y: 40, anchor: 'tr' });
-A(cue(cal, 1.1, TM.car - 0.3, { from: 'right' }));
-const dayIdx = (t) => t < TM.mon ? -1 : t < TM.wed ? 0 : t < TM.fri ? 2 : t < TM.sat ? 4 : 5;
-A((t) => { const di = dayIdx(t); cal.querySelectorAll('.d').forEach((d, i) => { const pop = t < TM.chk ? prog(t, 1.4 + i * 0.22, 1.7 + i * 0.22, ease.back) : 1; d.style.transform = `scale(${0.4 + 0.6 * pop})`; d.style.opacity = pop; d.classList.toggle('on', i === di || (t > 1.4 + i * 0.22 && t < 1.8 + i * 0.22)); d.classList.toggle('past', di >= 0 && i < di); }); });
+A(cue(cal, 0.8, E - 0.4, { from: 'right' }));
+const dayIdx = (t) => t < TM.mon ? -1 : t < F ? 0 : t < S ? 4 : 5;
+A((t) => { const di = dayIdx(t); cal.querySelectorAll('.d').forEach((d, i) => { d.classList.toggle('on', i === di || (t > 1.2 + i * 0.16 && t < 1.42 + i * 0.16)); d.classList.toggle('past', di >= 0 && i < di); }); });
 // day banners
-[[TM.mon, 'MONDAY', 'First flight', 0], [TM.wed, 'WEDNESDAY', 'Crop doctor', 2], [TM.fri, 'FRIDAY', 'Night search', 4], [TM.sat, 'SATURDAY', 'Medicine run', 5]].forEach(([t0, d, name, i]) => { const b = el(`<div class="lvl"><b>${d}</b><span>${name}</span><div class="dots">${[0, 1, 2, 3, 4, 5].map((k) => `<i class="${k <= i ? 'on' : ''}"></i>`).join('')}</div></div>`, { x: 960, y: 560, anchor: 'c' }); A(cue(b, t0 - 0.05, t0 + 1.15)); });
+[[TM.mon, 'MONDAY', 'First flight', 0, 0.6], [F, 'FRIDAY', 'Night search', 4, 1.0], [S, 'SATURDAY', 'Medicine run', 5, 0.85]].forEach(([t0, d, name, i, hold]) => { const b = el(`<div class="lvl"><b>${d}</b><span>${name}</span><div class="dots">${[0, 1, 2, 3, 4, 5].map((k) => `<i class="${k <= i ? 'on' : ''}"></i>`).join('')}</div></div>`, { x: 960, y: 560, anchor: 'c' }); A(cue(b, t0 - 0.05, t0 + hold, { outDur: 0.25 })); });
 // AI helper card with "% sure" and "Data I used"
 function helper(text, sure, data, tIn, tOut, { tag = 'GUESS', col = '#ffc83d', y = 186 } = {}) {
   const n = el(`<div class="hp"><div class="bot"><i></i><i></i></div><div class="who">Flight Assistant <em style="background:${col}">${tag}</em></div><p>${text}</p><div class="sure"><div class="bar"><i style="width:${sure}%"></i></div><span>${sure}% sure</span></div><div class="data">DATA I USED:&nbsp; <b>${data}</b></div></div>`, { x: 1874, y, anchor: 'tr' });
@@ -446,78 +449,79 @@ function det(obj, label, color, tIn, tOut, { dash = false, ink = '#13202b', pad 
   const lbl = el(`<div class="tag3d" style="background:${color};color:${ink}">${label}</div>`, { x: 0, y: 0 });
   A((t) => { const vv = within(t, tIn, tOut); const op = vv ? prog(t, tIn, tIn + 0.2) : 0; b.style.opacity = lbl.style.opacity = op; b.style.visibility = lbl.style.visibility = op > 0 ? 'visible' : 'hidden'; if (!vv) return; box3.setFromObject(obj); const c = []; for (const x of [box3.min.x, box3.max.x]) for (const y of [box3.min.y, box3.max.y]) for (const z of [box3.min.z, box3.max.z]) c.push(toScreen(new THREE.Vector3(x, y, z), camera)); const xs = c.map((p) => p.x), ys = c.map((p) => p.y); const x0 = Math.min(...xs) - pad, y0 = Math.min(...ys) - pad, x1 = Math.max(...xs) + pad, y1 = Math.max(...ys) + pad; Object.assign(b.style, { left: x0 + 'px', top: y0 + 'px', width: x1 - x0 + 'px', height: y1 - y0 + 'px', transform: 'none' }); Object.assign(lbl.style, { left: (x0 + x1) / 2 + 'px', top: y0 - 8 + 'px' }); });
 }
+// tappable choice card (the children pick the clearer instruction)
+function ring(target, t0) { const d = el('<div style="width:90px;height:90px;border-radius:50%;border:6px solid #1f9d55;box-shadow:0 0 0 4px rgba(31,157,85,.35)"></div>', { x: 0, y: 0 }); A((t) => { const k = (t - t0) / 0.6; if (k < 0 || k > 1) { d.style.opacity = 0; d.style.visibility = 'hidden'; return; } const r = target.getBoundingClientRect(); d.style.visibility = 'visible'; d.style.left = (r.left + r.width * 0.86) + 'px'; d.style.top = (r.top + r.height / 2) + 'px'; d.style.opacity = 1 - k; d.style.transform = `translate(-50%,-50%) scale(${0.4 + k})`; }); }
 
-// ----- 1. hook -----
-// ----- 2. checklist, Drone Code and roles -----
+// ----- 1. checklist (3 s) -----
+const C0 = TM.chk;
 const CHK = [['Propellers: no chips', 0], ['Battery: 100%', 0], ['GPS lock: 14 satellites', 0], ['Airspace map checked', 1], ['Below 120 m', 1], ['50 m from people, always in sight', 1]];
-const chk = el(`<div class="chk"><small>PRE-FLIGHT CHECKLIST</small>${CHK.map(([s, dc], i) => `${i === 3 ? '<small class="dc">PRACTICE DRONE CODE</small>' : ''}<div class="r" data-c="${i}"><i>✓</i>${s}</div>`).join('')}</div>`, { x: 46, y: 270 });
-A(cue(chk, TM.chk + 0.1, TM.mon - 0.2, { from: 'left' }));
-A((t) => CHK.forEach((_, i) => chk.querySelector(`[data-c="${i}"]`).classList.toggle('ok', t > TM.chk + 0.7 + i * 0.42)));
-const roles = el(`<div style="text-align:center"><div class="rolehead">FIVE ROLES · THEY ROTATE EVERY DAY</div><div class="roles">${ROLES.map(([r, c]) => `<div class="role"><i style="background:${c}"><svg viewBox="0 0 24 24" width="100%" height="100%"><circle cx="12" cy="7" r="4.2" fill="#fff"/><path d="M4 23v-4a8 8 0 0 1 16 0v4z" fill="#fff"/></svg></i>${r}</div>`).join('')}</div></div>`, { x: 960, y: 960, anchor: 'c' });
-A(cue(roles, TM.chk + 1.4, TM.mon - 0.2, { from: 'up' }));
-A((t) => roles.querySelectorAll('.role').forEach((r, i) => { const k = prog(t, TM.chk + 1.5 + i * 0.18, TM.chk + 1.8 + i * 0.18, ease.back); r.style.transform = `scale(${0.5 + 0.5 * k})`; r.style.opacity = k; }));
-LB.alert('Go for launch', TM.chk + 3.4, TM.mon - 0.2, { good: true, x: 1240, y: 300 });
+const chk = el(`<div class="chk"><small>PRE-FLIGHT CHECKLIST</small>${CHK.map(([s, dc], i) => `${i === 3 ? '<small class="dc">PRACTICE DRONE CODE</small>' : ''}<div class="r" data-c="${i}"><i>✓</i>${s}</div>`).join('')}</div>`, { x: 46, y: 290 });
+A(cue(chk, C0 + 0.05, TM.mon - 0.4, { from: 'left' }));
+A((t) => CHK.forEach((_, i) => chk.querySelector(`[data-c="${i}"]`).classList.toggle('ok', t > C0 + 0.4 + i * 0.22)));
+LB.alert('Go for launch', C0 + 1.8, TM.mon - 0.4, { good: true, x: 1300, y: 330 });
 
-// ----- 3a. Monday: route through the restricted zone -----
-helper('Quickest is a straight line, over the airfield.', 88, 'Map from 2024', 10.8, 14.4);
-lens('AIRSPACE LENS', 12.5, 14.5, { col: '#e8402a' });
-LB.alert('Flight restriction zone!', 13.2, 14.8, { x: 960, y: 880 });
-helper('Re-planned around the red zone, below 120 m, in sight.', 79, 'Today’s airspace + notices', 14.6, TM.wed - 0.2, { tag: 'PLAN CHECKED', col: '#16c79a' });
-// ----- 3b. Wednesday: NDVI misread -----
-const legend = el('<div class="legend"><small>CROP MAP (NDVI)</small><div class="g"></div><div class="lab"><span>sick?</span><span>healthy</span></div></div>', { x: 46, y: 820 }); A(cue(legend, 17.0, 18.7, { from: 'up' }));
-const legend2 = el('<div class="legend"><small>CROP MAP (NDVI)</small><div class="g"></div><div class="lab"><span>sick?</span><span>healthy</span></div></div>', { x: 46, y: 820 }); A(cue(legend2, 20.4, TM.fri - 0.2, { from: 'up' }));
-helper('Red means sick. Spray all three zones.', 84, 'One 5 pm flight', 17.4, 18.7);
-['1', '2', '3'].forEach((s, i) => tag3(s, 'zt', 17.5 + i * 0.15, 18.7, () => [NDVI_ZONES[i][0] + 0.5, 3, NDVI_ZONES[i][1] + 0.5]).firstChild.style.background = '#e8402a');
-lens('WALK THE FIELD', 18.85, 20.35, { col: '#16c79a', ink: '#13202b' });
-tag3('Green and healthy. It’s just the hedge’s shadow!', 'bub', 19.2, 20.35, () => [scout.position.x, scout.position.y + 3.2, scout.position.z], { clampY: [420, 1000] });
-[['1 · Shadow', '#5a6670'], ['2 · Puddle', '#5a6670'], ['3 · Really sick: treat here', '#e8402a']].forEach(([s, c], i) => { const n = tag3(s, 'zt', 20.5 + i * 0.12, TM.fri - 0.2, () => [NDVI_ZONES[i][0] + 0.5, 3, NDVI_ZONES[i][1] + 0.5]); n.firstChild.style.background = c; });
-helper('Checked on foot first. Spray one patch, not three.', 86, 'Map + a walk in the field', 20.5, TM.fri - 0.2, { tag: 'PLAN CHECKED', col: '#16c79a' });
+// ----- 2. Monday montage: a route through the restricted zone, re-planned -----
+const M = TM.mon;
+helper('Quickest is a straight line, over the airfield.', 88, 'Map from 2024', M + 0.9, M + 2.05);
+LB.alert('Flight restriction zone!', M + 1.5, M + 2.3, { x: 960, y: 880 });
+helper('You said: use today’s airspace map. Re-planned round the red zone.', 79, 'Today’s airspace map', M + 2.45, F - 0.4, { tag: 'PLAN CHECKED', col: '#16c79a' });
 
-// ----- 4. Night Search in depth -----
+// ----- 3. Friday night search (the main loop) -----
+// drone-camera viewfinder: four corners and the camera name, synced to the view
 const frame = el('<div class="frame"><i></i><i></i><i></i><i></i><b data-l>THERMAL · 60 m</b></div>', { x: 0, y: 0 });
-A((t) => { const on = within(t, 22.8, 32.2); frame.style.opacity = on ? 1 : 0; frame.style.visibility = on ? 'visible' : 'hidden'; frame.querySelector('[data-l]').textContent = within(t, 26.4, 28.6) ? 'ZOOM CAMERA · ×8' : within(t, 28.6, 30.4) ? 'COLOUR LENS · RED ONLY' : 'THERMAL · 60 m'; });
-lens('THERMAL CAMERA', 22.9, 26.3, { col: '#ff7a1a', ink: '#13202b' });
-helper('Person found!', 94, 'Trained on people standing on grass', 23.2, 26.3);
-det(SHEEP[0], 'PERSON 94%', '#ffd23f', 23.5, 26.4);
-det(SHEEP[2], 'PERSON 89%', '#ffd23f', 23.9, 26.4);
-det(walker, 'no person · 96%', '#c9d6ee', 24.6, 26.4, { dash: true });
-LB.alert('It missed someone lying in the heather', 25.0, 26.3, { x: 960, y: 880 });
-lens('ZOOM CAMERA: CHECK IT', 26.5, 28.5, { col: '#59c7fc', ink: '#13202b' });
-det(SHEEP[0], 'SHEEP · four legs, ears ✕', '#ff5d4a', 26.8, 28.6, { ink: '#fff' });
-lens('COLOUR LENS: SHOW ME RED', 28.7, 30.3, { col: '#e8402a' });
-det(walker, 'RED JACKET: it’s Ellie!', '#16c79a', 29.2, 30.4, { pad: 16 });
-helper('New rule: flag anything warm or red, even unsure. A person checks every flag.', 71, 'Thermal + colour + your clues', 30.5, 32.1, { tag: 'PLAN CHECKED', col: '#16c79a' });
-det(SHEEP[0], 'sheep ✕', '#c9d6ee', 30.7, 32.2); det(SHEEP[1], 'sheep ✕', '#c9d6ee', 30.8, 32.2); det(SHEEP[2], 'sheep ✕', '#c9d6ee', 30.9, 32.2);
-det(walker, 'PERSON ✓ confirmed', '#16c79a', 31.1, 32.2, { pad: 16 });
-lens('RESCUE TEAM GUIDED IN', 32.3, TM.sat - 0.2, { col: '#16c79a', ink: '#13202b' });
-tag3('<b>GRID REF SENT</b> · 412 873', 'bub', 32.4, TM.sat - 0.2, () => [WK[0] + 0.5, hAt(...WK) + 10, WK[1]], { clampY: [420, 1000] });
-LB.saved('Ellie found: cold, but safe', 33.4, TM.sat - 0.15, { y: 890 });
+frame.style.width = '1920px'; frame.style.height = '1080px';
+A((t) => { const on = within(t, FV.th1, FV.res); frame.style.opacity = on ? 1 : 0; frame.style.visibility = on ? 'visible' : 'hidden'; frame.querySelector('[data-l]').textContent = fxMode(t) === 0 ? 'THERMAL · 60 m' : 'ZOOM CAMERA · ×8'; });
+// (a) the instruction "Find a person" -> one confident wrong guess
+lens('THERMAL CAMERA', FV.th1 + 0.05, FV.zm1 - 0.4, { col: '#ff7a1a', ink: '#13202b' });
+helper('Person found!', 94, 'Trained on people standing up', FV.th1 + 0.2, FV.zm1 - 0.4, { y: 400 });
+det(SHEEP[0], 'PERSON 94%', '#ffd23f', FV.th1 + 0.6, FV.zm1);
+// (b) consequence: the zoom camera shows a sheep, and Ellie is still missing
+lens('ZOOM CAMERA: CHECK IT', FV.zm1 + 0.05, FV.th2 - 0.4, { col: '#59c7fc', ink: '#13202b' });
+det(SHEEP[0], 'IT’S A SHEEP ✕', '#ff5d4a', FV.zm1 + 0.3, FV.th2, { ink: '#fff' });
+LB.alert('Wrong guess. Ellie is still missing!', FV.zm1 + 0.6, FV.th2 - 0.4, { x: 960, y: 880 });
+// (c) the children pick a clearer instruction
+const ins = el(`<div class="pal" style="width:820px"><small>PICK A CLEARER INSTRUCTION</small><div class="grid"><div class="pc" data-i="0">Find a person.</div><div class="pc" data-i="1" style="white-space:normal;line-height:1.25">Flag anything warm, even if unsure. A person checks every flag.</div></div></div>`, { x: 1874, y: 400, anchor: 'tr' });
+A(cue(ins, FV.th2 + 0.1, FV.th2 + 1.8, { from: 'right' }));
+A((t) => { ins.querySelector('[data-i="0"]').classList.toggle('bad', t > FV.th2 + 0.5); ins.querySelector('[data-i="1"]').classList.toggle('on', t > FV.th2 + 0.95); });
+ring(ins.querySelector('[data-i="1"]'), FV.th2 + 0.9);
+lens('THERMAL CAMERA · NEW RULE', FV.th2 + 0.05, FV.zm2 - 0.4, { col: '#ff7a1a', ink: '#13202b' });
+// (d) the fix working: re-scan flags every warm shape, a person checks each flag
+const flagOrder = [SHEEP[4], SHEEP[2], SHEEP[0], walker, SHEEP[1], SHEEP[3]];
+flagOrder.forEach((o, i) => det(o, 'FLAG', '#ffd23f', FV.th2 + 2.3 + i * 0.15, FV.th2 + 3.4, { pad: o === walker ? 14 : 10 }));
+helper('New rule: 6 warm shapes flagged. Please check each one.', 71, 'Thermal + your new rule', FV.th2 + 2.3, FV.zm2 - 0.4, { tag: 'PLAN CHECKED', col: '#16c79a', y: 400 });
+SHEEP.forEach((sp, i) => det(sp, 'sheep ✕', '#c9d6ee', FV.th2 + 3.4 + i * 0.12, FV.zm2));
+det(walker, 'PERSON? CHECK', '#16c79a', FV.th2 + 3.9, FV.zm2, { pad: 14 });
+lens('ZOOM CAMERA: CHECK THE FLAG', FV.zm2 + 0.05, FV.res - 0.4, { col: '#59c7fc', ink: '#13202b' });
+det(walker, 'RED JACKET: it’s Ellie! ✓', '#16c79a', FV.zm2 + 0.3, FV.res, { pad: 16 });
+// (e) rescue
+lens('RESCUE TEAM GUIDED IN', FV.res + 0.1, S - 0.4, { col: '#16c79a', ink: '#13202b' });
+tag3('<b>GRID REF SENT</b> · 412 873', 'bub', FV.res + 0.2, S - 0.4, () => [WK[0] + 0.5, hAt(...WK) + 10, WK[1]], { clampY: [420, 1000] });
+LB.saved('Ellie found: cold, but safe', FV.res + 1.0, S - 0.4, { y: 890 });
 
-// ----- 5. Saturday medicine run -----
+// ----- 4. Saturday medicine run -----
+const P = SV.plan;
 const batt = el('<div class="batt"><small>BATTERY WHEN IT LANDS</small><div class="row"><div class="cell"><i data-f></i></div><b data-v>22%</b><span data-n>still air<br>(no wind)</span></div></div>', { x: 46, y: 820 });
-A(cue(batt, 36.2, 42.0, { from: 'up' }));
-const battV = (t) => t < 38.2 ? 22 : t < 40.9 ? lerp(22, 3, prog(t, 38.2, 39.4)) : lerp(3, 46, prog(t, 41.2, 41.9));
-A((t) => { const vv = Math.round(battV(t)); const bad = vv < 30; batt.querySelector('[data-v]').textContent = vv + '%'; batt.querySelector('[data-v]').style.color = vv < 10 ? '#d8342c' : bad ? '#c98a00' : '#1f9d55'; const f = batt.querySelector('[data-f]'); f.style.width = Math.max(vv, 3) + '%'; f.style.background = vv < 10 ? '#e8402a' : bad ? '#ffc83d' : '#16c79a'; batt.querySelector('[data-n]').innerHTML = t < 38.2 ? 'still air<br>(no wind)' : t < 41.2 ? 'into a 9 m/s<br>headwind' : 'sea route, wind in,<br>30% reserve ✓'; });
-helper('Straight line, full speed. Arrives with 22%.', 90, 'Wind: not included', 36.1, 40.0);
-lens('WIND LENS', 37.9, 40.6, { col: '#59c7fc', ink: '#13202b' });
-LB.alert('With the headwind: arrives with 3%', 39.0, 40.6, { x: 960, y: 640 });
+A(cue(batt, P + 0.5, SV.fly - 0.4, { from: 'up' }));
+const battV = (t) => t < P + 2.0 ? 22 : t < P + 5.0 ? lerp(22, 3, prog(t, P + 2.0, P + 3.0)) : lerp(3, 46, prog(t, P + 5.0, P + 5.7));
+A((t) => { const vv = Math.round(battV(t)); const bad = vv < 30; batt.querySelector('[data-v]').textContent = vv + '%'; batt.querySelector('[data-v]').style.color = vv < 10 ? '#d8342c' : bad ? '#c98a00' : '#1f9d55'; const f = batt.querySelector('[data-f]'); f.style.width = Math.max(vv, 3) + '%'; f.style.background = vv < 10 ? '#e8402a' : bad ? '#ffc83d' : '#16c79a'; batt.querySelector('[data-n]').innerHTML = t < P + 2.0 ? 'still air<br>(no wind)' : t < P + 5.0 ? 'into a 9 m/s<br>headwind' : 'sea route, wind in,<br>30% reserve ✓'; });
+helper('Straight line, full speed. Arrives with 22%.', 90, 'Wind: not included', P + 0.3, P + 3.4);
+lens('WIND LENS', P + 1.8, P + 3.4, { col: '#59c7fc', ink: '#13202b' });
+LB.alert('With the headwind: arrives with 3%', P + 2.4, P + 3.4, { x: 1180, y: 640 });
 const pal = el(`<div class="pal"><small>YOUR PLAN · ROUTE</small><div class="grid"><div class="pc" data-p="0">Straight over the village</div><div class="pc" data-p="1">Over the sea, battery swap at the lighthouse</div></div><small style="margin-top:16px">BATTERY RESERVE</small><div class="grid" style="grid-template-columns:1fr 1fr 1fr"><div class="pc" data-p="2">0%</div><div class="pc" data-p="3">10%</div><div class="pc" data-p="4">30%</div></div></div>`, { x: 46, y: 300 });
-A(cue(pal, 39.9, 41.5, { from: 'left' }));
-A((t) => { pal.querySelector('[data-p="0"]').classList.toggle('bad', t > 40.2 && t < 40.6); pal.querySelector('[data-p="1"]').classList.toggle('on', t > 40.6); pal.querySelector('[data-p="4"]').classList.toggle('on', t > 41.1); });
-function ring(target, t0) { const d = el('<div style="width:90px;height:90px;border-radius:50%;border:6px solid #1f9d55;box-shadow:0 0 0 4px rgba(31,157,85,.35)"></div>', { x: 0, y: 0 }); A((t) => { const k = (t - t0) / 0.6; if (k < 0 || k > 1) { d.style.opacity = 0; d.style.visibility = 'hidden'; return; } const r = target.getBoundingClientRect(); d.style.visibility = 'visible'; d.style.left = (r.left + r.width * 0.82) + 'px'; d.style.top = (r.top + r.height / 2) + 'px'; d.style.opacity = 1 - k; d.style.transform = `translate(-50%,-50%) scale(${0.4 + k})`; }); }
-ring(pal.querySelector('[data-p="1"]'), 40.55); ring(pal.querySelector('[data-p="4"]'), 41.05);
-helper('Sea route, wind included, fresh battery at the lighthouse. Lands with 46%.', 82, 'Wind both ways + 30% reserve', 41.2, 42.9, { tag: 'PLAN CHECKED', col: '#16c79a' });
-tag3('<b>“Visual!”</b> clinic pad in sight', 'bub', 43.1, 44.5, () => [PADS.clinic[0], 7, PADS.clinic[1]], { clampY: [420, 1000] });
-LB.saved('Medicine delivered to the island clinic', 44.7, TM.car - 0.1, { y: 890 });
+A(cue(pal, P + 3.8, SV.fly - 0.4, { from: 'left' }));
+A((t) => { pal.querySelector('[data-p="0"]').classList.toggle('bad', t > P + 4.1 && t < P + 4.5); pal.querySelector('[data-p="1"]').classList.toggle('on', t > P + 4.5); pal.querySelector('[data-p="4"]').classList.toggle('on', t > P + 5.0); });
+ring(pal.querySelector('[data-p="1"]'), P + 4.45); ring(pal.querySelector('[data-p="4"]'), P + 4.95);
+helper('Sea route, wind included, fresh battery at the lighthouse. Lands with 46%.', 82, 'Wind both ways + 30% reserve', P + 4.9, SV.fly - 0.4, { tag: 'PLAN CHECKED', col: '#16c79a' });
+tag3('<b>“Visual!”</b> clinic pad in sight', 'bub', SV.fly + 0.8, SV.land - 0.3, () => [PADS.clinic[0], 7, PADS.clinic[1]], { clampY: [420, 1000] });
+LB.saved('Medicine delivered to the island clinic', SV.land + 0.1, E - 0.4, { y: 890 });
 
-// ----- 6. careers, 7. small print, 8. title -----
-const JOBS = [['Drone pilot', '#2f6fd8'], ['Search-and-rescue operator', '#ff8a2a'], ['Inspection analyst', '#6e5bf2'], ['Mapping technician', '#16c79a'], ['Delivery planner', '#ffc83d'], ['…and more', '#c9d6dd']];
-const careers = el(`<div class="careers"><h3>Real jobs</h3><div class="cc">${JOBS.map(([j, c]) => `<span><i style="background:${c}"></i>${j}</span>`).join('')}</div></div>`, { x: 960, y: 520, anchor: 'c' });
-A(cue(careers, TM.car + 0.2, TM.ttl - 0.2));
-const fine = el('<div class="fine">Practice badges only: real UK drone IDs have age rules.</div>', { x: 960, y: 1010, anchor: 'c' }); A(cue(fine, TM.car + 0.8, null, { from: 'up' }));
-const dimEnd = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:radial-gradient(ellipse at center, rgba(10,40,80,.3), rgba(10,40,80,.65))"></div>'); A(cue(dimEnd, TM.ttl - 0.2, null, { from: 'fade', dur: 0.8 }));
-const title = titleCard('Become a <span class="hl">Drone Pilot</span>', 'Plan it. Check it. Fly it.', { chip: 'A DeltaOps Learning AI lab · Schools' }); A(cue(title, TM.ttl, null, { from: 'pop', dur: 0.8 }));
-fine.style.zIndex = 5;
+// ----- 5. title card with careers and a short footnote -----
+const dimEnd = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:radial-gradient(ellipse at center, rgba(10,40,80,.35), rgba(10,40,80,.7))"></div>'); A(cue(dimEnd, E, null, { from: 'fade', dur: 0.5 }));
+const title = titleCard('Become a <span class="hl">Drone Pilot</span>', 'Plan it. Check it. Fly it.', { chip: 'A DeltaOps Learning AI lab · Schools' }); title.style.placeItems = 'start center'; title.style.paddingTop = '110px'; A(cue(title, E + 0.1, null, { from: 'pop', dur: 0.7 }));
+const JOBS = [['Drone pilot', '#2f6fd8'], ['Search-and-rescue operator', '#ff8a2a'], ['Mapping technician', '#16c79a'], ['Delivery planner', '#ffc83d']];
+const jobs = el(`<div style="display:flex;align-items:center;gap:16px;white-space:nowrap"><b style="font:800 34px Inter;color:#fff;text-shadow:0 3px 14px rgba(0,20,40,.5)">Real jobs:</b>${JOBS.map(([j, c]) => `<span style="display:inline-flex;align-items:center;gap:12px;background:#fff;border-radius:999px;padding:10px 26px 10px 12px;font:800 30px Inter;color:#13202b;box-shadow:0 8px 0 rgba(0,0,0,.1),0 14px 30px rgba(0,0,0,.2)"><i style="width:30px;height:30px;border-radius:50%;display:block;background:${c}"></i>${j}</span>`).join('')}</div>`, { x: 960, y: 880, anchor: 'c' });
+A(cue(jobs, E + 0.6, null, { from: 'up', dur: 0.4 }));
+const fine = el('<div style="white-space:nowrap;font:700 24px Inter;color:#fff;background:rgba(12,27,36,.6);border-radius:999px;padding:8px 24px">Practice badges only, not a real drone licence.</div>', { x: 960, y: 1000, anchor: 'c' }); A(cue(fine, E + 0.9, null, { from: 'up', dur: 0.4 }));
 st.onFrame((t) => ui.forEach((f) => f(t)));
 window.__duration = DUR;
 document.fonts.ready.then(() => { window.__ready = true; });
