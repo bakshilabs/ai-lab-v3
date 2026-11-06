@@ -52,7 +52,7 @@ Block Quiz is a whole-room quiz show about Minecraft for up to about 30 children
 | Round | Goal | Real decisions | AI's confident mistake | How children catch it | Clearer instruction | On screen |
 |---|---|---|---|---|---|---|
 | 1. Just answer | Get the facts right | Trust, check or don't use Hunch | "What block makes the frame of a portal to the game's fiery world?" → "Lava!" **90%** (it mixed up the ingredient with the result: water on lava *makes* obsidian) | Players who have built one; the reveal; "WHY: (no reason given)" | Room rule: "Answer, and tell us WHY." | Most players fall from pad B; caption "THE AI WAS VERY SURE. AND WRONG." |
-| 2. Tell us why | Judge reasons | Is the reason true? | (Correct case) "What do village traders usually want?" → "Emeralds. WHY: they buy and sell almost everything for emeralds." **85%** | Check the reason against what players know | The reason holds | "IT GAVE A REASON. YOU CHECKED IT." |
+| 2. Tell us why | Judge reasons | Is the reason true? | (Correct case) "How do you make obsidian?" → "Water + lava. WHY: water poured onto still lava turns it into obsidian." **85%** | Press "Check it": the test bench pours water onto lava and shows the result | The reason holds | Lava turns to obsidian, "✓ CHECKED"; "IT GAVE A REASON. YOU CHECKED IT." |
 | 3. Real-world trap | Spot borrowed assumptions | Real world vs game world | "Which way does a compass point?" → "North! Compasses point north." **92%** (in the game it points to the world's spawn point) | Players' knowledge; a facilitator demo clip (original art) | "Remember: game rules, not real-world rules." | Compass card flips to show a spawn marker |
 | 4. How sure should it be? | Calibrate | Stand on the Sure-o-meter line | "What do you need to bake a cake?" → "Flour, eggs, milk, sugar." **80%** (game recipe uses wheat, not flour) | Compare Hunch's % with the room's own % | "If you're not sure, say so." | Hunch re-guesses with 55% and "check with a player" |
 | 5. Unsure but right | Don't ignore a hesitant source | Trust, check, don't use | "Does a sheep's wool grow back after shearing?" → "I think yes, after it eats grass. **55%**." Right | Players confirm | Keep the rule "say how sure" | Hunch's ✔/✘ record shows it right when unsure |
@@ -60,7 +60,7 @@ Block Quiz is a whole-room quiz show about Minecraft for up to about 30 children
 
 **"Unsure but right" moment:** Round 5, as above. The host says: "It was only 55% sure, and it was right. Should we ignore it next time it's unsure?" (Answer: no, check it.)
 
-**Spare questions (to verify):** which pickaxe can mine obsidian ("Any pickaxe", 75%: needs a diamond or better); what water flowing onto a lava source makes (Hunch correct, 70%).
+**Spare questions (to verify):** which pickaxe can mine obsidian ("Any pickaxe", 75%: needs a diamond or better); what village traders usually want ("Emeralds. WHY: they buy and sell almost everything for emeralds.", Hunch correct, 85%).
 
 **Scoring:** team-only, no speed points. A team earns a point for the right pad and a bonus "Checker point" for naming Hunch's assumption.
 
@@ -158,7 +158,7 @@ Non-players are often the best Reason Checkers: say so at the start.
    - Probe: "Is that a silly mistake or an understandable one? Could a person make it?"
 3. **(Reasoning) "What changed when we told Hunch 'Answer, and tell us WHY'?"**
    - Purpose: show that a reason makes an answer checkable.
-   - Strong answer: "We could check the reason. 'They trade almost everything for emeralds' matched what we'd seen."
+   - Strong answer: "We could check the reason. It said water on lava makes obsidian, and when we tested it on the bench, it did."
    - Probe: "Can a reason be wrong too? Remember 'beds are for sleeping'."
 4. **(Reasoning: assumptions) "In the compass and cake questions, where did Hunch get its ideas?"**
    - Purpose: name the "real-world default" assumption.

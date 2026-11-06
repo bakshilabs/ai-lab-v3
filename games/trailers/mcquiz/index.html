@@ -32,7 +32,7 @@ canvas { position: absolute; inset: 0; }
 <body><div id="app"><div id="ui"></div></div>
 <script type="module">
 import * as THREE from 'three';
-const W = 1920, H = 1080, DUR = 30.6;
+const W = 1920, H = 1080, DUR = 30.2;
 const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x)), lerp = (a, b, k) => a + (b - a) * k, prog = (t, a, b) => clamp((t - a) / (b - a));
 const eio = (k) => k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
 function hash(x, y = 0, z = 0) { let h = (x * 374761393 + y * 668265263 + z * 2147483647) | 0; h = (h ^ (h >>> 13)) * 1274126177; return ((h ^ (h >>> 16)) >>> 0) / 4294967295; }
@@ -128,7 +128,7 @@ const Q = [
   { t0: 4.4, tGo: 6.4, tRev: 9.0, tBack: 11.9, q: 'What do you need to build a Nether portal?', opts: ['Obsidian', 'Lava', 'Diamond'], ai: ['“Lava!”', 90], correct: 'A', picks: 'BBABACBBAABB' },
   { t0: 14.1, tGo: 19.1, tRev: 21.0, tBack: 99, q: 'How do you make obsidian?', opts: ['Smelt sand', 'Water + lava', 'Burn wood'], ai: ['“Water + lava.”', 85], why: 'Water poured onto still lava turns it into obsidian.', correct: 'B', picks: 'BBBBBBBABBBB' },
 ];
-const T_FIX = 11.95, T_TAP = 15.8, T_DEMO = 16.2, T_DEMO_END = 19.0, T_SCORE = 23.6, T_END = 26.0;
+const T_FIX = 11.95, T_TAP = 15.8, T_DEMO = 16.2, T_DEMO_END = 19.0, T_SCORE = 23.6, T_END = 25.6;
 const home = (i) => [-4.5 + (i % 6) * 1.8, 8, 10 + Math.floor(i / 6) * 2];
 const GRID = [[0, 0], [-1, 1], [1, 1], [-1, -1], [1, -1], [0, 1], [0, -1], [-1, 0], [1, 0]];
 const spot = (i, pad, picks) => { const r = [...picks.slice(0, i)].filter((c) => c === picks[i]).length; const g = GRID[(r + i * 0) % 9]; return [pad.x + 0.5 + g[0] * 1.45, 8, pad.z + 0.5 + g[1] * 1.45]; };
@@ -153,7 +153,7 @@ function playerPos(i, t) {
       if (t > q.tRev && pick === q.correct) cheer = true;
     }
   }
-  if (t > T_SCORE) cheer = t > 24.9 && i % 3 === 0; // Torch Team cheers its win
+  if (t > T_SCORE) cheer = t > 24.6 && i % 3 === 0; // Torch Team cheers its win
   const inWater = fall >= 1;
   return { pos, y: inWater ? 3.45 + Math.sin(t * 5 + i) * 0.08 : Math.max(y, 3.5), fall, fallT, cheer, moving, rot };
 }
@@ -200,12 +200,12 @@ function drawSign(t) {
     g.textAlign = 'center'; g.fillStyle = '#ffe066'; g.font = '30px P2P'; g.fillText('BLOCK QUIZ', 380, 92);
     g.fillStyle = '#fff'; g.font = '52px P2P'; g.fillText(`ROUND ${r} OF 5`, 380, 190);
   } else {
-    const k = eio(prog(t, 23.8, 24.9)); const win = t > 24.9 && Math.floor((t - 24.9) * 6) % 2 === 0;
+    const k = eio(prog(t, 23.7, 24.6)); const win = t > 24.6 && Math.floor((t - 24.6) * 6) % 2 === 0;
     const key = 's' + TEAMS.map(([, s]) => Math.round(k * s)).join() + win; if (key === signKey) return; signKey = key;
     g.clearRect(0, 0, 760, 280); g.fillStyle = 'rgba(20,14,8,0.7)'; g.fillRect(10, 10, 740, 260);
     g.textAlign = 'left'; g.fillStyle = '#ffe066'; g.font = '28px P2P'; g.fillText('TEAM SCORES', 36, 58);
     TEAMS.forEach(([n, s, c], i) => { const y = 100 + i * 60, v = Math.round(k * s);
-      if (i === 0 && t > 24.9) { g.fillStyle = win ? '#ffe066' : '#fff'; g.fillRect(26, y - 8, 708, 52); g.fillStyle = 'rgba(20,14,8,0.9)'; g.fillRect(30, y - 4, 700, 44); }
+      if (i === 0 && t > 24.6) { g.fillStyle = win ? '#ffe066' : '#fff'; g.fillRect(26, y - 8, 708, 52); g.fillStyle = 'rgba(20,14,8,0.9)'; g.fillRect(30, y - 4, 700, 44); }
       g.fillStyle = '#fff'; g.font = '22px P2P'; g.fillText(n, 40, y + 28);
       g.fillStyle = '#000'; g.fillRect(398, y + 4, k * s * 30 + 8, 32); g.fillStyle = c; g.fillRect(402, y + 8, k * s * 30, 24);
       g.fillStyle = '#fff'; g.font = '26px P2P'; g.fillText(String(v), 420 + k * s * 30, y + 32); });
