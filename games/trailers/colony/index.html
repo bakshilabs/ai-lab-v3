@@ -58,7 +58,7 @@ import { Vox, particles, rand, noise2 } from '../engine/kit.js';
 import { el, cue, fader, titleCard, toScreen } from '../engine/ui.js';
 import { burst } from '../engine/extras.js';
 
-const DUR = 36.6;
+const DUR = 36.9;
 const st = createStage({ sky: ['#08143a', '#1a3f8f'], post: false });
 const { scene, camera, sun, hemi, rim } = st;
 st.dome.visible = false; st.renderer.setClearColor(0x000000, 0);
@@ -73,7 +73,7 @@ const bg = document.getElementById('bg'); bg.style.background = 'linear-gradient
 sun.intensity = 3.25; sun.color.set('#ffeccc'); sun.position.set(-60, 110, 70); hemi.intensity = 1.05; hemi.color.set('#d0dcff'); hemi.groundColor.set('#a0482a'); rim.intensity = 1.4; rim.color.set('#6fb4ff'); st.renderer.toneMappingExposure = 1.06;
 
 // ---------- timeline ----------
-const L1 = 3.0, BUILD = 11.0, L5 = 18.3, CREWT = 27.9, LIVE = 30.1, TITLE = 33.1;
+const L1 = 3.0, BUILD = 11.0, L5 = 18.3, CREWT = 27.9, LIVE = 30.4, TITLE = 33.4;
 const M1 = { cIn: 3.2, pickA: 3.8, aiIn: 4.1, lensIn: 5.4, alertIn: 5.9, c2In: 6.8, pickB: 7.4, fix: 7.7, chkIn: 7.9, chkOut: 10.5 };
 // level 1 payoff: the test drill bores down and brings up a blue ice core
 const DR = { rig: 8.3, bore: 8.6, up: 9.6, ok: 9.8 };
@@ -169,7 +169,7 @@ const PIPE = []; { let s = 0; for (let j = 0; j < WP.length - 1; j++) { const [a
 const PIPE_LEN = WP.slice(1).reduce((a, p, j) => a + Math.hypot(p[0] - WP[j][0], p[1] - WP[j][1]), 0);
 const pipeM = new THREE.InstancedMesh(new THREE.BoxGeometry(0.75, 0.75, 0.75), new THREE.MeshLambertMaterial({ color: '#c8ccd8' }), PIPE.length); pipeM.frustumCulled = false; scene.add(pipeM);
 PIPE.forEach(([, , s], i) => pipeM.setColorAt(i, new THREE.Color(s < 7 ? '#4fb3ea' : '#7ae0c8')));
-const flow = particles(30, { size: 0.42, emissive: '#3aa8ff' }); scene.add(flow);
+const flow = particles(30, { size: 0.55, emissive: '#3aa8ff' }); scene.add(flow);
 
 // ---------- level 4: solar panels rise on posts and unfold; batteries glow ----------
 const SOL = []; for (const x of [-2.5, 1.5, 5.5]) for (const z of [-17.5, -14.5, -11.5, -8.5, -5.5]) SOL.push([x, z]);
@@ -236,8 +236,8 @@ function astro(col, s) {
 const CREW = ['#6e5bf2', '#16c79a', '#ff8a2a', '#2f9df0'].map((c) => { const a = astro(c, 0.52); a.visible = false; scene.add(a); return a; });
 // crew beat: out of the airlock one by one to a line in front of the habitat; then each walks its own path in the live view
 const DOOR = [14.5, -3.6];
-const CT = [[10.6, 0.6], [13.2, 1.9], [15.9, 1.9], [17.5, -0.4]];
-const CP = [[[10.6, 0.6], [9.2, 4.4], [5.6, 6.6]], [[13.2, 1.9], [12.6, 6.4], [9.4, 9.6]], [[15.9, 1.9], [15.6, 6.8], [18.4, 9.8]], [[17.5, -0.4], [17.8, 4.4], [24.5, 4.6]]];
+const CT = [[10.4, 1.0], [13.2, 2.6], [16.0, 2.6], [17.6, 0.2]];
+const CP = [[[10.4, 1.0], [9.2, 4.4], [5.6, 6.6]], [[13.2, 2.6], [12.6, 6.4], [9.4, 9.6]], [[16.0, 2.6], [15.6, 6.8], [18.4, 9.8]], [[17.6, 0.2], [17.8, 4.4], [24.5, 4.6]]];
 function walkPath(P, d) { for (let j = 0; j < P.length - 1; j++) { const [ax, az] = P[j], [bx, bz] = P[j + 1]; const L = Math.hypot(bx - ax, bz - az); if (d <= L || j === P.length - 2) { const k = clamp(d / L); return { x: lerp(ax, bx, k), z: lerp(az, bz, k), ang: Math.atan2(bx - ax, bz - az), end: d >= L && j === P.length - 2 }; } d -= L; } }
 // ---------- rover ----------
 const rover = new THREE.Group(); { const b = new Vox(); b.box(-3, 2, -2, 3, 3, 2, '#ffc83d'); b.box(-3, 1, -2, 3, 1, 2, '#3a4752'); b.box(-2, 4, -2, 1, 4, 2, '#2f9df0'); b.box(2, 4, 0, 2, 7, 0, '#eef0f6'); b.box(1, 8, -1, 3, 8, 1, '#c8c8d4'); rover.add(b.mesh({ scale: 0.5 })); }
@@ -290,7 +290,7 @@ st.onFrame((t) => {
     const farm = t > L5 + 0.2 && t < CREWT && (i === 1 || i === 3); const out = t >= CREWT;
     let x, z, a, walk = 0, hop = 0, vis = farm;
     if (farm) { x = i === 3 ? 17.3 : 31.8; z = i === 3 ? -1.2 : -2.2; a = i === 3 ? Math.PI / 2 : -Math.PI / 2; const tq = i === 3 ? M5.lensIn : HARV; if (within(t, tq - 0.2, tq + 0.4)) hop = Math.sin(prog(t, tq - 0.2, tq + 0.4) * Math.PI) * 0.9; }
-    else if (out && t < LIVE) { const te = CREWT + 0.35 + i * 0.3; vis = t > te; const k = prog(t, te, te + 1.0, ease.inOut); const mid = [DOOR[0], DOOR[1] + 1.4]; const P = [DOOR, mid, CT[i]]; const p = walkPath(P, k * (1.4 + Math.hypot(CT[i][0] - mid[0], CT[i][1] - mid[1]))); x = p.x; z = p.z; a = k < 1 ? p.ang : 0; walk = k < 1 ? t * 9 + i : 0; if (within(t, CREWOK - 0.1, CREWOK + 0.4)) hop = Math.sin(prog(t, CREWOK - 0.1, CREWOK + 0.4) * Math.PI) * 0.8; }
+    else if (out && t < LIVE) { const te = CREWT + 0.2 + i * 0.2; vis = t > te; const k = prog(t, te, te + 0.75, ease.inOut); const mid = [DOOR[0], DOOR[1] + 0.9]; const P = [DOOR, mid, CT[i]]; const p = walkPath(P, k * (0.9 + Math.hypot(CT[i][0] - mid[0], CT[i][1] - mid[1]))); x = p.x; z = p.z; a = k < 1 ? p.ang : 0; walk = k < 1 ? t * 9 + i : 0; if (within(t, CREWOK - 0.1, CREWOK + 0.4)) hop = Math.sin(prog(t, CREWOK - 0.1, CREWOK + 0.4) * Math.PI) * 0.8; }
     else if (out) { vis = true; const p = walkPath(CP[i], Math.max(0, t - LIVE - i * 0.12) * 2.2); x = p.x; z = p.z; a = p.end ? 0 : p.ang; walk = p.end ? 0 : t * 8 + i; }
     c.visible = vis; if (!vis) return;
     c.position.set(x, hSm(x, z) + 1 + hop, z); c.rotation.y = a + Math.PI; c.userData.walk(walk);
@@ -305,18 +305,18 @@ st.onFrame((t) => {
   // cam: orbit around a subject; sx shifts the subject sideways on screen (world units, + = right), dy lifts it
   const cam = (ang, dist, hgt, subj, sx = 0, dy = 0) => { const rx = Math.cos(ang), rz = -Math.sin(ang); look = [subj[0] - rx * sx, subj[1] - dy, subj[2] - rz * sx]; pos = [look[0] + Math.sin(ang) * dist, look[1] + hgt, look[2] + Math.cos(ang) * dist]; };
   const L1S = (k) => [lerp(-20, 12, k), lerp(3, 4, k), lerp(4, -8, k)];
-  const endCam = (k) => cam(lerp(-0.3, -0.42, k), lerp(150, 158, k), lerp(78, 82, k), [6, 0, -3], 0, lerp(-17, -16, k));
+  const endCam = (k) => cam(lerp(-0.3, -0.42, k), lerp(150, 158, k), lerp(78, 82, k), [6, 0, -3], 0, lerp(-19, -18, k));
   if (t < L1) { const k = prog(t, 0, L1); cam(lerp(-1.0, -0.6, ease.inOut(k)), lerp(150, 104, ease.out(k)), lerp(108, 74, k), [2, 0, -4], 0, lerp(-10, 2, k)); }
   else if (t < BUILD) { const k = prog(t, L1, BUILD); const q = prog(t, M1.fix - 0.1, M1.fix + 1.1); const d = prog(t, DR.rig - 0.4, DR.rig + 0.5, ease.inOut); const S = L1S(q); cam(lerp(-0.5, -0.4, k), lerp(lerp(84, 80, k), 60, d), lerp(lerp(58, 56, k), 42, d), [lerp(S[0], DRX, d), lerp(S[1], 7, d), lerp(S[2], DRZ, d)], lerp(-13, -9, d), -4); }
   else if (t < L5) {
     // montage: one framing per build (clean cuts), each drifting slowly in
     if (t < B3) { const k = prog(t, B2, B3); cam(lerp(-0.42, -0.32, k), lerp(56, 50, k), lerp(40, 36, k), [14, 6, -10], 6, -1); }
-    else if (t < B4) { const k = prog(t, B3, B4); cam(lerp(0.42, 0.52, k), lerp(54, 49, k), lerp(44, 40, k), [25, 6, -14], 6, -1); }
+    else if (t < B4) { const k = prog(t, B3, B4); cam(lerp(0.55, 0.65, k), lerp(50, 46, k), lerp(42, 38, k), [25, 5, -15], 4, -1); }
     else { const k = prog(t, B4, L5); cam(lerp(-0.42, -0.3, k), lerp(56, 50, k), lerp(42, 38, k), [2, 5, -11], 6, -1); } }
   else if (t < CREWT) { const k = prog(t, L5, CREWT); cam(lerp(-0.75, -0.6, k), lerp(54, 49, k), lerp(41, 37, k), [24, 6, -1.5], -8, -3); }
-  else if (t < LIVE) { const k = prog(t, CREWT, LIVE); cam(lerp(-0.05, 0.08, k), lerp(46, 43, k), lerp(34, 31, k), [15, 5, -1], 4, -1); }
+  else if (t < LIVE) { const k = prog(t, CREWT, LIVE); cam(lerp(-0.02, 0.1, k), lerp(42, 39, k), lerp(31, 28, k), [15, 5, -0.5], 1, -1.5); }
   else { const k = prog(t, LIVE, TITLE); cam(lerp(-0.2, 0.05, k), lerp(74, 70, k), lerp(42, 40, k), [13, 4, -4], 3, 3);
-    const e = prog(t, TITLE - 0.7, TITLE + 0.9, ease.inOut); if (e > 0) { const p0 = pos, l0 = look; endCam(prog(t, TITLE, DUR)); pos = pos.map((v, j) => lerp(p0[j], v, e)); look = look.map((v, j) => lerp(l0[j], v, e)); } }
+    const e = prog(t, TITLE - 0.9, TITLE + 0.8, ease.inOut); if (e > 0) { const p0 = pos, l0 = look; endCam(prog(t, TITLE, DUR)); pos = pos.map((v, j) => lerp(p0[j], v, e)); look = look.map((v, j) => lerp(l0[j], v, e)); } }
   camera.fov = fov; camera.updateProjectionMatrix(); camera.position.set(...pos); camera.lookAt(...look);
 });
 
@@ -360,7 +360,7 @@ const STAR_AT = [DR.ok, B2 + BD, B3 + BD, B4 + BD, HARV, CREWOK];
   const sp = n.querySelector('span');
   A((t) => { const c = STAR_AT.filter((q) => t > q).length; n.querySelector('[data-s]').textContent = c; n.querySelector('[data-x]').textContent = 60 + c * 120 + (t > LIVE + 0.4 ? 100 : 0);
     const last = STAR_AT.filter((q) => t > q).pop(); const k = last != null ? prog(t, last, last + 0.4) : 1; sp.style.transform = `scale(${1 + 0.25 * Math.sin(Math.PI * k)})`; sp.style.transformOrigin = 'center';
-    const pk = last != null ? (t - last) / 1.1 : 2; const on = pk >= 0 && pk < 1 && t < HUD_OUT; plus.style.opacity = on ? Math.min(1, (1 - pk) * 4) : 0; plus.style.visibility = on ? 'visible' : 'hidden'; plus.style.transform = `translate(-50%,-50%) translateY(${-40 * Math.min(1, pk * 2)}px) scale(${on ? 0.7 + 0.3 * ease.back(Math.min(1, pk * 4)) : 1})`; }); }
+    const pk = last != null ? (t - last) / 0.95 : 2; const on = pk >= 0 && pk < 1 && t < HUD_OUT; plus.style.opacity = on ? (pk < 0.85 ? 1 : 0) : 0; plus.style.visibility = on && pk < 0.85 ? 'visible' : 'hidden'; plus.style.visibility = on ? 'visible' : 'hidden'; plus.style.transform = `translate(-50%,-50%) translateY(${-40 * Math.min(1, pk * 2)}px) scale(${on ? 0.7 + 0.3 * ease.back(Math.min(1, pk * 4)) : 1})`; }); }
 // colony ring: shows from the first build to the end, always opaque
 const SEG = [['Site', '#ffd23f', B2 + 0.25], ['Shelter', '#e8573f', B2 + BD], ['Water loop', '#2f6fd8', B3 + BD], ['Solar power', '#ff8a2a', B4 + BD], ['Food', '#16c79a', HARV], ['Crew', '#6e5bf2', CREWOK]];
 const C = 2 * Math.PI * 62, SL = C / SEG.length;
@@ -407,13 +407,13 @@ cards('TRY A CLEARER CARD', C5, M5.c2In, M5.fix + 0.4, M5.pickB, 1);
 planner('Hydroponic racks under LED lights, in recycled water.', 94, ['Soil test', 'Greenhouse trials'], ['LEDs give enough light'], M5.chkIn, M5.chkOut, { tag: 'PLAN CHECKED', tagColor: '#16c79a' });
 { const n = el('<div class="b-saved" style="background:#13202b;box-shadow:0 8px 0 rgba(0,0,0,.25),0 14px 34px rgba(0,0,0,.35);display:inline-flex;align-items:center;gap:18px"><span style="width:44px;height:44px;border-radius:50%;background:#16c79a;display:grid;place-items:center;font-size:30px">✓</span>First harvest: lettuce and tomatoes</div>', { x: 1000, y: 975, anchor: 'c' }); A(slide(n, HARV, CREWT - 0.3, { dy: 220, dur: 0.3 })); }
 // ---- Level 6: the crew moves in ----
-{ const n = el('<div class="bub ok" style="background:#6e5bf2"><i style="background:#fff;box-shadow:none;border-radius:50%"></i>Crew of four moved in ✓</div>', { x: 1060, y: 975, anchor: 'c' }); A(slide(n, CREWOK - 0.05, LIVE - 0.25, { dy: 220, dur: 0.3, outDur: 0.2 })); }
+{ const n = el('<div class="bub ok" style="background:#6e5bf2"><i style="background:#fff;box-shadow:none;border-radius:50%"></i>Crew of four moved in ✓</div>', { x: 1060, y: 975, anchor: 'c' }); A(slide(n, CREWOK - 0.05, LIVE + 0.3, { dy: 220, dur: 0.3, outDur: 0.2 })); }
 // ---- the colony living, and its name ----
 const live = el('<div class="tagp">● WATCH YOUR COLONY LIVE</div>', { x: 1080, y: 92, anchor: 'c' }); A(slide(live, LIVE + 0.1, HUD_OUT, { dy: -170, dur: 0.28 }));
-const nm = el('<div class="name"><div class="st"><small>YOUR COLONY HAS EARNED ITS NAME</small>Ice Harbour</div><br><div class="sub">Strongest: Water + Food · ready for a Mars year</div></div>', { x: 1060, y: 900, anchor: 'c' }); A(cue(nm, LIVE + 0.8, HUD_OUT, { from: 'pop', dur: 0.4, outDur: 0.25 }));
+const nm = el('<div class="name"><div class="st"><small>YOUR COLONY HAS EARNED ITS NAME</small>Ice Harbour</div><br><div class="sub">Strongest: Water + Food · ready for a Mars year</div></div>', { x: 1060, y: 900, anchor: 'c' }); { const pop = cue(nm, LIVE + 0.8, null, { from: 'pop', dur: 0.4 }); const out = slide(nm, LIVE + 0.8, HUD_OUT, { dy: 320, dur: 0.001, outDur: 0.3 }); A((t) => (t < HUD_OUT ? pop(t) : out(t))); }
 // ---- title card over the island, careers line under it (it starts while the camera is still pulling back) ----
-const dim = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:linear-gradient(180deg, rgba(5,11,38,.5) 0%, rgba(5,11,38,.2) 36%, rgba(5,11,38,0) 46%)"></div>'); A(cue(dim, TITLE - 0.4, null, { from: 'fade', dur: 0.5 }));
-const title = titleCard('Build a <span class="hl">Space Colony</span>', 'The AI plans in seconds. Your crew makes sure it survives.', { chip: 'A DeltaOps Learning AI lab · Space camps' }); title.style.placeItems = 'start center'; title.style.paddingTop = '46px'; title.querySelector('.chip').style.marginBottom = '22px'; title.querySelector('h1').style.fontSize = '132px'; title.querySelector('h2').style.fontSize = '46px'; title.querySelector('h2').style.marginTop = '14px'; title.querySelector('.logo').style.marginTop = '22px'; title.querySelector('.logo').style.height = '50px'; A(cue(title, TITLE - 0.25, null, { from: 'pop', dur: 0.6 }));
+const dim = el('<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:linear-gradient(180deg, rgba(5,11,38,.5) 0%, rgba(5,11,38,.2) 36%, rgba(5,11,38,0) 46%)"></div>'); A(cue(dim, TITLE - 0.5, null, { from: 'fade', dur: 0.4 }));
+const title = titleCard('Build a <span class="hl">Space Colony</span>', 'The AI plans in seconds. Your crew makes sure it survives.', { chip: 'A DeltaOps Learning AI lab · Space camps' }); title.style.placeItems = 'start center'; title.style.paddingTop = '46px'; title.querySelector('.chip').style.marginBottom = '22px'; title.querySelector('h1').style.fontSize = '132px'; title.querySelector('h2').style.fontSize = '46px'; title.querySelector('h2').style.marginTop = '14px'; title.querySelector('.logo').style.marginTop = '22px'; title.querySelector('.logo').style.height = '50px'; A((t) => { const o = prog(t, TITLE - 0.2, TITLE - 0.08); const k = prog(t, TITLE - 0.2, TITLE + 0.35, ease.back); title.style.opacity = o; title.style.visibility = o > 0 ? 'visible' : 'hidden'; title.style.transform = `scale(${0.88 + 0.12 * k})`; title.style.transformOrigin = '50% 20%'; });
 { const J = [['Life-support engineer', '#16c79a'], ['Space architect', '#e8573f'], ['Plant scientist', '#4fd060']]; const n = el(`<div class="jobs"><div class="list"><b>Real jobs:</b>${J.map(([j, c]) => `<span><i style="background:${c}"></i>${j}</span>`).join('')}</div></div>`, { x: 960, y: 1000, anchor: 'c' }); A(slide(n, TITLE + 0.35, null, { dy: 200, dur: 0.4 })); }
 st.onFrame((t) => ui.forEach((f) => f(t)));
 window.__duration = DUR;
