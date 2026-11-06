@@ -20,6 +20,26 @@ Then open <http://localhost:8765/>. For schools, host the same folder on any sta
 
 Once the page has loaded, nothing is fetched from the internet. three.js, the fonts and Plotter's model are served alongside the page. There are no accounts and no data collection, and nothing a player types is stored or sent.
 
+## Live secure site
+
+**https://ecotown.vs-code-iloader.workers.dev** is protected by Cloudflare Access: sign in with Cloudflare.
+- **Allowed:** the email on the policy "Allowed people" in the Access app "Eco Town" (Zero Trust → Access → Applications).
+- **Two layers of protection:**
+  - Cloudflare Access redirects every request to the login, including the game's code and model files.
+  - The Worker also refuses any request without a valid login token for this app.
+
+**To publish a new version** (from this repo, with the Cloudflare API token available):
+
+```bash
+node build.mjs && CF_ACCOUNT_ID=<account id> NODE_USE_ENV_PROXY=1 node worker/deploy.mjs
+```
+
+The game is served as a Cloudflare Worker (`worker/`) rather than Pages, because Pages' upload step doesn't work behind this environment's network proxy.
+
+**To let more people in:**
+- In the dashboard: Access app "Eco Town" → Policies → "Allowed people" → add emails.
+- To use emailed codes instead of Cloudflare accounts, add **One-time PIN** under Zero Trust → Settings → Authentication.
+
 ## Public test version (GitHub Pages, no login)
 
 The workflow `.github/workflows/ecotown-pages.yml` runs the tests, builds the same protected site, and publishes it at **https://bakshilabs.github.io/ai-lab-v3/**. It runs on every push to `claude/focused-cori-qeoveu` or `main` that touches the game.
