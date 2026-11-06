@@ -134,3 +134,63 @@ Stars reward spotting and fixing the AI's mistakes, not how the town looks.
 ## Session lengths
 
 There are 45-, 60- and 90-minute versions, so every group finishes a town. In the shorter versions, Levels 4 and 5 merge.
+
+## The game build: two versions, a real helper and the visual direction
+
+The playable game is in `game/`; see `README.md`. It differs from the trailer in four ways.
+
+**Two versions, one engine.** The player picks an age band on the start screen.
+
+| | Ages 8–12 | Ages 13–17 |
+|---|---|---|
+| Instruction | Word tiles (free text and cards also available) | Free text, with the words Plotter picked up highlighted live |
+| Plotter's reply | Reading as picture chips, plus "% sure" | Reading, its assumptions, and why it is that sure: reading × plan fit × experience, and what it tested |
+| Habit names | Plain words ("Took one word too far") | Technical terms (proxy optimisation, average-case assumption, missing or biased data, specification ambiguity) |
+| Checks offered | 3 per level | All 7 |
+| Consequences | Gentle: queues, shivering, boxes | Also petitions, town-meeting dilemmas and a build budget in credits |
+| Level 6 bias check | Tap and tally residents at the school gate | Choose where the survey happens and watch the summary change |
+
+**Plotter is a real small model plus a literal planner, not a script.**
+- A small language model trained for this game reads the instruction and turns it into slots, such as `best`, `dry`, `keep_meadow`.
+- The planner (`game/js/sim/planner.js`) optimises exactly those slots over the tile grid. The six designed mistakes come from the words: with no `dry`, "best land" really is the flattest land, which is the floodplain.
+- "% sure" is the model's reading confidence × how well the plan meets Plotter's own reading × how familiar the request is. A clearer instruction can therefore honestly lower the number.
+- Replies are built from templates, so Plotter never writes free text. Cards remain as a fallback.
+- The simulation (`sim.js`) is honest and shared by every lens, bubble and light, so only Plotter is ever wrong.
+
+**Visual direction.** The look follows the benchmark reviews (`research/eco-town-visual-review-top3.md`) and the cosy voxel town builder *Town to City*:
+- warm golden-hour light with long soft shadows and strong baked ambient occlusion;
+- tilt-shift miniature focus, gentle bloom and a warm colour grade;
+- pale chalk cliffs with layered strata, and mixed autumn trees;
+- swaying grass and drifts of meadow flowers;
+- fine-scale buildings with shutters, sills and tiled roofs.
+
+**Interface.** The frame is one cohesive storybook layout:
+- a town card with the six-level track (top left);
+- an icon strip for the flower, views and settings (top right);
+- one dock where Plotter speaks next to the current action (bottom).
+
+The limits from the review are tested automatically: at most two panels while the town is living and at most four while planning, and no XP. Lenses turn the island to pale clay and paint one variable, with a pattern or number backup.
+
+### Look and construction (update)
+
+**The island.** The island follows the brochure and website style: a compact floating diorama with stepped terraces.
+- Around the buildable tiles is a wild rim, never built on, with:
+  - terracotta mesas and canyons in the colours of the AI Inventor Lab rover scene;
+  - small tiered pines and two-tone oaks;
+  - an old windmill, a spring waterfall and a lively beach.
+- The underside is warm streaked earth with hanging roots.
+- The meadow, wetland and coast stay flat, so "best land = flattest land" still leads Plotter to the floodplain.
+
+**Construction is taught, not just shown.** Every build is broken into real stages (`game/js/world/construct.js`).
+- Each stage sweeps in over its own time. Temporary layers (trench, gravel, frame, pipes, rafters) disappear once the layer that covers them is complete.
+- Materials change the steps:
+  - a timber home gets a timber frame;
+  - concrete flats get "steel rebar and concrete (high embodied carbon)";
+  - the wall step names straw bales, rammed earth or reclaimed brick.
+- The film camera picks the angle with the clearest line of sight to the build.
+
+**Teach Plotter (13–17).** The Level 6 residents'-feedback summary comes from a real logistic-regression classifier trained in the browser (`game/js/ai/teach.js`).
+- Its inputs are what Plotter's language model reads in each comment, plus its sentence embedding.
+- Trained only on the car-park survey box, it claims most residents want car parks.
+- With a balanced sample from the school gate, or students' own labelled examples, its estimate moves to within about 15–20 points of the truth.
+- `tests/teach.test.mjs` checks both outcomes.

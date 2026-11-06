@@ -1,0 +1,120 @@
+// Island terrain as pure data (no three.js), so the simulation, planner and tests can run in Node.
+// The island is an 18 × 14 grid of 6-voxel tiles. Each tile has a fixed zone and height.
+
+export const T = 6;            // voxels per tile side
+export const GW = 14, GH = 11; // grid size in tiles (compact, dense island)
+export const X0 = -42, Z0 = -33;
+export const TRX = 41, TRZ = 32; // tile area radii in voxels (where the town can be built)
+export const RX = 49, RZ = 39;   // full island outline radii (tile area + the wild rim belt)
+
+export const ZONES = {
+  river:   { label: 'River',              top: '#5bbcf0' },
+  meadow:  { label: 'River meadow',       top: '#8ad86c' },
+  wetland: { label: 'Wetland',            top: '#6fbf8a' },
+  wood:    { label: 'Old wood',           top: '#5aa646' },
+  slope:   { label: 'Sunny slope',        top: '#94d45e' },
+  coast:   { label: 'Coast',              top: '#e9d6a1' },
+  field:   { label: 'Dry field',          top: '#7ccf55' },
+};
+
+// small deterministic hash noise (same family as engine/voxel.js, without three.js)
+function hash3(x, y, z) {
+  let h = (x * 374761393 + y * 668265263 + z * 2147483647) | 0;
+  h = (h ^ (h >>> 13)) * 1274126177;
+  return ((h ^ (h >>> 16)) >>> 0) / 4294967295;
+}
+export const rand = (x, y = 0, z = 0) => hash3(x | 0, y | 0, z | 0);
+export function noise2(x, z, seed = 1) {
+  const xi = Math.floor(x), zi = Math.floor(z), xf = x - xi, zf = z - zi;
+  const r = (a, b) => hash3(a, seed, b), s = (t) => t * t * (3 - 2 * t);
+  const a = r(xi, zi), b = r(xi + 1, zi), c = r(xi, zi + 1), d = r(xi + 1, zi + 1);
+  return a + (b - a) * s(xf) + (c - a) * s(zf) + (a - b - c + d) * s(xf) * s(zf);
+}
+
+// Tile area: the buildable part of the island. Tile membership uses this, so the game grid never changes.
+export function insideTileArea(x, z) {
+  const a = Math.atan2(z / TRZ, x / TRX), r = Math.hypot(x / TRX, z / TRZ);
+  const w = 1 + (noise2(Math.cos(a) * 3 + 10, Math.sin(a) * 3 + 10, 77) - 0.5) * 0.12;
+  return r <= w;
+}
+// Full island outline for the mesh: bigger and more ragged, with a few notches.
+export function insideVoxel(x, z) {
+  const a = Math.atan2(z / RZ, x / RX), r = Math.hypot(x / RX, z / RZ);
+  const w = 1 + (noise2(Math.cos(a) * 4 + 3, Math.sin(a) * 4 + 3, 91) - 0.5) * 0.2 + (noise2(Math.cos(a) * 11, Math.sin(a) * 11, 13) - 0.5) * 0.07;
+  return r <= w || insideTileArea(x, z);
+}
+// Height of the wild rim belt (0 inside the tile area): hills and terraces, higher at the back (north/east)
+// and low at the front (south coast), so the town stays in view from the default camera.
+export function rimHeight(x, z) {
+  if (insideTileArea(x, z)) return 0;
+  const rIn = Math.hypot(x / TRX, z / TRZ);
+  const t = Math.max(0, Math.min(1, (rIn - 1) / ((RX / TRX) - 1)));            // 0 at the tile edge → 1 at the outline
+  const back = Math.max(0, Math.min(1, 0.45 - z / 34 + x / 160));              // north/back of the island
+  const hills = noise2(x / 8, z / 8, 5) * 0.65 + noise2(x / 3.5, z / 3.5, 6) * 0.35;
+  // the massif: a limestone mountain on the north-east shoulder, rising steeply behind the wood
+  const m = Math.max(0, 1 - Math.hypot((x - 24) / 28, (z + 30) / 15));
+  const massif = (m * 1.4 - m * m * 0.55) * 15 + noise2(x / 5, z / 5, 12) * 3 * m;   // broad, rounded shoulders with a craggy top
+  const h = (1.5 + back * 7) * hills * Math.min(1, t * 2.4) + back * 2 * t + massif * Math.min(1, t * 1.8 + 0.25);
+  return Math.max(0, Math.round(h));
+}
+// Canyons: deep gorges carved through the rim (never into the tile area). Returns how far below the rim top
+// the floor is cut (0 = no canyon). Gorge 1 runs from the massif east to the island edge; gorge 2 cuts the west rim.
+export function canyonDepth(x, z) {
+  if (insideTileArea(x, z)) return 0;
+  const c1 = Math.abs(z - (-29 + 4 * Math.sin(x / 7))); const w1 = x > 2 ? Math.max(0, 1 - c1 / (2.6 + Math.max(0, x - 30) * 0.08)) : 0;
+  const c2 = Math.abs(x - (-45 + 2.5 * Math.sin(z / 5))); const w2 = z < -6 && z > -30 ? Math.max(0, 1 - c2 / 2.2) : 0;
+  const c3 = Math.abs(x - (30 + 3 * Math.sin(z / 4))); const w3 = z > 14 ? Math.max(0, 1 - c3 / 2.4) : 0;
+  const w = Math.max(w1, w2, w3); if (w <= 0) return 0;
+  return Math.round(4 + w * 14);
+}
+export const isLimestone = (x, z, h) => h >= 9 || (h >= 6 && Math.hypot((x - 24) / 28, (z + 30) / 15) < 0.5);
+export const riverX = (z) => -27 + 1.4 * Math.sin(z / 7);
+export const inRiverVoxel = (x, z) => Math.abs(x + 0.5 - riverX(z)) < 1.8;
+
+export const key = (gx, gz) => gx + ',' + gz;
+export const tileOrigin = (gx, gz) => [X0 + gx * T, Z0 + gz * T];
+export const tileCenter = (gx, gz) => [X0 + gx * T + T / 2, Z0 + gz * T + T / 2];
+export function tileAt(x, z) { const gx = Math.floor((x - X0) / T), gz = Math.floor((z - Z0) / T); return gx >= 0 && gz >= 0 && gx < GW && gz < GH ? [gx, gz] : null; }
+
+// Zone of a point (tile centre or voxel). Shared by the simulation and the mesh.
+export function zoneAt(cx, cz) {
+  if (cx < -11) return 'meadow';
+  if (Math.hypot(cx / 7, cz / 6) < 1.25) return 'wetland';
+  if (cx > 17 && cz < -9) return 'wood';
+  if (cz > 17) return 'coast';
+  if (cx > 3 && cz > -7) return 'slope';
+  return 'field';
+}
+function zoneOf(gx, gz) {
+  const [cx, cz] = tileCenter(gx, gz);
+  const [x0, z0] = tileOrigin(gx, gz);
+  for (const [x, z] of [[x0, z0], [x0 + T - 1, z0], [x0, z0 + T - 1], [x0 + T - 1, z0 + T - 1]]) if (!insideTileArea(x, z)) return null;
+  if (gx === 2) return 'river';
+  return zoneAt(cx, cz);
+}
+
+// Build the immutable terrain description.
+export function makeTerrain() {
+  const tiles = new Map();
+  for (let gx = 0; gx < GW; gx++) for (let gz = 0; gz < GH; gz++) {
+    const zone = zoneOf(gx, gz); if (!zone) continue;
+    const [cx] = tileCenter(gx, gz);
+    const n = noise2(gx / 2.3, gz / 2.3, 21);
+    const h = zone === 'slope' ? 1 + (cx > 14 ? 1 : 0) + (n > 0.62 ? 1 : 0) : zone === 'wood' ? 3 + (n > 0.5 ? 1 : 0) : zone === 'field' ? 1 + (n > 0.58 ? 1 : 0) + (gz <= 1 ? 1 : 0) : 0;
+    const hedge = zone === 'field' && (gz === 2 || gz === 4) && gx >= 4 && gx <= 11;
+    tiles.set(key(gx, gz), { gx, gz, k: key(gx, gz), zone, h, hedge });
+  }
+  // fixed features: island school and ferry dock on the coast, nearest the slope
+  const coast = [...tiles.values()].filter((t) => t.zone === 'coast').sort((a, b) => a.gx - b.gx);
+  const school = coast.find((t) => t.gx >= 9) || coast[coast.length - 1];
+  const dock = coast.find((t) => t.gx >= 5 && t.gx < 9 && t !== school) || coast[0];
+  if (school) school.fixed = 'oldschool';
+  if (dock) dock.fixed = 'dock';
+  return { tiles, school: school?.k, dock: dock?.k };
+}
+
+export function neighbours(tiles, t) {
+  const out = [];
+  for (const [dx, dz] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const n = tiles.get(key(t.gx + dx, t.gz + dz)); if (n) out.push(n); }
+  return out;
+}

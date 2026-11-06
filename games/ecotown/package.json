@@ -1,0 +1,7 @@
+{
+  "name": "ecotown-site",
+  "private": true,
+  "description": "Builds the protected Eco Town site for Cloudflare Pages (dist/).",
+  "scripts": { "build": "node build.mjs" },
+  "devDependencies": { "esbuild": "0.24.0" }
+}

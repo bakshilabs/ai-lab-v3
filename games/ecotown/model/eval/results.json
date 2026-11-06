@@ -1,0 +1,1040 @@
+{
+ "params": 2221652,
+ "epoch": 5,
+ "test": {
+  "f1": 0.9904017311786674,
+  "unk_recall": 0.9842652430457994,
+  "unk_fpr": 0.008397760597174087,
+  "n": 11061
+ },
+ "by_age": {
+  "c": {
+   "f1": 0.9905729977867038,
+   "unk_recall": 0.984367598294647,
+   "unk_fpr": 0.009981851179673321,
+   "n": 5417
+  },
+  "t": {
+   "f1": 0.9902747386336008,
+   "unk_recall": 0.9841160220994475,
+   "unk_fpr": 0.007149666348903718,
+   "n": 5644
+  }
+ },
+ "by_level": {
+  "land": {
+   "f1": 0.989788972089857,
+   "unk_recall": 0.9756944444444444,
+   "unk_fpr": 0.03476245654692932,
+   "n": 1439
+  },
+  "move": {
+   "f1": 0.997478176527643,
+   "unk_recall": 0.9782608695652174,
+   "unk_fpr": 0.017037037037037038,
+   "n": 1994
+  },
+  "homes": {
+   "f1": 0.9846517119244392,
+   "unk_recall": 1.0,
+   "unk_fpr": 0.0009940357852882703,
+   "n": 1594
+  },
+  "food": {
+   "f1": 0.9824160114367405,
+   "unk_recall": 0.9861351819757366,
+   "unk_fpr": 0.0021668472372697724,
+   "n": 2423
+  },
+  "power": {
+   "f1": 0.9928369871934013,
+   "unk_recall": 0.9828178694158075,
+   "unk_fpr": 0.004091653027823241,
+   "n": 1804
+  },
+  "heart": {
+   "f1": 0.997669985172633,
+   "unk_recall": 0.9831081081081081,
+   "unk_fpr": 0.0,
+   "n": 1807
+  }
+ },
+ "canonical": [
+  {
+   "level": "land",
+   "text": "Find the best land",
+   "want": [
+    "best"
+   ],
+   "got": [
+    "best"
+   ],
+   "unknown": 0,
+   "ok": true,
+   "probs": {
+    "best": 0.999
+   }
+  },
+  {
+   "level": "land",
+   "text": "Dry, sunny land. Keep the meadow wild.",
+   "want": [
+    "dry",
+    "keep_meadow",
+    "sunny"
+   ],
+   "got": [
+    "dry",
+    "keep_meadow",
+    "sunny"
+   ],
+   "unknown": 0,
+   "ok": true,
+   "probs": {
+    "sunny": 0.999,
+    "dry": 1.0,
+    "keep_meadow": 0.999
+   }
+  },
+  {
+   "level": "move",
+   "text": "Make it easy for everyone to get to school",
+   "want": [
+    "easy_access"
+   ],
+   "got": [
+    "easy_access"
+   ],
+   "unknown": 0,
+   "ok": true,
+   "probs": {
+    "easy_access": 1.0
+   }
+  },
+  {
+   "level": "move",
+   "text": "Safe walking and cycling routes. Cars stay at the edge.",
+   "want": [
+    "cars_at_edge",
+    "cycling",
+    "safe_walking"
+   ],
+   "got": [
+    "cars_at_edge",
+    "cycling",
+    "safe_walking"
+   ],
+   "unknown": 0,
+   "ok": true,
+   "probs": {
+    "safe_walking": 1.0,
+    "cycling": 0.998,
+    "cars_at_edge": 1.0
+   }
+  },
+  {
+   "level": "homes",
+   "text": "Build strong homes",
+   "want": [
+    "strong"
+   ],
+   "got": [
+    "strong"
+   ],
+   "unknown": 0,
+   "ok": true,
+   "probs": {
+    "strong": 1.0
+   }
+  },
+  {
+   "level": "homes",
+   "text": "Warm, low-carbon homes from local timber and straw.",
+   "want": [
+    "low_carbon",
+    "natural_materials",
+    "warm"
+   ],
+   "got": [
+    "low_carbon",
+    "natural_materials",
+    "warm"
+   ],
+   "unknown": 0,
+   "ok": true,
+   "probs": {
+    "low_carbon": 1.0,
+    "warm": 0.997,
+    "natural_materials": 1.0
+   }
+  },
+  {
+   "level": "food",
+   "text": "Grow as much food as possible",
+   "want": [
+    "max_food"
+   ],
+   "got": [
+    "max_food"
+   ],
+   "unknown": 0,
+   "ok": true,
+   "probs": {
+    "max_food": 0.998
+   }
+  },
+  {
+   "level": "food",
+   "text": "Enough food, and keep the hedges for the bees.",
+   "want": [
+    "bees",
+    "enough_food",
+    "keep_hedges"
+   ],
+   "got": [
+    "bees",
+    "enough_food",
+    "keep_hedges"
+   ],
+   "unknown": 0,
+   "ok": true,
+   "probs": {
+    "enough_food": 0.999,
+    "keep_hedges": 0.999,
+    "bees": 0.999
+   }
+  },
+  {
+   "level": "power",
+   "text": "Make enough clean power",
+   "want": [
+    "clean_power",
+    "enough_power"
+   ],
+   "got": [
+    "clean_power",
+    "enough_power"
+   ],
+   "unknown": 0,
+   "ok": true,
+   "probs": {
+    "clean_power": 0.999,
+    "enough_power": 0.999
+   }
+  },
+  {
+   "level": "power",
+   "text": "Enough power for a still winter night. Store the sunshine.",
+   "want": [
+    "enough_power",
+    "night",
+    "storage",
+    "winter"
+   ],
+   "got": [
+    "enough_power",
+    "night",
+    "storage",
+    "winter"
+   ],
+   "unknown": 0,
+   "ok": true,
+   "probs": {
+    "enough_power": 0.996,
+    "winter": 0.998,
+    "night": 0.998,
+    "storage": 0.999
+   }
+  },
+  {
+   "level": "heart",
+   "text": "Put the school in the middle",
+   "want": [
+    "middle"
+   ],
+   "got": [
+    "middle"
+   ],
+   "unknown": 0,
+   "ok": true,
+   "probs": {
+    "middle": 1.0
+   }
+  },
+  {
+   "level": "heart",
+   "text": "School within a 10-minute walk of every home.",
+   "want": [
+    "walk_time"
+   ],
+   "got": [
+    "walk_time"
+   ],
+   "unknown": 0,
+   "ok": true,
+   "probs": {
+    "walk_time": 1.0
+   }
+  }
+ ],
+ "sanity": [
+  {
+   "level": "land",
+   "text": "put houses where it wont flood",
+   "want": [
+    "dry"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "dry"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "land",
+   "text": "somewhere sunny pls",
+   "want": [
+    "sunny"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "sunny"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "land",
+   "text": "dont build on the flowers in the meadow",
+   "want": [
+    "keep_meadow"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "keep_meadow"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "land",
+   "text": "leave the trees alone",
+   "want": [
+    "keep_wood"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "keep_wood"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "land",
+   "text": "the nicest land u can find",
+   "want": [
+    "best"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "best"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "land",
+   "text": "flat ground so its easy to build",
+   "want": [
+    "flat"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "flat",
+    "sunny"
+   ],
+   "unknown": 0,
+   "ok": false
+  },
+  {
+   "level": "land",
+   "text": "we want to be by the seaside",
+   "want": [
+    "near_coast"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "near_coast"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "land",
+   "text": "save the marsh and the pond for the frogs",
+   "want": [
+    "keep_wetland"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "keep_wetland"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "land",
+   "text": "high up and sunny, not near the river",
+   "want": [
+    "dry",
+    "sunny"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "dry",
+    "sunny"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "land",
+   "text": "loads of room so the town can get bigger",
+   "want": [
+    "big"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "big"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "land",
+   "text": "close to the river so we can see it",
+   "want": [
+    "near_water"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "near_water"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "move",
+   "text": "make the paths safe so kids can walk to school",
+   "want": [
+    "safe_walking"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "safe_walking"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "move",
+   "text": "bike lanes everywhere",
+   "want": [
+    "cycling"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "cycling"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "move",
+   "text": "no cars in the town at all",
+   "want": [
+    "no_cars"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "no_cars"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "move",
+   "text": "park the cars outside the town",
+   "want": [
+    "cars_at_edge"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "cars_at_edge"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "move",
+   "text": "a tram that goes round the island",
+   "want": [
+    "tram"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "tram"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "move",
+   "text": "so people in wheelchairs can get around too",
+   "want": [
+    "everyone"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "everyone"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "move",
+   "text": "make it quick to get places and no traffic jams",
+   "want": [
+    "fast"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "fast"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "move",
+   "text": "buses and safe crossings",
+   "want": [
+    "tram",
+    "safe_walking"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "safe_walking",
+    "tram"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "move",
+   "text": "easy to get to school for all the people",
+   "want": [
+    "easy_access"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "easy_access"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "homes",
+   "text": "houses that dont fall down",
+   "want": [
+    "strong"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "strong"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "homes",
+   "text": "make them out of wood and straw",
+   "want": [
+    "natural_materials"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "natural_materials"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "homes",
+   "text": "cosy houses that stay warm in winter",
+   "want": [
+    "warm"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "warm"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "homes",
+   "text": "put plants on the roofs",
+   "want": [
+    "green_roofs"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "green_roofs"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "homes",
+   "text": "cheap houses so everyone can afford one",
+   "want": [
+    "cheap"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "cheap"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "homes",
+   "text": "use old bricks again",
+   "want": [
+    "reuse"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "reuse"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "homes",
+   "text": "really tall flats",
+   "want": [
+    "tall"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "tall"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "homes",
+   "text": "eco friendly houses",
+   "want": [
+    "low_carbon"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "low_carbon"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "homes",
+   "text": "lots and lots of houses for all the families",
+   "want": [
+    "many"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "many"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "food",
+   "text": "dont chop the hedges pls",
+   "want": [
+    "keep_hedges"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "keep_hedges"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "food",
+   "text": "loads of food, the most we can grow",
+   "want": [
+    "max_food"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "max_food"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "food",
+   "text": "just enough food so nobody is hungry",
+   "want": [
+    "enough_food"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "enough_food"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "food",
+   "text": "beehives and flowers for the bees",
+   "want": [
+    "bees"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "bees"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "food",
+   "text": "apple trees",
+   "want": [
+    "orchard"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "orchard"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "food",
+   "text": "let people grow there own veg in gardens",
+   "want": [
+    "allotments"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "allotments"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "food",
+   "text": "look after the animals and birds",
+   "want": [
+    "wildlife"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "wildlife"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "food",
+   "text": "grow it here on the island so no lorries",
+   "want": [
+    "local"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "local"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "power",
+   "text": "lots of wind turbines and batterys",
+   "want": [
+    "wind",
+    "storage"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "storage",
+    "wind"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "power",
+   "text": "solar panels on all the roofs",
+   "want": [
+    "solar"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "solar"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "power",
+   "text": "make sure the lights dont go out at night",
+   "want": [
+    "enough_power",
+    "night"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "enough_power",
+    "night"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "power",
+   "text": "no coal or oil, only green power",
+   "want": [
+    "clean_power"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "clean_power"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "power",
+   "text": "fix stuff instead of throwing it away",
+   "want": [
+    "repair"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "repair"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "power",
+   "text": "turn food scraps into compost",
+   "want": [
+    "compost"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "compost"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "power",
+   "text": "rain gardens to soak up the water",
+   "want": [
+    "save_water"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "save_water"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "power",
+   "text": "it has to work on a cold day with no wind",
+   "want": [
+    "winter"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "winter"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "heart",
+   "text": "make the school close to everyones house",
+   "want": [
+    "near_homes"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "near_homes"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "heart",
+   "text": "school in the centre of town",
+   "want": [
+    "middle"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "middle"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "heart",
+   "text": "so u can walk there in 5 mins",
+   "want": [
+    "walk_time"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "walk_time"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "heart",
+   "text": "a market where people can meet",
+   "want": [
+    "market"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "market"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "heart",
+   "text": "a green bridge so animals can cross",
+   "want": [
+    "nature_links"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "nature_links"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "heart",
+   "text": "a safe way to school away from the cars",
+   "want": [
+    "safe_route"
+   ],
+   "want_unknown": 0,
+   "got": [
+    "safe_route"
+   ],
+   "unknown": 0,
+   "ok": true
+  },
+  {
+   "level": "land",
+   "text": "whats your favourite football team",
+   "want": [],
+   "want_unknown": 1,
+   "got": [],
+   "unknown": 1,
+   "ok": true
+  },
+  {
+   "level": "move",
+   "text": "you are so dumb lol",
+   "want": [],
+   "want_unknown": 1,
+   "got": [],
+   "unknown": 1,
+   "ok": true
+  },
+  {
+   "level": "homes",
+   "text": "grow carrots and potatoes",
+   "want": [],
+   "want_unknown": 1,
+   "got": [],
+   "unknown": 1,
+   "ok": true
+  },
+  {
+   "level": "food",
+   "text": "sdfjkl qwop",
+   "want": [],
+   "want_unknown": 1,
+   "got": [],
+   "unknown": 1,
+   "ok": true
+  },
+  {
+   "level": "power",
+   "text": "why is the sky blue",
+   "want": [],
+   "want_unknown": 1,
+   "got": [],
+   "unknown": 1,
+   "ok": true
+  },
+  {
+   "level": "heart",
+   "text": "can i have a pet dragon",
+   "want": [],
+   "want_unknown": 1,
+   "got": [],
+   "unknown": 1,
+   "ok": true
+  },
+  {
+   "level": "land",
+   "text": "build homes out of straw",
+   "want": [],
+   "want_unknown": 1,
+   "got": [],
+   "unknown": 1,
+   "ok": true
+  }
+ ],
+ "sanity_acc": 0.9827586206896551,
+ "gates": {
+  "micro slot F1 >= 0.90 (held-out templates)": {
+   "value": 0.9904017311786674,
+   "ok": true
+  },
+  "unknown recall >= 0.95": {
+   "value": 0.9842652430457994,
+   "ok": true
+  },
+  "unknown FPR <= 0.05 (in-domain)": {
+   "value": 0.008397760597174087,
+   "ok": true
+  },
+  "canonical 12/12 exact": {
+   "value": 12,
+   "ok": true
+  },
+  "child sanity exact-match >= 0.85": {
+   "value": 0.9827586206896551,
+   "ok": true
+  }
+ }
+}

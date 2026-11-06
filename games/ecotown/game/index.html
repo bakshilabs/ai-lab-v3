@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Eco Town</title>
+<meta name="description" content="Eco Town: build a whole sustainable town with an AI planning helper that is sometimes confidently wrong. A DeltaOps Learning AI lab.">
+<link rel="preload" href="fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/game.css">
+<script type="importmap">{ "imports": { "three": "./vendor/three.module.min.js", "three/addons/": "./vendor/addons/" } }</script>
+</head>
+<body>
+<div id="app">
+  <div id="sky"></div>
+  <canvas id="gl" tabindex="0" aria-label="Eco Town island. Drag to turn, pinch or scroll to zoom, tap to place."></canvas>
+  <div id="labels" aria-hidden="true"></div>
+  <div id="layer" aria-live="polite"></div>
+  <div id="fade"></div>
+</div>
+<noscript>Eco Town needs JavaScript and WebGL.</noscript>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

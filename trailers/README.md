@@ -18,7 +18,7 @@ python3 -m http.server 8000
 
 Fonts load from Google Fonts. Everything else is local.
 
-Once `main` holds this folder and GitHub Pages is switched on, `.github/workflows/pages.yml` publishes it at https://bakshilabs.github.io/ai-lab-v3/ (shot lists at `/shotlists.html`). It redeploys on every push to `main` that changes `trailers/`.
+GitHub Pages serves this folder at https://bakshilabs.github.io/ai-lab-v3/trailers/, with the shot lists at `trailers/shotlists.html`. The site root is the Eco Town game. Both are published by `.github/workflows/ecotown-pages.yml`, which copies this folder into the site as `trailers/`. It redeploys on every push to `main` that changes `trailers/` or `games/ecotown/`.
 
 The same pages are also published as shared links:
 - Trailer page: https://claude.ai/artifact/6pdXoP3jib9e98Ef8qLy4n
