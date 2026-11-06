@@ -240,6 +240,11 @@
   "key": "4ba269d2"
  },
  {
+  "s": "Your town now",
+  "voice": "narrator",
+  "key": "97c56261"
+ },
+ {
   "s": "Your town now (after building)",
   "voice": "narrator",
   "key": "7a347686"
@@ -370,14 +375,14 @@
   "key": "e1d48be8"
  },
  {
-  "s": "Added what the plan missed",
+  "s": "Told Florence what her plan missed",
   "voice": "narrator",
-  "key": "5c5a23a3"
+  "key": "c4833044"
  },
  {
-  "s": "The finished town passes",
+  "s": "Her new plan passes",
   "voice": "narrator",
-  "key": "ef58d3b6"
+  "key": "527c072d"
  },
  {
   "s": "I won’t ignore flood risk: homes on flood land would be under water every winter, so I kept the town on dry land.",
@@ -915,6 +920,181 @@
   "key": "d53af986"
  },
  {
+  "s": "Hi!",
+  "voice": "helper",
+  "key": "4420fc4b"
+ },
+ {
+  "s": "Start by marking town land.",
+  "voice": "helper",
+  "key": "daf1e56a"
+ },
+ {
+  "s": "Pick 🗺 Land, then tap tiles on dry ground.",
+  "voice": "helper",
+  "key": "678608fc"
+ },
+ {
+  "s": "Your town is cutting into the old wood.",
+  "voice": "helper",
+  "key": "125b4931"
+ },
+ {
+  "s": "The deer live there.",
+  "voice": "helper",
+  "key": "06c12864"
+ },
+ {
+  "s": "Homes are unlocked!",
+  "voice": "helper",
+  "key": "70bd77a3"
+ },
+ {
+  "s": "Families are waiting.",
+  "voice": "helper",
+  "key": "6120bcf8"
+ },
+ {
+  "s": "Try 🏡 Homes on your town land.",
+  "voice": "helper",
+  "key": "3626445c"
+ },
+ {
+  "s": "Children walking to school have to cross a busy car road.",
+  "voice": "helper",
+  "key": "61d94bcb"
+ },
+ {
+  "s": "Brrr!",
+  "voice": "helper",
+  "key": "10b757b6"
+ },
+ {
+  "s": "Some homes are cold inside in winter.",
+  "voice": "helper",
+  "key": "309d4937"
+ },
+ {
+  "s": "Building these homes makes a lot of carbon.",
+  "voice": "helper",
+  "key": "cba4c9e5"
+ },
+ {
+  "s": "Some materials make much less.",
+  "voice": "helper",
+  "key": "ad141c9f"
+ },
+ {
+  "s": "On a still winter night, the lights would go out.",
+  "voice": "helper",
+  "key": "1e6ad2c7"
+ },
+ {
+  "s": "When it rains hard, where will the water go?",
+  "voice": "helper",
+  "key": "e95553ae"
+ },
+ {
+  "s": "A rain garden or reed bed helps.",
+  "voice": "helper",
+  "key": "79fe6741"
+ },
+ {
+  "s": "The town needs its own school.",
+  "voice": "helper",
+  "key": "9ceaafa7"
+ },
+ {
+  "s": "Try Town heart.",
+  "voice": "helper",
+  "key": "608f831e"
+ },
+ {
+  "s": "Homes unlocked!",
+  "voice": "helper",
+  "key": "e6326439"
+ },
+ {
+  "s": "40 families are coming.",
+  "voice": "helper",
+  "key": "8bde9aec"
+ },
+ {
+  "s": "Build homes on your town land.",
+  "voice": "helper",
+  "key": "c3fce61a"
+ },
+ {
+  "s": "A new AI Lab mission is ready.",
+  "voice": "helper",
+  "key": "5e36ac00"
+ },
+ {
+  "s": "Food unlocked!",
+  "voice": "helper",
+  "key": "0948408b"
+ },
+ {
+  "s": "Farms, orchards and beehives can feed the families.",
+  "voice": "helper",
+  "key": "3d6a82cf"
+ },
+ {
+  "s": "Power and water unlocked!",
+  "voice": "helper",
+  "key": "f7534fda"
+ },
+ {
+  "s": "Keep the lights on, even on a cold, still night.",
+  "voice": "helper",
+  "key": "0a30bfb5"
+ },
+ {
+  "s": "Town heart unlocked!",
+  "voice": "helper",
+  "key": "b7e3ea1b"
+ },
+ {
+  "s": "Your town needs a school, a market and places to play.",
+  "voice": "helper",
+  "key": "890c33c3"
+ },
+ {
+  "s": "Ready for your first AI Lab mission?",
+  "voice": "helper",
+  "key": "d1515bfe"
+ },
+ {
+  "s": "Let’s see if you can catch my mistakes!",
+  "voice": "helper",
+  "key": "ee7352e8"
+ },
+ {
+  "s": "Here they come!",
+  "voice": "narrator",
+  "key": "f65c8b5f"
+ },
+ {
+  "s": "The first family arrives on the sky-ferry.",
+  "voice": "narrator",
+  "key": "a5702a6b"
+ },
+ {
+  "s": "Every family has a home, there’s enough food, the lights stay on in winter and every home is close to school.",
+  "voice": "narrator",
+  "key": "50ed5a45"
+ },
+ {
+  "s": "Well done!",
+  "voice": "narrator",
+  "key": "2b09777f"
+ },
+ {
+  "s": "Florence’s plan didn’t fit your town, so nothing changed.",
+  "voice": "narrator",
+  "key": "723ab5ba"
+ },
+ {
   "s": "“Best” = the flattest land, easiest to build on, next to water.",
   "voice": "helper",
   "key": "4f860b1e"
@@ -1300,6 +1480,11 @@
   "key": "82255e6e"
  },
  {
+  "s": "🏡 Homes: unlocked!",
+  "voice": "narrator",
+  "key": "5990a6bb"
+ },
+ {
   "s": "92 percent sure.",
   "voice": "helper",
   "key": "a37acb14"
@@ -1325,14 +1510,19 @@
   "key": "b7086450"
  },
  {
-  "s": "Cosy and warm, heating off!",
+  "s": "Food: unlocked!",
   "voice": "narrator",
-  "key": "540c3b8e"
+  "key": "61f3616a"
  },
  {
-  "s": "I walked to school by myself!",
+  "s": "Power & water: unlocked!",
   "voice": "narrator",
-  "key": "6b341120"
+  "key": "a55f3bee"
+ },
+ {
+  "s": "Town heart: unlocked!",
+  "voice": "narrator",
+  "key": "5aae6836"
  },
  {
   "s": "88 percent sure.",
@@ -1340,19 +1530,19 @@
   "key": "219ad03b"
  },
  {
+  "s": "Nature lens: Deer, bees, otters, birds and frogs all stay.",
+  "voice": "narrator",
+  "key": "daa6d843"
+ },
+ {
   "s": "75 percent sure.",
   "voice": "helper",
   "key": "c64c776b"
  },
  {
-  "s": "Snowy night, and our lights stayed on!",
+  "s": "Walking-time lens: Longest walk 15 min (town rule 15 min).",
   "voice": "narrator",
-  "key": "9119930c"
- },
- {
-  "s": "The rain garden soaked up the puddles!",
-  "voice": "narrator",
-  "key": "38348979"
+  "key": "d88b674d"
  },
  {
   "s": "Residents want more car parks.",
@@ -1390,9 +1580,9 @@
   "key": "99d29013"
  },
  {
-  "s": "Kept: Every home within 15 minutes’ walk of school.",
+  "s": "Not yet: Every home within 15 minutes’ walk of school.",
   "voice": "narrator",
-  "key": "c6ff3bff"
+  "key": "cf35140e"
  },
  {
   "s": "Kept: Town carbon under the 160 t limit.",
@@ -1405,18 +1595,13 @@
   "key": "c8798677"
  },
  {
-  "s": "I can walk to the new school!",
-  "voice": "narrator",
-  "key": "b414ec85"
+  "s": "The farthest home is a 24-minute walk from school.",
+  "voice": "helper",
+  "key": "d84bd593"
  },
  {
-  "s": "Love the cycle lane!",
-  "voice": "narrator",
-  "key": "66d60928"
- },
- {
-  "s": "Listen to the bees buzzing!",
-  "voice": "narrator",
-  "key": "9bee4bf6"
+  "s": "That's too far!",
+  "voice": "helper",
+  "key": "575a7de2"
  }
 ]
