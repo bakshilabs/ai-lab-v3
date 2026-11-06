@@ -3,6 +3,7 @@
 // The API token is sent by the environment's proxy (or set CF_API_TOKEN when running elsewhere).
 import fs from 'node:fs';
 import path from 'node:path';
+import { execFileSync } from 'node:child_process';
 
 const here = path.dirname(new URL(import.meta.url).pathname);
 const DIST = path.join(here, '..', 'dist');
@@ -26,7 +27,8 @@ if (VOICE_FILES.length) {
   const keys = new Set(); let cursor = ''; do { const r = await (await fetch(`${KVAPI}/${kvId}/keys?limit=1000${cursor ? '&cursor=' + cursor : ''}`, { headers: auth })).json(); for (const k of r.result || []) keys.add(k.name); cursor = r.result_info?.cursor || ''; } while (cursor);
   for (const f of VOICE_FILES) {
     const name = path.basename(f); if (name.endsWith('.bin') && keys.has(name)) continue;
-    const r = await (await fetch(`${KVAPI}/${kvId}/values/${encodeURIComponent(name)}`, { method: 'PUT', headers: { ...auth, 'Content-Type': 'application/octet-stream' }, body: fs.readFileSync(f) })).json();
+    // curl, not fetch: large binary uploads through the environment's proxy are reliable this way
+    const r = JSON.parse(execFileSync('curl', ['-sS', '-X', 'PUT', '-H', `Authorization: ${auth.Authorization}`, '-H', 'Content-Type: application/octet-stream', '--data-binary', '@' + f, `${KVAPI}/${kvId}/values/${encodeURIComponent(name)}`]).toString());
     if (!r.success) { console.error('KV upload failed', name, JSON.stringify(r.errors)); process.exit(1); } console.log('voice uploaded', name, fs.statSync(f).size);
   }
 }
