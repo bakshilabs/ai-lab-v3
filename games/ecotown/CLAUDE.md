@@ -21,6 +21,7 @@ Everything is merged to `main`. The working branch was `claude/focused-cori-qeov
   - **small trees**, but **large canyons**.
 - **Teaching style:** show how things are built "**system by system, layer by layer**", using construction films, not swarming effects.
 - **Explanations:** the user wants plain, non-technical explanations and step-by-step dashboard instructions.
+- **Git:** never ask the user to pull, commit or merge. Do it yourself: commit, push, open the pull request and merge it into `main`, so the public test site republishes.
 - **Security rules:**
   - never ask for or paste secrets in chat; credentials go through the secure form, `request_credential`;
   - the classroom site must **never be public by mistake**;
