@@ -3,7 +3,7 @@
 
 Reads games/trailers/shotlists/<id>.md and writes:
   games/trailers/shotlists/ALL-TRAILERS.md   (all shot lists in one file)
-  <out-html>                                 (review page, default shotlists/review.html)
+  <out-html>                                 (review page, default <repo>/trailers/shotlists.html)
 Usage: python3 tools/shotlists-page.py [out-html]
 """
 import html, re, sys
@@ -11,7 +11,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SL = ROOT / 'shotlists'
-OUT = Path(sys.argv[1]) if len(sys.argv) > 1 else SL / 'review.html'
+OUT = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT.parent.parent / 'trailers' / 'shotlists.html'
 
 GROUPS = [
     ('client', 'Client requests', ['ecotown', 'tycoon2', 'mcquiz', 'dash', 'bloxel', 'city', 'kart']),
@@ -146,7 +146,12 @@ for key, name, ids in GROUPS:
 </article>''')
 
 n_un = sum(1 for L in labs.values() if L['unrendered'])
-page = f'''<title>Trailer Shot Lists</title>
+page = f'''<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>html,body{{margin:0}}</style>
+<title>Trailer Shot Lists</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@500&display=swap">

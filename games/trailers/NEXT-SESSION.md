@@ -109,18 +109,18 @@ Both pages are Claude artifacts, shared as "anyone with the link":
 
 | Page | URL | Built from |
 | --- | --- | --- |
-| Trailer page | https://claude.ai/artifact/6pdXoP3jib9e98Ef8qLy4n | `web/index.html` plus `web/posters/` and `web/videos/` |
-| Shot lists | https://claude.ai/artifact/75jvyWAj7ofKaBHJS9kMSG | `python3 tools/shotlists-page.py <out.html>` (also rewrites `shotlists/ALL-TRAILERS.md`) |
+| Trailer page | https://claude.ai/artifact/6pdXoP3jib9e98Ef8qLy4n | `trailers/index.html` (repo root) plus `trailers/posters/` and `trailers/videos/` |
+| Shot lists | https://claude.ai/artifact/75jvyWAj7ofKaBHJS9kMSG | `trailers/shotlists.html`, rebuilt by `python3 tools/shotlists-page.py` (also rewrites `shotlists/ALL-TRAILERS.md`) |
 
-- **Rebuild the trailer page's videos first.** `web/videos/` is git-ignored, so it starts empty in a new container. Run `tools/webenc.sh <id> <poster-second>` for all 29 trailers, or at least the ones you publish.
+- **The whole page is in the repo** at `trailers/` (repo root): `index.html`, `shotlists.html`, `videos/` and `posters/`. `tools/webenc.sh <id> <poster-second>` writes there directly. You can open it locally with `python3 -m http.server` from `trailers/`.
 - **Publishing.** The artifact keeps files from earlier publishes, so you only need to send new or changed files. Update with the Artifact tool:
   - pass `url` set to the page above;
   - publish `index.html` as `file_path`;
-  - set `root` to a working copy of `web/`;
+  - set `root` to `trailers/`;
   - add `files` entries for each changed video and poster.
 - **Limits:** keep each file under 16 MB and each publish under 64 MB.
-- **Video lengths and the "Rendering now" list:** in `web/index.html`, `LABS` entries carry `len: '0:MM'`, and `const READY = new Set([...])` lists the trailers shown. All 29 are in it.
-- `tools/iterate/done.sh <id> <poster-second>` does sheet, web encode, staging, length update, shot-list status and page rebuild in one go. Set `WEBDIR` and `SHOTHTML` first.
+- **Video lengths and the "Rendering now" list:** in `trailers/index.html`, `LABS` entries carry `len: '0:MM'`, and `const READY = new Set([...])` lists the trailers shown. All 29 are in it.
+- `tools/iterate/done.sh <id> <poster-second>` does sheet, web encode, staging, length update, shot-list status and page rebuild in one go. It writes straight into `trailers/`.
 - **Shot-list status lines:** a page entry shows "described from source" while its `shotlists/<id>.md` contains "not yet rendered", "not yet re-rendered" or "video re-rendering". When the new video is checked, change that line to say it was re-rendered and checked.
 
 ## Open decisions for the user (don't decide these yourself)

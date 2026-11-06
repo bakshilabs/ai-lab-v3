@@ -40,7 +40,7 @@ Seventeen 16:9 (1920×1080, 30 fps) game trailers, built entirely from code. Fin
 | `queue.sh`, `tools/render-all.sh` | Render trailers one after another. |
 | `tools/webenc.sh` | Compress a trailer and grab its poster for the web page. |
 | `sheet.py`, `vsheet.sh`, `debug.mjs` | Review tools: still sheets, 1 fps video sheets, in-page debugging. |
-| `web/` | Trailer web page (`index.html`, posters). Videos go in `web/videos/`, made with `tools/webenc.sh`. |
+| `../../trailers/` | The trailer web page (`index.html`), the shot-lists page (`shotlists.html`), web-sized videos and posters. Videos and posters are made with `tools/webenc.sh`. |
 | `reviews/` | Video contact sheets used in the reviews, plus the brochure reference images. |
 
 ## How they are made
