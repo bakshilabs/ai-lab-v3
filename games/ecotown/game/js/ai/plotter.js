@@ -1,6 +1,7 @@
 // Plotter: read the instruction (small language model) → slots → planner → a reply built from templates.
 // Plotter never writes free text. Nothing the player types is stored or sent anywhere.
 import { plan, applyPlacements } from '../sim/planner.js';
+import { simulate } from '../sim/sim.js';
 import SCHEMA from './schema.js';
 import { loadPlotter } from './model.js';
 
@@ -48,13 +49,31 @@ export function read(level, text, { withExplain = false } = {}) {
   return { ...r, active, numbers: { minutes }, conf, isUnknown };
 }
 
+// Parts of an instruction Florence will not follow, and why. The town's safety rules (no homes on
+// flood land, the wetland protected, children's routes kept safe) always apply, so she says so
+// instead of silently ignoring what was asked.
+const WONT = {
+  land: [
+    [/ignore (the )?flood|even if .*flood|floodplain is fine|don.?t (care|worry) about flood/, 'I won’t ignore flood risk: homes on flood land would be under water every winter, so I kept the town on dry land.', (x) => x.townFlooded === 0],
+    [/(clear|drain|fill in|build on|destroy|remove) (any |the |all )?(wetland|marsh)/, 'I won’t clear the wetland: it is protected, and it soaks up the winter floods.', (x) => x.townOnWetland === 0],
+    [/(clear|cut down|chop|remove) (any |the |all )?(wood|forest|trees)/, 'I won’t clear the old wood: the deer and birds live there.', (x) => x.townOnWood <= 1],
+  ],
+  move: [
+    [/ignore (the )?(pedestrian|walker|crossing|cyclist|children|kids|safety)/, 'I won’t ignore people on foot or on bikes: children walk this way to school at 8:45 am.', (x) => x.unsafeCrossings === 0],
+    [/priorit[iy]s?e (the )?driver|car roads? (from|to) every|fastest .*car|cars? (first|only)/, 'I didn’t plan fast car roads to the school gate: cars rushing past at 8:45 am would make the crossings unsafe for children.', (x) => x.unsafeCrossings === 0],
+  ],
+};
+// only claimed when the plan really kept to the rule (checked on the honest simulation)
+function wontDo(level, text, after) { const t = String(text || '').toLowerCase(); return (WONT[level] || []).filter(([re, , kept]) => re.test(t) && kept(after)).map(([, why]) => why); }
+
 // Read + plan + reply. ctx: { terrain, cells }
 export function ask(level, text, ctx) {
   const r = read(level, text);
   if (r.isUnknown) return { unknown: true, read: r, hints: SCHEMA.hints[level] };
-  const p = plan(level, r.active, { ...ctx, numbers: r.numbers });
+  const p = plan(level, r.active, { ...ctx, numbers: r.numbers, text: String(text || '').slice(0, 200) });
   const sure = Math.round(100 * (0.48 + 0.44 * Math.max(0, Math.min(1, r.conf * p.fit * p.experience)))); // 48–92%: sure, never certain
   const after = applyPlacements(ctx.cells, p.placements);
+  p.wont = WONT[level] ? wontDo(level, text, simulate(ctx.terrain, after)) : [];
   return { unknown: false, read: r, plan: p, after, sure, breakdown: { reading: Math.round(r.conf * 100), fit: Math.round(p.fit * 100), experience: Math.round(p.experience * 100) } };
 }
 export const getModel = () => model;

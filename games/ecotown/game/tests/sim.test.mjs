@@ -25,7 +25,7 @@ const FLAW = {
   homes: (s) => s.homesCarbon >= 2.5 * 70,
   food: (s) => !s.species.bees || !s.species.deer,
   power: (s) => s.power.avgOK && !s.power.winterOK,
-  heart: (s) => s.walkMax >= 20,
+  heart: (s) => s.walkMax > TARGETS.walkMinutes, // the game's one walking rule (footpaths to the ferry shortened some walks)
 };
 
 let cells = new Map();
@@ -44,7 +44,7 @@ for (const [level, vague, clear] of LEVELS) {
     // the habit is graded against what Florence actually assumed: every vague plan names one, clear plans none
     assert.ok(pv.habit && pv.habitWhy, `vague ${level} plan names its habit`); assert.equal(pc.habit, null, `clear ${level} plan has no habit`);
     // the level's own pass rule agrees with the clear plan (what the player sees on the build panel)
-    if (level !== 'move') assert.ok(RULES[level].pass(sc, ctxOf(next)), `clear ${level} plan passes the level rule`);
+    assert.ok(RULES[level].pass(sc, ctxOf(next)), `clear ${level} plan passes the level rule`);
     // nothing is ever planned on the protected wetland except paths, green bridges and reed beds
     for (const p of pc.placements.concat(pv.placements)) { const t = terrain.tiles.get(p.k); if (t.zone === 'wetland') assert.ok(['path', 'greenbridge', 'reedbed'].includes(p.item) || p.mark === 'wild', `${level}: ${p.item || p.mark} planned on the wetland`); }
     for (const c of next.values()) if (c.item) c.locked = true;

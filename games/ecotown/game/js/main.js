@@ -93,17 +93,11 @@ async function start() {
     <span class="chip">A DELTAOPS LEARNING AI LAB</span><h1>Eco <span>Town</span></h1>
     <p style="font-weight:600;color:#46596a;margin:4px 0">Build a whole town with Florence, an AI planning helper. Florence is clever, and sometimes confidently wrong. Can you catch her mistakes?</p>
     <div class="ages"><button class="age" data-band="junior"><b>Ages 8–12</b><span>Word tiles, picture chips and a friendly voice that reads everything aloud. Gentle consequences.</span></button><button class="age" data-band="senior"><b>Ages 13–17</b><span>Free-text instructions, real units, budgets and town-meeting dilemmas. 🔊 to hear any card.</span></button></div>
-    <p class="both">Both versions end with a bias check: who did Florence forget to ask?</p>
-    <div class="opts"><label>Session <select data-session><option value="45">45 min</option><option value="60" selected>60 min</option><option value="90">90 min</option></select></label>
-    <label><input type="checkbox" data-facil ${app.settings.facilitator ? 'checked' : ''}> Facilitator notes</label></div>
-    <p class="sessnote" data-sessnote></p>
+    <p class="both">Both versions end with a bias check: who did Florence forget to ask? Next, for either age group: name your town and set the session length and facilitator notes.</p>
     <p data-resume style="display:none"></p>
   </div></div>`);
   $('#layer').appendChild(scr); setTimeout(() => scr.querySelector('[data-band]')?.focus(), 100);
   const SESS = { 45: 'Short: each town day lasts 8 seconds, and the move-in, the food level’s day and the town meetings are skipped.', 60: 'Standard: every part of every level, with a 14-second town day.', 90: 'Long: longer town days (22 seconds) and a full final day, with time to discuss.' };
-  const sn = scr.querySelector('[data-sessnote]'); sn.textContent = SESS[app.session];
-  scr.querySelector('[data-session]').onchange = (e) => { app.session = +e.target.value; sn.textContent = SESS[app.session]; };
-  scr.querySelector('[data-facil]').onchange = (e) => { app.settings.facilitator = e.target.checked; applySettings(); ui.refreshFacil(); };
   const band = await new Promise((res) => scr.querySelectorAll('[data-band]').forEach((b) => (b.onclick = () => res(b.dataset.band))));
   initAudio(); sfx.good(); loadVoices(band);
   app.band = band; ui.readAloud = app.settings.readAloud && band === 'junior' ? true : app.settings.readAloud && band === 'senior' ? false : app.settings.readAloud;
@@ -111,7 +105,15 @@ async function start() {
   const card = scr.querySelector('.card');
   card.innerHTML = `<span class="chip">${band === 'junior' ? 'AGES 8–12' : 'AGES 13–17'}</span><h1>Name your <span>town</span></h1><p style="font-weight:600;color:#46596a">Pick a name or type your own.</p>
     <div class="names">${NAME_IDEAS.map((n) => `<button class="tile" data-n="${n}">${n}</button>`).join('')}</div>
-    <div class="textin" style="margin-top:12px"><div class="field"><input data-name maxlength="24" placeholder="Your town’s name" aria-label="Town name" autocomplete="off"></div><button class="btn go" data-go>Start ➜</button></div><p class="nameerr" data-err></p>`;
+    <div class="textin" style="margin-top:12px"><div class="field"><input data-name maxlength="24" placeholder="Your town’s name" aria-label="Town name" autocomplete="off"></div></div><p class="nameerr" data-err></p>
+    <h3 class="setuphead">Session setup</h3>
+    <div class="opts"><label>Session <select data-session>${[45, 60, 90].map((m) => `<option value="${m}" ${app.session === m ? 'selected' : ''}>${m} min</option>`).join('')}</select></label>
+    <label><input type="checkbox" data-facil ${app.settings.facilitator ? 'checked' : ''}> Facilitator notes</label></div>
+    <p class="sessnote" data-sessnote></p>
+    <div class="row" style="justify-content:center;margin-top:10px"><button class="btn go" data-go>Start ➜</button></div>`;
+  const sn = card.querySelector('[data-sessnote]'); sn.textContent = SESS[app.session];
+  card.querySelector('[data-session]').onchange = (e) => { app.session = +e.target.value; sn.textContent = SESS[app.session]; };
+  card.querySelector('[data-facil]').onchange = (e) => { app.settings.facilitator = e.target.checked; applySettings(); ui.refreshFacil(); };
   const inp = card.querySelector('[data-name]'); inp.value = NAME_IDEAS[Math.floor(Math.random() * NAME_IDEAS.length)]; setTimeout(() => inp.focus(), 50);
   card.querySelectorAll('[data-n]').forEach((b) => (b.onclick = () => { inp.value = b.dataset.n; inp.focus(); }));
   app.townName = await new Promise((res) => { const go = () => { const n = cleanTownName(inp.value); if (!n) { card.querySelector('[data-err]').textContent = 'Please choose a friendly name, or pick one above.'; return; } res(n); }; card.querySelector('[data-go]').onclick = go; inp.onkeydown = (e) => { if (e.key === 'Enter') go(); }; });

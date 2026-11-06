@@ -98,6 +98,10 @@ DESIGN.md says Levels 4 and 5 merge in shorter versions. Level debriefs (section
   - **after a mistake:** ★ found it with the first check · ★ named Florence's habit first time · ★ the fixed plan passes;
   - **clear first time:** ★ clear instruction · ★ spotted Florence's **hidden guess** (what she still assumed, e.g. how much land 40 families need) · ★ the plan passed its check;
   - Level 6's bias check adds a bonus star.
+  - **the plan missed something:** ★ checked the plan before building · ★ added what the plan missed · ★ the finished town passes.
+- **Checking:** after each check that shows no problem, children choose **Check another way** or **No problem found: use this plan**. Ask them to say what the check tested before they accept. If they accept too early, the game shows the problem before building, so nothing is lost.
+- **Level 2, "everyone":** the step-free check follows the route to school and the ferry as a wheelchair user would. Ask: who else needs a step-free route? (buggies, older residents, a child with a broken leg.)
+- **Level card wording:** "No problem found", "Florence misunderstood" or "The plan missed something", with a sentence saying what happened and which check caught it.
 - **Which habit is right** depends on what Florence actually assumed in that plan. A wrong pick explains the habit and points back at her guess; after two wrong picks the game explains the answer and moves on.
 - **Facilitator notes** (start screen or ☰) show a short prompt at every step of every level, in a yellow card at the top right.
 - **Read aloud:** recorded voices (a British narrator; Florence has her own voice). It is on automatically for 8–12; 🔊 buttons replay any card in both versions.

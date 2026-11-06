@@ -43,6 +43,7 @@ export function createUI(root, labelsRoot, opts) {
       if (id === 'caption') { if (!on) D.head.classList.remove('on'); return; }
       if (id === 'facil') { facilEl.classList.toggle('hide', !on); return; }
       if (id === 'modal') backdrop.classList.toggle('hide', !on);
+      if (id === 'settings') root.classList.toggle('settings-open', on); // dim and lock what's behind the settings sheet
       if (['badge', 'task', 'tr'].includes(id)) id = id === 'tr' ? 'strip' : 'card';
       if (id === 'views' || id === 'flower') id = 'strip';
       P[id]?.classList.toggle('hide', !on);
@@ -116,7 +117,10 @@ export function createUI(root, labelsRoot, opts) {
       s += '<circle r="8" fill="#ffd23f"/>';
       P.flowerpop.querySelector('svg').innerHTML = s; P.strip.querySelector('[data-flower] svg').innerHTML = s;
       P.flowerpop.querySelector('.ttl').textContent = title || '';
-      P.flowerpop.querySelector('.legend').innerHTML = PETALS.map((p) => `<span>${PETAL_ICON[p]} ${p} <b>${Math.round((petals[p] || 0) * 100)}%</b></span>`).join('');
+      // 100% = enough for this town (the dashed ring); carbon is shown in tonnes against its limit, since lower is better
+      const c = this.carbonInfo;
+      P.flowerpop.querySelector('.legend').innerHTML = PETALS.map((p) => p === 'carbon' && c ? `<span>${PETAL_ICON[p]} carbon <b>${c.used} of ${c.limit} t</b></span>` : `<span>${PETAL_ICON[p]} ${p} <b>${Math.round(Math.min(1.5, petals[p] || 0) * 100)}%</b></span>`).join('')
+        + `<p class="key">100% (the dashed ring) means <b>enough</b> for the town: more is better. A full, bright petal has reached it. Carbon is the opposite: the town must stay under its ${c ? c.limit : ''} t limit, so its petal grows the further under the limit you are.</p>`;
       this.show('strip');
       if (open !== null) P.flowerpop.classList.toggle('hide', !open);
       if (flash) { const btn = P.strip.querySelector('[data-flower]'); btn.classList.remove('bump'); void btn.offsetWidth; btn.classList.add('bump'); }

@@ -6,11 +6,12 @@ import { tileCenter } from '../world/terrain.js';
 import { Vox } from '../engine/voxel.js';
 import { person } from '../engine/kit.js';
 import { esc } from '../ui/ui.js';
+import { accessCheck } from '../sim/access.js';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 export function createChecks(app) {
-  const { world, ui, rig, stage, terrain, inside, life } = app;
+  const { world, ui, rig, stage, terrain, inside, life } = app; const P = ui.P;
   let cloud = null, kids = null;
   const clear = () => { if (kids) { stage.scene.remove(kids); kids = null; } world.setOverlay(null); world.setClay(false, app.reduce); world.setFlood(0); ui.labels.clear('lbl'); ui.lensbar(null); if (cloud) { cloud.visible = false; } };
 
@@ -29,11 +30,11 @@ export function createChecks(app) {
         if (wet) spec.set(t.k, { color: c?.mark === 'town' || (c?.item && ITEMS[c.item].home) ? '#e5533d' : '#3d9de0', pattern: 'waves' });
       }
       world.setOverlay(spec);
-      ui.lensbar(`🌊 ${esc(app.C.checks.flood.label)} <span class="legend"><span><i style="background:#3d9de0"></i>Floods in winter</span><span><i style="background:#e5533d"></i>Town on flood land</span></span>`);
       const flooded = [...cells].filter(([k, c]) => (c.mark === 'town' || (c.item && ITEMS[c.item].home)) && ['meadow', 'wetland'].includes(terrain.tiles.get(k)?.zone)).map(([k]) => k);
+      ui.lensbar(`🌊 ${esc(app.C.checks.flood.label)} <span class="legend"><span><i style="background:#3d9de0"></i>Floods in winter</span><span><i style="background:#e5533d"></i>Town on flood land: ${flooded.length} tile${flooded.length === 1 ? '' : 's'}</span></span>`);
       for (let i = 0; i <= 20; i++) { world.setFlood(i / 20); await sleep(app.reduce ? 0 : 45); }
       if (flooded.length) ui.labels.set([{ at: world.tileTop(flooded[0]).add(new THREE.Vector3(0, 3, 0)), text: `${flooded.length} tiles under water`, cls: 'bad' }]);
-      return { focus: flooded[0] };
+      return { focus: flooded[0], summary: flooded.length ? `${flooded.length} town tiles on flood land` : (app.G?.j ? 'No town land floods' : 'No town land on the floodplain') };
     },
     async nature(sim, cells) {
       world.setClay(true, app.reduce); const spec = new Map();
@@ -45,7 +46,8 @@ export function createChecks(app) {
       world.setOverlay(spec);
       const sp = sim.species; const chip = (n, e, on) => `<span>${e} ${n} ${on ? '✓' : '✕'}</span>`;
       ui.lensbar(`🦋 ${esc(app.C.checks.nature.label)} <span class="legend">${chip('Deer', '🦌', sp.deer)}${chip('Bees', '🐝', sp.bees)}${chip('Otters', '🦦', sp.otters)}${chip('Birds', '🐦', sp.birds)}${chip('Frogs', '🐸', sp.frogs)}</span>`);
-      await sleep(app.reduce ? 200 : 900); return {};
+      const gone = ['deer', 'bees', 'otters', 'birds', 'frogs'].filter((n) => !sp[n]);
+      await sleep(app.reduce ? 200 : 900); return { summary: gone.length ? `Missing: ${gone.join(', ')}` : 'Deer, bees, otters, birds and frogs all stay' };
     },
     async carbon(sim, cells) {
       // every tile that adds carbon is coloured: homes by their building materials, roads and car parks by their surface
@@ -65,7 +67,7 @@ export function createChecks(app) {
       if (!keys.length) { ui.labels.set([{ at: c.clone().add(new THREE.Vector3(0, 8, 0)), text: j ? 'Nothing built yet, so no carbon' : 'No carbon sources in this plan yet', cls: 'ok' }]); }
       else { carbonCloud(ratio * 1.4, c); labels.push({ at: c.clone().add(new THREE.Vector3(0, 24, 0)), text: homesLevel ? `${j ? 'Building carbon' : 'Embodied carbon'}: ${used} of ${limit} ${j ? 'tonnes' : 't'}` : `${j ? 'Town carbon' : 'Town total'}: ${used} of ${limit} ${j ? 'tonnes' : 't'}`, cls: ratio > 1 ? 'bad' : 'ok' }); ui.labels.set(labels); }
       ui.lensbar(`🌫 ${esc(app.C.checks.carbon.label)} <span class="legend"><span><i style="background:#e5533d"></i>High</span><span><i style="background:#ffb43d"></i>Medium</span><span><i style="background:#4caf50"></i>Low</span></span>`);
-      await sleep(app.reduce ? 200 : 900); return { focusPoint: c };
+      await sleep(app.reduce ? 200 : 900); return { focusPoint: c, summary: keys.length ? `${homesLevel ? (j ? 'Building carbon' : 'Embodied carbon') : (j ? 'Town carbon' : 'Town total')} ${used} of ${limit} t` : 'Nothing that makes carbon in this plan yet' };
     },
     async walk(sim, cells) {
       world.setClay(true, app.reduce); const spec = new Map(); const labels = [];
@@ -75,8 +77,12 @@ export function createChecks(app) {
       // label the furthest homes and the nearest one, so the distances are easy to compare
       const sorted = labels.filter((l) => l.m >= 0).sort((a, b) => b.m - a.m); const show = [...sorted.slice(0, 4), sorted[sorted.length - 1], ...labels.filter((l) => l.m < 0)].filter(Boolean);
       world.setOverlay(spec); ui.labels.set([...new Set(show)]);
-      ui.lensbar(`🚶 ${esc(app.C.checks.walk.label)} <span class="legend"><span><i style="background:#4caf50"></i>${W} min or less</span><span><i style="background:#e5533d"></i>Too far (over ${W})</span><span><i style="background:#2f6fd8"></i>School</span></span>`);
-      await sleep(app.reduce ? 200 : 900); return {};
+      // the player's own brief may ask for less than the town rule: show both, so a pass is never confusing
+      const ask = app.briefMinutes && app.briefMinutes !== W ? app.briefMinutes : null;
+      ui.lensbar(`🚶 ${esc(app.C.checks.walk.label)} <span class="legend"><span><i style="background:#4caf50"></i>${W} min or less (town rule)</span><span><i style="background:#e5533d"></i>Too far (over ${W})</span><span><i style="background:#2f6fd8"></i>School</span>${ask ? `<span>Your brief: ${ask} min</span>` : ''}</span>`);
+      await sleep(app.reduce ? 200 : 900);
+      const homes = sim.homes.length;
+      return { summary: !homes ? 'No homes yet' : `Longest walk ${sim.walkMax} min (town rule ${W} min${ask ? `, your brief ${ask} min` : ''})` };
     },
     async winter(sim) {
       const j = app.G?.j; const sup = Math.round(sim.power.winterSupply), dem = Math.round(sim.power.demand);
@@ -91,7 +97,28 @@ export function createChecks(app) {
         if (i > steps * 0.55) { const f = (i - steps * 0.55) / (steps * 0.45); const n = Math.round(homes.length - (homes.length - keep) * f); world.setLights(homes.slice(0, n)); if (homes.length) ui.labels.set([{ at: world.tileTop(homes[0]).add(new THREE.Vector3(0, 10, 0)), text: sim.power.winterOK ? (j ? 'Lights on in every home' : 'All homes supplied') : `${j ? 'Lights on' : 'Supplied'}: ${n} of ${homes.length} homes`, cls: sim.power.winterOK ? 'ok' : n < homes.length ? 'bad' : '' }]); }
         await sleep(app.reduce ? 0 : 95);
       }
-      await sleep(app.reduce ? 300 : 1600); return {};
+      await sleep(app.reduce ? 300 : 1600); return { summary: !homes.length ? 'No homes to power yet' : sim.power.winterOK ? `Lights stay on: supply ${sup}, homes need ${dem}` : `Supply ${sup}, homes need ${dem}` };
+    },
+    async access(sim, cells) {
+      // follow the routes from the town to the school gate and the ferry, as a wheelchair user would
+      world.setClay(true, app.reduce); const a = accessCheck(terrain, cells); const j = app.G?.j; const spec = new Map(); const labels = [];
+      for (const r of [a.school, a.ferry]) if (r) for (const k of r.keys) spec.set(k, { color: '#4caf50', pattern: 'solid', lift: 0.4 });
+      for (const r of [a.school, a.ferry]) if (r) { for (const k of r.rough) spec.set(k, { color: '#ffb43d', pattern: 'dots', lift: 0.4 }); for (const k of r.steep) spec.set(k, { color: '#ffb43d', pattern: 'stripes', lift: 0.4 }); for (const k of r.busy) spec.set(k, { color: '#e5533d', pattern: 'cross', lift: 0.4 }); }
+      world.setOverlay(spec);
+      const first = (r, kind) => r?.[kind]?.[0];
+      for (const r of [a.school, a.ferry]) {
+        if (!r) continue;
+        if (first(r, 'busy')) labels.push({ at: world.tileTop(first(r, 'busy')).add(new THREE.Vector3(0, 3, 0)), text: j ? 'Busy road: no time to cross' : 'Car traffic: crossing time too short', cls: 'bad' });
+        else if (first(r, 'steep')) labels.push({ at: world.tileTop(first(r, 'steep')).add(new THREE.Vector3(0, 3, 0)), text: j ? 'Too steep for a wheelchair' : 'Steep, no graded path', cls: 'bad' });
+        else if (first(r, 'rough')) labels.push({ at: world.tileTop(first(r, 'rough')).add(new THREE.Vector3(0, 3, 0)), text: j ? 'Muddy grass: no path' : 'Unsurfaced: no footpath', cls: 'bad' });
+      }
+      if (terrain.dock) labels.push({ at: world.tileTop(terrain.dock).add(new THREE.Vector3(0, 5, 0)), text: a.ramp ? (j ? '⛴ Ferry: step-free ramp' : '⛴ Ferry: step-free boarding') : (j ? '⛴ Ferry: no path to the ramp' : '⛴ Ferry: no step-free approach'), cls: a.ramp ? 'ok' : 'bad' });
+      if (terrain.school) labels.push({ at: world.tileTop(terrain.school).add(new THREE.Vector3(0, 6, 0)), text: '🏫 School' });
+      ui.labels.set(labels);
+      ui.lensbar(`♿ ${esc(app.C.checks.access.label)} <span class="legend"><span><i style="background:#4caf50"></i>${j ? 'Smooth and step-free' : 'Step-free surface'}</span><span><i style="background:#ffb43d"></i>${j ? 'No path, or steep' : 'Unsurfaced or steep'}</span><span><i style="background:#e5533d"></i>${j ? 'Busy road' : 'Car crossing'}</span></span>`);
+      await sleep(app.reduce ? 200 : 1100);
+      const n = a.issues; const routes = !a.school && !a.ferry;
+      return { summary: routes ? 'No town land yet, so no routes to follow' : a.ok ? (j ? 'Step-free to school and the ferry: smooth paths, safe crossings, gentle slopes' : 'Step-free to school and ferry: surfaced, graded, no car crossings') : `${n} problem${n === 1 ? '' : 's'} on the routes` };
     },
     async street(sim, cells) {
       const isMove = app.levelId === 'move';
@@ -111,7 +138,7 @@ export function createChecks(app) {
       await rig.toStreet(from, p.clone().add(new THREE.Vector3(0, 2, 0)), 1.6);
       const labels = sim.unsafeKeys.slice(0, 3).map((uk) => ({ at: world.tileTop(uk).add(new THREE.Vector3(0, 2.5, 0)), text: 'Too many cars to cross', cls: 'bad' }));
       ui.labels.set(labels); ui.lensbar(`👀 ${esc(app.C.checks.street.label)} · ${isMove ? '8:45 am, school run' : 'midday'}`);
-      return {};
+      return { summary: isMove ? (sim.unsafeCrossings ? `${sim.unsafeCrossings} busy crossings on the school route` : 'No busy crossings on the school route at 8:45 am') : 'The street looks fine at midday' };
     },
     async inside(sim) {
       const counts = {}; for (const hh of sim.homes) counts[hh.item] = (counts[hh.item] || 0) + 1;
@@ -119,7 +146,7 @@ export function createChecks(app) {
       const temp = ITEMS[type]?.temp ?? 20; inside.build(type, temp);
       await rig.fade(() => { inside.root.visible = true; rig.mode = 'inside'; rig.apply(inside.pose()); });
       ui.lensbar(`🏠 ${esc(app.C.checks.inside.label)} · ${esc(inside.label)} · <b>${temp} °C</b> with the heating off`);
-      return { temp };
+      return { temp, summary: `${temp} °C inside with the heating off` };
     },
   };
 
@@ -130,6 +157,8 @@ export function createChecks(app) {
       clear(); app.audio.whoosh();
       if (!['street', 'inside'].includes(id) && rig.mode === 'sky') await rig.overview(0.9); // lenses read best on the whole island
       const info = await RUN[id](sim, cells);
+      // this is evidence about Florence's plan, not the built town: say so on the lens bar
+      if (!P.lensbar.classList.contains('hide')) P.lensbar.insertAdjacentHTML('afterbegin', `<span class="when">${esc(app.C.ui.beforeBuild)}</span>`);
       return { revealed: reveal[id] || null, info };
     },
     async leave() {
