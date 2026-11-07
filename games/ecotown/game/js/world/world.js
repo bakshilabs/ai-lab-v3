@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { Vox, WORLD, rand, noise2, clipMaterial } from '../engine/voxel.js';
 import { clouds, waterfall, roots, floatingRocks } from '../engine/extras.js';
 import { ease, clamp } from '../engine/stage.js';
-import { T, X0, Z0, RX, RZ, zoneAt, rimHeight, canyonDepth, isLimestone, insideVoxel, inRiverVoxel, riverX, tileAt, tileOrigin, tileCenter, ZONES } from './terrain.js';
+import { T, X0, Z0, RX, RZ, zoneAt, rimHeight, canyonDepth, isLimestone, insideVoxel, inRiverVoxel, riverX, SPRING, LAGOON, tileAt, tileOrigin, tileCenter, ZONES } from './terrain.js';
 import { BUILD, MARK, addMod, addModFine, decorate, tree2, bigOakAt } from './builders.js';
 import { ITEMS } from './catalog.js';
 import { planStages } from './construct.js';
@@ -72,8 +72,22 @@ export function createWorld(stage, terrain) {
     if (r > 0.55 && rand(x, z, 77) > 0.94) { const by = top - under; const len = 2 + Math.floor(rand(x, z, 78) * 5); for (let k = 1; k <= len; k++) v.set(x, by - k, z, k === len ? '#4a1c0c' : '#7a3418'); }
     if (edge && rand(x, z, 31) > 0.86) { const nx = insideVoxel(x + 1, z) ? -1 : 1; const y0 = top - 3 - Math.floor(rand(x, z, 32) * 5); v.set(x + nx, y0, z, '#b85a2e'); v.set(x + nx, y0 + 1, z, '#5fbf3f'); }
     if (river) { water.set(x, 0, z, rand(x, 9, z) > 0.5 ? '#3fa2e6' : '#4aaeea'); riverCells.push([x, z]); }
-    const cd = !tt && canyonDepth(x, z); if (cd && cd >= 12) water.set(x, top + 1, z, '#3fa2e6');
+    // gorge streams pool on the canyon floor and stop short of the island's edge (nothing pours off the island)
+    const cd = !tt && canyonDepth(x, z); if (cd && cd >= 12 && insideVoxel(x + 5, z) && insideVoxel(x - 5, z) && insideVoxel(x, z + 5) && insideVoxel(x, z - 5)) water.set(x, top + 1, z, '#3fa2e6');
     if (!tt && !river && !edge && !cd) rimCells.push([x, z, top, zone, lime]);
+  }
+  // the river's source: a mossy rock outcrop behind the spring pool, with a little fall from its top into the pool
+  const springTop = 8; const sx = Math.round(SPRING.x), sz = Math.round(SPRING.z - SPRING.r - 1);
+  for (let dx = -5; dx <= 5; dx++) for (let dz = -4; dz <= 1; dz++) {
+    const base = heightAt(sx + dx, sz + dz); if (base == null || inRiverVoxel(sx + dx, sz + dz)) continue;
+    const hgt = Math.round(springTop * (1 - Math.abs(dx) / 6.5) * (dz > -1 ? 0.75 : 1) - rand(dx, dz, 81) * 1.5);
+    for (let y = base + 1; y <= Math.max(base, hgt); y++) v.set(sx + dx, y, sz + dz, y === Math.max(base, hgt) && rand(dx, dz, 82) > 0.35 ? '#6fae4a' : rand(dx, y, dz) > 0.5 ? '#8b8f93' : '#9aa0a5');
+  }
+  // the lagoon behind the beach: reeds and a few stones round its rim
+  for (let a = 0; a < 40; a++) {
+    const ang = (a / 40) * Math.PI * 2; const x = Math.round(LAGOON.x + Math.cos(ang) * (LAGOON.r / 0.85 + 0.6)), z = Math.round(LAGOON.z + Math.sin(ang) * (LAGOON.r + 0.6));
+    const top = heightAt(x, z); if (top == null || inRiverVoxel(x, z)) continue;
+    if (rand(x, z, 91) > 0.45) { v.set(x, top + 1, z, '#7fb54a'); if (rand(x, z, 92) > 0.5) v.set(x, top + 2, z, '#9cc45a'); } else if (rand(x, z, 93) > 0.7) v.set(x, top + 1, z, '#9aa0a5');
   }
   // grey boulders at the foot of the massif and on the beach
   for (const [x, z, top, zone, lime] of rimCells) {
@@ -131,11 +145,9 @@ export function createWorld(stage, terrain) {
         diffuseColor.a = mix(diffuseColor.a, 0.96, uIce);`);
   };
   waterMesh.position.y = -0.35; root.add(waterMesh);
-  // waterfalls where the river pours off the island
-  const rz = riverCells.map((c) => c[1]); const zMin = Math.min(...rz), zMax = Math.max(...rz);
-  const falls = [waterfall(scene, { x: riverX(zMin), y: -0.5, z: zMin, dir: [0, -1], width: 3, length: 30 }), waterfall(scene, { x: riverX(zMax), y: -0.5, z: zMax, dir: [0, 1], width: 3, length: 30 }),
-    waterfall(scene, { x: 14, y: heightAt(14, -31) + 0.5, z: -31, dir: [0, 1], width: 2, length: Math.max(4, heightAt(14, -31) - 1) }),
-    waterfall(scene, { x: 47, y: heightAt(45, -29 + 4 * Math.sin(45 / 7)) + 1, z: -29 + 4 * Math.sin(47 / 7), dir: [1, 0], width: 3, length: 34 })];
+  // falls that land on the island: the spring over its outcrop into the pool, and the massif spring
+  const falls = [waterfall(scene, { x: SPRING.x, y: springTop - 0.5, z: sz - 1.2, dir: [0, 1], width: 2, length: springTop + 0.2 }),
+    waterfall(scene, { x: 14, y: heightAt(14, -31) + 0.5, z: -31, dir: [0, 1], width: 2, length: Math.max(4, heightAt(14, -31) - 1) })];
   const cloudUpd = clouds(scene, { n: 8, spread: 300, y: [25, 55], z: [-200, -110], scale: 2.2, seed: 5 });
   const cloudSea = () => {};
 
@@ -349,7 +361,7 @@ export function createWorld(stage, terrain) {
       if (!spec) return;
       for (const [k, o] of spec) {
         const L = layers.get(k); if (!L) continue;
-        const m = new THREE.Mesh(OVERLAY_GEO, overlayMat(o.color, o.pattern, o.opacity));
+        const m = new THREE.Mesh(OVERLAY_GEO, overlayMat(o.color, o.pattern, o.opacity, o.top));
         m.position.set(L.ox + T / 2, L.oy + 1.2 + (o.lift || 0), L.oz + T / 2); m.rotation.x = -Math.PI / 2; m.renderOrder = 5;
         L.overlay = m; L.group.add(m);
       }
@@ -421,6 +433,13 @@ const patternCache = new Map();
 function patternTex(kind) {
   if (patternCache.has(kind)) return patternCache.get(kind);
   const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d');
+  if (kind === 'frame' || kind === 'framestripes') { // a bright border with a faint (or striped) see-through middle
+    g.fillStyle = 'rgba(255,255,255,0.16)'; g.fillRect(0, 0, 64, 64);
+    if (kind === 'framestripes') { g.strokeStyle = 'rgba(255,255,255,0.7)'; g.lineWidth = 5; for (let i = -64; i < 128; i += 13) { g.beginPath(); g.moveTo(i, 0); g.lineTo(i + 64, 64); g.stroke(); } }
+    g.clearRect(0, 0, 64, 4); g.clearRect(0, 60, 64, 4); g.clearRect(0, 0, 4, 64); g.clearRect(60, 0, 4, 64);
+    g.strokeStyle = '#fff'; g.lineWidth = 7; g.strokeRect(7, 7, 50, 50);
+    const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace; patternCache.set(kind, tex); return tex;
+  }
   g.fillStyle = '#fff'; g.fillRect(0, 0, 64, 64); g.strokeStyle = 'rgba(0,0,0,0.35)'; g.fillStyle = 'rgba(0,0,0,0.35)'; g.lineWidth = 5;
   if (kind === 'waves') for (let y = 8; y < 64; y += 16) { g.beginPath(); for (let x = 0; x <= 64; x += 4) g.lineTo(x, y + Math.sin(x / 6) * 4); g.stroke(); }
   if (kind === 'dots') for (let x = 8; x < 64; x += 16) for (let y = 8; y < 64; y += 16) { g.beginPath(); g.arc(x, y, 4, 0, 7); g.fill(); }
@@ -429,9 +448,10 @@ function patternTex(kind) {
   const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace; patternCache.set(kind, tex); return tex;
 }
 const matCache = new Map();
-function overlayMat(color, pattern = 'solid', opacity = 0.86) {
-  const key = color + pattern + opacity; if (matCache.has(key)) return matCache.get(key);
-  const m = new THREE.MeshBasicMaterial({ color, transparent: true, opacity, depthWrite: false, map: pattern !== 'solid' ? patternTex(pattern) : null });
+function overlayMat(color, pattern = 'solid', opacity = 0.86, top = false) {
+  const key = color + pattern + opacity + top; if (matCache.has(key)) return matCache.get(key);
+  // top: drawn over buildings and trees too (the build highlight), so a tile's state is always visible
+  const m = new THREE.MeshBasicMaterial({ color, transparent: true, opacity, depthWrite: false, depthTest: !top, map: pattern !== 'solid' ? patternTex(pattern) : null });
   matCache.set(key, m); return m;
 }
 export { ZONES };

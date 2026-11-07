@@ -42,6 +42,9 @@ export function createUI(root, labelsRoot, opts) {
   const dockState = { speaker: false, actions: false, head: false };
   const syncDock = () => { P.dock.classList.toggle('hide', !(dockState.speaker || dockState.actions)); D.speaker.style.display = dockState.speaker ? '' : 'none'; D.actions.style.display = dockState.actions ? '' : 'none'; P.dock.classList.toggle('talk-only', dockState.speaker && !dockState.actions); P.dock.classList.toggle('actions-only', !dockState.speaker && dockState.actions); };
 
+  // the town card (top left) never runs under the icon strip (top right), which grows as lenses are earned
+  const fitStrip = () => requestAnimationFrame(() => { const w = P.strip.classList.contains('hide') ? 0 : P.strip.getBoundingClientRect().width; document.documentElement.style.setProperty('--stripw', Math.round(w || 520) + 'px'); });
+  addEventListener('resize', fitStrip); fitStrip();
   const ui = {
     P, readAloud: false,
     show(id, on = true) {
@@ -68,7 +71,7 @@ export function createUI(root, labelsRoot, opts) {
     // the six missions on the town card: 'done', 'on' (ready) or '' (not yet). Tapping one opens the AI Lab.
     setTrack(states) { P.card.querySelectorAll('[data-l]').forEach((e, i) => { e.classList.toggle('done', states[i] === 'done'); e.classList.toggle('on', states[i] === 'on'); }); },
     // lens buttons in the icon strip (one per AI Lab mission done): [{ id, icon, label, on }]
-    setLenses(list) { const box = P.strip.querySelector('[data-lenses]'); box.innerHTML = list.map((l) => `<button class="ib ${l.on ? 'on' : ''}" data-lens="${l.id}" aria-label="${esc(l.label)}" title="${esc(l.label)}" aria-pressed="${!!l.on}">${l.icon}</button>`).join('') + (list.length ? '<span class="sep"></span>' : ''); },
+    setLenses(list) { const box = P.strip.querySelector('[data-lenses]'); box.innerHTML = list.map((l) => `<button class="ib ${l.on ? 'on' : ''}" data-lens="${l.id}" aria-label="${esc(l.label)}" title="${esc(l.label)}" aria-pressed="${!!l.on}">${l.icon}</button>`).join('') + (list.length ? '<span class="sep"></span>' : ''); fitStrip(); },
     setStars(n) { const b = P.card.querySelector('[data-stars]'); if (b.textContent !== String(n)) { b.textContent = n; b.parentElement.classList.remove('bump'); void b.offsetWidth; b.parentElement.classList.add('bump'); } this.show('card'); },
     // Florence speaks in the dock: { tag, tagCls, html, sure, sureLabel, why, thinking, mini, say }
     // mini: a small card kept on screen while the player checks her guess

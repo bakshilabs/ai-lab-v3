@@ -575,3 +575,70 @@ button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focu
   html[data-lab="on"] #dock .choice { flex: none; min-height: 52px; font-size: max(13px, .82em); padding: 6px 8px; }
   html[data-lab="on"] #dock .actions .row:has(.btn) { display: flex; }
 }
+/* key to the tile highlight in the build panel: cyan frame = build here, striped = replaces, grey = can't */
+#build .hlkey { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px 10px; margin: 6px 0 2px; font-size: max(12px, .78em); font-weight: 700; color: var(--cream); }
+#build .hlkey span { display: inline-flex; align-items: center; gap: 5px; }
+#build .hk { width: 16px; height: 16px; border-radius: 3px; flex: none; box-sizing: border-box; }
+#build .hk.free { border: 3px solid #2fe6ff; background: rgba(47,230,255,.18); }
+#build .hk.swap { border: 3px solid #2fe6ff; background: repeating-linear-gradient(45deg, rgba(47,230,255,.75) 0 3px, transparent 3px 6px); }
+#build .hk.erase { border: 3px solid #ff4d4d; background: rgba(255,77,77,.18); }
+#build .hk.no { background: #8a8f93; border: 2px solid #5d6266; }
+
+/* ---------- bottom hotbar layout (Nov 2026): free building keeps the island nearly full screen.
+   Laptops, tablets and whiteboards: the town card is a slim strip across the top, the camera buttons sit in a
+   row under the icon strip, the build tools are one hotbar along the bottom (categories in a 3 × 2 block, the
+   builds in a scrolling row), and Florence's tips pop up just above it on the right. Phones keep the tray. */
+@media (min-width: 761px) and (min-height: 561px) {
+  #card { display: flex; align-items: center; gap: 12px; width: auto; max-width: calc(100vw - 560px); padding: 6px 12px; }
+  #card .crow { flex: none; flex-wrap: nowrap; max-width: 260px; }
+  #card .track { flex: none; margin: 0; gap: 0; }
+  #card .track i { width: 40px; height: 40px; }
+  #card .track em { width: 6px; flex: none; }
+  #card .goal { flex: 1; min-width: 0; }
+  #camctl { top: 76px; right: 14px; transform: none; flex-direction: row; padding: 5px; }
+  #camctl.hide { transform: translateY(-20px); }
+  #camctl .ib { width: 40px; height: 40px; }
+
+  #build { top: auto; right: auto; left: 50%; bottom: 12px; transform: translateX(-50%); width: min(1280px, calc(100vw - 24px)); max-height: none;
+    display: grid; grid-template-columns: 168px minmax(0, 1fr); grid-template-rows: auto 1fr; gap: 6px 10px; padding: 8px 10px; }
+  #build.hide { transform: translate(-50%, 30px); }
+  #build .bhead { grid-column: 1; grid-row: 1; flex-wrap: wrap; row-gap: 6px; }
+  #build .bhead .clock { order: 5; margin-left: 0; flex: 1 1 100%; text-align: center; }
+  #build .bhead .slot.mini { width: 40px; height: 40px; }
+  #build .bfoot { grid-column: 1; grid-row: 2; flex-direction: column; gap: 4px; align-self: end; }
+  #build .bbody { grid-column: 2; grid-row: 1 / span 2; display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: 1fr auto; gap: 6px 10px; min-height: 0; }
+  #build .bbody.folded { display: none; }
+  #build:has(.bbody.folded) { width: auto; grid-template-columns: 168px; }
+  #build .cats { grid-row: 1 / span 2; display: grid; grid-template-columns: repeat(3, 62px); grid-auto-rows: 62px; gap: 5px; overflow: visible; padding: 0; align-content: start; }
+  #build .cat { width: 62px; height: 62px; min-height: 0; font-size: 11px; padding: 2px; }
+  #build .cat img { width: 34px; }
+  #build .items { display: flex; flex-direction: row; gap: 7px; overflow-x: auto; overflow-y: hidden; padding: 7px; align-items: stretch; min-height: 0; }
+  #build .slotwrap { flex: none; width: 104px; }
+  #build .item { height: 104px; min-height: 0; font-size: 12px; }
+  #build .item img { width: 62%; }
+  #build .lockbar { flex: none; width: 230px; align-self: center; }
+  #build .hlkey { grid-column: 2; grid-row: 2; margin: 0; }
+  #florence { right: 14px; bottom: 196px; width: 300px; }
+}
+/* whiteboards and big screens: the same layout, bigger */
+@media (min-width: 1600px) and (min-height: 900px) {
+  #build { grid-template-columns: 190px minmax(0, 1fr); }
+  #build .cats { grid-template-columns: repeat(3, 76px); grid-auto-rows: 76px; }
+  #build .cat { width: 76px; height: 76px; font-size: 13px; } #build .cat img { width: 44px; }
+  #build .slotwrap { width: 132px; } #build .item { height: 132px; font-size: 14px; }
+  #card { max-width: calc(100vw - 680px); } #card .track i { width: 50px; height: 50px; }
+  #camctl { top: 94px; } #camctl .ib { width: 50px; height: 50px; }
+  #florence { bottom: 236px; width: 380px; }
+}
+@media (min-width: 761px) and (min-height: 561px) {
+  #card .goal { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.2; font-size: max(12px, .8em); }
+  #build .slotwrap { width: 96px; } #build .item { height: 100px; }
+}
+@media (min-width: 761px) and (max-width: 1100px) and (min-height: 561px) {
+  #card .track i { width: 34px; height: 34px; } #card .track em { width: 3px; }
+  #card { max-width: calc(100vw - 470px); gap: 8px; } #card .crow { max-width: 130px; } #card .band { display: none; }
+  #build { grid-template-columns: 150px minmax(0, 1fr); }
+  #build .cats { grid-template-columns: repeat(2, 58px); grid-auto-rows: 44px; } #build .cat { width: 58px; height: 44px; } #build .cat img { width: 26px; } #build .cat span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+}
+@media (min-width: 761px) and (min-height: 561px) { #card { max-width: calc(100vw - var(--stripw, 520px) - 44px); } }
+@media (min-width: 761px) and (min-height: 561px) { #card { flex-wrap: wrap; row-gap: 4px; } #card .goal { flex: 1 1 220px; } }

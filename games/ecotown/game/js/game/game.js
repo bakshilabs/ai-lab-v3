@@ -25,6 +25,7 @@ import { TIERS, SANDBOX_TOWN_CAP, unlocked, newlyUnlocked, labReady, townGoals, 
 import { RULES, newAdvisor, nextTip, tipText } from './advisor.js';
 import { seedTo } from './seed.js';
 import { runIntro } from './intro.js';
+import { planPlace } from './replace.js';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const SAVE = 'ecotown.save.v3';
@@ -269,16 +270,27 @@ export function createGame(app) {
   const isOpen = (cat) => G.ever.includes(cat);
 
   // ================= FREE BUILDING =================
-  // tint every tile the selected tool may go on, so players can see where things are allowed
+  // every tile shows what a tap with the selected tool would do: a bright cyan frame where it can go, a
+  // striped frame where it would replace what's there, grey where it can't go. Colours no tile uses.
+  const HL = { free: { color: '#2fe6ff', pattern: 'frame', opacity: 1, top: true }, swap: { color: '#2fe6ff', pattern: 'framestripes', opacity: 1, top: true }, erase: { color: '#ff4d4d', pattern: 'frame', opacity: 1, top: true }, no: { color: '#4a4f54', pattern: 'solid', opacity: 0.62, top: true } };
   function showAllowed(tool) {
     const spec = new Map();
     for (const t of terrain.tiles.values()) {
-      const c = cellOf(G.cells, t.k); let ok;
-      if (tool === 'erase') ok = !t.fixed && (!!c.item || !!c.mark || c.mods.length > 0);
-      else ok = !placeReason(tool, t, c) && !(ITEMS[tool].kind === 'build' && c.item === tool) && !(ITEMS[tool].kind === 'mark' && (c.item || c.mark === tool));
-      if (ok) spec.set(t.k, { color: tool === 'erase' ? '#ff9a8a' : '#fff3a8', pattern: 'dots', opacity: 0.55 });
+      if (t.fixed) continue; // the old school, the AI Lab and the dock stay as they are
+      const c = cellOf(G.cells, t.k); let look;
+      if (tool === 'erase') look = !!c.item || !!c.mark || c.mods.length > 0 ? 'erase' : 'no';
+      else { const r = tapPlan(tool, t, c); look = r.why || r.same ? 'no' : r.replaced ? 'swap' : 'free'; }
+      spec.set(t.k, HL[look]);
     }
     world.setOverlay(spec);
+  }
+  // free building: a tap may replace what's on the tile. Adds the town-land cap and the credits to planPlace.
+  function tapPlan(tool, t, c, { free = false } = {}) {
+    const r = planPlace(tool, t, c); if (r.why || r.same) return r;
+    if (tool === 'town' && c.mark !== 'town' && sim().townTiles >= SANDBOX_TOWN_CAP) return { why: G.S.townFull(SANDBOX_TOWN_CAP) };
+    const net = (ITEMS[tool].cost || 0) - r.removed.reduce((a, id) => a + (ITEMS[id]?.cost || 0), 0);
+    if (!free && G.credits !== Infinity && net > G.credits) return { why: G.S.noCredits };
+    return r;
   }
   // why `tool` can't go on tile k in free building (null if it can)
   function sandboxReason(tool, t, c, { free = false } = {}) {
@@ -292,15 +304,24 @@ export function createGame(app) {
   }
   // put `tool` on tile k (or erase there). Returns true if the town changed.
   // free: a mission's plan, used in the town, is paid for by the AI Lab (13–17 credits are not spent)
-  function placeAt(k, tool, { free = false } = {}) {
+  // replace: a free-building tap, which may swap out what's on the tile (missions and Florence's plan never do)
+  function placeAt(k, tool, { free = false, replace = false } = {}) {
     const t = terrain.tiles.get(k); if (!t) return false;
-    const c = { ...cellOf(G.cells, k), mods: [...cellOf(G.cells, k).mods], locked: false };
+    let c = { ...cellOf(G.cells, k), mods: [...cellOf(G.cells, k).mods], locked: false };
     if (tool === 'erase') {
       if (t.fixed) return false;
       if (c.mods.length) { const m = c.mods.pop(); refund(m); }
       else if (c.item) { refund(c.item); c.item = null; }
       else if (c.mark) c.mark = null;
       else return false;
+    } else if (replace) {
+      const r = tapPlan(tool, t, c, { free });
+      if (r.same) { if (!free) { audio.tap(); ui.caption(G.S.sameHere(ITEMS[tool].label), 1800); } return false; }
+      if (r.why) { if (!free) { audio.bad(); ui.caption(r.why, 2000); } return false; }
+      if (ITEMS[tool].unique) for (const [kk, cc] of G.cells) if (kk !== k && cc.item === tool) { refund(tool); G.cells.set(kk, { ...cc, item: null }); world.setCell(kk, G.cells.get(kk)); }
+      r.removed.forEach(refund); c = r.cell;
+      if (G.credits !== Infinity && !free) G.credits -= ITEMS[tool].cost || 0;
+      if (r.replaced && !free) ui.caption(G.S.replaced(r.replaced, ITEMS[tool].label), 1800);
     } else {
       const it = ITEMS[tool]; const why = sandboxReason(tool, t, c, { free }); if (why) { if (!free) { audio.bad(); ui.caption(why, 2000); } return false; }
       if (it.unique) for (const [kk, cc] of G.cells) if (cc.item === tool) { refund(tool); G.cells.set(kk, { ...cc, item: null }); world.setCell(kk, G.cells.get(kk)); }
@@ -330,7 +351,7 @@ export function createGame(app) {
     ui.buildPanel(`<div class="bhead"><b>${esc(G.S.buildTitle)}</b><span class="clock" data-clock title="${esc(G.S.dayClock)}">🕖 ${clockText()} · ${esc(G.S.day)} ${G.day}</span><button class="slot mini" data-pause aria-label="${esc(sb.paused ? G.S.play : G.S.pause)}" title="${esc(sb.paused ? G.S.play : G.S.pause)}">${sb.paused ? '▶' : '❚❚'}</button><button class="slot mini fold" data-fold aria-expanded="${!sb.folded}" aria-label="${esc(G.S.tools)}">${sb.folded ? '▴' : '▾'}</button></div>
       <div class="bbody ${sb.folded ? 'folded' : ''}"><div class="cats" role="tablist" aria-label="${esc(G.S.buildWhat)}">${LEVEL_ORDER.map((id, i) => `<button class="slot cat ${sb.cat === id ? 'on' : ''} ${isOpen(id) ? '' : 'locked'}" data-cat="${id}" role="tab" aria-selected="${sb.cat === id}" title="${esc(G.S.cats[id])}"><img src="${thumb(TRACK_PICS[i])}" alt=""><span>${esc(G.S.cats[id])}</span>${isOpen(id) ? '' : '<i class="lock">🔒</i>'}</button>`).join('')}</div>
       <div class="items">${isOpen(sb.cat) ? items.map(slot).join('') + `<div class="slotwrap"><button class="slot item erase ${sb.tool === 'erase' ? 'on' : ''}" data-t="erase" aria-pressed="${sb.tool === 'erase'}"><b class="ico">🧽</b><span>${esc(G.S.erase)}</span></button></div>`
-        : lockedView(tier, s)}</div></div>
+        : lockedView(tier, s)}</div>${isOpen(sb.cat) ? hlKey() : ''}</div>
       <div class="bfoot"><span class="ok"><b>🏘</b>${s.townTiles}/${SANDBOX_TOWN_CAP}</span><span class="${s.familiesSafe >= TARGETS.families ? 'ok' : ''}"><b>👪</b>${s.familiesSafe}/${TARGETS.families}</span>${cr}</div>`, (tr) => {
       tr.querySelectorAll('[data-cat]').forEach((b) => (b.onclick = () => { sb.cat = b.dataset.cat; if (isOpen(sb.cat)) { sb.tool = LEVELS[sb.cat].palette[0]; showAllowed(sb.tool); } else world.setOverlay(null); sb.folded = false; audio.tap(); renderBar(); }));
       tr.querySelectorAll('[data-t]').forEach((b) => (b.onclick = () => { sb.tool = b.dataset.t; showAllowed(sb.tool); audio.tap(); renderBar(); }));
@@ -338,6 +359,11 @@ export function createGame(app) {
       tr.querySelector('[data-fold]').onclick = () => { sb.folded = !sb.folded; renderBar(); requestAnimationFrame(reframe); };
       tr.querySelector('[data-pause]').onclick = () => { sb.paused = !sb.paused; renderBar(); };
     });
+  }
+  // the key to the tile highlight (matches showAllowed's colours)
+  function hlKey() {
+    const sw = (cls, text) => `<span><i class="hk ${cls}" aria-hidden="true"></i>${esc(text)}</span>`;
+    return `<div class="hlkey">${sb.tool === 'erase' ? sw('erase', G.S.keyErase) : sw('free', G.S.keyFree) + sw('swap', G.S.keySwap)}${sw('no', G.S.keyNo)}</div>`;
   }
   // a locked category still shows what it will unlock (greyed), with a bar filling toward it
   function lockedView(tier, s) {
@@ -499,16 +525,18 @@ export function createGame(app) {
       const k = world.pick(ndc, stage.camera); if (!k) return;
       if (k === terrain.lab) { audio.tap(); return labBoard(); } // the AI Lab building opens the Lab board
       if (!sb.tool || (!isOpen(sb.cat) && sb.tool !== 'erase')) return;
-      if (placeAt(k, sb.tool)) { world.clearGhost(); app._hk = null; const now = performance.now(); sb.popRun = now - (sb.popAt || 0) < 2500 ? (sb.popRun || 0) + 1 : 0; sb.popAt = now; if (sb.tool === 'erase') audio.remove(); else audio.pop(sb.popRun, sb.cat); showAllowed(sb.tool); changed(); florenceTo(k, 'peer'); }
+      if (placeAt(k, sb.tool, { replace: true })) { world.clearGhost(); app._hk = null; const now = performance.now(); sb.popRun = now - (sb.popAt || 0) < 2500 ? (sb.popRun || 0) + 1 : 0; sb.popAt = now; if (sb.tool === 'erase') audio.remove(); else audio.pop(sb.popRun, sb.cat); showAllowed(sb.tool); changed(); florenceTo(k, 'peer'); }
     };
     rig.onHover = (ndc) => {
       if (!sb.running || G.busy || sb.lens || sb.tool === 'erase' || !isOpen(sb.cat)) return;
       const k = world.pick(ndc, stage.camera); if (k === app._hk) return; app._hk = k;
       if (!k) { ui.labels.clear('lbl'); return world.clearGhost(); }
-      const c = cellOf(G.cells, k); const why = sandboxReason(sb.tool, terrain.tiles.get(k), c); const nc = { ...c, mods: [...c.mods] }; const it = ITEMS[sb.tool];
-      if (it.kind === 'mark') nc.mark = sb.tool; else if (it.kind === 'mod') nc.mods.push(sb.tool); else nc.item = sb.tool;
-      world.showGhost([{ k }], new Map([[k, nc]]), { reduce: true, bad: why ? new Set([k]) : new Set() });
-      ui.labels.set(why ? [{ at: world.tileTop(k).add(new THREE.Vector3(0, 4, 0)), text: why, cls: 'bad' }] : []);
+      const c = cellOf(G.cells, k); const r = tapPlan(sb.tool, terrain.tiles.get(k), c);
+      if (r.same) { world.clearGhost(); return ui.labels.set([{ at: world.tileTop(k).add(new THREE.Vector3(0, 4, 0)), text: G.S.sameHere(ITEMS[sb.tool].label) }]); }
+      const nc = r.cell || (() => { const n = { ...c, mods: [...c.mods] }; const it = ITEMS[sb.tool]; if (it.kind === 'mark') n.mark = sb.tool; else if (it.kind === 'mod') n.mods.push(sb.tool); else n.item = sb.tool; return n; })();
+      world.showGhost([{ k }], new Map([[k, nc]]), { reduce: true, bad: r.why ? new Set([k]) : new Set() });
+      const at = world.tileTop(k).add(new THREE.Vector3(0, 4, 0));
+      ui.labels.set(r.why ? [{ at, text: r.why, cls: 'bad' }] : r.replaced ? [{ at, text: G.S.replaces(r.replaced) }] : []);
     };
     canvas.addEventListener('pointerleave', () => { world.clearGhost(); app._hk = null; ui.labels.clear('lbl'); });
   }
@@ -520,7 +548,7 @@ export function createGame(app) {
     const panel = sb.running && !b.classList.contains('hide') ? b : app.inLab && !d.classList.contains('hide') && d.getBoundingClientRect().left < W * 0.2 ? d : null;
     if (!panel) { if (cam.view?.enabled) cam.clearViewOffset(); rig.inset = { left: 0, right: 0, top: 0, bottom: 0 }; return; }
     const r = panel.getBoundingClientRect();
-    if (r.width > W * 0.6) { cam.setViewOffset(W, H, 0, Math.round((H - r.top) / 2), W, H); rig.inset = { left: 0, right: 0, top: 70, bottom: H - r.top }; }
+    if (r.width > W * 0.6) { const top = ui.P.card.classList.contains('hide') ? 70 : Math.max(70, ui.P.card.getBoundingClientRect().bottom + 8); cam.setViewOffset(W, H, 0, Math.round((H - r.top - top) / 2), W, H); rig.inset = { left: 0, right: 0, top, bottom: H - r.top }; } // the bottom hotbar: centre the island between the top strip and the bar
     else { const right = ui.P.camctl.classList.contains('hide') ? 0 : W - ui.P.camctl.getBoundingClientRect().left + 8; cam.setViewOffset(W, H, -Math.round((r.right - right) / 2), 0, W, H); rig.inset = { left: r.right, right, top: 0, bottom: 0 }; }
   }
   // on resize or when the panels change, keep the same framing (rescale the distance with the frame)
