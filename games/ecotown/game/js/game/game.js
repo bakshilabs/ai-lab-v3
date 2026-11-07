@@ -548,7 +548,7 @@ export function createGame(app) {
     const panel = sb.running && !b.classList.contains('hide') ? b : app.inLab && !d.classList.contains('hide') && d.getBoundingClientRect().left < W * 0.2 ? d : null;
     if (!panel) { if (cam.view?.enabled) cam.clearViewOffset(); rig.inset = { left: 0, right: 0, top: 0, bottom: 0 }; return; }
     const r = panel.getBoundingClientRect();
-    if (r.width > W * 0.6) { cam.setViewOffset(W, H, 0, Math.round((H - r.top) / 2), W, H); rig.inset = { left: 0, right: 0, top: 70, bottom: H - r.top }; }
+    if (r.width > W * 0.6) { const top = ui.P.card.classList.contains('hide') ? 70 : Math.max(70, ui.P.card.getBoundingClientRect().bottom + 8); cam.setViewOffset(W, H, 0, Math.round((H - r.top - top) / 2), W, H); rig.inset = { left: 0, right: 0, top, bottom: H - r.top }; } // the bottom hotbar: centre the island between the top strip and the bar
     else { const right = ui.P.camctl.classList.contains('hide') ? 0 : W - ui.P.camctl.getBoundingClientRect().left + 8; cam.setViewOffset(W, H, -Math.round((r.right - right) / 2), 0, W, H); rig.inset = { left: r.right, right, top: 0, bottom: 0 }; }
   }
   // on resize or when the panels change, keep the same framing (rescale the distance with the frame)
