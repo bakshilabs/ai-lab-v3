@@ -73,7 +73,17 @@ export function canyonDepth(x, z) {
 }
 export const isLimestone = (x, z, h) => h >= 9 || (h >= 6 && Math.hypot((x - 24) / 28, (z + 30) / 15) < 0.5);
 export const riverX = (z) => -27 + 1.4 * Math.sin(z / 7);
-export const inRiverVoxel = (x, z) => Math.abs(x + 0.5 - riverX(z)) < 1.8;
+// The river is a closed system on the island: it rises at a spring pool under a rock outcrop at the back
+// and ends in a lagoon behind the beach at the front, so no water pours off the floating island.
+const riverEnds = (() => { let n = 0, s = 0; for (let z = -RZ - 4; z <= RZ + 4; z++) if (insideVoxel(Math.round(riverX(z)), z)) { if (!n) n = z; s = z; } return { n, s }; })();
+export const SPRING = { x: riverX(riverEnds.n + 7), z: riverEnds.n + 7, r: 3.6 };
+export const LAGOON = { x: riverX(riverEnds.s - 8) - 1, z: riverEnds.s - 8, r: 5.2 };
+export function inRiverVoxel(x, z) {
+  const cx = x + 0.5;
+  if (Math.hypot(cx - SPRING.x, (z - SPRING.z) * 1.15) < SPRING.r) return true;
+  if (Math.hypot((cx - LAGOON.x) * 0.85, z - LAGOON.z) < LAGOON.r) return true;
+  return z > SPRING.z && z < LAGOON.z && Math.abs(cx - riverX(z)) < 1.8;
+}
 
 export const key = (gx, gz) => gx + ',' + gz;
 export const tileOrigin = (gx, gz) => [X0 + gx * T, Z0 + gz * T];

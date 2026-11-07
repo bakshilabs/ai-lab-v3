@@ -575,3 +575,11 @@ button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focu
   html[data-lab="on"] #dock .choice { flex: none; min-height: 52px; font-size: max(13px, .82em); padding: 6px 8px; }
   html[data-lab="on"] #dock .actions .row:has(.btn) { display: flex; }
 }
+/* key to the tile highlight in the build panel: cyan frame = build here, striped = replaces, grey = can't */
+#build .hlkey { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px 10px; margin: 6px 0 2px; font-size: max(12px, .78em); font-weight: 700; color: var(--cream); }
+#build .hlkey span { display: inline-flex; align-items: center; gap: 5px; }
+#build .hk { width: 16px; height: 16px; border-radius: 3px; flex: none; box-sizing: border-box; }
+#build .hk.free { border: 3px solid #2fe6ff; background: rgba(47,230,255,.18); }
+#build .hk.swap { border: 3px solid #2fe6ff; background: repeating-linear-gradient(45deg, rgba(47,230,255,.75) 0 3px, transparent 3px 6px); }
+#build .hk.erase { border: 3px solid #ff4d4d; background: rgba(255,77,77,.18); }
+#build .hk.no { background: #8a8f93; border: 2px solid #5d6266; }

@@ -99,6 +99,11 @@ The user asked for Florence as an animated character (their wooden-robot art is 
   - **Originality rule:** chip style is fine; never copy Nintendo (or any game's) melodies, bass lines or the coin/jump/1-up/power-up cues. If a teacher hums it and says "that's Mario", rewrite it.
   - `tests/audio.test.mjs` renders every cue and loop in headless Chromium (skips the render part without Playwright).
 
+- **Replace, highlight, river (Nov 2026, user feedback):**
+  - Free-building taps replace what's on a tile (`game/js/game/replace.js` `planPlace`, used by `placeAt(..., { replace: true })` and `tapPlan` in `game.js`). Missions and plan adoption keep the strict `sandboxReason`. Tests: `tests/replace.test.mjs`.
+  - Tile highlight (`showAllowed`): cyan frame = buildable, striped cyan = replaces, grey = not buildable, red frame = removable. Frame patterns in `world.js` `patternTex`, drawn on top (`top: true` → `depthTest: false`). Key in the build panel (`hlKey`). The old pale-yellow dots were confused with gold town land.
+  - The river no longer pours off the island: it rises at a spring pool under a mossy outcrop at the back (`SPRING`) and ends in a lagoon behind the beach (`LAGOON`), both in `terrain.js` `inRiverVoxel`. Gorge streams stop short of the edge. River tiles (`gx === 2`) and the simulation are unchanged.
+
 ## Beta revision (Nov 2026)
 All 49 notes in the beta tester's file were addressed; see README "How the game plays" and the commit history. Key decisions the user made:
 - **Helper name:** **Florence** (she). Code file names stay `plotter.*`.
@@ -138,10 +143,10 @@ All 49 notes in the beta tester's file were addressed; see README "How the game 
   - `/admin` redirects (302) to `…cloudflareaccess.com`.
 
 ## Tests
-From `games/ecotown/game` (97 tests, all passing at handoff):
+From `games/ecotown/game` (106 tests, all passing at handoff):
 
 ```bash
-node --test tests/sim.test.mjs tests/model.test.mjs tests/teach.test.mjs tests/syntax.test.mjs tests/codes.test.mjs tests/playtest.test.mjs tests/progress.test.mjs tests/audio.test.mjs
+node --test tests/sim.test.mjs tests/model.test.mjs tests/teach.test.mjs tests/syntax.test.mjs tests/codes.test.mjs tests/playtest.test.mjs tests/progress.test.mjs tests/audio.test.mjs tests/replace.test.mjs
 ```
 
 There's also a Playwright play-through: `tests/playwright/run.mjs`. See the README.

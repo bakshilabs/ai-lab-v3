@@ -95,6 +95,8 @@ export const SANDBOX = {
     buildWhat: 'What to build', dayClock: 'The time in your town', tools: 'Tools', erase: 'Remove', credits: 'credits', fromHouseholds: 'from the families',
     unlocksWhen: 'Unlocks when you have:', now: 'Now', townLand: 'Town land', families: 'families', tiles: 'tiles', food: 'food',
     removeFirst: 'Remove what’s built here first', already: 'Already here', townFull: (n) => `Town land is full (${n} tiles). Remove a tile first.`, noCredits: 'Not enough credits yet',
+    sameHere: (a) => `That’s already ${a}`, replaced: (a, b) => `${a} swapped for ${b}`, replaces: (a) => `Swaps out: ${a}`,
+    keyFree: 'You can build here', keySwap: 'Swaps out what’s there', keyNo: 'Can’t build here', keyErase: 'You can remove this',
     nextGoal: 'Next goal',
     goal: {
       homes: (s) => `homes for 40 families (${s.familiesSafe} so far)`, food: (s) => `enough food (${s.food} of ${s.foodNeed} baskets)`, nature: () => 'more room for nature', health: () => 'a healthier town: paths, parks, warm homes',
@@ -137,6 +139,8 @@ export const SANDBOX = {
     buildWhat: 'Build categories', dayClock: 'Town clock', tools: 'Tools', erase: 'Demolish', credits: 'cr', fromHouseholds: 'household income',
     unlocksWhen: 'Unlocks at:', now: 'Now', townLand: 'Town land', families: 'households', tiles: 'tiles', food: 'food',
     removeFirst: 'Demolish the building first', already: 'Already built', townFull: (n) => `Town land at its cap (${n} tiles).`, noCredits: 'Insufficient credits',
+    sameHere: (a) => `Already: ${a}`, replaced: (a, b) => `Replaced ${a} with ${b}`, replaces: (a) => `Replaces ${a}`,
+    keyFree: 'Buildable', keySwap: 'Replaces existing', keyNo: 'Not buildable', keyErase: 'Removable',
     nextGoal: 'Next target',
     goal: {
       homes: (s) => `40 households housed safely (${s.familiesSafe})`, food: (s) => `food ${s.food} / ${s.foodNeed} units`, nature: () => 'nature petal to 100%', health: () => 'health petal to 100%',
