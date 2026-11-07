@@ -855,6 +855,116 @@
   "key": "3a9160fd"
  },
  {
+  "s": "Hi, I’m Florence, the town’s AI planning assistant.",
+  "voice": "helper",
+  "key": "a8225b0d"
+ },
+ {
+  "s": "You make the decisions; I make plans.",
+  "voice": "helper",
+  "key": "95977c7a"
+ },
+ {
+  "s": "The river meadow is flat and cheap to build on.",
+  "voice": "helper",
+  "key": "0fa3965c"
+ },
+ {
+  "s": "It is also the winter floodplain.",
+  "voice": "helper",
+  "key": "00d90511"
+ },
+ {
+  "s": "This slope stays dry.",
+  "voice": "helper",
+  "key": "576fc5c3"
+ },
+ {
+  "s": "Designate three tiles of town land to start.",
+  "voice": "helper",
+  "key": "95eab083"
+ },
+ {
+  "s": "Good.",
+  "voice": "helper",
+  "key": "188363d4"
+ },
+ {
+  "s": "That’s your first site.",
+  "voice": "helper",
+  "key": "6195ab92"
+ },
+ {
+  "s": "Each build goes up in stages.",
+  "voice": "helper",
+  "key": "0b6f1993"
+ },
+ {
+  "s": "Here is a timber terrace, from above and at street level.",
+  "voice": "helper",
+  "key": "d5c9bad3"
+ },
+ {
+  "s": "Once housing unlocks, ▶ on any build shows how it is constructed.",
+  "voice": "helper",
+  "key": "ce99650c"
+ },
+ {
+  "s": "Categories unlock as the town grows.",
+  "voice": "helper",
+  "key": "8812c87e"
+ },
+ {
+  "s": "Target: 40 households, under 160 t of carbon.",
+  "voice": "helper",
+  "key": "6ec9430b"
+ },
+ {
+  "s": "My AI Lab: brief me, test my plan with evidence, and find where I went wrong.",
+  "voice": "helper",
+  "key": "8634a8a5"
+ },
+ {
+  "s": "I am often confident.",
+  "voice": "helper",
+  "key": "8c95f3d6"
+ },
+ {
+  "s": "I am not always right.",
+  "voice": "helper",
+  "key": "973fbc5a"
+ },
+ {
+  "s": "Over to you.",
+  "voice": "helper",
+  "key": "84be0561"
+ },
+ {
+  "s": "I’ll flag problems as you build.",
+  "voice": "helper",
+  "key": "1c3a99ae"
+ },
+ {
+  "s": "Built!",
+  "voice": "narrator",
+  "key": "5c41ca2f"
+ },
+ {
+  "s": "Now see it from the street.",
+  "voice": "narrator",
+  "key": "2aed9684"
+ },
+ {
+  "s": "Complete.",
+  "voice": "narrator",
+  "key": "47019f6f"
+ },
+ {
+  "s": "Street-level view.",
+  "voice": "narrator",
+  "key": "ad8e7aa5"
+ },
+ {
   "s": "Class mode: your first AI Lab mission is ready.",
   "voice": "helper",
   "key": "c9fc4ff5"

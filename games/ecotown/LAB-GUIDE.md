@@ -61,6 +61,13 @@ Rotate each level. Each role owns one lens or view, so every child has evidence 
 | **Resident Voice** | Speaks for the followed family; reads bubbles | Family portrait and diary |
 
 ## 7. Session plans
+**Start every first session with Florence's intro (about 90 seconds).** It is the warm-up:
+- Florence shows the meadow flooding and the dry slope. Pause on the meadow and ask "Why might flat land by a river be a bad place for homes?"
+- Every child then places their first three tiles.
+- The build video in the intro (and the ▶ on every build) shows how things are built from above and at street level. Use it before the homes and power missions: "What goes in before the walls? Why?"
+
+The intro can be replayed from ☰, and skipped in later sessions.
+
 **Choose "In order (class)" on the start screen** for a class: only the next AI Lab mission opens, and Florence invites players to it as soon as it is ready, so the class stays roughly together. Between missions, players build freely; that build time is where they grow the town enough to unlock the next mission (homes at 6 tiles of town land, food at 12 families, power at 24, town heart at 36). A useful rhythm is "mission, debrief, build" for each level below. If a group is slow to unlock the next mission, tell them to choose **Use Florence's plan** at the end of a mission: that adds her fixed plan to their town and moves them on. "Any order" suits clubs, museums and home play.
 
 DESIGN.md says Levels 4 and 5 merge in shorter versions. Level debriefs (section 9A) happen inside the play time.

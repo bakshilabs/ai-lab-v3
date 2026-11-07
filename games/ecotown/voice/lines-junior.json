@@ -935,14 +935,14 @@
   "key": "678608fc"
  },
  {
-  "s": "Your town is cutting into the old wood.",
+  "s": "Your town is cutting into the old wood, where the deer live.",
   "voice": "helper",
-  "key": "125b4931"
+  "key": "8ef91869"
  },
  {
-  "s": "The deer live there.",
+  "s": "Mark that land “Keep wild” instead.",
   "voice": "helper",
-  "key": "06c12864"
+  "key": "fcfc51e7"
  },
  {
   "s": "Homes are unlocked!",
@@ -965,6 +965,11 @@
   "key": "61d94bcb"
  },
  {
+  "s": "Swap it for a footpath or cycle lane.",
+  "voice": "helper",
+  "key": "899f5667"
+ },
+ {
   "s": "Brrr!",
   "voice": "helper",
   "key": "10b757b6"
@@ -975,19 +980,29 @@
   "key": "309d4937"
  },
  {
+  "s": "Try straw-bale or timber homes.",
+  "voice": "helper",
+  "key": "0327491a"
+ },
+ {
   "s": "Building these homes makes a lot of carbon.",
   "voice": "helper",
   "key": "cba4c9e5"
  },
  {
-  "s": "Some materials make much less.",
+  "s": "Swap concrete flats for timber or straw.",
   "voice": "helper",
-  "key": "ad141c9f"
+  "key": "850607bf"
  },
  {
   "s": "On a still winter night, the lights would go out.",
   "voice": "helper",
   "key": "1e6ad2c7"
+ },
+ {
+  "s": "Add a battery store or a wind turbine.",
+  "voice": "helper",
+  "key": "413430bc"
  },
  {
   "s": "When it rains hard, where will the water go?",
@@ -1058,6 +1073,121 @@
   "s": "Your town needs a school, a market and places to play.",
   "voice": "helper",
   "key": "890c33c3"
+ },
+ {
+  "s": "I’m Florence, your AI planning helper.",
+  "voice": "helper",
+  "key": "8e8df0e4"
+ },
+ {
+  "s": "Let’s build a town together!",
+  "voice": "helper",
+  "key": "b8e2a6ce"
+ },
+ {
+  "s": "This flat meadow looks perfect for houses… but look!",
+  "voice": "helper",
+  "key": "7c638035"
+ },
+ {
+  "s": "The river spills over it every winter.",
+  "voice": "helper",
+  "key": "3725185e"
+ },
+ {
+  "s": "Up here it stays dry and sunny.",
+  "voice": "helper",
+  "key": "1216d1e6"
+ },
+ {
+  "s": "Your turn: tap three tiles to make town land.",
+  "voice": "helper",
+  "key": "5530d0e3"
+ },
+ {
+  "s": "Brilliant!",
+  "voice": "helper",
+  "key": "c80ae205"
+ },
+ {
+  "s": "That’s the start of your town.",
+  "voice": "helper",
+  "key": "865c2c65"
+ },
+ {
+  "s": "Here’s how a home gets built.",
+  "voice": "helper",
+  "key": "32989e20"
+ },
+ {
+  "s": "Watch from above, then from the street.",
+  "voice": "helper",
+  "key": "2cd42f64"
+ },
+ {
+  "s": "When homes unlock, tap ▶ on any build to watch how it’s built.",
+  "voice": "helper",
+  "key": "21d13e9a"
+ },
+ {
+  "s": "More builds unlock as your town grows.",
+  "voice": "helper",
+  "key": "f1b81334"
+ },
+ {
+  "s": "Forty families are on their way!",
+  "voice": "helper",
+  "key": "50c8aafc"
+ },
+ {
+  "s": "This is my AI Lab.",
+  "voice": "helper",
+  "key": "ebe40df0"
+ },
+ {
+  "s": "Come here when you want to test my plans.",
+  "voice": "helper",
+  "key": "83593433"
+ },
+ {
+  "s": "I’m clever… but sometimes I’m confidently wrong.",
+  "voice": "helper",
+  "key": "0bc2b9b5"
+ },
+ {
+  "s": "Can you catch me?",
+  "voice": "helper",
+  "key": "4cee4ad4"
+ },
+ {
+  "s": "Over to you!",
+  "voice": "helper",
+  "key": "7dbdfa5c"
+ },
+ {
+  "s": "I’ll give you tips while you build.",
+  "voice": "helper",
+  "key": "e16093d9"
+ },
+ {
+  "s": "Built!",
+  "voice": "narrator",
+  "key": "5c41ca2f"
+ },
+ {
+  "s": "Now see it from the street.",
+  "voice": "narrator",
+  "key": "2aed9684"
+ },
+ {
+  "s": "Complete.",
+  "voice": "narrator",
+  "key": "47019f6f"
+ },
+ {
+  "s": "Street-level view.",
+  "voice": "narrator",
+  "key": "ad8e7aa5"
  },
  {
   "s": "Ready for your first AI Lab mission?",
