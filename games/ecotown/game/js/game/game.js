@@ -625,7 +625,7 @@ export function createGame(app) {
       if (!again.flawed) {
         const sA = sim(res.after); const cx = ctxFor(res.after);
         if (lv.pass(sA, cx)) {
-          audio.good(); app.bot.cheer(); world.confetti(app.bot.group.position.clone(), 90); ui.alert(G.C.ui.checked, true, 1800);
+          audio.good(); app.bot.proud(); world.confetti(app.bot.group.position.clone(), 90); ui.alert(G.C.ui.checked, true, 1800);
           help({ tag: G.C.ui.checked, tagCls: 'ok', html: `<ul>${res.plan.reading.map((r) => `<li>${esc(r)}</li>`).join('')}</ul>`, sure: res.sure, sureLabel: G.C.ui.sure });
           await sleep(1400); return res;
         }

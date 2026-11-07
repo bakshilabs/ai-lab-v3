@@ -21,7 +21,7 @@ for (const [p, b] of bots) {
   if (p === 'walk') b.walkTo(b.position.clone().add(new THREE.Vector3(0, 0, 400)), { maxDur: 999 });
   else if (p === 'talk') b.talk(99);
   else if (p === 'point') b.point(new THREE.Vector3(b.position.x + 12, 2, 20), 99);
-  else if (p !== 'idle') b.gesture(p, 99);
+  else if (p === 'peer') b.peer(new THREE.Vector3((i => i)(b.position.x), 2, 30), 99); else if (p !== 'idle') b.gesture(p, 99);
 }
 const steps = +(q.get('t') || 0.8) / dt; for (let i = 0; i < steps; i++) { t += dt; for (const [p, b] of bots) { b.update(dt, t); if (p === 'walk') b.position.z = 0; } }
 renderer.render(scene, camera); window.__done = true;

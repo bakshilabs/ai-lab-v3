@@ -176,7 +176,12 @@ async function shoot(id) {
   const it = ITEMS[id]; const town = [...cells].filter(([, c]) => c.mark === 'town').map(([k]) => world.tileTop(k));
   const centre = town.reduce((v, p) => v.add(p), new THREE.Vector3()).multiplyScalar(1 / Math.max(1, town.length));
   // the hero tile: allowed for the item, free, near the town, towards the front of the island (camera side)
-  const score = (t) => world.tileTop(t.k).distanceTo(centre) - t.gz * 1.5;
+  const { neighbours } = await import('./world/terrain.js');
+  // prefer open surroundings: not beside the fixed buildings (school, dock, AI Lab), with free tiles around for the camera
+  const fixedTiles = [...terrain.tiles.values()].filter((t) => t.fixed);
+  const crowd = (t) => fixedTiles.reduce((a, f) => { const d = Math.max(Math.abs(f.gx - t.gx), Math.abs(f.gz - t.gz)); return a + (d <= 1 ? 80 : d <= 2 ? 25 : 0); }, 0)
+    + neighbours(terrain.tiles, t).reduce((a, n) => a + (cellOf(cells, n.k).item && !['road', 'path', 'cycle', 'carpark'].includes(cellOf(cells, n.k).item) ? 3 : 0), 0);
+  const score = (t) => world.tileTop(t.k).distanceTo(centre) + crowd(t) + (t.zone === 'coast' && id !== 'festival' ? 30 : 0);
   let hero, cell;
   const tiles = [...terrain.tiles.values()].filter((t) => !t.fixed);
   if (it.kind === 'mod') { const homes = tiles.filter((t) => { const c = cells.get(t.k); return c?.item && ITEMS[c.item].home && !c.mods.includes(id); }).sort((a, b) => score(a) - score(b)); hero = homes[0]; const c = cells.get(hero.k); cell = { ...c, mods: [...c.mods, id] }; cells.set(hero.k, { ...c }); }
@@ -203,15 +208,19 @@ async function shoot(id) {
   // eye level: pick the direction whose line of sight crosses only open, low tiles (no buildings, woods or terraces)
   const { tileAt, key: tkey } = await import('./world/terrain.js');
   const openAt = (x, z) => { const a = tileAt(x, z); if (!a) return false; const t = terrain.tiles.get(tkey(a[0], a[1])); if (!t || t.k === k) return !!t; const c = after.get(t.k); if (t.fixed || t.zone === 'wood' || t.zone === 'river') return false; if (c?.item && !LOW.has(c.item)) return false; return world.tileTop(t.k).y <= P.y + 1.2; };
-  let side = null;
-  for (let i = 0; i < 24 && !side; i++) { const a = yaw0 + 0.32 + (i % 2 ? -1 : 1) * Math.ceil(i / 2) * (Math.PI / 12); const d = new THREE.Vector3(-Math.sin(a), 0, Math.cos(a)); let ok = true; for (let r = 4; r <= eyeDist + 4 && ok; r += 1.5) for (const off of [-2.5, 0, 2.5]) { const q = P.clone().addScaledVector(d, r).add(new THREE.Vector3(d.z * off, 0, -d.x * off)); if (!openAt(q.x, q.z)) { ok = false; break; } } if (ok) side = d; }
+  let side = null; let eyeD = eyeDist;
+  // a clear corridor from the build to the camera, wide enough for the camera's sideways dolly
+  for (const dd of [eyeDist, eyeDist * 0.8, eyeDist * 0.62]) {
+    for (let i = 0; i < 24 && !side; i++) { const a = yaw0 + 0.32 + (i % 2 ? -1 : 1) * Math.ceil(i / 2) * (Math.PI / 12); const d = new THREE.Vector3(-Math.sin(a), 0, Math.cos(a)); let ok = true; for (let r = 3.5; r <= dd + 3 && ok; r += 1) for (const off of [-4, -2, 0, 2, 4]) { const q = P.clone().addScaledVector(d, r).add(new THREE.Vector3(d.z * off, 0, -d.x * off)); if (!openAt(q.x, q.z)) { ok = false; break; } } if (ok) { side = d; eyeD = dd; } }
+    if (side) break;
+  }
   side ||= new THREE.Vector3(-Math.sin(yaw0 + 0.32), 0, Math.cos(yaw0 + 0.32));
   const across = new THREE.Vector3(side.z, 0, -side.x);
-  const eyeAt = (t) => { const u = Math.min(1, Math.max(0, (t - SW1) / (DUR - SW1))); const pos = P.clone().addScaledVector(side, eyeDist).addScaledVector(across, -2.5 + 5 * u); pos.y = P.y + 2.2; return { pos, look: P.clone().add(new THREE.Vector3(0, id === 'wind' ? 7 : tall ? 2.6 : 0.8, 0)), fov: 50 }; };
+  const eyeAt = (t) => { const u = Math.min(1, Math.max(0, (t - SW1) / (DUR - SW1))); const pos = P.clone().addScaledVector(side, eyeD).addScaledVector(across, -2.5 + 5 * u); pos.y = P.y + 2.2; return { pos, look: P.clone().add(new THREE.Vector3(0, id === 'wind' ? 7 : tall ? 2.6 : 0.8, 0)), fov: 50 }; };
   const ease = (x) => x * x * (3 - 2 * x);
   const poseAt = (t) => { if (t <= SW0) return skyAt(t); if (t >= SW1) return eyeAt(t); const a = skyAt(SW0), b = eyeAt(SW1), k2 = ease((t - SW0) / (SW1 - SW0)); return { pos: a.pos.clone().lerp(b.pos, k2).add(new THREE.Vector3(0, Math.sin(k2 * Math.PI) * 6, 0)), look: a.look.clone().lerp(b.look, k2), fov: a.fov + (b.fov - a.fov) * k2 }; };
   // Florence waits beside the build and peers at it once it is finished
-  const flAt = (sg) => P.clone().addScaledVector(across, sg * 6.5).addScaledVector(side, -1); const flOk = (q) => openAt(q.x, q.z) && Math.abs((tileAt(q.x, q.z) ? world.tileTop(tkey(...tileAt(q.x, q.z))).y : 99) - P.y) < 0.6; const fl = [flAt(1), flAt(-1), P.clone().addScaledVector(side, eyeDist * 0.3).addScaledVector(across, 4.6)].find(flOk) || flAt(1); bot.appear(fl); bot.look(P); bot.show(false); // she joins for the street-level shot
+  const flAt = (sg) => P.clone().addScaledVector(across, sg * 6.5).addScaledVector(side, -1); const flOk = (q) => openAt(q.x, q.z) && Math.abs((tileAt(q.x, q.z) ? world.tileTop(tkey(...tileAt(q.x, q.z))).y : 99) - P.y) < 0.6; const fl = [flAt(1), flAt(-1), P.clone().addScaledVector(side, eyeD * 0.3).addScaledVector(across, 4.6)].find(flOk) || flAt(1); bot.appear(fl); bot.look(P); bot.show(false); // she joins for the street-level shot
   const dt = 1 / 60;
   window.__duration = DUR;
   window.__render = (T) => {
