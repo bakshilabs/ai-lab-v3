@@ -21,9 +21,10 @@ function zoneAtVoxel(x0, z0) {
   // wobble the boundaries a little so zones blend instead of following the tile grid
   return zoneAt(x0 + (noise2(x0 * 0.18, z0 * 0.18, 31) - 0.5) * 3, z0 + (noise2(x0 * 0.18, z0 * 0.18, 47) - 0.5) * 3);
 }
+// sage and olive greens with ochre dry grass on the slope and fields: the warm brochure palette, not lime
 const TOPS = {
-  rim: ['#5fbf3f', '#6cc848', '#57b23a'], meadow: ['#74cf4c', '#82d858', '#69c443'], wetland: ['#5fb84a', '#6cc153', '#56ad42'],
-  wood: ['#4fae3c', '#5ab944', '#46a236'], slope: ['#7dd24f', '#8adb5c', '#72c846'], field: ['#68c443', '#75cd4e', '#5eb93c'],
+  rim: ['#8fae55', '#9bb85e', '#a7b766', '#c9a86a'], meadow: ['#94bf58', '#a0c862', '#88b44f'], wetland: ['#7fae5a', '#8ab863', '#76a352'],
+  wood: ['#78a04a', '#83aa52', '#6e9643'], slope: ['#a8bf5e', '#b6c468', '#c9b46a', '#9cb557'], field: ['#9cbf5a', '#a9c463', '#c4b064', '#92b553'],
   coast: ['#f6d2a2', '#f0c38c', '#fadfb8'],
 };
 const LIME = ['#e8874c', '#d9733f', '#c4622f', '#f09a5a']; // terracotta mesa (rover palette)
@@ -95,7 +96,7 @@ export function createWorld(stage, terrain) {
   for (const [x, z, top, zone, lime] of rimCells) {
     if (zone !== 'rim' || x % 4 || z % 4) continue;
     const mask = noise2(x / 12, z / 12, 17) + (top >= 3 ? 0.25 : 0) - (lime ? 0.7 : 0);
-    if (mask < 0.48 || rand(x, z, 19) < 0.2) continue;
+    if (mask < 0.6 || rand(x, z, 19) < 0.25 || nearCanyon(x, z)) continue; // a thinner forest that leaves the canyons open
     const ox = x + Math.floor(rand(x, z, 20) * 3) - 1, oz = z + Math.floor(rand(x, z, 21) * 3) - 1; const k = ox + ',' + oz; if (used.has(k)) continue; used.add(k);
     const h0 = heightAt(ox, oz); if (h0 == null || h0 < 0) continue;
     tree2(v, ox, h0, oz, top >= 4 || lime ? 'tallpine' : rand(x, z, 22) > 0.4 ? 'oak' : 'tallpine', x * 7 + z);
@@ -193,7 +194,7 @@ export function createWorld(stage, terrain) {
   function newRec() { return { windows: [], lamps: [], cars: [], rotor: null }; }
   function buildMeshes(L, cell, mat = null) {
     const G = new Vox(), B = new Vox(), F = new Vox(); G.jitter = B.jitter = 0.06; F.jitter = 0.05; const rec = newRec();
-    if (cell.mark && MARK[cell.mark] && !cell.item) MARK[cell.mark](G, B, rec, L.t);
+    if (cell.mark && MARK[cell.mark] && !cell.item) MARK[cell.mark](G, B, rec, L.t, F);
     if (cell.item) { BUILD[cell.item](G, B, rec, L.t, F); for (const m of cell.mods || []) (F.size ? addModFine(F, m) : addMod(B, m, rec)); }
     const g = meshLayer(G, B, L.ox, L.oy, L.oz, F);
     if (mat) g.traverse((o) => { if (o.isMesh) { o.material = mat; o.castShadow = false; } });

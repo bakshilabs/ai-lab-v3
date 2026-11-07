@@ -133,7 +133,7 @@ export function createGame(app) {
         continue;
       }
       res.text = text; guess = res;
-      const c = centroidOf(res.plan.placements); app.bot.hover(c); if (!app.reduce) rig.focus(c, { dist: id === 'land' ? rig.frameDist() * 0.85 : Math.min(rig.frameDist() * 0.8, 70 + spreadOf(res.plan.placements) * 1.6), pitch: 0.7 }, 1.2);
+      const c = centroidOf(res.plan.placements); app.bot.hover(c); frameView(); rig.frameBox([...new Set(res.plan.placements.map((p) => p.k))].map((k) => world.tileTop(k)), { pitch: 0.72, pad: 1.3, dur: 1.2 });
       await sleep(app.reduce ? 0 : 900); app.bot.beam(true, 15);
       const dur = world.showGhost(res.plan.placements, res.after, { reduce: app.reduce });
       setTimeout(() => app.bot.beam(false), dur * 1000 + 300);
@@ -171,7 +171,7 @@ export function createGame(app) {
       if (which) { // a check the player hasn't tried shows the problem: show it now, before anything is built
         ui.caption(G.C.ui.notFoundYet, 3000); await sleep(app.reduce ? 200 : 1200);
         const view = ['street', 'inside'].includes(which); if (view) { world.clearGhost(); showCells(res.after); }
-        const r = await checks.run(which, sAfter, res.after, reveal); audio.bad(); app.bot.shrug(); ui.alert(fmt(T(id).flaw[which], r.revealed), false);
+        const r = await checks.run(which, sAfter, res.after, reveal); await frameProblem(which, sAfter, res.after); audio.bad(); app.bot.shrug(); ui.alert(fmt(T(id).flaw[which], r.revealed), false);
         await sleep(1600); await continueBtn(); ui.show('alert', false); await checks.leave(); world.clearGhost(); if (view) showCells(G.cells);
         return { flawed: true, which, tries, late: true, rv: r.revealed };
       }
@@ -190,6 +190,7 @@ export function createGame(app) {
       if (view) { world.clearGhost(); showCells(res.after); }
       const r = await checks.run(choice, sAfter, res.after, reveal);
       if (r.revealed) {
+        await frameProblem(choice, sAfter, res.after);
         audio.bad(); app.bot.shrug(); ui.alert(fmt(T(id).flaw[choice], r.revealed), false);
         if (tries === 1) star(0, G.C.ui.foundIt);
         await sleep(1600); await continueBtn();
@@ -207,6 +208,25 @@ export function createGame(app) {
       if (next === 'accept') { world.clearGhost(); const out = await accept(); world.clearGhost(); return out; }
       world.showGhost(res.plan.placements, res.after, { reduce: true });
     }
+  }
+  // after a check reveals a problem, frame the tiles it is about (then the alert explains it)
+  function problemTiles(which, s, cells) {
+    const z = (k) => terrain.tiles.get(k)?.zone; const out = [];
+    for (const [k, c] of cells) {
+      const it = c.item && ITEMS[c.item];
+      if (which === 'flood' && (c.mark === 'town' || it?.home) && ['meadow', 'wetland'].includes(z(k))) out.push(k);
+      if (which === 'nature' && (c.mark === 'town' && z(k) === 'wood' || it?.ploughs)) out.push(k);
+      if (which === 'carbon' && (c.item === 'concrete' || it?.car)) out.push(k);
+      if (which === 'winter' && it?.home) out.push(k);
+      if (which === 'walk' && it?.home && (s.walk?.[k] ?? 0) > TARGETS.walkMinutes) out.push(k);
+      if (which === 'access' && it?.car) out.push(k);
+    }
+    return out.slice(0, 40);
+  }
+  async function frameProblem(which, s, cells) {
+    if (['street', 'inside'].includes(which)) return;
+    const keys = problemTiles(which, s, cells); if (!keys.length) return;
+    await rig.frameBox(keys.map((k) => world.tileTop(k)), { pitch: 0.75, pad: 1.6, dur: 1.2 });
   }
   const continueBtn = () => new Promise((r) => ui.tray(`<div class="row" style="justify-content:center"><button class="btn go" data-go>${esc(G.C.ui.next)} ➜</button></div>`, (tr) => (tr.querySelector('[data-go]').onclick = r)));
   const fmt = (o, rv) => pick(o).replace('{n}', rv?.n ?? '');
@@ -315,7 +335,7 @@ export function createGame(app) {
       tr.querySelectorAll('[data-cat]').forEach((b) => (b.onclick = () => { sb.cat = b.dataset.cat; if (isOpen(sb.cat)) { sb.tool = LEVELS[sb.cat].palette[0]; showAllowed(sb.tool); } else world.setOverlay(null); sb.folded = false; audio.tap(); renderBar(); }));
       tr.querySelectorAll('[data-t]').forEach((b) => (b.onclick = () => { sb.tool = b.dataset.t; showAllowed(sb.tool); audio.tap(); renderBar(); }));
       tr.querySelectorAll('[data-play]').forEach((b) => (b.onclick = () => playVideo(b.dataset.play)));
-      tr.querySelector('[data-fold]').onclick = () => { sb.folded = !sb.folded; renderBar(); requestAnimationFrame(frameView); };
+      tr.querySelector('[data-fold]').onclick = () => { sb.folded = !sb.folded; renderBar(); requestAnimationFrame(reframe); };
       tr.querySelector('[data-pause]').onclick = () => { sb.paused = !sb.paused; renderBar(); };
     });
   }
@@ -459,7 +479,7 @@ export function createGame(app) {
     const now = performance.now();
     if (sb.bubbles.length && now > sb.nextBub && rig.mode === 'sky' && !sb.lens) {
       const b = sb.bubbles[Math.floor(Math.random() * sb.bubbles.length)]; const who = life.residentNear(b.k);
-      if (who) ui.labels.bubble({ at: () => who.position.clone().add(new THREE.Vector3(0, 2.6, 0)), text: b.text, bad: b.bad, quiet: true });
+      if (who) ui.labels.bubble({ at: () => who.position.clone().add(new THREE.Vector3(0, 1.9, 0)), text: b.text, bad: b.bad, quiet: true });
       sb.nextBub = now + 9000;
     }
     if (now > sb.nextTipCheck) { sb.nextTipCheck = now + 5000; if (!tipShown) advise(); }
@@ -493,18 +513,25 @@ export function createGame(app) {
   }
   // centre the island in the free space beside (or above) the build panel
   function frameView() {
-    const cam = stage.camera; const W = innerWidth, H = innerHeight; const b = ui.P.build;
-    if (!sb.running || b.classList.contains('hide')) { if (cam.view?.enabled) cam.clearViewOffset(); return; }
-    const r = b.getBoundingClientRect();
-    if (r.width > W * 0.6) cam.setViewOffset(W, H, 0, Math.round((H - r.top) / 2), W, H); // bottom tray (phones)
-    else cam.setViewOffset(W, H, -Math.round(r.right / 2), 0, W, H);                     // left rail
+    // the island is framed in the space the side panels leave free: the build panel while building, the
+    // mission rail in the AI Lab. The camera's view offset centres it there, and the rig fits it to that area.
+    const cam = stage.camera; const W = innerWidth, H = innerHeight; const b = ui.P.build; const d = ui.P.dock;
+    const panel = sb.running && !b.classList.contains('hide') ? b : app.inLab && !d.classList.contains('hide') && d.getBoundingClientRect().left < W * 0.2 ? d : null;
+    if (!panel) { if (cam.view?.enabled) cam.clearViewOffset(); rig.inset = { left: 0, right: 0, top: 0, bottom: 0 }; return; }
+    const r = panel.getBoundingClientRect();
+    if (r.width > W * 0.6) { cam.setViewOffset(W, H, 0, Math.round((H - r.top) / 2), W, H); rig.inset = { left: 0, right: 0, top: 70, bottom: H - r.top }; }
+    else { const right = ui.P.camctl.classList.contains('hide') ? 0 : W - ui.P.camctl.getBoundingClientRect().left + 8; cam.setViewOffset(W, H, -Math.round((r.right - right) / 2), 0, W, H); rig.inset = { left: r.right, right, top: 0, bottom: 0 }; }
   }
-  addEventListener('resize', () => requestAnimationFrame(frameView));
+  // on resize or when the panels change, keep the same framing (rescale the distance with the frame)
+  let lastFrame = 0;
+  function reframe() { const before = lastFrame || rig.frameDist(); frameView(); const now = rig.frameDist(); if (rig.mode === 'sky' && before) rig.sky.dist = Math.min(rig.maxDist(), rig.sky.dist * (now / before)); lastFrame = now; }
+  app.reframe = reframe;
+  addEventListener('resize', () => requestAnimationFrame(reframe));
   function startBuilding() {
     sb.running = true; rig.building = true; app.levelId = null; app.inLab = false; app.briefMinutes = null;
     ui.only([]); ui.views('sky'); ui.facil(null); ui.show('card'); ui.show('strip');
     showCells(G.cells); world.setOverlay(null); if (isOpen(sb.cat)) showAllowed(sb.tool);
-    changed(); renderLenses(); setMusic('calm'); app.bot?.show(true); requestAnimationFrame(frameView);
+    changed(); renderLenses(); setMusic('calm'); app.bot?.show(true); requestAnimationFrame(() => { frameView(); lastFrame = rig.frameDist(); if (!sb.framed) { sb.framed = true; rig.overview(app.reduce ? 0.01 : 1.0); } });
     if (sb.afterLab) { const msg = sb.afterLab; sb.afterLab = null; setTimeout(() => ui.caption(msg, 5000), 2800); } // after any unlock alert
   }
   function stopBuilding() { sb.running = false; ui.florence(null); frameView(); rig.building = false; clearTimeout(sb.tipT); world.clearGhost(); world.setOverlay(null); ui.labels.clear(); ui.tray(''); ui.buildPanel(''); hideTip(); }
@@ -539,7 +566,7 @@ export function createGame(app) {
     const bot = app.bot; if (!bot || !terrain.lab) return;
     const door = world.tileTop(terrain.lab).add(new THREE.Vector3(0, 0, 4.5)); const inside = world.tileTop(terrain.lab).add(new THREE.Vector3(0, 0, 0.5));
     bot.show(true);
-    if (!app.reduce) await rig.focus(door, { dist: 34, pitch: 0.55, yaw: rig.sky.yaw }, 0.9);
+    await rig.focus(door, { dist: 40, pitch: 0.55, yaw: rig.sky.yaw }, 1.2);
     await bot.walkTo(door, { maxDur: app.reduce ? 0.3 : 2.2 }); bot.look(inside); if (!app.reduce) await bot.wave();
     await bot.walkTo(inside, { maxDur: 0.6 }); bot.show(false);
     await rig.fade?.(() => {});
@@ -745,7 +772,7 @@ export function createGame(app) {
         const part = app.hour < 11 ? 0 : app.hour < 16 ? 1 : 2;
         if (part !== shown) { shown = part; const dd = ui.P.tray.querySelector('[data-diary]'); if (dd) { dd.textContent = `📔 ${['Morning', 'Afternoon', 'Evening'][part]}: “${lines[part]}”`; dd.classList.remove('flash'); void dd.offsetWidth; dd.classList.add('flash'); } }
         if (el >= nextP && pois.length && !app.reduce && rig.mode === 'sky') { const p = pois[pi++ % pois.length]; rig.focus(p, { dist: 70, pitch: 0.6, yaw: rig.sky.yaw + 0.5 }, 3.2); nextP = el + 6; }
-        if (el >= nextB && list.length) { const b = list[bi++ % list.length]; const who = life.residentNear(b.k); if (who) ui.labels.bubble({ at: () => who.position.clone().add(new THREE.Vector3(0, 2.6, 0)), text: b.text, bad: b.bad }); nextB = el + 3.4; }
+        if (el >= nextB && list.length) { const b = list[bi++ % list.length]; const who = life.residentNear(b.k); if (who) ui.labels.bubble({ at: () => who.position.clone().add(new THREE.Vector3(0, 1.9, 0)), text: b.text, bad: b.bad }); nextB = el + 3.4; }
         await sleep(50);
       }
       ui.labels.clear('bub'); app.hour = 12.5; stage.setTime(12.5, 0); await rig.overview(1.1);

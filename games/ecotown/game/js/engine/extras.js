@@ -121,7 +121,7 @@ export function butterflies(scene, cells, { n = 14, y = 0, seed = 6 } = {}) {
   const cols = ['#ff7eb6', '#ffd23f', '#b28cff', '#ffffff', '#ff9a4a'];
   const list = [];
   for (let i = 0; i < n; i++) {
-    const mat = new THREE.MeshBasicMaterial({ color: cols[i % 5], side: THREE.DoubleSide });
+    const mat = new THREE.MeshLambertMaterial({ color: cols[i % 5], side: THREE.DoubleSide }); // lit, so they don't glow at night
     const g = new THREE.Group(); const w1 = new THREE.Mesh(new THREE.PlaneGeometry(0.6, 0.5), mat), w2 = w1.clone();
     w1.position.x = 0.3; w2.position.x = -0.3; const p1 = new THREE.Group(), p2 = new THREE.Group(); p1.add(w1); p2.add(w2); g.add(p1, p2); scene.add(g);
     const c = cells[Math.floor(rand(i, seed) * cells.length)] || [0, 0];

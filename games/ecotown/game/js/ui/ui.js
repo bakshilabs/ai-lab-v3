@@ -31,6 +31,8 @@ export function createUI(root, labelsRoot, opts) {
   mk('settings', 'from-right');
   mk('build', 'from-left blk');                      // free building: categories and builds, as a grid of pictures (left)
   mk('florence', 'from-right blk');                  // Florence's portrait and her tips while building (right)
+  // camera buttons for whiteboards, trackpads and anyone who prefers buttons to gestures
+  mk('camctl', 'from-right blk', `<button class="ib" data-cam="in" aria-label="Zoom in" title="Zoom in">＋</button><button class="ib" data-cam="out" aria-label="Zoom out" title="Zoom out">－</button><button class="ib" data-cam="left" aria-label="Turn left" title="Turn left">⟲</button><button class="ib" data-cam="right" aria-label="Turn right" title="Turn right">⟳</button><button class="ib" data-cam="home" aria-label="Back to the whole island" title="Back to the whole island">⌂</button>`);
   const D = { head: P.dock.querySelector('[data-head]'), speaker: P.dock.querySelector('[data-speaker]'), actions: P.dock.querySelector('[data-actions]') };
   // facilitator notes live in their own card (top left, under the town card), whatever else is on screen
   mk('facil', 'from-left facilcard'); const facilEl = P.facil; let facilText = null;
@@ -52,6 +54,7 @@ export function createUI(root, labelsRoot, opts) {
       if (['badge', 'task', 'tr'].includes(id)) id = id === 'tr' ? 'strip' : 'card';
       if (id === 'views' || id === 'flower') id = 'strip';
       P[id]?.classList.toggle('hide', !on);
+      if (id === 'strip') P.camctl.classList.toggle('hide', !on); // the camera buttons come and go with the icon strip
     },
     only(ids) { for (const id of ['helper', 'tray', 'alert', 'lensbar', 'modal', 'settings', 'caption']) this.show(id, ids.includes(id)); P.flowerpop.classList.add('hide'); },
     setBadge(sub) { P.card.querySelector('[data-sub]').textContent = sub; this.show('card'); this.show('strip'); },

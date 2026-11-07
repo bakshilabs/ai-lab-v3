@@ -85,7 +85,15 @@ ui.P.views.addEventListener('click', async (e) => {
   if (v === 'street') { const k = home?.[0] || terrain.school; const p = world.tileTop(k); rig.toStreet(p.clone().add(new THREE.Vector3(-8, 2.1, -9)), p.clone().add(new THREE.Vector3(0, 1.5, 0))); }
   if (v === 'inside') { inside.build(home?.[1].item || 'timber', 20); await rig.fade(() => { inside.root.visible = true; rig.mode = 'inside'; rig.apply(inside.pose()); }); }
 });
-rig.onDoubleTap = (ndc) => { if (rig.mode !== 'sky' || rig.building) return; /* no fly-ins while painting tiles */ const k = world.pick(ndc, stage.camera); if (k) rig.focus(world.tileTop(k), { dist: 55 }, 1.1); };
+// double-tap flies in to a tile (also while building: the second tap zooms instead of placing again)
+rig.onDoubleTap = (ndc) => { if (rig.mode !== 'sky') return; const k = world.pick(ndc, stage.camera); if (k) rig.focus(world.tileTop(k), { dist: 55, pitch: 0.6 }, 1.1); };
+// camera buttons
+ui.P.camctl.addEventListener('click', async (e) => {
+  const b = e.target.closest('[data-cam]'); if (!b) return; const a = b.dataset.cam;
+  if (a === 'home') { if (rig.mode !== 'sky') ui.P.views.querySelector('[data-v="sky"]').click(); else rig.overview(1.2); return; }
+  if (rig.mode !== 'sky') return;
+  if (a === 'in') rig.zoomBy(0.72); if (a === 'out') rig.zoomBy(1.38); if (a === 'left') rig.rotateBy(Math.PI / 4); if (a === 'right') rig.rotateBy(-Math.PI / 4);
+});
 
 // ---------------- start screen
 async function start() {
@@ -200,7 +208,7 @@ async function shoot(id) {
   const P = world.tileTop(k); const DUR = 10, B0 = 0.5, BDUR = 5.0, SW0 = 6.0, SW1 = 7.5;
   const stages = []; let started = false, last = 0;
   // camera: a slow orbit from above, a swoop, then eye level beside the build
-  const yaw0 = -0.55, pitch = 0.78, dist = 74;
+  const yaw0 = -0.55, pitch = 0.78, dist = 52;
   const skyAt = (t) => { const yaw = yaw0 + 0.32 * (t / SW0); const pos = new THREE.Vector3(P.x - Math.sin(yaw) * Math.cos(pitch) * dist, P.y + Math.sin(pitch) * dist, P.z + Math.cos(yaw) * Math.cos(pitch) * dist); return { pos, look: P.clone().add(new THREE.Vector3(0, 1.5, 0)), fov: 22 }; };
   const LOW = new Set(['road', 'carpark', 'path', 'cycle', 'bigfield', 'mixed', 'allot', 'raingarden', 'reedbed', 'compost', 'hedge', 'hives', 'bridge', 'tram', 'festival']);
   const tall = (it.kind === 'build' && !LOW.has(id)) || it.kind === 'mod';
@@ -216,11 +224,18 @@ async function shoot(id) {
   }
   side ||= new THREE.Vector3(-Math.sin(yaw0 + 0.32), 0, Math.cos(yaw0 + 0.32));
   const across = new THREE.Vector3(side.z, 0, -side.x);
-  const eyeAt = (t) => { const u = Math.min(1, Math.max(0, (t - SW1) / (DUR - SW1))); const pos = P.clone().addScaledVector(side, eyeD).addScaledVector(across, -2.5 + 5 * u); pos.y = P.y + 2.2; return { pos, look: P.clone().add(new THREE.Vector3(0, id === 'wind' ? 7 : tall ? 2.6 : 0.8, 0)), fov: 50 }; };
+  // eye level for buildings; for low builds (paths, fields, land) a low three-quarter view that shows the surface
+  const lowShot = !tall && id !== 'bridge';
+  const eyeAt = (t) => {
+    const u = Math.min(1, Math.max(0, (t - SW1) / (DUR - SW1)));
+    if (lowShot) { const pos = P.clone().addScaledVector(side, 15).addScaledVector(across, -2 + 4 * u); pos.y = P.y + 9; return { pos, look: P.clone().add(new THREE.Vector3(0, 0.3, 0)), fov: 35 }; }
+    const pos = P.clone().addScaledVector(side, eyeD).addScaledVector(across, -2.5 + 5 * u); pos.y = P.y + 2.2;
+    return { pos, look: P.clone().add(new THREE.Vector3(0, id === 'wind' ? 7 : 0.6 * (tall ? 4.5 : 1.5), 0)), fov: 50 };
+  };
   const ease = (x) => x * x * (3 - 2 * x);
-  const poseAt = (t) => { if (t <= SW0) return skyAt(t); if (t >= SW1) return eyeAt(t); const a = skyAt(SW0), b = eyeAt(SW1), k2 = ease((t - SW0) / (SW1 - SW0)); return { pos: a.pos.clone().lerp(b.pos, k2).add(new THREE.Vector3(0, Math.sin(k2 * Math.PI) * 6, 0)), look: a.look.clone().lerp(b.look, k2), fov: a.fov + (b.fov - a.fov) * k2 }; };
+  const poseAt = (t) => { if (t <= SW0) return skyAt(t); if (t >= SW1) return eyeAt(t); const a = skyAt(SW0), b = eyeAt(SW1), k2 = ease((t - SW0) / (SW1 - SW0)); const kf = ease(Math.min(1, k2 / 0.4)); return { pos: a.pos.clone().lerp(b.pos, k2).add(new THREE.Vector3(0, Math.sin(k2 * Math.PI) * 4, 0)), look: a.look.clone().lerp(b.look, k2), fov: a.fov + (b.fov - a.fov) * kf }; };
   // Florence waits beside the build and peers at it once it is finished
-  const flAt = (sg) => P.clone().addScaledVector(across, sg * 6.5).addScaledVector(side, -1); const flOk = (q) => openAt(q.x, q.z) && Math.abs((tileAt(q.x, q.z) ? world.tileTop(tkey(...tileAt(q.x, q.z))).y : 99) - P.y) < 0.6; const fl = [flAt(1), flAt(-1), P.clone().addScaledVector(side, eyeD * 0.3).addScaledVector(across, 4.6)].find(flOk) || flAt(1); bot.appear(fl); bot.look(P); bot.show(false); // she joins for the street-level shot
+  const flAt = (sg) => P.clone().addScaledVector(across, sg * 6.5).addScaledVector(side, -2.5); const flOk = (q) => openAt(q.x, q.z) && Math.abs((tileAt(q.x, q.z) ? world.tileTop(tkey(...tileAt(q.x, q.z))).y : 99) - P.y) < 0.6; const fl = [flAt(1), flAt(-1), P.clone().addScaledVector(side, eyeD * 0.3).addScaledVector(across, 4.6)].find(flOk) || flAt(1); bot.appear(fl); bot.look(P); bot.show(false); // she joins for the street-level shot
   const dt = 1 / 60;
   window.__duration = DUR;
   window.__render = (T) => {

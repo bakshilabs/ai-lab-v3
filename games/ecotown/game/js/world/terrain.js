@@ -55,15 +55,19 @@ export function rimHeight(x, z) {
   const m = Math.max(0, 1 - Math.hypot((x - 24) / 28, (z + 30) / 15));
   const massif = (m * 1.4 - m * m * 0.55) * 15 + noise2(x / 5, z / 5, 12) * 3 * m;   // broad, rounded shoulders with a craggy top
   const h = (1.5 + back * 7) * hills * Math.min(1, t * 2.4) + back * 2 * t + massif * Math.min(1, t * 1.8 + 0.25);
-  return Math.max(0, Math.round(h));
+  // stepped terracotta mesas on the west and east rim and the back corners (tall enough to read as terracotta, h >= 9)
+  let mesa = 0;
+  for (const [cx, cz, r, mh] of MESAS) { const d = Math.hypot(x - cx, (z - cz) * 1.1) + noise2(x / 2.5, z / 2.5, 31) * 1.2; if (d < r) mesa = Math.max(mesa, mh); else if (d < r + 1.8) mesa = Math.max(mesa, Math.round(mh * 0.62)); }
+  return Math.max(0, Math.round(h), mesa);
 }
+const MESAS = [[-45, 15, 3.6, 12], [-43, -20, 3, 10], [45, -4, 3.4, 13], [43, 18, 2.8, 10]];
 // Canyons: deep gorges carved through the rim (never into the tile area). Returns how far below the rim top
 // the floor is cut (0 = no canyon). Gorge 1 runs from the massif east to the island edge; gorge 2 cuts the west rim.
 export function canyonDepth(x, z) {
   if (insideTileArea(x, z)) return 0;
-  const c1 = Math.abs(z - (-29 + 4 * Math.sin(x / 7))); const w1 = x > 2 ? Math.max(0, 1 - c1 / (2.6 + Math.max(0, x - 30) * 0.08)) : 0;
+  const c1 = Math.abs(z - (-29 + 4 * Math.sin(x / 7))); const w1 = x > 2 ? Math.max(0, 1 - c1 / (4.6 + Math.max(0, x - 30) * 0.1)) : 0;
   const c2 = Math.abs(x - (-45 + 2.5 * Math.sin(z / 5))); const w2 = z < -6 && z > -30 ? Math.max(0, 1 - c2 / 2.2) : 0;
-  const c3 = Math.abs(x - (30 + 3 * Math.sin(z / 4))); const w3 = z > 14 ? Math.max(0, 1 - c3 / 2.4) : 0;
+  const c3 = Math.abs(x - (30 + 3 * Math.sin(z / 4))); const w3 = z > 14 ? Math.max(0, 1 - c3 / 3.8) : 0;
   const w = Math.max(w1, w2, w3); if (w <= 0) return 0;
   return Math.round(4 + w * 14);
 }
