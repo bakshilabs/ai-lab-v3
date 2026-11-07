@@ -83,7 +83,7 @@ The user asked for Florence as an animated character (their wooden-robot art is 
 - **UI:**
   - left `#build` panel: `renderBar` in `game.js`, picture slots from `img/thumbs/*.png`. Re-render the pictures with `node tools/thumbs.mjs <url>`;
   - right `#florence` card: `ui.florence` and `ui.florenceMini`;
-  - in missions the `#dock` becomes the left rail (`html[data-lab=on]`);
+  - in missions the `#dock` is a bottom bar (`html[data-lab=on]`, speaker left, actions right, checks 4 to a row);
   - the camera view offset (`frameView`) centres the island in the free space.
 - **Build videos:**
   - `index.html?shoot=<item>` gives a deterministic `__render(t)`. `tests/video/record.mjs <url> [items] [--force]` writes `game/videos/<item>.mp4/.jpg/.json` and `index.json`. In software 3D that is about 4 minutes per clip, about 2.5 hours for all 36.
@@ -103,7 +103,7 @@ The user asked for Florence as an animated character (their wooden-robot art is 
   - Free-building taps replace what's on a tile (`game/js/game/replace.js` `planPlace`, used by `placeAt(..., { replace: true })` and `tapPlan` in `game.js`). Missions and plan adoption keep the strict `sandboxReason`. Tests: `tests/replace.test.mjs`.
   - Tile highlight (`showAllowed`): cyan frame = buildable, striped cyan = replaces, grey = not buildable, red frame = removable. Frame patterns in `world.js` `patternTex`, drawn on top (`top: true` → `depthTest: false`). Key in the build panel (`hlKey`). The old pale-yellow dots were confused with gold town land.
   - The river no longer pours off the island: it rises at a spring pool under a mossy outcrop at the back (`SPRING`) and ends in a lagoon behind the beach (`LAGOON`), both in `terrain.js` `inRiverVoxel`. Gorge streams stop short of the edge. River tiles (`gx === 2`) and the simulation are unchanged.
-  - **Bottom hotbar layout** (user asked for the UI to take fewer columns): for screens ≥ 761 × 561 the town card is a one-row top strip, `#camctl` a row under `#strip`, `#build` a bottom hotbar (grid: clock/numbers column, 3 × 2 categories, scrolling item row, highlight key), `#florence` above it on the right. All in the last blocks of `css/game.css` (later rules override the older side-panel ones). `frameView` already handles a wide bottom panel (centres the island between the top strip and the bar). Phones keep the tray; missions keep the left rail.
+  - **Bottom hotbar layout** (user asked for the UI to take fewer columns): for screens ≥ 761 × 561 the town card is a one-row top strip, `#camctl` a row under `#strip`, `#build` a bottom hotbar (grid: clock/numbers column, 3 × 2 categories, scrolling item row, highlight key), `#florence` above it on the right. All in the last blocks of `css/game.css` (later rules override the older side-panel ones). `frameView` already handles a wide bottom panel (centres the island between the top strip and the bar). Phones keep the tray. Missions use the same bottom position (`html[data-lab=on] #dock`), and `#lensbar`/`#alert` sit under the top strip. The build videos were re-filmed after the river change.
 
 ## Beta revision (Nov 2026)
 All 49 notes in the beta tester's file were addressed; see README "How the game plays" and the commit history. Key decisions the user made:

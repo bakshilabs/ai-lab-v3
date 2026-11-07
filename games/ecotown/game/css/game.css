@@ -527,15 +527,6 @@ button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focu
 .needs span { border-radius: 6px !important; }
 .btn[disabled] { background: var(--sand2) !important; color: var(--ink2) !important; box-shadow: inset 0 0 0 2px var(--sandd) !important; }
 #card .crow { flex-wrap: wrap; row-gap: 4px; }
-/* missions: the dock becomes the left rail (where the build panel was), so the island stays clear */
-@media (min-width: 761px) and (min-height: 561px) {
-  html[data-lab="on"] #dock { left: 14px; right: auto; top: 148px; bottom: 14px; width: min(380px, 34vw); transform: none; display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
-  html[data-lab="on"] #dock .speaker { flex: none; max-height: 46%; overflow-y: auto; }
-  html[data-lab="on"] #dock .actions { flex: 1; overflow-y: auto; }
-  html[data-lab="on"] #dock .row { flex-wrap: wrap; }
-  html[data-lab="on"] #dock .choice { flex: 1 1 100%; }
-  html[data-lab="on"] #dock.hide { transform: translateX(-30px); }
-}
 /* whiteboards and big screens: everything scales up */
 @media (min-width: 1600px) and (min-height: 900px) {
   #build { width: 420px; top: 168px; }
@@ -567,14 +558,6 @@ button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focu
 @media (min-width: 1600px) and (min-height: 900px) { #camctl .ib { width: 56px; height: 56px; } }
 @media (max-width: 760px) { #camctl { top: auto; bottom: calc(44vh + 16px); right: 8px; transform: none; padding: 4px; } #camctl.hide { transform: translateX(30px); } #camctl .ib { width: 40px; height: 40px; } }
 @media (max-height: 560px) and (min-width: 561px) { #camctl { top: 8px; bottom: auto; right: 62px; transform: none; flex-direction: row; } }
-/* missions on the left rail: compact Florence card, choices two to a row so 8 checks fit without scrolling under her card */
-@media (min-width: 761px) and (min-height: 561px) {
-  html[data-lab="on"] #dock .speaker { max-height: 40%; position: relative; z-index: 0; }
-  html[data-lab="on"] #dock .actions { position: relative; z-index: 1; min-height: 0; }
-  html[data-lab="on"] #dock .actions .row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
-  html[data-lab="on"] #dock .choice { flex: none; min-height: 52px; font-size: max(13px, .82em); padding: 6px 8px; }
-  html[data-lab="on"] #dock .actions .row:has(.btn) { display: flex; }
-}
 /* key to the tile highlight in the build panel: cyan frame = build here, striped = replaces, grey = can't */
 #build .hlkey { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px 10px; margin: 6px 0 2px; font-size: max(12px, .78em); font-weight: 700; color: var(--cream); }
 #build .hlkey span { display: inline-flex; align-items: center; gap: 5px; }
@@ -642,3 +625,24 @@ button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focu
 }
 @media (min-width: 761px) and (min-height: 561px) { #card { max-width: calc(100vw - var(--stripw, 520px) - 44px); } }
 @media (min-width: 761px) and (min-height: 561px) { #card { flex-wrap: wrap; row-gap: 4px; } #card .goal { flex: 1 1 220px; } }
+
+/* ---------- missions: the dock is a bottom bar too (Nov 2026), so the island keeps nearly the whole screen.
+   Florence's words on the left, the steps and choices on the right; the eight checks fit in two rows. */
+@media (min-width: 761px) and (min-height: 561px) {
+  html[data-lab="on"] #dock { top: auto; right: auto; left: 50%; bottom: 12px; transform: translateX(-50%); width: min(1280px, calc(100vw - 24px)); max-height: 40vh;
+    display: grid; grid-template-columns: minmax(280px, 34%) minmax(0, 1fr); gap: 10px; align-items: stretch; overflow: hidden; }
+  html[data-lab="on"] #dock.hide { transform: translate(-50%, 30px); }
+  html[data-lab="on"] #dock.talk-only, html[data-lab="on"] #dock.actions-only { grid-template-columns: minmax(0, 1fr); width: min(900px, calc(100vw - 24px)); min-width: 0; }
+  html[data-lab="on"] #dock .speaker { min-height: 0; overflow-y: auto; }
+  html[data-lab="on"] #dock .actions { min-height: 0; overflow-y: auto; }
+  html[data-lab="on"] #dock .actions .row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+  html[data-lab="on"] #dock .actions .row:has(.btn) { display: flex; flex-wrap: wrap; }
+  html[data-lab="on"] #dock .choice { flex: none; min-height: 48px; font-size: max(13px, .82em); padding: 6px 8px; }
+}
+@media (min-width: 761px) and (max-width: 1100px) and (min-height: 561px) {
+  html[data-lab="on"] #dock { grid-template-columns: minmax(240px, 36%) minmax(0, 1fr); max-height: 44vh; }
+  html[data-lab="on"] #dock .actions .row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+/* the plan legend, the lens bar and the alerts sit under the top strip, not over it */
+@media (min-width: 761px) and (min-height: 561px) { #lensbar { top: 92px; } #alert { top: 150px; } }
+@media (min-width: 761px) and (max-width: 1100px) and (min-height: 561px) { #lensbar { top: 140px; } #alert { top: 198px; } }
