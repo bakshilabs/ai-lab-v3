@@ -12,10 +12,10 @@ export const SANDBOX_TOWN_CAP = 30;
 export const TIERS = [
   { id: 'land', at: () => true },
   { id: 'move', at: () => true },
-  { id: 'homes', at: (s) => s.townTiles >= 6, need: { j: 'Mark 6 tiles of town land', s: 'Designate 6 tiles of town land' } },
-  { id: 'food', at: (s) => s.families >= 12, need: { j: 'Homes for 12 families', s: '12 households housed' } },
-  { id: 'power', at: (s) => s.families >= 24, need: { j: 'Homes for 24 families', s: '24 households housed' } },
-  { id: 'heart', at: (s) => s.families >= 36 || (s.families >= 24 && s.food >= s.foodNeed), need: { j: '36 families, or 24 families with enough food', s: '36 households, or 24 with food ≥ need' } },
+  { id: 'homes', at: (s) => s.townTiles >= 6, need: { j: 'Mark 6 tiles of town land', s: 'Designate 6 tiles of town land' }, progress: (s) => [s.townTiles, 6] },
+  { id: 'food', at: (s) => s.families >= 12, need: { j: 'Homes for 12 families', s: '12 households housed' }, progress: (s) => [s.families, 12] },
+  { id: 'power', at: (s) => s.families >= 24, need: { j: 'Homes for 24 families', s: '24 households housed' }, progress: (s) => [s.families, 24] },
+  { id: 'heart', at: (s) => s.families >= 36 || (s.families >= 24 && s.food >= s.foodNeed), need: { j: '36 families, or 24 families with enough food', s: '36 households, or 24 with food ≥ need' }, progress: (s) => [s.families, s.food >= s.foodNeed ? 24 : 36] },
 ];
 
 // `full`: everything open (the ?sandbox=full test mode). `ever`: categories already opened stay open,
@@ -47,3 +47,6 @@ export function townGoals(s, ctx) {
   ];
 }
 export const townComplete = (s, ctx) => townGoals(s, ctx).every((g) => g.ok);
+
+// the next category still locked, with progress toward it: { id, have, need } (null when everything is open)
+export function nextUnlock(s, open) { const t = TIERS.find((x) => !open.includes(x.id)); if (!t) return null; const [have, need] = t.progress(s); return { id: t.id, have: Math.min(have, need), need, tier: t }; }

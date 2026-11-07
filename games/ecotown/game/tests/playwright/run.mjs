@@ -26,10 +26,10 @@ const p = await b.newPage({ viewport: { width: +W, height: +H } });
 await p.addInitScript((fast) => { window.__sayLog = []; if (fast) localStorage.setItem('ecotown.prefs', JSON.stringify({ quality: 'low', reduce: true })); }, !!process.env.FAST);
 const errors = []; p.on('pageerror', (e) => errors.push(e.message + ' ' + (e.stack || '').split('\n')[1])); p.on('console', (m) => m.type() === 'error' && !/404/.test(m.text()) && errors.push(m.text()));
 const requests = []; p.on('request', (r) => { if (!r.url().startsWith(base)) requests.push(r.url()); });
+const budget = []; const checks = {};
 let n = 0; const shot = async (name) => { await p.waitForTimeout(500); await p.screenshot({ path: `${out}/${String(++n).padStart(2, '0')}-${name}.png` }); };
 const click = async (sel, t = 20000) => { await p.waitForSelector(sel, { state: 'visible', timeout: t }); await p.click(sel); };
 const panelsVisible = () => p.evaluate(() => [...document.querySelectorAll('#layer > .panel:not(.hide)')].map((n) => n.id).filter(Boolean));
-const budget = []; const checks = {};
 const A = '#dock [data-actions] ';
 
 await p.goto(base + 'index.html');
@@ -37,16 +37,26 @@ await shot('start');
 await click(`[data-band="${band}"]`);
 await click('[data-name]'); await p.fill('[data-name]', 'Otter Bend'); await shot('name'); await click('[data-go]');
 await p.waitForTimeout(800);
-const skip = await p.$('text=Skip ⏭'); if (skip) await skip.click().catch(() => {});
+// Florence's intro: INTRO=1 plays it (three tiles, the build video), otherwise it is skipped
+if (process.env.INTRO) {
+  for (let i = 0; i < 14 && !(await p.evaluate(() => window.__eco.app.G?.introDone)); i++) {
+    const r = await Promise.race([p.waitForSelector('#florence:not(.hide) [data-next]', { timeout: 120000 }).then(() => 'next'), p.waitForSelector('#florence [data-introbar]', { timeout: 120000 }).then(() => 'tap'), p.waitForSelector('#modal:not(.hide) video', { timeout: 120000 }).then(() => 'video')]).catch(() => 'none');
+    if (r === 'next') { await shot(`intro-${i}`); await p.click('#florence [data-next]').catch(() => {}); await p.waitForTimeout(600); }
+    else if (r === 'tap') { await shot('intro-tap'); await p.evaluate(() => { const { G } = window.__eco.app; const ks = [...window.__eco.terrain.tiles.values()].filter((t) => t.zone === 'slope' && !t.fixed).slice(0, 3).map((t) => t.k); for (const k of ks) G.placeAt(k, 'town'); }); await p.waitForTimeout(1500); }
+    else if (r === 'video') { await p.waitForTimeout(2500); checks.introVideoPlays = await p.evaluate(() => { const v = document.querySelector('#modal video'); return !!v && v.readyState >= 2 && v.currentTime > 0; }); await shot('intro-video'); await p.click('#modal [data-act]'); }
+    else break;
+  }
+  checks.introDone = await p.evaluate(() => window.__eco.app.G?.introDone); checks.introTilesKept = await p.evaluate(() => window.__eco.app.G.sim().townTiles);
+} else { const sk = await p.waitForSelector('[data-introskip]', { timeout: 120000 }).catch(() => null); if (sk) await sk.click().catch(() => {}); }
 
 // ---------- free building: straight onto the island, with the build bar and Florence's first tip
-await p.waitForSelector(A + '[data-cat="land"]', { timeout: 180000 });
+await p.waitForSelector('#build [data-cat="land"]', { timeout: 180000 });
 checks.noForcedCard = await p.evaluate(() => document.querySelector('#modal').classList.contains('hide'));
-await p.waitForSelector('#dock .speaker em.tip', { timeout: 15000 }).then(() => (checks.firstTip = true)).catch(() => (checks.firstTip = false));
+await p.waitForSelector('#florence:not(.hide) .fhead em', { timeout: 15000 }).then(() => (checks.firstTip = true)).catch(() => (checks.firstTip = false));
 await shot('build-start'); budget.push(['build-start-live', await panelsVisible()]);
 checks.homesLockedAtStart = await p.evaluate(() => document.querySelector('[data-cat="homes"]').classList.contains('locked'));
 // tap six dry tiles on the island with the town-land tool, like a player
-await click(A + '[data-t="town"]');
+await click('#build [data-cat="land"]'); await click('#build [data-t="town"]');
 const spots = await p.evaluate(() => {
   const { app, terrain } = window.__eco; const cam = app.stage.camera; const cv = app.stage.renderer.domElement.getBoundingClientRect(); const out = [];
   for (const t of terrain.tiles.values()) {
@@ -115,7 +125,7 @@ for (const [id, check, vague, clear] of LEVELS) {
     await m.click(); await p.waitForTimeout(500);
   }
   if (id === 'heart') { await p.waitForSelector(A + '[data-p]', { timeout: 30000 }); for (const i of [0, 1, 2, 3]) await click(`${A}[data-p="${i}"]`); await shot('charter'); await click(A + '[data-ok]'); await click('#modal:not(.hide) [data-act="ok"]'); }
-  await p.waitForSelector(A + '[data-cat]', { timeout: 30000 }); await p.waitForTimeout(800);
+  await p.waitForSelector('#build [data-cat]', { timeout: 30000 }); await p.waitForTimeout(800);
   const after = await p.evaluate(() => JSON.stringify([...window.__eco.app.G.cells]));
   if (id === 'move') checks.keepLeavesTownUnchanged = before === after;
   else checks[`${id}PlanAdded`] = before !== after;
@@ -123,12 +133,13 @@ for (const [id, check, vague, clear] of LEVELS) {
   console.log('mission done', id, clean ? 'clean' : 'flawed', 'stars', await p.evaluate(() => window.__eco.app.G.stars), 'unlocked', await p.evaluate(() => window.__eco.app.G.ever.join(',')));
 }
 checks.lensButtons = await p.evaluate(() => document.querySelectorAll('#strip [data-lens]').length);
+const play = await p.$('#build [data-play]'); if (play) { await play.click(); await p.waitForSelector('#modal:not(.hide) video', { timeout: 20000 }); await p.waitForTimeout(3000); checks.paletteVideoPlays = await p.evaluate(() => { const v = document.querySelector('#modal video'); return !!v && v.readyState >= 2 && v.currentTime > 0; }); await shot('video-card'); await click('#modal:not(.hide) [data-act="close"]'); }
 await click('#strip [data-lens="flood"]'); await p.waitForTimeout(1500); await shot('lens-flood'); await click('#lensbar [data-lensx]');
 const pop = await p.$('#modal:not(.hide) [data-act="keep"]'); if (pop) { await shot('town-complete'); checks.townComplete = true; await pop.click(); await p.waitForTimeout(600); }
 await shot('town-built');
 await click('#strip [data-lab]'); await click('#modal:not(.hide) [data-act="report"]');
 await p.waitForSelector('#report', { timeout: 60000 }); await p.waitForTimeout(800); await shot('report');
-await click('#report [data-close]'); await p.waitForSelector(A + '[data-cat]', { timeout: 30000 }); checks.backFromReport = true;
+await click('#report [data-close]'); await p.waitForSelector('#build [data-cat]', { timeout: 30000 }); checks.backFromReport = true;
 checks.saved = await p.evaluate(() => !!localStorage.getItem('ecotown.save.v3'));
 const said = await p.evaluate(() => window.__sayLog || []);
 fs.writeFileSync(`${out}/said.json`, JSON.stringify(said, null, 1));

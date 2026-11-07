@@ -20,7 +20,7 @@ export function createUI(root, labelsRoot, opts) {
   const mk = (id, cls, html = '') => { const n = h(`<div id="${id}" class="panel hide ${cls}">${html}</div>`); root.appendChild(n); P[id] = n; return n; };
   // one town card (top-left), one icon strip (top-right), one dock (bottom): the whole frame
   mk('card', 'from-left', `<div class="crow"><span class="leaf">🌱</span><b class="brand">Eco Town</b><span class="band" data-sub></span><span class="stars"><span class="star">★</span><b data-stars>0</b></span></div>
-    <div class="track" data-track>${TRACK_PICS.map((pic, i) => `<i data-l="${i + 1}"><img src="img/thumbs/${pic}.png" alt="${LEVEL_ICONS[i]}"></i>`).join('<em></em>')}</div><div class="goal" data-goal></div>`);
+    <div class="track" data-track>${TRACK_PICS.map((pic, i) => `<i data-l="${i + 1}" role="button" tabindex="0" aria-label="AI Lab mission ${i + 1}"><img src="img/thumbs/${pic}.png" alt=""></i>`).join('<em></em>')}</div><div class="goal" data-goal></div>`);
   mk('strip', 'from-right', `<button class="ib" data-flower aria-label="Town flower"><svg viewBox="-60 -60 120 120"></svg></button><span class="sep"></span>
     <button class="ib" data-v="sky" aria-label="Sky view">☁</button><button class="ib" data-v="street" aria-label="Street view">👟</button><button class="ib" data-v="inside" aria-label="Inside view">🏠</button><span class="sep"></span><span class="lenses" data-lenses></span><button class="ib lab" data-lab aria-label="AI Lab" title="AI Lab"><img src="img/thumbs/ailab.png" alt=""></button><span class="sep"></span><button class="ib" data-menu aria-label="Settings">☰</button>`);
   mk('flowerpop', 'from-right', '<svg viewBox="-60 -60 120 120" aria-label="Town flower"></svg><div class="ttl"></div><div class="legend"></div>');
@@ -88,14 +88,21 @@ export function createUI(root, labelsRoot, opts) {
       if (pic) { pic.classList.add('talk'); clearTimeout(pic._t); pic._t = setTimeout(() => pic.classList.remove('talk'), secs * 1000); }
       this.onTalk?.(secs);
     },
+    // shrink Florence's card to her portrait (tap it to read the last tip again)
+    florenceMini(onOpen) {
+      if (P.florence.classList.contains('hide')) return;
+      P.florence.classList.add('mini'); P.florence.setAttribute('role', 'button'); P.florence.setAttribute('tabindex', '0'); P.florence.setAttribute('aria-label', 'Florence: show her last tip');
+      const open = (e) => { if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return; P.florence.onclick = P.florence.onkeydown = null; onOpen?.(); };
+      P.florence.onclick = open; P.florence.onkeydown = open;
+    },
     // the build panel (left): html + bind, like the tray. Empty html hides it.
     buildPanel(html, bind) { if (!html) { P.build.classList.add('hide'); return P.build; } P.build.innerHTML = html; P.build.classList.remove('hide'); bind?.(P.build); return P.build; },
     // Florence's card (right) while building: { tag, html, say } or null to hide
     florence(o) {
       if (!o) { P.florence.classList.add('hide'); return; }
       const line = o.say || h(`<div>${o.html}</div>`).textContent;
-      P.florence.innerHTML = `<div class="fhead"><img class="portrait" src="img/florence.png" alt=""><div><b>Florence</b>${o.tag ? `<em>${esc(o.tag)}</em>` : ''}</div>${canSpeak() ? '<button class="spk" data-spk aria-label="Read aloud" title="Read aloud">🔊</button>' : ''}</div><div class="fbody">${o.html}</div>`;
-      P.florence.classList.remove('hide');
+      P.florence.innerHTML = `<div class="fwrap"><img class="portrait" src="img/florence.png" alt="Florence"><div><div class="fhead"><b>Florence</b>${o.tag ? `<em>${esc(o.tag)}</em>` : ''}${canSpeak() ? '<button class="spk" data-spk aria-label="Read aloud" title="Read aloud">🔊</button>' : ''}</div><div class="fbody">${o.html}</div></div></div>`;
+      P.florence.classList.remove('hide', 'mini'); P.florence.onclick = null; P.florence.removeAttribute('role'); P.florence.removeAttribute('tabindex');
       P.florence.querySelector('[data-spk]')?.addEventListener('click', () => speak(line, { voice: 'helper', force: true }));
       if (o.say) this.say(o.say, 'helper');
       this.talking(P.florence, line);
@@ -160,6 +167,7 @@ export function createUI(root, labelsRoot, opts) {
   P.strip.querySelector('[data-lab]').addEventListener('click', () => ui.onLab?.());
   P.strip.querySelector('[data-lenses]').addEventListener('click', (e) => { const b = e.target.closest('[data-lens]'); if (b) ui.onLens?.(b.dataset.lens); });
   P.card.querySelector('[data-track]').addEventListener('click', () => ui.onLab?.());
+  P.card.querySelector('[data-track]').addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); ui.onLab?.(); } });
   P.flowerpop.addEventListener('click', () => P.flowerpop.classList.add('hide'));
 
 

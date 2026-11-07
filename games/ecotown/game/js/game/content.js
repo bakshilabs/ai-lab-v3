@@ -91,6 +91,7 @@ const SANDBOX_COMMON = {
 export const SANDBOX = {
   junior: {
     ...SANDBOX_COMMON,
+    cats: { land: 'Land', move: 'Travel', homes: 'Homes', food: 'Food', power: 'Power', heart: 'Town heart' },
     buildWhat: 'What to build', dayClock: 'The time in your town', tools: 'Tools', erase: 'Remove', credits: 'credits', fromHouseholds: 'from the families',
     unlocksWhen: 'Unlocks when you have:', now: 'Now', townLand: 'Town land', families: 'families', tiles: 'tiles', food: 'food',
     removeFirst: 'Remove what’s built here first', already: 'Already here', townFull: (n) => `Town land is full (${n} tiles). Remove a tile first.`, noCredits: 'Not enough credits yet',
@@ -119,7 +120,7 @@ export const SANDBOX = {
     completeRibbon: 'Town complete!', completeText: 'Every family has a home, there’s enough food, the lights stay on in winter and every home is close to school. Well done!', keepBuilding: 'Keep building',
     classInvite: 'Ready for your first AI Lab mission? Let’s see if you can catch my mistakes!',
     intro: {
-      tag: 'HELLO', next: 'Next', skip: 'Skip intro', tiles: 'Town land',
+      tag: 'HELLO', yourTurnTag: 'YOUR TURN', next: 'Next', skip: 'Skip intro', tiles: 'Town land',
       hello: 'Hi! I’m Florence, your AI planning helper. Let’s build a town together!',
       meadow: 'This flat meadow looks perfect for houses… but look! The river spills over it every winter.',
       yourTurn: 'Up here it stays dry and sunny. Your turn: tap three tiles to make town land.',
@@ -161,7 +162,7 @@ export const SANDBOX = {
     completeRibbon: 'Town complete', completeText: 'All petals at "enough", carbon under the ceiling, winter-night power secured, every home within 15 minutes of school.', keepBuilding: 'Keep building',
     classInvite: 'Class mode: your first AI Lab mission is ready. Test my plan before you trust it.',
     intro: {
-      tag: 'HELLO', next: 'Next', skip: 'Skip intro', tiles: 'Town land',
+      tag: 'HELLO', yourTurnTag: 'YOUR TURN', next: 'Next', skip: 'Skip intro', tiles: 'Town land',
       hello: 'Hi, I’m Florence, the town’s AI planning assistant. You make the decisions; I make plans.',
       meadow: 'The river meadow is flat and cheap to build on. It is also the winter floodplain.',
       yourTurn: 'This slope stays dry. Designate three tiles of town land to start.',

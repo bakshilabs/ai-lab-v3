@@ -14,7 +14,7 @@ const BASE = {
   'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'no-referrer', 'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
   'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'",
 };
-const TYPES = { html: 'text/html; charset=utf-8', js: 'text/javascript; charset=utf-8', css: 'text/css; charset=utf-8', json: 'application/json', bin: 'application/octet-stream', woff2: 'font/woff2' };
+const TYPES = { png: 'image/png', jpg: 'image/jpeg', mp4: 'video/mp4', html: 'text/html; charset=utf-8', js: 'text/javascript; charset=utf-8', css: 'text/css; charset=utf-8', json: 'application/json', bin: 'application/octet-stream', woff2: 'font/woff2' };
 const json = (o, status = 200, extra = {}) => new Response(JSON.stringify(o), { status, headers: { ...BASE, 'Content-Type': 'application/json', ...extra } });
 const html = (s, status = 200) => new Response(s, { status, headers: { ...BASE, 'Content-Type': TYPES.html } });
 
@@ -92,6 +92,20 @@ export default {
       const name = file.slice(7); if (!/^pack-[a-z]+(-[a-f0-9]+)?\.(json|bin)$/.test(name)) return new Response('Not found', { status: 404, headers: BASE });
       const v = await env.VOICE.get(name, 'arrayBuffer'); if (!v) return new Response('Not found', { status: 404, headers: BASE });
       return new Response(v, { headers: { ...BASE, 'Content-Type': name.endsWith('.json') ? 'application/json' : 'audio/mpeg' } });
+    }
+    // Florence's portrait, build pictures and build videos also live in KV. Videos need byte ranges (Safari/iPad).
+    if (/^\/(img|videos)\//.test(file) && env.VOICE) {
+      const key = file.slice(1); if (!/^(img\/(thumbs\/)?[a-z0-9_-]+\.png|videos\/[a-z0-9_-]+\.(mp4|jpg|json))$/.test(key)) return new Response('Not found', { status: 404, headers: BASE });
+      const v = await env.VOICE.get(key, 'arrayBuffer'); if (!v) return new Response('Not found', { status: 404, headers: BASE });
+      const type = TYPES[key.split('.').pop()] || 'application/octet-stream';
+      const m = /^bytes=(\d*)-(\d*)$/.exec(req.headers.get('Range') || '');
+      if (m && (m[1] || m[2])) {
+        const size = v.byteLength; let a = m[1] ? +m[1] : size - +m[2]; let b = m[1] && m[2] ? +m[2] : size - 1;
+        if (a < 0) a = 0; if (b >= size) b = size - 1;
+        if (a > b || a >= size) return new Response(null, { status: 416, headers: { ...BASE, 'Content-Range': `bytes */${size}` } });
+        return new Response(v.slice(a, b + 1), { status: 206, headers: { ...BASE, 'Content-Type': type, 'Accept-Ranges': 'bytes', 'Content-Range': `bytes ${a}-${b}/${size}`, 'Content-Length': String(b - a + 1) } });
+      }
+      return new Response(v, { headers: { ...BASE, 'Content-Type': type, 'Accept-Ranges': 'bytes' } });
     }
     const body = FILES[file];
     if (body === undefined) return new Response('Not found', { status: 404, headers: BASE });

@@ -41,12 +41,19 @@ export async function runIntro(api) {
     const dP = top(dry.k); go(dP, 120); await step(bot.walkTo(dP, { stopShort: 6, maxDur: 3 }));
     bot.point(dP.clone().add(new THREE.Vector3(0, 1, 0)), 2.5);
     api.selectTool('land', 'town'); api.highlight('#build', true);
-    const start = api.townTiles(); await say(T.yourTurn, { next: false });
+    // three suggested dry tiles glow gold; the progress bar sits in Florence's card
+    const suggest = tiles.filter((t) => ['slope', 'field'].includes(t.zone) && !t.fixed).sort((a, b) => top(a.k).distanceTo(dP) - top(b.k).distanceTo(dP)).slice(0, 3);
+    const glow = () => { const spec = new Map(); for (const t of suggest) spec.set(t.k, { color: '#ffd23f', pattern: 'dots', opacity: 0.8 }); world.setOverlay(spec); };
+    glow();
+    const start = api.townTiles();
+    const el = ui.florence({ tag: T.yourTurnTag, html: `<p>${esc(T.yourTurn)}</p><div class="bar" data-introbar><i style="width:0%"></i><span>${T.tiles}: 0 / 3</span></div>`, say: T.yourTurn });
     let shown = start;
     while (api.townTiles() < start + 3) {
       await step(sleep(250));
-      const n = api.townTiles(); if (n > shown) { shown = n; bot.nod(); ui.caption(`${T.tiles} ${n - start} / 3`, 1500); }
+      const n = api.townTiles();
+      if (n !== shown) { shown = n; if (n > start) bot.nod(); const k = Math.max(0, Math.min(3, n - start)); const bar = el.querySelector('[data-introbar]'); if (bar) { bar.querySelector('i').style.width = `${(100 * k) / 3}%`; bar.querySelector('span').textContent = `${T.tiles}: ${k} / 3`; } glow(); }
     }
+    world.setOverlay(null);
     api.highlight('#build', false);
     bot.cheer(); await step(say(T.wellDone));
     // 4. how a build goes up: a build video (from above, then at eye level)

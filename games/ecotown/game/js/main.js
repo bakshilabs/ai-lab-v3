@@ -54,6 +54,7 @@ applySettings();
 // ---------------- render loop
 let last = performance.now(); const T0 = last;
 function loop(now) {
+  if (app.manual) { requestAnimationFrame(loop); return; } // the build-video recorder drives frames itself (?shoot=)
   const dt = Math.min(0.05, (now - last) / 1000); last = now; const t = (now - T0) / 1000;
   rig.update(dt); world.update(dt, t, { windStill: app.winterTest }); life.update(dt, t, app.hour, { windStill: app.winterTest, moveIn: app.moveIn }); inside.update(dt, t); bot.update(dt, t);
   stage.render(dt, t); ui.labels.update(stage.camera, canvas);
@@ -159,7 +160,73 @@ window.addEventListener('dragstart', (e) => e.preventDefault());
 // Film preview: index.html?film=homes builds the town up to that level with the clear instructions, then plays its film.
 const filmParam = new URLSearchParams(location.search).get('film');
 app.townName = 'Eco Town';
-if (filmParam) filmPreview(filmParam); else start();
+const shootParam = new URLSearchParams(location.search).get('shoot');
+if (shootParam) shoot(shootParam); else if (filmParam) filmPreview(filmParam); else start();
+
+// Build videos: index.html?shoot=<item> builds a whole demo town, puts the item on a good tile and exposes
+// window.__render(t) (deterministic, fixed steps) for tests/video/record.mjs. About 10 s: the build goes up
+// seen from above (0–6 s), the camera swoops down (6–7.5 s), then an eye-level shot with Florence peering at it.
+async function shoot(id) {
+  app.manual = true; $('#layer').style.display = 'none'; $('#labels').style.display = 'none';
+  const { seedTo, CLEAR } = await import('./game/seed.js'); const { plan, applyPlacements } = await import('./sim/planner.js');
+  const { ITEMS, placeReason } = await import('./world/catalog.js'); const { cellOf } = await import('./sim/sim.js');
+  stage.setTier(new URLSearchParams(location.search).get('tier') || 'high');
+  let cells = seedTo(terrain, 'heart'); cells = applyPlacements(cells, plan('heart', CLEAR.heart, { terrain, cells, numbers: { minutes: 10 } }).placements);
+  for (const c of cells.values()) c.locked = false;
+  const it = ITEMS[id]; const town = [...cells].filter(([, c]) => c.mark === 'town').map(([k]) => world.tileTop(k));
+  const centre = town.reduce((v, p) => v.add(p), new THREE.Vector3()).multiplyScalar(1 / Math.max(1, town.length));
+  // the hero tile: allowed for the item, free, near the town, towards the front of the island (camera side)
+  const score = (t) => world.tileTop(t.k).distanceTo(centre) - t.gz * 1.5;
+  let hero, cell;
+  const tiles = [...terrain.tiles.values()].filter((t) => !t.fixed);
+  if (it.kind === 'mod') { const homes = tiles.filter((t) => { const c = cells.get(t.k); return c?.item && ITEMS[c.item].home && !c.mods.includes(id); }).sort((a, b) => score(a) - score(b)); hero = homes[0]; const c = cells.get(hero.k); cell = { ...c, mods: [...c.mods, id] }; cells.set(hero.k, { ...c }); }
+  else {
+    const free = tiles.filter((t) => { const c = cellOf(cells, t.k); if (c.item) return false; if (it.kind === 'mark') return !c.mark && ['field', 'slope', 'meadow'].includes(t.zone); return !placeReason(id, t, c); });
+    // on town land, a free town tile if there is one; otherwise make one
+    hero = free.sort((a, b) => score(a) - score(b))[0];
+    if (!hero && it.on.includes('town')) { hero = tiles.filter((t) => ['field', 'slope'].includes(t.zone) && !cellOf(cells, t.k).item).sort((a, b) => score(a) - score(b))[0]; cells.set(hero.k, { mark: 'town', item: null, mods: [], locked: false }); }
+    const c = cellOf(cells, hero.k); cell = it.kind === 'mark' ? { ...c, mark: id } : { ...c, mods: [...c.mods], item: id };
+  }
+  const k = hero.k; const heroCellBefore = cells.get(k) || null;
+  for (const t of terrain.tiles.values()) world.setCell(t.k, cells.get(t.k) || { mark: null, item: null, mods: [] });
+  if (it.kind === 'mod') world.setCell(k, heroCellBefore); else world.setCell(k, cellOf(cells, k).mark ? { mark: cellOf(cells, k).mark, item: null, mods: [] } : { mark: null, item: null, mods: [] });
+  const after = new Map(cells); after.set(k, cell);
+  life.setTown(simulate(terrain, after), after, stage.q); app.hour = 10.5; stage.setTime(10.5, 0);
+  const P = world.tileTop(k); const DUR = 10, B0 = 0.5, BDUR = 5.0, SW0 = 6.0, SW1 = 7.5;
+  const stages = []; let started = false, last = 0;
+  // camera: a slow orbit from above, a swoop, then eye level beside the build
+  const yaw0 = -0.55, pitch = 0.78, dist = 74;
+  const skyAt = (t) => { const yaw = yaw0 + 0.32 * (t / SW0); const pos = new THREE.Vector3(P.x - Math.sin(yaw) * Math.cos(pitch) * dist, P.y + Math.sin(pitch) * dist, P.z + Math.cos(yaw) * Math.cos(pitch) * dist); return { pos, look: P.clone().add(new THREE.Vector3(0, 1.5, 0)), fov: 22 }; };
+  const LOW = new Set(['road', 'carpark', 'path', 'cycle', 'bigfield', 'mixed', 'allot', 'raingarden', 'reedbed', 'compost', 'hedge', 'hives', 'bridge', 'tram', 'festival']);
+  const tall = (it.kind === 'build' && !LOW.has(id)) || it.kind === 'mod';
+  const eyeDist = id === 'wind' ? 26 : tall ? 15 : 11;
+  // eye level: pick the direction whose line of sight crosses only open, low tiles (no buildings, woods or terraces)
+  const { tileAt, key: tkey } = await import('./world/terrain.js');
+  const openAt = (x, z) => { const a = tileAt(x, z); if (!a) return false; const t = terrain.tiles.get(tkey(a[0], a[1])); if (!t || t.k === k) return !!t; const c = after.get(t.k); if (t.fixed || t.zone === 'wood' || t.zone === 'river') return false; if (c?.item && !LOW.has(c.item)) return false; return world.tileTop(t.k).y <= P.y + 1.2; };
+  let side = null;
+  for (let i = 0; i < 24 && !side; i++) { const a = yaw0 + 0.32 + (i % 2 ? -1 : 1) * Math.ceil(i / 2) * (Math.PI / 12); const d = new THREE.Vector3(-Math.sin(a), 0, Math.cos(a)); let ok = true; for (let r = 4; r <= eyeDist + 4 && ok; r += 1.5) for (const off of [-2.5, 0, 2.5]) { const q = P.clone().addScaledVector(d, r).add(new THREE.Vector3(d.z * off, 0, -d.x * off)); if (!openAt(q.x, q.z)) { ok = false; break; } } if (ok) side = d; }
+  side ||= new THREE.Vector3(-Math.sin(yaw0 + 0.32), 0, Math.cos(yaw0 + 0.32));
+  const across = new THREE.Vector3(side.z, 0, -side.x);
+  const eyeAt = (t) => { const u = Math.min(1, Math.max(0, (t - SW1) / (DUR - SW1))); const pos = P.clone().addScaledVector(side, eyeDist).addScaledVector(across, -2.5 + 5 * u); pos.y = P.y + 2.2; return { pos, look: P.clone().add(new THREE.Vector3(0, id === 'wind' ? 7 : tall ? 2.6 : 0.8, 0)), fov: 50 }; };
+  const ease = (x) => x * x * (3 - 2 * x);
+  const poseAt = (t) => { if (t <= SW0) return skyAt(t); if (t >= SW1) return eyeAt(t); const a = skyAt(SW0), b = eyeAt(SW1), k2 = ease((t - SW0) / (SW1 - SW0)); return { pos: a.pos.clone().lerp(b.pos, k2).add(new THREE.Vector3(0, Math.sin(k2 * Math.PI) * 6, 0)), look: a.look.clone().lerp(b.look, k2), fov: a.fov + (b.fov - a.fov) * k2 }; };
+  // Florence waits beside the build and peers at it once it is finished
+  const flAt = (sg) => P.clone().addScaledVector(across, sg * 6.5).addScaledVector(side, -1); const flOk = (q) => openAt(q.x, q.z) && Math.abs((tileAt(q.x, q.z) ? world.tileTop(tkey(...tileAt(q.x, q.z))).y : 99) - P.y) < 0.6; const fl = [flAt(1), flAt(-1), P.clone().addScaledVector(side, eyeDist * 0.3).addScaledVector(across, 4.6)].find(flOk) || flAt(1); bot.appear(fl); bot.look(P); bot.show(false); // she joins for the street-level shot
+  const dt = 1 / 60;
+  window.__duration = DUR;
+  window.__render = (T) => {
+    while (last < T - 1e-6) {
+      const step = Math.min(dt, T - last); last += step;
+      if (!started && last >= B0) { started = true; world.setCell(k, cell, { build: { dur: BDUR, onStage: (i, st) => stages.push({ t: +(B0 + st.t0).toFixed(2), text: st.label }) } }); }
+      if (last >= SW0 && last - step < SW0) bot.show(true);
+      if (last >= SW1 && last - step < SW1) bot.peer(P.clone().add(new THREE.Vector3(0, 1.5, 0)), 2.4);
+      world.update(step, last, {}); life.update(step, last, app.hour, {}); bot.update(step, last);
+    }
+    rig.apply(poseAt(T)); stage.render(dt, T);
+  };
+  window.__timeline = () => ({ item: id, duration: DUR, eye: SW0, stages, eyeText: { j: 'Built! Now see it from the street.', s: 'Complete. Street-level view.' } });
+  window.__render(0); window.__ready = true;
+}
 async function filmPreview(level) {
   const { plan, applyPlacements } = await import('./sim/planner.js');
   const { createFilm } = await import('./game/film.js');

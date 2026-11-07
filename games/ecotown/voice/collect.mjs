@@ -43,6 +43,8 @@ const out = await p.evaluate(async () => {
     const S = SANDBOX[band];
     for (const r of RULES) { const t = r.text[j ? 'j' : 's']; if (typeof t === 'string') add(band, t, 'helper'); }
     for (const id of Object.keys(S.unlockTip)) if (S.unlockTip[id]) { add(band, S.unlockTip[id], 'helper'); add(band, `${S.unlockTip[id]} ${S.labReady}`, 'helper'); }
+    for (const [k, v] of Object.entries(S.intro)) if (!['tag', 'yourTurnTag', 'next', 'skip', 'tiles'].includes(k)) add(band, v, 'helper');
+    add(band, 'Built! Now see it from the street.', 'narrator'); add(band, 'Complete. Street-level view.', 'narrator');
     add(band, S.classInvite, 'helper'); add(band, S.moveIn, 'narrator'); add(band, S.completeText, 'narrator'); add(band, S.planDidntFit, 'narrator');
   }
   // Florence's readings for many instructions (both bands hear them in her voice)

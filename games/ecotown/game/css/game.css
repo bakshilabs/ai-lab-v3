@@ -468,3 +468,94 @@ html[data-motion="reduce"] .portrait.talk { animation: none; }
 @keyframes pulseslot { 50% { box-shadow: var(--slot-bevel), 0 0 0 5px var(--gold), 0 0 18px rgba(255,210,63,.9); } }
 .introskip { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 20; }
 html[data-motion="reduce"] .pulse, html[data-motion="reduce"] .slot.pulse { animation: none; outline: 4px solid var(--gold); }
+
+/* ---------- design review fixes (Nov 2026) */
+/* readable labels: never below 12–14 px, two lines instead of "…" */
+#build .cat { font-size: max(12px, .72em); }
+#build .item { font-size: max(13px, .78em); }
+.slot span { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.1; }
+#florence .slot.act { font-size: max(14px, .88em); min-height: 48px; }
+/* selected: dark frame, raised, with a tick (not colour alone) */
+.slot.on { border: 3px solid var(--wd); transform: translateY(-3px); padding: 1px; }
+.slot.on::after { content: '✓'; position: absolute; top: -8px; right: -8px; width: 24px; height: 24px; border-radius: 6px; background: var(--wd); color: var(--gold); font-size: 14px; display: grid; place-items: center; box-shadow: 0 2px 0 rgba(0,0,0,.35); }
+#build .cat.on::after { top: -6px; right: -6px; }
+/* missions on the town track: ready = a pulsing "!" badge; done = green with a tick */
+#card .track i { position: relative; }
+#card .track i.on { background: var(--sand); box-shadow: var(--slot-bevel); }
+#card .track i.on::after { content: '!'; position: absolute; top: -7px; right: -7px; width: 18px; height: 18px; border-radius: 5px; background: #d9533d; color: #fff; font: 900 12px/18px 'Inter'; text-align: center; animation: bump 1.4s ease-in-out infinite; }
+#card .track i.done::after { content: '✓'; position: absolute; bottom: -6px; right: -6px; width: 18px; height: 18px; border-radius: 5px; background: #1f7a44; color: #fff; font: 900 12px/18px 'Inter'; text-align: center; }
+html[data-motion="reduce"] #card .track i.on::after { animation: none; }
+/* touch targets: 44 px at least */
+.slot.mini, .spk, #florence .spk { width: 44px; height: 44px; }
+#card .track i { width: 44px; height: 44px; cursor: pointer; }
+/* contrast: darker green for white text, TIP tag, gold focus ring */
+.btn.go { background: #1f7a44; }
+#florence .fhead em, .speaker .name em.tip { background: #0b7a5c; }
+button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; box-shadow: 0 0 0 6px var(--wd); }
+/* Florence's card: portrait at the side of her words, no empty header row */
+#florence { padding: 10px; }
+#florence .fwrap { display: grid; grid-template-columns: 74px 1fr; gap: 8px; align-items: end; }
+#florence .fwrap .portrait { width: 74px; margin: -40px 0 0 -6px; align-self: start; }
+#florence .fhead { align-items: center; margin-bottom: 4px; }
+#florence .fbody { margin-top: 0; }
+#florence.mini { width: auto; padding: 6px; cursor: pointer; }
+#florence.mini .fbody, #florence.mini .fhead { display: none; }
+#florence.mini .fwrap { grid-template-columns: 64px; }
+#florence.mini .fwrap .portrait { width: 64px; margin: -30px 0 0 0; }
+#florence.mini::after { content: '💬'; position: absolute; top: -6px; right: -6px; font-size: 18px; }
+/* locked category: greyed builds and a bar filling toward the unlock */
+#build .lockbar { grid-column: 1 / -1; color: var(--cream); font-weight: 700; }
+#build .lockbar p { margin: 0 0 6px; font-size: max(13px, .82em); }
+.bar { position: relative; height: 22px; border-radius: 6px; background: var(--wd); box-shadow: inset 0 2px 4px rgba(0,0,0,.5); overflow: hidden; }
+.bar i { position: absolute; inset: 0 auto 0 0; background: linear-gradient(180deg, #ffe58a, #f4b73b); border-right: 3px solid var(--wd); }
+.bar span { position: relative; display: block; text-align: center; font: 900 13px/22px 'Inter'; color: var(--ink); text-shadow: 0 1px 0 rgba(255,255,255,.6); }
+#build .slot.item.locked { cursor: default; }
+#build .slot.item.locked:hover { transform: none; background: var(--sand); }
+/* AI Lab screens in the same block style */
+.modal .ribbon { background: var(--wm); background-image: var(--plank); color: var(--gold); text-shadow: 0 2px 0 var(--wd); border-radius: 6px 6px 0 0; }
+.modal .ribbon.green { background: #1f7a44; color: #fff; }
+.levelbar { border-radius: 6px !important; background: var(--wd) !important; color: var(--cream) !important; }
+.levelbar .dots i { border-radius: 3px !important; }
+.labrow { background: var(--sand); border-radius: 7px; box-shadow: var(--slot-bevel); }
+.labrow .ic img { width: 52px; height: 52px; object-fit: contain; display: block; }
+.labrow.locked { opacity: 1; } .labrow.locked .ic img { filter: grayscale(1) brightness(.75); } .labrow.locked .st { color: var(--ink2); }
+.labrow.locked .t { color: var(--ink2); }
+.sentence, .textin input, .textin .field { background: var(--cream) !important; border-radius: 6px !important; box-shadow: inset 0 0 0 3px var(--sandd) !important; }
+#toast, #lensbar { background: var(--wm); background-image: var(--plank); color: var(--cream); border-radius: 8px; box-shadow: var(--blk-shadow), inset 0 0 0 3px var(--wd); }
+.bub { border-radius: 8px !important; box-shadow: 0 3px 0 var(--wd), inset 0 0 0 2px var(--sandd) !important; background: var(--sand) !important; color: var(--ink) !important; }
+.spk { border-radius: 8px !important; background: var(--sand) !important; box-shadow: var(--slot-bevel) !important; }
+.needs span { border-radius: 6px !important; }
+.btn[disabled] { background: var(--sand2) !important; color: var(--ink2) !important; box-shadow: inset 0 0 0 2px var(--sandd) !important; }
+#card .crow { flex-wrap: wrap; row-gap: 4px; }
+/* missions: the dock becomes the left rail (where the build panel was), so the island stays clear */
+@media (min-width: 761px) and (min-height: 561px) {
+  html[data-lab="on"] #dock { left: 14px; right: auto; top: 148px; bottom: 14px; width: min(380px, 34vw); transform: none; display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
+  html[data-lab="on"] #dock .speaker { flex: none; max-height: 46%; overflow-y: auto; }
+  html[data-lab="on"] #dock .actions { flex: 1; overflow-y: auto; }
+  html[data-lab="on"] #dock .row { flex-wrap: wrap; }
+  html[data-lab="on"] #dock .choice { flex: 1 1 100%; }
+  html[data-lab="on"] #dock.hide { transform: translateX(-30px); }
+}
+/* whiteboards and big screens: everything scales up */
+@media (min-width: 1600px) and (min-height: 900px) {
+  #build { width: 420px; top: 168px; }
+  #build .bbody { grid-template-columns: 92px 1fr; }
+  #build .cat { width: 92px; min-height: 92px; } #build .cat img { width: 62px; }
+  #build .item { min-height: 140px; }
+  #florence { width: 400px; }
+  #card { width: 420px; }
+  #strip .ib { width: 58px; height: 58px; } #strip .ib img { width: 52px; height: 52px; }
+  .slot.mini { width: 52px; height: 52px; }
+}
+/* phone landscape: a side rail, not a bottom tray */
+@media (max-height: 560px) and (min-width: 561px) {
+  #build { top: 8px; bottom: 8px; left: 8px; right: auto; width: 230px; max-height: none; }
+  #build .bbody { display: grid; grid-template-columns: 58px 1fr; }
+  #build .cats { flex-direction: column; overflow-y: auto; }
+  #build .items { display: grid; grid-template-columns: minmax(0, 1fr); overflow-y: auto; }
+  #build .slotwrap { width: auto; }
+  #card { left: 246px; width: 300px; top: 8px; }
+  #florence { left: auto; right: 62px; bottom: 8px; width: 300px; }
+}
+#build .item.on::after { right: auto; left: -8px; }
+#build .item .cost { left: 50%; transform: translateX(-50%); }
