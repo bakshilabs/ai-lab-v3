@@ -567,3 +567,11 @@ button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focu
 @media (min-width: 1600px) and (min-height: 900px) { #camctl .ib { width: 56px; height: 56px; } }
 @media (max-width: 760px) { #camctl { top: auto; bottom: calc(44vh + 16px); right: 8px; transform: none; padding: 4px; } #camctl.hide { transform: translateX(30px); } #camctl .ib { width: 40px; height: 40px; } }
 @media (max-height: 560px) and (min-width: 561px) { #camctl { top: 8px; bottom: auto; right: 62px; transform: none; flex-direction: row; } }
+/* missions on the left rail: compact Florence card, choices two to a row so 8 checks fit without scrolling under her card */
+@media (min-width: 761px) and (min-height: 561px) {
+  html[data-lab="on"] #dock .speaker { max-height: 40%; position: relative; z-index: 0; }
+  html[data-lab="on"] #dock .actions { position: relative; z-index: 1; min-height: 0; }
+  html[data-lab="on"] #dock .actions .row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+  html[data-lab="on"] #dock .choice { flex: none; min-height: 52px; font-size: max(13px, .82em); padding: 6px 8px; }
+  html[data-lab="on"] #dock .actions .row:has(.btn) { display: flex; }
+}

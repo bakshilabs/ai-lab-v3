@@ -66,7 +66,7 @@ export function createRig(stage, canvas, fadeEl) {
       if (!points.length) return Promise.resolve();
       const box = new THREE.Box3().setFromPoints(points); const sph = box.getBoundingSphere(new THREE.Sphere());
       const { aspect, fh } = this.freeAspect(); const vf = SKY_FOV * DEG * fh; const f = Math.min(vf, 2 * Math.atan(Math.tan(vf / 2) * aspect));
-      const d = clamp(Math.max(8, sph.radius) / Math.tan(f / 2) * pad, this.minDist() * 1.2, this.maxDist());
+      const d = clamp(Math.max(16, sph.radius) / Math.tan(f / 2) * pad, this.minDist() * 1.5, this.maxDist()); // small plans keep their surroundings in view
       return this.toSky({ target: sph.center, dist: d, pitch, yaw }, dur);
     },
     // Street view: eye height ~1.2 m for a child (2 world units), looking at `look`.
