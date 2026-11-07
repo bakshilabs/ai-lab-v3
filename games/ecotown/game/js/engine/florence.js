@@ -206,7 +206,7 @@ export function createFlorence(stage, world, terrain) {
       const walking = moving && !rd;
       st.speed += ((walking ? 1 : 0) - st.speed) * Math.min(1, dt * 8);
       const run = clamp((pace - 9) / 8);                              // faster than a walk: a bouncy trot
-      if (walking) st.phase += dt * Math.min(pace, 11) * (2 * Math.PI) / (5.0 * S / 0.6) * (1 + run * 0.4);
+      if (walking) { st.phase += dt * Math.min(pace, 11) * (2 * Math.PI) / (5.0 * S / 0.6) * (1 + run * 0.4); const fs = Math.floor(st.phase / Math.PI); if (fs !== st.footStep) { st.footStep = fs; bot.onStep?.(); } } // a footstep sound on each plant
       if (!moving) { const f = st.look || stage.camera.position; st.yaw = turn(st.yaw, Math.atan2(f.x - st.pos.x, f.z - st.pos.z), dt * 4); }
       root.position.copy(st.pos); root.rotation.y = st.yaw;
       // ---- base pose

@@ -43,14 +43,16 @@ if ('speechSynthesis' in globalThis) try { speechSynthesis.onvoiceschanged = () 
 
 // ---- playback: one line at a time; a new line stops the old one
 const audio = typeof Audio !== 'undefined' ? new Audio() : null; let queue = [], token = 0;
+// the music dips while a line is read (set by main.js: engine/audio.js duck)
+let onSpeaking = null; export function setSpeakingHook(fn) { onSpeaking = fn; }
 export function canSpeak() { return !!pack || ('speechSynthesis' in globalThis && !!bestSystemVoice()); }
-export function stopSpeech() { token++; queue = []; try { audio?.pause(); } catch { /* */ } try { speechSynthesis.cancel(); } catch { /* */ } }
+export function stopSpeech() { token++; queue = []; try { audio?.pause(); } catch { /* */ } try { speechSynthesis.cancel(); } catch { /* */ } onSpeaking?.(false); }
 export function speak(text, { voice = 'narrator' } = {}) {
   stopSpeech(); const my = token;
   queue = sentences(text).map((s) => ({ s, clip: pack?.clips.get(keyOf(s, voice)) }));
   if (globalThis.__sayLog) globalThis.__sayLog.push({ text, voice, missing: queue.filter((q) => !q.clip).map((q) => q.s) });
   const next = () => {
-    if (my !== token || !queue.length) return; const q = queue.shift();
+    if (my !== token) return; if (!queue.length) { onSpeaking?.(false); return; } onSpeaking?.(true); const q = queue.shift();
     if (q.clip && audio) { audio.src = clipUrl(q.clip); audio.onended = next; audio.onerror = next; audio.play().catch(next); return; }
     const v = bestSystemVoice(); if (!v) return next();
     try { const u = new SpeechSynthesisUtterance(q.s); u.voice = v; u.lang = v.lang; u.rate = 0.96; u.onend = next; u.onerror = next; speechSynthesis.speak(u); } catch { next(); }
