@@ -12,20 +12,25 @@ const PETAL_COL = { homes: '#ff8a5c', food: '#ffc83d', nature: '#4caf50', health
 const PETAL_ICON = { homes: '🏠', food: '🍎', nature: '🦋', health: '❤', energy: '⚡', community: '🤝', carbon: '☁' };
 
 export const LEVEL_ICONS = ['🗺', '🚲', '🏡', '🍎', '⚡', '🏫'];
+// the picture for each build category (and mission): rendered from the game's own voxel builds (tools/thumbs.mjs)
+export const TRACK_PICS = ['town', 'cycle', 'timber', 'orchard', 'wind', 'school'];
+export const thumb = (id) => `img/thumbs/${id}.png`;
 export function createUI(root, labelsRoot, opts) {
   const P = {};
   const mk = (id, cls, html = '') => { const n = h(`<div id="${id}" class="panel hide ${cls}">${html}</div>`); root.appendChild(n); P[id] = n; return n; };
   // one town card (top-left), one icon strip (top-right), one dock (bottom): the whole frame
   mk('card', 'from-left', `<div class="crow"><span class="leaf">🌱</span><b class="brand">Eco Town</b><span class="band" data-sub></span><span class="stars"><span class="star">★</span><b data-stars>0</b></span></div>
-    <div class="track" data-track>${LEVEL_ICONS.map((ic, i) => `<i data-l="${i + 1}"><span>${ic}</span></i>`).join('<em></em>')}</div><div class="goal" data-goal></div>`);
+    <div class="track" data-track>${TRACK_PICS.map((pic, i) => `<i data-l="${i + 1}"><img src="img/thumbs/${pic}.png" alt="${LEVEL_ICONS[i]}"></i>`).join('<em></em>')}</div><div class="goal" data-goal></div>`);
   mk('strip', 'from-right', `<button class="ib" data-flower aria-label="Town flower"><svg viewBox="-60 -60 120 120"></svg></button><span class="sep"></span>
-    <button class="ib" data-v="sky" aria-label="Sky view">☁</button><button class="ib" data-v="street" aria-label="Street view">👟</button><button class="ib" data-v="inside" aria-label="Inside view">🏠</button><span class="sep"></span><span class="lenses" data-lenses></span><button class="ib lab" data-lab aria-label="AI Lab" title="AI Lab">🧪</button><span class="sep"></span><button class="ib" data-menu aria-label="Settings">☰</button>`);
+    <button class="ib" data-v="sky" aria-label="Sky view">☁</button><button class="ib" data-v="street" aria-label="Street view">👟</button><button class="ib" data-v="inside" aria-label="Inside view">🏠</button><span class="sep"></span><span class="lenses" data-lenses></span><button class="ib lab" data-lab aria-label="AI Lab" title="AI Lab"><img src="img/thumbs/ailab.png" alt=""></button><span class="sep"></span><button class="ib" data-menu aria-label="Settings">☰</button>`);
   mk('flowerpop', 'from-right', '<svg viewBox="-60 -60 120 120" aria-label="Town flower"></svg><div class="ttl"></div><div class="legend"></div>');
   mk('dock', 'from-bottom', '<div class="head" data-head></div><div class="speaker" data-speaker></div><div class="actions" data-actions></div>');
   mk('alert', 'pop', '<span class="x">✕</span><span data-t></span>');
   mk('lensbar', 'from-top');
   mk('modal', 'modal');
   mk('settings', 'from-right');
+  mk('build', 'from-left blk');                      // free building: categories and builds, as a grid of pictures (left)
+  mk('florence', 'from-right blk');                  // Florence's portrait and her tips while building (right)
   const D = { head: P.dock.querySelector('[data-head]'), speaker: P.dock.querySelector('[data-speaker]'), actions: P.dock.querySelector('[data-actions]') };
   // facilitator notes live in their own card (top left, under the town card), whatever else is on screen
   mk('facil', 'from-left facilcard'); const facilEl = P.facil; let facilText = null;
@@ -69,12 +74,32 @@ export function createUI(root, labelsRoot, opts) {
       D.speaker.className = 'speaker' + (o.thinking ? ' thinking' : '') + (o.tagCls ? ' ' + o.tagCls : '') + (o.mini ? ' mini' : '');
       P.dock.classList.toggle('mini', !!o.mini);
       const line = o.say || (o.html ? h(`<div>${o.html}</div>`).textContent : '');
-      D.speaker.innerHTML = `<div class="avatar"><div class="bot"><i></i><i></i></div></div><div class="say"><div class="name">${esc(o.name || 'Florence')} <em class="${o.tagCls || ''}">${esc(o.tag || 'GUESS')}</em>${!o.thinking && line && canSpeak() ? '<button class="spk" data-spk aria-label="Read aloud" title="Read aloud">🔊</button>' : ''}</div>
+      D.speaker.innerHTML = `<div class="avatar"><img class="portrait" src="img/florence.png" alt="Florence"></div><div class="say"><div class="name">${esc(o.name || 'Florence')} <em class="${o.tagCls || ''}">${esc(o.tag || 'GUESS')}</em>${!o.thinking && line && canSpeak() ? '<button class="spk" data-spk aria-label="Read aloud" title="Read aloud">🔊</button>' : ''}</div>
         <div class="text">${o.html || ''}</div>${o.sure != null ? `<div class="sure"><div class="bar"><i></i></div><span>${o.sure}% ${esc(o.sureLabel || 'sure')}</span></div>` : ''}${o.why ? `<div class="why">${o.why}</div>` : ''}</div>`;
       this.show('helper');
       D.speaker.querySelector('[data-spk]')?.addEventListener('click', () => speak(line, { voice: 'helper', force: true }));
       if (o.sure != null) requestAnimationFrame(() => requestAnimationFrame(() => { const i = D.speaker.querySelector('.sure .bar i'); if (i) i.style.width = o.sure + '%'; }));
       if (o.say && !o.mini) this.say(o.say, o.voice || 'helper');
+      if (!o.thinking && !o.mini && line) this.talking(D.speaker, line);
+    },
+    // Florence talks: her portrait bobs and the 3D Florence nods while the line lasts (about 14 characters a second)
+    talking(el, line) {
+      const secs = Math.min(9, 0.8 + line.length / 14); const pic = el.querySelector('.portrait');
+      if (pic) { pic.classList.add('talk'); clearTimeout(pic._t); pic._t = setTimeout(() => pic.classList.remove('talk'), secs * 1000); }
+      this.onTalk?.(secs);
+    },
+    // the build panel (left): html + bind, like the tray. Empty html hides it.
+    buildPanel(html, bind) { if (!html) { P.build.classList.add('hide'); return P.build; } P.build.innerHTML = html; P.build.classList.remove('hide'); bind?.(P.build); return P.build; },
+    // Florence's card (right) while building: { tag, html, say } or null to hide
+    florence(o) {
+      if (!o) { P.florence.classList.add('hide'); return; }
+      const line = o.say || h(`<div>${o.html}</div>`).textContent;
+      P.florence.innerHTML = `<div class="fhead"><img class="portrait" src="img/florence.png" alt=""><div><b>Florence</b>${o.tag ? `<em>${esc(o.tag)}</em>` : ''}</div>${canSpeak() ? '<button class="spk" data-spk aria-label="Read aloud" title="Read aloud">🔊</button>' : ''}</div><div class="fbody">${o.html}</div>`;
+      P.florence.classList.remove('hide');
+      P.florence.querySelector('[data-spk]')?.addEventListener('click', () => speak(line, { voice: 'helper', force: true }));
+      if (o.say) this.say(o.say, 'helper');
+      this.talking(P.florence, line);
+      return P.florence;
     },
     tray(html, bind) { D.actions.innerHTML = html; this.show('tray', !!html); bind?.(D.actions); return D.actions; },
     alert(text, good = false, ms = 0) {
@@ -86,11 +111,12 @@ export function createUI(root, labelsRoot, opts) {
     legend(kind) { if (kind !== 'plan') return this.lensbar(null); this.lensbar(`📐 FLORENCE’S PLAN <span class="legend"><span><i style="background:#ffd23f;opacity:.8"></i>See-through = planned, not built yet</span></span>`); },
     facil(text) { facilText = text || null; this.refreshFacil(); },
     refreshFacil() { if (!facilText || !opts.facilitator()) return this.show('facil', false); facilEl.innerHTML = `<small>FACILITATOR NOTE</small><p>${esc(facilText)}</p>`; this.show('facil'); },
-    async modal(html, { say } = {}) {
+    async modal(html, { say, bind } = {}) {
       // never open a card over one that is still closing (it would look see-through)
       if (!P.modal.classList.contains('hide') || performance.now() - (this._mClosed || 0) < 420) await new Promise((r) => setTimeout(r, Math.max(0, 420 - (performance.now() - (this._mClosed || 0)))));
       P.modal.innerHTML = html + (say && canSpeak() ? '<button class="spk modalspk" data-spk aria-label="Read aloud" title="Read aloud">🔊</button>' : ''); this.show('modal'); if (say) this.say(say, 'narrator');
       P.modal.querySelector('[data-spk]')?.addEventListener('click', (e) => { e.stopPropagation(); speak(say, { voice: 'narrator', force: true }); });
+      bind?.(P.modal);
       const first = P.modal.querySelector('button:not([data-spk])'); setTimeout(() => first?.focus(), 50);
       return new Promise((res) => { P.modal.onclick = (e) => { const b = e.target.closest('[data-act]'); if (!b) return; P.modal.onclick = null; this.show('modal', false); this._mClosed = performance.now(); stopSpeech(); res(b.dataset.act); }; });
     },

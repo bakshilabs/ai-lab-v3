@@ -310,3 +310,161 @@ html[data-motion="reduce"] #letterbox i { transition: none; }
 html[data-lab="on"] #gl { filter: saturate(.8) hue-rotate(-8deg) brightness(1.03); }
 html[data-lab="on"] #card { box-shadow: var(--shadow), inset 0 0 0 3px #7fc8e8; }
 @media (max-width: 560px) { .buildhead { flex-wrap: wrap; } .buildhead .cats { flex-basis: 100%; } .labrow .st { max-width: 36%; } }
+
+/* =====================================================================================
+   Voxel theme (Nov 2026): the frame is built from blocks like the island. Wooden plank panels with a
+   bevel, square picture slots for every build (pictures rendered from the game's own voxel models),
+   parchment inside cards for reading. No pills: everything is a block.                                */
+:root {
+  --wd: #3a2416; --wm: #5b3923; --wl: #7a4e30; --sand: #f3e2c2; --sand2: #e6cfa4; --sandd: #c9a874; --gold: #ffd23f; --cream: #fff3dc;
+  --blk-shadow: 0 5px 0 rgba(42, 26, 15, .75), 0 12px 26px rgba(40, 24, 12, .32);
+  --plank: repeating-linear-gradient(180deg, rgba(0,0,0,.10) 0 2px, transparent 2px 26px), linear-gradient(90deg, rgba(255,255,255,.04), rgba(0,0,0,.06));
+  --slot-bevel: inset 3px 3px 0 rgba(255,255,255,.65), inset -3px -4px 0 rgba(120,78,40,.32), 0 3px 0 var(--wd);
+}
+.panel { border-radius: 10px; background: var(--sand); box-shadow: var(--blk-shadow), inset 0 0 0 3px var(--wd), inset 0 0 0 6px var(--sandd); }
+.blk, #card, #strip, #dock { background: var(--wm); background-image: var(--plank); color: var(--cream); border-radius: 10px;
+  box-shadow: var(--blk-shadow), inset 0 0 0 3px var(--wd), inset 0 4px 0 rgba(255,255,255,.12), inset 0 -5px 0 rgba(0,0,0,.25); }
+
+/* square picture slots: the one button shape of the frame */
+.slot { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 2px; background: var(--sand); color: var(--ink); border-radius: 7px; box-shadow: var(--slot-bevel); padding: 4px; font-weight: 800; font-size: .72em; line-height: 1.1; text-align: center; transition: transform .1s, background .15s; }
+.slot img { width: 100%; aspect-ratio: 1; object-fit: contain; image-rendering: auto; filter: drop-shadow(0 2px 0 rgba(60,35,15,.25)); pointer-events: none; }
+.slot span { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.slot:hover { background: #fbeccc; transform: translateY(-1px); }
+.slot:active { transform: translateY(2px); box-shadow: inset 3px 3px 0 rgba(255,255,255,.4), inset -2px -2px 0 rgba(120,78,40,.32), 0 1px 0 var(--wd); }
+.slot.on { background: #ffe58a; box-shadow: var(--slot-bevel), 0 0 0 3px var(--gold), 0 0 14px rgba(255,210,63,.7); }
+.slot.locked img { filter: grayscale(1) brightness(.7) contrast(.9); opacity: .65; }
+.slot .lock { position: absolute; top: 3px; right: 4px; font-style: normal; font-size: 1.1em; filter: drop-shadow(0 1px 0 #000); }
+.slot .ico { font-size: 1.7em; line-height: 1.3; flex: 1; display: grid; place-items: center; }
+.slot.mini { width: 34px; height: 34px; padding: 0; justify-content: center; font-size: .85em; }
+.slot.go { background: #b9f0d9; } .slot.go:hover { background: #cdf6e5; }
+
+/* ---------- left: the build panel */
+#build { left: 14px; top: 132px; bottom: 14px; width: 318px; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+#build .bhead { display: flex; align-items: center; gap: 6px; }
+#build .bhead > b { font: 900 1.05em 'Bricolage', 'Inter'; letter-spacing: .12em; color: var(--gold); text-shadow: 0 2px 0 var(--wd); }
+#build .clock { margin-left: auto; font-weight: 800; font-size: .8em; color: var(--cream); background: var(--wd); border-radius: 6px; padding: 4px 8px; white-space: nowrap; }
+#build .bbody { flex: 1; min-height: 0; display: grid; grid-template-columns: 70px 1fr; gap: 8px; }
+#build .bbody.folded { display: none; }
+#build .cats { display: flex; flex-direction: column; gap: 6px; overflow-y: auto; }
+#build .cat { width: 70px; min-height: 70px; font-size: .62em; }
+#build .cat img { width: 46px; }
+#build .items { display: grid; grid-template-columns: repeat(2, 1fr); gap: 7px; align-content: start; overflow-y: auto; padding: 2px 2px 6px; background: rgba(0,0,0,.18); border-radius: 8px; padding: 7px; box-shadow: inset 0 2px 6px rgba(0,0,0,.35); }
+#build .slotwrap { position: relative; }
+#build .item { width: 100%; min-height: 104px; }
+#build .item img { width: 78%; }
+#build .item .cost { position: absolute; top: 3px; left: 4px; font-style: normal; font-size: .95em; background: var(--wd); color: var(--gold); border-radius: 5px; padding: 1px 5px; }
+#build .play { position: absolute; top: 4px; right: 4px; width: 26px; height: 26px; border-radius: 6px; background: var(--wd); color: var(--gold); font-size: .75em; box-shadow: 0 2px 0 rgba(0,0,0,.4); }
+#build .play:hover { background: #000; }
+#build .erase .ico { font-size: 2.4em; }
+#build .lockmsg { grid-column: 1 / -1; color: var(--cream); font-weight: 700; margin: 6px 4px; }
+#build .lockmsg small { opacity: .85; font-weight: 600; }
+#build .bfoot { display: flex; gap: 6px; flex-wrap: wrap; }
+#build .bfoot span { flex: 1; display: flex; align-items: center; justify-content: center; gap: 4px; background: var(--wd); border-radius: 6px; padding: 5px 6px; font-weight: 800; font-size: .82em; color: var(--cream); white-space: nowrap; }
+#build .bfoot span.ok { color: #9ff0c9; }
+
+/* ---------- right: Florence's card */
+#florence { right: 14px; bottom: 14px; width: 300px; padding: 10px 12px 12px; }
+#florence .fhead { display: flex; align-items: flex-end; gap: 10px; }
+#florence .fhead b { font: 900 1.05em 'Bricolage'; color: var(--gold); text-shadow: 0 2px 0 var(--wd); }
+#florence .fhead em { display: inline-block; margin-left: 6px; font-style: normal; font-size: .7em; font-weight: 900; background: var(--mint); color: #fff; border-radius: 5px; padding: 1px 6px; vertical-align: middle; }
+#florence .fhead .spk { margin-left: auto; }
+.portrait { width: 56px; height: auto; filter: drop-shadow(0 3px 0 rgba(30,18,10,.5)); transform-origin: 50% 100%; }
+.portrait.talk { animation: talkbob .42s ease-in-out infinite; }
+@keyframes talkbob { 0%, 100% { transform: rotate(-3deg) translateY(0); } 50% { transform: rotate(3deg) translateY(-3px); } }
+html[data-motion="reduce"] .portrait.talk { animation: none; }
+#florence .fhead .portrait { width: 64px; margin: -34px 0 0 -4px; }
+#florence .fbody { margin-top: 8px; background: var(--sand); color: var(--ink); border-radius: 8px; padding: 10px 12px; box-shadow: inset 0 0 0 2px var(--sandd); font-weight: 600; }
+#florence .fbody p { margin: 0 0 6px; }
+#florence .tiprow { display: flex; gap: 6px; flex-wrap: wrap; }
+#florence .slot.act { flex-direction: row; justify-content: flex-start; min-height: 40px; padding: 4px 10px 4px 4px; font-size: .78em; }
+#florence .slot.act img { width: 32px; } #florence .slot.act .ico { flex: none; font-size: 1.2em; width: 28px; }
+#florence .slot.act.x { margin-left: auto; padding: 4px; } #florence .slot.act.x .ico { width: 30px; }
+
+/* ---------- top: town card and the icon strip as block slots */
+#card { width: min(318px, 44vw); padding: 10px 12px; }
+#card .brand { color: var(--gold); text-shadow: 0 2px 0 var(--wd); }
+#card .band { background: var(--wd); color: var(--cream); border-radius: 5px; }
+#card .stars { background: var(--wd); color: var(--gold); border-radius: 6px; box-shadow: none; }
+#card .leaf { border-radius: 6px; }
+#card .track i { width: 2.4em; height: 2.4em; border-radius: 6px; background: var(--sand); box-shadow: var(--slot-bevel); padding: 2px; }
+#card .track i img { width: 100%; height: 100%; object-fit: contain; }
+#card .track i.on { background: #ffe58a; box-shadow: var(--slot-bevel), 0 0 0 3px var(--gold); transform: none; }
+#card .track i.done { background: #b9f0d9; box-shadow: var(--slot-bevel); }
+#card .track em { background: var(--wd); height: 4px; }
+#card .goal { color: var(--cream); }
+#strip { border-radius: 10px; padding: 6px; gap: 5px; }
+#strip .ib { width: 44px; height: 44px; border-radius: 7px; background: var(--sand); color: var(--ink); box-shadow: var(--slot-bevel); }
+#strip .ib:hover { background: #fbeccc; } #strip .ib.on { background: #ffe58a; box-shadow: var(--slot-bevel), 0 0 0 3px var(--gold); }
+#strip .ib img { width: 40px; height: 40px; object-fit: contain; }
+#strip .ib.lab { background: #b9f0d9; }
+#strip .sep { background: var(--wd); width: 3px; }
+
+/* ---------- the dock (missions): wood frame, parchment inside, block choices */
+#dock { padding: 10px; }
+#dock .speaker { background: var(--sand); color: var(--ink); border-radius: 8px; box-shadow: inset 0 0 0 2px var(--sandd); }
+#dock .speaker .avatar { background: none; box-shadow: none; width: auto; height: auto; }
+#dock .speaker .avatar .portrait { width: 58px; }
+#dock .speaker .name { color: var(--wm); }
+#dock .actions { color: var(--cream); }
+#dock .actions h3 { color: var(--gold); text-shadow: 0 2px 0 var(--wd); }
+.choice, .tile, .tabs button { border-radius: 7px !important; background: var(--sand) !important; color: var(--ink) !important; box-shadow: var(--slot-bevel) !important; }
+.choice:hover, .tile:hover { background: #fbeccc !important; }
+.tabs button.on, .choice.pick { background: #ffe58a !important; box-shadow: var(--slot-bevel), 0 0 0 3px var(--gold) !important; }
+.btn { border-radius: 8px; box-shadow: inset 3px 3px 0 rgba(255,255,255,.35), inset -3px -4px 0 rgba(0,0,0,.18), 0 3px 0 var(--wd); }
+.btn.go { background: #2e9b5a; box-shadow: inset 3px 3px 0 rgba(255,255,255,.3), inset -3px -4px 0 rgba(0,0,0,.25), 0 3px 0 var(--wd); }
+.btn.alt { background: var(--sand); color: var(--ink); }
+.modal { border-radius: 12px; }
+.modal .ribbon { border-radius: 6px 6px 0 0; }
+#alert { border-radius: 8px; }
+.vidwrap { position: relative; border-radius: 8px; overflow: hidden; box-shadow: inset 0 0 0 3px var(--wd), 0 3px 0 var(--wd); background: #000; aspect-ratio: 16 / 9; margin: 8px 0; }
+.vidwrap video { width: 100%; height: 100%; display: block; object-fit: cover; }
+.vcap { position: absolute; left: 10px; right: 10px; bottom: 10px; background: rgba(40,24,14,.82); color: var(--cream); font-weight: 800; border-radius: 6px; padding: 6px 10px; opacity: 0; transition: opacity .25s; text-align: center; }
+.vcap.on { opacity: 1; }
+.vchips { justify-content: center; gap: 6px; }
+.vchips .slot.act { flex-direction: row; min-height: 42px; padding: 4px 12px; font-size: .8em; } .vchips .slot .ico { flex: none; font-size: 1.2em; }
+.modal:has(.vidwrap) { width: min(760px, calc(100vw - 28px)); }
+
+/* phones and small tablets: the build panel becomes a bottom tray of slots; Florence's card sits above it */
+@media (max-width: 760px), (max-height: 560px) {
+  #build { top: auto; left: 8px; right: 8px; bottom: 8px; width: auto; max-height: 46vh; }
+  #build .bbody { grid-template-columns: 1fr; }
+  #build .cats { flex-direction: row; overflow-x: auto; }
+  #build .cat { width: 62px; min-height: 62px; flex: none; }
+  #build .items { display: flex; overflow-x: auto; overflow-y: hidden; }
+  #build .slotwrap { flex: none; width: 92px; }
+  #build .item { min-height: 92px; }
+  #florence { right: 8px; left: 8px; width: auto; bottom: calc(46vh + 16px); }
+  #card { width: min(300px, 60vw); }
+}
+#build .items { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+#build .slotwrap { min-width: 0; }
+#build { top: 148px; }
+#card .goal { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: .85em; }
+#card .band { font-size: .62em; white-space: nowrap; }
+#card .brand { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+#card .crow { min-width: 0; }
+#card .band:empty { display: none; }
+@media (max-width: 760px), (max-height: 560px) {
+  #build { top: auto; bottom: 8px; max-height: 44vh; padding: 8px; gap: 6px; }
+  #build .bbody { display: flex; flex-direction: column; gap: 6px; }
+  #build .bbody.folded { display: none; }
+  #build .cats { flex: none; align-items: stretch; padding-bottom: 2px; }
+  #build .cat { width: 58px; min-height: 0; height: 64px; font-size: .56em; }
+  #build .cat img { width: 38px; }
+  #build .items { flex: none; padding: 6px; }
+  #build .slotwrap { width: 86px; }
+  #build .item { min-height: 0; height: 92px; }
+  #build .item img { width: 62%; }
+  #strip { flex-direction: column; top: 8px; right: 8px; padding: 5px; }
+  #strip .sep { width: 26px; height: 3px; }
+  #strip .ib { width: 40px; height: 40px; }
+  #card { left: 8px; top: 8px; width: calc(100vw - 80px); }
+  #florence { bottom: calc(44vh + 14px); right: 62px; left: 8px; }
+  #florence .fhead .portrait { width: 48px; margin-top: -26px; }
+}
+.pulse { animation: pulse 1.1s ease-in-out infinite; }
+@keyframes pulse { 0%, 100% { box-shadow: var(--blk-shadow), inset 0 0 0 3px var(--wd), 0 0 0 0 rgba(255, 210, 63, 0); } 50% { box-shadow: var(--blk-shadow), inset 0 0 0 3px var(--wd), 0 0 0 6px rgba(255, 210, 63, .85); } }
+.slot.pulse, .ib.pulse { animation: pulseslot 1.1s ease-in-out infinite; }
+@keyframes pulseslot { 50% { box-shadow: var(--slot-bevel), 0 0 0 5px var(--gold), 0 0 18px rgba(255,210,63,.9); } }
+.introskip { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 20; }
+html[data-motion="reduce"] .pulse, html[data-motion="reduce"] .slot.pulse { animation: none; outline: 4px solid var(--gold); }

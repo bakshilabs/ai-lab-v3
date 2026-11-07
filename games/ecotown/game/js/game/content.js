@@ -86,6 +86,7 @@ export const CONTENT = {
 const SANDBOX_COMMON = {
   cats: { land: 'Land', move: 'Getting around', homes: 'Homes', food: 'Food', power: 'Power & water', heart: 'Town heart' },
   tipTag: 'TIP', labTitle: 'AI Lab', dismiss: 'Dismiss', day: 'Day', newDay: 'Good morning! Day', play: 'Play', pause: 'Pause',
+  buildTitle: 'BUILD', watchBuilt: 'Watch it being built', fromAbove: 'From above', eyeLevel: 'Eye level', replay: 'Replay',
 };
 export const SANDBOX = {
   junior: {
@@ -117,6 +118,18 @@ export const SANDBOX = {
     planUsed: (n, skip) => `Added ${n} part${n === 1 ? '' : 's'} of Florence’s plan to your town.${skip ? ` ${skip} didn’t fit, so they were left out.` : ''}`, planDidntFit: 'Florence’s plan didn’t fit your town, so nothing changed.',
     completeRibbon: 'Town complete!', completeText: 'Every family has a home, there’s enough food, the lights stay on in winter and every home is close to school. Well done!', keepBuilding: 'Keep building',
     classInvite: 'Ready for your first AI Lab mission? Let’s see if you can catch my mistakes!',
+    intro: {
+      tag: 'HELLO', next: 'Next', skip: 'Skip intro', tiles: 'Town land',
+      hello: 'Hi! I’m Florence, your AI planning helper. Let’s build a town together!',
+      meadow: 'This flat meadow looks perfect for houses… but look! The river spills over it every winter.',
+      yourTurn: 'Up here it stays dry and sunny. Your turn: tap three tiles to make town land.',
+      wellDone: 'Brilliant! That’s the start of your town.',
+      video: 'Here’s how a home gets built. Watch from above, then from the street.',
+      videoLater: 'When homes unlock, tap ▶ on any build to watch how it’s built.',
+      unlocks: 'More builds unlock as your town grows. Forty families are on their way!',
+      lab: 'This is my AI Lab. Come here when you want to test my plans. I’m clever… but sometimes I’m confidently wrong. Can you catch me?',
+      overToYou: 'Over to you! I’ll give you tips while you build.',
+    },
   },
   senior: {
     ...SANDBOX_COMMON,
@@ -147,6 +160,18 @@ export const SANDBOX = {
     planUsed: (n, skip) => `Applied ${n} placement${n === 1 ? '' : 's'} from Florence’s plan, funded by the AI Lab (no credits spent).${skip ? ` ${skip} skipped (occupied or not allowed).` : ''}`, planDidntFit: 'No placements fitted your town; nothing changed.',
     completeRibbon: 'Town complete', completeText: 'All petals at "enough", carbon under the ceiling, winter-night power secured, every home within 15 minutes of school.', keepBuilding: 'Keep building',
     classInvite: 'Class mode: your first AI Lab mission is ready. Test my plan before you trust it.',
+    intro: {
+      tag: 'HELLO', next: 'Next', skip: 'Skip intro', tiles: 'Town land',
+      hello: 'Hi, I’m Florence, the town’s AI planning assistant. You make the decisions; I make plans.',
+      meadow: 'The river meadow is flat and cheap to build on. It is also the winter floodplain.',
+      yourTurn: 'This slope stays dry. Designate three tiles of town land to start.',
+      wellDone: 'Good. That’s your first site.',
+      video: 'Each build goes up in stages. Here is a timber terrace, from above and at street level.',
+      videoLater: 'Once housing unlocks, ▶ on any build shows how it is constructed.',
+      unlocks: 'Categories unlock as the town grows. Target: 40 households, under 160 t of carbon.',
+      lab: 'My AI Lab: brief me, test my plan with evidence, and find where I went wrong. I am often confident. I am not always right.',
+      overToYou: 'Over to you. I’ll flag problems as you build.',
+    },
   },
 };
 

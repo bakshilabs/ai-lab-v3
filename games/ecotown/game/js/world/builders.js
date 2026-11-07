@@ -210,6 +210,29 @@ function fgarden(F, x0, z0, x1, z1, seed) {
   F.set(x1, 0, z0, '#4f8f3a'); F.set(x1, 1, z0, '#5c9a40');
 }
 const FINE = {
+  // Florence's AI Lab: a cream workshop with a terracotta band, a teal door, a flask sign and a glass dome
+  // topped with Florence's own antenna. Fine grid (12 per tile side); the front faces the camera (+z).
+  ailab(G, B, rec, t, F) {
+    fill(G, null, null, (x, z) => (z >= 10 && x >= 5 && x <= 6 ? '#16c79a' : (x + z) % 3 ? '#e9d6a1' : '#e2cb92'));
+    for (let x = 1; x <= 10; x++) for (let z = 2; z <= 9; z++) for (let y = 0; y <= 6; y++) {
+      const edge = x === 1 || x === 10 || z === 2 || z === 9; if (!edge) continue;
+      let c = y <= 1 ? '#c8653d' : (x + y) % 2 ? '#fbf1dc' : '#f5e7cc';
+      if (y >= 3 && y <= 4 && ((z === 9 && (x === 2 || x === 3 || x === 8 || x === 9)) || ((x === 1 || x === 10) && z >= 4 && z <= 7))) c = '#3d7ea6';
+      if (z === 9 && x >= 5 && x <= 6 && y <= 3) c = y === 2 && x === 6 ? '#ffd23f' : '#2e8b76';
+      F.set(x, y, z, c);
+    }
+    F.box(0, 7, 1, 11, 7, 10, '#7a4a2c'); // roof slab
+    // the flask sign above the door
+    F.set(5, 5, 10, '#16c79a'); F.set(6, 5, 10, '#16c79a'); F.set(5, 6, 10, '#bff3e4'); F.set(6, 6, 10, '#bff3e4'); F.set(5, 6, 10, '#16c79a');
+    // glass dome with mint ribs
+    const cx = 5.5, cz = 5.5, R = 3.6;
+    for (let x = 1; x <= 10; x++) for (let z = 1; z <= 10; z++) for (let y = 8; y <= 12; y++) {
+      const d = Math.hypot(x - cx, (y - 8) * 1.1, z - cz); if (d > R || d < R - 1.15) continue;
+      F.set(x, y, z, (x === 5 || x === 6 || z === 5 || z === 6) ? '#16c79a' : '#bfe9f5');
+    }
+    F.box(5, 12, 5, 6, 14, 6, '#c98a50'); F.box(5, 15, 5, 6, 15, 6, '#b9783f'); // Florence's antenna
+    rec.windows.push([1.2, 2, 4.6], [4.6, 2, 4.6]);
+  },
   timber(G, B, rec, t, F) {
     fill(G, '#6fc444'); const plank = (x, y, z) => ((x + z) % 2 ? '#c08a56' : '#b07a48');
     fhouse(F, 1, 2, 5, 6, 7, { wall: '#c08a56', stripes: plank, roof: '#9c4f32', shutter: '#3f6b3a' }, rec);

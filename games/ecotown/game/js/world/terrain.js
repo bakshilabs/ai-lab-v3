@@ -110,7 +110,10 @@ export function makeTerrain() {
   const dock = coast.find((t) => t.gx >= 5 && t.gx < 9 && t !== school) || coast[0];
   if (school) school.fixed = 'oldschool';
   if (dock) dock.fixed = 'dock';
-  return { tiles, school: school?.k, dock: dock?.k };
+  // Florence's AI Lab: on the coast beside the old school, where she walks in to start a mission
+  const lab = coast.find((t) => school && t.gx === school.gx + 1 && t.gz === school.gz + 1) || coast.find((t) => !t.fixed && t.gx > (school?.gx ?? 0));
+  if (lab) lab.fixed = 'ailab';
+  return { tiles, school: school?.k, dock: dock?.k, lab: lab?.k };
 }
 
 export function neighbours(tiles, t) {

@@ -304,6 +304,8 @@ export function createWorld(stage, terrain) {
     buildState(k) { const B = builds.get(k); if (!B) return null; const p = Math.max(0, Math.min(1, B.t / B.dur)); return { k: p, level: B.plane.constant, top: B.top, dir: B.dir || 'up', kind: B.kind, stage: B.stages[B.cur]?.label }; },
     finishBuilds() { for (const B of [...builds.values()]) endBuild(B); for (const r of rotorDrops) r.t = 9; },
     // Show a cell's state on its tile. animate: pop-in with dust and sound hook.
+    // a stand-alone model of one tile's build, centred on the origin (for the build buttons' pictures)
+    thumbModel(cell, t = { gx: 3, gz: 3, zone: 'field', h: 0, k: '3,3' }) { const { g } = buildMeshes({ t, ox: -3, oy: 0, oz: -3 }, cell); return g; },
     setCell(k, cell, { animate = false, delay = 0, reduce = false, build = null } = {}) {
       const L = layers.get(k); if (!L) return;
       if (builds.has(k)) endBuild(builds.get(k));

@@ -3,7 +3,7 @@
 import * as THREE from 'three';
 import { createStage, probeTier } from './engine/stage.js';
 import { createLife } from './engine/life.js';
-import { createBot } from './engine/bot.js';
+import { createFlorence } from './engine/florence.js';
 import { initAudio, sfx, setSound, setMusic } from './engine/audio.js';
 import { makeTerrain } from './world/terrain.js';
 import { simulate } from './sim/sim.js';
@@ -27,7 +27,8 @@ const world = createWorld(stage, terrain);
 const life = createLife(stage, world, terrain);
 const inside = createInside(stage);
 const rig = createRig(stage, canvas, $('#fade'));
-const bot = createBot(stage);
+const bot = createFlorence(stage, world, terrain);
+{ const d = world.tileTop(terrain.dock); bot.appear(d.clone().add(new THREE.Vector3(-4, 0, -6))); }
 life.setTown(simulate(terrain, new Map()), new Map(), stage.q);
 const app = {
   stage, terrain, world, life, inside, rig, bot, audio: sfx, setMusic, band: 'junior', session: 60, classMode: false, sandboxFull: new URLSearchParams(location.search).get('sandbox') === 'full', hour: 11, moveIn: null, winterTest: false,
@@ -44,7 +45,7 @@ const app = {
 };
 const ui = app.ui = createUI($('#layer'), $('#labels'), { facilitator: () => app.settings.facilitator });
 function applySettings() {
-  const s = app.settings; ui.readAloud = s.readAloud; rig.reduce = s.reduce; setSound(s.sound);
+  const s = app.settings; ui.readAloud = s.readAloud; rig.reduce = s.reduce; bot.reduce = s.reduce; setSound(s.sound);
   document.documentElement.dataset.motion = s.reduce ? 'reduce' : ''; document.documentElement.dataset.text = s.text;
   if (s.quality !== 'auto') stage.setTier(s.quality); savePrefs();
 }
@@ -67,9 +68,10 @@ function settingsSheet() {
   P.innerHTML = `<h3 style="margin:0 0 6px">Settings</h3>${row('readAloud', 'Read aloud')}${row('reduce', 'Reduce motion')}${row('sound', 'Sound')}${row('facilitator', 'Facilitator notes')}
     <label>Text size<select data-k="text"><option value="normal">Normal</option><option value="large" ${s.text === 'large' ? 'selected' : ''}>Large</option></select></label>
     <label>Graphics<select data-k="quality">${['auto', 'low', 'mid', 'high'].map((q) => `<option ${s.quality === q ? 'selected' : ''}>${q}</option>`).join('')}</select></label>
-    <p style="font-size:.8em;color:#46596a">Florence: ${modelReady() ? 'small language model (on this device)' : 'keyword reader (model not loaded)'}. Voices: recorded on this device’s game files. Nothing you type is stored or sent.</p><button class="btn go" data-close>Done</button>`;
+    <button class="btn alt" data-intro style="width:100%;margin:6px 0">▶ Watch Florence’s intro again</button><p style="font-size:.8em;color:#46596a">Florence: ${modelReady() ? 'small language model (on this device)' : 'keyword reader (model not loaded)'}. Voices: recorded on this device’s game files. Nothing you type is stored or sent.</p><button class="btn go" data-close>Done</button>`;
   P.querySelectorAll('[data-k]').forEach((i) => (i.onchange = () => { s[i.dataset.k] = i.type === 'checkbox' ? i.checked : i.value; applySettings(); ui.refreshFacil(); }));
   P.querySelector('[data-close]').onclick = () => ui.show('settings', false);
+  P.querySelector('[data-intro]').onclick = () => { ui.show('settings', false); app.G?.replayIntro?.(); };
   ui.show('settings', true);
 }
 ui.P.tr.querySelector('[data-menu]').onclick = () => (ui.P.settings.classList.contains('hide') ? settingsSheet() : ui.show('settings', false));
@@ -125,21 +127,10 @@ async function start() {
   const saved = G.saved();
   if (saved && !app.sandboxFull) { const a = await ui.modal(`<div class="ribbon">Welcome back</div><h2>Carry on building ${esc(saved.townName || 'your town')}?</h2><div class="row" style="justify-content:center"><button class="btn go" data-act="resume">Carry on</button><button class="btn alt" data-act="new">Start a new town</button></div>`); if (a === 'resume') { G.load(saved); ui.setTownName(G.townName); } }
   // living-island opening: about 10 seconds, skippable
-  if (!G.movedIn) await opening();
   rig.startTurntable(0); setMusic('calm');
   await G.run();
 }
-async function opening() {
-  if (app.reduce) return;
-  ui.caption(app.band === 'junior' ? `Welcome to ${app.townName}! A small island with an old school, a dock and a beach. Meadows, a river, an old wood… and room for a town.` : `${app.townName}: a small island with an old school, a dock and a beach. Every decision from here is yours, and Florence’s.`, 6500);
-  ui.say(app.band === 'junior' ? 'A small island with an old school, a dock and a beach. Meadows, a river, an old wood, and room for a town.' : '', 'narrator');
-  let skip = false; const btn = h('<button class="btn alt panel" style="right:12px;bottom:12px">Skip ⏭</button>'); $('#layer').appendChild(btn); btn.onclick = () => (skip = true);
-  const shots = [[new THREE.Vector3(-30, 0, -6), 0.95, 70], [new THREE.Vector3(36, 0, -28), 0.5, 55], [new THREE.Vector3(2, 0, 2), 0.75, rig.frameDist()]];
-  for (const [p, pitch, dist] of shots) { if (skip) break; await rig.focus(p, { dist, pitch, yaw: rig.sky.yaw + 0.6 }, 3.2); }
-  btn.remove(); ui.caption(null);
-}
-
-window.__eco = { app, terrain, ready: () => !!app.G, modelReady };
+window.__eco = { app, terrain, ready: () => !!app.G, modelReady, thumbExtras: () => ({ ailab: { mark: null, item: 'ailab', mods: [] } }) };
 // Passcode sessions (only when served by the Eco Town Worker; local and GitHub Pages builds have no /api).
 // Every minute the game checks its session is still the active one for this passcode (newest login wins).
 (async function heartbeat() {
