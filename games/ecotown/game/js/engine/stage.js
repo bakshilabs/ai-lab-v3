@@ -30,9 +30,9 @@ const SKY = [
   [0,    '#0a1436', '#1b2c5c', '#8fa0ff', 0.0, 0.32],
   [5,    '#2b2d5e', '#d8846e', '#ffb48a', 0.5, 0.5],
   [7,    '#6d8fd0', '#ffd2b0', '#ffd9b0', 2.0, 0.95],
-  [10,   '#3f8fe6', '#b9dcf8', '#fff1dc', 3.4, 1.05],
-  [14.5, '#3f8fe6', '#b9dcf8', '#fff1dc', 3.4, 1.05],
-  [16.5, '#7a8fd6', '#ffd0a4', '#ffd29a', 2.7, 1.0],
+  [10,   '#4b93df', '#f1dcc2', '#ffe6c4', 3.3, 0.78],
+  [14.5, '#4b93df', '#f4d8b8', '#ffdfb4', 3.3, 0.76],
+  [16.5, '#7a8fd6', '#ffcf9c', '#ffd2a0', 2.8, 0.74],
   [18.2, '#7a6ab4', '#ffa47a', '#ff9a62', 1.9, 0.82],
   [19.6, '#3e3f86', '#f07a6a', '#ff7a5c', 0.6, 0.55],
   [21,   '#101c4c', '#2a3a78', '#8fa0ff', 0.0, 0.36],
@@ -42,7 +42,7 @@ const C = (h) => new THREE.Color(h);
 
 // warm colour grade with vignette (linear HDR in, before tone mapping in OutputPass)
 const GradeShader = {
-  uniforms: { tDiffuse: { value: null }, sat: { value: 1.16 }, contrast: { value: 1.1 }, vignette: { value: 0.18 }, warm: { value: 0.035 } },
+  uniforms: { tDiffuse: { value: null }, sat: { value: 1.0 }, contrast: { value: 1.08 }, vignette: { value: 0.18 }, warm: { value: 0.07 } },
   vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
   fragmentShader: `uniform sampler2D tDiffuse; uniform float sat, contrast, vignette, warm; varying vec2 vUv;
     void main(){ vec4 c = texture2D(tDiffuse, vUv); vec3 col = c.rgb; float l = dot(col, vec3(0.2126,0.7152,0.0722));
@@ -129,7 +129,7 @@ export function createStage(canvas, skyEl) {
       dome.material.uniforms.top.value.copy(top); dome.material.uniforms.bottom.value.copy(bot); scene.fog.color.copy(bot);
       // the sun swings low across the south so shadows stay long and soft
       const k = clamp((this.hour - 6) / 13); const elev = Math.sin(k * Math.PI);
-      sun.position.set(-110 + k * 160, 30 + elev * (winter ? 60 : 100), 80 - elev * 20);
+      sun.position.set(-110 + k * 160, 26 + elev * (winter ? 50 : 72), 80 - elev * 20); // low and golden: long, soft shadows
       sun.color.copy(C(a[3]).lerp(C(b[3]), t)); sun.intensity = lerp(a[4], b[4], t) * (winter ? 0.85 : 1);
       hemi.intensity = lerp(a[5], b[5], t); hemi.color.set(winter ? 0xe4eeff : 0xd8e6ff);
       this.night = clamp(1 - lerp(a[4], b[4], t) / 1.2);

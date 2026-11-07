@@ -87,3 +87,30 @@ for (const id of LEVEL_ORDER) test(`AI Lab practice island, ${id}: the vague car
   assert.ok(lv.pass(sc, cc), 'clear plan passes');
   assert.equal(Object.keys(lv.reveal(sc, simulate(terrain, base), cc)).length, 0, 'clear plan shows no problem');
 });
+
+test('every build has a picture for its button, and the AI Lab building has one', async () => {
+  const { existsSync } = await import('node:fs');
+  for (const id of [...Object.keys(ITEMS), 'ailab']) assert.ok(existsSync(new URL(`../img/thumbs/${id}.png`, import.meta.url)), `img/thumbs/${id}.png`);
+  assert.ok(existsSync(new URL('../img/florence.png', import.meta.url)));
+});
+
+test('Florence’s intro has every line in both versions', () => {
+  const beats = ['tag', 'yourTurnTag', 'next', 'skip', 'tiles', 'hello', 'meadow', 'yourTurn', 'wellDone', 'video', 'videoLater', 'unlocks', 'lab', 'overToYou'];
+  for (const band of ['junior', 'senior']) for (const b of beats) assert.ok(SANDBOX[band].intro[b]?.length > 1, `${band} intro.${b}`);
+});
+
+test('the island has an AI Lab building on a tile no mission plan uses', () => {
+  assert.ok(terrain.lab && terrain.tiles.get(terrain.lab).fixed === 'ailab');
+  let cells = new Map(); for (const id of LEVEL_ORDER) { cells = ask(id, LEVEL_TEXT[id].cards[1][0], { terrain, cells }).after; assert.ok(!cells.get(terrain.lab)?.item && !cells.get(terrain.lab)?.mark, id); }
+});
+
+test('build videos, when recorded, have a poster and a caption timeline', async () => {
+  const fs = await import('node:fs'); const dir = new URL('../videos/', import.meta.url);
+  if (!fs.existsSync(dir)) return;
+  const idx = JSON.parse(fs.readFileSync(new URL('index.json', dir), 'utf8'));
+  for (const id of idx.items) {
+    assert.ok(ITEMS[id], `video for a real item: ${id}`);
+    for (const ext of ['mp4', 'jpg', 'json']) assert.ok(fs.existsSync(new URL(`${id}.${ext}`, dir)), `${id}.${ext}`);
+    const tl = JSON.parse(fs.readFileSync(new URL(`${id}.json`, dir), 'utf8')); assert.ok(tl.stages.length >= 1 && tl.stages.every((s) => s.text.j && s.text.s), `${id} captions`);
+  }
+});

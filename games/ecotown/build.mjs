@@ -30,6 +30,9 @@ for (const f of fs.readdirSync(path.join(SRC, 'fonts'))) fs.copyFileSync(path.jo
 const VO = path.join(SRC, 'voice');
 if (fs.existsSync(VO)) { fs.mkdirSync(path.join(OUT, 'voice'), { recursive: true }); for (const f of fs.readdirSync(VO)) if (/^pack-/.test(f)) fs.copyFileSync(path.join(VO, f), path.join(OUT, 'voice', f)); }
 
+// 2c. Florence's portrait, the build buttons' pictures (img/) and the build videos (videos/): plain paths
+for (const dir of ['img', 'videos']) { const from = path.join(SRC, dir); if (fs.existsSync(from)) fs.cpSync(from, path.join(OUT, dir), { recursive: true }); }
+
 // 3. JS bundle: resolve the 'three' import map entries to the vendored files
 const vendor = path.join(SRC, 'vendor');
 const res = await build({

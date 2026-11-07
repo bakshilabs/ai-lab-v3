@@ -12,7 +12,8 @@ const tabTo = async (test, max = 40) => { for (let i = 0; i < max; i++) { await 
 const focusedAge = await tabTo(() => document.activeElement?.dataset?.band === 'junior', 12); await p.keyboard.press('Enter');
 await p.waitForSelector('[data-go]', { timeout: 60000 });
 const focusedStart = await tabTo(() => document.activeElement?.hasAttribute('data-go')); await p.keyboard.press('Enter');
-await p.waitForSelector('#dock [data-actions] [data-cat="land"]', { timeout: 120000 });
+const sk = await p.waitForSelector('[data-introskip]', { timeout: 120000 }).catch(() => null); if (sk) await sk.click();
+await p.waitForSelector('#build [data-cat="land"]', { timeout: 120000 });
 const focusedTab = await tabTo(() => document.activeElement?.dataset?.cat === 'land', 60);
 const focusedLab = await tabTo(() => document.activeElement?.hasAttribute('data-lab'), 60); await p.keyboard.press('Enter');
 const board = await p.waitForSelector('#modal:not(.hide) .labs', { timeout: 10000 }).then(() => true).catch(() => false);
@@ -23,7 +24,7 @@ const saved = await p.evaluate(() => !!localStorage.getItem('ecotown.save.v3'));
 await p.reload(); await p.click('[data-band="junior"]'); await p.click('[data-go]');
 const resume = await p.waitForSelector('#modal:not(.hide) [data-act="resume"]', { timeout: 60000 }).then(() => true).catch(() => false);
 if (resume) await p.click('#modal:not(.hide) [data-act="resume"]');
-await p.waitForSelector('#dock [data-actions] [data-cat="land"]', { timeout: 120000 });
+await p.waitForSelector('#build [data-cat="land"]', { timeout: 120000 });
 const tilesAfterResume = await p.evaluate(() => window.__eco.app.G.sim().townTiles);
 console.log(JSON.stringify({ focusedAge, focusedStart, focusedBuildTab: focusedTab, focusedLabButton: focusedLab, labBoardOpened: board, saved, resumeOffered: resume, tilesAfterResume, errors: errs }, null, 1));
 await b.close();

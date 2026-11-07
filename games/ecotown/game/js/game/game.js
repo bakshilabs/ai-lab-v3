@@ -15,15 +15,16 @@ import { LEVELS, LEVEL_ORDER, checksFor } from './levels.js';
 import { CONTENT, LEVEL_TEXT, DILEMMAS, HABITS, SANDBOX, diaryLines } from './content.js';
 import { createChecks } from './checks.js';
 import { bubblesFor } from './bubbles.js';
-import { esc, LEVEL_ICONS } from '../ui/ui.js';
+import { esc, LEVEL_ICONS, TRACK_PICS, thumb } from '../ui/ui.js';
 import { renderReport } from './report.js';
 import { createFilm } from './film.js';
 import * as Teach from '../ai/teach.js';
 import { getModel } from '../ai/plotter.js';
 import { accessCheck } from '../sim/access.js';
-import { TIERS, SANDBOX_TOWN_CAP, unlocked, newlyUnlocked, labReady, townGoals, townComplete } from './progress.js';
+import { TIERS, SANDBOX_TOWN_CAP, unlocked, newlyUnlocked, labReady, townGoals, townComplete, nextUnlock } from './progress.js';
 import { RULES, newAdvisor, nextTip, tipText } from './advisor.js';
 import { seedTo } from './seed.js';
+import { runIntro } from './intro.js';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const SAVE = 'ecotown.save.v3';
@@ -64,7 +65,7 @@ export function createGame(app) {
   function star(i, why = '') { if (!run || run.marks[i]) return; run.marks[i] = true; G.stars = shownStars(); ui.setStars(G.stars); if (why) ui.caption(`★ ${why}`, 2600); }
   function bonusStar(why) { if (!run) return; run.bonus = true; G.stars = shownStars(); ui.setStars(G.stars); ui.caption(`★ ${why}`, 2800); }
   function flower(flash = true) { const s = sim(); ui.carbonInfo = { used: s.carbon, limit: TARGETS.carbonCeiling }; ui.flower(s.petals, G.townName, { flash }); }
-  const KEEP = ['band', 'levelStars', 'starMarks', 'bonus', 'mistakes', 'diary', 'instructions', 'extra', 'credits', 'townName', 'inputMode', 'paths', 'outcomes', 'labs', 'ever', 'classMode', 'day', 'movedIn', 'completeShown', 'charter', 'reflection'];
+  const KEEP = ['introDone', 'band', 'levelStars', 'starMarks', 'bonus', 'mistakes', 'diary', 'instructions', 'extra', 'credits', 'townName', 'inputMode', 'paths', 'outcomes', 'labs', 'ever', 'classMode', 'day', 'movedIn', 'completeShown', 'charter', 'reflection'];
   function save() {
     if (app.inLab || G.full) return; // a mission's practice island is never saved as the player's town
     try { const d = { cells: [...G.cells], li: 1 }; for (const k of KEEP) d[k] = G[k]; if (d.credits === Infinity) d.credits = null; localStorage.setItem(SAVE, JSON.stringify(d)); } catch { /* storage off: keep playing */ }
@@ -132,7 +133,7 @@ export function createGame(app) {
         continue;
       }
       res.text = text; guess = res;
-      const c = centroidOf(res.plan.placements); app.bot.hover(c); if (!app.reduce) rig.focus(c, { dist: id === 'land' ? rig.frameDist() * 0.85 : Math.min(rig.frameDist() * 0.8, 70 + spreadOf(res.plan.placements) * 1.6), pitch: 0.7 }, 1.2);
+      const c = centroidOf(res.plan.placements); app.bot.hover(c); frameView(); rig.frameBox([...new Set(res.plan.placements.map((p) => p.k))].map((k) => world.tileTop(k)), { pitch: 0.72, pad: 1.3, dur: 1.2 });
       await sleep(app.reduce ? 0 : 900); app.bot.beam(true, 15);
       const dur = world.showGhost(res.plan.placements, res.after, { reduce: app.reduce });
       setTimeout(() => app.bot.beam(false), dur * 1000 + 300);
@@ -170,7 +171,7 @@ export function createGame(app) {
       if (which) { // a check the player hasn't tried shows the problem: show it now, before anything is built
         ui.caption(G.C.ui.notFoundYet, 3000); await sleep(app.reduce ? 200 : 1200);
         const view = ['street', 'inside'].includes(which); if (view) { world.clearGhost(); showCells(res.after); }
-        const r = await checks.run(which, sAfter, res.after, reveal); audio.bad(); app.bot.shrug(); ui.alert(fmt(T(id).flaw[which], r.revealed), false);
+        const r = await checks.run(which, sAfter, res.after, reveal); await frameProblem(which, sAfter, res.after); audio.bad(); app.bot.shrug(); ui.alert(fmt(T(id).flaw[which], r.revealed), false);
         await sleep(1600); await continueBtn(); ui.show('alert', false); await checks.leave(); world.clearGhost(); if (view) showCells(G.cells);
         return { flawed: true, which, tries, late: true, rv: r.revealed };
       }
@@ -189,6 +190,7 @@ export function createGame(app) {
       if (view) { world.clearGhost(); showCells(res.after); }
       const r = await checks.run(choice, sAfter, res.after, reveal);
       if (r.revealed) {
+        await frameProblem(choice, sAfter, res.after);
         audio.bad(); app.bot.shrug(); ui.alert(fmt(T(id).flaw[choice], r.revealed), false);
         if (tries === 1) star(0, G.C.ui.foundIt);
         await sleep(1600); await continueBtn();
@@ -206,6 +208,25 @@ export function createGame(app) {
       if (next === 'accept') { world.clearGhost(); const out = await accept(); world.clearGhost(); return out; }
       world.showGhost(res.plan.placements, res.after, { reduce: true });
     }
+  }
+  // after a check reveals a problem, frame the tiles it is about (then the alert explains it)
+  function problemTiles(which, s, cells) {
+    const z = (k) => terrain.tiles.get(k)?.zone; const out = [];
+    for (const [k, c] of cells) {
+      const it = c.item && ITEMS[c.item];
+      if (which === 'flood' && (c.mark === 'town' || it?.home) && ['meadow', 'wetland'].includes(z(k))) out.push(k);
+      if (which === 'nature' && (c.mark === 'town' && z(k) === 'wood' || it?.ploughs)) out.push(k);
+      if (which === 'carbon' && (c.item === 'concrete' || it?.car)) out.push(k);
+      if (which === 'winter' && it?.home) out.push(k);
+      if (which === 'walk' && it?.home && (s.walk?.[k] ?? 0) > TARGETS.walkMinutes) out.push(k);
+      if (which === 'access' && it?.car) out.push(k);
+    }
+    return out.slice(0, 40);
+  }
+  async function frameProblem(which, s, cells) {
+    if (['street', 'inside'].includes(which)) return;
+    const keys = problemTiles(which, s, cells); if (!keys.length) return;
+    await rig.frameBox(keys.map((k) => world.tileTop(k)), { pitch: 0.75, pad: 1.6, dur: 1.2 });
   }
   const continueBtn = () => new Promise((r) => ui.tray(`<div class="row" style="justify-content:center"><button class="btn go" data-go>${esc(G.C.ui.next)} ➜</button></div>`, (tr) => (tr.querySelector('[data-go]').onclick = r)));
   const fmt = (o, rv) => pick(o).replace('{n}', rv?.n ?? '');
@@ -303,17 +324,26 @@ export function createGame(app) {
     if (!sb.running) return;
     const s = sim(); const items = isOpen(sb.cat) ? LEVELS[sb.cat].palette : [];
     const tier = TIERS.find((t) => t.id === sb.cat);
-    const cr = G.credits !== Infinity ? `<span class="${G.credits > 0 ? 'ok' : ''}">💰 ${G.credits} ${G.S.credits}</span>` : '';
-    ui.tray(`<div class="buildhead"><div class="cats" role="tablist" aria-label="${esc(G.S.buildWhat)}">${LEVEL_ORDER.map((id) => `<button class="cat ${sb.cat === id ? 'on' : ''} ${isOpen(id) ? '' : 'locked'}" data-cat="${id}" role="tab" aria-selected="${sb.cat === id}">${catLabel(id)}${isOpen(id) ? '' : ' 🔒'}</button>`).join('')}</div>
-        <div class="row barctl"><span class="clock" data-clock title="${esc(G.S.dayClock)}">🕖 ${clockText()} · ${esc(G.S.day)} ${G.day}</span><button class="btn alt small" data-pause aria-label="${esc(sb.paused ? G.S.play : G.S.pause)}" title="${esc(sb.paused ? G.S.play : G.S.pause)}">${sb.paused ? '▶' : '❚❚'}</button><button class="btn alt small" data-fold aria-expanded="${!sb.folded}">${sb.folded ? '▴ ' + esc(G.S.tools) : '▾'}</button></div></div>
-      <div class="palette ${sb.folded ? 'folded' : ''}">${isOpen(sb.cat) ? items.map((idd) => { const it = ITEMS[idd]; return `<button class="pal ${sb.tool === idd ? 'on' : ''}" data-t="${idd}"><i style="background:${it.color}">${it.icon}</i><span>${esc(it.label)}${!G.j && it.cost ? `<small>${it.cost} cr${it.families ? ` · ${it.families} hh` : ''}${it.embodied ? ` · ${it.embodied} t` : ''}${it.food ? ` · ${it.food} food` : ''}</small>` : ''}</span></button>`; }).join('') + `<button class="pal ${sb.tool === 'erase' ? 'on' : ''}" data-t="erase"><i style="background:#fff">🧽</i><span>${esc(G.S.erase)}</span></button>`
-        : `<p class="lockmsg">🔒 ${esc(G.S.unlocksWhen)} ${esc(pick(tier.need))}. <span>${esc(G.S.now)}: ${esc(progressNow(tier.id, s))}</span></p>`}</div>
-      <div class="needs townnums"><span class="ok">🏘 ${esc(G.S.townLand)} ${s.townTiles}/${SANDBOX_TOWN_CAP}</span><span class="${s.familiesSafe >= TARGETS.families ? 'ok' : ''}">👪 ${s.familiesSafe}/${TARGETS.families} ${esc(G.S.families)}</span>${cr}</div>`, (tr) => {
+    const cr = G.credits !== Infinity ? `<span class="${G.credits > 0 ? 'ok' : ''}"><b>💰</b>${G.credits} ${G.S.credits}</span>` : '';
+    const slot = (idd) => { const it = ITEMS[idd]; const vid = G.videos?.has(idd);
+      return `<div class="slotwrap"><button class="slot item ${sb.tool === idd ? 'on' : ''}" data-t="${idd}" aria-pressed="${sb.tool === idd}" title="${esc(it.label)}"><img src="${thumb(idd)}" alt=""><span>${esc(it.label)}</span>${!G.j && it.cost ? `<em class="cost">💰${it.cost}</em>` : ''}</button>${vid ? `<button class="play" data-play="${idd}" aria-label="${esc(G.S.watchBuilt)}: ${esc(it.label)}" title="${esc(G.S.watchBuilt)}">▶</button>` : ''}</div>`; };
+    ui.buildPanel(`<div class="bhead"><b>${esc(G.S.buildTitle)}</b><span class="clock" data-clock title="${esc(G.S.dayClock)}">🕖 ${clockText()} · ${esc(G.S.day)} ${G.day}</span><button class="slot mini" data-pause aria-label="${esc(sb.paused ? G.S.play : G.S.pause)}" title="${esc(sb.paused ? G.S.play : G.S.pause)}">${sb.paused ? '▶' : '❚❚'}</button><button class="slot mini fold" data-fold aria-expanded="${!sb.folded}" aria-label="${esc(G.S.tools)}">${sb.folded ? '▴' : '▾'}</button></div>
+      <div class="bbody ${sb.folded ? 'folded' : ''}"><div class="cats" role="tablist" aria-label="${esc(G.S.buildWhat)}">${LEVEL_ORDER.map((id, i) => `<button class="slot cat ${sb.cat === id ? 'on' : ''} ${isOpen(id) ? '' : 'locked'}" data-cat="${id}" role="tab" aria-selected="${sb.cat === id}" title="${esc(G.S.cats[id])}"><img src="${thumb(TRACK_PICS[i])}" alt=""><span>${esc(G.S.cats[id])}</span>${isOpen(id) ? '' : '<i class="lock">🔒</i>'}</button>`).join('')}</div>
+      <div class="items">${isOpen(sb.cat) ? items.map(slot).join('') + `<div class="slotwrap"><button class="slot item erase ${sb.tool === 'erase' ? 'on' : ''}" data-t="erase" aria-pressed="${sb.tool === 'erase'}"><b class="ico">🧽</b><span>${esc(G.S.erase)}</span></button></div>`
+        : lockedView(tier, s)}</div></div>
+      <div class="bfoot"><span class="ok"><b>🏘</b>${s.townTiles}/${SANDBOX_TOWN_CAP}</span><span class="${s.familiesSafe >= TARGETS.families ? 'ok' : ''}"><b>👪</b>${s.familiesSafe}/${TARGETS.families}</span>${cr}</div>`, (tr) => {
       tr.querySelectorAll('[data-cat]').forEach((b) => (b.onclick = () => { sb.cat = b.dataset.cat; if (isOpen(sb.cat)) { sb.tool = LEVELS[sb.cat].palette[0]; showAllowed(sb.tool); } else world.setOverlay(null); sb.folded = false; audio.tap(); renderBar(); }));
-      tr.querySelectorAll('[data-t]').forEach((b) => (b.onclick = () => { sb.tool = b.dataset.t; showAllowed(sb.tool); renderBar(); }));
-      tr.querySelector('[data-fold]').onclick = () => { sb.folded = !sb.folded; renderBar(); };
+      tr.querySelectorAll('[data-t]').forEach((b) => (b.onclick = () => { sb.tool = b.dataset.t; showAllowed(sb.tool); audio.tap(); renderBar(); }));
+      tr.querySelectorAll('[data-play]').forEach((b) => (b.onclick = () => playVideo(b.dataset.play)));
+      tr.querySelector('[data-fold]').onclick = () => { sb.folded = !sb.folded; renderBar(); requestAnimationFrame(reframe); };
       tr.querySelector('[data-pause]').onclick = () => { sb.paused = !sb.paused; renderBar(); };
     });
+  }
+  // a locked category still shows what it will unlock (greyed), with a bar filling toward it
+  function lockedView(tier, s) {
+    const [have, need] = tier.progress(s); const pct = Math.round(100 * Math.min(1, have / need));
+    return `<div class="lockbar"><p>🔒 ${esc(G.S.unlocksWhen)} <b>${esc(pick(tier.need))}</b></p><div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="${need}" aria-valuenow="${Math.min(have, need)}"><i style="width:${pct}%"></i><span>${Math.min(have, need)} / ${need}</span></div></div>`
+      + LEVELS[tier.id].palette.map((idd) => `<div class="slotwrap"><div class="slot item locked" aria-disabled="true" title="${esc(ITEMS[idd].label)}"><img src="${thumb(idd)}" alt=""><span>${esc(ITEMS[idd].label)}</span><i class="lock">🔒</i></div></div>`).join('');
   }
   function progressNow(cat, s) {
     if (cat === 'homes') return `${s.townTiles} ${G.S.tiles}`;
@@ -323,8 +353,9 @@ export function createGame(app) {
   // the town card: the next town goal, and the six missions on the track (lit = unlocked, ticked = done)
   function renderCard() {
     const s = sim(); const goals = townGoals(s, ctxFor(G.cells)); const next = goals.find((g) => !g.ok);
-    ui.setBadge(G.j ? 'BUILD YOUR TOWN' : 'FREE BUILD');
-    ui.setTask(0, next ? `${G.S.nextGoal}: ${G.S.goal[next.id](s)}` : G.S.allGoals);
+    ui.setBadge('');
+    const nu = nextUnlock(s, G.ever);
+    ui.setTask(0, nu ? `${G.S.nextGoal}: ${pick(nu.tier.need)} (${nu.have}/${nu.need}) → ${G.S.cats[nu.id]}` : next ? `${G.S.nextGoal}: ${G.S.goal[next.id](s)}` : G.S.allGoals);
     ui.setTrack(LEVEL_ORDER.map((id) => (G.labs[id] ? 'done' : labReady(id, G.ever, G.labs, G.classMode) ? 'on' : '')));
     ui.setStars(G.stars = totalStars());
   }
@@ -359,30 +390,78 @@ export function createGame(app) {
     if (!sb.running) return;
     audio.reward(); ui.alert(`${ids.map((id) => `${CAT_ICON[id]} ${G.S.cats[id]}`).join(' · ')}: ${G.S.unlocked}`, true, 2600);
     const id = ids[0]; const lab = ids.find((x) => labReady(x, G.ever, G.labs, G.classMode) && !G.labs[x]) || null;
-    showTip({ id: 'unlock-' + id, text: pick(G.S.unlockTip[id]) + (lab ? ' ' + G.S.labReady : ''), lab });
+    showTip({ id: 'unlock-' + id, text: pick(G.S.unlockTip[id]) + (lab ? ' ' + G.S.labReady : ''), lab }); app.bot?.cheer();
     sb.adv.last = performance.now();
   }
   function adviseSoon(ms) { clearTimeout(sb.tipT); sb.tipT = setTimeout(advise, ms); }
   function advise() {
-    if (!sb.running || sb.paused || G.busy || sb.lens) return;
+    if (!sb.running || sb.paused || G.busy || sb.lens || sb.intro) return;
     const s = sim(); const rule = nextTip(sb.adv, s, { open: G.ever, hasSchool: ctxFor(G.cells).hasSchool }, performance.now());
     if (!rule) return;
     const lab = rule.lab && !G.labs[rule.lab] && labReady(rule.lab, G.ever, G.labs, G.classMode) ? rule.lab : null;
     const lens = rule.lab && G.labs[rule.lab] && rule.lens === LAB_LENS[rule.lab] ? rule.lens : null;
-    showTip({ id: rule.id, text: tipText(rule, s, G.j), lab, lens });
+    showTip({ id: rule.id, text: tipText(rule, s, G.j), lab, lens, at: tipAt(rule.id, s) });
   }
   // Florence's tip: one line in the dock, above the build bar. Never blocks; fades after a while.
   let tipShown = null;
-  function showTip({ id, text, lab = null, lens = null }) {
-    tipShown = id;
-    help({ tag: G.S.tipTag, tagCls: 'tip', html: `<p>${esc(text)}</p><div class="row tiprow">${lab ? `<button class="btn small go" data-tiplab="${lab}">🧪 ${esc(G.S.showInLab)}</button>` : ''}${lens ? `<button class="btn small alt" data-tiplens="${lens}">${G.C.checks[lens].icon} ${esc(G.S.useLens)}</button>` : ''}<button class="btn small alt" data-tipx aria-label="${esc(G.S.dismiss)}">✕</button></div>`, say: text, voice: 'helper' });
-    const el = ui.P.helper;
+  function showTip({ id, text, lab = null, lens = null, at = null }) {
+    tipShown = id; lastTip = { id, text, lab, lens };
+    const el = ui.florence({ tag: G.S.tipTag, html: `<p>${esc(text)}</p><div class="tiprow">${lab ? `<button class="slot act go" data-tiplab="${lab}"><img src="${thumb('ailab')}" alt=""><span>${esc(G.S.showInLab)}</span></button>` : ''}${lens ? `<button class="slot act" data-tiplens="${lens}"><b class="ico">${G.C.checks[lens].icon}</b><span>${esc(G.S.useLens)}</span></button>` : ''}<button class="slot act x" data-tipx aria-label="${esc(G.S.dismiss)}"><b class="ico">✕</b></button></div>`, say: text });
     el.querySelector('[data-tiplab]')?.addEventListener('click', () => { hideTip(); openLab(lab); });
     el.querySelector('[data-tiplens]')?.addEventListener('click', () => { hideTip(); toggleLens(lens); });
     el.querySelector('[data-tipx]').onclick = () => hideTip();
+    if (at && sb.running) florenceTo(at, 'point');
     clearTimeout(sb.tipHide); sb.tipHide = setTimeout(() => { if (tipShown === id) hideTip(); }, lab ? 20000 : 12000);
   }
-  function hideTip() { tipShown = null; if (!app.inLab) ui.helper(null); }
+  let lastTip = null;
+  function hideTip() { tipShown = null; if (sb.running && lastTip && !sb.intro) ui.florenceMini(() => showTip(lastTip)); else ui.florence(null); }
+  // where on the island a tip is about, so Florence can walk over and point at it
+  function tipAt(id, s) {
+    const town = [...G.cells].filter(([, c]) => c.mark === 'town').map(([k]) => k);
+    const zoneOf = (k) => terrain.tiles.get(k)?.zone;
+    if (id === 'flood') return town.find((k) => ['meadow', 'wetland'].includes(zoneOf(k))) || null;
+    if (id === 'wood') return town.find((k) => zoneOf(k) === 'wood') || null;
+    if (id === 'crossing') return s.unsafeKeys?.[0] || null;
+    if (id === 'homesCarbon') return [...G.cells].find(([, c]) => c.item === 'concrete')?.[0] || s.homes[0]?.k || null;
+    if (id === 'walk') { let best = null, w = -1; for (const [k, m] of Object.entries(s.walk || {})) if (m > w) { w = m; best = k; } return best; }
+    if (id === 'wildlife') return [...G.cells].find(([, c]) => c.item === 'bigfield')?.[0] || null;
+    if (['cold', 'winter', 'homesNext', 'school', 'hungry', 'rain'].includes(id)) return s.homes[0]?.k || town[0] || null;
+    return null;
+  }
+  // Florence walks over and reacts: peers at a new build (not too often), points at a problem, cheers
+  let fNext = 0;
+  async function florenceTo(k, act = 'peer') {
+    const bot = app.bot; if (!bot || app.inLab || !k || !terrain.tiles.has(k)) return;
+    const now = performance.now(); if (act === 'peer' && now < fNext) return; fNext = now + (act === 'peer' ? 7000 : 3000);
+    const p = world.tileTop(k); bot.show(true); await bot.walkTo(p, { stopShort: 7.5, maxDur: 3 });
+    if (!sb.running || app.inLab) return;
+    if (act === 'point') bot.point(p.clone().add(new THREE.Vector3(0, 1, 0))); else if (act === 'cheer') bot.cheer(); else bot.peer(p);
+  }
+  // a build video: from above while it goes up, then down at eye level. Captions come from its timeline.
+  async function playVideo(id) {
+    if (!G.videos?.has(id)) return; const it = ITEMS[id]; const was = sb.paused; sb.paused = true;
+    let tl = null; try { tl = await (await fetch(`videos/${id}.json`)).json(); } catch { /* captions are optional */ }
+    await videoCard(it.label, id, tl);
+    sb.paused = was;
+  }
+  function videoCard(label, id, tl) {
+    return ui.modal(`<div class="ribbon">▶ ${esc(label)}</div><div class="vidwrap"><video data-v src="videos/${id}.mp4" poster="videos/${id}.jpg" autoplay muted playsinline preload="auto"></video><div class="vcap" data-cap></div></div>
+      <div class="row vchips"><button class="slot act" data-seek="0"><b class="ico">🦅</b><span>${esc(G.S.fromAbove)}</span></button><button class="slot act" data-seek="eye"><b class="ico">👟</b><span>${esc(G.S.eyeLevel)}</span></button><button class="slot act" data-replay><b class="ico">↺</b><span>${esc(G.S.replay)}</span></button></div>
+      <button class="btn go" data-act="close">${esc(app.inLab ? G.C.ui.continue : G.S.backToBuilding)}</button>`, { bind: (m) => {
+      const v = m.querySelector('[data-v]'); const cap = m.querySelector('[data-cap]'); let last = -1;
+      const eye = tl?.eye ?? 6;
+      m.querySelector('[data-seek="0"]').onclick = () => { v.currentTime = 0; v.play().catch(() => {}); };
+      m.querySelector('[data-seek="eye"]').onclick = () => { v.currentTime = eye; v.play().catch(() => {}); };
+      m.querySelector('[data-replay]').onclick = () => { v.currentTime = 0; v.play().catch(() => {}); };
+      v.addEventListener('timeupdate', () => {
+        const st = tl?.stages || []; let i = -1; for (let n = 0; n < st.length; n++) if (st[n].t <= v.currentTime) i = n;
+        if (v.currentTime >= eye && tl?.eyeText) i = st.length;
+        if (i === last) return; last = i;
+        const text = i === st.length ? pick(tl.eyeText) : i >= 0 ? pick(st[i].text) : '';
+        cap.textContent = text; cap.classList.toggle('on', !!text); if (text) ui.say(text, 'narrator');
+      });
+    } });
+  }
   // the first family arrives on the sky-ferry, once, without taking the camera away
   function moveIn(s) {
     G.movedIn = true; if (app.reduce) return;
@@ -392,15 +471,15 @@ export function createGame(app) {
   }
   // the living town: a slow day, residents' bubbles, a new day each evening (senior: households pay credits)
   function tick() {
-    if (!sb.running || sb.paused || G.busy) return;
+    if (!sb.running || sb.paused || G.busy || sb.intro) return;
     app.hour += (16 / DAY_SECONDS) * 0.2;
     if (app.hour >= 22) newDay();
     stage.setTime(app.hour, 0);
-    const ck = ui.P.tray.querySelector('[data-clock]'); if (ck) ck.textContent = `🕖 ${clockText()} · ${G.S.day} ${G.day}`;
+    const ck = ui.P.build.querySelector('[data-clock]'); if (ck) ck.textContent = `🕖 ${clockText()} · ${G.S.day} ${G.day}`;
     const now = performance.now();
     if (sb.bubbles.length && now > sb.nextBub && rig.mode === 'sky' && !sb.lens) {
       const b = sb.bubbles[Math.floor(Math.random() * sb.bubbles.length)]; const who = life.residentNear(b.k);
-      if (who) ui.labels.bubble({ at: () => who.position.clone().add(new THREE.Vector3(0, 2.6, 0)), text: b.text, bad: b.bad, quiet: true });
+      if (who) ui.labels.bubble({ at: () => who.position.clone().add(new THREE.Vector3(0, 1.9, 0)), text: b.text, bad: b.bad, quiet: true });
       sb.nextBub = now + 9000;
     }
     if (now > sb.nextTipCheck) { sb.nextTipCheck = now + 5000; if (!tipShown) advise(); }
@@ -415,9 +494,11 @@ export function createGame(app) {
   function bindTaps() {
     const canvas = stage.renderer.domElement;
     rig.onTap = (ndc) => {
-      if (!sb.running || G.busy || sb.lens || !sb.tool || !isOpen(sb.cat) && sb.tool !== 'erase') return;
+      if (!sb.running || G.busy || sb.lens) return;
       const k = world.pick(ndc, stage.camera); if (!k) return;
-      if (placeAt(k, sb.tool)) { world.clearGhost(); app._hk = null; audio.pop(); showAllowed(sb.tool); changed(); }
+      if (k === terrain.lab) { audio.tap(); return labBoard(); } // the AI Lab building opens the Lab board
+      if (!sb.tool || (!isOpen(sb.cat) && sb.tool !== 'erase')) return;
+      if (placeAt(k, sb.tool)) { world.clearGhost(); app._hk = null; audio.pop(); showAllowed(sb.tool); changed(); florenceTo(k, 'peer'); }
     };
     rig.onHover = (ndc) => {
       if (!sb.running || G.busy || sb.lens || sb.tool === 'erase' || !isOpen(sb.cat)) return;
@@ -430,14 +511,30 @@ export function createGame(app) {
     };
     canvas.addEventListener('pointerleave', () => { world.clearGhost(); app._hk = null; ui.labels.clear('lbl'); });
   }
+  // centre the island in the free space beside (or above) the build panel
+  function frameView() {
+    // the island is framed in the space the side panels leave free: the build panel while building, the
+    // mission rail in the AI Lab. The camera's view offset centres it there, and the rig fits it to that area.
+    const cam = stage.camera; const W = innerWidth, H = innerHeight; const b = ui.P.build; const d = ui.P.dock;
+    const panel = sb.running && !b.classList.contains('hide') ? b : app.inLab && !d.classList.contains('hide') && d.getBoundingClientRect().left < W * 0.2 ? d : null;
+    if (!panel) { if (cam.view?.enabled) cam.clearViewOffset(); rig.inset = { left: 0, right: 0, top: 0, bottom: 0 }; return; }
+    const r = panel.getBoundingClientRect();
+    if (r.width > W * 0.6) { cam.setViewOffset(W, H, 0, Math.round((H - r.top) / 2), W, H); rig.inset = { left: 0, right: 0, top: 70, bottom: H - r.top }; }
+    else { const right = ui.P.camctl.classList.contains('hide') ? 0 : W - ui.P.camctl.getBoundingClientRect().left + 8; cam.setViewOffset(W, H, -Math.round((r.right - right) / 2), 0, W, H); rig.inset = { left: r.right, right, top: 0, bottom: 0 }; }
+  }
+  // on resize or when the panels change, keep the same framing (rescale the distance with the frame)
+  let lastFrame = 0;
+  function reframe() { const before = lastFrame || rig.frameDist(); frameView(); const now = rig.frameDist(); if (rig.mode === 'sky' && before) rig.sky.dist = Math.min(rig.maxDist(), rig.sky.dist * (now / before)); lastFrame = now; }
+  app.reframe = reframe;
+  addEventListener('resize', () => requestAnimationFrame(reframe));
   function startBuilding() {
     sb.running = true; rig.building = true; app.levelId = null; app.inLab = false; app.briefMinutes = null;
     ui.only([]); ui.views('sky'); ui.facil(null); ui.show('card'); ui.show('strip');
     showCells(G.cells); world.setOverlay(null); if (isOpen(sb.cat)) showAllowed(sb.tool);
-    changed(); renderLenses(); setMusic('calm');
+    changed(); renderLenses(); setMusic('calm'); app.bot?.show(true); requestAnimationFrame(() => { frameView(); lastFrame = rig.frameDist(); if (!sb.framed) { sb.framed = true; rig.overview(app.reduce ? 0.01 : 1.0); } });
     if (sb.afterLab) { const msg = sb.afterLab; sb.afterLab = null; setTimeout(() => ui.caption(msg, 5000), 2800); } // after any unlock alert
   }
-  function stopBuilding() { sb.running = false; rig.building = false; clearTimeout(sb.tipT); world.clearGhost(); world.setOverlay(null); ui.labels.clear(); ui.tray(''); hideTip(); }
+  function stopBuilding() { sb.running = false; ui.florence(null); frameView(); rig.building = false; clearTimeout(sb.tipT); world.clearGhost(); world.setOverlay(null); ui.labels.clear(); ui.tray(''); ui.buildPanel(''); hideTip(); }
   const setMusic = (m) => app.setMusic?.(m);
 
   // ================= THE AI LAB =================
@@ -447,7 +544,7 @@ export function createGame(app) {
     const rows = LEVEL_ORDER.map((id, i) => {
       const done = G.labs[id]; const ready = labReady(id, G.ever, G.labs, G.classMode); const tier = TIERS.find((t) => t.id === id);
       const why = !isOpen(id) ? `🔒 ${G.S.unlocksWhen} ${pick(tier.need)}` : !ready ? `🔒 ${G.S.classFirst}` : done ? `${'★'.repeat(done.stars)}${'☆'.repeat(3 - done.stars)} · ${G.S.playAgain}` : G.S.ready;
-      return `<button class="labrow ${done ? 'done' : ''} ${ready ? '' : 'locked'}" data-act="${ready ? 'lab:' + id : 'none'}" ${ready ? '' : 'aria-disabled="true"'}><span class="ic">${LEVEL_ICONS[i]}</span><span class="t"><b>${i + 1}. ${esc(T(id).title)}</b><small>${esc(pick(T(id).goal))}</small></span><span class="st">${esc(why)}</span></button>`;
+      return `<button class="labrow ${done ? 'done' : ''} ${ready ? '' : 'locked'}" data-act="${ready ? 'lab:' + id : 'none'}" ${ready ? '' : 'aria-disabled="true"'}><span class="ic"><img src="${thumb(TRACK_PICS[i])}" alt=""></span><span class="t"><b>${i + 1}. ${esc(T(id).title)}</b><small>${esc(pick(T(id).goal))}</small></span><span class="st">${esc(why)}</span></button>`;
     }).join('');
     G.busy = true; // the town waits while the board is open
     const a = await ui.modal(`<div class="ribbon">🧪 ${esc(G.S.labTitle)}</div><p>${esc(pick(G.S.labIntro))}</p><div class="labs">${rows}</div>
@@ -461,9 +558,19 @@ export function createGame(app) {
   async function openLab(id) {
     if (G.busy || !id) return; if (sb.lens) { sb.lens = null; await checks.leave(); renderLenses(); }
     G.busy = true; stopBuilding();
-    try { await runLab(id); } finally { G.busy = false; startBuilding(); }
+    try { await walkIntoLab(); await runLab(id); } finally { G.busy = false; startBuilding(); app.bot?.appear(world.tileTop(terrain.lab).add(new THREE.Vector3(-2, 0, 7))); }
   }
 
+  // Florence walks to the AI Lab door and goes in; the camera follows, then the practice island fades in
+  async function walkIntoLab() {
+    const bot = app.bot; if (!bot || !terrain.lab) return;
+    const door = world.tileTop(terrain.lab).add(new THREE.Vector3(0, 0, 4.5)); const inside = world.tileTop(terrain.lab).add(new THREE.Vector3(0, 0, 0.5));
+    bot.show(true);
+    await rig.focus(door, { dist: 40, pitch: 0.55, yaw: rig.sky.yaw }, 1.2);
+    await bot.walkTo(door, { maxDur: app.reduce ? 0.3 : 2.2 }); bot.look(inside); if (!app.reduce) await bot.wave();
+    await bot.walkTo(inside, { maxDur: 0.6 }); bot.show(false);
+    await rig.fade?.(() => {});
+  }
   // one mission, on Florence's practice island
   async function runLab(id) {
     const real = G.cells; const lv = LEVELS[id]; const L = T(id);
@@ -545,7 +652,7 @@ export function createGame(app) {
       if (!again.flawed) {
         const sA = sim(res.after); const cx = ctxFor(res.after);
         if (lv.pass(sA, cx)) {
-          audio.good(); app.bot.cheer(); world.confetti(app.bot.group.position.clone(), 90); ui.alert(G.C.ui.checked, true, 1800);
+          audio.good(); app.bot.proud(); world.confetti(app.bot.group.position.clone(), 90); ui.alert(G.C.ui.checked, true, 1800);
           help({ tag: G.C.ui.checked, tagCls: 'ok', html: `<ul>${res.plan.reading.map((r) => `<li>${esc(r)}</li>`).join('')}</ul>`, sure: res.sure, sureLabel: G.C.ui.sure });
           await sleep(1400); return res;
         }
@@ -665,7 +772,7 @@ export function createGame(app) {
         const part = app.hour < 11 ? 0 : app.hour < 16 ? 1 : 2;
         if (part !== shown) { shown = part; const dd = ui.P.tray.querySelector('[data-diary]'); if (dd) { dd.textContent = `📔 ${['Morning', 'Afternoon', 'Evening'][part]}: “${lines[part]}”`; dd.classList.remove('flash'); void dd.offsetWidth; dd.classList.add('flash'); } }
         if (el >= nextP && pois.length && !app.reduce && rig.mode === 'sky') { const p = pois[pi++ % pois.length]; rig.focus(p, { dist: 70, pitch: 0.6, yaw: rig.sky.yaw + 0.5 }, 3.2); nextP = el + 6; }
-        if (el >= nextB && list.length) { const b = list[bi++ % list.length]; const who = life.residentNear(b.k); if (who) ui.labels.bubble({ at: () => who.position.clone().add(new THREE.Vector3(0, 2.6, 0)), text: b.text, bad: b.bad }); nextB = el + 3.4; }
+        if (el >= nextB && list.length) { const b = list[bi++ % list.length]; const who = life.residentNear(b.k); if (who) ui.labels.bubble({ at: () => who.position.clone().add(new THREE.Vector3(0, 1.9, 0)), text: b.text, bad: b.bad }); nextB = el + 3.4; }
         await sleep(50);
       }
       ui.labels.clear('bub'); app.hour = 12.5; stage.setTime(12.5, 0); await rig.overview(1.1);
@@ -694,15 +801,29 @@ export function createGame(app) {
   G.run = async () => {
     G.ever = unlocked(sim(), G.ever, G.full); G.stars = totalStars();
     ui.setStars(G.stars); ui.setTownName(G.townName); flower(false);
-    ui.onLab = () => labBoard(); ui.onLens = (id) => toggleLens(id);
+    ui.onLab = () => labBoard(); ui.onLens = (id) => toggleLens(id); ui.onTalk = (secs) => app.bot?.talk(secs);
+    try { const r = await fetch('videos/index.json'); if (r.ok) G.videos = new Set((await r.json()).items); } catch { /* no videos on this build */ }
     bindTaps(); startBuilding();
     setInterval(tick, 200);
+    // a new town starts with Florence's guided first build
+    if (!G.introDone && !G.full) await intro();
     // the first tip comes straight away, so a new player knows where to begin
     sb.adv.last = -Infinity; adviseSoon(1200);
     // class mode: Florence invites the class to the first mission that is ready
     if (G.classMode) { const id = LEVEL_ORDER.find((l) => !G.labs[l]); if (id && labReady(id, G.ever, G.labs, true)) setTimeout(() => showTip({ id: 'class-' + id, text: G.S.classInvite, lab: id }), 1500); }
   };
-  G.openLab = openLab; G.labBoard = labBoard; G.placeAt = (k, tool) => { const ok = placeAt(k, tool); if (ok) changed(); return ok; }; G.sim = sim; G.advisor = sb.adv;
+  async function intro() {
+    if (sb.intro) return; sb.intro = true; hideTip();
+    try {
+      await runIntro({ app, G, T: G.S.intro,
+        selectTool: (cat, tool) => { sb.cat = cat; sb.tool = tool; sb.folded = false; showAllowed(tool); renderBar(); },
+        townTiles: () => sim().townTiles,
+        videoCard: G.videos?.has('timber') ? (id) => videoCard(ITEMS[id].label, id, null) : null,
+        highlight: (sel, on) => document.querySelector(sel)?.classList.toggle('pulse', on) });
+    } finally { sb.intro = false; G.introDone = true; save(); sb.adv.last = performance.now(); }
+  }
+  G.replayIntro = () => { if (!G.busy && sb.running) intro(); };
+  G.openLab = openLab; G.labBoard = labBoard; G.playVideo = playVideo; G.videoCard = videoCard; G.florenceTo = florenceTo; G.placeAt = (k, tool) => { const ok = placeAt(k, tool); if (ok) changed(); return ok; }; G.sim = sim; G.advisor = sb.adv;
   G.saved = () => { try { const d = JSON.parse(localStorage.getItem(SAVE) || 'null'); return d && d.band === G.band ? d : null; } catch { return null; } };
   return G;
 }

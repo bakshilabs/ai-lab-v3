@@ -119,11 +119,16 @@ cd games/ecotown/dist && python3 -m http.server 8000
 
 | | Touch | Mouse / keyboard |
 |---|---|---|
-| Turn the island | drag | drag, or the arrow keys |
-| Zoom | pinch | scroll wheel, or `+` / `−` |
+| Move around the island | drag with one finger | drag, or `W` `A` `S` `D` |
+| Turn the island | twist with two fingers, or ⟲ ⟳ | right-drag (or Shift-drag), `Q` / `E`, ← / →, or ⟲ ⟳ |
+| Tilt | move two fingers up or down | ↑ / ↓ (the tilt also follows the zoom) |
+| Zoom | pinch (towards your fingers), or ＋ / － | scroll wheel (towards the pointer), `+` / `−`, or ＋ / － |
+| Back to the whole island | ⌂ | ⌂ or `Home` |
 | Place or remove | tap a tile | click a tile (a see-through preview shows first) |
-| Fly to a spot | double-tap | double-click |
+| Fly to a spot | double-tap (also while building) | double-click |
 | Views | ☁ sky · 👟 street · 🏠 inside (top right) | same |
+
+The camera buttons (＋ － ⟲ ⟳ ⌂) sit on the right edge for whiteboards and trackpads. Keys only move the camera when the island has focus, not while a button or text box is selected. The camera centres the island in the space the side panels leave free, and keeps the framing when the window is resized.
 
 The ☰ menu has these settings:
 - read aloud;
@@ -142,20 +147,23 @@ Choose the age band, then name the town and choose how the AI Lab missions are p
 - **Any order** (default): any mission can be opened once its build category has unlocked.
 - **In order (class):** only the next mission opens, and Florence invites players to it as soon as it is ready. Use this when a whole class should move through the lessons together.
 
-A short fly-over of the island plays (skippable), then the player is building.
+**Florence's guided first build** (`js/game/intro.js`, about 90 s, **Skip intro** always visible, replay from ☰): Florence walks off the sky-ferry dock and waves, walks to the river meadow and peers through her magnifier while it floods, walks up to the dry slope and asks the player to tap three tiles of town land (three suggested tiles glow gold; a 0/3 bar fills in her card), plays the timber-terrace build video, points out the build panel and walks to the AI Lab building ("I'm clever… but sometimes confidently wrong. Can you catch me?"), then "Over to you!". The three tiles are kept.
 
 ### Free building (the main screen)
-- **Build bar** (bottom): category tabs 🗺 Land · 🚲 Getting around · 🏡 Homes · 🍎 Food · ⚡ Power & water · 🏫 Town heart, the palette for the open tab, and 🧽 Remove. Tiles the selected tool can go on light up; a see-through preview and the reason it can't go somewhere follow the pointer. Nothing is locked: the player can remove anything they built. The bar folds away.
-- **Grow to unlock** (`js/game/progress.js`). Land and paths are open from the start. Homes open at 6 tiles of town land, Food at 12 families, Power & water at 24 families, Town heart at 36 families (or 24 families with enough food). Opened categories stay open. A locked tab says what opens it and where the town is now.
+- **Build panel** (left; a bottom tray on phones, a side rail on phones held sideways): wooden block panels in the island's palette, a column of six category slots and a grid of **picture buttons**, one per build. The pictures are rendered from the game's own voxel builds (`tools/thumbs.mjs` → `img/thumbs/`). Selected = a dark frame, raised, with a ✓. A ▶ on a button plays that build's video. 🧽 Remove. Tiles the selected tool can go on light up; a see-through preview and the reason it can't go somewhere follow the pointer. Nothing is locked: the player can remove anything they built. The camera centres the island in the space the panel leaves free.
+- **Grow to unlock** (`js/game/progress.js`). Land and paths are open from the start. Homes open at 6 tiles of town land, Food at 12 families, Power & water at 24 families, Town heart at 36 families (or 24 families with enough food). Opened categories stay open. A locked category still shows its builds, greyed, with a bar filling toward the unlock (e.g. "Homes for 12 families: 8 / 12"). The town card's next goal names the next unlock.
 - **The town lives while you build:** a slow day clock (about 2½ minutes from 6:00 to 22:00, with a pause button), residents walking their routines, at most two thought bubbles, lights at night. The first family arrives on the sky-ferry when the first homes are built. Ages 13–17 earn credits each evening from households, and items cost credits.
-- **Town card** (top left): the next town goal with live numbers, and the six missions on the track (lit = ready, green = done). Tapping the track opens the AI Lab.
+- **Town card** (top left): the next goal with live numbers, and the six missions on the track as pictures (a red ! = ready, green ✓ = done). Tapping the track opens the AI Lab.
+- **Florence on the island** (`js/engine/florence.js`): a 3D wooden toy robot built from the client's character art (two-tone wood, brown eyes and brows, ear bolts, a teal-lit springy antenna, a brass magnifying glass and a "…" speech card). Everything is procedural: a walk with planted feet, wave, point (with the magnifier), peer (the lens in front of her eye), talk (her mouth moves and the card's dots pulse), cheer, proud, surprised, and "oops" (worried brows, a sweat drop, scratching her head) when a check catches her mistake. While you build she walks over to peer at new builds, walks to a problem and points at it when she gives a tip, and cheers at unlocks. Reduce motion: she slides, without the wobble.
+- **The AI Lab building** stands on the coast beside the old school. Tapping it opens the Lab board; Florence walks in through its door before a mission starts.
+- **Build videos** (one per build, about 10 s): the build goes up layer by layer seen from above, then the camera swoops down to eye level, where Florence peers at it. Captions follow the stages (both age bands from one video, read aloud for 8–12). From the ▶ on any build button, in the intro, with "From above / Eye level / Replay".
 - **Town land** is capped at 30 tiles in free building. One rule everywhere: nothing goes on the protected wetland except paths, green bridges, reed beds and "keep wild".
 
 ### Florence's tips (`js/game/advisor.js`)
-One line in the dock above the build bar, with 🔊 and ✕. A tip only appears when something really changes (town land on the floodplain, a busy road on the school run, homes over the carbon limit, the bees leaving, a winter-night blackout, homes too far from school…), at most one every 25 seconds, and the same tip is not repeated until its problem has been fixed and comes back. When a mission teaches that problem, the tip offers **🧪 Show me in the AI Lab**; once that mission is done, it offers that mission's lens instead. When a category unlocks, Florence says so and mentions the new mission.
+In Florence's card (bottom right, with her portrait from the client's art), with 🔊 and ✕; every tip ends with something to do ("…Add a battery store or a wind turbine"). After a while, or on ✕, the card shrinks to her portrait; tap it to read the tip again. A tip only appears when something really changes (town land on the floodplain, a busy road on the school run, homes over the carbon limit, the bees leaving, a winter-night blackout, homes too far from school…), at most one every 25 seconds, and the same tip is not repeated until its problem has been fixed and comes back. When a mission teaches that problem, the tip offers **🧪 Show me in the AI Lab**; once that mission is done, it offers that mission's lens instead. When a category unlocks, Florence says so and mentions the new mission.
 
 ### The AI Lab
-The 🧪 button in the top-right strip opens the Lab board: six missions, each locked, ready, or done with its stars (missions can be replayed; the best run counts). The board also has **Watch a whole day** and **Town report**.
+The AI Lab building, the 🧪 button or the mission track opens the Lab board: six missions, each locked, ready, or done with its stars (missions can be replayed; the best run counts). The board also has **Watch a whole day** and **Town report**.
 
 A mission is one of the six lessons, played on **Florence's practice island**, a copy of the island with the earlier missions built from their clear instructions (`js/game/seed.js`). The player's own town is not touched. The frame takes a cooler tint while in the lab. "Not now" on the brief card goes straight back to building.
 
@@ -225,13 +233,13 @@ To re-record after changing text, see `voice/README.md`.
 
 | Folder | What it does |
 |---|---|
-| `engine/` | Renderer and post-processing (tilt-shift, bloom, grade), sky and time of day (`stage.js`); voxel mesher (`voxel.js`); kit and extras; residents, wildlife and the ferry (`life.js`); Florence's drone (`bot.js`); WebAudio synth (`audio.js`) |
+| `engine/` | Renderer and post-processing (tilt-shift, bloom, grade), sky and time of day (`stage.js`); voxel mesher (`voxel.js`); kit and extras; residents, wildlife and the ferry (`life.js`); Florence, the 3D wooden robot (`florence.js`); WebAudio synth (`audio.js`) |
 | `world/` | Terrain grid, zones, rim, mesas and canyons (`terrain.js`), construction stages (`construct.js`), build catalogue and placement rules (`catalog.js`), voxel builders (`builders.js`), the island in three.js (`world.js`), dollhouse rooms (`inside.js`) |
 | `sim/` | The honest simulation (`sim.js`) and Florence's literal planner (`planner.js`) |
 | `ai/` | `teach.js` trains the residents'-feedback classifier in the browser. `plotter.js` reads the instruction (small language model, falling back to keywords), plans, and replies from templates. `model.js` and `tokenizer.js` run the model; see `../model/README.md` |
-| `game/` | Free building and the AI Lab missions (`game.js`), unlocks and town goals (`progress.js`), Florence's tips (`advisor.js`), the practice island (`seed.js`), mission rules (`levels.js`), text for both versions (`content.js`), checks and lenses (`checks.js`), bubbles, the report |
+| `game/` | Free building and the AI Lab missions (`game.js`), Florence's guided intro (`intro.js`), unlocks and town goals (`progress.js`), Florence's tips (`advisor.js`), the practice island (`seed.js`), mission rules (`levels.js`), text for both versions (`content.js`), checks and lenses (`checks.js`), bubbles, the report |
 | `camera/rig.js` | Sky orbit, flights, street rails, follow and turntable shots |
-| `ui/ui.js` | The frame: town card, icon strip, Florence dock, cards, labels and bubbles, read-aloud |
+| `ui/` | The frame (`ui.js`): town card, icon strip, build panel, Florence's card, mission dock, cards, labels and bubbles, read-aloud; build pictures (`thumbs.js`) |
 
 ## Tests
 
@@ -259,5 +267,14 @@ From `games/ecotown/game`:
   node tests/playwright/run.mjs http://localhost:8765/ senior /tmp/shots-s 1920 1080 text
   ```
 
+- Build videos: `index.html?shoot=<item>` sets up the shot (a whole demo town; `window.__render(t)` renders frame by frame). Record them all (about 4 minutes each in software 3D) into `game/videos/`, with posters and caption timelines:
+
+  ```bash
+  node tests/video/record.mjs http://localhost:8765/
+  ```
+
+  Add `--force` to re-record, or list items to record only those. After changing a builder, re-render the button pictures with `node tools/thumbs.mjs http://localhost:8765/`.
+- Florence on her own, in every pose: `tests/visual/florence.html?poses=idle,walk,wave,point,peer,talk,cheer,oops,proud,think&close=1`.
+- Play-through with Florence's intro played (not skipped): `INTRO=1 FAST=1 node tests/playwright/run.mjs …`.
 - Watch any film on its own: `index.html?film=homes`. The other films are `land`, `move`, `food`, `power` and `heart`.
 - Render test page for the world on its own: `tests/visual/world.html?levels=6&hour=16.5&tier=high`.

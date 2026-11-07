@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { Vox, noise2, rand, hex } from './voxel.js';
 
 export const PAL = {
-  grass: ['#7ccf55', '#6cc04b', '#86d65d', '#5fb446'], grassDark: '#4f9a3c',
+  grass: ['#94bf58', '#a0c862', '#88b44f', '#a9c463'], grassDark: '#6e9643',
   soil: ['#9a6a42', '#8a5c38', '#a7774c'], stone: ['#8b8f93', '#7b8085', '#9aa0a5'],
   sand: '#e9d6a1', path: '#d9c9a0', gravel: '#c8c2b5', road: '#5b6168', roadLine: '#f2f2ea',
   water: '#4fb6e8', waterDeep: '#3a9bd4',
@@ -88,19 +88,35 @@ export function waterMesh(cells, y, { color = PAL.water, opacity = 0.82 } = {}) 
 // ---- small sub-voxel characters (built at scale s, origin at feet) ----
 function partMesh(fn, s) { const v = new Vox(); v.jitter = 0.02; fn(v); return v.mesh({ scale: s }); }
 
-export function person({ shirt = '#e8573f', pants = '#2c3e66', skin = '#c68a5e', hair = '#2b1d14', s = 0.32 } = {}) {
+// a resident: front is +z (the way they walk). Hair styles, skirts, elders with canes; real eyes on the face.
+// style: 'short' | 'long' | 'bun' | 'cap' | 'scarf'; skirt: a skirt colour (or null); elder: grey hair and a cane
+export function person({ shirt = '#e8573f', pants = '#2c3e66', skin = '#c68a5e', hair = '#2b1d14', s = 0.32, style = 'short', skirt = null, elder = false, cap = '#2f6fd8' } = {}) {
   const g = new THREE.Group();
   const legL = partMesh((v) => v.box(0, 0, 0, 0, 2, 0, pants), s); legL.position.set(-1 * s, 3 * s, -0.5 * s);
   const legR = partMesh((v) => v.box(0, 0, 0, 0, 2, 0, pants), s); legR.position.set(0 * s, 3 * s, -0.5 * s);
   legL.geometry.translate(0, -3 * s, 0); legR.geometry.translate(0, -3 * s, 0);
-  const body = partMesh((v) => { v.box(-1, 3, -1, 0, 5, 0, shirt); v.box(-2, 4, -1, -2, 5, 0, shirt); v.box(1, 4, -1, 1, 5, 0, shirt); v.box(-1, 6, -1, 0, 7, 0, skin); v.box(-1, 8, -1, 0, 8, 0, hair); v.set(-1, 7, 0, hair); v.set(0, 7, 0, hair); v.set(-1, 6, -1, skin); }, s);
-  const eyes = partMesh((v) => { v.set(-1, 7, -2, '#141414'); v.set(0, 7, -2, '#141414'); }, s);
-  eyes.scale.set(1, 0.6, 0.2); eyes.position.set(0, 7 * s * 0.4, -0.5 * s);
+  const h = elder ? '#d9d4cc' : hair;
+  const body = partMesh((v) => {
+    v.box(-1, 3, -1, 0, 5, 0, shirt); v.box(-2, 4, -1, -2, 5, 0, shirt); v.box(1, 4, -1, 1, 5, 0, shirt);   // body and arms
+    v.box(-2, 3, -1, -2, 3, 0, skin); v.box(1, 3, -1, 1, 3, 0, skin);                                      // hands
+    if (skirt) v.box(-1, 2, -1, 0, 2, 0, skirt);
+    v.box(-1, 6, -1, 0, 7, 0, skin);                                                                      // head (face at z = 0)
+    if (style === 'scarf') { v.box(-1, 8, -1, 0, 8, 0, h); v.box(-1, 6, -2, 0, 7, -2, h); v.box(-2, 6, -1, -2, 7, 0, h); v.box(1, 6, -1, 1, 7, 0, h); v.box(-1, 5, -2, 0, 5, -2, h); }
+    else if (style === 'cap') { v.box(-1, 8, -1, 0, 8, 0, cap); v.box(-1, 8, 1, 0, 8, 1, cap); v.box(-1, 7, -2, 0, 7, -2, h); }
+    else {
+      v.box(-1, 8, -1, 0, 8, 0, h); v.box(-1, 7, -2, 0, 7, -2, h);                                          // top and back
+      if (style === 'long') { v.box(-1, 5, -2, 0, 6, -2, h); v.set(-2, 7, -1, h); v.set(1, 7, -1, h); v.set(-2, 6, -1, h); v.set(1, 6, -1, h); }
+      if (style === 'bun') v.box(-1, 8, -2, 0, 9, -2, h);
+    }
+    if (elder) { v.box(1, 0, 1, 1, 3, 1, '#6b4a33'); }                                                    // a walking stick
+  }, s);
+  // eyes: two small dark squares on the face (separate, smaller than a voxel)
+  const eyeGeo = new THREE.BoxGeometry(s * 0.34, s * 0.42, s * 0.08); const eyeMat = new THREE.MeshBasicMaterial({ color: '#1d140e' });
+  for (const ex of [-0.5, 0.5]) { const e = new THREE.Mesh(eyeGeo, eyeMat); e.position.set(ex * s, 7.35 * s, 1.03 * s); body.add(e); }
   g.add(legL, legR, body);
-  g.userData.walk = (ph) => { legL.rotation.x = Math.sin(ph) * 0.6; legR.rotation.x = -Math.sin(ph) * 0.6; body.position.y = Math.abs(Math.sin(ph)) * s * 0.4; };
+  g.userData.walk = (ph) => { const a = elder ? 0.35 : 0.6; legL.rotation.x = Math.sin(ph) * a; legR.rotation.x = -Math.sin(ph) * a; body.position.y = Math.abs(Math.sin(ph)) * s * 0.4; };
   return g;
 }
-
 export function duck({ s = 0.25, body = '#f4f1e8', head = '#2f7a4a' } = {}) {
   return partMesh((v) => { v.box(-2, 0, -1, 1, 1, 1, body); v.box(-3, 1, -1, -3, 2, 1, body); v.box(1, 2, -1, 2, 3, 0, head); v.set(3, 2, -1, '#f2a33a'); v.set(3, 2, 0, '#f2a33a'); }, s);
 }

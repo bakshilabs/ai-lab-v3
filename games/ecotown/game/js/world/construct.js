@@ -27,12 +27,12 @@ export function planStages(cell, vox, rec) {
   const P = () => ({ G: new Vox(), B: new Vox(), F: new Vox() });
   const copy = (src, dst, f = () => true) => { for (const [x, y, z, c] of src.m.values()) if (f(x, y, z, c)) dst.set(x, y, z, c); };
 
-  if (!cell.item) { const p = P(); copy(vox.G, p.G); copy(vox.B, p.B); add(L(id === 'town' ? 'Pegging out the town' : 'Marking land to keep wild'), p, { dir: 'x' }); return st; }
+  if (!cell.item) { const p = P(); copy(vox.G, p.G); copy(vox.B, p.B); copy(vox.F, p.F); add(L(id === 'town' ? 'Pegging out the town' : 'Marking land to keep wild'), p, { dir: 'x' }); return st; }
 
   if (ROADS.has(id)) {
     const dig = P(), grav = P(), surf = P(), fin = P();
     for (const [x, , z] of vox.G.m.values()) { dig.G.set(x, 0, z, (x + z) % 3 ? '#7a4f2d' : '#6a4226'); grav.G.set(x, 0, z, (x + z) % 2 ? '#b9b4a8' : '#a8a397'); }
-    copy(vox.G, surf.G, (x, y, z, c) => c.getHexString() !== 'f2f2ea' && c.getHexString() !== 'ffffff'); copy(vox.G, fin.G, (x, y, z, c) => c.getHexString() === 'f2f2ea' || c.getHexString() === 'ffffff'); copy(vox.B, fin.B);
+    copy(vox.G, surf.G, (x, y, z, c) => c.getHexString() !== 'f2f2ea' && c.getHexString() !== 'ffffff'); copy(vox.G, fin.G, (x, y, z, c) => c.getHexString() === 'f2f2ea' || c.getHexString() === 'ffffff'); copy(vox.B, fin.B); copy(vox.F, fin.F);
     add(L('Digging the trench', 'Excavation: soil removed down to firm ground'), dig, { dir: 'x', temp: true });
     add(L('Gravel base, rolled flat', 'Compacted gravel sub-base so it drains and does not sink'), grav, { dir: 'x', temp: true });
     add(L(id === 'cycle' ? 'Smooth red surface for bikes' : id === 'path' ? 'Paving the footpath' : 'Laying the surface', id === 'road' || id === 'carpark' ? 'Asphalt surface (oil-based, high carbon)' : 'Surface layer'), surf, { dir: 'x' });
@@ -42,7 +42,7 @@ export function planStages(cell, vox, rec) {
   if (FIELDS.has(id)) {
     const plough = P(), sow = P(), crop = P(), fin = P();
     for (const [x, , z] of vox.G.m.values()) { plough.G.set(x, 0, z, z % 2 ? '#7a4f2d' : '#8f6038'); sow.G.set(x, 0, z, (x * 7 + z * 3) % 5 === 0 ? '#7ccf55' : z % 2 ? '#7a4f2d' : '#8f6038'); }
-    copy(vox.G, crop.G); copy(vox.B, fin.B);
+    copy(vox.G, crop.G); copy(vox.B, fin.B); copy(vox.F, fin.F);
     add(L('Ploughing the soil', 'Ploughing: turning the soil (releases some carbon)'), plough, { dir: 'x', temp: true });
     add(L('Sowing seeds', 'Sowing in rows'), sow, { dir: 'x', temp: true });
     add(L('Crops growing', 'Crops grow over the season'), crop, { dir: 'x', w: 1.3 });
@@ -51,9 +51,9 @@ export function planStages(cell, vox, rec) {
   }
   if (id === 'wind') {
     const base = P(), tower = P(), top = P();
-    for (let x = 1; x <= 5; x++) for (let z = 1; z <= 5; z++) base.B.set(x, 0, z, '#a3a8ac');
-    const ys = [...vox.B.m.values()].map((v) => v[1]); const maxY = Math.max(...ys);
-    copy(vox.B, tower.B, (x, y) => y < maxY); copy(vox.B, top.B, (x, y) => y >= maxY);
+    copy(vox.G, base.G); copy(vox.F, base.F, (x, y) => y === 0);
+    const ys = [...vox.F.m.values()].map((v) => v[1]); const maxY = Math.max(...ys);
+    copy(vox.F, tower.F, (x, y) => y > 0 && y < maxY - 1); copy(vox.F, top.F, (x, y) => y >= maxY - 1);
     add(L('Concrete foundation', 'Reinforced concrete foundation to hold the tower in storms'), base, { w: 0.8 });
     add(L('Tower sections lifted on', 'Steel tower sections bolted together'), tower, { w: 1.6 });
     add(L('Nacelle: the generator', 'Nacelle with gearbox and generator'), top, { w: 0.5 });

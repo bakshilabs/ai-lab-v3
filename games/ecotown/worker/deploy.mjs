@@ -16,6 +16,8 @@ const walk = (d) => { for (const f of fs.readdirSync(d)) { const p = path.join(d
 walk(DIST);
 // voice packs are too big for the Worker script: they go to Workers KV (namespace "ecotown-voice"), served only with a session
 const VOICE_FILES = files.filter((p) => p.includes(`${path.sep}voice${path.sep}`)); for (const v of VOICE_FILES) files.splice(files.indexOf(v), 1);
+// so do Florence's portrait, the build pictures and the build videos (key = their path, e.g. videos/timber.mp4)
+const MEDIA_FILES = files.filter((p) => /^(img|videos)\//.test(path.relative(DIST, p).split(path.sep).join('/'))); for (const m of MEDIA_FILES) files.splice(files.indexOf(m), 1);
 const KVAPI = `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT}/storage/kv/namespaces`;
 let kvId = null;
 if (VOICE_FILES.length) {
@@ -31,6 +33,20 @@ if (VOICE_FILES.length) {
     const r = JSON.parse(execFileSync('curl', ['-sS', '-X', 'PUT', '-H', `Authorization: ${auth.Authorization}`, '-H', 'Content-Type: application/octet-stream', '--data-binary', '@' + f, `${KVAPI}/${kvId}/values/${encodeURIComponent(name)}`]).toString());
     if (!r.success) { console.error('KV upload failed', name, JSON.stringify(r.errors)); process.exit(1); } console.log('voice uploaded', name, fs.statSync(f).size);
   }
+}
+// media: upload only what changed since the last deploy (a manifest of content hashes is kept in KV)
+if (kvId && MEDIA_FILES.length) {
+  const { createHash } = await import('node:crypto');
+  let old = {}; try { const r = await fetch(`${KVAPI}/${kvId}/values/media-manifest.json`, { headers: auth }); if (r.ok) old = await r.json(); } catch { /* first deploy */ }
+  const next = {};
+  for (const f of MEDIA_FILES) {
+    const key = path.relative(DIST, f).split(path.sep).join('/'); const h = createHash('sha256').update(fs.readFileSync(f)).digest('hex').slice(0, 16); next[key] = h;
+    if (old[key] === h) continue;
+    const r = JSON.parse(execFileSync('curl', ['-sS', '-X', 'PUT', '-H', `Authorization: ${auth.Authorization}`, '-H', 'Content-Type: application/octet-stream', '--data-binary', '@' + f, `${KVAPI}/${kvId}/values/${encodeURIComponent(key)}`], { encoding: 'utf8', maxBuffer: 1 << 26 }));
+    if (!r.success) { console.error('KV upload failed', key, JSON.stringify(r.errors)); process.exit(1); } console.log('media uploaded', key, fs.statSync(f).size);
+  }
+  const mf = path.join(DIST, '..', '.media-manifest.json'); fs.writeFileSync(mf, JSON.stringify(next));
+  JSON.parse(execFileSync('curl', ['-sS', '-X', 'PUT', '-H', `Authorization: ${auth.Authorization}`, '-H', 'Content-Type: application/json', '--data-binary', '@' + mf, `${KVAPI}/${kvId}/values/media-manifest.json`], { encoding: 'utf8' })); fs.rmSync(mf);
 }
 let index = 'export default {\n';
 files.forEach((p, i) => {

@@ -1,0 +1,28 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Florence poses</title>
+<style>body{margin:0;background:#cfe6f5}canvas{display:block}</style>
+<script type="importmap">{ "imports": { "three": "../../vendor/three.module.min.js", "three/addons/": "../../vendor/addons/" } }</script></head>
+<body><script type="module">
+// Florence in every pose, side by side: ?close=1 for a close-up, ?sky=1 for the in-game sky distance.
+import * as THREE from 'three';
+import { createFlorence } from '../../js/engine/florence.js';
+const q = new URLSearchParams(location.search); const W = innerWidth, H = innerHeight;
+const renderer = new THREE.WebGLRenderer({ antialias: true }); renderer.setPixelRatio(devicePixelRatio); renderer.setSize(W, H); renderer.shadowMap.enabled = true; renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping;
+document.body.appendChild(renderer.domElement);
+const scene = new THREE.Scene(); scene.background = new THREE.Color('#cfe6f5');
+const camera = new THREE.PerspectiveCamera(q.get('sky') ? 30 : 35, W / H, 0.1, 1000);
+scene.add(new THREE.HemisphereLight('#fff6e8', '#7a6a50', 1.4)); const sun = new THREE.DirectionalLight('#fff1d6', 2.4); sun.position.set(-20, 40, 30); sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048); Object.assign(sun.shadow.camera, { left: -60, right: 60, top: 30, bottom: -30 }); scene.add(sun);
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(200, 60), new THREE.MeshStandardMaterial({ color: '#9ccb6a' })); ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
+const stage = { scene, camera }; const world = { tileTop: () => new THREE.Vector3() }; const terrain = { tiles: new Map() };
+const POSES = (q.get('poses') || 'idle,walk,wave,point,peer,talk,cheer,shrug,think').split(',');
+const bots = POSES.map((p, i) => { const b = createFlorence(stage, world, terrain); b.appear(new THREE.Vector3((i - (POSES.length - 1) / 2) * 9, 0, 0)); b.look(new THREE.Vector3((i - (POSES.length - 1) / 2) * 9, 3, 40)); return [p, b]; });
+const close = q.get('close'); camera.position.set(0, close ? 6 : (q.get('sky') ? 60 : 10), close ? 30 : (q.get('sky') ? 75 : 60)); camera.lookAt(0, close ? 4 : 3, 0);
+let t = 0; const dt = 1 / 60;
+for (const [p, b] of bots) {
+  if (p === 'walk') b.walkTo(b.position.clone().add(new THREE.Vector3(0, 0, 400)), { maxDur: 999 });
+  else if (p === 'talk') b.talk(99);
+  else if (p === 'point') b.point(new THREE.Vector3(b.position.x + 12, 2, 20), 99);
+  else if (p === 'peer') b.peer(new THREE.Vector3((i => i)(b.position.x), 2, 30), 99); else if (p !== 'idle') b.gesture(p, 99);
+}
+const steps = +(q.get('t') || 0.8) / dt; for (let i = 0; i < steps; i++) { t += dt; for (const [p, b] of bots) { b.update(dt, t); if (p === 'walk') b.position.z = 0; } }
+renderer.render(scene, camera); window.__done = true;
+</script></body></html>

@@ -4,119 +4,391 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <style>html,body{margin:0}</style>
 <title>DeltaOps Lab Trailers</title>
+<meta name="description" content="Concept trailers for the DeltaOps Learning AI labs, with notes on what each lab teaches.">
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600;700;800&display=swap">
+<meta name="theme-color" content="#FBF8F1">
+<link rel="icon" href="mark.svg" type="image/svg+xml">
+<link rel="preload" href="fonts/bricolage.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
 <style>
-/* Layout: a night-sky screening room. Main player with its notes beside it, then the six-lab playlist. One dark look, matching the brochure's back cover. */
+/* Layout: a warm, brochure-style screening shelf. Branded hero with a featured trailer, a sticky strand filter,
+   a card grid per strand, and a modal player with the lab notes beside the video. Fonts are self-hosted (fonts/). */
+@font-face { font-family: 'Bricolage Grotesque'; src: url(fonts/bricolage.woff2) format('woff2'); font-weight: 200 800; font-stretch: normal; font-display: swap; }
+@font-face { font-family: 'Inter'; src: url(fonts/inter.woff2) format('woff2'); font-weight: 100 900; font-display: swap; }
 :root {
-  --night: #0d1833;
-  --night-2: #14244a;
-  --night-3: #1c3160;
-  --ink: #eef3fb;
-  --muted: #a9b8d6;
-  --mint: #16ffc6;
-  --sky: #59c7fc;
-  --sun: #ffc83d;
-  --coral: #ff6a4a;
-  --line: rgba(201, 214, 238, 0.16);
+  --paper: #FBF8F1;
+  --paper-2: #F3EEE2;
+  --peach: #FBE6D4;
+  --card: #FFFFFF;
+  --rule: #E2DBCB;
+  --rule-2: #D3C8B2;
+  --ink: #0C1B24;
+  --ink-2: #22343F;
+  --muted: #46596A;
+  --terra: #B5462A;
+  --terra-2: #963618;
+  --terra-bg: #FBE3D8;
+  --wood: #D9A066;
+  --wood-2: #B9824C;
+  --wood-3: #8F5E33;
+  --teal: #0B7F74;
+  --sun: #FFC83D;
+  --focus: #0B6E99;
+  --night: #15100C;
   --display: 'Bricolage Grotesque', 'Inter', system-ui, sans-serif;
   --sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  color-scheme: dark;
+  --radius: 20px;
+  --gutter: max(16px, env(safe-area-inset-left, 0px));
+  --gutter-r: max(16px, env(safe-area-inset-right, 0px));
+  color-scheme: light;
 }
 * { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scrollbar-gutter: stable; }
 body {
-  background: radial-gradient(120% 70% at 50% -10%, var(--night-3) 0%, var(--night) 60%) fixed, var(--night);
+  background: var(--paper);
   color: var(--ink);
   font-family: var(--sans);
   font-size: 16px;
   line-height: 1.55;
+  overflow-x: hidden;
 }
-.wrap {
-  max-width: 1240px;
-  margin: 0 auto;
-  padding-block: 28px 64px;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
-  display: grid;
-  gap: 40px;
-}
-header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 20px 32px; }
-.brand { display: grid; gap: 18px; }
-.brand img { height: 30px; width: auto; }
-h1 {
-  font-family: var(--display); font-weight: 800; font-size: clamp(2.2rem, 5.2vw, 4rem);
-  line-height: 0.98; letter-spacing: -0.035em; margin: 0; text-wrap: balance;
-}
-h1 span { background: linear-gradient(100deg, var(--sky), var(--mint)); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.intro { max-width: 46ch; color: var(--muted); margin: 0; font-size: 1.02rem; }
+img { max-width: 100%; }
+a { color: var(--terra-2); text-underline-offset: 3px; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; border-radius: 6px; }
+.vh { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.skip { position: absolute; left: 12px; top: -60px; z-index: 50; background: var(--ink); color: #fff; padding: 12px 16px; border-radius: 12px; font-weight: 700; text-decoration: none; }
+.skip:focus { top: 12px; }
+.wrap { max-width: 1280px; margin: 0 auto; padding-left: var(--gutter); padding-right: var(--gutter-r); }
 
-/* main player */
-.stage { display: grid; grid-template-columns: minmax(0, 2.1fr) minmax(0, 1fr); gap: 28px; align-items: start; }
-.player { border-radius: 18px; overflow: hidden; background: #000; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45), 0 0 0 1px var(--line); aspect-ratio: 16 / 9; max-width: 100%; }
-.player video { display: block; width: 100%; height: 100%; background: #000; }
-.notes { display: grid; gap: 18px; min-width: 0; }
-.eyebrow { font-size: 0.75rem; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mint); }
-.notes h2 { font-family: var(--display); font-weight: 800; font-size: clamp(1.7rem, 3vw, 2.3rem); line-height: 1.02; letter-spacing: -0.02em; margin: 6px 0 0; text-wrap: balance; }
-.notes .tag { color: var(--muted); margin: 6px 0 0; }
-.facts { display: grid; gap: 14px; margin: 0; }
-.facts div { display: grid; gap: 4px; padding-top: 14px; border-top: 1px solid var(--line); }
+/* ---------- hero ---------- */
+.hero {
+  position: relative;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='48' viewBox='0 0 56 48'%3E%3Cg fill='none' stroke='%23B5462A' stroke-opacity='.09' stroke-width='1.2'%3E%3Cpath d='M28 4 44 13 28 22 12 13Z M12 13v18l16 9V22 M44 13v18l-16 9'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 56px 48px,
+    radial-gradient(90% 120% at 85% 10%, #FFF3E2 0%, rgba(255,243,226,0) 60%),
+    linear-gradient(180deg, var(--peach) 0%, var(--paper) 100%);
+  padding-block: 28px 64px;
+}
+.hero::after { /* chunky wooden block strip */
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 14px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.35) 0 3px, transparent 3px),
+    repeating-linear-gradient(90deg, var(--wood) 0 46px, var(--wood-2) 46px 48px, #CF9459 48px 94px, var(--wood-2) 94px 96px);
+  box-shadow: 0 4px 0 var(--wood-3);
+}
+.topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px 20px; flex-wrap: wrap; }
+.logo { display: inline-flex; align-items: center; min-height: 44px; }
+.logo img { height: 28px; width: auto; display: block; }
+.toplink { display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px; font-weight: 700; color: var(--ink-2); }
+.toplink:hover { color: var(--terra-2); }
+.hero-grid {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr); gap: 40px 56px; align-items: center; margin-top: 40px;
+}
+.kicker {
+  display: inline-flex; align-items: center; gap: 8px; margin: 0;
+  font-size: 0.78rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--terra-2);
+}
+.kicker::before { content: ""; width: 12px; height: 12px; border-radius: 3px; background: var(--terra); box-shadow: 3px 3px 0 var(--wood); }
+h1 {
+  font-family: var(--display); font-weight: 800; font-size: clamp(2.4rem, 5.4vw, 4.4rem);
+  line-height: 0.98; letter-spacing: -0.035em; margin: 14px 0 0; text-wrap: balance;
+}
+h1 span { color: var(--terra); }
+.purpose { font-family: var(--display); font-weight: 700; font-size: clamp(1.15rem, 1.8vw, 1.4rem); line-height: 1.3; margin: 18px 0 0; color: var(--ink-2); max-width: 32ch; letter-spacing: -0.01em; }
+.intro { max-width: 52ch; color: var(--muted); margin: 14px 0 0; font-size: 1.02rem; }
+.ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
+.btn {
+  --b: var(--card); --f: var(--ink); --s: var(--rule-2);
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 48px; padding: 10px 20px;
+  border-radius: 14px; border: 2px solid var(--s); background: var(--b); color: var(--f);
+  font: 700 1rem/1.2 var(--sans); text-decoration: none; cursor: pointer;
+  box-shadow: 0 4px 0 var(--s); transition: transform .12s ease, box-shadow .12s ease, background-color .12s ease;
+}
+.btn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 var(--s); }
+.btn:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--s); }
+.btn.primary { --b: var(--terra); --f: #fff; --s: var(--terra-2); }
+.btn.primary:hover { --b: #A83F24; }
+.btn.small { min-height: 44px; padding: 8px 14px; font-size: 0.92rem; border-radius: 12px; box-shadow: 0 3px 0 var(--s); }
+.btn svg { width: 18px; height: 18px; flex: none; }
+.stats { display: flex; flex-wrap: wrap; gap: 10px 26px; margin: 28px 0 0; padding: 0; list-style: none; color: var(--muted); font-size: 0.92rem; }
+.stats b { display: block; font-family: var(--display); font-weight: 800; font-size: 1.6rem; line-height: 1.1; color: var(--ink); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+
+.feature { position: relative; padding: 56px 0 0 0; }
+.feature .island {
+  position: absolute; width: clamp(110px, 12vw, 160px); height: auto; right: -36px; top: -98px; z-index: 2;
+  filter: drop-shadow(0 18px 14px rgba(90, 42, 23, .18)); animation: float 6s ease-in-out infinite; pointer-events: none;
+}
+@keyframes float { 50% { transform: translateY(-10px); } }
+.feature-card {
+  position: relative; display: block; width: 100%; padding: 0; border: 0; cursor: pointer; text-align: left; color: #fff; font: inherit;
+  border-radius: 26px; overflow: hidden; aspect-ratio: 16 / 9; background: var(--ink);
+  box-shadow: 0 0 0 6px var(--card), 0 10px 0 6px var(--rule-2), 0 30px 60px rgba(90, 42, 23, .25);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.feature-card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.feature-card::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(12,27,36,0) 45%, rgba(12,27,36,.82) 100%); }
+.feature-card .cap { position: absolute; left: 20px; right: 20px; bottom: 16px; z-index: 1; display: grid; gap: 2px; }
+.feature-card .cap small { font-size: 0.74rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: #FFE3A3; }
+.feature-card .cap strong { font-family: var(--display); font-weight: 800; font-size: clamp(1.3rem, 2.4vw, 1.9rem); line-height: 1.05; letter-spacing: -0.02em; }
+.feature-card .cap span { font-size: 0.95rem; color: #F4EBDD; }
+.feature-card:hover { transform: translateY(-3px); }
+.feature-card:focus-visible { outline: 4px solid var(--focus); outline-offset: 10px; border-radius: 26px; }
+
+/* play badge, shared */
+.play {
+  position: absolute; left: 50%; top: 50%; z-index: 1; width: 64px; height: 64px; margin: -32px 0 0 -32px; border-radius: 50%;
+  display: grid; place-items: center; background: var(--terra); color: #fff;
+  box-shadow: 0 4px 0 var(--terra-2), 0 10px 24px rgba(0,0,0,.3); transition: transform .18s ease;
+}
+.play svg { width: 26px; height: 26px; margin-left: 4px; }
+.feature-card .play { width: 84px; height: 84px; margin: -42px 0 0 -42px; top: 44%; }
+.feature-card .play svg { width: 34px; height: 34px; }
+.feature-card:hover .play { transform: scale(1.08); }
+
+/* ---------- strand filter ---------- */
+.filterbar {
+  position: sticky; top: 0; z-index: 10;
+  background: rgba(251, 248, 241, .92); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--rule);
+}
+.filterbar .wrap { display: flex; align-items: center; gap: 12px; padding-block: 10px; }
+.chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; flex: 1; min-width: 0; padding: 4px 2px 6px; margin: -4px 0 -6px; scroll-padding-inline: 8px; }
+.chips::-webkit-scrollbar { display: none; }
+.chip {
+  flex: none; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 6px 14px 6px 12px; border-radius: 999px;
+  border: 2px solid var(--rule); background: var(--card); color: var(--ink-2); font: 600 0.92rem/1 var(--sans); cursor: pointer;
+  transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+}
+.chip i { width: 10px; height: 10px; border-radius: 3px; background: var(--c, var(--ink)); flex: none; }
+.chip .n { font-size: 0.8rem; font-weight: 700; color: var(--muted); font-variant-numeric: tabular-nums; }
+.chip:hover { border-color: var(--rule-2); background: var(--paper-2); }
+.chip[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: #fff; }
+.chip[aria-pressed="true"] .n { color: #C9D3DA; }
+.chip[aria-pressed="true"] i { box-shadow: 0 0 0 2px #fff; }
+.filterbar .btn { flex: none; }
+
+/* ---------- strands and cards ---------- */
+main { padding-block: 40px 72px; }
+.strand { scroll-margin-top: 90px; }
+.strand + .strand { margin-top: 56px; }
+.strand-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 6px 20px; border-bottom: 2px dashed var(--rule); padding-bottom: 14px; margin-bottom: 22px; }
+.strand-head h2 { display: flex; align-items: center; gap: 12px; font-family: var(--display); font-weight: 800; font-size: clamp(1.45rem, 2.4vw, 1.9rem); line-height: 1.1; letter-spacing: -0.02em; margin: 0; }
+.strand-head h2::before { content: ""; width: 18px; height: 18px; border-radius: 5px; background: var(--c); box-shadow: 4px 4px 0 var(--wood); flex: none; }
+.strand-head p { margin: 6px 0 0; color: var(--muted); max-width: 72ch; }
+.strand-head .meta { color: var(--muted); font-size: 0.88rem; font-weight: 600; white-space: nowrap; }
+.soon { margin: 10px 0 0; color: var(--muted); font-size: 0.92rem; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr)); gap: 26px 22px; list-style: none; margin: 0; padding: 0; }
+.card {
+  position: relative; display: flex; flex-direction: column; height: 100%;
+  background: var(--card); border: 1px solid var(--rule); border-radius: var(--radius);
+  box-shadow: 0 5px 0 var(--rule), 0 12px 28px rgba(90, 42, 23, .06);
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.card:hover { transform: translateY(-4px); box-shadow: 0 9px 0 var(--rule-2), 0 22px 40px rgba(90, 42, 23, .12); }
+.card:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--rule-2), 0 6px 14px rgba(90, 42, 23, .08); }
+.card:has(.open:focus-visible) { outline: 3px solid var(--focus); outline-offset: 4px; }
+.card:has(.open:focus-visible) h3 { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 4px; }
+.thumb { position: relative; margin: 8px 8px 0; border-radius: 14px; overflow: hidden; aspect-ratio: 16 / 9; background: var(--paper-2); }
+.thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .35s ease; }
+.card:hover .thumb img { transform: scale(1.04); }
+.thumb .play { width: 54px; height: 54px; margin: -27px 0 0 -27px; opacity: .94; }
+.thumb .play svg { width: 22px; height: 22px; }
+.card:hover .play { transform: scale(1.1); opacity: 1; }
+.len { position: absolute; right: 10px; bottom: 10px; z-index: 1; background: rgba(12, 27, 36, .86); color: #fff; font-size: 0.8rem; font-weight: 700; padding: 3px 9px; border-radius: 8px; font-variant-numeric: tabular-nums; }
+.card-body { display: flex; flex-direction: column; gap: 6px; padding: 14px 18px 14px; flex: 1; }
+.pill { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 9px; border-radius: 8px; background: var(--pb); color: var(--pf); }
+.card h3 { margin: 0; font-family: var(--display); font-weight: 800; font-size: 1.28rem; line-height: 1.12; letter-spacing: -0.015em; }
+.open { all: unset; cursor: pointer; }
+.open::after { content: ""; position: absolute; inset: 0; border-radius: var(--radius); z-index: 1; }
+.open:focus-visible { outline: none; }
+.venue { margin: 0; font-size: 0.85rem; font-weight: 600; color: var(--terra-2); }
+.card .venue { display: flex; gap: 8px; align-items: baseline; }
+.card .venue::before { content: ""; width: 9px; height: 9px; border-radius: 3px; background: var(--c); flex: none; transform: translateY(-1px); }
+.tag { margin: 0; color: var(--muted); font-size: 0.95rem; }
+.card-foot { margin-top: auto; padding-top: 10px; display: flex; align-items: center; justify-content: space-between; gap: 10px; border-top: 1px solid var(--paper-2); font-size: 0.88rem; color: var(--muted); }
+.card-foot .watch { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; color: var(--ink-2); }
+.card-foot .watch svg { width: 14px; height: 14px; color: var(--terra); }
+.sl { position: relative; z-index: 2; display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px; font-weight: 700; color: var(--terra-2); }
+.sl:hover { color: var(--ink); }
+.empty { color: var(--muted); }
+
+/* strand colours: c = swatch, pb/pf = pill background/foreground (AA) */
+[data-g="client"]   { --c: #C4502B; --pb: #FBE3D8; --pf: #8A3014; }
+[data-g="career"]   { --c: #0B7F74; --pb: #DDF3EE; --pf: #075A52; }
+[data-g="future"]   { --c: #6E5BF2; --pb: #ECE8FD; --pf: #4632B8; }
+[data-g="brochure"] { --c: #4E9A2F; --pb: #E4F2DA; --pf: #2D5F18; }
+[data-g="first"]    { --c: #E5A21A; --pb: #FFF1CC; --pf: #6E4A00; }
+
+/* ---------- footer ---------- */
+footer { background: var(--ink); color: #D5DDE3; padding-block: 0 40px; position: relative; }
+footer::before { content: ""; display: block; height: 14px; background: repeating-linear-gradient(90deg, var(--terra) 0 46px, var(--terra-2) 46px 48px, #C4583A 48px 94px, var(--terra-2) 94px 96px); margin-bottom: 36px; }
+.foot-grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 28px 48px; align-items: start; }
+.foot-grid img { height: 26px; width: auto; display: block; margin-bottom: 14px; }
+footer p { margin: 0 0 8px; font-size: 0.88rem; max-width: 70ch; }
+footer nav ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+footer nav a { display: inline-flex; align-items: center; min-height: 44px; color: #fff; font-weight: 700; text-decoration-color: rgba(255,255,255,.4); }
+footer nav a:hover { text-decoration-color: currentColor; }
+footer h2 { font-size: 0.75rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: #FFD27A; margin: 0 0 6px; }
+footer :focus-visible { outline-color: #FFD27A; }
+
+/* ---------- player dialog ---------- */
+body.locked { overflow: hidden; }
+dialog.viewer {
+  width: min(1240px, calc(100vw - 32px)); max-width: none; max-height: calc(100dvh - 32px);
+  padding: 0; border: 0; border-radius: 26px; background: var(--paper); color: var(--ink);
+  box-shadow: 0 10px 0 var(--rule-2), 0 40px 100px rgba(0, 0, 0, .45); overflow: auto; overscroll-behavior: contain;
+}
+dialog.viewer::backdrop { background: rgba(21, 16, 12, .78); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+dialog.viewer[open] { animation: pop .22s ease-out; }
+@keyframes pop { from { opacity: 0; transform: translateY(14px) scale(.985); } }
+.v-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 12px 12px 22px; border-bottom: 1px solid var(--rule); }
+.v-bar .pill { align-self: center; }
+.v-count { font-size: 0.88rem; color: var(--muted); font-weight: 600; font-variant-numeric: tabular-nums; }
+.v-bar-l { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; min-width: 0; }
+.icon-btn {
+  display: inline-grid; place-items: center; width: 44px; height: 44px; flex: none; border-radius: 12px; border: 2px solid var(--rule-2);
+  background: var(--card); color: var(--ink); cursor: pointer; box-shadow: 0 3px 0 var(--rule-2); transition: transform .12s ease, box-shadow .12s ease;
+}
+.icon-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 0 var(--rule-2); }
+.icon-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--rule-2); }
+.icon-btn svg { width: 20px; height: 20px; }
+.v-body { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 24px 28px; padding: 22px; align-items: start; }
+.v-screen { border-radius: 18px; overflow: hidden; background: #000; aspect-ratio: 16 / 9; box-shadow: 0 0 0 1px rgba(0,0,0,.08); }
+.v-screen video { display: block; width: 100%; height: 100%; background: #000; }
+.v-notes { display: grid; gap: 16px; min-width: 0; }
+.v-notes .venue { font-size: 0.78rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+.v-notes h2 { font-family: var(--display); font-weight: 800; font-size: clamp(1.6rem, 2.6vw, 2.2rem); line-height: 1.04; letter-spacing: -0.02em; margin: 4px 0 0; text-wrap: balance; }
+.v-notes .tag { margin-top: 6px; font-size: 1rem; }
+.facts { display: grid; gap: 12px; margin: 0; }
+.facts > div { display: grid; gap: 6px; padding-top: 12px; border-top: 1px solid var(--rule); }
 .facts dt { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
 .facts dd { margin: 0; font-size: 0.98rem; }
-.guess { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 10px; background: #13202b; border: 1px solid var(--line); border-radius: 14px; padding: 10px 14px; font-weight: 600; }
+.guess { display: grid; gap: 8px; background: var(--terra-bg); border: 2px solid #F1C6B4; border-radius: 14px; padding: 12px 14px; }
 .guess b { font-weight: 800; color: var(--ink); }
-.sure { display: inline-flex; align-items: center; gap: 8px; font-size: 0.82rem; color: var(--muted); font-variant-numeric: tabular-nums; }
-.sure i { display: block; width: 70px; height: 7px; border-radius: 99px; background: #2a3a49; overflow: hidden; position: relative; }
-.sure i::after { content: ""; position: absolute; inset: 0 auto 0 0; width: var(--p); border-radius: 99px; background: linear-gradient(90deg, var(--sun), var(--mint)); }
+.sure { display: inline-flex; align-items: center; gap: 8px; font-size: 0.84rem; font-weight: 600; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.sure i { display: block; width: 84px; height: 8px; border-radius: 99px; background: #F0D3C5; overflow: hidden; position: relative; }
+.sure i::after { content: ""; position: absolute; inset: 0 auto 0 0; width: var(--p); border-radius: 99px; background: linear-gradient(90deg, var(--sun), var(--terra)); }
+.v-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 0 22px 22px; }
+.v-nav { display: flex; gap: 10px; }
+.v-hint { font-size: 0.82rem; color: var(--muted); }
+kbd { font: 700 0.75rem/1 var(--sans); padding: 3px 6px; border-radius: 6px; border: 1px solid var(--rule-2); background: var(--card); box-shadow: 0 2px 0 var(--rule-2); }
 
-/* playlist */
-.list-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px 20px; }
-.list-head h3 { font-family: var(--display); font-weight: 800; font-size: 1.5rem; letter-spacing: -0.01em; margin: 0; }
-.list-head p { margin: 0; color: var(--muted); font-size: 0.92rem; }
-.group-note { margin: 4px 0 0; color: var(--muted); font-size: 0.92rem; max-width: 70ch; }
-.grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
-.card {
-  display: grid; gap: 12px; text-align: left; color: inherit; font: inherit; cursor: pointer;
-  background: transparent; border: 0; padding: 0; border-radius: 16px;
+/* ---------- responsive ---------- */
+@media (max-width: 1020px) {
+  .hero-grid { grid-template-columns: minmax(0, 1fr); }
+  .feature { max-width: 720px; }
+  .v-body { grid-template-columns: minmax(0, 1fr); }
 }
-.thumb { position: relative; border-radius: 14px; overflow: hidden; aspect-ratio: 16 / 9; max-width: 100%; box-shadow: 0 0 0 1px var(--line); transition: transform 0.2s ease, box-shadow 0.2s ease; }
-.thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
-.thumb .len { position: absolute; right: 10px; bottom: 10px; background: rgba(13, 24, 51, 0.85); color: var(--ink); font-size: 0.78rem; font-weight: 700; padding: 3px 8px; border-radius: 8px; font-variant-numeric: tabular-nums; }
-.thumb .now { position: absolute; left: 10px; top: 10px; background: var(--mint); color: #06261f; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; padding: 4px 9px; border-radius: 8px; }
-.card:hover .thumb, .card:focus-visible .thumb { transform: translateY(-3px); box-shadow: 0 0 0 2px var(--sky), 0 16px 40px rgba(0, 0, 0, 0.4); }
-.card:focus-visible { outline: none; }
-.card[aria-current="true"] .thumb { box-shadow: 0 0 0 3px var(--mint), 0 16px 40px rgba(0, 0, 0, 0.4); }
-.card .meta { display: grid; gap: 2px; min-width: 0; }
-.card .meta b { font-family: var(--display); font-weight: 800; font-size: 1.18rem; letter-spacing: -0.01em; }
-.card .meta span { color: var(--muted); font-size: 0.9rem; }
-footer { color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--line); padding-top: 18px; display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; }
-
-@media (max-width: 960px) {
-  .stage { grid-template-columns: minmax(0, 1fr); }
-  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 720px) {
+  .hero { padding-block: 18px 52px; }
+  .hero-grid { margin-top: 26px; gap: 36px; }
+  .feature { padding-top: 40px; }
+  .feature .island { right: -4px; top: -34px; width: 84px; }
+  .ctas .btn { flex: 1 1 220px; }
+  .feature-card .play { width: 60px; height: 60px; margin: -30px 0 0 -30px; top: 38%; }
+  .feature-card .play svg { width: 24px; height: 24px; }
+  .feature-card .cap { left: 14px; right: 14px; bottom: 10px; }
+  .feature-card .cap span { display: none; }
+  .foot-grid { grid-template-columns: minmax(0, 1fr); }
+  .filterbar .btn .lbl { display: none; }
+  .strand-head .meta { white-space: normal; }
+  .v-hint { display: none; }
 }
 @media (max-width: 560px) {
-  .grid { grid-template-columns: minmax(0, 1fr); }
-  .wrap { gap: 30px; }
+  dialog.viewer { width: 100vw; max-height: 100dvh; height: 100dvh; border-radius: 0; margin: 0; box-shadow: none; }
+  .v-body { padding: 0 0 16px; gap: 16px; }
+  .v-screen { border-radius: 0; }
+  .v-notes { padding: 0 16px; }
+  .v-foot { padding: 0 16px 20px; }
+  .v-nav { flex: 1; }
+  .v-nav .btn { flex: 1; }
+  .v-bar { padding-left: 16px; }
 }
-@media (prefers-reduced-motion: reduce) { .thumb { transition: none; } }
+@media (hover: none) { .card:hover, .feature-card:hover, .btn:hover { transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
 </style>
 
-<div class="wrap">
-  <header>
-    <div class="brand">
-      <img src="logo.svg" alt="DeltaOps Learning">
-      <h1>DeltaOps <span>AI labs</span>, in trailers</h1>
-    </div>
-    <p class="intro">In every lab, children give an AI helper an instruction, watch it guess wrong, and fix it with a clearer one. The client requests are each drawn in the style of their reference game. The world-building labs match the brochure screenshots.</p>
-  </header>
+<a class="skip" href="#trailers">Skip to the trailers</a>
 
-  <section class="stage" aria-label="Now playing">
-    <div class="player"><video id="player" controls playsinline preload="metadata"></video></div>
-    <div class="notes">
+<header class="hero">
+  <div class="wrap">
+    <div class="topbar">
+      <a class="logo" href="https://deltaopslearning.com/" rel="noopener"><img src="logo-ink.svg" alt="DeltaOps Learning" width="202" height="25"></a>
+      <a class="toplink" href="https://deltaopslearning.com/contact/" rel="noopener">Contact us</a>
+    </div>
+
+    <div class="hero-grid">
       <div>
-        <div class="eyebrow" id="n-for"></div>
+        <p class="kicker">Concept trailers · November 2026</p>
+        <h1>DeltaOps <span>AI labs</span>, in trailers</h1>
+        <p class="purpose">Short trailers for every lab, so school leaders, teachers and partners can see how each one plays.</p>
+        <p class="intro">In every lab, children give an AI helper an instruction, watch it guess wrong, and fix it with a clearer one. The client requests are each drawn in the style of their reference game. The world-building labs match the brochure screenshots.</p>
+        <div class="ctas">
+          <button class="btn primary" type="button" data-play="ecotown"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5Z"/></svg>Play the featured trailer</button>
+          <a class="btn" href="shotlists.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>Read the shot lists</a>
+        </div>
+        <ul class="stats" id="stats">
+          <li><b>29</b>trailers</li>
+          <li><b>5</b>strands</li>
+          <li><b>19 min</b>to watch them all</li>
+        </ul>
+      </div>
+      <div class="feature">
+        <img class="island" src="island.svg" alt="" width="246" height="274">
+        <button class="feature-card" type="button" data-play="ecotown" aria-label="Play the featured trailer: Eco Town, 1:35">
+          <img src="posters/ecotown.jpg" alt="Still from the Eco Town trailer: a voxel town on a floating island" width="1280" height="720" fetchpriority="high" decoding="async">
+          <span class="play" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5Z"/></svg></span>
+          <span class="cap" aria-hidden="true"><small>Featured · Request 1 · 1:35</small><strong>Eco Town</strong><span>Six levels. Your decisions. A whole town that lives.</span></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="filterbar">
+  <div class="wrap">
+    <div class="chips" id="chips" role="group" aria-label="Show trailers by strand"></div>
+    <a class="btn small" href="shotlists.html" aria-label="Shot lists"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg><span class="lbl">Shot lists</span></a>
+  </div>
+</div>
+
+<main id="trailers" tabindex="-1">
+  <div class="wrap">
+    <p class="vh" id="filter-status" aria-live="polite"></p>
+    <div id="groups"></div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap foot-grid">
+    <div>
+      <img src="logo.svg" alt="DeltaOps Learning" width="202" height="25" loading="lazy">
+      <p>DeltaOps Learning · concept trailers, November 2026</p>
+      <p>Rendered in-engine. Every AI response is pre-written; there is no live AI model. Block Quiz is not an official Minecraft product and is not approved by or associated with Mojang or Microsoft.</p>
+    </div>
+    <nav aria-label="More from DeltaOps Learning">
+      <h2>More</h2>
+      <ul>
+        <li><a href="shotlists.html">Shot lists for every trailer</a></li>
+        <li><a href="https://deltaopslearning.com/" rel="noopener">deltaopslearning.com</a></li>
+        <li><a href="https://deltaopslearning.com/contact/" rel="noopener">Contact DeltaOps Learning</a></li>
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+<dialog class="viewer" id="viewer" aria-labelledby="n-title">
+  <div class="v-bar">
+    <div class="v-bar-l"><span class="pill" id="n-strand"></span><span class="v-count" id="n-count"></span></div>
+    <button class="icon-btn" type="button" id="v-close" aria-label="Close player"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+  </div>
+  <div class="v-body">
+    <div class="v-screen"><video id="player" controls playsinline preload="none"></video></div>
+    <div class="v-notes">
+      <div>
+        <p class="venue" id="n-for"></p>
         <h2 id="n-title"></h2>
         <p class="tag" id="n-tag"></p>
       </div>
@@ -126,15 +398,16 @@ footer { color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--li
         <div><dt>What it teaches</dt><dd id="n-learn"></dd></div>
       </dl>
     </div>
-  </section>
-
-  <section aria-label="All trailers" id="groups" style="display:grid;gap:44px"></section>
-
-  <footer>
-    <span>DeltaOps Learning · concept trailers, November 2026</span>
-    <span>Rendered in-engine. Every AI response is pre-written; there is no live AI model. Block Quiz is not an official Minecraft product and is not approved by or associated with Mojang or Microsoft.</span>
-  </footer>
-</div>
+  </div>
+  <div class="v-foot">
+    <div class="v-nav">
+      <button class="btn small" type="button" id="v-prev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Previous</button>
+      <button class="btn small" type="button" id="v-next">Next<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+    </div>
+    <span class="v-hint"><kbd>←</kbd> <kbd>→</kbd> previous and next · <kbd>Esc</kbd> close</span>
+    <a class="sl" id="n-shots" href="shotlists.html">Read the shot list</a>
+  </div>
+</dialog>
 
 <script>
 const GROUPS = [
@@ -292,57 +565,148 @@ const LABS = [
     learn: 'Vague instructions make an AI guess. Every attempt teaches you something.' },
 ];
 
+// Short chip labels for the strand filter (titles above stay as written).
+const SHORT = { client: 'Client requests', career: 'Career skills', future: 'Future Skills', brochure: 'Brochure worlds', first: 'First concepts' };
+const PLAY_ICON = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5Z"/></svg>';
+
 const $ = (id) => document.getElementById(id);
 const player = $('player');
+const viewer = $('viewer');
 const groups = $('groups');
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
 
 function sureWord(p) { return p >= 85 ? 'Very sure' : p >= 60 ? 'Fairly sure' : 'Not sure'; }
 
-const cardHTML = (l) => `
-  <button class="card" type="button" data-id="${l.id}" id="card-${l.id}">
-    <span class="thumb"><img src="posters/${l.id}.jpg" alt="" loading="lazy"><span class="len">${l.len}</span></span>
-    <span class="meta"><b>${l.title}</b><span>${l.tag}</span></span>
-  </button>`;
 // Trailers with a finished video. The rest are still rendering and are listed as coming soon.
 const READY = new Set(['ecotown','tycoon2','mcquiz','dash','bloxel','city','kart','colony','robot','drone','eco','mission','museum','mars','robotaxi','pitcrew','blocks','tycoon','quiz','signal','rocket','fs-impact','fs-creative','fs-data','fs-model','fs-automate','fs-redteam','fs-verify','fs-product']);
 const ALL = LABS.slice();
 LABS.splice(0, LABS.length, ...ALL.filter((l) => READY.has(l.id)));
+// Play order follows the page order (strand by strand).
+const ORDER = GROUPS.flatMap((g) => LABS.filter((l) => l.g === g.id));
+
+const cardHTML = (l) => `
+  <li class="card" data-g="${l.g}" id="card-${l.id}">
+    <div class="thumb">
+      <img src="posters/${l.id}.jpg" alt="Still from the ${l.title} trailer" width="1280" height="720" loading="lazy" decoding="async">
+      <span class="play" aria-hidden="true">${PLAY_ICON}</span>
+      <span class="len" aria-hidden="true">${l.len}</span>
+    </div>
+    <div class="card-body">
+      <h3><button class="open" type="button" data-id="${l.id}" aria-label="Play ${l.title} trailer, ${l.len}">${l.title}</button></h3>
+      <p class="venue">${l.venue}</p>
+      <p class="tag">${l.tag}</p>
+      <div class="card-foot">
+        <span class="watch" aria-hidden="true">${PLAY_ICON} Watch · ${l.len}</span>
+        <a class="sl" href="shotlists.html#${l.id}">Shot list<span class="vh"> for ${l.title}</span></a>
+      </div>
+    </div>
+  </li>`;
+
 groups.innerHTML = GROUPS.map((g) => {
   const ready = LABS.filter((l) => l.g === g.id), later = ALL.filter((l) => l.g === g.id && !READY.has(l.id));
-  const soon = later.length ? `<p class="group-note">Rendering now: ${later.map((l) => l.title).join(', ')}.</p>` : '';
-  return `<div><div class="list-head"><h3>${g.title}</h3><p>1080p · sound on</p></div><p class="group-note">${g.note}</p>${soon}${ready.length ? `<div class="grid" style="margin-top:18px">${ready.map(cardHTML).join('')}</div>` : ''}</div>`;
+  const soon = later.length ? `<p class="soon">Rendering now: ${later.map((l) => l.title).join(', ')}.</p>` : '';
+  const secs = ready.reduce((s, l) => { const [m, x] = l.len.split(':').map(Number); return s + m * 60 + x; }, 0);
+  return `<section class="strand" data-g="${g.id}" id="strand-${g.id}" aria-labelledby="h-${g.id}">
+    <div class="strand-head">
+      <div><h2 id="h-${g.id}">${g.title}</h2><p>${g.note}</p>${soon}</div>
+      <span class="meta">${ready.length} trailer${ready.length === 1 ? '' : 's'} · ${Math.round(secs / 60)} min · 1080p · sound on</span>
+    </div>
+    ${ready.length ? `<ul class="grid">${ready.map(cardHTML).join('')}</ul>` : ''}
+  </section>`;
 }).join('');
 
+// Stats in the hero, worked out from the data.
+(() => {
+  const secs = LABS.reduce((s, l) => { const [m, x] = l.len.split(':').map(Number); return s + m * 60 + x; }, 0);
+  const strands = GROUPS.filter((g) => LABS.some((l) => l.g === g.id)).length;
+  const b = $('stats').querySelectorAll('b');
+  b[0].textContent = LABS.length; b[1].textContent = strands; b[2].textContent = Math.round(secs / 60) + ' min';
+})();
+
+// Strand filter
+const chips = $('chips');
+const counts = Object.fromEntries(GROUPS.map((g) => [g.id, LABS.filter((l) => l.g === g.id).length]));
+chips.innerHTML = [`<button class="chip" type="button" data-f="all" aria-pressed="true">All <span class="n">${LABS.length}</span></button>`]
+  .concat(GROUPS.filter((g) => counts[g.id]).map((g) => `<button class="chip" type="button" data-f="${g.id}" data-g="${g.id}" aria-pressed="false"><i aria-hidden="true"></i>${SHORT[g.id]} <span class="n">${counts[g.id]}</span></button>`))
+  .join('');
+chips.addEventListener('click', (e) => {
+  const c = e.target.closest('.chip');
+  if (!c) return;
+  const f = c.dataset.f;
+  chips.querySelectorAll('.chip').forEach((x) => x.setAttribute('aria-pressed', String(x === c)));
+  groups.querySelectorAll('.strand').forEach((s) => { s.hidden = f !== 'all' && s.dataset.g !== f; });
+  const n = f === 'all' ? LABS.length : counts[f];
+  $('filter-status').textContent = `Showing ${n} trailer${n === 1 ? '' : 's'}${f === 'all' ? '' : ': ' + SHORT[f]}.`;
+  c.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: reduceMotion.matches ? 'auto' : 'smooth' });
+  const top = $('trailers').getBoundingClientRect().top + scrollY - 70;
+  if (scrollY > top) scrollTo({ top, behavior: reduceMotion.matches ? 'auto' : 'smooth' });
+});
+
+// Player
+let current = null, opener = null;
 function show(id, play) {
   const l = LABS.find((x) => x.id === id) || LABS[0];
+  current = l;
   if (player.dataset.id !== l.id) {
     player.dataset.id = l.id;
     player.poster = `posters/${l.id}.jpg`;
     player.src = `videos/${l.id}.mp4`;
   }
+  viewer.dataset.g = l.g;
+  $('n-strand').textContent = SHORT[l.g];
+  $('n-count').textContent = `${ORDER.indexOf(l) + 1} of ${ORDER.length}`;
   $('n-for').textContent = l.venue;
   $('n-title').textContent = l.title;
   $('n-tag').textContent = l.tag;
-  $('n-guess').innerHTML = `<b>${l.guess}</b><span class="sure" style="--p:${l.sure}%">${sureWord(l.sure)} <i></i> ${l.sure}%</span>`;
+  $('n-guess').innerHTML = `<b>${l.guess}</b><span class="sure" style="--p:${l.sure}%">${sureWord(l.sure)} <i aria-hidden="true"></i> ${l.sure}%</span>`;
   $('n-fix').textContent = l.fix;
   $('n-learn').textContent = l.learn;
-  document.querySelectorAll('.card').forEach((c) => {
-    const on = c.dataset.id === l.id;
-    c.setAttribute('aria-current', on ? 'true' : 'false');
-    const badge = c.querySelector('.now');
-    if (on && !badge) c.querySelector('.thumb').insertAdjacentHTML('beforeend', '<span class="now">Now playing</span>');
-    if (!on && badge) badge.remove();
-  });
+  $('n-shots').href = `shotlists.html#${l.id}`;
+  $('n-shots').setAttribute('aria-label', `Read the shot list for ${l.title}`);
+  player.setAttribute('aria-label', `${l.title} trailer`);
+  if (!viewer.open) {
+    opener = document.activeElement;
+    viewer.showModal();
+    document.body.classList.add('locked');
+    $('v-close').focus();
+  }
+  if (location.hash !== '#' + l.id) history.replaceState(null, '', '#' + l.id);
   if (play) { const p = player.play(); if (p && p.catch) p.catch(() => {}); }
 }
-
-groups.addEventListener('click', (e) => {
-  const c = e.target.closest('.card');
-  if (!c) return;
-  if (location.hash !== '#' + c.dataset.id) location.hash = c.dataset.id;
-  show(c.dataset.id, true);
-  $('player').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
+function step(d) {
+  if (!current) return;
+  const i = (ORDER.indexOf(current) + d + ORDER.length) % ORDER.length;
+  const wasPlaying = !player.paused;
+  show(ORDER[i].id, wasPlaying);
+}
+viewer.addEventListener('close', () => {
+  player.pause();
+  document.body.classList.remove('locked');
+  history.replaceState(null, '', location.pathname + location.search);
+  const card = current && document.querySelector(`.open[data-id="${current.id}"]`);
+  const back = opener && opener.isConnected && opener !== document.body ? opener : card;
+  if (back) back.focus();
 });
-window.addEventListener('hashchange', () => show(location.hash.slice(1), false));
-show(location.hash.slice(1), false);
+$('v-close').addEventListener('click', () => viewer.close());
+$('v-prev').addEventListener('click', () => step(-1));
+$('v-next').addEventListener('click', () => step(1));
+viewer.addEventListener('click', (e) => { if (e.target === viewer) viewer.close(); }); // backdrop click
+viewer.addEventListener('keydown', (e) => {
+  if (e.target === player || e.altKey || e.ctrlKey || e.metaKey) return; // let the video use its own arrow keys
+  if (e.key === 'ArrowRight') { e.preventDefault(); step(1); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); step(-1); }
+});
+
+document.addEventListener('click', (e) => {
+  const t = e.target.closest('[data-play], .open');
+  if (!t) return;
+  show(t.dataset.play || t.dataset.id, true);
+});
+
+function fromHash() {
+  const id = decodeURIComponent(location.hash.slice(1));
+  if (LABS.some((l) => l.id === id)) show(id, false);
+}
+window.addEventListener('hashchange', fromHash);
+fromHash();
 </script>

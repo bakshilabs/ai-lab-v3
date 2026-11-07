@@ -29,6 +29,12 @@ The first build was one long guided sequence: six levels, each a fixed chain of 
 - **Class mode** keeps the missions in order for schools.
 - **Town complete** when the scoring below is met; the whole-day sequence and the town report are available any time.
 
+**Florence, the intro and the frame (Nov 2026, second update).**
+- **Florence is a character**, not a drone: a 3D wooden toy robot from the client's art, who walks the island, peers through her magnifying glass, points, talks, cheers, and pulls an "oops" face (sweat drop, droopy antenna) when a child catches her mistake. Her portrait (the client's picture) heads her tips.
+- **The intro is Florence walking the player through the game**: the floodplain versus the dry slope, the player's first three tiles, a build video, the build panel and the AI Lab building.
+- **The frame is built from blocks**: wooden plank panels and square picture slots (the build pictures are rendered from the game's own voxel models), not white cards with pill buttons. Building lives in a left panel and Florence's card on the right, so the island stays in view. The camera centres the island in the free space.
+- **Build videos**: every build has a 10-second video, shot from above while it goes up layer by layer, then at eye level with Florence. This keeps the "system by system, layer by layer" teaching.
+
 The acts below now describe one AI Lab mission. "Move in" and "Live" happen continuously in free building instead of inside each mission.
 
 ## Core loop for each level
