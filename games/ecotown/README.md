@@ -119,11 +119,16 @@ cd games/ecotown/dist && python3 -m http.server 8000
 
 | | Touch | Mouse / keyboard |
 |---|---|---|
-| Turn the island | drag | drag, or the arrow keys |
-| Zoom | pinch | scroll wheel, or `+` / `−` |
+| Move around the island | drag with one finger | drag, or `W` `A` `S` `D` |
+| Turn the island | twist with two fingers, or ⟲ ⟳ | right-drag (or Shift-drag), `Q` / `E`, ← / →, or ⟲ ⟳ |
+| Tilt | move two fingers up or down | ↑ / ↓ (the tilt also follows the zoom) |
+| Zoom | pinch (towards your fingers), or ＋ / － | scroll wheel (towards the pointer), `+` / `−`, or ＋ / － |
+| Back to the whole island | ⌂ | ⌂ or `Home` |
 | Place or remove | tap a tile | click a tile (a see-through preview shows first) |
-| Fly to a spot | double-tap | double-click |
+| Fly to a spot | double-tap (also while building) | double-click |
 | Views | ☁ sky · 👟 street · 🏠 inside (top right) | same |
+
+The camera buttons (＋ － ⟲ ⟳ ⌂) sit on the right edge for whiteboards and trackpads. Keys only move the camera when the island has focus, not while a button or text box is selected. The camera centres the island in the space the side panels leave free, and keeps the framing when the window is resized.
 
 The ☰ menu has these settings:
 - read aloud;
