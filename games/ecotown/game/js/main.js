@@ -222,13 +222,14 @@ async function shoot(id) {
     for (let i = 0; i < 24 && !side; i++) { const a = yaw0 + 0.32 + (i % 2 ? -1 : 1) * Math.ceil(i / 2) * (Math.PI / 12); const d = new THREE.Vector3(-Math.sin(a), 0, Math.cos(a)); let ok = true; for (let r = 3.5; r <= dd + 3 && ok; r += 1) for (const off of [-4, -2, 0, 2, 4]) { const q = P.clone().addScaledVector(d, r).add(new THREE.Vector3(d.z * off, 0, -d.x * off)); if (!openAt(q.x, q.z)) { ok = false; break; } } if (ok) { side = d; eyeD = dd; } }
     if (side) break;
   }
-  side ||= new THREE.Vector3(-Math.sin(yaw0 + 0.32), 0, Math.cos(yaw0 + 0.32));
+  const clearView = !!side; side ||= new THREE.Vector3(-Math.sin(yaw0 + 0.32), 0, Math.cos(yaw0 + 0.32));
   const across = new THREE.Vector3(side.z, 0, -side.x);
   // eye level for buildings; for low builds (paths, fields, land) a low three-quarter view that shows the surface
-  const lowShot = !tall && id !== 'bridge';
+  // roof upgrades (solar, green roof, heat pump), and anything without a clear line of sight, end on a raised three-quarter view
+  const lowShot = (!tall && id !== 'bridge') || it.kind === 'mod' || !clearView;
   const eyeAt = (t) => {
     const u = Math.min(1, Math.max(0, (t - SW1) / (DUR - SW1)));
-    if (lowShot) { const pos = P.clone().addScaledVector(side, 15).addScaledVector(across, -2 + 4 * u); pos.y = P.y + 9; return { pos, look: P.clone().add(new THREE.Vector3(0, 0.3, 0)), fov: 35 }; }
+    if (lowShot) { const hi = tall ? 13 : 9; const pos = P.clone().addScaledVector(side, tall ? 17 : 15).addScaledVector(across, -2 + 4 * u); pos.y = P.y + hi; return { pos, look: P.clone().add(new THREE.Vector3(0, tall ? 2.5 : 0.3, 0)), fov: 35 }; }
     const pos = P.clone().addScaledVector(side, eyeD).addScaledVector(across, -2.5 + 5 * u); pos.y = P.y + 2.2;
     return { pos, look: P.clone().add(new THREE.Vector3(0, id === 'wind' ? 7 : 0.6 * (tall ? 4.5 : 1.5), 0)), fov: 50 };
   };
@@ -248,7 +249,7 @@ async function shoot(id) {
     }
     rig.apply(poseAt(T)); stage.render(dt, T);
   };
-  window.__timeline = () => ({ item: id, duration: DUR, eye: SW0, stages, eyeText: { j: 'Built! Now see it from the street.', s: 'Complete. Street-level view.' } });
+  window.__timeline = () => ({ item: id, duration: DUR, eye: SW0, clearView, stages, eyeText: { j: 'Built! Now see it from the street.', s: 'Complete. Street-level view.' } });
   window.__render(0); window.__ready = true;
 }
 async function filmPreview(level) {
