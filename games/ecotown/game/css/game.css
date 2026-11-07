@@ -640,3 +640,5 @@ button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focu
   #build { grid-template-columns: 150px minmax(0, 1fr); }
   #build .cats { grid-template-columns: repeat(2, 58px); grid-auto-rows: 44px; } #build .cat { width: 58px; height: 44px; } #build .cat img { width: 26px; } #build .cat span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 }
+@media (min-width: 761px) and (min-height: 561px) { #card { max-width: calc(100vw - var(--stripw, 520px) - 44px); } }
+@media (min-width: 761px) and (min-height: 561px) { #card { flex-wrap: wrap; row-gap: 4px; } #card .goal { flex: 1 1 220px; } }
