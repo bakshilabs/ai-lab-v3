@@ -133,10 +133,13 @@ The camera buttons (＋ － ⟲ ⟳ ⌂) sit on the right edge for whiteboards a
 The ☰ menu has these settings:
 - read aloud;
 - reduce motion (camera flights become fades);
-- sound;
+- sound (everything), sound effects and music (each can be switched off on its own; music starts off when "In order (class)" is chosen);
 - facilitator notes;
 - large text;
 - graphics quality (auto, low, mid or high).
+
+### Sound and music
+All sound is made live in the browser (`js/engine/chip.js`, `js/engine/audio.js`, `js/music/songs.js`): an 8-bit style chip synth with two pulse voices, a triangle bass and noise drums. There are no audio files. Four original loops follow the game: **day** (free building), **night** (evening and the winter test), **AI Lab** (missions) and a short **celebration** (mission reward, town complete). They change at the next bar with a crossfade. About 20 effects cover placing (pitch by category, climbing within a quick run), removing, a wrong spot, tips, stars, unlocks, a check catching a flaw or passing, the Lab door, Florence's footsteps, dusk and dawn, and the fanfares. Music dips under Florence's voice. A limiter keeps the mix safe, and after about three minutes the loop thins out for a while so it doesn't wear on anyone. The tunes are written for this game: chip *style* only, no melody or sound taken from any other game. `tests/audio.test.mjs` renders every effect and loop offline and checks level, length and that nothing is silent or broken.
 
 ## How the game plays
 

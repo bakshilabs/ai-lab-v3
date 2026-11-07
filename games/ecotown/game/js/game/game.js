@@ -62,7 +62,7 @@ export function createGame(app) {
   let run = null;
   const totalStars = () => Object.values(G.levelStars).reduce((a, b) => a + b, 0) + Object.values(G.bonus).reduce((a, b) => a + b, 0);
   const shownStars = () => totalStars() + (run ? Math.max(0, run.marks.filter(Boolean).length - (G.levelStars[run.id] || 0)) + (run.bonus && !G.bonus[run.id] ? 1 : 0) : 0);
-  function star(i, why = '') { if (!run || run.marks[i]) return; run.marks[i] = true; G.stars = shownStars(); ui.setStars(G.stars); if (why) ui.caption(`★ ${why}`, 2600); }
+  function star(i, why = '') { if (!run || run.marks[i]) return; run.marks[i] = true; audio.star(); G.stars = shownStars(); ui.setStars(G.stars); if (why) ui.caption(`★ ${why}`, 2600); }
   function bonusStar(why) { if (!run) return; run.bonus = true; G.stars = shownStars(); ui.setStars(G.stars); ui.caption(`★ ${why}`, 2800); }
   function flower(flash = true) { const s = sim(); ui.carbonInfo = { used: s.carbon, limit: TARGETS.carbonCeiling }; ui.flower(s.petals, G.townName, { flash }); }
   const KEEP = ['introDone', 'band', 'levelStars', 'starMarks', 'bonus', 'mistakes', 'diary', 'instructions', 'extra', 'credits', 'townName', 'inputMode', 'paths', 'outcomes', 'labs', 'ever', 'classMode', 'day', 'movedIn', 'completeShown', 'charter', 'reflection'];
@@ -157,7 +157,7 @@ export function createGame(app) {
     if (auto) {
       const which = Object.keys(reveal)[0];
       if (!which) return { flawed: false };
-      const r = await checks.run(which, sAfter, res.after, reveal); audio.bad(); app.bot.shrug(); ui.alert(fmt(T(id).flaw[which], r.revealed), false); await sleep(2200); ui.show('alert', false); await checks.leave(); return { flawed: true, which };
+      const r = await checks.run(which, sAfter, res.after, reveal); audio.flaw(); app.bot.shrug(); ui.alert(fmt(T(id).flaw[which], r.revealed), false); await sleep(2200); ui.show('alert', false); await checks.leave(); return { flawed: true, which };
     }
     const opts = shuffle(checksFor(id, G.j, reveal)); const tried = []; let tries = 0;
     const label = (c) => G.C.checks[c].label;
@@ -171,7 +171,7 @@ export function createGame(app) {
       if (which) { // a check the player hasn't tried shows the problem: show it now, before anything is built
         ui.caption(G.C.ui.notFoundYet, 3000); await sleep(app.reduce ? 200 : 1200);
         const view = ['street', 'inside'].includes(which); if (view) { world.clearGhost(); showCells(res.after); }
-        const r = await checks.run(which, sAfter, res.after, reveal); await frameProblem(which, sAfter, res.after); audio.bad(); app.bot.shrug(); ui.alert(fmt(T(id).flaw[which], r.revealed), false);
+        const r = await checks.run(which, sAfter, res.after, reveal); await frameProblem(which, sAfter, res.after); audio.flaw(); app.bot.shrug(); ui.alert(fmt(T(id).flaw[which], r.revealed), false);
         await sleep(1600); await continueBtn(); ui.show('alert', false); await checks.leave(); world.clearGhost(); if (view) showCells(G.cells);
         return { flawed: true, which, tries, late: true, rv: r.revealed };
       }
@@ -191,7 +191,7 @@ export function createGame(app) {
       const r = await checks.run(choice, sAfter, res.after, reveal);
       if (r.revealed) {
         await frameProblem(choice, sAfter, res.after);
-        audio.bad(); app.bot.shrug(); ui.alert(fmt(T(id).flaw[choice], r.revealed), false);
+        audio.flaw(); app.bot.shrug(); ui.alert(fmt(T(id).flaw[choice], r.revealed), false);
         if (tries === 1) star(0, G.C.ui.foundIt);
         await sleep(1600); await continueBtn();
         ui.show('alert', false); await checks.leave(); world.clearGhost(); if (view) showCells(G.cells);
@@ -388,7 +388,7 @@ export function createGame(app) {
   // one alert for everything that opened at once; Florence's tip is about the first of them
   function announceUnlock(ids) {
     if (!sb.running) return;
-    audio.reward(); ui.alert(`${ids.map((id) => `${CAT_ICON[id]} ${G.S.cats[id]}`).join(' · ')}: ${G.S.unlocked}`, true, 2600);
+    audio.unlock(); ui.alert(`${ids.map((id) => `${CAT_ICON[id]} ${G.S.cats[id]}`).join(' · ')}: ${G.S.unlocked}`, true, 2600);
     const id = ids[0]; const lab = ids.find((x) => labReady(x, G.ever, G.labs, G.classMode) && !G.labs[x]) || null;
     showTip({ id: 'unlock-' + id, text: pick(G.S.unlockTip[id]) + (lab ? ' ' + G.S.labReady : ''), lab }); app.bot?.cheer();
     sb.adv.last = performance.now();
@@ -405,7 +405,7 @@ export function createGame(app) {
   // Florence's tip: one line in the dock, above the build bar. Never blocks; fades after a while.
   let tipShown = null;
   function showTip({ id, text, lab = null, lens = null, at = null }) {
-    tipShown = id; lastTip = { id, text, lab, lens };
+    tipShown = id; lastTip = { id, text, lab, lens }; audio.tip();
     const el = ui.florence({ tag: G.S.tipTag, html: `<p>${esc(text)}</p><div class="tiprow">${lab ? `<button class="slot act go" data-tiplab="${lab}"><img src="${thumb('ailab')}" alt=""><span>${esc(G.S.showInLab)}</span></button>` : ''}${lens ? `<button class="slot act" data-tiplens="${lens}"><b class="ico">${G.C.checks[lens].icon}</b><span>${esc(G.S.useLens)}</span></button>` : ''}<button class="slot act x" data-tipx aria-label="${esc(G.S.dismiss)}"><b class="ico">✕</b></button></div>`, say: text });
     el.querySelector('[data-tiplab]')?.addEventListener('click', () => { hideTip(); openLab(lab); });
     el.querySelector('[data-tiplens]')?.addEventListener('click', () => { hideTip(); toggleLens(lens); });
@@ -472,7 +472,8 @@ export function createGame(app) {
   // the living town: a slow day, residents' bubbles, a new day each evening (senior: households pay credits)
   function tick() {
     if (!sb.running || sb.paused || G.busy || sb.intro) return;
-    app.hour += (16 / DAY_SECONDS) * 0.2;
+    const before = app.hour; app.hour += (16 / DAY_SECONDS) * 0.2;
+    if (before < 18.5 && app.hour >= 18.5) { audio.dusk(); setMusic('night'); }
     if (app.hour >= 22) newDay();
     stage.setTime(app.hour, 0);
     const ck = ui.P.build.querySelector('[data-clock]'); if (ck) ck.textContent = `🕖 ${clockText()} · ${G.S.day} ${G.day}`;
@@ -485,7 +486,7 @@ export function createGame(app) {
     if (now > sb.nextTipCheck) { sb.nextTipCheck = now + 5000; if (!tipShown) advise(); }
   }
   function newDay() {
-    app.hour = 6; G.day++; const s = sim();
+    app.hour = 6; G.day++; const s = sim(); audio.dawn(); setMusic('day');
     const line = diaryLines('heart', s, G.j)[G.day % 3]; if (s.homes.length && !G.diary.includes(line)) G.diary = [...G.diary, line].slice(-8);
     if (G.credits !== Infinity) { const pay = Math.round(s.familiesSafe * 1.5 + s.community); G.credits += pay; ui.caption(`${G.S.day} ${G.day}: +${pay} ${G.S.credits} ${G.S.fromHouseholds}`, 3500); }
     else ui.caption(`${G.S.newDay} ${G.day}`, 2200);
@@ -498,7 +499,7 @@ export function createGame(app) {
       const k = world.pick(ndc, stage.camera); if (!k) return;
       if (k === terrain.lab) { audio.tap(); return labBoard(); } // the AI Lab building opens the Lab board
       if (!sb.tool || (!isOpen(sb.cat) && sb.tool !== 'erase')) return;
-      if (placeAt(k, sb.tool)) { world.clearGhost(); app._hk = null; audio.pop(); showAllowed(sb.tool); changed(); florenceTo(k, 'peer'); }
+      if (placeAt(k, sb.tool)) { world.clearGhost(); app._hk = null; const now = performance.now(); sb.popRun = now - (sb.popAt || 0) < 2500 ? (sb.popRun || 0) + 1 : 0; sb.popAt = now; if (sb.tool === 'erase') audio.remove(); else audio.pop(sb.popRun, sb.cat); showAllowed(sb.tool); changed(); florenceTo(k, 'peer'); }
     };
     rig.onHover = (ndc) => {
       if (!sb.running || G.busy || sb.lens || sb.tool === 'erase' || !isOpen(sb.cat)) return;
@@ -531,7 +532,7 @@ export function createGame(app) {
     sb.running = true; rig.building = true; app.levelId = null; app.inLab = false; app.briefMinutes = null;
     ui.only([]); ui.views('sky'); ui.facil(null); ui.show('card'); ui.show('strip');
     showCells(G.cells); world.setOverlay(null); if (isOpen(sb.cat)) showAllowed(sb.tool);
-    changed(); renderLenses(); setMusic('calm'); app.bot?.show(true); requestAnimationFrame(() => { frameView(); lastFrame = rig.frameDist(); if (!sb.framed) { sb.framed = true; rig.overview(app.reduce ? 0.01 : 1.0); } });
+    changed(); renderLenses(); setMusic(app.hour >= 18.5 || app.hour < 6.5 ? 'night' : 'day'); app.bot?.show(true); requestAnimationFrame(() => { frameView(); lastFrame = rig.frameDist(); if (!sb.framed) { sb.framed = true; rig.overview(app.reduce ? 0.01 : 1.0); } });
     if (sb.afterLab) { const msg = sb.afterLab; sb.afterLab = null; setTimeout(() => ui.caption(msg, 5000), 2800); } // after any unlock alert
   }
   function stopBuilding() { sb.running = false; ui.florence(null); frameView(); rig.building = false; clearTimeout(sb.tipT); world.clearGhost(); world.setOverlay(null); ui.labels.clear(); ui.tray(''); ui.buildPanel(''); hideTip(); }
@@ -568,13 +569,13 @@ export function createGame(app) {
     bot.show(true);
     await rig.focus(door, { dist: 40, pitch: 0.55, yaw: rig.sky.yaw }, 1.2);
     await bot.walkTo(door, { maxDur: app.reduce ? 0.3 : 2.2 }); bot.look(inside); if (!app.reduce) await bot.wave();
-    await bot.walkTo(inside, { maxDur: 0.6 }); bot.show(false);
+    audio.door(); await bot.walkTo(inside, { maxDur: 0.6 }); bot.show(false);
     await rig.fade?.(() => {});
   }
   // one mission, on Florence's practice island
   async function runLab(id) {
     const real = G.cells; const lv = LEVELS[id]; const L = T(id);
-    app.levelId = id; app.inLab = true; document.documentElement.dataset.lab = 'on'; guess = null;
+    app.levelId = id; app.inLab = true; document.documentElement.dataset.lab = 'on'; guess = null; setMusic('lab');
     run = { id, marks: [false, false, false], bonus: false }; G.paths[id] = null; G.instructions[id] = []; G.mistakes = G.mistakes.filter((m) => m.level !== id);
     G.cells = seedTo(terrain, id); showCells(G.cells);
     ui.setBadge(`🧪 AI LAB · ${lv.n}/6`); ui.setTask(lv.n, pick(L.goal)); ui.helper(null); ui.facil(null); ui.views(null, []);
@@ -625,7 +626,7 @@ export function createGame(app) {
       const e = d.options[+a].effect; G.extra.families += e.families || 0; G.extra.carbon += e.carbon || 0; G.diary.push(`Town meeting: ${d.options[+a].label}.`);
     }
     // the reward card, then: use Florence's plan in your town, or keep your town as it is
-    const s2 = sim(); audio.reward(); world.confetti(new THREE.Vector3(10, 20, 8), 200); rig.startTurntable(app.reduce ? 0 : 0.1);
+    const s2 = sim(); audio.fanfare(); setMusic('celebrate'); world.confetti(new THREE.Vector3(10, 20, 8), 200); rig.startTurntable(app.reduce ? 0 : 0.1);
     const stars = run.marks.filter(Boolean).length; const rules = G.C.stars[G.paths[id] || 'flawed'];
     const [statLabel, statVal] = lv.stat(s2, G.j); const oc = outcomeFor(id, s2);
     const heading = pick(L.complete); const newLens = G.C.checks[LAB_LENS[id]];
@@ -652,7 +653,7 @@ export function createGame(app) {
       if (!again.flawed) {
         const sA = sim(res.after); const cx = ctxFor(res.after);
         if (lv.pass(sA, cx)) {
-          audio.good(); app.bot.proud(); world.confetti(app.bot.group.position.clone(), 90); ui.alert(G.C.ui.checked, true, 1800);
+          audio.pass(); app.bot.proud(); world.confetti(app.bot.group.position.clone(), 90); ui.alert(G.C.ui.checked, true, 1800);
           help({ tag: G.C.ui.checked, tagCls: 'ok', html: `<ul>${res.plan.reading.map((r) => `<li>${esc(r)}</li>`).join('')}</ul>`, sure: res.sure, sureLabel: G.C.ui.sure });
           await sleep(1400); return res;
         }
@@ -783,7 +784,7 @@ export function createGame(app) {
     if (G.busy || G.completeShown || !townComplete(sim(), ctxFor(G.cells))) return; // busy: it comes back on the next change
     G.completeShown = true; G.busy = true; stopBuilding();
     try {
-      audio.reward(); world.confetti(new THREE.Vector3(10, 20, 8), 240); rig.startTurntable(app.reduce ? 0 : 0.1);
+      audio.complete(app.reduce); setMusic('celebrate'); world.confetti(new THREE.Vector3(10, 20, 8), 240); rig.startTurntable(app.reduce ? 0 : 0.1);
       const s = sim(); flower(true);
       const a = await ui.modal(`<div class="ribbon green">${esc(G.S.completeRibbon)}</div><div class="big">🌸</div><h2>${esc(G.townName)}: ${esc(s.title)}</h2><p>${esc(pick(G.S.completeText))}</p><div class="row" style="justify-content:center"><button class="btn alt" data-act="keep">${esc(G.S.keepBuilding)}</button><button class="btn alt" data-act="report">📜 ${esc(G.C.ui.report)}</button><button class="btn go" data-act="day">🌇 ${esc(G.S.watchDay)}</button></div>`, { say: `${G.townName}: ${s.title}. ${pick(G.S.completeText)}` });
       rig.startTurntable(0); G.busy = false;

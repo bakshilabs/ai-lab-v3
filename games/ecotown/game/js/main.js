@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { createStage, probeTier } from './engine/stage.js';
 import { createLife } from './engine/life.js';
 import { createFlorence } from './engine/florence.js';
-import { initAudio, sfx, setSound, setMusic } from './engine/audio.js';
+import { initAudio, sfx, setSound, setMusic, setMusicOn, setSfxOn, duck } from './engine/audio.js';
 import { makeTerrain } from './world/terrain.js';
 import { simulate } from './sim/sim.js';
 import { createWorld } from './world/world.js';
@@ -14,7 +14,8 @@ import { createUI, h, esc } from './ui/ui.js';
 import { createGame } from './game/game.js';
 import { loadModel, modelReady } from './ai/plotter.js';
 import { CONTENT, NAME_IDEAS, cleanTownName } from './game/content.js';
-import { loadVoices } from './ui/voice.js';
+import { loadVoices, setSpeakingHook } from './ui/voice.js';
+setSpeakingHook((v) => duck(v));
 
 const $ = (s) => document.querySelector(s);
 const prefs = (() => { try { return JSON.parse(localStorage.getItem('ecotown.prefs') || '{}'); } catch { return {}; } })();
@@ -28,11 +29,12 @@ const life = createLife(stage, world, terrain);
 const inside = createInside(stage);
 const rig = createRig(stage, canvas, $('#fade'));
 const bot = createFlorence(stage, world, terrain);
+let lastStep = 0; bot.onStep = () => { const n = performance.now(); if (n - lastStep > 180) { lastStep = n; sfx.step(); } };
 { const d = world.tileTop(terrain.dock); bot.appear(d.clone().add(new THREE.Vector3(-4, 0, -6))); }
 life.setTown(simulate(terrain, new Map()), new Map(), stage.q);
 const app = {
   stage, terrain, world, life, inside, rig, bot, audio: sfx, setMusic, band: 'junior', session: 60, classMode: false, sandboxFull: new URLSearchParams(location.search).get('sandbox') === 'full', hour: 11, moveIn: null, winterTest: false,
-  settings: { readAloud: true, reduce: matchMedia('(prefers-reduced-motion: reduce)').matches, sound: true, facilitator: false, text: 'normal', quality: 'auto', ...prefs },
+  settings: { readAloud: true, reduce: matchMedia('(prefers-reduced-motion: reduce)').matches, sound: true, effects: true, music: true, facilitator: false, text: 'normal', quality: 'auto', ...prefs },
   get reduce() { return this.settings.reduce; },
   // town picture for the report: render, then paint it over the current sky colours
   snapshot() {
@@ -45,7 +47,7 @@ const app = {
 };
 const ui = app.ui = createUI($('#layer'), $('#labels'), { facilitator: () => app.settings.facilitator });
 function applySettings() {
-  const s = app.settings; ui.readAloud = s.readAloud; rig.reduce = s.reduce; bot.reduce = s.reduce; setSound(s.sound);
+  const s = app.settings; ui.readAloud = s.readAloud; rig.reduce = s.reduce; bot.reduce = s.reduce; setSound(s.sound); setMusicOn(s.music !== false); setSfxOn(s.effects !== false);
   document.documentElement.dataset.motion = s.reduce ? 'reduce' : ''; document.documentElement.dataset.text = s.text;
   if (s.quality !== 'auto') stage.setTier(s.quality); savePrefs();
 }
@@ -66,7 +68,7 @@ requestAnimationFrame(loop);
 function settingsSheet() {
   const s = app.settings; const P = ui.P.settings;
   const row = (k, label) => `<label>${esc(label)}<input type="checkbox" data-k="${k}" ${s[k] ? 'checked' : ''}></label>`;
-  P.innerHTML = `<h3 style="margin:0 0 6px">Settings</h3>${row('readAloud', 'Read aloud')}${row('reduce', 'Reduce motion')}${row('sound', 'Sound')}${row('facilitator', 'Facilitator notes')}
+  P.innerHTML = `<h3 style="margin:0 0 6px">Settings</h3>${row('readAloud', 'Read aloud')}${row('reduce', 'Reduce motion')}${row('sound', 'Sound (everything)')}${row('effects', 'Sound effects')}${row('music', 'Music')}${row('facilitator', 'Facilitator notes')}
     <label>Text size<select data-k="text"><option value="normal">Normal</option><option value="large" ${s.text === 'large' ? 'selected' : ''}>Large</option></select></label>
     <label>Graphics<select data-k="quality">${['auto', 'low', 'mid', 'high'].map((q) => `<option ${s.quality === q ? 'selected' : ''}>${q}</option>`).join('')}</select></label>
     <button class="btn alt" data-intro style="width:100%;margin:6px 0">▶ Watch Florence’s intro again</button><p style="font-size:.8em;color:#46596a">Florence: ${modelReady() ? 'small language model (on this device)' : 'keyword reader (model not loaded)'}. Voices: recorded on this device’s game files. Nothing you type is stored or sent.</p><button class="btn go" data-close>Done</button>`;
@@ -123,7 +125,7 @@ async function start() {
     <p class="sessnote" data-sessnote></p>
     <div class="row" style="justify-content:center;margin-top:10px"><button class="btn go" data-go>Start ➜</button></div>`;
   const sn = card.querySelector('[data-sessnote]'); sn.textContent = ORDER[app.classMode ? 'class' : 'free'];
-  card.querySelector('[data-order]').onchange = (e) => { app.classMode = e.target.value === 'class'; sn.textContent = ORDER[e.target.value]; };
+  card.querySelector('[data-order]').onchange = (e) => { app.classMode = e.target.value === 'class'; sn.textContent = ORDER[e.target.value]; app.settings.music = !app.classMode; applySettings(); }; // music starts off in class mode (the teacher can turn it on in ☰)
   card.querySelector('[data-facil]').onchange = (e) => { app.settings.facilitator = e.target.checked; applySettings(); ui.refreshFacil(); };
   const inp = card.querySelector('[data-name]'); inp.value = NAME_IDEAS[Math.floor(Math.random() * NAME_IDEAS.length)]; setTimeout(() => inp.focus(), 50);
   card.querySelectorAll('[data-n]').forEach((b) => (b.onclick = () => { inp.value = b.dataset.n; inp.focus(); }));
