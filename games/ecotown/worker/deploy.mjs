@@ -34,6 +34,13 @@ if (VOICE_FILES.length) {
     if (!r.success) { console.error('KV upload failed', name, JSON.stringify(r.errors)); process.exit(1); } console.log('voice uploaded', name, fs.statSync(f).size);
   }
 }
+// curl with retries: long uploads through the proxy can be cut off mid-transfer (a tunnel drain); try again with backoff
+function curlRetry(args) {
+  for (let i = 0; ; i++) {
+    try { return execFileSync('curl', args, { encoding: 'utf8', maxBuffer: 1 << 26 }); }
+    catch (e) { if (i >= 4) throw e; const wait = 2 ** (i + 1); console.log(`  upload interrupted (${(e.stderr || e.message).toString().trim().slice(0, 80)}); retrying in ${wait}s`); execFileSync('sleep', [String(wait)]); }
+  }
+}
 // media: upload only what changed since the last deploy (a manifest of content hashes is kept in KV)
 if (kvId && MEDIA_FILES.length) {
   const { createHash } = await import('node:crypto');
@@ -42,11 +49,11 @@ if (kvId && MEDIA_FILES.length) {
   for (const f of MEDIA_FILES) {
     const key = path.relative(DIST, f).split(path.sep).join('/'); const h = createHash('sha256').update(fs.readFileSync(f)).digest('hex').slice(0, 16); next[key] = h;
     if (old[key] === h) continue;
-    const r = JSON.parse(execFileSync('curl', ['-sS', '-X', 'PUT', '-H', `Authorization: ${auth.Authorization}`, '-H', 'Content-Type: application/octet-stream', '--data-binary', '@' + f, `${KVAPI}/${kvId}/values/${encodeURIComponent(key)}`], { encoding: 'utf8', maxBuffer: 1 << 26 }));
+    const r = JSON.parse(curlRetry(['-sS', '-X', 'PUT', '-H', `Authorization: ${auth.Authorization}`, '-H', 'Content-Type: application/octet-stream', '--data-binary', '@' + f, `${KVAPI}/${kvId}/values/${encodeURIComponent(key)}`]));
     if (!r.success) { console.error('KV upload failed', key, JSON.stringify(r.errors)); process.exit(1); } console.log('media uploaded', key, fs.statSync(f).size);
   }
   const mf = path.join(DIST, '..', '.media-manifest.json'); fs.writeFileSync(mf, JSON.stringify(next));
-  JSON.parse(execFileSync('curl', ['-sS', '-X', 'PUT', '-H', `Authorization: ${auth.Authorization}`, '-H', 'Content-Type: application/json', '--data-binary', '@' + mf, `${KVAPI}/${kvId}/values/media-manifest.json`], { encoding: 'utf8' })); fs.rmSync(mf);
+  JSON.parse(curlRetry(['-sS', '-X', 'PUT', '-H', `Authorization: ${auth.Authorization}`, '-H', 'Content-Type: application/json', '--data-binary', '@' + mf, `${KVAPI}/${kvId}/values/media-manifest.json`])); fs.rmSync(mf);
 }
 let index = 'export default {\n';
 files.forEach((p, i) => {
