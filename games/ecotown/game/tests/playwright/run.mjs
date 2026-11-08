@@ -91,7 +91,9 @@ for (const [id, check, vague, clear] of LEVELS) {
   const clean = path === 'clean' || (path === 'mixed' && li++ % 2 === 1);
   // a modal from free building (the town-complete card) may be up: keep building
   const pop = await p.$('#modal:not(.hide) [data-act="keep"]'); if (pop) { await pop.click(); await p.waitForTimeout(600); }
-  await click('#strip [data-lab]', 30000);
+  await click('#strip [data-lab]', 30000); // the AI Lab classroom, then its Missions button
+  if (li === 1) { await p.waitForSelector('#dock [data-missions]', { timeout: 30000 }); await click('#dock [data-sq]'); await p.waitForTimeout(1500); await shot('classroom'); checks.classroomAnswer = await p.evaluate(() => (document.querySelector('#dock [data-speaker]')?.textContent || '').length > 40); }
+  await click('#dock [data-missions]', 30000);
   await p.waitForSelector(`#modal:not(.hide) [data-act="lab:${id}"]`, { timeout: 10000 }).catch(async () => { console.log('MISSION NOT READY', id, await p.evaluate(() => ({ ever: window.__eco.app.G.ever, families: window.__eco.app.G.sim().families }))); });
   if (id === 'land') await shot('lab-board');
   const before = await p.evaluate(() => JSON.stringify([...window.__eco.app.G.cells]));

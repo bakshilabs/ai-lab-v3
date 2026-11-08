@@ -9,6 +9,7 @@ import { makeTerrain } from './world/terrain.js';
 import { simulate } from './sim/sim.js';
 import { createWorld } from './world/world.js';
 import { createInside } from './world/inside.js';
+import { createClassroom } from './world/classroom.js';
 import { createRig } from './camera/rig.js';
 import { createUI, h, esc } from './ui/ui.js';
 import { createPortrait } from './ui/portrait.js';
@@ -28,13 +29,14 @@ const terrain = makeTerrain();
 const world = createWorld(stage, terrain);
 const life = createLife(stage, world, terrain);
 const inside = createInside(stage);
+const classroom = createClassroom(stage);
 const rig = createRig(stage, canvas, $('#fade'));
 const bot = createFlorence(stage, world, terrain);
 let lastStep = 0; bot.onStep = () => { const n = performance.now(); if (n - lastStep > 180) { lastStep = n; sfx.step(); } };
 { const d = world.tileTop(terrain.dock); bot.appear(d.clone().add(new THREE.Vector3(-4, 0, -6))); }
 life.setTown(simulate(terrain, new Map()), new Map(), stage.q);
 const app = {
-  stage, terrain, world, life, inside, rig, bot, audio: sfx, setMusic, band: 'junior', session: 60, classMode: false, sandboxFull: new URLSearchParams(location.search).get('sandbox') === 'full', hour: 11, moveIn: null, winterTest: false,
+  stage, terrain, world, life, inside, classroom, rig, bot, audio: sfx, setMusic, band: 'junior', session: 60, classMode: false, sandboxFull: new URLSearchParams(location.search).get('sandbox') === 'full', hour: 11, moveIn: null, winterTest: false,
   settings: { readAloud: true, reduce: matchMedia('(prefers-reduced-motion: reduce)').matches, sound: true, effects: true, music: true, facilitator: false, text: 'normal', quality: 'auto', ...prefs },
   get reduce() { return this.settings.reduce; },
   // town picture for the report: render, then paint it over the current sky colours
@@ -62,7 +64,7 @@ let last = performance.now(); const T0 = last;
 function loop(now) {
   if (app.manual) { requestAnimationFrame(loop); return; } // the build-video recorder drives frames itself (?shoot=)
   const dt = Math.min(0.05, (now - last) / 1000); last = now; const t = (now - T0) / 1000;
-  rig.update(dt); world.update(dt, t, { windStill: app.winterTest }); life.update(dt, t, app.hour, { windStill: app.winterTest, moveIn: app.moveIn }); inside.update(dt, t); bot.update(dt, t);
+  rig.update(dt); world.update(dt, t, { windStill: app.winterTest }); life.update(dt, t, app.hour, { windStill: app.winterTest, moveIn: app.moveIn }); inside.update(dt, t); classroom.update(dt, t); bot.update(dt, t);
   stage.render(dt, t); ui.labels.update(stage.camera, canvas);
   requestAnimationFrame(loop);
 }

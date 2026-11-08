@@ -27,6 +27,7 @@ import { seedTo } from './seed.js';
 import { runIntro } from './intro.js';
 import { planPlace } from './replace.js';
 import { CHIP, itemChips, simDelta, chipsText } from './delta.js';
+import { answer as askFlorence, SUGGEST } from './qa.js';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const SAVE = 'ecotown.save.v3';
@@ -594,7 +595,7 @@ export function createGame(app) {
     rig.onTap = (ndc) => {
       if (!sb.running || G.busy || sb.lens) return;
       const k = world.pick(ndc, stage.camera); if (!k) return;
-      if (k === terrain.lab) { audio.tap(); return labBoard(); } // the AI Lab building opens the Lab board
+      if (k === terrain.lab) { audio.tap(); return enterClassroom(); } // the AI Lab building: step into Florence's classroom
       if (!sb.tool || (!isOpen(sb.cat) && sb.tool !== 'erase')) return;
       act(k, sb.tool);
     };
@@ -652,6 +653,51 @@ export function createGame(app) {
   }
   function stopBuilding() { sb.running = false; ui.florence(null); frameView(); rig.building = false; clearTimeout(sb.tipT); world.clearGhost(); world.setOverlay(null); ui.labels.clear(); ui.tray(''); ui.buildPanel(''); hideTip(); }
   const setMusic = (m) => app.setMusic?.(m);
+
+  // ================= THE AI LAB CLASSROOM =================
+  // Florence at the front beside a big screen; ask her questions (a fixed, kid-safe set in qa.js) and she
+  // answers and shows a build video on the screen. Missions opens the mission board; Back returns to the island.
+  async function enterClassroom() {
+    const C = app.classroom; if (!C) return labBoard();
+    if (G.busy || !sb.running) return; G.busy = true; stopBuilding(); sb.inClass = true;
+    audio.door?.(); setMusic('lab');
+    await rig.fade(() => { C.show(true); rig.mode = 'inside'; rig.apply(C.pose()); app.bot.appear(C.florenceAt()); app.bot.look(C.eye()); });
+    document.documentElement.dataset.lab = 'on'; ui.show('strip', false); ui.setBadge(''); ui.show('strip', false);
+    C.card(G.S.classTitle, [pick(G.S.classHello)], { icon: '🧪' });
+    help({ tag: 'HELLO', html: `<p>${esc(G.S.classHello)}</p>`, say: G.S.classHello }); app.bot.wave();
+    classTray();
+  }
+  function classTray() {
+    const sug = shuffle(SUGGEST[G.j ? 'j' : 's']).slice(0, 3);
+    ui.tray(`<div class="ask"><input data-q type="text" maxlength="140" autocomplete="off" placeholder="${esc(G.S.askPlaceholder)}" aria-label="${esc(G.S.askFlorence)}"><button class="btn go" data-ask>${esc(G.S.ask)}</button></div>
+      <div class="row qchips">${sug.map((q) => `<button class="choice" data-sq="${esc(q)}">${esc(q)}</button>`).join('')}</div>
+      <div class="row"><button class="btn alt" data-missions>🧪 ${esc(G.S.missions)}</button><button class="btn alt" data-leave>⬅ ${esc(G.S.backToBuilding)}</button></div>`, (el) => {
+      const inp = el.querySelector('[data-q]'); const go = (q) => { q = (q || '').trim(); if (q) classAsk(q); };
+      el.querySelector('[data-ask]').onclick = () => go(inp.value); inp.onkeydown = (e) => { if (e.key === 'Enter') go(inp.value); };
+      el.querySelectorAll('[data-sq]').forEach((b) => (b.onclick = () => go(b.dataset.sq)));
+      el.querySelector('[data-missions]').onclick = () => leaveClassroom({ board: true });
+      el.querySelector('[data-leave]').onclick = () => leaveClassroom();
+    });
+  }
+  let askN = 0;
+  async function classAsk(q) {
+    const C = app.classroom; const r = askFlorence(q, G.j); const n = ++askN;
+    audio.tap(); help({ tag: G.S.askTag, html: `<p class="q">“${esc(q)}”</p><p>${esc(r.text)}</p>`, say: r.text });
+    classTray();
+    if (r.video && G.videos?.has(r.video)) {
+      app.bot.point(C.screenAt(), 2.4);
+      const ok = await C.play(`videos/${r.video}.mp4`);
+      if (n === askN && sb.inClass) C.card(ITEMS[r.video]?.label || q, [r.text]);
+      if (!ok && n === askN) C.card(q, [r.text]);
+    } else { C.card(q, [r.text], { icon: '💬' }); r.topic ? app.bot.nod() : app.bot.think(); }
+  }
+  async function leaveClassroom({ board = false } = {}) {
+    const C = app.classroom; if (!sb.inClass) return; sb.inClass = false; C.stop();
+    ui.helper(null); ui.tray(''); delete document.documentElement.dataset.lab;
+    await rig.fade(() => { C.show(false); rig.mode = 'sky'; rig.apply(rig.skyPose()); app.bot.appear(world.tileTop(terrain.lab).add(new THREE.Vector3(-2, 0, 7))); });
+    G.busy = false; startBuilding();
+    if (board) labBoard();
+  }
 
   // ================= THE AI LAB =================
   // the board: six missions, locked / ready / done, plus the whole-day and the report
@@ -917,7 +963,7 @@ export function createGame(app) {
   G.run = async () => {
     G.ever = unlocked(sim(), G.ever, G.full); G.stars = totalStars();
     ui.setStars(G.stars); ui.setTownName(G.townName); flower(false);
-    ui.onLab = () => labBoard(); ui.onLens = (id) => toggleLens(id); ui.onTalk = (secs) => app.bot?.talk(secs); ui.onCamToggle = () => reframe();
+    ui.onLab = () => enterClassroom(); ui.onLens = (id) => toggleLens(id); ui.onTalk = (secs) => app.bot?.talk(secs); ui.onCamToggle = () => reframe();
     // each mission on the track opens that mission when it's ready, otherwise the Lab board
     ui.onTrack = (i) => { const id = LEVEL_ORDER[i]; if (id && !G.busy && sb.running && labReady(id, G.ever, G.labs, G.classMode)) openLab(id); else labBoard(); };
     milestones(sim(), { quiet: true }); // goals already met in a loaded town don't celebrate again
@@ -944,7 +990,7 @@ export function createGame(app) {
   G.replayIntro = () => { if (!G.busy && sb.running) intro(); };
   // the ☰ menu: the town report and a whole day, only while building (not in a mission or the intro)
   G.canMenu = () => sb.running && !G.busy && !sb.intro; G.showReport = () => { if (G.canMenu()) showReport(); }; G.wholeDay = () => { if (G.canMenu()) wholeDay(); };
-  G.openLab = openLab; G.labBoard = labBoard; G.playVideo = playVideo; G.videoCard = videoCard; G.florenceTo = florenceTo; G.placeAt = (k, tool) => { const ok = placeAt(k, tool); if (ok) changed(); return ok; }; G.sim = sim; G.advisor = sb.adv;
+  G.openLab = openLab; G.labBoard = labBoard; G.enterClassroom = enterClassroom; G.classAsk = classAsk; G.leaveClassroom = leaveClassroom; G.playVideo = playVideo; G.videoCard = videoCard; G.florenceTo = florenceTo; G.placeAt = (k, tool) => { const ok = placeAt(k, tool); if (ok) changed(); return ok; }; G.sim = sim; G.advisor = sb.adv;
   G.saved = () => { try { const d = JSON.parse(localStorage.getItem(SAVE) || 'null'); return d && d.band === G.band ? d : null; } catch { return null; } };
   return G;
 }
