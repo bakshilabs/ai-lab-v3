@@ -760,9 +760,9 @@
   "key": "c2902286"
  },
  {
-  "s": "Town centre complete",
+  "s": "School and town centre planned",
   "voice": "narrator",
-  "key": "c093b176"
+  "key": "b50ab974"
  },
  {
   "s": "Civic buildings, step by step.",
@@ -1150,6 +1150,151 @@
   "key": "081fea9b"
  },
  {
+  "s": "Storm damage on the floodplain.",
+  "voice": "helper",
+  "key": "b324bf93"
+ },
+ {
+  "s": "Move housing to higher ground or add drainage (rain gardens, reed beds).",
+  "voice": "helper",
+  "key": "f79215ce"
+ },
+ {
+  "s": "Blackout on a still winter night.",
+  "voice": "helper",
+  "key": "512e3b59"
+ },
+ {
+  "s": "Add wind and battery storage to cover the worst case.",
+  "voice": "helper",
+  "key": "b967ab1b"
+ },
+ {
+  "s": "Winter storm overnight: no homes flooded.",
+  "voice": "narrator",
+  "key": "a7e8e01e"
+ },
+ {
+  "s": "Still winter night: demand exceeded supply and the grid went dark.",
+  "voice": "narrator",
+  "key": "652c3a9a"
+ },
+ {
+  "s": "Still winter night: supply covered demand.",
+  "voice": "narrator",
+  "key": "5d325731"
+ },
+ {
+  "s": "Winter storm: 1 home on the floodplain flooded overnight.",
+  "voice": "narrator",
+  "key": "75564d9f"
+ },
+ {
+  "s": "Winter storm: 2 homes on the floodplain flooded overnight.",
+  "voice": "narrator",
+  "key": "a2281883"
+ },
+ {
+  "s": "Winter storm: 3 homes on the floodplain flooded overnight.",
+  "voice": "narrator",
+  "key": "f169867a"
+ },
+ {
+  "s": "Winter storm: 4 homes on the floodplain flooded overnight.",
+  "voice": "narrator",
+  "key": "06b0ed05"
+ },
+ {
+  "s": "Winter storm: 5 homes on the floodplain flooded overnight.",
+  "voice": "narrator",
+  "key": "0673bffc"
+ },
+ {
+  "s": "Winter storm: 6 homes on the floodplain flooded overnight.",
+  "voice": "narrator",
+  "key": "4c379637"
+ },
+ {
+  "s": "Winter storm: 7 homes on the floodplain flooded overnight.",
+  "voice": "narrator",
+  "key": "2a123c1e"
+ },
+ {
+  "s": "Winter storm: 8 homes on the floodplain flooded overnight.",
+  "voice": "narrator",
+  "key": "b14d15f9"
+ },
+ {
+  "s": "Winter storm: 9 homes on the floodplain flooded overnight.",
+  "voice": "narrator",
+  "key": "aa9094c0"
+ },
+ {
+  "s": "Winter storm: 10 homes on the floodplain flooded overnight.",
+  "voice": "narrator",
+  "key": "147ba142"
+ },
+ {
+  "s": "Winter storm: 11 homes on the floodplain flooded overnight.",
+  "voice": "narrator",
+  "key": "efe5814b"
+ },
+ {
+  "s": "Winter storm: 12 homes on the floodplain flooded overnight.",
+  "voice": "narrator",
+  "key": "0870c540"
+ },
+ {
+  "s": "Hint: test winter flood extent against town land.",
+  "voice": "narrator",
+  "key": "556d9a54"
+ },
+ {
+  "s": "Hint: test habitats and species presence.",
+  "voice": "narrator",
+  "key": "e058287b"
+ },
+ {
+  "s": "Hint: test conditions on the route at peak time.",
+  "voice": "narrator",
+  "key": "fc15d643"
+ },
+ {
+  "s": "Hint: test carbon from buildings and car surfaces.",
+  "voice": "narrator",
+  "key": "e2274a84"
+ },
+ {
+  "s": "Hint: test indoor temperature with the heating off.",
+  "voice": "narrator",
+  "key": "124ccd4a"
+ },
+ {
+  "s": "Hint: test supply against demand on a still winter night.",
+  "voice": "narrator",
+  "key": "968c9f6b"
+ },
+ {
+  "s": "Hint: test walking time from every home to school.",
+  "voice": "narrator",
+  "key": "23caaed2"
+ },
+ {
+  "s": "Hint: test step-free surfaces, gradients, crossings and ferry boarding on the routes.",
+  "voice": "narrator",
+  "key": "622d3179"
+ },
+ {
+  "s": "No free tiles for the plan’s placements.",
+  "voice": "narrator",
+  "key": "138af429"
+ },
+ {
+  "s": "Designate more town land to make room.",
+  "voice": "narrator",
+  "key": "4fd8be04"
+ },
+ {
   "s": "Welcome to the AI Lab.",
   "voice": "helper",
   "key": "0b4ea3f0"
@@ -1415,6 +1560,21 @@
   "key": "c053e1b0"
  },
  {
+  "s": "Fair question.",
+  "voice": "helper",
+  "key": "6adb01ab"
+ },
+ {
+  "s": "If a planner can have a favourite, mine is hedge green: it means the habitat links are intact.",
+  "voice": "helper",
+  "key": "f6e37eb9"
+ },
+ {
+  "s": "Now, ask me about your town: carbon, flood risk, power, or any build.",
+  "voice": "helper",
+  "key": "f8364c30"
+ },
+ {
   "s": "I don’t have an answer for that.",
   "voice": "helper",
   "key": "1ad66cff"
@@ -1613,11 +1773,6 @@
   "s": "Move-in: the first household arrives by sky-ferry.",
   "voice": "narrator",
   "key": "7e28cade"
- },
- {
-  "s": "No placements fitted your town; nothing changed.",
-  "voice": "narrator",
-  "key": "5ff56f44"
  },
  {
   "s": "“Best” = the flattest land, easiest to build on, next to water.",
@@ -2005,6 +2160,26 @@
   "key": "82255e6e"
  },
  {
+  "s": "You didn’t say where, so I guessed: the middle of the island.",
+  "voice": "helper",
+  "key": "462ace22"
+ },
+ {
+  "s": "Nobody told Florence what mattered (a short walk from every home), so she guessed the middle of the island.",
+  "voice": "helper",
+  "key": "4d6bd03b"
+ },
+ {
+  "s": "3 town tiles on the winter floodplain.",
+  "voice": "helper",
+  "key": "3d589b94"
+ },
+ {
+  "s": "Relocate to higher ground.",
+  "voice": "helper",
+  "key": "de252c47"
+ },
+ {
   "s": "🏡 Homes: unlocked",
   "voice": "narrator",
   "key": "f7d29f18"
@@ -2105,9 +2280,9 @@
   "key": "b811278e"
  },
  {
-  "s": "Town centre complete 3 stars.",
+  "s": "School and town centre planned 3 stars.",
   "voice": "narrator",
-  "key": "7223465c"
+  "key": "ee6e2af2"
  },
  {
   "s": "Not yet: Every home within 15 minutes’ walk of school.",
@@ -2138,6 +2313,21 @@
   "s": "Pegging out the town",
   "voice": "narrator",
   "key": "fbf99388"
+ },
+ {
+  "s": "Town centre complete",
+  "voice": "narrator",
+  "key": "c093b176"
+ },
+ {
+  "s": "No placements fitted your town; nothing changed.",
+  "voice": "narrator",
+  "key": "5ff56f44"
+ },
+ {
+  "s": "Town centre complete 3 stars.",
+  "voice": "narrator",
+  "key": "7223465c"
  },
  {
   "s": "2 car tiles on the children’s route at 8:45 am",

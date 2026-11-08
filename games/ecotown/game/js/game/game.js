@@ -1118,14 +1118,14 @@ export function createGame(app) {
     if (G.classMode) { const id = LEVEL_ORDER.find((l) => !G.labs[l]); if (id && labReady(id, G.ever, G.labs, true)) setTimeout(() => showTip({ id: 'class-' + id, text: G.S.classInvite, lab: id }), 1500); }
   };
   async function intro() {
-    if (sb.intro) return; sb.intro = true; hideTip();
+    if (sb.intro) return; sb.intro = true; hideTip(); renderCard(); // the card's step now matches the intro's three tiles
     try {
       await runIntro({ app, G, T: { ...G.S.intro, goals: G.S.introGoals },
         selectTool: (cat, tool) => { sb.cat = cat; sb.tool = tool; sb.folded = false; showAllowed(tool); renderBar(); },
         townTiles: () => sim().townTiles,
         videoCard: G.videos?.has('timber') ? (id) => videoCard(ITEMS[id].label, id, null) : null,
         highlight: (sel, on) => document.querySelector(sel)?.classList.toggle('pulse', on) });
-    } finally { sb.intro = false; G.introDone = true; save(); sb.adv.last = performance.now(); }
+    } finally { sb.intro = false; renderCard(); G.introDone = true; save(); sb.adv.last = performance.now(); }
   }
   G.replayIntro = () => { if (!G.busy && sb.running) intro(); };
   // the ☰ menu: the town report and a whole day, only while building (not in a mission or the intro)

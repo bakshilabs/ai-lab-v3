@@ -50,6 +50,10 @@ const out = await p.evaluate(async () => {
     for (const v of Object.values(S.nextIdea || {})) add(band, v, 'helper');
     for (const v of Object.values(S.goalMet || {})) add(band, v, 'narrator');
     if (S.introGoals) add(band, S.introGoals, 'helper');
+    // town events and the mission hint (Nov 2026, scored review)
+    if (S.events) { const E = S.events; for (const k of ['stormTip', 'darkTip']) add(band, E[k], 'helper'); for (const k of ['stormGood', 'darkBad', 'darkGood']) add(band, E[k], 'narrator'); for (let n = 1; n <= 12; n++) add(band, E.stormBad(n), 'narrator'); }
+    for (const w of Object.values(C.checkWhat || {})) add(band, `${j ? 'Hint: try the check that looks at' : 'Hint: test'} ${w}.`, 'narrator');
+    if (S.planDidntFit) add(band, S.planDidntFit, 'narrator');
     // the AI Lab classroom: hello, Florence's answers (topics, and every build as "Label: what it does")
     if (S.classHello) add(band, S.classHello, 'helper');
     // Florence's suggestions in the town, and what she says when you judge them

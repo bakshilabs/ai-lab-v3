@@ -880,9 +880,9 @@
   "key": "81214ed1"
  },
  {
-  "s": "Town complete!",
+  "s": "School planned!",
   "voice": "narrator",
-  "key": "de0b6612"
+  "key": "2747182d"
  },
  {
   "s": "The new school is built, step by step.",
@@ -1365,6 +1365,156 @@
   "key": "a5ef9fa2"
  },
  {
+  "s": "The storm flooded homes on the meadow.",
+  "voice": "helper",
+  "key": "c98461a1"
+ },
+ {
+  "s": "Build homes up on dry land, or add rain gardens and reed beds.",
+  "voice": "helper",
+  "key": "da3845e4"
+ },
+ {
+  "s": "The lights went out on a still winter night.",
+  "voice": "helper",
+  "key": "2fc23fd6"
+ },
+ {
+  "s": "Wind turbines and battery stores keep them on.",
+  "voice": "helper",
+  "key": "6c00e357"
+ },
+ {
+  "s": "Winter storm last night, and every home stayed dry!",
+  "voice": "narrator",
+  "key": "b0d4d577"
+ },
+ {
+  "s": "A still, dark winter night: no wind, no sun, and the lights went out!",
+  "voice": "narrator",
+  "key": "415b2f06"
+ },
+ {
+  "s": "A still, dark winter night, and the lights stayed on!",
+  "voice": "narrator",
+  "key": "dab5c0a1"
+ },
+ {
+  "s": "Winter storm!",
+  "voice": "narrator",
+  "key": "84e8089b"
+ },
+ {
+  "s": "The river rose in the night and 1 home flooded.",
+  "voice": "narrator",
+  "key": "02eaaaf8"
+ },
+ {
+  "s": "The river rose in the night and 2 homes flooded.",
+  "voice": "narrator",
+  "key": "3ed48fae"
+ },
+ {
+  "s": "The river rose in the night and 3 homes flooded.",
+  "voice": "narrator",
+  "key": "c4704eab"
+ },
+ {
+  "s": "The river rose in the night and 4 homes flooded.",
+  "voice": "narrator",
+  "key": "2151a860"
+ },
+ {
+  "s": "The river rose in the night and 5 homes flooded.",
+  "voice": "narrator",
+  "key": "c83dec15"
+ },
+ {
+  "s": "The river rose in the night and 6 homes flooded.",
+  "voice": "narrator",
+  "key": "69c9ddd2"
+ },
+ {
+  "s": "The river rose in the night and 7 homes flooded.",
+  "voice": "narrator",
+  "key": "d928213f"
+ },
+ {
+  "s": "The river rose in the night and 8 homes flooded.",
+  "voice": "narrator",
+  "key": "f52ce6d4"
+ },
+ {
+  "s": "The river rose in the night and 9 homes flooded.",
+  "voice": "narrator",
+  "key": "d7abf8d9"
+ },
+ {
+  "s": "The river rose in the night and 10 homes flooded.",
+  "voice": "narrator",
+  "key": "36b0dfc9"
+ },
+ {
+  "s": "The river rose in the night and 11 homes flooded.",
+  "voice": "narrator",
+  "key": "b4d9c084"
+ },
+ {
+  "s": "The river rose in the night and 12 homes flooded.",
+  "voice": "narrator",
+  "key": "3533c6c3"
+ },
+ {
+  "s": "Hint: try the check that looks at which land floods in winter.",
+  "voice": "narrator",
+  "key": "ae7ad550"
+ },
+ {
+  "s": "Hint: try the check that looks at where animals and bees live.",
+  "voice": "narrator",
+  "key": "9ba8261b"
+ },
+ {
+  "s": "Hint: try the check that looks at what the street is like at the busiest time.",
+  "voice": "narrator",
+  "key": "c20b2f16"
+ },
+ {
+  "s": "Hint: try the check that looks at how much carbon the buildings make.",
+  "voice": "narrator",
+  "key": "bd1ab79f"
+ },
+ {
+  "s": "Hint: try the check that looks at how warm the homes are inside.",
+  "voice": "narrator",
+  "key": "0687c683"
+ },
+ {
+  "s": "Hint: try the check that looks at power on a still, dark winter night.",
+  "voice": "narrator",
+  "key": "4521938b"
+ },
+ {
+  "s": "Hint: try the check that looks at how long the walk to school is.",
+  "voice": "narrator",
+  "key": "bac4789c"
+ },
+ {
+  "s": "Hint: try the check that looks at if a wheelchair, a buggy or a slow walker can get to school and the ferry.",
+  "voice": "narrator",
+  "key": "7a6a2770"
+ },
+ {
+  "s": "Your town has no empty tiles for Florence’s plan yet.",
+  "voice": "narrator",
+  "key": "e09a54ce"
+ },
+ {
+  "s": "Mark more town land, then her ideas can fit!",
+  "voice": "narrator",
+  "key": "7ebac91d"
+ },
+ {
   "s": "Welcome to my classroom!",
   "voice": "helper",
   "key": "c57666da"
@@ -1685,6 +1835,26 @@
   "key": "a10895af"
  },
  {
+  "s": "Ooh, fun question!",
+  "voice": "helper",
+  "key": "a9c0134b"
+ },
+ {
+  "s": "My favourite colour is leaf green, like a healthy hedge, and my favourite sound is bees buzzing.",
+  "voice": "helper",
+  "key": "7b7de870"
+ },
+ {
+  "s": "I’m a robot, so I never get tired!",
+  "voice": "helper",
+  "key": "392a53df"
+ },
+ {
+  "s": "Now ask me about your town: floods, bees, or any build.",
+  "voice": "helper",
+  "key": "6853b4ab"
+ },
+ {
   "s": "Hmm, I don’t know that one yet!",
   "voice": "helper",
   "key": "564a0279"
@@ -1938,11 +2108,6 @@
   "s": "Well done!",
   "voice": "narrator",
   "key": "2b09777f"
- },
- {
-  "s": "Florence’s plan didn’t fit your town, so nothing changed.",
-  "voice": "narrator",
-  "key": "723ab5ba"
  },
  {
   "s": "“Best” = the flattest land, easiest to build on, next to water.",
@@ -2330,6 +2495,16 @@
   "key": "82255e6e"
  },
  {
+  "s": "You didn’t say where, so I guessed: the middle of the island.",
+  "voice": "helper",
+  "key": "462ace22"
+ },
+ {
+  "s": "Nobody told Florence what mattered (a short walk from every home), so she guessed the middle of the island.",
+  "voice": "helper",
+  "key": "4d6bd03b"
+ },
+ {
   "s": "3 tiles of your town land flood in winter.",
   "voice": "helper",
   "key": "ca6fed46"
@@ -2458,6 +2633,16 @@
   "s": "Pegging out the town",
   "voice": "narrator",
   "key": "fbf99388"
+ },
+ {
+  "s": "Town complete!",
+  "voice": "narrator",
+  "key": "de0b6612"
+ },
+ {
+  "s": "Florence’s plan didn’t fit your town, so nothing changed.",
+  "voice": "narrator",
+  "key": "723ab5ba"
  },
  {
   "s": "Food: unlocked!",
