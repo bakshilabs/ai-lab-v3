@@ -908,3 +908,18 @@ canvas.portrait.live { display: block; aspect-ratio: 2 / 3; height: auto; filter
   #florence:not(.mini) .fwrap canvas.portrait { width: 52px; }
   #florence:not(.mini) .fbody { font-size: 14px; } #florence:not(.mini) .fbody p { margin: 0; }
 }
+/* readable on the cream speaker card (contrast at least 4.5:1) */
+#dock .speaker .sure, .speaker .sure { color: #3d2a18; }
+#dock .speaker .why, .speaker .why { color: #4a3826; font-size: .82em; } #dock .speaker .why b, .speaker .why b { color: #2a1a0e; }
+#florence .fbody .sure { margin: 2px 0 0; font-weight: 800; color: #6b3e22; font-size: .9em; }
+/* intro: the progress bar text is readable */
+#florence .bar span { color: #2a1a0e; }
+/* the AI Lab board: the mission your town needs now */
+.labrow .need { display: inline-block; margin-left: 8px; background: #d9533d; color: #fff; border-radius: 5px; padding: 1px 7px; font: 800 .72em/1.5 'Inter'; font-style: normal; vertical-align: middle; }
+.labrow.needed { box-shadow: var(--slot-bevel), 0 0 0 3px #d9533d; }
+/* phones: skip button under the card, camera button under the strip, category labels that fit */
+@media (max-width: 760px) {
+  .introskip { top: auto; bottom: calc(100% - 100vh + 8px); left: 8px; transform: none; top: 76px; }
+  #camctl { top: 128px; bottom: auto; right: 8px; }
+  #build .cat span { font-size: 9.5px; white-space: normal; line-height: 1; text-align: center; }
+}

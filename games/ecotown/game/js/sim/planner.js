@@ -41,8 +41,10 @@ const PLANNERS = {
   // ---------- Level 1: where should the town grow?
   land(slots, ctx) {
     const reading = [], assumptions = [];
-    const generic = slots.has('best') || slots.size === 0;
-    if (generic) { reading.push('“Best” = the flattest land, easiest to build on, next to water.'); assumptions.push('Flat land is the best land.'); }
+    const guessed = slots.size === 0; // no words she recognised: she guesses (and says so), she doesn't pretend you said "best"
+    const generic = slots.has('best') || guessed;
+    if (guessed) { reading.push('I didn’t understand those words, so I guessed: the flattest land, next to water.'); assumptions.push('Flat land is the best land.'); }
+    else if (generic) { reading.push('“Best” = the flattest land, easiest to build on, next to water.'); assumptions.push('Flat land is the best land.'); }
     // which habit a flawed reading shows (graded against what Florence actually assumed, not a fixed answer)
     let habit = null, habitWhy = ''; // set below from what the plan really does
     if (slots.has('flat')) reading.push('Flat land.');
@@ -79,7 +81,8 @@ const PLANNERS = {
     // which habit does this plan show? (only when it really floods or clears the wood)
     const flooded = [...region].filter((k) => ['meadow', 'wetland'].includes(ctx.terrain.tiles.get(k).zone)).length, wooded = [...region].filter((k) => ctx.terrain.tiles.get(k).zone === 'wood').length;
     if (flooded >= 2 || wooded >= 2) {
-      if (generic) { habit = 'one_word'; habitWhy = 'Florence turned “best” into “flattest” and forgot about floods and wildlife.'; }
+      if (guessed) { habit = 'missing'; habitWhy = 'Florence didn’t understand the instruction, so she guessed, and nobody told her the flat land floods.'; }
+      else if (generic) { habit = 'one_word'; habitWhy = 'Florence turned “best” into “flattest” and forgot about floods and wildlife.'; }
       else if (flooded >= 2) { habit = 'missing'; habitWhy = 'Florence didn’t know that the flat land by the river floods every winter.'; }
       else { habit = 'missing'; habitWhy = 'Florence didn’t know the old wood is home to deer and birds.'; }
     }

@@ -43,7 +43,7 @@ export async function runIntro(api) {
     api.selectTool('land', 'town'); api.highlight('#build', true);
     // three suggested dry tiles glow gold; the progress bar sits in Florence's card
     const suggest = tiles.filter((t) => ['slope', 'field'].includes(t.zone) && !t.fixed).sort((a, b) => top(a.k).distanceTo(dP) - top(b.k).distanceTo(dP)).slice(0, 3);
-    const glow = () => { const spec = new Map(); for (const t of suggest) spec.set(t.k, { color: '#18d8f0', ring: true, notch: true }); world.setOverlay(spec); };
+    let pulse = 0; const glow = () => { const spec = new Map(); pulse++; for (const t of suggest) spec.set(t.k, { color: pulse % 2 ? '#ff9f1a' : '#ffd23f', ring: true, notch: true }); world.setOverlay(spec); }; // a pulsing orange target, unlike any other tile
     glow();
     const start = api.townTiles();
     const el = ui.florence({ tag: T.yourTurnTag, html: `<p>${esc(T.yourTurn)}</p><div class="bar" data-introbar><i style="width:0%"></i><span>${T.tiles}: 0 / 3</span></div>`, say: T.yourTurn });
@@ -51,6 +51,7 @@ export async function runIntro(api) {
     while (api.townTiles() < start + 3) {
       await step(sleep(250));
       const n = api.townTiles();
+      if (!app.reduce && Math.floor(performance.now() / 500) % 2 !== pulse % 2) glow();
       if (n !== shown) { shown = n; if (n > start) bot.nod(); const k = Math.max(0, Math.min(3, n - start)); const bar = el.querySelector('[data-introbar]'); if (bar) { bar.querySelector('i').style.width = `${(100 * k) / 3}%`; bar.querySelector('span').textContent = `${T.tiles}: ${k} / 3`; } glow(); }
     }
     world.setOverlay(null);
