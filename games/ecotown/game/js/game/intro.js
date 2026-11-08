@@ -1,4 +1,4 @@
-// Florence's guided first build (about 90 s, skippable at any moment). She walks off the sky-ferry dock,
+// Florence's guided first build (about 45 s, five short beats, skippable at any moment). She walks off the sky-ferry dock,
 // shows the floodplain and the dry land, waits while the player taps three tiles of town land, shows how
 // a build goes up (a build video), points out the build panel and the AI Lab, then hands over.
 // The game runs it on top of free building; tips are held back until it ends. Text: INTRO in content.js.
@@ -56,23 +56,19 @@ export async function runIntro(api) {
     }
     world.setOverlay(null);
     api.highlight('#build', false);
-    bot.cheer(); await step(say(T.wellDone));
-    // 4. how a build goes up: a build video (from above, then at eye level)
-    if (api.videoCard) { await step(say(T.video)); await step(api.videoCard('timber')); }
-    else await step(say(T.videoLater));
-    // 5. the build panel: more unlocks as the town grows
-    api.highlight('#build .cats', true); bot.wave(); await step(say(T.unlocks)); api.highlight('#build .cats', false);
-    // 5b. what to do next and the town's goals: the next-step line, the 🌼 goals and the build info
-    if (T.goals) { for (const s2 of ['#card .goal', '#card [data-flower]', '#build [data-info]']) api.highlight(s2, true); await step(say(T.goals)); for (const s2 of ['#card .goal', '#card [data-flower]', '#build [data-info]']) api.highlight(s2, false); }
-    // 6. the AI Lab: test her plans
+    // (shorter since the scored review: the build video is no longer forced here; ▶ on any build shows it, and the
+    // video tip says so. Well done + what's next + goals are one beat; the AI Lab + over to you is the last.)
+    bot.cheer();
+    // 4. what to do next and the town's goals: the next-step line, the 🌼 goals and the build info
+    const marks = ['#card .goal', '#card [data-flower]', '#build .cats'];
+    for (const s2 of marks) api.highlight(s2, true); await step(say(`${T.wellDone} ${T.goals || T.unlocks}`)); for (const s2 of marks) api.highlight(s2, false);
+    // 5. the AI Lab: test her plans. Then over to you.
     go(labP, 100); await step(bot.walkTo(labP.clone().add(new THREE.Vector3(0, 0, 6)), { maxDur: 3.5 }));
     bot.point(labP.clone().add(new THREE.Vector3(0, 3, 0)), 2.6); api.highlight('#strip [data-lab]', true);
-    await step(say(T.lab)); api.highlight('#strip [data-lab]', false);
-    // 7. over to you
-    bot.cheer(); await step(say(T.overToYou, { tag: T.tag }));
+    await step(say(`${T.lab} ${T.overToYou}`)); api.highlight('#strip [data-lab]', false); bot.cheer();
   } catch (e) { if (e.message !== 'skip') throw e; }
   finally {
-    skipBtn.remove(); for (const s of ['#build', '#build .cats', '#strip [data-lab]', '#card .goal', '#card [data-flower]', '#build [data-info]']) api.highlight(s, false);
+    skipBtn.remove(); for (const s of ['#build', '#build .cats', '#strip [data-lab]', '#card .goal', '#card [data-flower]']) api.highlight(s, false);
     world.setFlood(0); ui.florence(null); await rig.overview(app.reduce ? 0.01 : 1.1);
   }
   return !skipped;

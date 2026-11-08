@@ -196,6 +196,9 @@ const PLANNERS = {
     const land = tilesOf(ctx).filter((t) => ['field', 'meadow', 'slope'].includes(t.zone) && free(ctx, t, 'mixed'))
       .filter((t) => !(slots.has('wildlife') && t.zone === 'meadow'))
       .sort((a, b) => distTo(a, c) - distTo(b, c));
+    // nobody mentioned the hedges: Florence takes the hedged fields first (they're the flat, ready ones), so a lazy
+    // "enough food" instruction really costs wildlife and the nature lens shows it (a vague prompt used to pass clean)
+    if (habit === 'missing') land.sort((a, b) => (b.hedge ? 1 : 0) - (a.hedge ? 1 : 0));
     const placements = []; let food = sim0.food;
     const put = (t, id) => { placements.push({ k: t.k, item: id }); food += ITEMS[id].food || 0; };
     const used = new Set();
@@ -204,7 +207,7 @@ const PLANNERS = {
     if (slots.has('orchard') || slots.has('bees') || slots.has('wildlife')) { const ts = land.filter((t) => !used.has(t.k)).slice(0, 2); for (const t of ts) { put(t, 'orchard'); used.add(t.k); } }
     for (const t of land) {
       if (used.has(t.k)) continue;
-      if (!maxMode && food >= need) break;
+      if (!maxMode && food >= need && (habit !== 'missing' || placements.length >= 3)) break; // she makes "enough" safe with a spare field or two
       const id = slots.has('keep_hedges') && t.hedge ? 'mixed' : maxMode || !slots.has('keep_hedges') ? 'bigfield' : 'mixed';
       put(t, id); used.add(t.k);
     }

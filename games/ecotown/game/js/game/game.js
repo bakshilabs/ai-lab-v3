@@ -164,6 +164,8 @@ export function createGame(app) {
     }
     const opts = shuffle(checksFor(id, G.j, reveal)); const tried = []; let tries = 0;
     const label = (c) => G.C.checks[c].label;
+    // after two checks that found nothing, a hint about what to look at (not which button)
+    const hint = () => { const w = Object.keys(reveal)[0]; return tried.length >= 2 && w && !tried.includes(w) ? `<p class="checknote hint">💡 ${esc(G.j ? 'Hint: try the check that looks at' : 'Hint: test')} ${esc(G.C.checkWhat[w])}.</p>` : ''; };
     const accept = async () => {
       ui.show('tray', false);
       if (!flawed) { // the plan really is fine
@@ -185,7 +187,7 @@ export function createGame(app) {
       return { flawed: false, missed, tried };
     };
     for (;;) {
-      const choice = await new Promise((resolve) => ui.tray(`<h3>${esc(tried.length ? G.C.ui.checkHelp : G.C.ui.how)}</h3><div class="row">${opts.map((c) => `<button class="choice ${tried.includes(c) ? 'tried' : ''}" data-c="${c}"><span class="ic">${G.C.checks[c].icon}</span>${esc(label(c))}${tried.includes(c) ? ' ✓' : ''}</button>`).join('')}</div>${tried.length ? `<div class="row" style="justify-content:flex-end;margin-top:6px"><button class="btn go" data-accept>✓ ${esc(G.C.ui.accept)}</button></div>` : ''}`,
+      const choice = await new Promise((resolve) => ui.tray(`<h3>${esc(tried.length ? G.C.ui.checkHelp : G.C.ui.how)}</h3>${hint()}<div class="row">${opts.map((c) => `<button class="choice ${tried.includes(c) ? 'tried' : ''}" data-c="${c}"><span class="ic">${G.C.checks[c].icon}</span>${esc(label(c))}${tried.includes(c) ? ' ✓' : ''}</button>`).join('')}</div>${tried.length ? `<div class="row" style="justify-content:flex-end;margin-top:6px"><button class="btn go" data-accept>✓ ${esc(G.C.ui.accept)}</button></div>` : ''}`,
         (tr) => { tr.querySelectorAll('[data-c]').forEach((b) => (b.onclick = () => resolve(b.dataset.c))); tr.querySelector('[data-accept]')?.addEventListener('click', () => resolve(null)); }));
       if (!choice) return accept();
       ui.show('tray', false); showGuessMini(); ui.legend(null); tries++;
@@ -666,7 +668,21 @@ export function createGame(app) {
     const line = diaryLines('heart', s, G.j)[G.day % 3]; if (s.homes.length && !G.diary.includes(line)) G.diary = [...G.diary, line].slice(-8);
     if (G.credits !== Infinity) { const pay = Math.round(s.familiesSafe * 1.5 + s.community); G.credits += pay; ui.caption(`${G.S.day} ${G.day}: ${G.S.earnedToday(pay)}`, 3500); }
     else ui.caption(`${G.S.newDay} ${G.day}${s.familiesSafe ? ` · 👪 ${s.familiesSafe} ${G.S.families}` : ''}`, 2600);
+    townEvent(s);
     renderBar(); save();
+  }
+  // every third day the weather tests the town: a winter storm (homes on flood land) or a still, dark night (winter
+  // power). Something to plan for in free building, not only in the AI Lab copy of the island.
+  function townEvent(s) {
+    if (G.day < 3 || G.day % 3 !== 0 || !s.homes.length || !sb.running) return;
+    const E = G.S.events; const storm = (G.day / 3) % 2 === 1;
+    if (storm) {
+      if (s.flooded > 0) { audio.bad?.(); ui.alert(E.stormBad(s.flooded), false, 4200); app.bot?.oops(); showTip({ id: 'ev-storm-' + G.day, text: E.stormTip, lab: !G.labs.land && labReady('land', G.ever, G.labs, G.classMode) ? 'land' : null, lens: G.labs.land ? 'flood' : null }); }
+      else { ui.alert(E.stormGood, true, 3200); app.bot?.cheer(); }
+    } else if (isOpen('power')) {
+      if (!s.power.winterOK) { audio.bad?.(); ui.alert(E.darkBad, false, 4200); app.bot?.oops(); showTip({ id: 'ev-dark-' + G.day, text: E.darkTip, lab: !G.labs.power && labReady('power', G.ever, G.labs, G.classMode) ? 'power' : null, lens: G.labs.power ? 'winter' : null }); }
+      else { ui.alert(E.darkGood, true, 3200); app.bot?.cheer(); }
+    }
   }
   // one build (or removal) on tile k, with what it changed floating up from the tile and the petals it helped lit
   function act(k, tool) {
@@ -687,8 +703,8 @@ export function createGame(app) {
     rig.onTap = (ndc) => {
       if (!sb.running || G.busy || sb.lens) return;
       const k = world.pick(ndc, stage.camera); if (!k) { if (sb.tool) ui.caption(G.S.tapTile, 1800); return; }
-      // touch screens: the first tap shows what would happen (preview), a second tap on the same tile builds it
-      if (TOUCH && k !== terrain.lab && sb.tool && k !== sb.armed) { sb.armed = k; app._hk = null; rig.onHover(ndc); return; }
+      // (touch used to need a second tap to build; a reviewer found single taps "did nothing", so one tap builds, like a click.
+      // Only a tap that would knock down a home asks for a second tap, below.)
       sb.armed = null;
       if (k === terrain.lab) { audio.tap(); return enterClassroom(); } // the AI Lab building: step into Florence's classroom
       if (!sb.tool || (!isOpen(sb.cat) && sb.tool !== 'erase')) return;
@@ -719,6 +735,15 @@ export function createGame(app) {
     };
     canvas.addEventListener('pointerleave', () => { world.clearGhost(); app._hk = null; ui.labels.clear('lbl'); });
   }
+  // Escape anywhere: close the open card if it has a close or "not now" button, else the pop-overs, else the lens
+  addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    const a = document.activeElement; if (a && a.tagName === 'INPUT' && a.value) return; // Esc in a text box clears nothing important
+    if (!ui.P.modal.classList.contains('hide')) { ui.P.modal.querySelector('[data-act="close"], [data-act="later"], [data-act="keep"], [data-close]')?.click(); return; }
+    if (!ui.P.settings.classList.contains('hide')) { ui.P.settings.querySelector('[data-close], [data-act="close"]')?.click(); return; }
+    ui.closePops();
+    if (sb.running && sb.lens) toggleLens(sb.lens);
+  });
   // keys while building: 1–6 pick a category, X picks Remove, Esc closes the pop-overs
   addEventListener('keydown', (e) => {
     if (!sb.running || G.busy || sb.intro || e.ctrlKey || e.metaKey || e.altKey) return;
@@ -888,6 +913,7 @@ export function createGame(app) {
     if (!G.j && DILEMMAS[id]) {
       const d = DILEMMAS[id]; const a = await ui.modal(`<div class="ribbon">Town meeting</div><h2>${esc(d.text)}</h2><div class="row" style="justify-content:center">${d.options.map((o, i) => `<button class="btn ${i ? 'alt' : 'go'}" data-act="${i}">${esc(o.label)}</button>`).join('')}</div>`);
       const e = d.options[+a].effect; G.extra.families += e.families || 0; G.extra.carbon += e.carbon || 0; G.diary.push(`Town meeting: ${d.options[+a].label}.`);
+      run.meeting = `${d.options[+a].label}: ${[e.families ? `${e.families > 0 ? '+' : ''}${e.families} households` : '', e.carbon ? `${e.carbon > 0 ? '+' : ''}${e.carbon} t carbon` : ''].filter(Boolean).join(', ') || 'no change to the numbers'}`;
     }
     // the reward card, then: use Florence's plan in your town, or keep your town as it is
     const s2 = sim(); audio.fanfare(); setMusic('celebrate'); world.confetti(new THREE.Vector3(10, 20, 8), 200); rig.startTurntable(app.reduce ? 0 : 0.1);
@@ -897,7 +923,7 @@ export function createGame(app) {
     const choice = await ui.modal(`<div class="ribbon green">🧪 ${esc(G.S.missionDone)} · ${esc(L.title)}</div><div class="stars3">${[0, 1, 2].map((i) => `<span class="${i < stars ? 'on' : ''}">★</span>`).join('')}</div><h2>${esc(heading)}</h2>
       <ul class="starlist">${rules.map((r, i) => `<li class="${run.marks[i] ? 'got' : ''}">${run.marks[i] ? '★' : '☆'} ${esc(r)}</li>`).join('')}${run.bonus ? `<li class="got">★ Bonus: found Florence’s biased survey</li>` : ''}</ul>
       <div class="outcome ${oc.kind}"><small>${esc(G.C.ui.outcomeHead)}</small><b>${esc(G.C.ui.outcome[oc.kind])}</b><p>${esc(oc.detail)}</p></div>
-      <div class="stats"><div><small>${esc(statLabel)}</small>${esc(statVal)}</div><div><small>${esc(G.S.newTool)}</small>${newLens.icon} ${esc(newLens.label)}</div><div><small>${G.j ? 'Fact' : 'Evidence'}</small>${esc(pick(L.fact))}</div></div>
+      <div class="stats"><div><small>${esc(statLabel)}</small>${esc(statVal)}</div><div><small>${esc(G.S.newTool)}</small>${newLens.icon} ${esc(newLens.label)}</div><div><small>${G.j ? 'Fact' : 'Evidence'}</small>${esc(pick(L.fact))}</div>${run.meeting ? `<div><small>Town meeting</small>${esc(run.meeting)}</div>` : ''}</div>
       <p class="usenote">${esc(pick(G.S.useQuestion))}</p>
       <div class="row" style="justify-content:center"><button class="btn alt" data-act="keep">${esc(G.S.keepMine)}</button><button class="btn go" data-act="use">✓ ${esc(G.S.usePlan)}</button></div>`, { say: `${heading} ${stars} stars.` });
     rig.startTurntable(0);
@@ -931,6 +957,7 @@ export function createGame(app) {
   // back to the player's own town. Using the plan adds what fits (never over what the player built).
   async function leaveLab(real, placements = null) {
     world.clearGhost(); ui.legend(null); ui.helper(null); ui.tray(''); ui.facil(null); await checks.leave();
+    sb.lastSuggest = performance.now(); // her next idea for the town waits a while after a lesson
     G.cells = real; app.inLab = false; app.levelId = null; app.briefMinutes = null; delete document.documentElement.dataset.lab; run = null;
     stage.setTime(app.hour = 12.5, 0);
     if (placements) {
@@ -938,9 +965,17 @@ export function createGame(app) {
       for (const p of placements) {
         const tool = p.item || p.mod || p.mark; if (!tool || !ITEMS[tool]) continue;
         const t = terrain.tiles.get(p.k); const c = cellOf(G.cells, p.k);
-        if (ITEMS[tool].kind === 'build' && c.item) { skipped++; continue; }
-        if (sandboxReason(tool, t, c, { free: true })) { skipped++; continue; }
-        if (placeAt(p.k, tool, { free: true })) keys.add(p.k); else skipped++;
+        let k = p.k;
+        // the tile is taken (or not allowed in this town): the nearest free tile where it can go, so adopting a plan
+        // after a win really adds something (a reviewer saw "1 placement applied, 1 skipped")
+        if ((ITEMS[tool].kind === 'build' && c.item) || sandboxReason(tool, t, c, { free: true })) {
+          const from = world.tileTop(p.k);
+          k = [...terrain.tiles.values()].filter((u) => !u.fixed && !keys.has(u.k)).map((u) => ({ u, c: cellOf(G.cells, u.k) }))
+            .filter(({ u, c: cc }) => !(ITEMS[tool].kind === 'build' && cc.item) && !sandboxReason(tool, u, cc, { free: true }))
+            .sort((a2, b2) => world.tileTop(a2.u.k).distanceTo(from) - world.tileTop(b2.u.k).distanceTo(from))[0]?.u.k;
+          if (!k) { skipped++; continue; }
+        }
+        if (placeAt(k, tool, { free: true })) keys.add(k); else skipped++;
       }
       showCells(G.cells, keys);
       sb.afterLab = keys.size ? G.S.planUsed(keys.size, skipped) : G.S.planDidntFit;
@@ -981,9 +1016,11 @@ export function createGame(app) {
       // 8–12 (or no model): Florence says who she asked; the children ask the people at the school gate themselves
       help({ tag: 'SUMMARY', html: `<p>“Residents want more car parks.”</p><p>I asked <b>10 people at the car park</b>. 9 of them drive, so I’m very sure!</p>`, sure: 90, sureLabel: G.C.ui.sure, say: 'Residents want more car parks. I asked 10 people at the car park. 9 of them drive, so I’m very sure!', voice: 'helper' });
       const modes = shuffle([...Array(gate.walkers).fill('walk'), ...Array(gate.drivers).fill('drive')]);
-      await new Promise((resolve) => ui.tray(`<h3>Florence only asked people at the car park. Ask people at the school gate how they travel!</h3><div class="row askrow">${modes.map((_, i) => `<button class="tile ask" data-r="${i}" aria-label="Ask person ${i + 1}">🧍<small>Ask</small></button>`).join('')}</div><div class="row"><span class="askcount" data-n>0 of 10 asked</span><button class="btn go" data-act="all" disabled>Tell Florence to count everyone</button></div>`, (tr) => {
+      await new Promise((resolve) => ui.tray(`<h3>Florence only asked people at the car park. Ask people at the school gate how they travel!</h3><div class="row askrow">${modes.map((_, i) => `<button class="tile ask" data-r="${i}" aria-label="Ask person ${i + 1}">🧍<small>Ask</small></button>`).join('')}</div><div class="row"><span class="askcount" data-n>0 of 10 asked</span><button class="btn alt" data-allask disabled>Ask everyone else</button><button class="btn go" data-act="all" disabled>Tell Florence to count everyone</button></div>`, (tr) => {
         let n = 0;
-        tr.querySelectorAll('[data-r]').forEach((b) => (b.onclick = () => { const md = modes[+b.dataset.r]; b.innerHTML = md === 'walk' ? '🚶<small>walks</small>' : '🚗<small>drives</small>'; b.classList.add(md); b.disabled = true; audio.tap(); n++; tr.querySelector('[data-n]').textContent = `${n} of 10 asked`; if (n >= 6) tr.querySelector('[data-act]').disabled = false; }));
+        tr.querySelectorAll('[data-r]').forEach((b) => (b.onclick = () => { if (b.disabled) return; const md = modes[+b.dataset.r]; b.innerHTML = md === 'walk' ? '🚶<small>walks</small>' : '🚗<small>drives</small>'; b.classList.add(md); b.disabled = true; audio.tap(); n++; tr.querySelector('[data-n]').textContent = `${n} of 10 asked`; if (n >= 3) tr.querySelector('[data-allask]').disabled = n >= 10; if (n >= 6) tr.querySelector('[data-act]').disabled = false; }));
+        // after three asked by hand, the rest in one go (ten separate asks was slow)
+        tr.querySelector('[data-allask]').onclick = () => tr.querySelectorAll('[data-r]:not(:disabled)').forEach((b) => b.onclick());
         tr.querySelector('[data-act]').onclick = resolve;
       }));
       audio.good();

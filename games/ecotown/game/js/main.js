@@ -147,12 +147,13 @@ async function start() {
     <div class="names">${NAME_IDEAS.map((n) => `<button class="tile" data-n="${n}">${n}</button>`).join('')}</div>
     <div class="textin" style="margin-top:12px"><div class="field"><input data-name maxlength="24" placeholder="Your town’s name" aria-label="Town name" autocomplete="off"></div></div><p class="nameerr" data-err></p>
     <h3 class="setuphead">Session setup</h3>
-    <div class="opts"><label>AI Lab missions <select data-order><option value="free" ${app.classMode ? '' : 'selected'}>Any order</option><option value="class" ${app.classMode ? 'selected' : ''}>In order (class)</option></select></label>
+    <div class="opts"><span class="seglab">AI Lab missions</span><span class="seg" role="radiogroup" aria-label="AI Lab missions"><button type="button" role="radio" data-order="free" aria-checked="${!app.classMode}">Any order</button><button type="button" role="radio" data-order="class" aria-checked="${!!app.classMode}">In order (class)</button></span>
     <label><input type="checkbox" data-facil ${app.settings.facilitator ? 'checked' : ''}> Facilitator notes</label></div>
     <p class="sessnote" data-sessnote></p>
     <div class="row" style="justify-content:center;margin-top:10px"><button class="btn go" data-go>Start ➜</button></div>`;
   const sn = card.querySelector('[data-sessnote]'); sn.textContent = ORDER[app.classMode ? 'class' : 'free'];
-  card.querySelector('[data-order]').onchange = (e) => { app.classMode = e.target.value === 'class'; sn.textContent = ORDER[e.target.value]; app.settings.music = !app.classMode; applySettings(); }; // music starts off in class mode (the teacher can turn it on in ☰)
+  // an in-game two-way switch (a native dropdown clashed with the style and stalled on some machines)
+  card.querySelectorAll('[data-order]').forEach((b) => (b.onclick = () => { const v = b.dataset.order; app.classMode = v === 'class'; card.querySelectorAll('[data-order]').forEach((x) => x.setAttribute('aria-checked', String(x === b))); sn.textContent = ORDER[v]; app.settings.music = !app.classMode; applySettings(); })); // music starts off in class mode (the teacher can turn it on in ☰)
   card.querySelector('[data-facil]').onchange = (e) => { app.settings.facilitator = e.target.checked; applySettings(); ui.refreshFacil(); };
   const inp = card.querySelector('[data-name]'); inp.value = NAME_IDEAS[Math.floor(Math.random() * NAME_IDEAS.length)]; setTimeout(() => inp.focus(), 50);
   card.querySelectorAll('[data-n]').forEach((b) => (b.onclick = () => { inp.value = b.dataset.n; inp.focus(); }));
@@ -173,6 +174,7 @@ window.__eco = { app, terrain, ready: () => !!app.G, modelReady, thumbExtras: ()
 // Every minute the game checks its session is still the active one for this passcode (newest login wins).
 (async function heartbeat() {
   let first = true;
+  if (/^(localhost|127\.0\.0\.1)$|github\.io$/.test(location.hostname)) return; // no passcode server on local or GitHub Pages builds (a POST there only logs an error)
   const beat = async () => {
     let r; try { r = await fetch('/api/heartbeat', { method: 'POST', credentials: 'same-origin' }); } catch { return; }   // offline: keep playing
     if (first && (r.status === 404 || r.status === 405 || r.status === 501)) return 'off';                               // no passcode server here

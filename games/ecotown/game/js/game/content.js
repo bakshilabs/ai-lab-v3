@@ -97,6 +97,8 @@ export const SANDBOX = {
     removeFirst: 'Remove what’s built here first', already: 'Already here', townFull: (n) => `Town land is full (${n} tiles). Remove a tile first.`, noCredits: 'Not enough credits yet',
     sameHere: (a) => `That’s already ${a}`, replaced: (a, b) => `${a} swapped for ${b}`, replaces: (a) => `Swaps out: ${a}`,
     keyFree: 'You can build here', keySwap: 'Swaps out what’s there', keyNo: 'Can’t build here', keyErase: 'You can remove this',
+    events: { stormBad: (n) => `Winter storm! The river rose in the night and ${n} home${n === 1 ? '' : 's'} flooded.`, stormTip: 'The storm flooded homes on the meadow. Build homes up on dry land, or add rain gardens and reed beds.', stormGood: 'Winter storm last night, and every home stayed dry!',
+      darkBad: 'A still, dark winter night: no wind, no sun, and the lights went out!', darkTip: 'The lights went out on a still winter night. Wind turbines and battery stores keep them on.', darkGood: 'A still, dark winter night, and the lights stayed on!' },
     keyHave: 'Already your town land', missionsDone: (n) => `${n} OF 6 MISSIONS DONE`, readyN: (n) => `${n} ready`, tapAgain: (name) => `Tap again to knock down the ${name} and build here`, tapTile: 'Tap a tile on the island to build there',
     nextGoal: 'Next goal',
     suggest: {
@@ -142,9 +144,9 @@ export const SANDBOX = {
     watchDay: 'Watch a whole day', backToBuilding: 'Back to building', mission: 'MISSION',
     practice: 'Florence practises on a copy of the island. Your town is safe until you choose to use her plan.',
     notNow: 'Not now', tellMissing: 'Tell Florence what her plan left out', missionDone: 'Mission complete', newTool: 'New lens to use',
-    useQuestion: 'Do you want Florence’s fixed plan in your own town? Only what fits is added. Nothing you built is removed.',
+    useQuestion: 'Want Florence’s fixed plan in your town? It goes on empty tiles. Your builds stay.',
     keepMine: 'Keep my town as it is', usePlan: 'Use Florence’s plan',
-    planUsed: (n, skip) => `Added ${n} part${n === 1 ? '' : 's'} of Florence’s plan to your town.${skip ? ` ${skip} didn’t fit, so they were left out.` : ''}`, planDidntFit: 'Florence’s plan didn’t fit your town, so nothing changed.',
+    planUsed: (n, skip) => `Added ${n} part${n === 1 ? '' : 's'} of Florence’s plan to your town.${skip ? ` ${skip} didn’t fit, so they were left out.` : ''}`, planDidntFit: 'Your town has no empty tiles for Florence’s plan yet. Mark more town land, then her ideas can fit!',
     completeRibbon: 'Town complete!', completeText: 'Every family has a home, there’s enough food, the lights stay on in winter and every home is close to school. Well done!', keepBuilding: 'Keep building',
     classInvite: 'Ready for your first AI Lab mission? Let’s see if you can catch my mistakes!',
     intro: {
@@ -167,6 +169,8 @@ export const SANDBOX = {
     removeFirst: 'Demolish the building first', already: 'Already built', townFull: (n) => `Town land at its cap (${n} tiles).`, noCredits: 'Insufficient credits',
     sameHere: (a) => `Already: ${a}`, replaced: (a, b) => `Replaced ${a} with ${b}`, replaces: (a) => `Replaces ${a}`,
     keyFree: 'Buildable', keySwap: 'Replaces existing', keyNo: 'Not buildable', keyErase: 'Removable',
+    events: { stormBad: (n) => `Winter storm: ${n} home${n === 1 ? '' : 's'} on the floodplain flooded overnight.`, stormTip: 'Storm damage on the floodplain. Move housing to higher ground or add drainage (rain gardens, reed beds).', stormGood: 'Winter storm overnight: no homes flooded.',
+      darkBad: 'Still winter night: demand exceeded supply and the grid went dark.', darkTip: 'Blackout on a still winter night. Add wind and battery storage to cover the worst case.', darkGood: 'Still winter night: supply covered demand.' },
     keyHave: 'Already town land', missionsDone: (n) => `${n} / 6 MISSIONS COMPLETE`, readyN: (n) => `${n} ready`, tapAgain: (name) => `Click again to replace the ${name}`, tapTile: 'Click a tile on the island to build there',
     nextGoal: 'Next target',
     suggest: {
@@ -214,7 +218,7 @@ export const SANDBOX = {
     notNow: 'Not now', tellMissing: 'Specify the missing requirement', missionDone: 'Mission complete', newTool: 'New lens',
     useQuestion: 'Adopt Florence’s fixed plan in your town? The AI Lab funds it. Only placements that fit are applied; nothing you built is replaced.',
     keepMine: 'Keep my town', usePlan: 'Adopt the plan',
-    planUsed: (n, skip) => `Applied ${n} placement${n === 1 ? '' : 's'} from Florence’s plan, funded by the AI Lab (no credits spent).${skip ? ` ${skip} skipped (occupied or not allowed).` : ''}`, planDidntFit: 'No placements fitted your town; nothing changed.',
+    planUsed: (n, skip) => `Applied ${n} placement${n === 1 ? '' : 's'} from Florence’s plan, funded by the AI Lab (no credits spent).${skip ? ` ${skip} skipped (occupied or not allowed).` : ''}`, planDidntFit: 'No free tiles for the plan’s placements. Designate more town land to make room.',
     completeRibbon: 'Town complete', completeText: 'All petals at "enough", carbon under the ceiling, winter-night power secured, every home within 15 minutes of school.', keepBuilding: 'Keep building',
     classInvite: 'Class mode: your first AI Lab mission is ready. Test my plan before you trust it.',
     intro: {

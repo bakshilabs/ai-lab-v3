@@ -928,3 +928,42 @@ canvas.portrait.live { display: block; aspect-ratio: 2 / 3; height: auto; filter
 #build .hk.same { border: 4px solid #ffd23f; }
 .chip small { font-size: .78em; font-weight: 700; opacity: .85; margin-left: 1px; }
 html[data-lab=on] #florence { display: none !important; }
+
+/* ---- scored review: phone layout fixes */
+@media (max-width: 760px) {
+  /* Skip intro: a small pill under the card (it used to stretch into a full-height column over the tutorial) */
+  .introskip { top: 76px; bottom: auto; left: 50%; transform: translateX(-50%); height: 40px; padding: 0 14px; width: auto; }
+  /* the camera button sits under the town card on the left, clear of the right-hand column */
+  #camctl { top: 76px; bottom: auto; left: 8px; right: auto; }
+  #camctl.open { justify-content: flex-start; }
+  /* the next step may take two lines instead of being cut off */
+  #card .goal .gt { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.15; font-size: 12.5px; }
+  #card .goal { white-space: normal; }
+  /* missions: one column: Florence's card on top (short), then the question with full-width answers */
+  html[data-lab="on"] #dock { left: 8px; right: 8px; bottom: 8px; top: auto; width: auto; transform: none; display: flex; flex-direction: column; gap: 6px; max-height: 50vh; overflow-y: auto; padding: 6px; }
+  html[data-lab="on"] #dock.hide { transform: translateY(30px); }
+  html[data-lab="on"] #dock .speaker, html[data-lab="on"] #dock .actions { width: 100%; max-width: none; min-width: 0; flex: none; }
+  html[data-lab="on"] #dock .speaker { grid-template-columns: 44px 1fr; padding: 6px; }
+  html[data-lab="on"] #dock .speaker .avatar canvas.portrait, html[data-lab="on"] #dock .speaker .avatar img { width: 44px; }
+  html[data-lab="on"] #dock .speaker .text { font-size: 14px; }
+  html[data-lab="on"] #dock .speaker .spk { position: static; width: 34px; height: 34px; margin-left: auto; }
+  html[data-lab="on"] #dock .actions .row { display: flex; flex-direction: column; align-items: stretch; gap: 6px; }
+  html[data-lab="on"] #dock .actions .row:has(.btn) { flex-direction: row; flex-wrap: wrap; }
+  html[data-lab="on"] #dock .actions .row .btn { flex: 1 1 auto; }
+  html[data-lab="on"] #dock .choice { width: 100%; min-height: 44px; flex-direction: row; justify-content: flex-start; text-align: left; gap: 8px; font-size: 14px; padding: 6px 10px; }
+  html[data-lab="on"] #dock .choice .ic { flex: none; }
+  html[data-lab="on"] #dock .actions h3 { font-size: 15px; margin: 2px 0 6px; }
+  /* the result banner and the lens key wrap inside the screen */
+  #alert { left: 8px; right: 8px; width: auto; max-width: none; transform: none; top: 150px; } #alert.hide { transform: translateY(-10px); }
+  #alert [data-t] { white-space: normal; font-size: 15px; line-height: 1.25; }
+  #lensbar { left: 8px; right: 60px; width: auto; transform: none; flex-wrap: wrap; top: 76px; white-space: normal; font-size: 13px; padding: 6px 10px; }
+  html[data-lab="on"] #camctl { display: none; }
+}
+/* start screen: the mission order is a two-way switch */
+.opts .seglab { font-weight: 700; margin-right: 6px; }
+.opts .seg { display: inline-flex; border-radius: 8px; box-shadow: inset 0 0 0 2px var(--sandd, #c9a46a); overflow: hidden; vertical-align: middle; }
+.opts .seg button { border: 0; background: transparent; font: 700 14px 'Inter'; padding: 8px 12px; min-height: 40px; cursor: pointer; color: inherit; }
+.opts .seg button[aria-checked="true"] { background: var(--gold, #ffd23f); color: #2a1a0e; }
+/* the reward card: an odd last tile spans the row (no hole on the right) */
+.stats > div:last-child:nth-child(odd) { grid-column: 1 / -1; }
+.checknote.hint { background: #fff3c4; border-radius: 6px; padding: 4px 8px; color: #4a3410; }

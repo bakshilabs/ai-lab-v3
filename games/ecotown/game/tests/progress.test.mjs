@@ -114,3 +114,11 @@ test('build videos, when recorded, have a poster and a caption timeline', async 
     const tl = JSON.parse(fs.readFileSync(new URL(`${id}.json`, dir), 'utf8')); assert.ok(tl.stages.length >= 1 && tl.stages.every((s) => s.text.j && s.text.s), `${id} captions`);
   }
 });
+
+// a lazy instruction that names the goal but not the thing that matters must not pass clean (a reviewer got 3 stars
+// for "grow enough food for everyone")
+for (const [id, text] of [['food', 'grow enough food for everyone'], ['heart', 'put the school on top of the mountain']]) test(`AI Lab ${id}: a lazy instruction shows a mistake`, () => {
+  const base = seedTo(terrain, id); const lv = LEVELS[id];
+  const v = ask(id, text, { terrain, cells: base }); const sv = simulate(terrain, v.after); const cv = ctxFor(v.after, id);
+  assert.ok(Object.keys(lv.reveal(sv, simulate(terrain, base), cv)).length > 0 || !lv.pass(sv, cv), `"${text}" is flawed`);
+});
