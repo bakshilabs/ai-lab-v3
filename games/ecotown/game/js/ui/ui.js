@@ -211,7 +211,7 @@ export function createUI(root, labelsRoot, opts) {
   ui.labels = {
     set(list) { this.clear('lbl'); for (const l of list) add('lbl ' + (l.cls || ''), l); },
     // numbers that float up from a tile and fade ("+4 👪  +1 🦋"), after a build
-    float(f) { add('float', f); const a = anchored[anchored.length - 1]; setTimeout(() => remove(a), f.ms || 1700); if (f.text) globalThis.__sayLog?.push({ text: f.text, voice: 'float', silent: true }); },
+    float(f) { add('float', f); const a = anchored[anchored.length - 1]; setTimeout(() => remove(a), f.ms || 1700); if (f.text) globalThis.__sayLog?.push({ text: f.text, voice: 'float', missing: [], silent: true }); },
     bubble(b) { const cur = anchored.filter((a) => a.node.classList.contains('bub')); if (cur.length >= 2) remove(cur[0]); add('bub ' + (b.bad ? 'bad' : ''), b); if (!b.quiet) ui.say(b.text, 'narrator'); setTimeout(() => remove(anchored.find((a) => a.data === b)), b.ms || 4200); },
     clear(kind) { for (const a of anchored.slice()) if (!kind || a.node.classList.contains(kind)) remove(a); },
     update(camera, canvas) {
