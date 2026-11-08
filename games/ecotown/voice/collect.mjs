@@ -52,6 +52,9 @@ const out = await p.evaluate(async () => {
     if (S.introGoals) add(band, S.introGoals, 'helper');
     // the AI Lab classroom: hello, Florence's answers (topics, and every build as "Label: what it does")
     if (S.classHello) add(band, S.classHello, 'helper');
+    // Florence's suggestions in the town, and what she says when you judge them
+    if (S.suggest) { const G2 = S.suggest; for (const k of ['check', 'judge', 'caught', 'goodCheck', 'missed', 'doubted']) add(band, G2[k], 'helper');
+      for (const [id, v] of Object.entries(G2)) if (v && typeof v === 'object' && v.text) { add(band, v.text, 'helper'); if (v.why) { add(band, `${G2.missed} ${v.why}`, 'helper'); add(band, G2.oops(v.why), 'helper'); } } }
     { const { TOPICS, answer } = await import('./js/game/qa.js'); const { ITEMS } = await import('./js/world/catalog.js');
       for (const t of TOPICS) add(band, t.a[j ? 'j' : 's'], 'helper'); add(band, answer('zzz', j).text, 'helper');
       for (const it of Object.values(ITEMS)) if (it.desc) add(band, `${it.label}: ${it.desc[j ? 'j' : 's']}`, 'helper'); }
