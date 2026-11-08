@@ -111,18 +111,19 @@ export const TARGETS = {
   townTiles: 18,       // land the town needs in Level 1
 };
 
+const ZONE_WORD = { town: 'town land', field: 'fields', meadow: 'the meadow', slope: 'the slope', coast: 'the beach', wood: 'the wood', wetland: 'the wetland', river: 'the river', home: 'a home' };
 // Can `id` be placed on tile `t` (terrain tile + state)? Returns null if allowed, else a short reason.
 export function placeReason(id, t, st) {
   const it = ITEMS[id]; if (!it) return 'Unknown item';
   if (t.fixed) return 'Something is already here';
   if (t.zone === 'river' && !it.on.includes('river')) return it.kind === 'mark' ? 'That is the river' : 'Only a bridge can go on the river';
   // one rule in every level: the wetland is protected (only paths, green bridges, reed beds and Keep wild)
-  if (t.zone === 'wetland' && !it.on.includes('wetland')) return 'Not on the wetland: it’s protected';
+  if (t.zone === 'wetland' && !it.on.includes('wetland')) return 'Not on the wetland (the marshy wild land): it’s protected for frogs and birds';
   if (it.kind === 'mark') return null;
   if (it.kind === 'mod') { const b = st.item && ITEMS[st.item]; return b && b.home ? (st.mods && st.mods.includes(id) ? 'Already added' : null) : 'Add this to a home'; }
   if (st.item && st.locked) return 'Built in an earlier level';
   const ok = it.on.some((z) => (z === 'town' ? st.mark === 'town' && t.zone !== 'river' : z === t.zone && st.mark !== 'town'));
-  if (!ok) return it.on.includes('town') && it.on.length === 1 ? 'Build this on town land' : st.mark === 'town' ? 'Not on town land' : `Not on ${t.zone === 'wood' ? 'the wood' : 'this land'}`;
+  if (!ok) return it.on.includes('town') && it.on.length === 1 ? 'Build this on town land' : st.mark === 'town' ? 'Not on town land' : `Not on ${t.zone === 'wood' ? 'the old wood' : t.zone === 'meadow' ? 'the flood meadow' : t.zone === 'coast' ? 'the beach' : 'this land'}: ${it.label} goes on ${it.on.map((z) => ZONE_WORD[z] || z).join(' or ')}`;
   if (st.mark === 'wild' && it.kind === 'build') return 'You promised to keep this wild';
   return null;
 }

@@ -44,6 +44,10 @@ export const TOPICS = [
   { id: 'ai', keys: ['what are you', 'who are you', 'robot', 'ai', 'computer', 'think'], a: {
     j: 'I’m Florence, an AI planning helper. I read your instructions and make a plan, very fast. But I don’t see the island like you do, so you’re the checker!',
     s: 'I’m an AI planner: I turn your instruction into a plan by matching patterns. I don’t observe the world, so human checking is part of the job.' } },
+  // small talk: a short, warm answer in character, then back to the town (a reviewer's "fav colour?" got a flat deflection)
+  { id: 'chat', keys: ['favourite', 'favorite', 'colour', 'color', 'hello', 'hi', 'how are you', 'your name', 'how old', 'joke', 'pet', 'hobby'], a: {
+    j: 'Ooh, fun question! My favourite colour is leaf green, like a healthy hedge, and my favourite sound is bees buzzing. I’m a robot, so I never get tired! Now ask me about your town: floods, bees, or any build.',
+    s: 'Fair question. If a planner can have a favourite, mine is hedge green: it means the habitat links are intact. Now, ask me about your town: carbon, flood risk, power, or any build.' } },
 ];
 const FALLBACK = {
   j: 'Hmm, I don’t know that one yet! Try asking me about flooding, carbon, winter power, food, bees, or any build, like “What does a heat pump do?”',

@@ -196,6 +196,9 @@ const PLANNERS = {
     const land = tilesOf(ctx).filter((t) => ['field', 'meadow', 'slope'].includes(t.zone) && free(ctx, t, 'mixed'))
       .filter((t) => !(slots.has('wildlife') && t.zone === 'meadow'))
       .sort((a, b) => distTo(a, c) - distTo(b, c));
+    // nobody mentioned the hedges: Florence takes the hedged fields first (they're the flat, ready ones), so a lazy
+    // "enough food" instruction really costs wildlife and the nature lens shows it (a vague prompt used to pass clean)
+    if (habit === 'missing') land.sort((a, b) => (b.hedge ? 1 : 0) - (a.hedge ? 1 : 0));
     const placements = []; let food = sim0.food;
     const put = (t, id) => { placements.push({ k: t.k, item: id }); food += ITEMS[id].food || 0; };
     const used = new Set();
@@ -204,7 +207,7 @@ const PLANNERS = {
     if (slots.has('orchard') || slots.has('bees') || slots.has('wildlife')) { const ts = land.filter((t) => !used.has(t.k)).slice(0, 2); for (const t of ts) { put(t, 'orchard'); used.add(t.k); } }
     for (const t of land) {
       if (used.has(t.k)) continue;
-      if (!maxMode && food >= need) break;
+      if (!maxMode && food >= need && (habit !== 'missing' || placements.length >= 3)) break; // she makes "enough" safe with a spare field or two
       const id = slots.has('keep_hedges') && t.hedge ? 'mixed' : maxMode || !slots.has('keep_hedges') ? 'bigfield' : 'mixed';
       put(t, id); used.add(t.k);
     }
@@ -273,7 +276,9 @@ const PLANNERS = {
       for (const t of cand) { const f = walkField(ctx.terrain, applyPlacements(ctx.cells, [{ k: t.k, item: 'school' }]), [t.k]); const w = Math.max(...homes.map((k) => f.get(k) ?? 99)); if (w < bw) { bw = w; best = t; } }
       school = best;
     } else {
-      reading.push('“The middle” = the centre of the island.'); assumptions.push('The middle of the island is the middle of the town.');
+      if (slots.has('middle')) reading.push('“The middle” = the centre of the island.');
+      else reading.push('You didn’t say where, so I guessed: the middle of the island.'); // never quote words the player didn't use
+      assumptions.push('The middle of the island is the middle of the town.');
       school = cand.reduce((a, b) => (distTo(b, [0, 0]) < distTo(a, [0, 0]) ? b : a));
     }
     if (school) placements.push({ k: school.k, item: 'school' });
@@ -305,7 +310,9 @@ const PLANNERS = {
     const after = simulate(ctx.terrain, applyPlacements(ctx.cells, placements));
     const fit = slots.has('walk_time') ? Math.min(1, minutes / Math.max(1, after.walkMax)) : 0.92;
     const near = slots.has('walk_time') || slots.has('near_homes');
-    const habit = near ? null : 'literal'; const habitWhy = near ? '' : 'Florence read “the middle” as the middle of the island, not the middle of the homes.';
+    const said = slots.has('middle');
+    const habit = near ? null : said ? 'literal' : 'missing';
+    const habitWhy = near ? '' : said ? 'Florence read “the middle” as the middle of the island, not the middle of the homes.' : 'Nobody told Florence what mattered (a short walk from every home), so she guessed the middle of the island.';
     return { placements, reading, assumptions, habit, habitWhy, tested: near ? 'walking time from every home' : 'distance from the edges of the island', fit };
   },
 };

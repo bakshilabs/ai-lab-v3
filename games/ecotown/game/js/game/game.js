@@ -26,7 +26,7 @@ import { RULES, newAdvisor, nextTip, tipText } from './advisor.js';
 import { seedTo } from './seed.js';
 import { runIntro } from './intro.js';
 import { planPlace } from './replace.js';
-import { CHIP, itemChips, simDelta, chipsText } from './delta.js';
+import { CHIP, CHIP_WORD, itemChips, simDelta, chipsText } from './delta.js';
 import { answer as askFlorence, SUGGEST } from './qa.js';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -164,6 +164,8 @@ export function createGame(app) {
     }
     const opts = shuffle(checksFor(id, G.j, reveal)); const tried = []; let tries = 0;
     const label = (c) => G.C.checks[c].label;
+    // after two checks that found nothing, a hint about what to look at (not which button)
+    const hint = () => { const w = Object.keys(reveal)[0]; return tried.length >= 2 && w && !tried.includes(w) ? `<p class="checknote hint">💡 ${esc(G.j ? 'Hint: try the check that looks at' : 'Hint: test')} ${esc(G.C.checkWhat[w])}.</p>` : ''; };
     const accept = async () => {
       ui.show('tray', false);
       if (!flawed) { // the plan really is fine
@@ -185,7 +187,7 @@ export function createGame(app) {
       return { flawed: false, missed, tried };
     };
     for (;;) {
-      const choice = await new Promise((resolve) => ui.tray(`<h3>${esc(tried.length ? G.C.ui.checkHelp : G.C.ui.how)}</h3><div class="row">${opts.map((c) => `<button class="choice ${tried.includes(c) ? 'tried' : ''}" data-c="${c}"><span class="ic">${G.C.checks[c].icon}</span>${esc(label(c))}${tried.includes(c) ? ' ✓' : ''}</button>`).join('')}</div>${tried.length ? `<div class="row" style="justify-content:flex-end;margin-top:6px"><button class="btn go" data-accept>✓ ${esc(G.C.ui.accept)}</button></div>` : ''}`,
+      const choice = await new Promise((resolve) => ui.tray(`<h3>${esc(tried.length ? G.C.ui.checkHelp : G.C.ui.how)}</h3>${hint()}<div class="row">${opts.map((c) => `<button class="choice ${tried.includes(c) ? 'tried' : ''}" data-c="${c}"><span class="ic">${G.C.checks[c].icon}</span>${esc(label(c))}${tried.includes(c) ? ' ✓' : ''}</button>`).join('')}</div>${tried.length ? `<div class="row" style="justify-content:flex-end;margin-top:6px"><button class="btn go" data-accept>✓ ${esc(G.C.ui.accept)}</button></div>` : ''}`,
         (tr) => { tr.querySelectorAll('[data-c]').forEach((b) => (b.onclick = () => resolve(b.dataset.c))); tr.querySelector('[data-accept]')?.addEventListener('click', () => resolve(null)); }));
       if (!choice) return accept();
       ui.show('tray', false); showGuessMini(); ui.legend(null); tries++;
@@ -237,7 +239,7 @@ export function createGame(app) {
   // ---------------- naming the habit: graded against what Florence actually assumed in this plan
   async function habitAct(id, res) {
     const lv = LEVELS[id]; const right = res.plan.habit || lv.habit; const why = res.plan.habitWhy || G.C.habits[right].explain; app.__expectHabit = right; // (read by the play-through test)
-    const order = shuffle(HABITS); const wrong = new Set();
+    const order = [...HABITS]; const wrong = new Set(); // the same order every time (a shuffled row made a young tester misclick)
     for (;;) {
       const pickH = await new Promise((resolve) => ui.tray(`<h3>${esc(G.C.ui.whyWrong)}</h3><div class="row">${order.map((k) => `<button class="choice ${wrong.has(k) ? 'wrong' : ''}" data-h="${k}" ${wrong.has(k) ? 'disabled' : ''}><span class="ic">${G.C.habits[k].icon}</span>${esc(G.C.habits[k].label)}</button>`).join('')}</div>`, (tr) => tr.querySelectorAll('[data-h]').forEach((b) => (b.onclick = () => resolve(b.dataset.h)))));
       if (pickH === right) {
@@ -275,14 +277,14 @@ export function createGame(app) {
   // every tile shows what a tap with the selected tool would do: a low solid cyan kerb where it can go, a violet
   // kerb with corner blocks where it would replace what's there, a solid grey tile where it can't go, a red kerb
   // where erase works. Colours no tile uses; all solid and at ground level, so buildings and Florence stand in front.
-  const HL = { free: { color: '#4fd6e8', ring: true }, swap: { color: '#a55cff', ring: true, notch: true }, erase: { color: '#ff3b3b', ring: true }, no: { color: '#5b6066', ring: true, dashed: true } };
+  const HL = { free: { color: '#4fd6e8', ring: true }, swap: { color: '#a55cff', ring: true, notch: true }, erase: { color: '#ff3b3b', ring: true }, no: { color: '#5b6066', ring: true, dashed: true }, same: { color: '#ffd23f', ring: true } };
   function showAllowed(tool) {
     const spec = new Map();
     for (const t of terrain.tiles.values()) {
       if (t.fixed) continue; // the old school, the AI Lab and the dock stay as they are
       const c = cellOf(G.cells, t.k); let look;
       if (tool === 'erase') look = !!c.item || !!c.mark || c.mods.length > 0 ? 'erase' : 'no';
-      else { const r = tapPlan(tool, t, c); look = r.why || r.same ? 'no' : r.replaced ? 'swap' : 'free'; }
+      else { const r = tapPlan(tool, t, c); look = r.same ? 'same' : r.why ? 'no' : r.replaced ? 'swap' : 'free'; }
       if (look === 'no' && t.zone === 'river') continue; // the water already says "not here"; nothing painted over it
       spec.set(t.k, HL[look]);
     }
@@ -380,18 +382,20 @@ export function createGame(app) {
   function pickCat(cat) { sb.cat = cat; if (isOpen(cat)) { sb.tool = LEVELS[cat].palette[0]; showAllowed(sb.tool); } else { if (sb.tool !== 'erase') world.setOverlay(null); } sb.folded = false; audio.tap(); renderBar(); }
   function pickTool(id) { sb.tool = id; showAllowed(id); audio.tap(); renderBar(); }
   // what the selected (or hovered) build is and does: name, one sentence, effect chips, where it goes, cost, ▶
-  const chipHtml = (c) => `<span class="chip ${c.good ? 'good' : 'bad'}" style="--c:${CHIP[c.key].col}">${c.v > 0 ? '+' : '−'}${Math.abs(c.v)} ${CHIP[c.key].icon}</span>`;
+  // a chip: "+4 👪 families". num: false for the item card, which shows what a build is good for, not exact
+  // numbers (those depend on where it goes; the hover preview and the floating chips show the real change)
+  const chipHtml = (c, num = true) => `<span class="chip ${c.good ? 'good' : 'bad'}" style="--c:${CHIP[c.key].col}" title="${esc(CHIP_WORD[c.key])}">${num || c.key === 'homes' ? `${c.v > 0 ? '+' : '−'}${Math.abs(c.v)} ` : c.v > 0 ? '+ ' : '− '}${CHIP[c.key].icon} <small>${esc(CHIP_WORD[c.key])}</small></span>`;
   function infoHtml(id) {
     if (id === 'erase') return `<div class="ihead"><b>🧽 ${esc(G.S.erase)}</b></div><p>${esc(G.S.removeDesc)}</p>`;
     const it = ITEMS[id]; if (!it || !isOpen(sb.cat)) return '';
     const where = it.on.map((z) => G.S.zone[z] || z).join(', ');
     return `<div class="ihead"><b>${esc(it.label)}</b>${!G.j && it.cost ? `<em class="cost">💰 ${it.cost}</em>` : ''}${G.videos?.has(id) ? `<button class="slot mini play" data-play="${id}" aria-label="${esc(G.S.watchBuilt)}: ${esc(it.label)}" title="${esc(G.S.watchBuilt)}">▶</button>` : ''}</div>
-      <p>${esc(pick(it.desc || ''))}</p><div class="chips">${itemChips(id).map(chipHtml).join('')}<span class="where">${esc(G.S.goesOn)}: ${esc(where)}</span></div>`;
+      <p>${esc(pick(it.desc || ''))}</p><div class="chips">${itemChips(id).map((c) => chipHtml(c, false)).join('')}<span class="where">${esc(G.S.goesOn)}: ${esc(where)}</span></div>`;
   }
   // the key to the tile highlight (matches showAllowed's colours); after the first few builds it folds to a "?"
   function hlKey(mini = false) {
     const sw = (cls, text) => `<span><i class="hk ${cls}" aria-hidden="true"></i>${esc(text)}</span>`;
-    return `<div class="hlkey ${mini ? 'mini' : ''}" ${mini ? 'tabindex="0" aria-label="Key"' : ''}>${mini ? '<b class="hkq" aria-hidden="true">?</b>' : ''}${sb.tool === 'erase' ? sw('erase', G.S.keyErase) : sw('free', G.S.keyFree) + sw('swap', G.S.keySwap)}${sw('no', G.S.keyNo)}</div>`;
+    return `<div class="hlkey ${mini ? 'mini' : ''}" ${mini ? 'tabindex="0" aria-label="Key"' : ''}>${mini ? '<b class="hkq" aria-hidden="true">?</b>' : ''}${sb.tool === 'erase' ? sw('erase', G.S.keyErase) : sw('free', G.S.keyFree) + sw('swap', G.S.keySwap) + (sb.tool === 'town' ? sw('same', G.S.keyHave) : '')}${sw('no', G.S.keyNo)}</div>`;
   }
   // a locked category still shows what it will unlock (greyed), with a bar filling toward it
   function lockedView(tier, s) {
@@ -409,6 +413,7 @@ export function createGame(app) {
   // the next step: unlock the next category, then the first town goal not met yet. { text, have, need }
   function nextStep(s) {
     const nu = nextUnlock(s, G.ever);
+    if (nu && sb.intro && nu.id === 'homes' && nu.have < 3) return { text: G.S.nextStep.land(3 - nu.have), have: nu.have, need: 3 }; // the intro asks for three first
     if (nu) { const left = nu.need - nu.have; return { text: nu.id === 'homes' ? G.S.nextStep.land(left) : G.S.nextStep.fam(left, G.S.cats[nu.id]), have: nu.have, need: nu.need }; }
     const goals = townGoals(s, ctxFor(G.cells)); const next = goals.find((g) => !g.ok); const done = goals.filter((g) => g.ok).length;
     if (!next) return labsDone() < 6 ? { text: `${G.S.next}: ${G.S.labGoal(labsDone())}`, have: labsDone(), need: 6 } : { text: G.S.allGoals, have: 1, need: 1 };
@@ -443,13 +448,16 @@ export function createGame(app) {
     if (G.labs.heart && !ctxFor(G.cells).hasSchool && s.homes.length) { const far = tiles.filter((t) => ['field', 'slope', 'meadow'].includes(t.zone) && free(t.k)).sort((a, b) => world.tileTop(b.k).distanceTo(world.tileTop(s.homes[0].k)) - world.tileTop(a.k).distanceTo(world.tileTop(s.homes[0].k))); if (far.length) out.push({ id: 'walk', lens: 'walk', flawed: true, pl: [{ k: far[0].k, item: 'school' }] }); }
     if (G.labs.move && townFree.length) out.push({ id: 'park', lens: 'access', flawed: false, pl: pick(townFree, 1).map((k) => ({ k, item: 'park' })) });
     // mostly flawed ones (the lesson), now and then a good one (checking isn't the same as distrusting everything)
+    const now = performance.now(); sb.sugSeen ||= {};
+    const fresh = out.filter((x) => x.id !== sb.lastSugId && now - (sb.sugSeen[x.id] ?? -Infinity) > 600000);
+    out.length = 0; out.push(...fresh);
     const bad = out.filter((x) => x.flawed), good = out.filter((x) => !x.flawed);
     const pool = good.length && Math.random() < 0.3 ? good : bad.length ? bad : good;
     return pool.length ? pool[Math.floor(Math.random() * pool.length)] : null;
   }
   function planCells(sg) { const after = new Map([...G.cells].map(([k, c]) => [k, { ...c, mods: [...(c.mods || [])] }])); for (const p of sg.pl) { const t = terrain.tiles.get(p.k); const r = planPlace(p.item, t, after.get(p.k) || emptyCell()); if (r.cell) after.set(p.k, r.cell); } return after; }
   function offerSuggestion(sg) {
-    const T2 = G.S.suggest; const text = T2[sg.id].text; const sure = 88 + Math.floor(Math.random() * 10); sb.sug = sg;
+    const T2 = G.S.suggest; const text = T2[sg.id].text; const sure = 88 + Math.floor(Math.random() * 10); sb.sug = sg; sb.lastSugId = sg.id; (sb.sugSeen ||= {})[sg.id] = performance.now();
     const after = planCells(sg); world.showGhost(sg.pl.map((p) => ({ k: p.k, item: p.item })), after, { reduce: app.reduce });
     audio.tip(); tipShown = 'sug-' + sg.id; lastTip = null;
     const el = ui.florence({ tag: T2.tag, html: `<p>${esc(text)}</p><p class="sure">${esc(T2.sure(sure))}</p><div class="tiprow"><button class="slot act go" data-sg="check"><b class="ico">${G.C.checks[sg.lens]?.icon || '🔍'}</b><span>${esc(T2.check)}</span></button><button class="slot act" data-sg="use"><b class="ico">✓</b><span>${esc(T2.use)}</span></button><button class="slot act" data-sg="no"><b class="ico">✕</b><span>${esc(T2.no)}</span></button></div>`, say: text });
@@ -462,7 +470,8 @@ export function createGame(app) {
   async function checkSuggestion(sg, after) {
     const T2 = G.S.suggest; sb.lens = sg.lens; world.setOverlay(null);
     app.checkingPlan = true; await checks.run(sg.lens, sim(after), after, {}); app.checkingPlan = false; // the lens bar says "Florence's plan, before building"
-    const el = ui.florence({ tag: T2.tag, html: `<p>${esc(T2.judge)}</p><div class="tiprow"><button class="slot act go" data-j="right"><b class="ico">👍</b><span>${esc(T2.right)}</span></button><button class="slot act" data-j="wrong"><b class="ico">👎</b><span>${esc(T2.wrong)}</span></button></div>`, say: T2.judge });
+    const ev = evidence(sg, sim(), sim(after)); // what the lens shows, in numbers, so Right/Wrong is a judgement on evidence
+    const el = ui.florence({ tag: T2.tag, html: `<p class="ev">🔍 ${esc(ev)}</p><p>${esc(T2.judge)}</p><div class="tiprow"><button class="slot act go" data-j="right"><b class="ico">👍</b><span>${esc(T2.right)}</span></button><button class="slot act" data-j="wrong"><b class="ico">👎</b><span>${esc(T2.wrong)}</span></button></div>`, say: T2.judge });
     el.onclick = null;
     el.querySelectorAll('[data-j]').forEach((b) => (b.onclick = async () => {
       const saysWrong = b.dataset.j === 'wrong'; await checks.leave(); sb.lens = null;
@@ -471,6 +480,19 @@ export function createGame(app) {
       else { sayTip(saysWrong ? T2.doubted : T2.goodCheck, !saysWrong); useSuggestion(sg, true); }
       sb.sug = null; if (sb.tool) showAllowed(sb.tool); renderLenses(); save();
     }));
+  }
+  // the lens result for Florence's plan as one plain line: before → after on the thing that lens tests
+  function evidence(sg, a, b) {
+    const j = G.j; const r = (v) => Math.round(v * 10) / 10;
+    switch (sg.lens) {
+      case 'flood': { const n = (b.townFlooded || 0) - (a.townFlooded || 0); return n > 0 ? (j ? `${n} more tile${n === 1 ? '' : 's'} of town land would flood in winter.` : `Flood test: ${n} more town tile${n === 1 ? '' : 's'} on flood land.`) : (j ? 'Nothing new floods.' : 'Flood test: no new town tiles on flood land.'); }
+      case 'carbon': return j ? `Carbon: ${a.carbon} → ${b.carbon} t (the town limit is ${TARGETS.carbonCeiling} t).` : `Carbon: ${a.carbon} → ${b.carbon} t of a ${TARGETS.carbonCeiling} t ceiling.`;
+      case 'winter': return j ? `Power on a still winter night: ${Math.round(a.power.winterSupply)} → ${Math.round(b.power.winterSupply)} (the town needs ${Math.round(b.power.demand)}).` : `Winter-night supply ${Math.round(a.power.winterSupply)} → ${Math.round(b.power.winterSupply)} vs demand ${Math.round(b.power.demand)}.`;
+      case 'nature': { const gone = ['deer', 'bees', 'otters', 'birds', 'frogs'].filter((n) => a.species?.[n] && !b.species?.[n]); const d = r(b.nature - a.nature);
+        return `${j ? 'Nature' : 'Habitat score'}: ${r(a.nature)} → ${r(b.nature)} (${d >= 0 ? '+' : ''}${d})${gone.length ? `. ${j ? 'These animals would leave' : 'Species lost'}: ${gone.join(', ')}.` : d < 0 ? (j ? '. Red crossed tiles = wild land ploughed up.' : '. Red crossed tiles = habitat lost.') : '.'}`; }
+      case 'walk': return j ? `Longest walk to school: ${b.walkMax} minutes (the rule is ${TARGETS.walkMinutes}).` : `Longest walk to school: ${b.walkMax} min (rule: ${TARGETS.walkMinutes}).`;
+      default: { const d = r(b.community - a.community); return j ? `Community: ${r(a.community)} → ${r(b.community)}. Paths still reach every home.` : `Community ${r(a.community)} → ${r(b.community)}; access unchanged.`; }
+    }
   }
   function useSuggestion(sg, checked) {
     world.clearGhost(); let n = 0; for (const p of sg.pl) if (placeAt(p.k, p.item, { replace: true, free: true })) n++;
@@ -552,13 +574,14 @@ export function createGame(app) {
     }
     const lab = rule.lab && !G.labs[rule.lab] && labReady(rule.lab, G.ever, G.labs, G.classMode) ? rule.lab : null;
     const lens = rule.lab && G.labs[rule.lab] && rule.lens === LAB_LENS[rule.lab] ? rule.lens : null;
-    showTip({ id: rule.id, text: tipText(rule, s, G.j), lab, lens, at: tipAt(rule.id, s) });
+    showTip({ id: rule.id, text: tipText(rule, s, G.j), lab, lens, at: tipAt(rule.id, s), rule });
   }
   // Florence's tip: one line in the dock, above the build bar. Never blocks; fades after a while.
   let tipShown = null;
-  function showTip({ id, text, lab = null, lens = null, at = null, praise = false }) {
+  function showTip({ id, text, lab = null, lens = null, at = null, praise = false, rule = null }) {
+    if (!sb.running || app.inLab || sb.inClass) return; // only while building (a late tip once stuck over a mission's answers)
     if (lab) lens = null; // one button at most
-    tipShown = id; lastTip = { id, text, lab, lens, praise }; if (lab) sb.needLab = lab; praise ? audio.good?.() : audio.tip();
+    tipShown = id; lastTip = { id, text, lab, lens, praise, rule }; if (lab) sb.needLab = lab; praise ? audio.good?.() : audio.tip();
     const act = lab ? `<button class="slot act go" data-tiplab="${lab}"><img src="${thumb('ailab')}" alt=""><span>${esc(G.S.showInLab)}</span></button>` : lens ? `<button class="slot act" data-tiplens="${lens}"><b class="ico">${G.C.checks[lens].icon}</b><span>${esc(G.S.useLens)}</span></button>` : '';
     const el = ui.florence({ tag: praise ? '✓' : G.S.tipTag, html: `<p>${esc(text)}</p>${act ? `<div class="tiprow">${act}</div>` : ''}`, say: text });
     el.classList.toggle('praise', praise); el.title = G.S.dismiss;
@@ -569,7 +592,7 @@ export function createGame(app) {
     clearTimeout(sb.tipHide); if (!lab && !lens) sb.tipHide = setTimeout(() => { if (tipShown === id) hideTip(); }, 14000); // a tip with a button stays until you act on it
   }
   let lastTip = null;
-  function hideTip() { tipShown = null; if (sb.running && lastTip && !sb.intro) ui.florenceMini(() => showTip(lastTip)); else ui.florence(null); }
+  function hideTip() { tipShown = null; if (sb.running && lastTip && !sb.intro) ui.florenceMini(() => showTip(lastTip.rule ? { ...lastTip, text: tipText(lastTip.rule, sim(), G.j) } : lastTip)); else ui.florence(null); }
   // where on the island a tip is about, so Florence can walk over and point at it
   function tipAt(id, s) {
     const town = [...G.cells].filter(([, c]) => c.mark === 'town').map(([k]) => k);
@@ -645,7 +668,21 @@ export function createGame(app) {
     const line = diaryLines('heart', s, G.j)[G.day % 3]; if (s.homes.length && !G.diary.includes(line)) G.diary = [...G.diary, line].slice(-8);
     if (G.credits !== Infinity) { const pay = Math.round(s.familiesSafe * 1.5 + s.community); G.credits += pay; ui.caption(`${G.S.day} ${G.day}: ${G.S.earnedToday(pay)}`, 3500); }
     else ui.caption(`${G.S.newDay} ${G.day}${s.familiesSafe ? ` · 👪 ${s.familiesSafe} ${G.S.families}` : ''}`, 2600);
+    townEvent(s);
     renderBar(); save();
+  }
+  // every third day the weather tests the town: a winter storm (homes on flood land) or a still, dark night (winter
+  // power). Something to plan for in free building, not only in the AI Lab copy of the island.
+  function townEvent(s) {
+    if (G.day < 3 || G.day % 3 !== 0 || !s.homes.length || !sb.running) return;
+    const E = G.S.events; const storm = (G.day / 3) % 2 === 1;
+    if (storm) {
+      if (s.flooded > 0) { audio.bad?.(); ui.alert(E.stormBad(s.flooded), false, 4200); app.bot?.oops(); showTip({ id: 'ev-storm-' + G.day, text: E.stormTip, lab: !G.labs.land && labReady('land', G.ever, G.labs, G.classMode) ? 'land' : null, lens: G.labs.land ? 'flood' : null }); }
+      else { ui.alert(E.stormGood, true, 3200); app.bot?.cheer(); }
+    } else if (isOpen('power')) {
+      if (!s.power.winterOK) { audio.bad?.(); ui.alert(E.darkBad, false, 4200); app.bot?.oops(); showTip({ id: 'ev-dark-' + G.day, text: E.darkTip, lab: !G.labs.power && labReady('power', G.ever, G.labs, G.classMode) ? 'power' : null, lens: G.labs.power ? 'winter' : null }); }
+      else { ui.alert(E.darkGood, true, 3200); app.bot?.cheer(); }
+    }
   }
   // one build (or removal) on tile k, with what it changed floating up from the tile and the petals it helped lit
   function act(k, tool) {
@@ -665,12 +702,17 @@ export function createGame(app) {
     const canvas = stage.renderer.domElement;
     rig.onTap = (ndc) => {
       if (!sb.running || G.busy || sb.lens) return;
-      const k = world.pick(ndc, stage.camera); if (!k) return;
-      // touch screens: the first tap shows what would happen (preview), a second tap on the same tile builds it
-      if (TOUCH && k !== terrain.lab && sb.tool && k !== sb.armed) { sb.armed = k; app._hk = null; rig.onHover(ndc); return; }
+      const k = world.pick(ndc, stage.camera); if (!k) { if (sb.tool) ui.caption(G.S.tapTile, 1800); return; }
+      // (touch used to need a second tap to build; a reviewer found single taps "did nothing", so one tap builds, like a click.
+      // Only a tap that would knock down a home asks for a second tap, below.)
       sb.armed = null;
       if (k === terrain.lab) { audio.tap(); return enterClassroom(); } // the AI Lab building: step into Florence's classroom
       if (!sb.tool || (!isOpen(sb.cat) && sb.tool !== 'erase')) return;
+      if (sb.tool !== 'erase' && k !== sb.confirm) {
+        const c = cellOf(G.cells, k); const r = tapPlan(sb.tool, terrain.tiles.get(k), c);
+        if (!r.why && !r.same && (r.removed || []).some((id) => ITEMS[id]?.home)) { sb.confirm = k; audio.tap(); app._hk = null; rig.onHover(ndc); ui.caption(G.S.tapAgain(ITEMS[c.item]?.label || ''), 2600); return; }
+      }
+      sb.confirm = null;
       act(k, sb.tool);
     };
     // right-click (not drag) removes, whatever tool is selected
@@ -693,6 +735,15 @@ export function createGame(app) {
     };
     canvas.addEventListener('pointerleave', () => { world.clearGhost(); app._hk = null; ui.labels.clear('lbl'); });
   }
+  // Escape anywhere: close the open card if it has a close or "not now" button, else the pop-overs, else the lens
+  addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    const a = document.activeElement; if (a && a.tagName === 'INPUT' && a.value) return; // Esc in a text box clears nothing important
+    if (!ui.P.modal.classList.contains('hide')) { ui.P.modal.querySelector('[data-act="close"], [data-act="later"], [data-act="keep"], [data-close]')?.click(); return; }
+    if (!ui.P.settings.classList.contains('hide')) { ui.P.settings.querySelector('[data-close], [data-act="close"]')?.click(); return; }
+    ui.closePops();
+    if (sb.running && sb.lens) toggleLens(sb.lens);
+  });
   // keys while building: 1–6 pick a category, X picks Remove, Esc closes the pop-overs
   addEventListener('keydown', (e) => {
     if (!sb.running || G.busy || sb.intro || e.ctrlKey || e.metaKey || e.altKey) return;
@@ -745,7 +796,7 @@ export function createGame(app) {
     const sug = shuffle(SUGGEST[G.j ? 'j' : 's']).slice(0, 3);
     ui.tray(`<div class="ask"><input data-q type="text" maxlength="140" autocomplete="off" placeholder="${esc(G.S.askPlaceholder)}" aria-label="${esc(G.S.askFlorence)}"><button class="btn go" data-ask>${esc(G.S.ask)}</button></div>
       <div class="row qchips">${sug.map((q) => `<button class="choice" data-sq="${esc(q)}">${esc(q)}</button>`).join('')}</div>
-      <div class="row"><button class="btn alt" data-missions>🧪 ${esc(G.S.missions)}</button><button class="btn alt" data-leave>⬅ ${esc(G.S.backToBuilding)}</button></div>`, (el) => {
+      <div class="row"><button class="btn ${readyN() ? 'go' : 'alt'}" data-missions>🧪 ${esc(G.S.missions)}${readyN() ? ` · ${esc(G.S.readyN(readyN()))}` : ''}</button><button class="btn alt" data-leave>⬅ ${esc(G.S.backToBuilding)}</button></div>`, (el) => {
       const inp = el.querySelector('[data-q]'); const go = (q) => { q = (q || '').trim(); if (q) classAsk(q); };
       el.querySelector('[data-ask]').onclick = () => go(inp.value); inp.onkeydown = (e) => { if (e.key === 'Enter') go(inp.value); };
       el.querySelectorAll('[data-sq]').forEach((b) => (b.onclick = () => go(b.dataset.sq)));
@@ -753,6 +804,7 @@ export function createGame(app) {
       el.querySelector('[data-leave]').onclick = () => leaveClassroom();
     });
   }
+  const readyN = () => LEVEL_ORDER.filter((id) => !G.labs[id] && labReady(id, G.ever, G.labs, G.classMode)).length;
   let askN = 0;
   async function classAsk(q) {
     const C = app.classroom; const r = askFlorence(q, G.j); const n = ++askN;
@@ -781,7 +833,7 @@ export function createGame(app) {
       const done = G.labs[id]; const ready = labReady(id, G.ever, G.labs, G.classMode); const tier = TIERS.find((t) => t.id === id);
       const why = !isOpen(id) ? `🔒 ${G.S.unlocksWhen} ${pick(tier.need)}` : !ready ? `🔒 ${G.S.classFirst}` : done ? `${'★'.repeat(done.stars)}${'☆'.repeat(3 - done.stars)} · ${G.S.playAgain}` : G.S.ready;
       const need = ready && !done && sb.needLab === id ? `<em class="need">${esc(G.j ? 'Your town needs this' : 'Relevant to your town now')}</em>` : '';
-      return `<button class="labrow ${done ? 'done' : ''} ${ready ? '' : 'locked'} ${need ? 'needed' : ''}" data-act="${ready ? 'lab:' + id : 'none'}" ${ready ? '' : 'aria-disabled="true"'}><span class="ic"><img src="${thumb(TRACK_PICS[i])}" alt=""></span><span class="t"><b>${i + 1}. ${esc(T(id).title)}</b>${need}<small>${esc(pick(T(id).goal))}</small></span><span class="st">${esc(why)}</span></button>`;
+      return `<button class="labrow ${done ? 'done' : ''} ${ready ? '' : 'locked'} ${need ? 'needed' : ''}" data-act="${ready ? 'lab:' + id : 'none'}" ${ready ? '' : 'aria-disabled="true"'}><span class="ic"><img src="${thumb(TRACK_PICS[i])}" alt=""></span><span class="t"><b>${G.classMode ? `${i + 1}. ` : ''}${esc(T(id).title)}</b>${need}<small>${esc(pick(T(id).goal))}</small></span><span class="st">${esc(why)}</span></button>`;
     }).join('');
     G.busy = true; // the town waits while the board is open
     const a = await ui.modal(`<div class="ribbon">🧪 ${esc(G.S.labTitle)}</div><p>${esc(pick(G.S.labIntro))}</p><div class="labs">${rows}</div>
@@ -812,15 +864,16 @@ export function createGame(app) {
   async function runLab(id) {
     const real = G.cells; const lv = LEVELS[id]; const L = T(id);
     app.levelId = id; app.inLab = true; document.documentElement.dataset.lab = 'on'; guess = null; setMusic('lab');
-    run = { id, marks: [false, false, false], bonus: false }; G.paths[id] = null; G.instructions[id] = []; G.mistakes = G.mistakes.filter((m) => m.level !== id);
+    run = { id, marks: [false, false, false], bonus: false };
     G.cells = seedTo(terrain, id); showCells(G.cells);
-    ui.setBadge(`🧪 AI LAB · ${lv.n}/6`); ui.setTask(lv.n, pick(L.goal)); ui.helper(null); ui.facil(null); ui.views(null, []);
+    ui.setBadge(G.classMode ? `🧪 AI LAB · ${lv.n}/6` : `🧪 ${L.title}`); ui.setTask(lv.n, pick(L.goal)); ui.helper(null); ui.facil(null); ui.views(null, []);
     stage.setTime(12); app.hour = 12.5; await rig.overview(1.4);
     // brief, with what this mission adds (a new lens or test). "Not now" goes straight back to building.
     const N = L.newThing; const lens = G.C.checks[N.lens]; const newLabel = N.label ? pick(N.label) : lens.label;
     facil(id, 'brief');
-    const go = await ui.modal(`<div class="ribbon">🧪 ${esc(G.S.labTitle)} · ${esc(N.test ? G.C.ui.newTest : G.C.ui.newLens)}</div><div class="big">${lens.icon}</div><h2>${esc(newLabel)}</h2><p>${esc(pick(N))}</p><div class="levelbar"><b>${esc(G.S.mission)} ${lv.n} OF 6</b><span>${esc(L.title)}</span><span class="dots">${[1, 2, 3, 4, 5, 6].map((i) => `<i class="${G.labs[LEVEL_ORDER[i - 1]] || i === lv.n ? 'on' : ''}"></i>`).join('')}</span></div><p class="brief">${esc(pick(L.brief))}</p><p class="practice">${esc(pick(G.S.practice))}</p><div class="row" style="justify-content:center"><button class="btn alt" data-act="later">${esc(G.S.notNow)}</button><button class="btn go" data-act="go">${esc(G.C.ui.start)} ➜</button></div>`, { say: `${newLabel}. ${pick(N)} ${pick(L.brief)}` });
+    const go = await ui.modal(`<div class="ribbon">🧪 ${esc(G.S.labTitle)} · ${esc(N.test ? G.C.ui.newTest : G.C.ui.newLens)}</div><div class="big">${lens.icon}</div><h2>${esc(newLabel)}</h2><p>${esc(pick(N))}</p><div class="levelbar"><b>${G.classMode ? `${esc(G.S.mission)} ${lv.n} OF 6` : esc(G.S.missionsDone(labsDone()))}</b><span>${esc(L.title)}</span><span class="dots">${[1, 2, 3, 4, 5, 6].map((i) => `<i class="${G.labs[LEVEL_ORDER[i - 1]] || i === lv.n ? 'on' : ''}"></i>`).join('')}</span></div><p class="brief">${esc(pick(L.brief))}</p><p class="practice">${esc(pick(G.S.practice))}</p><div class="row" style="justify-content:center"><button class="btn alt" data-act="later">${esc(G.S.notNow)}</button><button class="btn go" data-act="go">${esc(G.C.ui.start)} ➜</button></div>`, { say: `${newLabel}. ${pick(N)} ${pick(L.brief)}` });
     if (go === 'later') return leaveLab(real);
+    G.paths[id] = null; G.instructions[id] = []; G.mistakes = G.mistakes.filter((m) => m.level !== id); // only once the mission really starts again ("Not now" kept an empty row in the report)
     stage.setTime(12.5);
     // plan
     let res = await round(id, G.C.ui.tell); G.instructions[id] = [res.text];
@@ -860,6 +913,7 @@ export function createGame(app) {
     if (!G.j && DILEMMAS[id]) {
       const d = DILEMMAS[id]; const a = await ui.modal(`<div class="ribbon">Town meeting</div><h2>${esc(d.text)}</h2><div class="row" style="justify-content:center">${d.options.map((o, i) => `<button class="btn ${i ? 'alt' : 'go'}" data-act="${i}">${esc(o.label)}</button>`).join('')}</div>`);
       const e = d.options[+a].effect; G.extra.families += e.families || 0; G.extra.carbon += e.carbon || 0; G.diary.push(`Town meeting: ${d.options[+a].label}.`);
+      run.meeting = `${d.options[+a].label}: ${[e.families ? `${e.families > 0 ? '+' : ''}${e.families} households` : '', e.carbon ? `${e.carbon > 0 ? '+' : ''}${e.carbon} t carbon` : ''].filter(Boolean).join(', ') || 'no change to the numbers'}`;
     }
     // the reward card, then: use Florence's plan in your town, or keep your town as it is
     const s2 = sim(); audio.fanfare(); setMusic('celebrate'); world.confetti(new THREE.Vector3(10, 20, 8), 200); rig.startTurntable(app.reduce ? 0 : 0.1);
@@ -869,7 +923,7 @@ export function createGame(app) {
     const choice = await ui.modal(`<div class="ribbon green">🧪 ${esc(G.S.missionDone)} · ${esc(L.title)}</div><div class="stars3">${[0, 1, 2].map((i) => `<span class="${i < stars ? 'on' : ''}">★</span>`).join('')}</div><h2>${esc(heading)}</h2>
       <ul class="starlist">${rules.map((r, i) => `<li class="${run.marks[i] ? 'got' : ''}">${run.marks[i] ? '★' : '☆'} ${esc(r)}</li>`).join('')}${run.bonus ? `<li class="got">★ Bonus: found Florence’s biased survey</li>` : ''}</ul>
       <div class="outcome ${oc.kind}"><small>${esc(G.C.ui.outcomeHead)}</small><b>${esc(G.C.ui.outcome[oc.kind])}</b><p>${esc(oc.detail)}</p></div>
-      <div class="stats"><div><small>${esc(statLabel)}</small>${esc(statVal)}</div><div><small>${esc(G.S.newTool)}</small>${newLens.icon} ${esc(newLens.label)}</div><div><small>${G.j ? 'Fact' : 'Evidence'}</small>${esc(pick(L.fact))}</div></div>
+      <div class="stats"><div><small>${esc(statLabel)}</small>${esc(statVal)}</div><div><small>${esc(G.S.newTool)}</small>${newLens.icon} ${esc(newLens.label)}</div><div><small>${G.j ? 'Fact' : 'Evidence'}</small>${esc(pick(L.fact))}</div>${run.meeting ? `<div><small>Town meeting</small>${esc(run.meeting)}</div>` : ''}</div>
       <p class="usenote">${esc(pick(G.S.useQuestion))}</p>
       <div class="row" style="justify-content:center"><button class="btn alt" data-act="keep">${esc(G.S.keepMine)}</button><button class="btn go" data-act="use">✓ ${esc(G.S.usePlan)}</button></div>`, { say: `${heading} ${stars} stars.` });
     rig.startTurntable(0);
@@ -903,6 +957,7 @@ export function createGame(app) {
   // back to the player's own town. Using the plan adds what fits (never over what the player built).
   async function leaveLab(real, placements = null) {
     world.clearGhost(); ui.legend(null); ui.helper(null); ui.tray(''); ui.facil(null); await checks.leave();
+    sb.lastSuggest = performance.now(); // her next idea for the town waits a while after a lesson
     G.cells = real; app.inLab = false; app.levelId = null; app.briefMinutes = null; delete document.documentElement.dataset.lab; run = null;
     stage.setTime(app.hour = 12.5, 0);
     if (placements) {
@@ -910,9 +965,17 @@ export function createGame(app) {
       for (const p of placements) {
         const tool = p.item || p.mod || p.mark; if (!tool || !ITEMS[tool]) continue;
         const t = terrain.tiles.get(p.k); const c = cellOf(G.cells, p.k);
-        if (ITEMS[tool].kind === 'build' && c.item) { skipped++; continue; }
-        if (sandboxReason(tool, t, c, { free: true })) { skipped++; continue; }
-        if (placeAt(p.k, tool, { free: true })) keys.add(p.k); else skipped++;
+        let k = p.k;
+        // the tile is taken (or not allowed in this town): the nearest free tile where it can go, so adopting a plan
+        // after a win really adds something (a reviewer saw "1 placement applied, 1 skipped")
+        if ((ITEMS[tool].kind === 'build' && c.item) || sandboxReason(tool, t, c, { free: true })) {
+          const from = world.tileTop(p.k);
+          k = [...terrain.tiles.values()].filter((u) => !u.fixed && !keys.has(u.k)).map((u) => ({ u, c: cellOf(G.cells, u.k) }))
+            .filter(({ u, c: cc }) => !(ITEMS[tool].kind === 'build' && cc.item) && !sandboxReason(tool, u, cc, { free: true }))
+            .sort((a2, b2) => world.tileTop(a2.u.k).distanceTo(from) - world.tileTop(b2.u.k).distanceTo(from))[0]?.u.k;
+          if (!k) { skipped++; continue; }
+        }
+        if (placeAt(k, tool, { free: true })) keys.add(k); else skipped++;
       }
       showCells(G.cells, keys);
       sb.afterLab = keys.size ? G.S.planUsed(keys.size, skipped) : G.S.planDidntFit;
@@ -953,9 +1016,11 @@ export function createGame(app) {
       // 8–12 (or no model): Florence says who she asked; the children ask the people at the school gate themselves
       help({ tag: 'SUMMARY', html: `<p>“Residents want more car parks.”</p><p>I asked <b>10 people at the car park</b>. 9 of them drive, so I’m very sure!</p>`, sure: 90, sureLabel: G.C.ui.sure, say: 'Residents want more car parks. I asked 10 people at the car park. 9 of them drive, so I’m very sure!', voice: 'helper' });
       const modes = shuffle([...Array(gate.walkers).fill('walk'), ...Array(gate.drivers).fill('drive')]);
-      await new Promise((resolve) => ui.tray(`<h3>Florence only asked people at the car park. Ask people at the school gate how they travel!</h3><div class="row askrow">${modes.map((_, i) => `<button class="tile ask" data-r="${i}" aria-label="Ask person ${i + 1}">🧍<small>Ask</small></button>`).join('')}</div><div class="row"><span class="askcount" data-n>0 of 10 asked</span><button class="btn go" data-act="all" disabled>Tell Florence to count everyone</button></div>`, (tr) => {
+      await new Promise((resolve) => ui.tray(`<h3>Florence only asked people at the car park. Ask people at the school gate how they travel!</h3><div class="row askrow">${modes.map((_, i) => `<button class="tile ask" data-r="${i}" aria-label="Ask person ${i + 1}">🧍<small>Ask</small></button>`).join('')}</div><div class="row"><span class="askcount" data-n>0 of 10 asked</span><button class="btn alt" data-allask disabled>Ask everyone else</button><button class="btn go" data-act="all" disabled>Tell Florence to count everyone</button></div>`, (tr) => {
         let n = 0;
-        tr.querySelectorAll('[data-r]').forEach((b) => (b.onclick = () => { const md = modes[+b.dataset.r]; b.innerHTML = md === 'walk' ? '🚶<small>walks</small>' : '🚗<small>drives</small>'; b.classList.add(md); b.disabled = true; audio.tap(); n++; tr.querySelector('[data-n]').textContent = `${n} of 10 asked`; if (n >= 6) tr.querySelector('[data-act]').disabled = false; }));
+        tr.querySelectorAll('[data-r]').forEach((b) => (b.onclick = () => { if (b.disabled) return; const md = modes[+b.dataset.r]; b.innerHTML = md === 'walk' ? '🚶<small>walks</small>' : '🚗<small>drives</small>'; b.classList.add(md); b.disabled = true; audio.tap(); n++; tr.querySelector('[data-n]').textContent = `${n} of 10 asked`; if (n >= 3) tr.querySelector('[data-allask]').disabled = n >= 10; if (n >= 6) tr.querySelector('[data-act]').disabled = false; }));
+        // after three asked by hand, the rest in one go (ten separate asks was slow)
+        tr.querySelector('[data-allask]').onclick = () => tr.querySelectorAll('[data-r]:not(:disabled)').forEach((b) => b.onclick());
         tr.querySelector('[data-act]').onclick = resolve;
       }));
       audio.good();
@@ -1053,14 +1118,14 @@ export function createGame(app) {
     if (G.classMode) { const id = LEVEL_ORDER.find((l) => !G.labs[l]); if (id && labReady(id, G.ever, G.labs, true)) setTimeout(() => showTip({ id: 'class-' + id, text: G.S.classInvite, lab: id }), 1500); }
   };
   async function intro() {
-    if (sb.intro) return; sb.intro = true; hideTip();
+    if (sb.intro) return; sb.intro = true; hideTip(); renderCard(); // the card's step now matches the intro's three tiles
     try {
       await runIntro({ app, G, T: { ...G.S.intro, goals: G.S.introGoals },
         selectTool: (cat, tool) => { sb.cat = cat; sb.tool = tool; sb.folded = false; showAllowed(tool); renderBar(); },
         townTiles: () => sim().townTiles,
         videoCard: G.videos?.has('timber') ? (id) => videoCard(ITEMS[id].label, id, null) : null,
         highlight: (sel, on) => document.querySelector(sel)?.classList.toggle('pulse', on) });
-    } finally { sb.intro = false; G.introDone = true; save(); sb.adv.last = performance.now(); }
+    } finally { sb.intro = false; renderCard(); G.introDone = true; save(); sb.adv.last = performance.now(); }
   }
   G.replayIntro = () => { if (!G.busy && sb.running) intro(); };
   // the ☰ menu: the town report and a whole day, only while building (not in a mission or the intro)
