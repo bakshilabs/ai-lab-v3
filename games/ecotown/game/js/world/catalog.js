@@ -52,6 +52,47 @@ export const ITEMS = {
   festival:    { level: 'heart', kind: 'build', label: 'Festival field', icon: '🎪', color: '#ff7eb6', on: ['field', 'slope', 'town', 'coast'], cost: 1, community: 2, health: 0.5 },
 };
 
+// What each thing is and does for the town, in one sentence (j: ages 8–12, s: 13–17). Shown in the build bar.
+const DESC = {
+  town: { j: 'Marks land where your town can grow. Homes, shops and the hall go here.', s: 'Designates land for building. Homes and town buildings need it.' },
+  wild: { j: 'A promise to leave this land wild for plants and animals.', s: 'Protects the tile from building, keeping its habitat.' },
+  road: { j: 'Lets cars get around, but cars are noisy, dirty and less safe to cross.', s: 'Car access: adds carbon and lowers health; homes beside it need a safe crossing.' },
+  carpark: { j: 'Space to leave cars. Handy, but it makes more car trips.', s: 'Parking encourages car trips: more carbon, less health.' },
+  path: { j: 'A safe way to walk, with a crossing over busy roads.', s: 'Walking route and safe crossing: low carbon, better health.' },
+  cycle: { j: 'A lane for bikes: quick, quiet and healthy.', s: 'Cycle route: very low carbon and good for health.' },
+  tram: { j: 'A tram takes lots of people across town without cars.', s: 'Public transport: carries many people with little carbon.' },
+  bridge: { j: 'Lets people cross the river.', s: 'River crossing, so the two banks are within walking distance.' },
+  timber: { j: 'Wooden homes for 4 families. Wood makes little carbon to build with, and keeps homes warm.', s: 'Houses 4 households; timber has low embodied carbon and stays warm.' },
+  straw: { j: 'Cosy straw-bale cottages for 3 families. Straw keeps homes very warm.', s: 'Houses 3; straw insulates very well and has the lowest embodied carbon.' },
+  earth: { j: 'Thick earth walls for 3 families. They stay cool in summer and warm in winter.', s: 'Houses 3; rammed earth has thermal mass and modest embodied carbon.' },
+  reclaimed: { j: 'Homes for 4 families built from old bricks, so less new stuff is made.', s: 'Houses 4 using reused brick; colder inside without extra insulation.' },
+  cohousing: { j: 'Homes for 5 families around a shared garden. Neighbours help each other.', s: 'Houses 5 with shared space: adds community.' },
+  concrete: { j: 'Flats for 6 families, but concrete makes a lot of carbon and they get cold.', s: 'Houses 6, but very high embodied carbon (30) and cold in winter.' },
+  greenroof: { j: 'Plants on a roof: homes for bees and birds, and less rain runs off.', s: 'Add-on for a home: a little nature and less embodied carbon.' },
+  bigfield: { j: 'One huge field makes lots of food, but leaves no room for wildlife.', s: 'High yield monoculture: ploughs habitat and adds carbon.' },
+  mixed: { j: 'A farm with animals and crops together. Good food, kind to the land.', s: 'Balanced yield with low carbon.' },
+  orchard: { j: 'Fruit trees: food for people and flowers for bees.', s: 'Some food plus nature; needs pollinators for a full crop.' },
+  allot: { j: 'Little gardens where neighbours grow vegetables together.', s: 'Small yield, but adds community and health.' },
+  vertical: { j: 'Food grown indoors on shelves. Lots of food, but it needs electricity.', s: 'High yield in a small space; adds carbon and power demand.' },
+  hives: { j: 'Bees pollinate orchards and allotments, so they grow more food.', s: 'Pollinators: boosts orchards and allotments, adds nature.' },
+  hedge: { j: 'A hedge is a home and a safe path for wildlife.', s: 'Habitat corridor: adds nature and links wild areas.' },
+  solar: { j: 'Panels on a roof make electricity from sunshine (but not on winter nights).', s: 'Home add-on: power on an average day, none on a still winter night.' },
+  heatpump: { j: 'Warms a home with electricity instead of burning gas.', s: 'Home add-on: clean heating that needs some electricity.' },
+  wind: { j: 'Makes clean electricity whenever the wind blows, even on winter nights.', s: 'Power day and night, and cuts carbon.' },
+  battery: { j: 'Saves spare electricity for later, like on a still winter night.', s: 'Stores power for when supply is low.' },
+  raingarden: { j: 'Soaks up rainwater so streets don’t flood.', s: 'Drains heavy rain; a little nature and health.' },
+  reedbed: { j: 'Reeds clean dirty water naturally and give wildlife a home.', s: 'Natural water treatment and drainage; adds nature.' },
+  repair: { j: 'People fix old things here instead of throwing them away.', s: 'Cuts waste and carbon; adds community.' },
+  compost: { j: 'Turns food scraps into soil for the farms.', s: 'Cuts waste and carbon; returns a little food.' },
+  school: { j: 'Every child needs a school within a 15-minute walk.', s: 'The town’s school: every home must be within a 15-minute walk.' },
+  market: { j: 'A square where people meet and sell local food.', s: 'A meeting place: adds community.' },
+  park: { j: 'Green space to play and relax, for people and wildlife.', s: 'Adds health, nature and community.' },
+  greenbridge: { j: 'A bridge covered in plants so animals can cross safely too.', s: 'Wildlife crossing that also shortens walks.' },
+  hall: { j: 'A hall for clubs, parties and town meetings.', s: 'Adds community.' },
+  festival: { j: 'A field for fairs and festivals that bring everyone together.', s: 'Adds community and a little health.' },
+};
+for (const [id, d] of Object.entries(DESC)) ITEMS[id].desc = d;
+
 export const LEVEL_ITEMS = {
   land: ['town', 'wild'],
   move: ['path', 'cycle', 'tram', 'road', 'carpark', 'bridge'],

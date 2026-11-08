@@ -47,7 +47,7 @@ export function createLife(stage, world, terrain) {
   const bikeMesh = (c) => { const v = new Vox(); v.jitter = 0.02; for (const x of [0, 3]) { v.set(x, 0, 0, '#22262a'); v.set(x, 1, 0, '#22262a'); } v.box(1, 1, 0, 2, 1, 0, c); v.set(2, 2, 0, c); v.set(0, 2, 0, '#3a4752'); return v.mesh({ scale: 0.32, offset: [-0.64, 0, -0.16] }); };
   const tramMesh = () => { const v = new Vox(); v.jitter = 0.02; for (let i = 0; i < 11; i++) for (let j = 0; j < 4; j++) { v.set(i, 0, j, i % 5 === 1 && (j === 0 || j === 3) ? '#22262a' : '#c8553d'); v.set(i, 1, j, '#c8553d'); v.set(i, 2, j, (i === 0 || i === 10 || i % 3 === 0) ? '#f1e6d0' : '#bfe6ff'); v.set(i, 3, j, '#f1e6d0'); } v.box(4, 4, 1, 6, 4, 2, '#3a4752'); return v.mesh({ scale: 0.5, offset: [-2.75, 0, -1] }); };
   const cars = []; const bikes = []; const trams = [];
-  const SMOKE = 70; const smoke = particles(SMOKE, { size: 0.5, color: '#a89c90' }); smoke.material.transparent = true; smoke.material.opacity = 0.35; smoke.material.depthWrite = false; root.add(smoke);
+  const SMOKE = 70; const smoke = particles(SMOKE, { size: 0.5, color: '#a89c90' }); root.add(smoke);
   let chimneys = [];
 
   // ---------- ferry

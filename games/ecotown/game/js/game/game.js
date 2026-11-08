@@ -26,6 +26,7 @@ import { RULES, newAdvisor, nextTip, tipText } from './advisor.js';
 import { seedTo } from './seed.js';
 import { runIntro } from './intro.js';
 import { planPlace } from './replace.js';
+import { CHIP, itemChips, simDelta, chipsText } from './delta.js';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const SAVE = 'ecotown.save.v3';
@@ -40,7 +41,7 @@ export function createGame(app) {
   const G = app.G = {
     band: app.band, C: CONTENT[app.band], S: SANDBOX[app.band], j: app.band === 'junior', cells: new Map(), stars: 0, levelStars: {}, starMarks: {}, bonus: {}, mistakes: [], diary: [], instructions: {}, charter: [],
     outcomes: {}, credits: app.band === 'senior' ? 60 : Infinity, li: 0, extra: { families: 0, carbon: 0 }, townName: app.townName || 'Eco Town', inputMode: null, draft: {}, reflection: '',
-    labs: {}, ever: [], classMode: !!app.classMode, full: !!app.sandboxFull, day: 1, movedIn: false, completeShown: false, busy: false,
+    labs: {}, ever: [], classMode: !!app.classMode, full: !!app.sandboxFull, day: 1, movedIn: false, completeShown: false, busy: false, milestones: null, placements: 0,
   };
   app.C = G.C; app.hour = 8; app.levelId = null; app.inLab = false;
   const checks = createChecks(app);
@@ -65,8 +66,8 @@ export function createGame(app) {
   const shownStars = () => totalStars() + (run ? Math.max(0, run.marks.filter(Boolean).length - (G.levelStars[run.id] || 0)) + (run.bonus && !G.bonus[run.id] ? 1 : 0) : 0);
   function star(i, why = '') { if (!run || run.marks[i]) return; run.marks[i] = true; audio.star(); G.stars = shownStars(); ui.setStars(G.stars); if (why) ui.caption(`★ ${why}`, 2600); }
   function bonusStar(why) { if (!run) return; run.bonus = true; G.stars = shownStars(); ui.setStars(G.stars); ui.caption(`★ ${why}`, 2800); }
-  function flower(flash = true) { const s = sim(); ui.carbonInfo = { used: s.carbon, limit: TARGETS.carbonCeiling }; ui.flower(s.petals, G.townName, { flash }); }
-  const KEEP = ['introDone', 'band', 'levelStars', 'starMarks', 'bonus', 'mistakes', 'diary', 'instructions', 'extra', 'credits', 'townName', 'inputMode', 'paths', 'outcomes', 'labs', 'ever', 'classMode', 'day', 'movedIn', 'completeShown', 'charter', 'reflection'];
+  function flower(flash = true) { const s = sim(); ui.carbonInfo = { used: s.carbon, limit: TARGETS.carbonCeiling }; ui.flower(s.petals, G.townName, { flash }); renderGoals(s); }
+  const KEEP = ['milestones', 'placements', 'introDone', 'band', 'levelStars', 'starMarks', 'bonus', 'mistakes', 'diary', 'instructions', 'extra', 'credits', 'townName', 'inputMode', 'paths', 'outcomes', 'labs', 'ever', 'classMode', 'day', 'movedIn', 'completeShown', 'charter', 'reflection'];
   function save() {
     if (app.inLab || G.full) return; // a mission's practice island is never saved as the player's town
     try { const d = { cells: [...G.cells], li: 1 }; for (const k of KEEP) d[k] = G[k]; if (d.credits === Infinity) d.credits = null; localStorage.setItem(SAVE, JSON.stringify(d)); } catch { /* storage off: keep playing */ }
@@ -270,9 +271,10 @@ export function createGame(app) {
   const isOpen = (cat) => G.ever.includes(cat);
 
   // ================= FREE BUILDING =================
-  // every tile shows what a tap with the selected tool would do: a bright cyan frame where it can go, a
-  // striped frame where it would replace what's there, grey where it can't go. Colours no tile uses.
-  const HL = { free: { color: '#2fe6ff', pattern: 'frame', opacity: 1, top: true }, swap: { color: '#2fe6ff', pattern: 'framestripes', opacity: 1, top: true }, erase: { color: '#ff4d4d', pattern: 'frame', opacity: 1, top: true }, no: { color: '#4a4f54', pattern: 'solid', opacity: 0.62, top: true } };
+  // every tile shows what a tap with the selected tool would do: a low solid cyan kerb where it can go, a violet
+  // kerb with corner blocks where it would replace what's there, a solid grey tile where it can't go, a red kerb
+  // where erase works. Colours no tile uses; all solid and at ground level, so buildings and Florence stand in front.
+  const HL = { free: { color: '#18d8f0', ring: true }, swap: { color: '#a55cff', ring: true, notch: true }, erase: { color: '#ff3b3b', ring: true }, no: { color: '#5b6066', pattern: 'solid' } };
   function showAllowed(tool) {
     const spec = new Map();
     for (const t of terrain.tiles.values()) {
@@ -334,36 +336,49 @@ export function createGame(app) {
   const refund = (id) => { if (G.credits !== Infinity) G.credits += ITEMS[id]?.cost || 0; };
 
   const sb = {
-    tool: 'town', cat: 'land', folded: false, paused: false, running: false, bubbles: [], nextBub: 0, nextTipCheck: 0, adv: newAdvisor(), tipT: 0, saveT: 0, tick: 0, lens: null, goalsOpen: false,
+    tool: 'town', cat: 'land', ideas: {}, folded: false, paused: false, running: false, bubbles: [], nextBub: 0, nextTipCheck: 0, adv: newAdvisor(), tipT: 0, saveT: 0, tick: 0, lens: null, goalsOpen: false,
   };
   const CAT_ICON = Object.fromEntries(LEVEL_ORDER.map((id, i) => [id, LEVEL_ICONS[i]]));
   const catLabel = (id) => `${CAT_ICON[id]} ${G.S.cats[id]}`;
   function clockText() { const hh = Math.floor(app.hour), mm = Math.floor((app.hour - hh) * 4) * 15; return `${hh}:${String(mm).padStart(2, '0')}`; }
 
-  // the build bar: category tabs, the palette of the open category, erase, the clock and the town's numbers
+  // the build bar: the clock, one Remove tool, the category tabs, what the selected build does, and the builds
   function renderBar() {
     if (!sb.running) return;
     const s = sim(); const items = isOpen(sb.cat) ? LEVELS[sb.cat].palette : [];
     const tier = TIERS.find((t) => t.id === sb.cat);
-    const cr = G.credits !== Infinity ? `<span class="${G.credits > 0 ? 'ok' : ''}"><b>💰</b>${G.credits} ${G.S.credits}</span>` : '';
-    const slot = (idd) => { const it = ITEMS[idd]; const vid = G.videos?.has(idd);
-      return `<div class="slotwrap"><button class="slot item ${sb.tool === idd ? 'on' : ''}" data-t="${idd}" aria-pressed="${sb.tool === idd}" title="${esc(it.label)}"><img src="${thumb(idd)}" alt=""><span>${esc(it.label)}</span>${!G.j && it.cost ? `<em class="cost">💰${it.cost}</em>` : ''}</button>${vid ? `<button class="play" data-play="${idd}" aria-label="${esc(G.S.watchBuilt)}: ${esc(it.label)}" title="${esc(G.S.watchBuilt)}">▶</button>` : ''}</div>`; };
+    const cr = G.credits !== Infinity ? `<span class="credits ${G.credits > 0 ? 'ok' : ''}" title="${esc(G.S.credits)}"><b>💰</b>${G.credits} ${G.S.credits}</span>` : '';
+    const slot = (idd) => { const it = ITEMS[idd];
+      return `<div class="slotwrap"><button class="slot item ${sb.tool === idd ? 'on' : ''}" data-t="${idd}" aria-pressed="${sb.tool === idd}" title="${esc(it.label)}"><img src="${thumb(idd)}" alt=""><span>${esc(it.label)}</span>${!G.j && it.cost ? `<em class="cost">💰${it.cost}</em>` : ''}</button></div>`; };
     ui.buildPanel(`<div class="bhead"><b>${esc(G.S.buildTitle)}</b><span class="clock" data-clock title="${esc(G.S.dayClock)}">🕖 ${clockText()} · ${esc(G.S.day)} ${G.day}</span><button class="slot mini" data-pause aria-label="${esc(sb.paused ? G.S.play : G.S.pause)}" title="${esc(sb.paused ? G.S.play : G.S.pause)}">${sb.paused ? '▶' : '❚❚'}</button><button class="slot mini fold" data-fold aria-expanded="${!sb.folded}" aria-label="${esc(G.S.tools)}">${sb.folded ? '▴' : '▾'}</button></div>
-      <div class="bbody ${sb.folded ? 'folded' : ''}"><div class="cats" role="tablist" aria-label="${esc(G.S.buildWhat)}">${LEVEL_ORDER.map((id, i) => `<button class="slot cat ${sb.cat === id ? 'on' : ''} ${isOpen(id) ? '' : 'locked'}" data-cat="${id}" role="tab" aria-selected="${sb.cat === id}" title="${esc(G.S.cats[id])}"><img src="${thumb(TRACK_PICS[i])}" alt=""><span>${esc(G.S.cats[id])}</span>${isOpen(id) ? '' : '<i class="lock">🔒</i>'}</button>`).join('')}</div>
-      <div class="items">${isOpen(sb.cat) ? items.map(slot).join('') + `<div class="slotwrap"><button class="slot item erase ${sb.tool === 'erase' ? 'on' : ''}" data-t="erase" aria-pressed="${sb.tool === 'erase'}"><b class="ico">🧽</b><span>${esc(G.S.erase)}</span></button></div>`
-        : lockedView(tier, s)}</div>${isOpen(sb.cat) ? hlKey() : ''}</div>
-      <div class="bfoot"><span class="ok"><b>🏘</b>${s.townTiles}/${SANDBOX_TOWN_CAP}</span><span class="${s.familiesSafe >= TARGETS.families ? 'ok' : ''}"><b>👪</b>${s.familiesSafe}/${TARGETS.families}</span>${cr}</div>`, (tr) => {
-      tr.querySelectorAll('[data-cat]').forEach((b) => (b.onclick = () => { sb.cat = b.dataset.cat; if (isOpen(sb.cat)) { sb.tool = LEVELS[sb.cat].palette[0]; showAllowed(sb.tool); } else world.setOverlay(null); sb.folded = false; audio.tap(); renderBar(); }));
-      tr.querySelectorAll('[data-t]').forEach((b) => (b.onclick = () => { sb.tool = b.dataset.t; showAllowed(sb.tool); audio.tap(); renderBar(); }));
-      tr.querySelectorAll('[data-play]').forEach((b) => (b.onclick = () => playVideo(b.dataset.play)));
+      <div class="btools"><button class="slot item erase ${sb.tool === 'erase' ? 'on' : ''}" data-t="erase" aria-pressed="${sb.tool === 'erase'}" title="${esc(G.S.erase)} (X)"><b class="ico">🧽</b><span>${esc(G.S.erase)}</span></button>${cr}</div>
+      <div class="bbody ${sb.folded ? 'folded' : ''}"><div class="cats" role="tablist" aria-label="${esc(G.S.buildWhat)}">${LEVEL_ORDER.map((id, i) => `<button class="slot cat ${sb.cat === id ? 'on' : ''} ${isOpen(id) ? '' : 'locked'}" data-cat="${id}" role="tab" aria-selected="${sb.cat === id}" title="${esc(G.S.cats[id])} (${i + 1})"><img src="${thumb(TRACK_PICS[i])}" alt=""><span>${esc(G.S.cats[id])}</span>${isOpen(id) ? '' : '<i class="lock">🔒</i>'}</button>`).join('')}</div>
+      <div class="info" data-info aria-live="polite">${infoHtml(sb.tool)}</div>
+      <div class="items">${isOpen(sb.cat) ? items.map(slot).join('') : lockedView(tier, s)}</div>${isOpen(sb.cat) || sb.tool === 'erase' ? hlKey((G.placements || 0) >= 5) : ''}</div>`, (tr) => {
+      const info = tr.querySelector('[data-info]'); const bindPlay = () => info.querySelectorAll('[data-play]').forEach((b) => (b.onclick = () => playVideo(b.dataset.play)));
+      const showInfo = (id) => { info.innerHTML = infoHtml(id); bindPlay(); };
+      tr.querySelectorAll('[data-cat]').forEach((b) => (b.onclick = () => pickCat(b.dataset.cat)));
+      tr.querySelectorAll('[data-t]').forEach((b) => { b.onclick = () => pickTool(b.dataset.t); b.onmouseenter = b.onfocus = () => showInfo(b.dataset.t); b.onmouseleave = b.onblur = () => showInfo(sb.tool); });
+      bindPlay();
       tr.querySelector('[data-fold]').onclick = () => { sb.folded = !sb.folded; renderBar(); requestAnimationFrame(reframe); };
       tr.querySelector('[data-pause]').onclick = () => { sb.paused = !sb.paused; renderBar(); };
     });
   }
-  // the key to the tile highlight (matches showAllowed's colours)
-  function hlKey() {
+  function pickCat(cat) { sb.cat = cat; if (isOpen(cat)) { sb.tool = LEVELS[cat].palette[0]; showAllowed(sb.tool); } else { if (sb.tool !== 'erase') world.setOverlay(null); } sb.folded = false; audio.tap(); renderBar(); }
+  function pickTool(id) { sb.tool = id; showAllowed(id); audio.tap(); renderBar(); }
+  // what the selected (or hovered) build is and does: name, one sentence, effect chips, where it goes, cost, ▶
+  const chipHtml = (c) => `<span class="chip ${c.good ? 'good' : 'bad'}" style="--c:${CHIP[c.key].col}">${c.v > 0 ? '+' : '−'}${Math.abs(c.v)} ${CHIP[c.key].icon}</span>`;
+  function infoHtml(id) {
+    if (id === 'erase') return `<div class="ihead"><b>🧽 ${esc(G.S.erase)}</b></div><p>${esc(G.S.removeDesc)}</p>`;
+    const it = ITEMS[id]; if (!it || !isOpen(sb.cat)) return '';
+    const where = it.on.map((z) => G.S.zone[z] || z).join(', ');
+    return `<div class="ihead"><b>${esc(it.label)}</b>${!G.j && it.cost ? `<em class="cost">💰 ${it.cost}</em>` : ''}${G.videos?.has(id) ? `<button class="slot mini play" data-play="${id}" aria-label="${esc(G.S.watchBuilt)}: ${esc(it.label)}" title="${esc(G.S.watchBuilt)}">▶</button>` : ''}</div>
+      <p>${esc(pick(it.desc || ''))}</p><div class="chips">${itemChips(id).map(chipHtml).join('')}<span class="where">${esc(G.S.goesOn)}: ${esc(where)}</span></div>`;
+  }
+  // the key to the tile highlight (matches showAllowed's colours); after the first few builds it folds to a "?"
+  function hlKey(mini = false) {
     const sw = (cls, text) => `<span><i class="hk ${cls}" aria-hidden="true"></i>${esc(text)}</span>`;
-    return `<div class="hlkey">${sb.tool === 'erase' ? sw('erase', G.S.keyErase) : sw('free', G.S.keyFree) + sw('swap', G.S.keySwap)}${sw('no', G.S.keyNo)}</div>`;
+    return `<div class="hlkey ${mini ? 'mini' : ''}" ${mini ? 'tabindex="0" aria-label="Key"' : ''}>${mini ? '<b class="hkq" aria-hidden="true">?</b>' : ''}${sb.tool === 'erase' ? sw('erase', G.S.keyErase) : sw('free', G.S.keyFree) + sw('swap', G.S.keySwap)}${sw('no', G.S.keyNo)}</div>`;
   }
   // a locked category still shows what it will unlock (greyed), with a bar filling toward it
   function lockedView(tier, s) {
@@ -376,17 +391,47 @@ export function createGame(app) {
     if (cat === 'heart') return `${s.families} ${G.S.families}, ${G.S.food} ${s.food}/${s.foodNeed}`;
     return `${s.families} ${G.S.families}`;
   }
-  // the town card: the next town goal, and the six missions on the track (lit = unlocked, ticked = done)
-  function renderCard() {
-    const s = sim(); const goals = townGoals(s, ctxFor(G.cells)); const next = goals.find((g) => !g.ok);
-    ui.setBadge('');
+  // which build category answers each town goal (for "opens with …" and Florence's next-step ideas)
+  const GOAL_CAT = { homes: 'homes', food: 'food', nature: 'land', health: 'move', energy: 'power', community: 'heart', carbon: 'homes', walk: 'heart' };
+  // the next step: unlock the next category, then the first town goal not met yet. { text, have, need }
+  function nextStep(s) {
     const nu = nextUnlock(s, G.ever);
-    ui.setTask(0, nu ? `${G.S.nextGoal}: ${pick(nu.tier.need)} (${nu.have}/${nu.need}) → ${G.S.cats[nu.id]}` : next ? `${G.S.nextGoal}: ${G.S.goal[next.id](s)}` : G.S.allGoals);
+    if (nu) { const left = nu.need - nu.have; return { text: nu.id === 'homes' ? G.S.nextStep.land(left) : G.S.nextStep.fam(left, G.S.cats[nu.id]), have: nu.have, need: nu.need }; }
+    const goals = townGoals(s, ctxFor(G.cells)); const next = goals.find((g) => !g.ok); const done = goals.filter((g) => g.ok).length;
+    if (!next) return { text: G.S.allGoals, have: 1, need: 1 };
+    const pct = (v) => Math.min(100, Math.round(v * 100));
+    const [have, need] = { homes: [s.familiesSafe, TARGETS.families], food: [s.food, s.foodNeed], nature: [pct(s.petals.nature), 100], health: [pct(s.petals.health), 100], community: [pct(s.petals.community), 100],
+      energy: [Math.round(s.power.winterSupply), Math.max(1, Math.round(s.power.demand))] }[next.id] || [done, goals.length];
+    return { text: `${G.S.next}: ${G.S.goal[next.id](s)}`, have: Math.min(have, need), need };
+  }
+  // the town card: the next step, and the six missions on the track (lit = ready, ticked = done)
+  function renderCard() {
+    const s = sim();
+    ui.setBadge('');
+    const st = nextStep(s); ui.setStep(st.text, st.have, st.need);
     ui.setTrack(LEVEL_ORDER.map((id) => (G.labs[id] ? 'done' : labReady(id, G.ever, G.labs, G.classMode) ? 'on' : '')));
     ui.setStars(G.stars = totalStars());
   }
+  // the town goals in the 🌼 pop-over: all eight, ticked when met, with how to get there
+  function renderGoals(s) {
+    if (app.inLab) return;
+    const goals = townGoals(s, ctxFor(G.cells)); const done = goals.filter((g) => g.ok).length;
+    const cr = G.credits !== Infinity ? ` · 💰 ${G.credits} ${esc(G.S.credits)}` : '';
+    ui.setGoals(`<b class="gtitle">${esc(G.S.goalsTitle)} <em>${esc(G.S.goalsDone(done))}</em></b><ul>${goals.map((g) => { const open = isOpen(GOAL_CAT[g.id]);
+      return `<li class="${g.ok ? 'ok' : ''} ${open ? '' : 'locked'}"><i aria-hidden="true">${g.ok ? '✓' : open ? '○' : '🔒'}</i><span><b>${esc(G.S.goal[g.id](s))}</b><small>${esc(g.ok ? '' : open ? G.S.goalHow[g.id] : G.S.opensWith(G.S.cats[GOAL_CAT[g.id]]))}</small></span></li>`; }).join('')}</ul>
+      <p class="gstats">🏘 ${s.townTiles}/${SANDBOX_TOWN_CAP} ${esc(G.S.tiles)} · 👪 ${s.familiesSafe}/${TARGETS.families} ${esc(G.S.families)}${cr}</p>`);
+  }
+  // a goal met for the first time: a small celebration (once per town, saved)
+  function milestones(s, { quiet = false } = {}) {
+    const goals = townGoals(s, ctxFor(G.cells)); const first = !G.milestones; G.milestones ||= {};
+    const fresh = goals.filter((g) => g.ok && !G.milestones[g.id]); for (const g of fresh) G.milestones[g.id] = true;
+    if (first || quiet || !fresh.length || !sb.running || !s.homes.length) return;
+    const g = fresh[0]; audio.reward?.(); ui.alert(G.S.goalMet[g.id], true, 3200); app.bot?.cheer();
+    const town = [...G.cells].filter(([, c]) => c.item || c.mark === 'town').map(([k]) => k); const k = town[Math.floor(town.length / 2)];
+    if (k && !app.reduce) world.confetti(world.tileTop(k).add(new THREE.Vector3(0, 4, 0)), 60);
+  }
   // lens buttons in the icon strip, one per mission done
-  function renderLenses() { ui.setLenses(LEVEL_ORDER.filter((id) => G.labs[id]).map((id) => ({ id: LAB_LENS[id], icon: G.C.checks[LAB_LENS[id]].icon, label: G.C.checks[LAB_LENS[id]].label, on: sb.lens === LAB_LENS[id] }))); }
+  function renderLenses() { ui.setLenses(LEVEL_ORDER.filter((id) => G.labs[id]).map((id) => ({ id: LAB_LENS[id], icon: G.C.checks[LAB_LENS[id]].icon, label: G.C.checks[LAB_LENS[id]].label, on: sb.lens === LAB_LENS[id] })), G.S.lenses); }
   async function toggleLens(id) {
     if (G.busy) return;
     if (sb.lens) { const was = sb.lens; sb.lens = null; await checks.leave(); renderLenses(); if (sb.tool) showAllowed(sb.tool); if (was === id) return; }
@@ -406,7 +451,7 @@ export function createGame(app) {
     const before = G.ever; G.ever = unlocked(s, G.ever, G.full); const fresh = newlyUnlocked(before, G.ever);
     if (fresh.length) announceUnlock(fresh);
     if (!G.movedIn && s.homes.length) moveIn(s);
-    renderBar(); renderCard();
+    renderBar(); renderCard(); milestones(s);
     if (!fresh.length) adviseSoon(400);
     if (!G.completeShown && !sb.celebrating && townComplete(s, ctxFor(G.cells))) { sb.celebrating = true; setTimeout(celebrateTown, 1500); }
     clearTimeout(sb.saveT); sb.saveT = setTimeout(save, 800);
@@ -422,20 +467,33 @@ export function createGame(app) {
   function adviseSoon(ms) { clearTimeout(sb.tipT); sb.tipT = setTimeout(advise, ms); }
   function advise() {
     if (!sb.running || sb.paused || G.busy || sb.lens || sb.intro) return;
-    const s = sim(); const rule = nextTip(sb.adv, s, { open: G.ever, hasSchool: ctxFor(G.cells).hasSchool }, performance.now());
-    if (!rule) return;
+    const s = sim(); const now = performance.now(); const rule = nextTip(sb.adv, s, { open: G.ever, hasSchool: ctxFor(G.cells).hasSchool }, now);
+    if (!rule) {
+      // a problem she pointed out is fixed: say so
+      const solved = (sb.adv.solved || []).splice(0).filter((id) => G.S.fixed[id]);
+      if (solved.length) { showTip({ id: 'fixed-' + solved[0], text: G.S.fixed[solved[0]], praise: true }); app.bot?.cheer(); return; }
+      // nothing wrong: a next step toward the first goal not met yet (each idea at most every 3 minutes)
+      if (!tipShown && !sb.adv.pending.length && now - sb.adv.last > 40000) {
+        const g = townGoals(s, ctxFor(G.cells)).find((x) => !x.ok && isOpen(GOAL_CAT[x.id]) && now - (sb.ideas[x.id] || -Infinity) > 180000);
+        if (g) { sb.ideas[g.id] = now; sb.adv.last = now; showTip({ id: 'idea-' + g.id, text: G.S.nextIdea[g.id] }); }
+      }
+      return;
+    }
     const lab = rule.lab && !G.labs[rule.lab] && labReady(rule.lab, G.ever, G.labs, G.classMode) ? rule.lab : null;
     const lens = rule.lab && G.labs[rule.lab] && rule.lens === LAB_LENS[rule.lab] ? rule.lens : null;
     showTip({ id: rule.id, text: tipText(rule, s, G.j), lab, lens, at: tipAt(rule.id, s) });
   }
   // Florence's tip: one line in the dock, above the build bar. Never blocks; fades after a while.
   let tipShown = null;
-  function showTip({ id, text, lab = null, lens = null, at = null }) {
-    tipShown = id; lastTip = { id, text, lab, lens }; audio.tip();
-    const el = ui.florence({ tag: G.S.tipTag, html: `<p>${esc(text)}</p><div class="tiprow">${lab ? `<button class="slot act go" data-tiplab="${lab}"><img src="${thumb('ailab')}" alt=""><span>${esc(G.S.showInLab)}</span></button>` : ''}${lens ? `<button class="slot act" data-tiplens="${lens}"><b class="ico">${G.C.checks[lens].icon}</b><span>${esc(G.S.useLens)}</span></button>` : ''}<button class="slot act x" data-tipx aria-label="${esc(G.S.dismiss)}"><b class="ico">✕</b></button></div>`, say: text });
+  function showTip({ id, text, lab = null, lens = null, at = null, praise = false }) {
+    if (lab) lens = null; // one button at most
+    tipShown = id; lastTip = { id, text, lab, lens, praise }; praise ? audio.good?.() : audio.tip();
+    const act = lab ? `<button class="slot act go" data-tiplab="${lab}"><img src="${thumb('ailab')}" alt=""><span>${esc(G.S.showInLab)}</span></button>` : lens ? `<button class="slot act" data-tiplens="${lens}"><b class="ico">${G.C.checks[lens].icon}</b><span>${esc(G.S.useLens)}</span></button>` : '';
+    const el = ui.florence({ tag: praise ? '✓' : G.S.tipTag, html: `<p>${esc(text)}</p>${act ? `<div class="tiprow">${act}</div>` : ''}`, say: text });
+    el.classList.toggle('praise', praise); el.title = G.S.dismiss;
     el.querySelector('[data-tiplab]')?.addEventListener('click', () => { hideTip(); openLab(lab); });
     el.querySelector('[data-tiplens]')?.addEventListener('click', () => { hideTip(); toggleLens(lens); });
-    el.querySelector('[data-tipx]').onclick = () => hideTip();
+    el.onclick = (e) => { if (!e.target.closest('button')) hideTip(); }; // tap the card to close it
     if (at && sb.running) florenceTo(at, 'point');
     clearTimeout(sb.tipHide); sb.tipHide = setTimeout(() => { if (tipShown === id) hideTip(); }, lab ? 20000 : 12000);
   }
@@ -514,9 +572,22 @@ export function createGame(app) {
   function newDay() {
     app.hour = 6; G.day++; const s = sim(); audio.dawn(); setMusic('day');
     const line = diaryLines('heart', s, G.j)[G.day % 3]; if (s.homes.length && !G.diary.includes(line)) G.diary = [...G.diary, line].slice(-8);
-    if (G.credits !== Infinity) { const pay = Math.round(s.familiesSafe * 1.5 + s.community); G.credits += pay; ui.caption(`${G.S.day} ${G.day}: +${pay} ${G.S.credits} ${G.S.fromHouseholds}`, 3500); }
-    else ui.caption(`${G.S.newDay} ${G.day}`, 2200);
+    if (G.credits !== Infinity) { const pay = Math.round(s.familiesSafe * 1.5 + s.community); G.credits += pay; ui.caption(`${G.S.day} ${G.day}: ${G.S.earnedToday(pay)}`, 3500); }
+    else ui.caption(`${G.S.newDay} ${G.day}${s.familiesSafe ? ` · 👪 ${s.familiesSafe} ${G.S.families}` : ''}`, 2600);
     renderBar(); save();
+  }
+  // one build (or removal) on tile k, with what it changed floating up from the tile and the petals it helped lit
+  function act(k, tool) {
+    const before = sim(); const cr0 = G.credits;
+    if (!placeAt(k, tool, { replace: true })) return false;
+    world.clearGhost(); app._hk = null; G.placements = (G.placements || 0) + 1;
+    const now = performance.now(); sb.popRun = now - (sb.popAt || 0) < 2500 ? (sb.popRun || 0) + 1 : 0; sb.popAt = now;
+    if (tool === 'erase') audio.remove(); else audio.pop(sb.popRun, sb.cat);
+    const d = simDelta(before, sim()); const spent = G.credits !== Infinity ? G.credits - cr0 : 0;
+    const html = d.map(chipHtml).join('') + (spent ? `<span class="chip ${spent > 0 ? 'good' : 'bad'}" style="--c:${CHIP.credits.col}">${spent > 0 ? '+' : '−'}${Math.abs(spent)} 💰</span>` : '');
+    if (html) ui.labels.float({ at: world.tileTop(k).add(new THREE.Vector3(0, 5, 0)), html, text: chipsText(d) });
+    showAllowed(sb.tool); changed(); if (d.some((c) => c.good)) flower(d.filter((c) => c.good).map((c) => c.key)); florenceTo(k, 'peer');
+    return true;
   }
   function bindTaps() {
     const canvas = stage.renderer.domElement;
@@ -525,8 +596,10 @@ export function createGame(app) {
       const k = world.pick(ndc, stage.camera); if (!k) return;
       if (k === terrain.lab) { audio.tap(); return labBoard(); } // the AI Lab building opens the Lab board
       if (!sb.tool || (!isOpen(sb.cat) && sb.tool !== 'erase')) return;
-      if (placeAt(k, sb.tool, { replace: true })) { world.clearGhost(); app._hk = null; const now = performance.now(); sb.popRun = now - (sb.popAt || 0) < 2500 ? (sb.popRun || 0) + 1 : 0; sb.popAt = now; if (sb.tool === 'erase') audio.remove(); else audio.pop(sb.popRun, sb.cat); showAllowed(sb.tool); changed(); florenceTo(k, 'peer'); }
+      act(k, sb.tool);
     };
+    // right-click (not drag) removes, whatever tool is selected
+    rig.onAltTap = (ndc) => { if (!sb.running || G.busy || sb.lens) return; const k = world.pick(ndc, stage.camera); if (k && k !== terrain.lab) act(k, 'erase'); };
     rig.onHover = (ndc) => {
       if (!sb.running || G.busy || sb.lens || sb.tool === 'erase' || !isOpen(sb.cat)) return;
       const k = world.pick(ndc, stage.camera); if (k === app._hk) return; app._hk = k;
@@ -536,10 +609,24 @@ export function createGame(app) {
       const nc = r.cell || (() => { const n = { ...c, mods: [...c.mods] }; const it = ITEMS[sb.tool]; if (it.kind === 'mark') n.mark = sb.tool; else if (it.kind === 'mod') n.mods.push(sb.tool); else n.item = sb.tool; return n; })();
       world.showGhost([{ k }], new Map([[k, nc]]), { reduce: true, bad: r.why ? new Set([k]) : new Set() });
       const at = world.tileTop(k).add(new THREE.Vector3(0, 4, 0));
-      ui.labels.set(r.why ? [{ at, text: r.why, cls: 'bad' }] : r.replaced ? [{ at, text: G.S.replaces(r.replaced) }] : []);
+      if (r.why) return ui.labels.set([{ at, text: r.why, cls: 'bad' }]);
+      // what this build would really change in the town (before you place it), and what it swaps out
+      const after = new Map(G.cells); after.set(k, nc); const d = simDelta(sim(), sim(after));
+      const net = G.credits !== Infinity ? (ITEMS[sb.tool].cost || 0) - (r.removed || []).reduce((a, id) => a + (ITEMS[id]?.cost || 0), 0) : 0;
+      const html = `${r.replaced ? `<span class="rep">${esc(G.S.replaces(r.replaced))}</span>` : ''}${d.map(chipHtml).join('')}${net ? `<span class="chip bad" style="--c:${CHIP.credits.col}">−${net} 💰</span>` : ''}`;
+      ui.labels.set(html ? [{ at, html, cls: 'ok preview' }] : []);
     };
     canvas.addEventListener('pointerleave', () => { world.clearGhost(); app._hk = null; ui.labels.clear('lbl'); });
   }
+  // keys while building: 1–6 pick a category, X picks Remove, Esc closes the pop-overs
+  addEventListener('keydown', (e) => {
+    if (!sb.running || G.busy || sb.intro || e.ctrlKey || e.metaKey || e.altKey) return;
+    const a = document.activeElement; if (a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.tagName === 'SELECT')) return;
+    if (!ui.P.modal.classList.contains('hide')) return;
+    if (/^[1-6]$/.test(e.key)) { pickCat(LEVEL_ORDER[+e.key - 1]); e.preventDefault(); }
+    else if (e.key.toLowerCase() === 'x') { pickTool('erase'); e.preventDefault(); }
+    else if (e.key === 'Escape') ui.closePops();
+  });
   // centre the island in the free space beside (or above) the build panel
   function frameView() {
     // the island is framed in the space the side panels leave free: the build panel while building, the
@@ -577,7 +664,7 @@ export function createGame(app) {
     }).join('');
     G.busy = true; // the town waits while the board is open
     const a = await ui.modal(`<div class="ribbon">🧪 ${esc(G.S.labTitle)}</div><p>${esc(pick(G.S.labIntro))}</p><div class="labs">${rows}</div>
-      <div class="row" style="justify-content:center;margin-top:10px"><button class="btn alt" data-act="day">🌇 ${esc(G.S.watchDay)}</button><button class="btn alt" data-act="report">📜 ${esc(G.C.ui.report)}</button><button class="btn go" data-act="close">${esc(G.S.backToBuilding)}</button></div>`);
+      <div class="row" style="justify-content:center;margin-top:10px"><button class="btn go" data-act="close">${esc(G.S.backToBuilding)}</button></div>`);
     G.busy = false;
     if (a === 'none') return labBoard();
     if (a.startsWith('lab:')) return openLab(a.slice(4));
@@ -830,7 +917,10 @@ export function createGame(app) {
   G.run = async () => {
     G.ever = unlocked(sim(), G.ever, G.full); G.stars = totalStars();
     ui.setStars(G.stars); ui.setTownName(G.townName); flower(false);
-    ui.onLab = () => labBoard(); ui.onLens = (id) => toggleLens(id); ui.onTalk = (secs) => app.bot?.talk(secs);
+    ui.onLab = () => labBoard(); ui.onLens = (id) => toggleLens(id); ui.onTalk = (secs) => app.bot?.talk(secs); ui.onCamToggle = () => reframe();
+    // each mission on the track opens that mission when it's ready, otherwise the Lab board
+    ui.onTrack = (i) => { const id = LEVEL_ORDER[i]; if (id && !G.busy && sb.running && labReady(id, G.ever, G.labs, G.classMode)) openLab(id); else labBoard(); };
+    milestones(sim(), { quiet: true }); // goals already met in a loaded town don't celebrate again
     try { const r = await fetch('videos/index.json'); if (r.ok) G.videos = new Set((await r.json()).items); } catch { /* no videos on this build */ }
     bindTaps(); startBuilding();
     setInterval(tick, 200);
@@ -844,7 +934,7 @@ export function createGame(app) {
   async function intro() {
     if (sb.intro) return; sb.intro = true; hideTip();
     try {
-      await runIntro({ app, G, T: G.S.intro,
+      await runIntro({ app, G, T: { ...G.S.intro, goals: G.S.introGoals },
         selectTool: (cat, tool) => { sb.cat = cat; sb.tool = tool; sb.folded = false; showAllowed(tool); renderBar(); },
         townTiles: () => sim().townTiles,
         videoCard: G.videos?.has('timber') ? (id) => videoCard(ITEMS[id].label, id, null) : null,
@@ -852,6 +942,8 @@ export function createGame(app) {
     } finally { sb.intro = false; G.introDone = true; save(); sb.adv.last = performance.now(); }
   }
   G.replayIntro = () => { if (!G.busy && sb.running) intro(); };
+  // the ☰ menu: the town report and a whole day, only while building (not in a mission or the intro)
+  G.canMenu = () => sb.running && !G.busy && !sb.intro; G.showReport = () => { if (G.canMenu()) showReport(); }; G.wholeDay = () => { if (G.canMenu()) wholeDay(); };
   G.openLab = openLab; G.labBoard = labBoard; G.playVideo = playVideo; G.videoCard = videoCard; G.florenceTo = florenceTo; G.placeAt = (k, tool) => { const ok = placeAt(k, tool); if (ok) changed(); return ok; }; G.sim = sim; G.advisor = sb.adv;
   G.saved = () => { try { const d = JSON.parse(localStorage.getItem(SAVE) || 'null'); return d && d.band === G.band ? d : null; } catch { return null; } };
   return G;

@@ -64,35 +64,47 @@ function loop(now) {
 }
 requestAnimationFrame(loop);
 
-// ---------------- settings sheet
+// ---------------- the ☰ menu: the town report, a whole day, the intro again, and the settings, in one sheet
 function settingsSheet() {
-  const s = app.settings; const P = ui.P.settings;
+  const s = app.settings; const P = ui.P.settings; const G = app.G; const free = !!G?.canMenu?.();
   const row = (k, label) => `<label>${esc(label)}<input type="checkbox" data-k="${k}" ${s[k] ? 'checked' : ''}></label>`;
-  P.innerHTML = `<h3 style="margin:0 0 6px">Settings</h3>${row('readAloud', 'Read aloud')}${row('reduce', 'Reduce motion')}${row('sound', 'Sound (everything)')}${row('effects', 'Sound effects')}${row('music', 'Music')}${row('facilitator', 'Facilitator notes')}
+  const snd = !s.sound ? 'off' : s.music === false ? 'fx' : 'on';
+  P.innerHTML = `<h3 style="margin:0 0 8px">Menu</h3>
+    <div class="menuacts"><button class="slot act" data-m-act="report" ${free ? '' : 'disabled'}><b class="ico">📜</b><span>Town report</span></button><button class="slot act" data-m-act="day" ${free ? '' : 'disabled'}><b class="ico">🌇</b><span>Watch a whole day</span></button><button class="slot act" data-intro ${free ? '' : 'disabled'}><b class="ico">🎬</b><span>Watch Florence’s intro again</span></button></div>
+    <h4 class="menuhead">Settings</h4>
+    <label>Sound<select data-snd><option value="on" ${snd === 'on' ? 'selected' : ''}>On (music and effects)</option><option value="fx" ${snd === 'fx' ? 'selected' : ''}>Effects only</option><option value="off" ${snd === 'off' ? 'selected' : ''}>Off</option></select></label>
+    ${row('readAloud', 'Read aloud')}${row('reduce', 'Reduce motion')}${row('facilitator', 'Facilitator notes')}
     <label>Text size<select data-k="text"><option value="normal">Normal</option><option value="large" ${s.text === 'large' ? 'selected' : ''}>Large</option></select></label>
     <label>Graphics<select data-k="quality">${['auto', 'low', 'mid', 'high'].map((q) => `<option ${s.quality === q ? 'selected' : ''}>${q}</option>`).join('')}</select></label>
-    <button class="btn alt" data-intro style="width:100%;margin:6px 0">▶ Watch Florence’s intro again</button><p style="font-size:.8em;color:#46596a">Florence: ${modelReady() ? 'small language model (on this device)' : 'keyword reader (model not loaded)'}. Voices: recorded on this device’s game files. Nothing you type is stored or sent.</p><button class="btn go" data-close>Done</button>`;
+    <p style="font-size:.8em;color:#46596a">Florence: ${modelReady() ? 'small language model (on this device)' : 'keyword reader (model not loaded)'}. Voices: recorded on this device’s game files. Nothing you type is stored or sent.</p><button class="btn go" data-close>Done</button>`;
   P.querySelectorAll('[data-k]').forEach((i) => (i.onchange = () => { s[i.dataset.k] = i.type === 'checkbox' ? i.checked : i.value; applySettings(); ui.refreshFacil(); }));
+  P.querySelector('[data-snd]').onchange = (e) => { const v = e.target.value; s.sound = v !== 'off'; s.effects = v !== 'off'; s.music = v === 'on'; applySettings(); };
   P.querySelector('[data-close]').onclick = () => ui.show('settings', false);
   P.querySelector('[data-intro]').onclick = () => { ui.show('settings', false); app.G?.replayIntro?.(); };
-  ui.show('settings', true);
+  P.querySelectorAll('[data-m-act]').forEach((b) => (b.onclick = () => { ui.show('settings', false); if (b.dataset.mAct === 'report') app.G?.showReport?.(); else app.G?.wholeDay?.(); }));
+  ui.closePops(P.settings); ui.show('settings', true);
 }
 ui.P.tr.querySelector('[data-menu]').onclick = () => (ui.P.settings.classList.contains('hide') ? settingsSheet() : ui.show('settings', false));
-ui.P.views.addEventListener('click', async (e) => {
-  const b = e.target.closest('[data-v]'); if (!b || b.disabled) return;
-  const v = b.dataset.v; ui.views(v);
+// views: the whole island from the sky (⌂), a walk down a street (👟) or inside a home (🏠)
+async function setView(v) {
+  ui.views(v);
   if (inside.root.visible) await rig.fade(() => { inside.root.visible = false; });
   const home = app.G?.cells && [...app.G.cells].find(([, c]) => c.item && /timber|straw|earth|reclaimed|cohousing|concrete/.test(c.item));
   if (v === 'sky') rig.overview(1.2);
   if (v === 'street') { const k = home?.[0] || terrain.school; const p = world.tileTop(k); rig.toStreet(p.clone().add(new THREE.Vector3(-8, 2.1, -9)), p.clone().add(new THREE.Vector3(0, 1.5, 0))); }
   if (v === 'inside') { inside.build(home?.[1].item || 'timber', 20); await rig.fade(() => { inside.root.visible = true; rig.mode = 'inside'; rig.apply(inside.pose()); }); }
+}
+app.setView = setView;
+ui.P.views.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-v]'); if (!b || b.disabled) return;
+  setView(b.classList.contains('on') ? 'sky' : b.dataset.v); // tap again to come back up
 });
 // double-tap flies in to a tile (also while building: the second tap zooms instead of placing again)
 rig.onDoubleTap = (ndc) => { if (rig.mode !== 'sky') return; const k = world.pick(ndc, stage.camera); if (k) rig.focus(world.tileTop(k), { dist: 55, pitch: 0.6 }, 1.1); };
 // camera buttons
 ui.P.camctl.addEventListener('click', async (e) => {
   const b = e.target.closest('[data-cam]'); if (!b) return; const a = b.dataset.cam;
-  if (a === 'home') { if (rig.mode !== 'sky') ui.P.views.querySelector('[data-v="sky"]').click(); else rig.overview(1.2); return; }
+  if (a === 'home') { if (rig.mode !== 'sky') setView('sky'); else rig.overview(1.2); return; }
   if (rig.mode !== 'sky') return;
   if (a === 'in') rig.zoomBy(0.72); if (a === 'out') rig.zoomBy(1.38); if (a === 'left') rig.rotateBy(Math.PI / 4); if (a === 'right') rig.rotateBy(-Math.PI / 4);
 });

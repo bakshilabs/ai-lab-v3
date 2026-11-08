@@ -10,6 +10,8 @@ export const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&am
 
 const PETAL_COL = { homes: '#ff8a5c', food: '#ffc83d', nature: '#4caf50', health: '#ff7eb6', energy: '#2f9de0', community: '#b28cff', carbon: '#7a8a96' };
 const PETAL_ICON = { homes: '🏠', food: '🍎', nature: '🦋', health: '❤', energy: '⚡', community: '🤝', carbon: '☁' };
+// a solid paler shade (not see-through) for a petal that hasn't reached 'enough' yet
+const mixWhite = (hex) => { const n = parseInt(hex.slice(1), 16); const m = (c) => Math.round(c + (255 - c) * 0.55); return `rgb(${m(n >> 16)},${m((n >> 8) & 255)},${m(n & 255)})`; };
 
 export const LEVEL_ICONS = ['🗺', '🚲', '🏡', '🍎', '⚡', '🏫'];
 // the picture for each build category (and mission): rendered from the game's own voxel builds (tools/thumbs.mjs)
@@ -21,9 +23,11 @@ export function createUI(root, labelsRoot, opts) {
   // one town card (top-left), one icon strip (top-right), one dock (bottom): the whole frame
   mk('card', 'from-left', `<div class="crow"><span class="leaf">🌱</span><b class="brand">Eco Town</b><span class="band" data-sub></span><span class="stars"><span class="star">★</span><b data-stars>0</b></span></div>
     <div class="track" data-track>${TRACK_PICS.map((pic, i) => `<i data-l="${i + 1}" role="button" tabindex="0" aria-label="AI Lab mission ${i + 1}"><img src="img/thumbs/${pic}.png" alt=""></i>`).join('<em></em>')}</div><div class="goal" data-goal></div>`);
-  mk('strip', 'from-right', `<button class="ib" data-flower aria-label="Town flower"><svg viewBox="-60 -60 120 120"></svg></button><span class="sep"></span>
-    <button class="ib" data-v="sky" aria-label="Sky view">☁</button><button class="ib" data-v="street" aria-label="Street view">👟</button><button class="ib" data-v="inside" aria-label="Inside view">🏠</button><span class="sep"></span><span class="lenses" data-lenses></span><button class="ib lab" data-lab aria-label="AI Lab" title="AI Lab"><img src="img/thumbs/ailab.png" alt=""></button><span class="sep"></span><button class="ib" data-menu aria-label="Settings">☰</button>`);
-  mk('flowerpop', 'from-right', '<svg viewBox="-60 -60 120 120" aria-label="Town flower"></svg><div class="ttl"></div><div class="legend"></div>');
+  // four buttons: the town's goals (flower), lenses (once one is earned), the AI Lab and the menu
+  mk('strip', 'from-right', `<button class="ib" data-flower aria-label="Town goals" title="Town goals" aria-expanded="false"><svg viewBox="-60 -60 120 120"></svg></button><span class="sep"></span>
+    <button class="ib lensbtn" data-lensbtn aria-label="Lenses" title="Lenses" aria-expanded="false" hidden>🔍</button><button class="ib lab" data-lab aria-label="AI Lab" title="AI Lab"><img src="img/thumbs/ailab.png" alt=""></button><span class="sep"></span><button class="ib" data-menu aria-label="Menu" title="Menu">☰</button>`);
+  mk('flowerpop', 'from-right', '<div class="fltop"><svg viewBox="-60 -60 120 120" aria-label="Town flower"></svg><div><div class="ttl"></div><div class="legend"></div></div></div><div class="goals" data-goals></div>');
+  mk('lenspop', 'from-right blk', '');
   mk('dock', 'from-bottom', '<div class="head" data-head></div><div class="speaker" data-speaker></div><div class="actions" data-actions></div>');
   mk('alert', 'pop', '<span class="x">✕</span><span data-t></span>');
   mk('lensbar', 'from-top');
@@ -32,13 +36,17 @@ export function createUI(root, labelsRoot, opts) {
   mk('build', 'from-left blk');                      // free building: categories and builds, as a grid of pictures (left)
   mk('florence', 'from-right blk');                  // Florence's portrait and her tips while building (right)
   // camera buttons for whiteboards, trackpads and anyone who prefers buttons to gestures
-  mk('camctl', 'from-right blk', `<button class="ib" data-cam="in" aria-label="Zoom in" title="Zoom in">＋</button><button class="ib" data-cam="out" aria-label="Zoom out" title="Zoom out">－</button><button class="ib" data-cam="left" aria-label="Turn left" title="Turn left">⟲</button><button class="ib" data-cam="right" aria-label="Turn right" title="Turn right">⟳</button><button class="ib" data-cam="home" aria-label="Back to the whole island" title="Back to the whole island">⌂</button>`);
+  // one 🎥 button that opens the controls (always open on touch screens and whiteboards)
+  mk('camctl', 'from-right blk', `<button class="ib camtog" data-camtog aria-label="Camera" title="Camera" aria-expanded="false">🎥</button><span class="camrow"><button class="ib" data-cam="in" aria-label="Zoom in" title="Zoom in">＋</button><button class="ib" data-cam="out" aria-label="Zoom out" title="Zoom out">－</button><button class="ib" data-cam="left" aria-label="Turn left" title="Turn left">⟲</button><button class="ib" data-cam="right" aria-label="Turn right" title="Turn right">⟳</button><button class="ib" data-cam="home" aria-label="Back to the whole island" title="Back to the whole island">⌂</button><button class="ib" data-v="street" aria-label="Street view" title="Street view">👟</button><button class="ib" data-v="inside" aria-label="Inside a home" title="Inside a home">🏠</button></span>`);
+  const camOpen = (on) => { P.camctl.classList.toggle('open', on); P.camctl.querySelector('[data-camtog]').setAttribute('aria-expanded', on); };
+  camOpen(matchMedia('(pointer: coarse) and (min-width: 761px)').matches); // whiteboards and tablets: open; phones pinch and drag
+  P.camctl.querySelector('[data-camtog]').addEventListener('click', () => { camOpen(!P.camctl.classList.contains('open')); requestAnimationFrame(() => ui.onCamToggle?.()); });
   const D = { head: P.dock.querySelector('[data-head]'), speaker: P.dock.querySelector('[data-speaker]'), actions: P.dock.querySelector('[data-actions]') };
   // facilitator notes live in their own card (top left, under the town card), whatever else is on screen
   mk('facil', 'from-left facilcard'); const facilEl = P.facil; let facilText = null;
   // a dimmed backdrop behind centre cards, so they are always readable and nothing behind them can be clicked
   const backdrop = h('<div id="backdrop" class="hide"></div>'); root.appendChild(backdrop);
-  P.tray = D.actions; P.helper = D.speaker; P.tr = P.strip; P.views = P.strip; P.flower = P.flowerpop; P.badge = P.card; P.task = P.card;
+  P.tray = D.actions; P.helper = D.speaker; P.tr = P.strip; P.views = P.camctl; P.flower = P.flowerpop; P.badge = P.card; P.task = P.card;
   const dockState = { speaker: false, actions: false, head: false };
   const syncDock = () => { P.dock.classList.toggle('hide', !(dockState.speaker || dockState.actions)); D.speaker.style.display = dockState.speaker ? '' : 'none'; D.actions.style.display = dockState.actions ? '' : 'none'; P.dock.classList.toggle('talk-only', dockState.speaker && !dockState.actions); P.dock.classList.toggle('actions-only', !dockState.speaker && dockState.actions); };
 
@@ -59,7 +67,12 @@ export function createUI(root, labelsRoot, opts) {
       P[id]?.classList.toggle('hide', !on);
       if (id === 'strip') P.camctl.classList.toggle('hide', !on); // the camera buttons come and go with the icon strip
     },
-    only(ids) { for (const id of ['helper', 'tray', 'alert', 'lensbar', 'modal', 'settings', 'caption']) this.show(id, ids.includes(id)); P.flowerpop.classList.add('hide'); },
+    only(ids) { for (const id of ['helper', 'tray', 'alert', 'lensbar', 'modal', 'settings', 'caption']) this.show(id, ids.includes(id)); this.closePops(); },
+    // the small pop-overs under the strip: only one open at a time
+    closePops(except) { for (const [pop, btn] of [[P.flowerpop, '[data-flower]'], [P.lenspop, '[data-lensbtn]']]) if (pop !== except) { pop.classList.add('hide'); P.strip.querySelector(btn).setAttribute('aria-expanded', 'false'); } if (except !== P.settings && !P.settings.classList.contains('hide')) this.show('settings', false); },
+    togglePop(pop, btn) { const open = pop.classList.contains('hide'); this.closePops(open ? pop : null); pop.classList.toggle('hide', !open); P.strip.querySelector(btn).setAttribute('aria-expanded', String(open)); },
+    // the goals list in the town-goals pop-over
+    setGoals(html) { P.flowerpop.querySelector('[data-goals]').innerHTML = html; },
     setBadge(sub) { P.card.querySelector('[data-sub]').textContent = sub; this.show('card'); this.show('strip'); },
     setTownName(name) { P.card.querySelector('.brand').textContent = name || 'Eco Town'; },
     // n: the current level number (1–6); earlier levels show as done, the current one is highlighted
@@ -68,10 +81,23 @@ export function createUI(root, labelsRoot, opts) {
       P.card.querySelectorAll('[data-l]').forEach((e) => { const l = +e.dataset.l; e.classList.toggle('done', l < n); e.classList.toggle('on', l === n); });
       this.show('card');
     },
+    // free building: one clear next step with a bar under it; the bar pulses when it moves forward
+    setStep(text, have, need) {
+      const g = P.card.querySelector('[data-goal]'); const pct = Math.round(100 * Math.min(1, have / Math.max(1, need)));
+      const prev = +(g.dataset.have ?? -1); g.dataset.have = have;
+      g.innerHTML = `<span class="gt">${esc(text)}</span><span class="gbar" role="progressbar" aria-valuemin="0" aria-valuemax="${need}" aria-valuenow="${have}"><i style="width:${pct}%"></i><b>${have}/${need}</b></span>`;
+      if (prev >= 0 && have > prev) { g.classList.remove('bump'); void g.offsetWidth; g.classList.add('bump'); }
+      this.show('card');
+    },
     // the six missions on the town card: 'done', 'on' (ready) or '' (not yet). Tapping one opens the AI Lab.
     setTrack(states) { P.card.querySelectorAll('[data-l]').forEach((e, i) => { e.classList.toggle('done', states[i] === 'done'); e.classList.toggle('on', states[i] === 'on'); }); },
-    // lens buttons in the icon strip (one per AI Lab mission done): [{ id, icon, label, on }]
-    setLenses(list) { const box = P.strip.querySelector('[data-lenses]'); box.innerHTML = list.map((l) => `<button class="ib ${l.on ? 'on' : ''}" data-lens="${l.id}" aria-label="${esc(l.label)}" title="${esc(l.label)}" aria-pressed="${!!l.on}">${l.icon}</button>`).join('') + (list.length ? '<span class="sep"></span>' : ''); fitStrip(); },
+    // lenses (one per AI Lab mission done) in one 🔍 pop-over: [{ id, icon, label, on }]
+    setLenses(list, title = 'Lenses') {
+      const btn = P.strip.querySelector('[data-lensbtn]'); btn.hidden = !list.length; const on = list.find((l) => l.on);
+      btn.classList.toggle('on', !!on); btn.textContent = on ? on.icon : '🔍'; btn.setAttribute('aria-label', on ? `${title}: ${on.label}` : title);
+      P.lenspop.innerHTML = `<b class="poptitle">${esc(title)}</b>` + list.map((l) => `<button class="slot act ${l.on ? 'on' : ''}" data-lens="${l.id}" aria-pressed="${!!l.on}"><b class="ico">${l.icon}</b><span>${esc(l.label)}</span></button>`).join('');
+      if (!list.length) P.lenspop.classList.add('hide'); fitStrip();
+    },
     setStars(n) { const b = P.card.querySelector('[data-stars]'); if (b.textContent !== String(n)) { b.textContent = n; b.parentElement.classList.remove('bump'); void b.offsetWidth; b.parentElement.classList.add('bump'); } this.show('card'); },
     // Florence speaks in the dock: { tag, tagCls, html, sure, sureLabel, why, thinking, mini, say }
     // mini: a small card kept on screen while the player checks her guess
@@ -121,7 +147,7 @@ export function createUI(root, labelsRoot, opts) {
     },
     lensbar(html) { if (!html) return this.show('lensbar', false); P.lensbar.innerHTML = html; this.show('lensbar'); },
     // "Florence's plan" key, shown while her see-through plan is on the island
-    legend(kind) { if (kind !== 'plan') return this.lensbar(null); this.lensbar(`📐 FLORENCE’S PLAN <span class="legend"><span><i style="background:#ffd23f;opacity:.8"></i>See-through = planned, not built yet</span></span>`); },
+    legend(kind) { if (kind !== 'plan') return this.lensbar(null); this.lensbar(`📐 FLORENCE’S PLAN <span class="legend"><span><i style="background:#ffe9a0;box-shadow:inset 0 0 0 3px #ffd23f"></i>Pale with a frame = planned, not built yet</span></span>`); },
     facil(text) { facilText = text || null; this.refreshFacil(); },
     refreshFacil() { if (!facilText || !opts.facilitator()) return this.show('facil', false); facilEl.innerHTML = `<small>FACILITATOR NOTE</small><p>${esc(facilText)}</p>`; this.show('facil'); },
     async modal(html, { say, bind } = {}) {
@@ -147,14 +173,14 @@ export function createUI(root, labelsRoot, opts) {
     // read aloud (auto for 8–12; 🔊 buttons replay on demand for everyone). voice: 'narrator' or 'helper' (Florence)
     say(text, voice = 'narrator') { if (!text) return; if (!this.readAloud) { globalThis.__sayLog?.push({ text, voice, missing: [], silent: true }); return; } speak(text, { voice }); },
     views(active, enabled = ['sky', 'street', 'inside']) {
-      for (const b of P.strip.querySelectorAll('[data-v]')) { b.classList.toggle('on', b.dataset.v === active); b.disabled = !enabled.includes(b.dataset.v); }
+      for (const b of P.camctl.querySelectorAll('[data-v]')) { b.classList.toggle('on', b.dataset.v === active); b.disabled = !enabled.includes(b.dataset.v); }
       this.show('strip');
     },
     flower(petals, title, { open = null, flash = false } = {}) {
       const R = 50; let s = `<circle r="${R * 0.62}" fill="none" stroke="#e3d5bb" stroke-width="1.5" stroke-dasharray="3 3"/>`;
       PETALS.forEach((p, i) => {
         const a = (i / PETALS.length) * Math.PI * 2 - Math.PI / 2, v = Math.max(0.08, petals[p] || 0), len = R * 0.62 * Math.min(1.45, v);
-        s += `<g transform="rotate(${(a * 180) / Math.PI + 90})"><ellipse cx="0" cy="${-len / 2}" rx="11" ry="${len / 2}" fill="${PETAL_COL[p]}" opacity="${v >= 1 ? 1 : 0.5}"/></g>`;
+        s += `<g transform="rotate(${(a * 180) / Math.PI + 90})"><ellipse cx="0" cy="${-len / 2}" rx="11" ry="${len / 2}" fill="${v >= 1 ? PETAL_COL[p] : mixWhite(PETAL_COL[p])}" ${flash === p || (Array.isArray(flash) && flash.includes(p)) ? 'class="pf" stroke="#fff" stroke-width="4"' : ''}/></g>`;
         s += `<text x="${Math.cos(a) * (R + 1)}" y="${Math.sin(a) * (R + 1) + 4}" font-size="11" text-anchor="middle">${PETAL_ICON[p]}</text>`;
       });
       s += '<circle r="8" fill="#ffd23f"/>';
@@ -169,18 +195,23 @@ export function createUI(root, labelsRoot, opts) {
       if (flash) { const btn = P.strip.querySelector('[data-flower]'); btn.classList.remove('bump'); void btn.offsetWidth; btn.classList.add('bump'); }
     },
   };
-  P.strip.querySelector('[data-flower]').addEventListener('click', () => P.flowerpop.classList.toggle('hide'));
-  P.strip.querySelector('[data-lab]').addEventListener('click', () => ui.onLab?.());
-  P.strip.querySelector('[data-lenses]').addEventListener('click', (e) => { const b = e.target.closest('[data-lens]'); if (b) ui.onLens?.(b.dataset.lens); });
-  P.card.querySelector('[data-track]').addEventListener('click', () => ui.onLab?.());
-  P.card.querySelector('[data-track]').addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); ui.onLab?.(); } });
-  P.flowerpop.addEventListener('click', () => P.flowerpop.classList.add('hide'));
+  P.strip.querySelector('[data-flower]').addEventListener('click', () => ui.togglePop(P.flowerpop, '[data-flower]'));
+  P.strip.querySelector('[data-lensbtn]').addEventListener('click', () => ui.togglePop(P.lenspop, '[data-lensbtn]'));
+  P.strip.querySelector('[data-lab]').addEventListener('click', () => { ui.closePops(); ui.onLab?.(); });
+  P.lenspop.addEventListener('click', (e) => { const b = e.target.closest('[data-lens]'); if (b) { ui.closePops(); ui.onLens?.(b.dataset.lens); } });
+  // each mission on the track opens that mission (or the Lab board if it isn't ready yet)
+  const trackGo = (e) => { const i = e.target.closest('[data-l]'); ui.onTrack ? ui.onTrack(i ? +i.dataset.l - 1 : -1) : ui.onLab?.(); };
+  P.card.querySelector('[data-track]').addEventListener('click', trackGo);
+  P.card.querySelector('[data-track]').addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); trackGo(e); } });
+  P.flowerpop.addEventListener('click', (e) => { if (!e.target.closest('[data-goals]')) ui.closePops(); });
 
 
   // ---------- world-anchored labels and bubbles
   const anchored = []; const v3 = new THREE.Vector3();
   ui.labels = {
     set(list) { this.clear('lbl'); for (const l of list) add('lbl ' + (l.cls || ''), l); },
+    // numbers that float up from a tile and fade ("+4 👪  +1 🦋"), after a build
+    float(f) { add('float', f); const a = anchored[anchored.length - 1]; setTimeout(() => remove(a), f.ms || 1700); if (f.text) globalThis.__sayLog?.push({ text: f.text, voice: 'float', silent: true }); },
     bubble(b) { const cur = anchored.filter((a) => a.node.classList.contains('bub')); if (cur.length >= 2) remove(cur[0]); add('bub ' + (b.bad ? 'bad' : ''), b); if (!b.quiet) ui.say(b.text, 'narrator'); setTimeout(() => remove(anchored.find((a) => a.data === b)), b.ms || 4200); },
     clear(kind) { for (const a of anchored.slice()) if (!kind || a.node.classList.contains(kind)) remove(a); },
     update(camera, canvas) {

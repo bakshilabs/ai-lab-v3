@@ -10,12 +10,13 @@ import { ITEMS } from './catalog.js';
 import { planStages } from './construct.js';
 
 const HEDGE_SAFE = new Set(['mixed', 'orchard', 'hives', 'hedge', 'path', 'cycle', 'park', 'allot', 'greenbridge']);
-const GHOST_MAT = new THREE.MeshBasicMaterial({ color: '#ffffff', transparent: true, opacity: 0.5, depthWrite: false });
+// Plan preview: solid, pale, shaded blocks (nothing see-through), told apart from real builds by a raised frame
+const GHOST_MAT = new THREE.MeshLambertMaterial({ color: '#f4f1ea' });
 // the plan preview is colour-coded by what Florence plans to put there (her plan, before it is real)
 const GHOST_COL = { land: '#ffd23f', move: '#ff8a3d', homes: '#ff6f9a', food: '#7ddc5a', power: '#7fd0ff', heart: '#c79bff' };
 const ghostMats = new Map();
-const ghostMat = (lv) => { if (!ghostMats.has(lv)) ghostMats.set(lv, new THREE.MeshBasicMaterial({ color: GHOST_COL[lv] || '#ffffff', transparent: true, opacity: 0.62, depthWrite: false })); return ghostMats.get(lv); };
-const GHOST_BAD = new THREE.MeshBasicMaterial({ color: '#ffd0c8', transparent: true, opacity: 0.55, depthWrite: false });
+const ghostMat = (lv) => { if (!ghostMats.has(lv)) ghostMats.set(lv, new THREE.MeshLambertMaterial({ color: new THREE.Color(GHOST_COL[lv] || '#ffffff').lerp(new THREE.Color('#ffffff'), 0.45) })); return ghostMats.get(lv); };
+const GHOST_BAD = new THREE.MeshLambertMaterial({ color: '#ffb3a6' });
 
 function zoneAtVoxel(x0, z0) {
   // wobble the boundaries a little so zones blend instead of following the tile grid
@@ -131,7 +132,7 @@ export function createWorld(stage, terrain) {
   const islets = floatingRocks(scene, { n: 6, center: [0, -6, 0], radius: 95, seed: 8 });
   const waterMesh = water.mesh({ castShadow: false });
   const uTime = { value: 0 }; const uIce = { value: 0 };
-  waterMesh.material = new THREE.MeshLambertMaterial({ vertexColors: true, transparent: true, opacity: 0.82 });
+  waterMesh.material = new THREE.MeshLambertMaterial({ vertexColors: true }); // solid water: colour and moving ripples, not see-through
   waterMesh.material.onBeforeCompile = (sh) => {
     sh.uniforms.uTime = uTime; sh.uniforms.uClay = WORLD.clay; sh.uniforms.uIce = uIce;
     sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vWP;').replace('#include <begin_vertex>', '#include <begin_vertex>\nvWP = (modelMatrix * vec4(transformed, 1.0)).xyz;');
@@ -142,7 +143,7 @@ export function createWorld(stage, terrain) {
         diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.7, 0.86, 0.95), uClay * 0.6);
         float crack = step(0.93, fract(sin(dot(floor(vWP.xz * 1.3), vec2(12.9898, 78.233))) * 43758.5453));
         diffuseColor.rgb = mix(diffuseColor.rgb, mix(vec3(0.86, 0.94, 1.0), vec3(0.7, 0.82, 0.92), crack), uIce * 0.85);
-        diffuseColor.a = mix(diffuseColor.a, 0.96, uIce);`);
+`);
   };
   waterMesh.position.y = -0.35; root.add(waterMesh);
   // falls that land on the island: the spring over its outcrop into the pool, and the massif spring
@@ -173,7 +174,7 @@ export function createWorld(stage, terrain) {
 
   // ---------------- night lights (windows and lamps), one instanced mesh
   const MAXL = 1600;
-  const lightMesh = new THREE.InstancedMesh(new THREE.BoxGeometry(0.42, 0.42, 0.42), new THREE.MeshBasicMaterial({ color: '#ffd66b', transparent: true, opacity: 0 }), MAXL);
+  const lightMesh = new THREE.InstancedMesh(new THREE.BoxGeometry(0.42, 0.42, 0.42), new THREE.MeshBasicMaterial({ color: '#ffd66b' }), MAXL);
   lightMesh.frustumCulled = false; lightMesh.count = 0; root.add(lightMesh);
   let lightsOn = new Set(); // tile keys with power
   function rebuildLights() {
@@ -294,7 +295,7 @@ export function createWorld(stage, terrain) {
       st.group.visible = B.t >= st.t0 && !(st.hideAt != null && B.t >= st.hideAt);
       const e = k * k * (3 - 2 * k); st.plane.constant = st.a + (st.b - st.a) * e;
       if (B.t >= st.t0 && B.t < st.t1) { B.plane.constant = st.plane.constant; B.dir = st.dir; }
-      if (st.xray) { const on = B.t >= st.t0 && B.t < st.t1 + 0.6; for (const prev of B.stages.slice(0, i)) if (prev.temp && prev !== st) prev.group.traverse((o) => { if (o.isMesh) { o.material.transparent = on; o.material.opacity = on ? 0.22 : 1; o.material.depthWrite = !on; } }); }
+      if (st.xray) { const on = B.t >= st.t0 && B.t < st.t1 + 0.6; if (on) for (const prev of B.stages.slice(0, i)) if (prev.temp && prev !== st) prev.group.visible = false; }
       if (st.cable && B.cable) B.cable.userData.grow(k);
     });
     if (Math.random() < dt * 2.5) { const [cx, cz] = tileCenter(B.L.t.gx, B.L.t.gz); puff(cx + (Math.random() - 0.5) * 5, B.L.oy + 1.3, cz + (Math.random() - 0.5) * 5, 2); }
@@ -337,7 +338,7 @@ export function createWorld(stage, terrain) {
       if (build && !reduce) { startBuild(L, g, { ...build, delay: build.delay ?? delay, kind: cell.item || cell.mark, cell }); }
       else if (animate) { pop(g, delay, { reduce }); const [cx, cz] = tileCenter(L.t.gx, L.t.gz); setTimeout(() => puff(cx, L.oy + 1.2, cz), delay * 1000); }
     },
-    // Ghost plan: see-through blocks that appear one after another.
+    // Ghost plan: solid pale blocks with a raised frame that appear one after another.
     showGhost(placements, cellsAfter, { reduce = false, bad = new Set(), coded = true } = {}) {
       this.clearGhost(); let i = 0;
       const keys = [...new Set(placements.map((p) => p.k))];
@@ -348,21 +349,24 @@ export function createWorld(stage, terrain) {
         const { g } = buildMeshes(L, cell, mat);
         // flat plans (roads, paths, fields, town land) would vanish into the ground: give every planned tile a raised outline
         if (coded || bad.has(k)) g.add(outline(L, mat.color));
-        g.position.y += 0.05; L.ghost = g; L.group.add(g); pop(g, reduce ? 0 : i * 0.05, { reduce }); i++;
+        g.position.y += 0.05; L.ghost = g; L.group.add(g); if (L.build) L.build.visible = false; if (L.deco) { L.decoWas = L.deco.visible; L.deco.visible = false; } pop(g, reduce ? 0 : i * 0.05, { reduce }); i++;
       }
       return i * 0.05 + 0.4;
     },
-    clearGhost() { for (const L of layers.values()) if (L.ghost) { L.group.remove(L.ghost); dispose(L.ghost); L.ghost = null; } },
+    clearGhost() { for (const L of layers.values()) if (L.ghost) { L.group.remove(L.ghost); dispose(L.ghost); L.ghost = null; if (L.build) L.build.visible = true; if (L.decoWas != null) { L.deco.visible = L.decoWas; L.decoWas = null; } } },
     setLights(keys) { lightsOn = new Set(keys); rebuildLights(); },
     rebuildLights,
-    // Lens overlays: per-tile colour (+ pattern) over a clay world. spec: Map key -> {color, pattern, height}
+    // Tile overlays, all solid and drawn at ground level with normal depth, so buildings, trees and Florence
+    // always stand in front of them. spec: Map key -> {color, pattern, lift} (a painted tile: lenses, "can't build")
+    // or {color, ring: true, notch} (a low solid kerb round the tile: the build highlight)
     setOverlay(spec) {
       for (const L of layers.values()) { if (L.overlay) { L.group.remove(L.overlay); L.overlay = null; } }
       if (!spec) return;
       for (const [k, o] of spec) {
         const L = layers.get(k); if (!L) continue;
-        const m = new THREE.Mesh(OVERLAY_GEO, overlayMat(o.color, o.pattern, o.opacity, o.top));
-        m.position.set(L.ox + T / 2, L.oy + 1.2 + (o.lift || 0), L.oz + T / 2); m.rotation.x = -Math.PI / 2; m.renderOrder = 5;
+        let m;
+        if (o.ring) m = ring(L, o.color, o.notch);
+        else { m = new THREE.Mesh(OVERLAY_GEO, overlayMat(o.color, o.pattern)); m.position.set(L.ox + T / 2, L.oy + 1.14 + (o.lift || 0), L.oz + T / 2); m.rotation.x = -Math.PI / 2; }
         L.overlay = m; L.group.add(m);
       }
     },
@@ -372,7 +376,7 @@ export function createWorld(stage, terrain) {
     flood: null, floodLevel: 0,
     setFlood(level) {
       if (!this.flood) {
-        const g = new THREE.Group(); const mat = new THREE.MeshLambertMaterial({ color: '#3d9de0', transparent: true, opacity: 0.62, depthWrite: false });
+        const g = new THREE.Group(); const mat = new THREE.MeshLambertMaterial({ color: '#3d9de0' });
         for (const t of terrain.tiles.values()) if (t.zone === 'meadow' || t.zone === 'wetland') { const m = new THREE.Mesh(new THREE.BoxGeometry(T, 1, T), mat); const [cx, cz] = tileCenter(t.gx, t.gz); m.position.set(cx, 0.5, cz); g.add(m); }
         root.add(g); this.flood = g;
       }
@@ -395,7 +399,7 @@ export function createWorld(stage, terrain) {
       // clay fade
       this.clay += (this.clayTarget - this.clay) * Math.min(1, dt * 7); WORLD.clay.value = this.clay;
       // night lights fade with the sky
-      lightMesh.material.opacity = clamp((stage.night - 0.25) * 2);
+      lightMesh.visible = stage.night > 0.45; // windows switch on at dusk (solid, never half see-through)
       for (let i = anims.length - 1; i >= 0; i--) { const a = anims[i]; a.t += dt; const k = clamp(a.t / a.dur); if (a.t >= 0) a.obj.scale.set(1, Math.max(0.001, ease.back(k)), 1); if (k >= 1) anims.splice(i, 1); }
       for (const L of layers.values()) if (L.rotor) L.rotor.rotation.z += dt * (windStill ? 0.25 : 2.2);
       for (const B of [...builds.values()]) stepBuild(B, dt);
@@ -411,13 +415,23 @@ export function createWorld(stage, terrain) {
   return world;
 }
 
-// a raised coloured frame round a tile (plan preview)
+// a raised coloured frame round a tile (plan preview), solid
 const OUT_MATS = new Map();
+const basicMat = (color) => { const key = new THREE.Color(color).getHexString(); if (!OUT_MATS.has(key)) OUT_MATS.set(key, new THREE.MeshBasicMaterial({ color })); return OUT_MATS.get(key); };
 function outline(L, color) {
-  const key = color.getHexString(); if (!OUT_MATS.has(key)) OUT_MATS.set(key, new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.95, depthWrite: false }));
-  const mat = OUT_MATS.get(key); const g = new THREE.Group(); const y = L.oy + 1.5, w = T - 0.6, th = 0.35;
+  const mat = basicMat(color); const g = new THREE.Group(); const y = L.oy + 1.5, w = T - 0.6, th = 0.35;
   const [cx, cz] = tileCenter(L.t.gx, L.t.gz);
-  for (const [dx, dz, sx, sz] of [[0, -w / 2, w, th], [0, w / 2, w, th], [-w / 2, 0, th, w], [w / 2, 0, th, w]]) { const m = new THREE.Mesh(new THREE.BoxGeometry(sx, 0.35, sz), mat); m.position.set(cx + dx, y, cz + dz); m.renderOrder = 6; g.add(m); }
+  for (const [dx, dz, sx, sz] of [[0, -w / 2, w, th], [0, w / 2, w, th], [-w / 2, 0, th, w], [w / 2, 0, th, w]]) { const m = new THREE.Mesh(new THREE.BoxGeometry(sx, 0.35, sz), mat); m.position.set(cx + dx, y, cz + dz); g.add(m); }
+  return g;
+}
+// the build highlight: a low solid kerb just inside the tile's edge (and solid corner blocks when it replaces
+// something), at ground level so anything standing on the tile hides it, never the other way round
+const KERB_H = 0.42, KERB_W = 0.42, KERB_IN = T - 0.5;
+const KERB_X = new THREE.BoxGeometry(KERB_IN, KERB_H, KERB_W), KERB_Z = new THREE.BoxGeometry(KERB_W, KERB_H, KERB_IN), NOTCH = new THREE.BoxGeometry(1.3, KERB_H + 0.12, 1.3);
+function ring(L, color, notch = false) {
+  const mat = basicMat(color); const g = new THREE.Group(); const [cx, cz] = tileCenter(L.t.gx, L.t.gz); const y = L.oy + 1 + KERB_H / 2 - 0.02, h = KERB_IN / 2 - KERB_W / 2;
+  for (const [geo, dx, dz] of [[KERB_X, 0, -h], [KERB_X, 0, h], [KERB_Z, -h, 0], [KERB_Z, h, 0]]) { const m = new THREE.Mesh(geo, mat); m.position.set(cx + dx, y, cz + dz); g.add(m); }
+  if (notch) for (const [dx, dz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) { const m = new THREE.Mesh(NOTCH, mat); m.position.set(cx + dx * (h - 0.44), y + 0.06, cz + dz * (h - 0.44)); g.add(m); }
   return g;
 }
 function makeRotor() {
@@ -430,16 +444,10 @@ function dispose(g) { g.traverse((o) => { if (o.isMesh && o.geometry) o.geometry
 // ---------------- lens overlay materials: colour + a pattern so colour is never the only cue
 const OVERLAY_GEO = new THREE.PlaneGeometry(T - 0.3, T - 0.3);
 const patternCache = new Map();
+// opaque: white with a darker pattern, multiplied by the tile colour (a darker shade of the colour on the colour)
 function patternTex(kind) {
   if (patternCache.has(kind)) return patternCache.get(kind);
   const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d');
-  if (kind === 'frame' || kind === 'framestripes') { // a bright border with a faint (or striped) see-through middle
-    g.fillStyle = 'rgba(255,255,255,0.16)'; g.fillRect(0, 0, 64, 64);
-    if (kind === 'framestripes') { g.strokeStyle = 'rgba(255,255,255,0.7)'; g.lineWidth = 5; for (let i = -64; i < 128; i += 13) { g.beginPath(); g.moveTo(i, 0); g.lineTo(i + 64, 64); g.stroke(); } }
-    g.clearRect(0, 0, 64, 4); g.clearRect(0, 60, 64, 4); g.clearRect(0, 0, 4, 64); g.clearRect(60, 0, 4, 64);
-    g.strokeStyle = '#fff'; g.lineWidth = 7; g.strokeRect(7, 7, 50, 50);
-    const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace; patternCache.set(kind, tex); return tex;
-  }
   g.fillStyle = '#fff'; g.fillRect(0, 0, 64, 64); g.strokeStyle = 'rgba(0,0,0,0.35)'; g.fillStyle = 'rgba(0,0,0,0.35)'; g.lineWidth = 5;
   if (kind === 'waves') for (let y = 8; y < 64; y += 16) { g.beginPath(); for (let x = 0; x <= 64; x += 4) g.lineTo(x, y + Math.sin(x / 6) * 4); g.stroke(); }
   if (kind === 'dots') for (let x = 8; x < 64; x += 16) for (let y = 8; y < 64; y += 16) { g.beginPath(); g.arc(x, y, 4, 0, 7); g.fill(); }
@@ -448,10 +456,10 @@ function patternTex(kind) {
   const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace; patternCache.set(kind, tex); return tex;
 }
 const matCache = new Map();
-function overlayMat(color, pattern = 'solid', opacity = 0.86, top = false) {
-  const key = color + pattern + opacity + top; if (matCache.has(key)) return matCache.get(key);
-  // top: drawn over buildings and trees too (the build highlight), so a tile's state is always visible
-  const m = new THREE.MeshBasicMaterial({ color, transparent: true, opacity, depthWrite: false, depthTest: !top, map: pattern !== 'solid' ? patternTex(pattern) : null });
+function overlayMat(color, pattern = 'solid') {
+  const key = color + pattern; if (matCache.has(key)) return matCache.get(key);
+  // solid, depth-tested, nudged towards the camera so it never flickers against the ground
+  const m = new THREE.MeshBasicMaterial({ color, map: pattern !== 'solid' ? patternTex(pattern) : null, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -4 });
   matCache.set(key, m); return m;
 }
 export { ZONES };

@@ -132,12 +132,12 @@ for (const [id, check, vague, clear] of LEVELS) {
   await shot(`${id}-back-to-building`); budget.push([`${id}-back-live`, await panelsVisible()]);
   console.log('mission done', id, clean ? 'clean' : 'flawed', 'stars', await p.evaluate(() => window.__eco.app.G.stars), 'unlocked', await p.evaluate(() => window.__eco.app.G.ever.join(',')));
 }
-checks.lensButtons = await p.evaluate(() => document.querySelectorAll('#strip [data-lens]').length);
+checks.lensButtons = await p.evaluate(() => document.querySelectorAll('#lenspop [data-lens]').length);
 const play = await p.$('#build [data-play]'); if (play) { await play.click(); await p.waitForSelector('#modal:not(.hide) video', { timeout: 20000 }); await p.waitForTimeout(3000); checks.paletteVideoPlays = await p.evaluate(() => { const v = document.querySelector('#modal video'); return !!v && v.readyState >= 2 && v.currentTime > 0; }); await shot('video-card'); await click('#modal:not(.hide) [data-act="close"]'); }
-await click('#strip [data-lens="flood"]'); await p.waitForTimeout(1500); await shot('lens-flood'); await click('#lensbar [data-lensx]');
+await click('#strip [data-lensbtn]'); await click('#lenspop [data-lens="flood"]'); await p.waitForTimeout(1500); await shot('lens-flood'); await click('#lensbar [data-lensx]');
 const pop = await p.$('#modal:not(.hide) [data-act="keep"]'); if (pop) { await shot('town-complete'); checks.townComplete = true; await pop.click(); await p.waitForTimeout(600); }
 await shot('town-built');
-await click('#strip [data-lab]'); await click('#modal:not(.hide) [data-act="report"]');
+await click('#strip [data-menu]'); await click('#settings [data-m-act="report"]'); // the report is in the ☰ menu
 await p.waitForSelector('#report', { timeout: 60000 }); await p.waitForTimeout(800); await shot('report');
 await click('#report [data-close]'); await p.waitForSelector('#build [data-cat]', { timeout: 30000 }); checks.backFromReport = true;
 checks.saved = await p.evaluate(() => !!localStorage.getItem('ecotown.save.v3'));

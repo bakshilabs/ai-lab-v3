@@ -18,7 +18,7 @@ export function createChecks(app) {
   function carbonCloud(level, center) {
     if (!cloud) { const v = new Vox(); for (let x = -6; x <= 6; x++) for (let y = -2; y <= 2; y++) for (let z = -4; z <= 4; z++) if ((x / 6.5) ** 2 + (y / 2.6) ** 2 + (z / 4.5) ** 2 < 1 + Math.sin(x * 1.3 + z) * 0.15) v.set(x, y, z, y > 0 ? '#5d5650' : '#3f3a36'); cloud = v.mesh({ castShadow: false });
       // its own dark, smoky material, so it stands out on the pale clay island (the clay tint doesn't apply to it)
-      cloud.traverse((o) => { if (o.isMesh) o.material = new THREE.MeshLambertMaterial({ vertexColors: true, transparent: true, opacity: 0.88 }); }); stage.scene.add(cloud); }
+      cloud.traverse((o) => { if (o.isMesh) o.material = new THREE.MeshLambertMaterial({ vertexColors: true }); }); stage.scene.add(cloud); }
     cloud.visible = true; cloud.position.copy(center).add(new THREE.Vector3(0, 16, 0)); cloud.scale.setScalar(Math.max(0.5, Math.min(1.7, level)));
   }
 

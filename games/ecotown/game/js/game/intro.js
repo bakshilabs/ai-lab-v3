@@ -43,7 +43,7 @@ export async function runIntro(api) {
     api.selectTool('land', 'town'); api.highlight('#build', true);
     // three suggested dry tiles glow gold; the progress bar sits in Florence's card
     const suggest = tiles.filter((t) => ['slope', 'field'].includes(t.zone) && !t.fixed).sort((a, b) => top(a.k).distanceTo(dP) - top(b.k).distanceTo(dP)).slice(0, 3);
-    const glow = () => { const spec = new Map(); for (const t of suggest) spec.set(t.k, { color: '#ffd23f', pattern: 'dots', opacity: 0.8 }); world.setOverlay(spec); };
+    const glow = () => { const spec = new Map(); for (const t of suggest) spec.set(t.k, { color: '#18d8f0', ring: true, notch: true }); world.setOverlay(spec); };
     glow();
     const start = api.townTiles();
     const el = ui.florence({ tag: T.yourTurnTag, html: `<p>${esc(T.yourTurn)}</p><div class="bar" data-introbar><i style="width:0%"></i><span>${T.tiles}: 0 / 3</span></div>`, say: T.yourTurn });
@@ -61,6 +61,8 @@ export async function runIntro(api) {
     else await step(say(T.videoLater));
     // 5. the build panel: more unlocks as the town grows
     api.highlight('#build .cats', true); bot.wave(); await step(say(T.unlocks)); api.highlight('#build .cats', false);
+    // 5b. what to do next and the town's goals: the next-step line, the 🌼 goals and the build info
+    if (T.goals) { for (const s2 of ['#card .goal', '#strip [data-flower]', '#build [data-info]']) api.highlight(s2, true); await step(say(T.goals)); for (const s2 of ['#card .goal', '#strip [data-flower]', '#build [data-info]']) api.highlight(s2, false); }
     // 6. the AI Lab: test her plans
     go(labP, 100); await step(bot.walkTo(labP.clone().add(new THREE.Vector3(0, 0, 6)), { maxDur: 3.5 }));
     bot.point(labP.clone().add(new THREE.Vector3(0, 3, 0)), 2.6); api.highlight('#strip [data-lab]', true);
@@ -69,7 +71,7 @@ export async function runIntro(api) {
     bot.cheer(); await step(say(T.overToYou, { tag: T.tag }));
   } catch (e) { if (e.message !== 'skip') throw e; }
   finally {
-    skipBtn.remove(); for (const s of ['#build', '#build .cats', '#strip [data-lab]']) api.highlight(s, false);
+    skipBtn.remove(); for (const s of ['#build', '#build .cats', '#strip [data-lab]', '#card .goal', '#strip [data-flower]', '#build [data-info]']) api.highlight(s, false);
     world.setFlood(0); ui.florence(null); await rig.overview(app.reduce ? 0.01 : 1.1);
   }
   return !skipped;
