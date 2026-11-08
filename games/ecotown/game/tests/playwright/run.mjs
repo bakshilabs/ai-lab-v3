@@ -61,8 +61,10 @@ const spots = await p.evaluate(() => {
   const { app, terrain } = window.__eco; const cam = app.stage.camera; const cv = app.stage.renderer.domElement.getBoundingClientRect(); const out = [];
   for (const t of terrain.tiles.values()) {
     if (!['field', 'slope'].includes(t.zone) || t.fixed) continue;
-    const v = app.world.tileTop(t.k).project(cam); if (Math.abs(v.x) > 0.6 || v.y < -0.3 || v.y > 0.6) continue;
-    out.push({ k: t.k, x: cv.left + ((v.x + 1) / 2) * cv.width, y: cv.top + ((1 - v.y) / 2) * cv.height });
+    const v = app.world.tileTop(t.k).project(cam); if (Math.abs(v.x) > 0.8 || v.y < -0.6 || v.y > 0.8) continue;
+    const x = cv.left + ((v.x + 1) / 2) * cv.width, y = cv.top + ((1 - v.y) / 2) * cv.height;
+    if (document.elementFromPoint(x, y) !== app.stage.renderer.domElement) continue; // under a panel (Florence's card, the hotbar): a player wouldn't tap there
+    out.push({ k: t.k, x, y });
   }
   return out;
 });
@@ -132,12 +134,12 @@ for (const [id, check, vague, clear] of LEVELS) {
   await shot(`${id}-back-to-building`); budget.push([`${id}-back-live`, await panelsVisible()]);
   console.log('mission done', id, clean ? 'clean' : 'flawed', 'stars', await p.evaluate(() => window.__eco.app.G.stars), 'unlocked', await p.evaluate(() => window.__eco.app.G.ever.join(',')));
 }
-checks.lensButtons = await p.evaluate(() => document.querySelectorAll('#strip [data-lens]').length);
+checks.lensButtons = await p.evaluate(() => document.querySelectorAll('#lenspop [data-lens]').length);
 const play = await p.$('#build [data-play]'); if (play) { await play.click(); await p.waitForSelector('#modal:not(.hide) video', { timeout: 20000 }); await p.waitForTimeout(3000); checks.paletteVideoPlays = await p.evaluate(() => { const v = document.querySelector('#modal video'); return !!v && v.readyState >= 2 && v.currentTime > 0; }); await shot('video-card'); await click('#modal:not(.hide) [data-act="close"]'); }
-await click('#strip [data-lens="flood"]'); await p.waitForTimeout(1500); await shot('lens-flood'); await click('#lensbar [data-lensx]');
+await click('#strip [data-lensbtn]'); await click('#lenspop [data-lens="flood"]'); await p.waitForTimeout(1500); await shot('lens-flood'); await click('#lensbar [data-lensx]');
 const pop = await p.$('#modal:not(.hide) [data-act="keep"]'); if (pop) { await shot('town-complete'); checks.townComplete = true; await pop.click(); await p.waitForTimeout(600); }
 await shot('town-built');
-await click('#strip [data-lab]'); await click('#modal:not(.hide) [data-act="report"]');
+await click('#strip [data-menu]'); await click('#settings [data-m-act="report"]'); // the report is in the ☰ menu
 await p.waitForSelector('#report', { timeout: 60000 }); await p.waitForTimeout(800); await shot('report');
 await click('#report [data-close]'); await p.waitForSelector('#build [data-cat]', { timeout: 30000 }); checks.backFromReport = true;
 checks.saved = await p.evaluate(() => !!localStorage.getItem('ecotown.save.v3'));

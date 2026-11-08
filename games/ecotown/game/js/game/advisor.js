@@ -25,7 +25,7 @@ export const RULES = [
   { id: 'carbon', lens: 'carbon', when: (s) => !s.carbonOK, text: { j: (s) => `The whole town makes ${s.carbon} t of carbon; the limit is ${TARGETS.carbonCeiling} t. Swap car roads and concrete for greener builds.`, s: (s) => `Town carbon ${s.carbon} t, over the ${TARGETS.carbonCeiling} t ceiling. Cut cars and concrete.` } },
 ];
 
-export const newAdvisor = () => ({ last: -Infinity, active: new Set(), pending: [], shown: new Set() });
+export const newAdvisor = () => ({ last: -Infinity, active: new Set(), pending: [], shown: new Set(), solved: [] });
 export const tipText = (rule, s, j) => { const t = rule.text[j ? 'j' : 's']; return typeof t === 'function' ? t(s) : t; };
 
 // Call after every change to the town (and from time to time). Returns a rule to show, or null.
@@ -33,7 +33,7 @@ export function nextTip(st, s, ctx, now, cooldown = COOLDOWN) {
   const truth = new Set(RULES.filter((r) => r.when(s, ctx)).map((r) => r.id));
   for (const id of truth) if (!st.active.has(id) && !st.shown.has(id) && !st.pending.includes(id)) st.pending.push(id);
   st.pending = st.pending.filter((id) => truth.has(id));
-  for (const id of [...st.shown]) if (!truth.has(id)) st.shown.delete(id); // solved: it may come back later
+  for (const id of [...st.shown]) if (!truth.has(id)) { st.shown.delete(id); (st.solved ||= []).push(id); } // solved: say well done; it may come back later
   st.active = truth;
   if (!st.pending.length || now - st.last < cooldown) return null;
   const order = RULES.map((r) => r.id); st.pending.sort((a, b) => order.indexOf(a) - order.indexOf(b));

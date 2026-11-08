@@ -25,9 +25,9 @@ export function clouds(scene, { n = 9, spread = 260, y = [55, 95], z = [-260, -6
 export function waterfall(scene, { x, y, z, dir = [0, 1], width = 3, length = 30 }) {
   const N = 220;
   const geo = new THREE.BoxGeometry(0.55, 0.9, 0.55);
-  const mat = new THREE.MeshLambertMaterial({ color: '#8fdcff', transparent: true, opacity: 0.85, emissive: new THREE.Color('#2a8fd0'), emissiveIntensity: 0.25 });
+  const mat = new THREE.MeshLambertMaterial({ color: '#8fdcff', emissive: new THREE.Color('#2a8fd0'), emissiveIntensity: 0.25 });
   const m = new THREE.InstancedMesh(geo, mat, N); m.castShadow = false; m.frustumCulled = false; scene.add(m);
-  const mist = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshLambertMaterial({ color: '#ffffff', transparent: true, opacity: 0.5 }), 40); mist.frustumCulled = false; scene.add(mist);
+  const mist = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshLambertMaterial({ color: '#ffffff' }), 40); mist.frustumCulled = false; scene.add(mist);
   const d = new THREE.Object3D();
   return (t) => {
     for (let i = 0; i < N; i++) {

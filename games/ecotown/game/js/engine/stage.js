@@ -103,7 +103,7 @@ export function createStage(canvas, skyEl) {
 
   const stage = {
     renderer, scene, camera, sun, hemi, fill, moon, dome, tier: 'mid', q: TIERS.mid, hour: 15.5, winter: 0, night: 0, updaters: [], skyColors: ['#5d9fe0', '#f5dcc2'],
-    tilt: { focus: 0.5, amount: 0.6 },
+    tilt: { focus: 0.5, amount: 0 }, // no tilt-shift blur: the whole view stays sharp
     onFrame(fn) { this.updaters.push(fn); return fn; },
     setTier(name) {
       const q = TIERS[name]; this.tier = name; this.q = q;

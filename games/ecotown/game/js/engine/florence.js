@@ -42,13 +42,13 @@ export function createFlorence(stage, world, terrain) {
     body: wood('#e3ad6c'), limb: wood('#e3ad6c', texLimb), light: wood('#f2cf98'), dark: wood('#7a4a2a'), joint: wood('#8a5530', texLimb),
     sclera: new THREE.MeshStandardMaterial({ color: '#fffaf0', roughness: 0.3 }), iris: new THREE.MeshStandardMaterial({ color: '#6b3e22', roughness: 0.35 }),
     pupil: new THREE.MeshBasicMaterial({ color: '#1d110a' }), shine: new THREE.MeshBasicMaterial({ color: '#ffffff' }),
-    cheek: new THREE.MeshStandardMaterial({ color: '#f08a78', roughness: 0.8, transparent: true, opacity: 0.7 }),
+    cheek: new THREE.MeshStandardMaterial({ color: '#f08a78', roughness: 0.8 }),
     mouth: new THREE.MeshStandardMaterial({ color: '#6b2f1c', roughness: 0.6 }), inner: new THREE.MeshBasicMaterial({ color: '#4a1a10', side: THREE.DoubleSide }),
     card: new THREE.MeshStandardMaterial({ color: '#f6e3c0', map: tex, roughness: 0.7 }), dot: new THREE.MeshStandardMaterial({ color: '#5b3a24' }),
-    glass: new THREE.MeshStandardMaterial({ color: '#e6f7ff', roughness: 0.05, metalness: 0.1, transparent: true, opacity: 0.25, depthWrite: false }),
+    glass: new THREE.MeshStandardMaterial({ color: '#cfeefc', roughness: 0.15, metalness: 0.1 }),
     brass: new THREE.MeshStandardMaterial({ color: '#c9a04a', roughness: 0.3, metalness: 0.6 }),
     bulb: new THREE.MeshStandardMaterial({ color: '#16c79a', emissive: '#16c79a', emissiveIntensity: 0.6, roughness: 0.3 }),
-    sweat: new THREE.MeshStandardMaterial({ color: '#7fd0ff', roughness: 0.1, transparent: true, opacity: 0.9 }),
+    sweat: new THREE.MeshStandardMaterial({ color: '#7fd0ff', roughness: 0.1 }),
   };
   const mesh = (geo, mat, x = 0, y = 0, z = 0, parent, shadow = true) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.castShadow = shadow; m.receiveShadow = shadow; parent?.add(m); return m; };
   const deco = (geo, mat, x, y, z, parent) => mesh(geo, mat, x, y, z, parent, false); // small face parts: no shadow
@@ -128,10 +128,11 @@ export function createFlorence(stage, world, terrain) {
   const dots = [-0.4, 0, 0.4].map((x) => deco(sphere(0.11, 10, 8), M.dot, x, 0.62, 0.2, card));
 
   // the magnifier's beam (her plan projected onto the island) and a soft glow disc where it lands
-  const beamMat = new THREE.MeshBasicMaterial({ color: '#bff3ff', transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide, blending: THREE.AdditiveBlending });
-  const beam = new THREE.Mesh(new THREE.ConeGeometry(1, 1, 24, 1, true), beamMat); beam.geometry.translate(0, -0.5, 0); stage.scene.add(beam);
-  const spotMat = new THREE.MeshBasicMaterial({ color: '#bff3ff', transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending });
-  const spot = new THREE.Mesh(new THREE.CircleGeometry(7, 32).rotateX(-Math.PI / 2), spotMat); stage.scene.add(spot);
+  // (no see-through cone: the beam is a thin solid line, and the spot a solid ring on the ground)
+  const beamMat = new THREE.MeshBasicMaterial({ color: '#7fe3ff' });
+  const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 1, 6), beamMat); beam.geometry.translate(0, -0.5, 0); stage.scene.add(beam);
+  const spotMat = new THREE.MeshBasicMaterial({ color: '#7fe3ff' });
+  const spot = new THREE.Mesh(new THREE.RingGeometry(5.6, 6.4, 32).rotateX(-Math.PI / 2), spotMat); stage.scene.add(spot);
 
   // ---------- state
   const st = {
@@ -292,8 +293,8 @@ export function createFlorence(stage, world, terrain) {
       st.beam += (st.beamT - st.beam) * Math.min(1, dt * 6); beam.visible = st.beam > 0.02; spot.visible = beam.visible;
       if (beam.visible && st.beamTo) {
         lensP.getWorldPosition(v3); const dir = q.copy(st.beamTo).sub(v3); const len = dir.length();
-        beam.position.copy(v3); beam.scale.set(7, len, 7); beam.quaternion.setFromUnitVectors(DOWN, dir.normalize());
-        beamMat.opacity = st.beam * (0.2 + Math.sin(t * 9) * 0.05); spot.position.copy(st.beamTo).add(new THREE.Vector3(0, 0.3, 0)); spotMat.opacity = st.beam * 0.35;
+        beam.position.copy(v3); beam.scale.set(1, len, 1); beam.quaternion.setFromUnitVectors(DOWN, dir.normalize());
+        spot.position.copy(st.beamTo).add(new THREE.Vector3(0, 0.3, 0)); spot.scale.setScalar(0.3 + 0.7 * st.beam);
       }
     },
   };

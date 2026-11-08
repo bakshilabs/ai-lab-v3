@@ -272,7 +272,7 @@ html[data-motion="reduce"] #letterbox i { transition: none; }
 .modal .outcome b { font-size: 1.05em; }
 .modal .outcome p { margin: 4px 0 0; font-size: .9em; color: var(--ink); }
 #flowerpop .legend .key { grid-column: 1 / -1; margin: 6px 0 0; text-transform: none; font-size: .95em; line-height: 1.35; }
-#layer.settings-open #dock, #layer.settings-open #lensbar, #layer.settings-open #alert, #layer.settings-open #flowerpop { opacity: .2; pointer-events: none; filter: saturate(.4); }
+#layer.settings-open #dock, #layer.settings-open #lensbar, #layer.settings-open #alert, #layer.settings-open #flowerpop { visibility: hidden; pointer-events: none; }
 #start .setuphead { margin: 14px 0 4px; font-size: 1em; }
 .reflecthow { margin: 0 0 6px; color: #46596a; font-weight: 600; font-size: .9em; }
 .reflectchips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
@@ -558,14 +558,15 @@ button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focu
 @media (min-width: 1600px) and (min-height: 900px) { #camctl .ib { width: 56px; height: 56px; } }
 @media (max-width: 760px) { #camctl { top: auto; bottom: calc(44vh + 16px); right: 8px; transform: none; padding: 4px; } #camctl.hide { transform: translateX(30px); } #camctl .ib { width: 40px; height: 40px; } }
 @media (max-height: 560px) and (min-width: 561px) { #camctl { top: 8px; bottom: auto; right: 62px; transform: none; flex-direction: row; } }
-/* key to the tile highlight in the build panel: cyan frame = build here, striped = replaces, grey = can't */
+/* key to the tile highlight in the build panel: solid swatches that match the kerbs on the island
+   (cyan kerb = build here, violet kerb with corner blocks = replaces, solid grey = can't, red kerb = remove) */
 #build .hlkey { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px 10px; margin: 6px 0 2px; font-size: max(12px, .78em); font-weight: 700; color: var(--cream); }
 #build .hlkey span { display: inline-flex; align-items: center; gap: 5px; }
-#build .hk { width: 16px; height: 16px; border-radius: 3px; flex: none; box-sizing: border-box; }
-#build .hk.free { border: 3px solid #2fe6ff; background: rgba(47,230,255,.18); }
-#build .hk.swap { border: 3px solid #2fe6ff; background: repeating-linear-gradient(45deg, rgba(47,230,255,.75) 0 3px, transparent 3px 6px); }
-#build .hk.erase { border: 3px solid #ff4d4d; background: rgba(255,77,77,.18); }
-#build .hk.no { background: #8a8f93; border: 2px solid #5d6266; }
+#build .hk { width: 16px; height: 16px; border-radius: 3px; flex: none; box-sizing: border-box; background: #9bbf5c; position: relative; }
+#build .hk.free { border: 4px solid #18d8f0; }
+#build .hk.swap { border: 4px solid #a55cff; background: linear-gradient(#a55cff,#a55cff) 0 0/5px 5px no-repeat, linear-gradient(#a55cff,#a55cff) 100% 100%/5px 5px no-repeat, #9bbf5c; }
+#build .hk.erase { border: 4px solid #ff3b3b; }
+#build .hk.no { background: #5b6066; border: 0; }
 
 /* ---------- bottom hotbar layout (Nov 2026): free building keeps the island nearly full screen.
    Laptops, tablets and whiteboards: the town card is a slim strip across the top, the camera buttons sit in a
@@ -646,3 +647,127 @@ button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focu
 /* the plan legend, the lens bar and the alerts sit under the top strip, not over it */
 @media (min-width: 761px) and (min-height: 561px) { #lensbar { top: 92px; } #alert { top: 150px; } }
 @media (min-width: 761px) and (max-width: 1100px) and (min-height: 561px) { #lensbar { top: 140px; } #alert { top: 198px; } }
+
+/* ---------- clearer, shorter interface (Nov 2026 feedback): one Remove tool, the build info panel, the next
+   step with a bar, the town goals pop-over, one lenses button, one camera button, floating numbers.
+   Everything solid: no see-through panels or tints. */
+#card .band:empty { display: none; }
+#card .goal { display: flex; flex-direction: column; gap: 3px; }
+#card .goal .gt { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; white-space: normal; line-height: 1.2; }
+#card .goal .gbar { position: relative; display: block; height: 12px; border-radius: 4px; background: var(--wd); overflow: hidden; min-width: 120px; }
+#card .goal .gbar i { position: absolute; inset: 0 auto 0 0; background: linear-gradient(180deg, #ffe58a, #f4b73b); transition: width .4s; }
+#card .goal .gbar b { position: relative; display: block; text-align: right; padding-right: 4px; font: 900 9px/12px 'Inter'; color: var(--ink); }
+#card .goal.bump .gbar { animation: bump .5s cubic-bezier(.2, 1.6, .4, 1); }
+html[data-motion="reduce"] #card .goal.bump .gbar { animation: none; }
+
+/* the 🌼 town goals pop-over */
+#flowerpop { width: min(340px, calc(100vw - 28px)); text-align: left; cursor: default; max-height: calc(100vh - 110px); overflow-y: auto; }
+#flowerpop .fltop { display: flex; align-items: center; gap: 8px; }
+#flowerpop .fltop svg { width: 110px; height: 110px; flex: none; }
+#flowerpop .fltop .legend { grid-template-columns: 1fr 1fr; font-size: .72em; }
+#flowerpop .fltop .legend .key { display: none; }
+#flowerpop .gtitle { display: flex; justify-content: space-between; gap: 6px; margin: 8px 0 4px; font: 800 .95em 'Bricolage', 'Inter'; }
+#flowerpop .gtitle em { font-style: normal; font-weight: 800; font-size: .85em; color: var(--ink2); }
+#flowerpop ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; }
+#flowerpop li { display: flex; gap: 8px; align-items: flex-start; padding: 4px 6px; border-radius: 6px; background: #f6ecd8; font-size: .82em; }
+#flowerpop li i { font-style: normal; font-weight: 900; width: 18px; text-align: center; flex: none; }
+#flowerpop li b { display: block; font-weight: 700; } #flowerpop li small { display: block; color: var(--ink2); }
+#flowerpop li.ok { background: #d6f3e2; } #flowerpop li.ok i { color: #1f7a44; }
+#flowerpop li.locked { background: #ece6db; color: #6f6556; }
+#flowerpop .gstats { margin: 6px 0 0; font-size: .8em; font-weight: 700; color: var(--ink2); }
+.pf { animation: petal .9s ease-in-out 2; transform-box: fill-box; transform-origin: 50% 100%; }
+@keyframes petal { 50% { transform: scale(1.25); } }
+html[data-motion="reduce"] .pf { animation: none; }
+
+/* one 🔍 lenses button with a pop-over */
+#strip .lensbtn[hidden] { display: none; }
+#lenspop { right: 14px; top: 76px; width: 240px; padding: 8px; display: grid; gap: 6px; }
+#lenspop .poptitle { color: var(--gold); font: 900 .9em 'Bricolage', 'Inter'; letter-spacing: .08em; text-transform: uppercase; }
+#lenspop .slot.act { justify-content: flex-start; }
+
+/* one 🎥 camera button: the controls open beside it (always open on touch screens) */
+#camctl .camrow { display: contents; }
+#camctl:not(.open) .camrow { display: none; }
+#camctl .camtog.on, #camctl.open .camtog { background: #ffe58a; }
+
+/* the ☰ menu */
+#settings .menuacts { display: grid; gap: 6px; margin-bottom: 6px; }
+#settings .menuacts .slot.act { justify-content: flex-start; }
+#settings .menuacts .slot.act[disabled] { filter: grayscale(1); opacity: 1; background: #e4dccd; cursor: default; }
+#settings .menuhead { margin: 10px 0 2px; font-size: .95em; }
+
+/* the build bar: Remove as one fixed tool, credits under it */
+#build .btools { display: flex; flex-direction: column; gap: 6px; }
+#build .btools .erase { width: 100%; min-height: 0; height: 64px; flex-direction: row; gap: 8px; justify-content: center; }
+#build .btools .erase .ico { flex: none; font-size: 1.8em; }
+#build .btools .credits { display: flex; align-items: center; justify-content: center; gap: 4px; background: var(--wd); border-radius: 6px; padding: 5px 6px; font-weight: 800; font-size: .85em; color: var(--cream); white-space: nowrap; }
+#build .btools .credits.ok { color: #9ff0c9; }
+/* what the selected build is and does */
+#build .info { color: var(--cream); font-size: max(12px, .8em); line-height: 1.3; min-height: 0; }
+#build .info:empty { display: none; }
+#build .info .ihead { display: flex; align-items: center; gap: 8px; }
+#build .info .ihead b { font: 800 1.1em 'Bricolage', 'Inter'; color: var(--gold); }
+#build .info .ihead .cost { font-style: normal; font-weight: 800; background: var(--wd); color: var(--gold); border-radius: 5px; padding: 1px 6px; }
+#build .info .play { position: static; width: auto; height: 28px; padding: 0 10px; font-size: .95em; }
+#build .info p { margin: 2px 0 4px; }
+.chips { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.chip { display: inline-flex; align-items: center; gap: 2px; padding: 1px 7px; border-radius: 5px; font: 800 12px/18px 'Inter'; white-space: nowrap; background: var(--c); color: #2a1a0e; box-shadow: inset 0 -2px 0 rgba(0,0,0,.25); }
+.chip.bad { background: #3b2416; color: #ffd0c0; box-shadow: inset 0 0 0 2px var(--c); }
+#build .info .where { font-size: .9em; color: #f3dfb9; margin-left: 4px; }
+/* the highlight key folds to a "?" after the first few builds (hover or focus to see it) */
+#build .hlkey.mini { gap: 4px 8px; cursor: help; }
+#build .hlkey .hkq { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--wd); color: var(--gold); font-weight: 900; }
+#build .hlkey.mini span { display: none; }
+#build .hlkey.mini:hover span, #build .hlkey.mini:focus-within span, #build .hlkey.mini:focus span { display: inline-flex; }
+
+/* hover preview and the numbers that float up after a build */
+#labels .lbl.preview { white-space: normal; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; justify-content: center; max-width: 260px; }
+#labels .lbl.preview .rep { width: 100%; text-align: center; font-weight: 800; }
+#labels .float { position: absolute; transform: translate(-50%, -100%); display: flex; gap: 4px; pointer-events: none; animation: floatup 1.7s ease-out forwards; z-index: 3; }
+#labels .float .chip { font-size: 15px; line-height: 22px; padding: 2px 9px; box-shadow: 0 3px 0 var(--wd), inset 0 -2px 0 rgba(0,0,0,.25); }
+@keyframes floatup { 0% { margin-top: 10px; transform: translate(-50%, -100%) scale(.7); } 15% { transform: translate(-50%, -100%) scale(1.1); } 30% { transform: translate(-50%, -100%) scale(1); } 80% { opacity: 1; } 100% { margin-top: -50px; opacity: 0; } }
+html[data-motion="reduce"] #labels .float { animation: floatfade 1.7s linear forwards; }
+@keyframes floatfade { 80% { opacity: 1; } 100% { opacity: 0; } }
+
+/* Florence's tip: tap the card to close it; a ✓ card when a problem she pointed out is fixed */
+#florence:not(.mini) { cursor: pointer; }
+#florence.praise { box-shadow: var(--blk-shadow), inset 0 0 0 3px #1f7a44; }
+#florence.praise .fhead em { background: #1f7a44; color: #fff; }
+
+/* bottom hotbar: left column = title, clock, Remove (and credits); right = categories | info / builds / key */
+@media (min-width: 761px) and (min-height: 561px) {
+  #build { grid-template-rows: auto 1fr; }
+  #build .bhead .fold { display: none; }
+  #build .btools { grid-column: 1; grid-row: 2; align-self: end; }
+  #build .bbody { grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto 1fr auto; }
+  #build .cats { grid-row: 1 / span 3; }
+  #build .info { grid-column: 2; grid-row: 1; }
+  #build .items { grid-column: 2; grid-row: 2; }
+  #build .hlkey { grid-column: 2; grid-row: 3; }
+  #build .info p { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+}
+@media (min-width: 761px) and (max-width: 1100px) and (min-height: 561px) {
+  #build .info .where { display: none; }
+}
+/* phones: a short info line (name and chips) above the builds */
+@media (max-width: 760px), (max-height: 560px) {
+  #build .btools { flex-direction: row; } #build .btools .erase { height: 44px; flex: 1; }
+  #build .info p, #build .info .where { display: none; }
+  #lenspop { right: 62px; top: 8px; }
+  #flowerpop { right: 62px; top: 8px; }
+}
+/* the pop-overs open under the camera button, above Florence's card, and scroll if the screen is short */
+#flowerpop, #lenspop, #settings { z-index: 6; max-height: calc(100vh - 160px); overflow-y: auto; }
+@media (min-width: 761px) and (min-height: 561px) { #flowerpop, #lenspop, #settings { top: 140px; } }
+@media (min-width: 1600px) and (min-height: 900px) { #flowerpop, #lenspop, #settings { top: 164px; } }
+#flowerpop .fltop .legend { text-transform: none; }
+#flowerpop .fltop .legend span { display: block; }
+#flowerpop .fltop .legend span::first-letter { text-transform: uppercase; }
+@media (max-width: 760px) {
+  #camctl.open { flex-direction: row; flex-wrap: wrap; justify-content: flex-end; max-width: calc(100vw - 16px); }
+  #build .btools .erase { height: 40px; } #build .btools .erase .ico { font-size: 1.3em; }
+}
+#settings .menuacts .slot.act { flex-direction: row; gap: 8px; min-height: 44px; padding: 4px 10px; } #settings .menuacts .slot.act .ico { flex: none; font-size: 1.4em; }
+/* the hotbar grew a line (the build info), so Florence's card sits higher, clear of it */
+@media (min-width: 761px) and (min-height: 561px) { #florence { bottom: 262px; } }
+@media (min-width: 1600px) and (min-height: 900px) { #florence { bottom: 300px; } }

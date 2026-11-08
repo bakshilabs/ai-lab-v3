@@ -168,7 +168,8 @@ export function createRig(stage, canvas, fadeEl) {
   });
   const up = (e) => {
     const was = pts.has(e.pointerId); pts.delete(e.pointerId); if (pts.size < 2) { pinch0 = 0; mid0 = null; }
-    if (!was || moved > (rig.building ? 14 : 8) || performance.now() - downAt > 700 || button === 2) return;
+    if (button === 2) { if (was && moved <= 4 && performance.now() - downAt < 700) rig.onAltTap?.(ndc(e), e); return; } // a right-click (not a right-drag): erase while building
+    if (!was || moved > (rig.building ? 14 : 8) || performance.now() - downAt > 700) return;
     const now = performance.now();
     if (now - lastTap < 320) { rig.onDoubleTap?.(ndc(e), e); lastTap = 0; } else { lastTap = now; rig.onTap?.(ndc(e), e); }
   };
