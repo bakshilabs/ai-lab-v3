@@ -61,8 +61,10 @@ const spots = await p.evaluate(() => {
   const { app, terrain } = window.__eco; const cam = app.stage.camera; const cv = app.stage.renderer.domElement.getBoundingClientRect(); const out = [];
   for (const t of terrain.tiles.values()) {
     if (!['field', 'slope'].includes(t.zone) || t.fixed) continue;
-    const v = app.world.tileTop(t.k).project(cam); if (Math.abs(v.x) > 0.6 || v.y < -0.3 || v.y > 0.6) continue;
-    out.push({ k: t.k, x: cv.left + ((v.x + 1) / 2) * cv.width, y: cv.top + ((1 - v.y) / 2) * cv.height });
+    const v = app.world.tileTop(t.k).project(cam); if (Math.abs(v.x) > 0.8 || v.y < -0.6 || v.y > 0.8) continue;
+    const x = cv.left + ((v.x + 1) / 2) * cv.width, y = cv.top + ((1 - v.y) / 2) * cv.height;
+    if (document.elementFromPoint(x, y) !== app.stage.renderer.domElement) continue; // under a panel (Florence's card, the hotbar): a player wouldn't tap there
+    out.push({ k: t.k, x, y });
   }
   return out;
 });
