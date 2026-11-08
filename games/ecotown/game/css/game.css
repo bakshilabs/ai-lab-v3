@@ -708,7 +708,7 @@ html[data-motion="reduce"] .pf { animation: none; }
 #build .info .ihead { display: flex; align-items: center; gap: 8px; }
 #build .info .ihead b { font: 800 1.1em 'Bricolage', 'Inter'; color: var(--gold); }
 #build .info .ihead .cost { font-style: normal; font-weight: 800; background: var(--wd); color: var(--gold); border-radius: 5px; padding: 1px 6px; }
-#build .info .play { position: static; width: auto; height: 28px; padding: 0 10px; margin-left: auto; font-size: .95em; }
+#build .info .play { position: static; width: auto; height: 28px; padding: 0 10px; font-size: .95em; }
 #build .info p { margin: 2px 0 4px; }
 .chips { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
 .chip { display: inline-flex; align-items: center; gap: 2px; padding: 1px 7px; border-radius: 5px; font: 800 12px/18px 'Inter'; white-space: nowrap; background: var(--c); color: #2a1a0e; box-shadow: inset 0 -2px 0 rgba(0,0,0,.25); }
