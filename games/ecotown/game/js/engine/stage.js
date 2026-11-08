@@ -81,7 +81,7 @@ export function createStage(canvas, skyEl) {
   scene.fog = new THREE.Fog(0xd4ecff, 900, 2600);
   const camera = new THREE.PerspectiveCamera(22, 1, 1, 4000);
   const dome = skyDome(); scene.add(dome);
-  const hemi = new THREE.HemisphereLight(0xdcebff, 0x6a5a44, 1.0); scene.add(hemi);
+  const hemi = new THREE.HemisphereLight(0xdcebff, 0x9a6a4a, 1.0) /* warm bounce light under the island */; scene.add(hemi);
   const sun = new THREE.DirectionalLight(0xfff0d8, 2.8); sun.castShadow = true; scene.add(sun, sun.target);
   const sc = sun.shadow.camera; sc.left = -60; sc.right = 60; sc.top = 60; sc.bottom = -60; sc.near = 1; sc.far = 500;
   sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.04; sun.shadow.radius = 1;
@@ -133,7 +133,8 @@ export function createStage(canvas, skyEl) {
       sun.color.copy(C(a[3]).lerp(C(b[3]), t)); sun.intensity = lerp(a[4], b[4], t) * (winter ? 0.85 : 1);
       hemi.intensity = lerp(a[5], b[5], t); hemi.color.set(winter ? 0xe4eeff : 0xd8e6ff);
       this.night = clamp(1 - lerp(a[4], b[4], t) / 1.2);
-      moon.intensity = this.night * 1.1; fill.intensity = 0.45 * (1 - this.night);
+      // night stays readable: a bright moon and a floor under the sky light, so builds never turn into black shapes
+      moon.intensity = this.night * 1.9; fill.intensity = 0.45 * (1 - this.night) + 0.25 * this.night; hemi.intensity = Math.max(hemi.intensity, 0.75);
       dome.material.uniforms.sunDir.value.copy(sun.position).normalize(); dome.material.uniforms.sunCol.value.copy(sun.color); dome.material.uniforms.sunAmt.value = 1 - this.night; dome.material.uniforms.night.value = this.night;
       WORLD.snow.value = winter;
     },

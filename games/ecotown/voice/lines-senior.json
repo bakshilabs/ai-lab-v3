@@ -1150,6 +1150,456 @@
   "key": "081fea9b"
  },
  {
+  "s": "Welcome to the AI Lab.",
+  "voice": "helper",
+  "key": "0b4ea3f0"
+ },
+ {
+  "s": "Ask me about any build or problem and I’ll put it on the screen, or choose a mission to test my plans.",
+  "voice": "helper",
+  "key": "227b29cc"
+ },
+ {
+  "s": "Test it with a lens",
+  "voice": "helper",
+  "key": "7e38a411"
+ },
+ {
+  "s": "You tested it.",
+  "voice": "helper",
+  "key": "69154972"
+ },
+ {
+  "s": "Was the proposal sound?",
+  "voice": "helper",
+  "key": "9e8c2c09"
+ },
+ {
+  "s": "Caught: a confident proposal with a real flaw.",
+  "voice": "helper",
+  "key": "354e087b"
+ },
+ {
+  "s": "Testing before adopting is the habit that matters.",
+  "voice": "helper",
+  "key": "3c0d3a40"
+ },
+ {
+  "s": "Verified: the proposal holds up.",
+  "voice": "helper",
+  "key": "16a8cb9d"
+ },
+ {
+  "s": "Building it.",
+  "voice": "helper",
+  "key": "889a472a"
+ },
+ {
+  "s": "Check the lens again: it shows a problem.",
+  "voice": "helper",
+  "key": "60097447"
+ },
+ {
+  "s": "Confidence was not evidence.",
+  "voice": "helper",
+  "key": "d8f1bb32"
+ },
+ {
+  "s": "The proposal was sound.",
+  "voice": "helper",
+  "key": "46bbe558"
+ },
+ {
+  "s": "Testing was still right.",
+  "voice": "helper",
+  "key": "dde6a652"
+ },
+ {
+  "s": "Proposal: designate the flat riverside land as town land.",
+  "voice": "helper",
+  "key": "51845d26"
+ },
+ {
+  "s": "Level, close to water, easy to build.",
+  "voice": "helper",
+  "key": "75fad8ba"
+ },
+ {
+  "s": "It is winter floodplain.",
+  "voice": "helper",
+  "key": "2a7cce51"
+ },
+ {
+  "s": "Adopted without testing, and it was flawed: It is winter floodplain.",
+  "voice": "helper",
+  "key": "e10af548"
+ },
+ {
+  "s": "Test proposals before adopting them.",
+  "voice": "helper",
+  "key": "4eff6ccf"
+ },
+ {
+  "s": "Proposal: two blocks of concrete flats here, the highest density option.",
+  "voice": "helper",
+  "key": "f26c55b7"
+ },
+ {
+  "s": "Embodied carbon is 30 t each, and they are cold in winter.",
+  "voice": "helper",
+  "key": "51be504c"
+ },
+ {
+  "s": "Proposal: solar roofs on these homes solve the town’s power.",
+  "voice": "helper",
+  "key": "10c2567c"
+ },
+ {
+  "s": "Solar supplies nothing on a still winter night.",
+  "voice": "helper",
+  "key": "4d33cdad"
+ },
+ {
+  "s": "Adopted without testing, and it was flawed: Solar supplies nothing on a still winter night.",
+  "voice": "helper",
+  "key": "0245db92"
+ },
+ {
+  "s": "Proposal: one big field here for maximum food yield.",
+  "voice": "helper",
+  "key": "9c9ec92b"
+ },
+ {
+  "s": "It ploughs habitat the pollinators and deer need.",
+  "voice": "helper",
+  "key": "26d03d96"
+ },
+ {
+  "s": "Adopted without testing, and it was flawed: It ploughs habitat the pollinators and deer need.",
+  "voice": "helper",
+  "key": "ee818c6d"
+ },
+ {
+  "s": "Proposal: site the school here, a quiet spot away from traffic.",
+  "voice": "helper",
+  "key": "d2b5cad7"
+ },
+ {
+  "s": "It breaks the 15-minute walking rule.",
+  "voice": "helper",
+  "key": "6361408b"
+ },
+ {
+  "s": "Proposal: an orchard here, food plus pollinator habitat.",
+  "voice": "helper",
+  "key": "562aa360"
+ },
+ {
+  "s": "Proposal: a park here, for health and community.",
+  "voice": "helper",
+  "key": "9c7341a3"
+ },
+ {
+  "s": "I predict from patterns in what I was told, not from checking the world.",
+  "voice": "helper",
+  "key": "1572a952"
+ },
+ {
+  "s": "Always test it.",
+  "voice": "helper",
+  "key": "8995701b"
+ },
+ {
+  "s": "Run a lens or a view on my plan before adopting it.",
+  "voice": "helper",
+  "key": "2543cbd8"
+ },
+ {
+  "s": "Each one tests a different thing: flood, access, carbon, nature, winter power, walking time.",
+  "voice": "helper",
+  "key": "dad3e451"
+ },
+ {
+  "s": "Vague words like “best” or “big” leave me guessing.",
+  "voice": "helper",
+  "key": "b4103fd2"
+ },
+ {
+  "s": "The river meadow is floodplain: homes there flood in winter.",
+  "voice": "helper",
+  "key": "59c87e43"
+ },
+ {
+  "s": "Build on higher ground and add drainage like rain gardens or reed beds.",
+  "voice": "helper",
+  "key": "7d6c7d9b"
+ },
+ {
+  "s": "Two big sources here: embodied carbon in materials (concrete is high, timber and straw low) and car use.",
+  "voice": "helper",
+  "key": "d8e45bf3"
+ },
+ {
+  "s": "Keep the town under 160 t.",
+  "voice": "helper",
+  "key": "9802e69e"
+ },
+ {
+  "s": "Plan for the worst case: a still winter night.",
+  "voice": "helper",
+  "key": "c31bc0bf"
+ },
+ {
+  "s": "Solar gives nothing then; wind plus battery storage covers demand.",
+  "voice": "helper",
+  "key": "abd38050"
+ },
+ {
+  "s": "One food unit feeds three households.",
+  "voice": "helper",
+  "key": "191bd916"
+ },
+ {
+  "s": "Mixed farms, orchards and allotments raise supply without destroying habitat.",
+  "voice": "helper",
+  "key": "c96d1adb"
+ },
+ {
+  "s": "Pollinators boost orchard and allotment yields.",
+  "voice": "helper",
+  "key": "a76b15ff"
+ },
+ {
+  "s": "Hives, hedges and meadow keep them on the island.",
+  "voice": "helper",
+  "key": "a329538e"
+ },
+ {
+  "s": "Protect the ancient wood and wetland, and connect habitats with hedges and a green bridge.",
+  "voice": "helper",
+  "key": "211c1bbd"
+ },
+ {
+  "s": "The rule: every home within 15 minutes’ walk of school.",
+  "voice": "helper",
+  "key": "9869e86f"
+ },
+ {
+  "s": "Active travel routes beat car roads on health, safety and carbon.",
+  "voice": "helper",
+  "key": "ecaa4b07"
+ },
+ {
+  "s": "Forty households need housing on town land.",
+  "voice": "helper",
+  "key": "0e5c4d06"
+ },
+ {
+  "s": "Compare families per tile, embodied carbon and winter temperature.",
+  "voice": "helper",
+  "key": "c715fc2b"
+ },
+ {
+  "s": "Shared spaces raise community: market square, hall, allotments, parks and festivals.",
+  "voice": "helper",
+  "key": "a9a3f186"
+ },
+ {
+  "s": "I’m an AI planner: I turn your instruction into a plan by matching patterns.",
+  "voice": "helper",
+  "key": "b7459f2b"
+ },
+ {
+  "s": "I don’t observe the world, so human checking is part of the job.",
+  "voice": "helper",
+  "key": "c053e1b0"
+ },
+ {
+  "s": "I don’t have an answer for that.",
+  "voice": "helper",
+  "key": "1ad66cff"
+ },
+ {
+  "s": "Ask about flooding, carbon, power, food, nature, walking to school, or any build by name.",
+  "voice": "helper",
+  "key": "0af1c187"
+ },
+ {
+  "s": "Town land: Designates land for building.",
+  "voice": "helper",
+  "key": "1ad0b9ab"
+ },
+ {
+  "s": "Homes and town buildings need it.",
+  "voice": "helper",
+  "key": "7918419a"
+ },
+ {
+  "s": "Keep wild: Protects the tile from building, keeping its habitat.",
+  "voice": "helper",
+  "key": "2c821fa5"
+ },
+ {
+  "s": "Car road: Car access: adds carbon and lowers health; homes beside it need a safe crossing.",
+  "voice": "helper",
+  "key": "fbd6db07"
+ },
+ {
+  "s": "Car park: Parking encourages car trips: more carbon, less health.",
+  "voice": "helper",
+  "key": "91066c30"
+ },
+ {
+  "s": "Footpath & crossing: Walking route and safe crossing: low carbon, better health.",
+  "voice": "helper",
+  "key": "8c72ee6f"
+ },
+ {
+  "s": "Cycle lane: Cycle route: very low carbon and good for health.",
+  "voice": "helper",
+  "key": "d21e8ba2"
+ },
+ {
+  "s": "Tram stop: Public transport: carries many people with little carbon.",
+  "voice": "helper",
+  "key": "a6cc46a3"
+ },
+ {
+  "s": "Bridge: River crossing, so the two banks are within walking distance.",
+  "voice": "helper",
+  "key": "7bce6367"
+ },
+ {
+  "s": "Timber terrace: Houses 4 households; timber has low embodied carbon and stays warm.",
+  "voice": "helper",
+  "key": "0a18c65d"
+ },
+ {
+  "s": "Straw-bale cottages: Houses 3; straw insulates very well and has the lowest embodied carbon.",
+  "voice": "helper",
+  "key": "4b7ecbe3"
+ },
+ {
+  "s": "Rammed-earth homes: Houses 3; rammed earth has thermal mass and modest embodied carbon.",
+  "voice": "helper",
+  "key": "227c3d1b"
+ },
+ {
+  "s": "Reclaimed-brick terrace: Houses 4 using reused brick; colder inside without extra insulation.",
+  "voice": "helper",
+  "key": "b3f13b01"
+ },
+ {
+  "s": "Cohousing court: Houses 5 with shared space: adds community.",
+  "voice": "helper",
+  "key": "b3c2e213"
+ },
+ {
+  "s": "Green roof: Add-on for a home: a little nature and less embodied carbon.",
+  "voice": "helper",
+  "key": "93f3e0ba"
+ },
+ {
+  "s": "Big field: High yield monoculture: ploughs habitat and adds carbon.",
+  "voice": "helper",
+  "key": "42e367f2"
+ },
+ {
+  "s": "Mixed farm: Balanced yield with low carbon.",
+  "voice": "helper",
+  "key": "b3f3f4e4"
+ },
+ {
+  "s": "Orchard: Some food plus nature; needs pollinators for a full crop.",
+  "voice": "helper",
+  "key": "e274a637"
+ },
+ {
+  "s": "Allotments: Small yield, but adds community and health.",
+  "voice": "helper",
+  "key": "a2a33887"
+ },
+ {
+  "s": "Vertical farm: High yield in a small space; adds carbon and power demand.",
+  "voice": "helper",
+  "key": "2a631ce0"
+ },
+ {
+  "s": "Beehives: Pollinators: boosts orchards and allotments, adds nature.",
+  "voice": "helper",
+  "key": "4a035aae"
+ },
+ {
+  "s": "Plant a hedge: Habitat corridor: adds nature and links wild areas.",
+  "voice": "helper",
+  "key": "363a9adc"
+ },
+ {
+  "s": "Solar roof: Home add-on: power on an average day, none on a still winter night.",
+  "voice": "helper",
+  "key": "bf375729"
+ },
+ {
+  "s": "Heat pump: Home add-on: clean heating that needs some electricity.",
+  "voice": "helper",
+  "key": "5d9b4aa1"
+ },
+ {
+  "s": "Wind turbine: Power day and night, and cuts carbon.",
+  "voice": "helper",
+  "key": "12fdc863"
+ },
+ {
+  "s": "Battery store: Stores power for when supply is low.",
+  "voice": "helper",
+  "key": "dd0b24d4"
+ },
+ {
+  "s": "Rain garden: Drains heavy rain; a little nature and health.",
+  "voice": "helper",
+  "key": "983203fe"
+ },
+ {
+  "s": "Reed bed: Natural water treatment and drainage; adds nature.",
+  "voice": "helper",
+  "key": "adb9c456"
+ },
+ {
+  "s": "Repair café: Cuts waste and carbon; adds community.",
+  "voice": "helper",
+  "key": "fda64ebc"
+ },
+ {
+  "s": "Compost hub: Cuts waste and carbon; returns a little food.",
+  "voice": "helper",
+  "key": "6bcb5e9b"
+ },
+ {
+  "s": "Market square: A meeting place: adds community.",
+  "voice": "helper",
+  "key": "1e621748"
+ },
+ {
+  "s": "Park: Adds health, nature and community.",
+  "voice": "helper",
+  "key": "5d300bc0"
+ },
+ {
+  "s": "Green bridge: Wildlife crossing that also shortens walks.",
+  "voice": "helper",
+  "key": "afcbf96f"
+ },
+ {
+  "s": "Community hall: Adds community.",
+  "voice": "helper",
+  "key": "131f7172"
+ },
+ {
+  "s": "Festival field: Adds community and a little health.",
+  "voice": "helper",
+  "key": "e6183dd2"
+ },
+ {
   "s": "Class mode: your first AI Lab mission is ready.",
   "voice": "helper",
   "key": "c9fc4ff5"

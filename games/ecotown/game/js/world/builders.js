@@ -96,6 +96,7 @@ export function tree2(v, x, y, z, kind = 'round', seed = 0) {
   // small trees (the approved look: small trees, large canyons)
   if (kind === 'tallpine' || kind === 'pine') return tallPine(v, x, y, z, seed, kind === 'pine' ? 0.5 : 0.62);
   if (kind === 'oak' || kind === 'autumn' || kind === 'olive') return bigOak(v, x, y, z, seed, kind === 'oak' ? 0.62 : 0.5);
+  if (kind === 'smalloak') return bigOak(v, x, y, z, seed, 0.42);
   const L = LEAVES.round; const pick = (i) => L[Math.floor(rand(x + i, y, z + seed) * L.length)];
   const h = 1 + Math.floor(rand(x, z, seed) * 2);
   for (let i = 1; i <= h; i++) v.set(x, y + i, z, '#6b4a2e');
@@ -105,7 +106,7 @@ export function tree2(v, x, y, z, kind = 'round', seed = 0) {
   }
 }
 // Tiered conifer like the brochure islands: square tiers stepping in, darker under each tier.
-const PINE = ['#3d6e44', '#477a4b', '#548752'], PINE_D = '#2d5434';
+const PINE = ['#3d6e44', '#477a4b', '#548752'], PINE_D = '#35603d';
 function tallPine(v, x, y, z, seed, k = 1) {
   const tiers = Math.max(2, Math.round((2 + Math.floor(rand(x, z, seed) * 2)) * k)), trunk = 1 + (rand(x, z, seed + 1) > 0.5 ? 1 : 0);
   for (let i = 1; i <= trunk; i++) v.set(x, y + i, z, '#5a3d24');
@@ -125,7 +126,7 @@ function tallPine(v, x, y, z, seed, k = 1) {
 }
 export function bigOakAt(v, x, y, z) { bigOak(v, x, y, z, 99, 1.5); }
 // Big broadleaf: chunky trunk with a branch, a wide two-tone canopy with a darker lower band.
-const OAK = ['#4caf44', '#58bb4c', '#43a03c'], OAK_D = '#2f8a34';
+const OAK = ['#5f9a45', '#6aa64c', '#558f3e'], OAK_D = '#3f6f35'; // sage greens, not lime
 function bigOak(v, x, y, z, seed, k = 1) {
   const h = Math.round((2 + Math.floor(rand(x, z, seed) * 2)) * k);
   for (let i = 1; i <= h; i++) { v.set(x, y + i, z, '#6b4a2e'); if (k > 1.2) v.set(x + 1, y + i, z, '#5f4128'); }
@@ -142,7 +143,7 @@ function bigOak(v, x, y, z, seed, k = 1) {
 export function decorate(t, G, B, H) {
   const s = t.gx * 31 + t.gz;
   // meadows: an occasional bold flower bed (one colour) instead of scattered specks
-  if (t.zone === 'meadow' && rand(s, 13) > 0.66) { const c = ['#ff7eb6', '#ffd23f', '#ffffff', '#b28cff'][s % 4]; const x0 = 2 + Math.floor(rand(s, 14) * 6), z0 = 2 + Math.floor(rand(s, 15) * 6), n = 2 + (s % 2); for (let x = 0; x < n; x++) for (let z = 0; z < n; z++) if ((x + z) % 2 === 0 || n === 2) G.set(x0 + x, 1, z0 + z, c); }
+  if (t.zone === 'meadow' && rand(s, 13) > 0.45) { const c = ['#ff7eb6', '#ffd23f', '#ffffff', '#b28cff'][s % 4]; const x0 = 2 + Math.floor(rand(s, 14) * 6), z0 = 2 + Math.floor(rand(s, 15) * 6), n = 2 + (s % 2); for (let x = 0; x < n; x++) for (let z = 0; z < n; z++) if ((x + z) % 2 === 0 || n === 2) G.set(x0 + x, 1, z0 + z, c); }
   if (t.zone === 'coast') {
     // a lively beach: huts, rock pools, dune grass, umbrellas, driftwood
     const r = rand(s, 2);
@@ -152,14 +153,24 @@ export function decorate(t, G, B, H) {
     else if (r > 0.3) { G.box(2, 1, 2, 2, 5, 2, '#8a5c38'); for (let i = 0; i < 5; i++) G.box(0 + i, 6 - Math.abs(i - 2), 0 + i, 0 + i, 6 - Math.abs(i - 2), 4 - i + 2, ['#ff8a5c', '#ffffff', '#3a6fc9'][i % 3]); G.box(5, 1, 6, 7, 1, 7, ['#16c79a', '#ffd23f'][s % 2]); }
     else { G.box(1, 1, 5, 6, 1, 5, '#a07a50'); G.set(7, 1, 6, '#a07a50'); }
   }
-  if (t.zone === 'wood') { tree2(B, 2 + Math.floor(rand(s, 1) * 2), -1, 2 + Math.floor(rand(s, 2) * 2), ['tallpine', 'oak', 'tallpine'][s % 3], s); }
-  if ((t.zone === 'field' || t.zone === 'slope') && rand(s, 9) > 0.9) tree2(B, rand(s, 10) > 0.5 ? 1 : 4, -1, 2 + Math.floor(rand(s, 11) * 2), ['oak', 'pine'][s % 2], s);
+  // trees at house scale (half-size voxels on the G layer, y + 1 = on the grass): the old wood is a real wood
+  const onG = { set: (x, y, z, c) => G.set(x, y + 1, z, c) };
+  if (t.zone === 'wood') {
+    const n = 3 + (s % 2); for (let i = 0; i < n; i++) { const x = 2 + Math.floor(rand(s, i, 1) * 8), z = 2 + Math.floor(rand(s, i, 2) * 8); const pine = rand(s, i, 3) > 0.5;
+      ftree(onG, x, z, pine ? { h: 3, r: 1, leaf: ['#3d6e44', '#477a4b', '#548752'] } : { h: 2 + (i % 2), r: 2, leaf: ['#5f9a45', '#6aa64c', '#558f3e'] }); }
+    for (let i = 0; i < 10; i++) G.set(Math.floor(rand(s, i, 5) * 12), 1, Math.floor(rand(s, i, 6) * 12), '#8a7a3e'); // leaf litter
+    const lz = 1 + Math.floor(rand(s, 7) * 10); for (let k = 0; k < 4; k++) G.set(1 + k, 1, lz, '#6b4a2e'); // a fallen log
+  }
+  if ((t.zone === 'field' || t.zone === 'slope') && rand(s, 9) > 0.9) ftree(onG, rand(s, 10) > 0.5 ? 2 : 9, 3 + Math.floor(rand(s, 11) * 6), { h: 3, r: 2, leaf: ['#5f9a45', '#6aa64c', '#558f3e'] });
+  // ground marks per zone: furrows in the dry fields, vine rows on the slope
+  if (t.zone === 'field') for (let x = 0; x < 12; x++) for (let z = 1; z < 12; z += 3) if (rand(s, x, z) > 0.12) G.set(x, 0, z, '#b89a52');
+  if (t.zone === 'slope' && rand(s, 21) > 0.5) for (const z of [3, 8]) for (let x = 1; x < 11; x++) G.set(x, 1, z, x % 3 ? '#6f8f45' : '#9a86c8');
   // wetland: one clear pond with a few chunky reed clumps around it
   if (t.zone === 'wetland') {
     for (let x = 0; x < 12; x++) for (let z = 0; z < 12; z++) if (Math.hypot(x - 6 + rand(s, 1) * 2, z - 6) < 4 + noise2(x / 3, z / 3, s) * 1.2) G.set(x, 0, z, '#4fb3ea');
     for (let i = 0; i < 3; i++) { const a = rand(i, s) * 6.28, x = Math.round(6 + Math.cos(a) * 5), z = Math.round(6 + Math.sin(a) * 5); G.box(x, 1, z, Math.min(11, x + 1), 2, Math.min(11, z + 1), '#5a9a3a'); G.set(x, 3, z, '#8a6a3a'); }
   }
-  if (t.hedge) for (let x = 0; x < 6; x++) { H.set(x, 0, 0, '#2f8a43'); H.set(x, 1, 0, rand(x, s) > 0.8 ? '#ff7eb6' : x % 2 ? '#3f9d4a' : '#2f8a43'); }
+  if (t.hedge) for (let x = 0; x < 6; x++) { H.set(x, 0, 0, '#4c7f3e'); H.set(x, 1, 0, rand(x * 3 + 1, s * 7) > 0.86 ? '#e88aa0' : rand(x, s, 3) > 0.5 ? '#5a8d46' : '#4c7f3e'); }
 }
 
 export { Vox };

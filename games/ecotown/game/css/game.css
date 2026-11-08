@@ -563,10 +563,10 @@ button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focu
 #build .hlkey { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px 10px; margin: 6px 0 2px; font-size: max(12px, .78em); font-weight: 700; color: var(--cream); }
 #build .hlkey span { display: inline-flex; align-items: center; gap: 5px; }
 #build .hk { width: 16px; height: 16px; border-radius: 3px; flex: none; box-sizing: border-box; background: #9bbf5c; position: relative; }
-#build .hk.free { border: 4px solid #18d8f0; }
+#build .hk.free { border: 4px solid #4fd6e8; }
 #build .hk.swap { border: 4px solid #a55cff; background: linear-gradient(#a55cff,#a55cff) 0 0/5px 5px no-repeat, linear-gradient(#a55cff,#a55cff) 100% 100%/5px 5px no-repeat, #9bbf5c; }
 #build .hk.erase { border: 4px solid #ff3b3b; }
-#build .hk.no { background: #5b6066; border: 0; }
+#build .hk.no { border: 4px dashed #5b6066; }
 
 /* ---------- bottom hotbar layout (Nov 2026): free building keeps the island nearly full screen.
    Laptops, tablets and whiteboards: the town card is a slim strip across the top, the camera buttons sit in a
@@ -772,8 +772,154 @@ html[data-motion="reduce"] #labels .float { animation: floatfade 1.7s linear for
 @media (min-width: 761px) and (min-height: 561px) { #florence { bottom: 262px; } }
 @media (min-width: 1600px) and (min-height: 900px) { #florence { bottom: 300px; } }
 /* Florence's live portrait (a small 3D render of her, js/ui/portrait.js): same place and size as her picture */
-canvas.portrait.live { display: block; aspect-ratio: 2 / 3; height: auto; filter: none; border-radius: 10px; background: radial-gradient(circle at 50% 40%, #fdf0d4, #e8c890); box-shadow: inset 0 0 0 3px var(--wd), 0 3px 0 rgba(30,18,10,.45); }
+canvas.portrait.live { display: block; aspect-ratio: 2 / 3; height: auto; filter: none; border-radius: 10px; background: radial-gradient(circle at 50% 38%, #f4ddb0, #c99a5e); box-shadow: inset 0 0 0 3px var(--wd), 0 3px 0 rgba(30,18,10,.45); }
 #florence .fwrap canvas.portrait { width: 100px; margin: 0; }
 #florence.mini .fwrap canvas.portrait { width: 72px; margin: 0; }
 #dock .speaker .avatar canvas.portrait { width: 84px; margin: 0; }
 #florence .fwrap:has(canvas.portrait) { grid-template-columns: 100px 1fr; align-items: center; } #florence.mini .fwrap:has(canvas.portrait) { grid-template-columns: 72px; } #dock .speaker .avatar:has(canvas.portrait) { width: 84px; }
+
+/* ---------- lighter HUD (Nov 2026, from the UI review: the UI took 35 % of a 1280 × 800 screen, now about 18 %)
+   one slim top card (🌼 goals · name · ★ · day and pause · next step), a short top-right strip (🎥 · 🔍 · 🧪 with the
+   number of missions ready · ☰), a compact hotbar (Remove · categories · one info line · one row of builds) with
+   Florence docked at its right end and her tips above it. The sentence about a build shows in a tip above its button. */
+@media (min-width: 761px) and (min-height: 561px) {
+  :root { --bw: min(1030px, calc(100vw - 24px - 88px)); }   /* hotbar width without Florence's dock */
+
+  /* --- top-left card: 🌼 + name + ★ + day/pause + next step; the mission track moves to the 🧪 badge */
+  #card { padding: 6px 10px; gap: 8px; flex-wrap: nowrap; max-width: calc(100vw - var(--stripw, 220px) - 44px); }
+  #card .leaf, #card .track { display: none; }
+  #card .crow { gap: 6px; max-width: none; }
+  #card .brand { max-width: 130px; font-size: 1.05em; }
+  #card .stars { padding: 2px 8px; }
+  #card [data-flower] { width: 44px; height: 44px; flex: none; padding: 2px; border-radius: 7px; background: var(--sand); box-shadow: var(--slot-bevel); }
+  #card [data-flower] svg { width: 40px; height: 40px; display: block; }
+  #card .dayc { display: inline-flex; align-items: center; gap: 4px; background: var(--wd); color: var(--cream); border-radius: 6px; padding: 0 0 0 8px; font: 800 13px/1 'Inter'; white-space: nowrap; height: 44px; }
+  #card .dayc .slot.mini { width: 44px; height: 44px; }
+  #card .credits { display: inline-flex; align-items: center; gap: 3px; background: var(--wd); color: #9ff0c9; border-radius: 6px; padding: 4px 8px; font: 800 13px 'Inter'; white-space: nowrap; }
+  #card .goal { flex: 1 1 200px; min-width: 170px; max-width: 250px; }
+
+  /* --- top-right strip: (🔍) 🧪 ☰, with 🎥 as the last block on the left of it; 🧪 shows how many missions are ready */
+  #strip { padding: 5px; }
+  #strip .ib { width: 44px; height: 44px; }
+  #strip .lab[data-ready]::after { content: attr(data-ready); position: absolute; top: -7px; right: -7px; min-width: 20px; height: 20px; border-radius: 6px; background: #d9533d; color: #fff; font: 900 12px/20px 'Inter'; text-align: center; box-shadow: 0 2px 0 var(--wd); }
+  #strip .ib { position: relative; }
+  #camctl { top: 14px; right: calc(var(--stripw, 160px) + 22px); flex-direction: row-reverse; padding: 5px; }
+  #camctl .ib { width: 44px; height: 44px; }
+
+  /* --- hotbar: [Remove] [categories 3x2] [info line + key / one row of builds] [Florence] */
+  #build { left: calc(50% - (var(--bw) + 88px) / 2); transform: none; bottom: 10px; width: var(--bw); padding: 6px 8px; padding-right: 8px;
+    grid-template-columns: 64px minmax(0, 1fr); grid-template-rows: 1fr; gap: 8px; }
+  #build.hide { transform: translateY(30px); }
+  #build .bhead { display: none; }
+  #build .btools { grid-column: 1; grid-row: 1; align-self: stretch; }
+  #build .btools .erase { height: 100%; min-height: 84px; flex-direction: column; gap: 2px; padding: 4px; }
+  #build .btools .erase .ico { font-size: 1.9em; flex: 1; }
+  #build .bbody { grid-column: 2; grid-row: 1; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: 20px auto; gap: 4px 8px; }
+  #build .cats { grid-row: 1 / span 2; grid-template-columns: repeat(3, 72px); grid-auto-rows: 46px; gap: 4px; align-content: center; }
+  #build .cat { width: 72px; height: 46px; gap: 0; padding: 2px; font-size: 12px; justify-content: center; }
+  #build .cat img { width: 24px; flex: none; }
+  #build .cat span { display: block; white-space: nowrap; overflow: visible; line-height: 1.1; }
+  #build .cat.on::after { width: 18px; height: 18px; font-size: 11px; top: -6px; right: -6px; }
+  #build .info { grid-column: 2; grid-row: 1; display: flex; align-items: center; min-width: 0; overflow: hidden; white-space: nowrap; }
+  #build .info .ihead, #build .info .chips { flex: none; flex-wrap: nowrap; }
+  #build .info .ihead { gap: 6px; margin-right: 8px; }
+  #build .info .ihead b { font-size: 1em; }
+  #build .info p, #build .info .where { display: none; }                         /* the sentence moves to the hover/focus tip above the slot */
+  #build .info .play { height: 22px; width: 32px; padding: 0; position: relative; }
+  #build .info .play::before { content: ''; position: absolute; inset: -11px -6px; }   /* 44 px hit area */
+  #build .hlkey { grid-column: 2; grid-row: 1; justify-self: end; align-self: center; margin: 0; gap: 4px 8px; background: var(--wm); padding-left: 8px; }
+  #build .items { grid-column: 2; grid-row: 2; padding: 4px; gap: 6px; }
+  #build .slotwrap { width: 82px; }
+  #build .item { height: 76px; font-size: 12px; padding: 3px; }
+  #build .item img { width: 50%; }
+  #build .item.on { transform: translateY(-2px); }
+
+  /* --- Florence docked in the hotbar's right end: her live figure is the button; her tip is a bubble above it */
+  #florence { right: calc((100vw - var(--bw) - 88px) / 2); bottom: 10px; }
+  #florence.mini { width: 84px; height: auto; padding: 4px; }
+  #florence.mini .fwrap canvas.portrait { width: 70px; }
+  #florence.mini .fwrap, #florence.mini .fwrap:has(canvas.portrait) { grid-template-columns: 70px; }
+  #florence:not(.mini) { bottom: 138px; width: 420px; padding: 8px; }
+  #florence:not(.mini) .fwrap:has(canvas.portrait) { grid-template-columns: 70px 1fr; align-items: end; }
+  #florence:not(.mini) .fwrap canvas.portrait { width: 70px; }
+  #florence .fhead { margin-bottom: 2px; } #florence .fhead .spk { width: 44px; height: 44px; margin-left: auto; }
+  #florence .fbody { font-size: 15px; line-height: 1.3; }
+  #florence .fbody .slot.act { min-height: 44px; margin-top: 4px; flex-direction: row; gap: 6px; padding: 2px 10px; }
+}
+@media (min-width: 761px) and (max-width: 1100px) and (min-height: 561px) {
+  #build .cats { grid-template-columns: repeat(3, 44px); }      /* icon-only, label in title + aria-label (already) */
+  #build .cat { width: 44px; } #build .cat span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  #card .brand { display: none; }   /* the town name heads the 🌼 pop-over */
+  #card .goal { min-width: 150px; }
+  #build .hlkey:not(.mini) span:nth-child(n+2) { display: none; }  /* only "?" + first swatch; full key on hover/focus */
+}
+@media (min-width: 1600px) and (min-height: 900px) {
+  :root { --bw: min(1240px, calc(100vw - 24px - 108px)); }
+  #build .slotwrap { width: 100px; } #build .item { height: 100px; }
+  #build .cats { grid-template-columns: repeat(3, 76px); grid-auto-rows: 52px; } #build .cat { width: 76px; height: 52px; font-size: 13px; }
+}
+/* --- phones (portrait): a one-row top card, a short tray, Florence a small figure above the tray's right end */
+@media (max-width: 760px) {
+  #card { width: calc(100vw - 72px); padding: 6px 8px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; }
+  #card .leaf, #card .track, #card .band { display: none; }
+  #card .crow { display: contents; } #card .brand { display: none; }
+  #card [data-flower] { order: 0; } #card .goal { order: 1; } #card .stars { order: 2; margin-left: 0; }
+  #card [data-flower] { width: 44px; height: 44px; padding: 0; border-radius: 7px; background: var(--sand); box-shadow: var(--slot-bevel); }
+  #card [data-flower] svg { width: 42px; height: 42px; display: block; }
+  #card .dayc { display: none; }
+  #card .goal { flex: 1 1 0; min-width: 0; }
+  #strip .ib, #camctl .ib { width: 44px; height: 44px; }
+  #build [data-fold] { display: none; }  /* real build: a 44 px grab tab on the tray's top edge */
+  #strip .lab { position: relative; }
+  #strip .lab[data-ready]::after { content: attr(data-ready); position: absolute; top: -6px; left: -6px; min-width: 18px; height: 18px; border-radius: 5px; background: #d9533d; color: #fff; font: 900 11px/18px 'Inter'; text-align: center; }
+  #build { max-height: none; padding: 6px; gap: 4px; }
+  #build .bhead { display: none; }
+  #build .btools { display: none; }
+  #build .cats { gap: 4px; }
+  #build .cat { height: 48px; width: 56px; } #build .cat img { width: 28px; }
+  #build .items { padding: 4px; gap: 5px; }
+  #build .slotwrap { width: 76px; } #build .item { height: 78px; } #build .item img { width: 54%; }
+  #build .items .erase { height: 78px; }
+  #build .hlkey { display: none; }
+  #florence.mini { left: auto; right: 8px; width: auto; padding: 4px; }
+  #florence.mini .fwrap canvas.portrait { width: 48px; }
+  #florence.mini .fwrap:has(canvas.portrait) { grid-template-columns: 48px; }
+  #camctl { right: 8px; }
+}
+#card [hidden], #build [hidden] { display: none !important; }
+#build .slottip { position: absolute; bottom: calc(100% + 8px); width: 280px; z-index: 4; background: var(--cream); color: var(--ink); border-radius: 8px; padding: 6px 10px; font: 600 13px/1.35 'Inter'; box-shadow: 0 3px 0 var(--wd), inset 0 0 0 2px var(--sandd); pointer-events: none; }
+@media (min-width: 761px) and (min-height: 561px) { #build .items .eraseslot { display: none; } }
+@media (max-width: 760px), (max-height: 560px) { #build .slottip { display: none !important; } }
+@media (max-width: 760px) {
+  #build .bhead { display: flex; justify-content: center; } #build .bhead .fold { width: 64px; height: 22px; }
+  #card .dayc { display: inline-flex; padding: 0; height: 44px; order: 3; } #card .dayc [data-dayt] { display: none; } #card .dayc .slot.mini { width: 44px; height: 44px; }
+  #card .credits { order: 4; }
+}
+@media (min-width: 761px) { #build .items .eraseslot .erase { height: 100%; } }
+/* the 🌼 goals pop-over opens under its button in the town card (top left) */
+@media (min-width: 761px) and (min-height: 561px) { #flowerpop { left: 14px; right: auto; top: 80px; } #flowerpop.hide { transform: translateX(-30px); } }
+@media (max-width: 760px) { #flowerpop { left: 8px; right: auto; top: 70px; } }
+/* longer category names (13–17) wrap to two short lines instead of being cut off */
+@media (min-width: 1101px) and (min-height: 561px) { #build .cat span { white-space: normal; text-align: center; font-size: 10.5px; line-height: 1; overflow: hidden; } }
+/* phones: Florence's tip is a compact card just above the tray, with a small figure */
+@media (max-width: 760px) {
+  #florence:not(.mini) { left: 8px; right: 8px; width: auto; bottom: 214px; padding: 6px; }
+  #florence:not(.mini) .fwrap:has(canvas.portrait) { grid-template-columns: 52px 1fr; align-items: start; }
+  #florence:not(.mini) .fwrap canvas.portrait { width: 52px; }
+  #florence:not(.mini) .fbody { font-size: 14px; } #florence:not(.mini) .fbody p { margin: 0; }
+}
+/* readable on the cream speaker card (contrast at least 4.5:1) */
+#dock .speaker .sure, .speaker .sure { color: #3d2a18; }
+#dock .speaker .why, .speaker .why { color: #4a3826; font-size: .82em; } #dock .speaker .why b, .speaker .why b { color: #2a1a0e; }
+#florence .fbody .sure { margin: 2px 0 0; font-weight: 800; color: #6b3e22; font-size: .9em; }
+/* intro: the progress bar text is readable */
+#florence .bar span { color: #2a1a0e; }
+/* the AI Lab board: the mission your town needs now */
+.labrow .need { display: inline-block; margin-left: 8px; background: #d9533d; color: #fff; border-radius: 5px; padding: 1px 7px; font: 800 .72em/1.5 'Inter'; font-style: normal; vertical-align: middle; }
+.labrow.needed { box-shadow: var(--slot-bevel), 0 0 0 3px #d9533d; }
+/* phones: skip button under the card, camera button under the strip, category labels that fit */
+@media (max-width: 760px) {
+  .introskip { top: auto; bottom: calc(100% - 100vh + 8px); left: 8px; transform: none; top: 76px; }
+  #camctl { top: 128px; bottom: auto; right: 8px; }
+  #build .cat span { font-size: 9.5px; white-space: normal; line-height: 1; text-align: center; }
+}

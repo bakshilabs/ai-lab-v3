@@ -16,6 +16,9 @@ const sk = await p.waitForSelector('[data-introskip]', { timeout: 120000 }).catc
 await p.waitForSelector('#build [data-cat="land"]', { timeout: 120000 });
 const focusedTab = await tabTo(() => document.activeElement?.dataset?.cat === 'land', 60);
 const focusedLab = await tabTo(() => document.activeElement?.hasAttribute('data-lab'), 60); await p.keyboard.press('Enter');
+// the AI Lab classroom: keyboard to the Missions button
+const classroom = await p.waitForSelector('#dock [data-missions]', { timeout: 30000 }).then(() => true).catch(() => false);
+const focusedMissions = await tabTo(() => document.activeElement?.hasAttribute('data-missions'), 40); await p.keyboard.press('Enter');
 const board = await p.waitForSelector('#modal:not(.hide) .labs', { timeout: 10000 }).then(() => true).catch(() => false);
 await p.keyboard.press('Escape'); await p.click('#modal:not(.hide) [data-act="close"]').catch(() => {});
 await p.evaluate(() => { const { G } = window.__eco.app; const ks = [...window.__eco.terrain.tiles.values()].filter((t) => ['field', 'slope'].includes(t.zone) && !t.fixed).slice(0, 4).map((t) => t.k); for (const k of ks) G.placeAt(k, 'town'); });
@@ -26,5 +29,5 @@ const resume = await p.waitForSelector('#modal:not(.hide) [data-act="resume"]', 
 if (resume) await p.click('#modal:not(.hide) [data-act="resume"]');
 await p.waitForSelector('#build [data-cat="land"]', { timeout: 120000 });
 const tilesAfterResume = await p.evaluate(() => window.__eco.app.G.sim().townTiles);
-console.log(JSON.stringify({ focusedAge, focusedStart, focusedBuildTab: focusedTab, focusedLabButton: focusedLab, labBoardOpened: board, saved, resumeOffered: resume, tilesAfterResume, errors: errs }, null, 1));
+console.log(JSON.stringify({ focusedAge, focusedStart, focusedBuildTab: focusedTab, focusedLabButton: focusedLab, classroom, focusedMissions, labBoardOpened: board, saved, resumeOffered: resume, tilesAfterResume, errors: errs }, null, 1));
 await b.close();
