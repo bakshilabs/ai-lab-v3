@@ -772,8 +772,8 @@ html[data-motion="reduce"] #labels .float { animation: floatfade 1.7s linear for
 @media (min-width: 761px) and (min-height: 561px) { #florence { bottom: 262px; } }
 @media (min-width: 1600px) and (min-height: 900px) { #florence { bottom: 300px; } }
 /* Florence's live portrait (a small 3D render of her, js/ui/portrait.js): same place and size as her picture */
-canvas.portrait.live { display: block; aspect-ratio: 1; height: auto; filter: none; border-radius: 10px; background: radial-gradient(circle at 50% 40%, #fdf0d4, #e8c890); box-shadow: inset 0 0 0 3px var(--wd), 0 3px 0 rgba(30,18,10,.45); }
-#florence .fwrap canvas.portrait { width: 84px; margin: 0; }
-#florence.mini .fwrap canvas.portrait { width: 70px; margin: 0; }
-#dock .speaker .avatar canvas.portrait { width: 70px; margin: 0; }
-#florence .fwrap:has(canvas.portrait) { grid-template-columns: 84px 1fr; } #florence.mini .fwrap:has(canvas.portrait) { grid-template-columns: 70px; } #dock .speaker .avatar:has(canvas.portrait) { width: 70px; }
+canvas.portrait.live { display: block; aspect-ratio: 2 / 3; height: auto; filter: none; border-radius: 10px; background: radial-gradient(circle at 50% 40%, #fdf0d4, #e8c890); box-shadow: inset 0 0 0 3px var(--wd), 0 3px 0 rgba(30,18,10,.45); }
+#florence .fwrap canvas.portrait { width: 100px; margin: 0; }
+#florence.mini .fwrap canvas.portrait { width: 72px; margin: 0; }
+#dock .speaker .avatar canvas.portrait { width: 84px; margin: 0; }
+#florence .fwrap:has(canvas.portrait) { grid-template-columns: 100px 1fr; align-items: center; } #florence.mini .fwrap:has(canvas.portrait) { grid-template-columns: 72px; } #dock .speaker .avatar:has(canvas.portrait) { width: 84px; }
