@@ -1365,6 +1365,401 @@
   "key": "a5ef9fa2"
  },
  {
+  "s": "Welcome to my classroom!",
+  "voice": "helper",
+  "key": "c57666da"
+ },
+ {
+  "s": "Ask me anything about building a green town, and I’ll show you on the big screen.",
+  "voice": "helper",
+  "key": "3b8da3c6"
+ },
+ {
+  "s": "Or pick a mission to test my plans.",
+  "voice": "helper",
+  "key": "900d9959"
+ },
+ {
+  "s": "I learn from patterns, not from looking at the real island.",
+  "voice": "helper",
+  "key": "f147eba6"
+ },
+ {
+  "s": "So I can sound very sure and still be wrong!",
+  "voice": "helper",
+  "key": "87f33b36"
+ },
+ {
+  "s": "That’s why you check my plans with a lens before you build.",
+  "voice": "helper",
+  "key": "23db05ba"
+ },
+ {
+  "s": "Pick a lens: it shows what my plan would really do, like flooding or carbon.",
+  "voice": "helper",
+  "key": "a7540263"
+ },
+ {
+  "s": "If the lens shows a problem, I made a mistake, and you caught it!",
+  "voice": "helper",
+  "key": "300e4c12"
+ },
+ {
+  "s": "Tell me exactly what matters.",
+  "voice": "helper",
+  "key": "8271a124"
+ },
+ {
+  "s": "“Best land” could mean flat, dry or sunny.",
+  "voice": "helper",
+  "key": "877c2dce"
+ },
+ {
+  "s": "Say “dry land that never floods”, and I’ll know what you mean.",
+  "voice": "helper",
+  "key": "1f6790a6"
+ },
+ {
+  "s": "The meadow by the river floods every winter.",
+  "voice": "helper",
+  "key": "c7f913ec"
+ },
+ {
+  "s": "Build your town up on the dry slope, and add rain gardens so rainwater soaks away.",
+  "voice": "helper",
+  "key": "e043257b"
+ },
+ {
+  "s": "Carbon comes from making things like concrete, and from cars.",
+  "voice": "helper",
+  "key": "1fcbe7b1"
+ },
+ {
+  "s": "Timber and straw homes make much less.",
+  "voice": "helper",
+  "key": "569f0514"
+ },
+ {
+  "s": "Keep the whole town under 160 tonnes.",
+  "voice": "helper",
+  "key": "491cb204"
+ },
+ {
+  "s": "On a still winter night, solar panels make nothing!",
+  "voice": "helper",
+  "key": "7b4cd1b8"
+ },
+ {
+  "s": "Wind turbines and batteries keep the lights on when it’s dark and cold.",
+  "voice": "helper",
+  "key": "fe286fc7"
+ },
+ {
+  "s": "Every three families need one basket of food.",
+  "voice": "helper",
+  "key": "eaa351e3"
+ },
+ {
+  "s": "Mixed farms and orchards grow food and still leave room for wildlife.",
+  "voice": "helper",
+  "key": "d85afa75"
+ },
+ {
+  "s": "Bees carry pollen from flower to flower, so orchards and allotments grow more food.",
+  "voice": "helper",
+  "key": "294e5434"
+ },
+ {
+  "s": "Beehives and hedges help them.",
+  "voice": "helper",
+  "key": "31c6983c"
+ },
+ {
+  "s": "Animals need wild places to live.",
+  "voice": "helper",
+  "key": "34aabd01"
+ },
+ {
+  "s": "Keep the old wood and the wetland wild, and plant hedges so they can move around.",
+  "voice": "helper",
+  "key": "7f89ea7e"
+ },
+ {
+  "s": "Every home should be a 15-minute walk from school.",
+  "voice": "helper",
+  "key": "904caa76"
+ },
+ {
+  "s": "Paths and cycle lanes are safer and healthier than busy car roads.",
+  "voice": "helper",
+  "key": "5d1b7f7a"
+ },
+ {
+  "s": "40 families are coming!",
+  "voice": "helper",
+  "key": "92dea5f1"
+ },
+ {
+  "s": "Build homes on town land.",
+  "voice": "helper",
+  "key": "181d87fb"
+ },
+ {
+  "s": "Straw-bale and timber homes stay warm and make little carbon.",
+  "voice": "helper",
+  "key": "697c65b5"
+ },
+ {
+  "s": "People need places to meet: a market, a hall, allotments and a park.",
+  "voice": "helper",
+  "key": "78474f30"
+ },
+ {
+  "s": "Happy neighbours make a happy town!",
+  "voice": "helper",
+  "key": "16b20317"
+ },
+ {
+  "s": "I’m Florence, an AI planning helper.",
+  "voice": "helper",
+  "key": "775767ac"
+ },
+ {
+  "s": "I read your instructions and make a plan, very fast.",
+  "voice": "helper",
+  "key": "67cb245f"
+ },
+ {
+  "s": "But I don’t see the island like you do, so you’re the checker!",
+  "voice": "helper",
+  "key": "a10895af"
+ },
+ {
+  "s": "Hmm, I don’t know that one yet!",
+  "voice": "helper",
+  "key": "564a0279"
+ },
+ {
+  "s": "Try asking me about flooding, carbon, winter power, food, bees, or any build, like “What does a heat pump do?”",
+  "voice": "helper",
+  "key": "98485654"
+ },
+ {
+  "s": "Town land: Marks land where your town can grow.",
+  "voice": "helper",
+  "key": "ac88b85e"
+ },
+ {
+  "s": "Homes, shops and the hall go here.",
+  "voice": "helper",
+  "key": "f3ee9117"
+ },
+ {
+  "s": "Keep wild: A promise to leave this land wild for plants and animals.",
+  "voice": "helper",
+  "key": "5e72df28"
+ },
+ {
+  "s": "Car road: Lets cars get around, but cars are noisy, dirty and less safe to cross.",
+  "voice": "helper",
+  "key": "736a9491"
+ },
+ {
+  "s": "Car park: Space to leave cars.",
+  "voice": "helper",
+  "key": "654492f0"
+ },
+ {
+  "s": "Handy, but it makes more car trips.",
+  "voice": "helper",
+  "key": "5ab13305"
+ },
+ {
+  "s": "Footpath & crossing: A safe way to walk, with a crossing over busy roads.",
+  "voice": "helper",
+  "key": "eb4047e8"
+ },
+ {
+  "s": "Cycle lane: A lane for bikes: quick, quiet and healthy.",
+  "voice": "helper",
+  "key": "4af5d3c2"
+ },
+ {
+  "s": "Tram stop: A tram takes lots of people across town without cars.",
+  "voice": "helper",
+  "key": "f6d6a15a"
+ },
+ {
+  "s": "Bridge: Lets people cross the river.",
+  "voice": "helper",
+  "key": "89957c92"
+ },
+ {
+  "s": "Timber terrace: Wooden homes for 4 families.",
+  "voice": "helper",
+  "key": "e3127c9f"
+ },
+ {
+  "s": "Wood makes little carbon to build with, and keeps homes warm.",
+  "voice": "helper",
+  "key": "e603ecff"
+ },
+ {
+  "s": "Straw-bale cottages: Cosy straw-bale cottages for 3 families.",
+  "voice": "helper",
+  "key": "302094d9"
+ },
+ {
+  "s": "Straw keeps homes very warm.",
+  "voice": "helper",
+  "key": "9d28c5c1"
+ },
+ {
+  "s": "Rammed-earth homes: Thick earth walls for 3 families.",
+  "voice": "helper",
+  "key": "b71e279e"
+ },
+ {
+  "s": "They stay cool in summer and warm in winter.",
+  "voice": "helper",
+  "key": "1337ff13"
+ },
+ {
+  "s": "Reclaimed-brick terrace: Homes for 4 families built from old bricks, so less new stuff is made.",
+  "voice": "helper",
+  "key": "594f941f"
+ },
+ {
+  "s": "Cohousing court: Homes for 5 families around a shared garden.",
+  "voice": "helper",
+  "key": "6ade4853"
+ },
+ {
+  "s": "Neighbours help each other.",
+  "voice": "helper",
+  "key": "3c7901e5"
+ },
+ {
+  "s": "Concrete flats: Flats for 6 families, but concrete makes a lot of carbon and they get cold.",
+  "voice": "helper",
+  "key": "0406d613"
+ },
+ {
+  "s": "Green roof: Plants on a roof: homes for bees and birds, and less rain runs off.",
+  "voice": "helper",
+  "key": "fead6a82"
+ },
+ {
+  "s": "Big field: One huge field makes lots of food, but leaves no room for wildlife.",
+  "voice": "helper",
+  "key": "889d58f4"
+ },
+ {
+  "s": "Mixed farm: A farm with animals and crops together.",
+  "voice": "helper",
+  "key": "7ea8ffe0"
+ },
+ {
+  "s": "Good food, kind to the land.",
+  "voice": "helper",
+  "key": "91e6122b"
+ },
+ {
+  "s": "Orchard: Fruit trees: food for people and flowers for bees.",
+  "voice": "helper",
+  "key": "b5d85466"
+ },
+ {
+  "s": "Allotments: Little gardens where neighbours grow vegetables together.",
+  "voice": "helper",
+  "key": "ed0af896"
+ },
+ {
+  "s": "Vertical farm: Food grown indoors on shelves.",
+  "voice": "helper",
+  "key": "56096de3"
+ },
+ {
+  "s": "Lots of food, but it needs electricity.",
+  "voice": "helper",
+  "key": "cdf3608a"
+ },
+ {
+  "s": "Beehives: Bees pollinate orchards and allotments, so they grow more food.",
+  "voice": "helper",
+  "key": "e303ee97"
+ },
+ {
+  "s": "Plant a hedge: A hedge is a home and a safe path for wildlife.",
+  "voice": "helper",
+  "key": "fb013925"
+ },
+ {
+  "s": "Solar roof: Panels on a roof make electricity from sunshine (but not on winter nights).",
+  "voice": "helper",
+  "key": "176417af"
+ },
+ {
+  "s": "Heat pump: Warms a home with electricity instead of burning gas.",
+  "voice": "helper",
+  "key": "ed1a36a1"
+ },
+ {
+  "s": "Wind turbine: Makes clean electricity whenever the wind blows, even on winter nights.",
+  "voice": "helper",
+  "key": "82e99db8"
+ },
+ {
+  "s": "Battery store: Saves spare electricity for later, like on a still winter night.",
+  "voice": "helper",
+  "key": "6a0f06b6"
+ },
+ {
+  "s": "Rain garden: Soaks up rainwater so streets don’t flood.",
+  "voice": "helper",
+  "key": "76c32be7"
+ },
+ {
+  "s": "Reed bed: Reeds clean dirty water naturally and give wildlife a home.",
+  "voice": "helper",
+  "key": "216f628b"
+ },
+ {
+  "s": "Repair café: People fix old things here instead of throwing them away.",
+  "voice": "helper",
+  "key": "ad445522"
+ },
+ {
+  "s": "Compost hub: Turns food scraps into soil for the farms.",
+  "voice": "helper",
+  "key": "0c95ecd7"
+ },
+ {
+  "s": "Market square: A square where people meet and sell local food.",
+  "voice": "helper",
+  "key": "e63e3933"
+ },
+ {
+  "s": "Park: Green space to play and relax, for people and wildlife.",
+  "voice": "helper",
+  "key": "23ebfe0b"
+ },
+ {
+  "s": "Green bridge: A bridge covered in plants so animals can cross safely too.",
+  "voice": "helper",
+  "key": "c4ebffb3"
+ },
+ {
+  "s": "Community hall: A hall for clubs, parties and town meetings.",
+  "voice": "helper",
+  "key": "74cb9326"
+ },
+ {
+  "s": "Festival field: A field for fairs and festivals that bring everyone together.",
+  "voice": "helper",
+  "key": "60a99b22"
+ },
+ {
   "s": "Ready for your first AI Lab mission?",
   "voice": "helper",
   "key": "d1515bfe"
