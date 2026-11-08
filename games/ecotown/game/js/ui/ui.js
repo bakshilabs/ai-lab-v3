@@ -18,6 +18,8 @@ export const LEVEL_ICONS = ['🗺', '🚲', '🏡', '🍎', '⚡', '🏫'];
 export const TRACK_PICS = ['town', 'cycle', 'timber', 'orchard', 'wind', 'school'];
 export const thumb = (id) => `img/thumbs/${id}.png`;
 export function createUI(root, labelsRoot, opts) {
+  // Florence's face in her cards: the live 3D portrait when there is one (ui.portrait), else her picture
+  const pic = () => (ui.portrait ? '<span class="portrait" data-portrait></span>' : '<img class="portrait" src="img/florence.png" alt="Florence">');
   const P = {};
   const mk = (id, cls, html = '') => { const n = h(`<div id="${id}" class="panel hide ${cls}">${html}</div>`); root.appendChild(n); P[id] = n; return n; };
   // one town card (top-left), one icon strip (top-right), one dock (bottom): the whole frame
@@ -106,9 +108,9 @@ export function createUI(root, labelsRoot, opts) {
       D.speaker.className = 'speaker' + (o.thinking ? ' thinking' : '') + (o.tagCls ? ' ' + o.tagCls : '') + (o.mini ? ' mini' : '');
       P.dock.classList.toggle('mini', !!o.mini);
       const line = o.say || (o.html ? h(`<div>${o.html}</div>`).textContent : '');
-      D.speaker.innerHTML = `<div class="avatar"><img class="portrait" src="img/florence.png" alt="Florence"></div><div class="say"><div class="name">${esc(o.name || 'Florence')} <em class="${o.tagCls || ''}">${esc(o.tag || 'GUESS')}</em>${!o.thinking && line && canSpeak() ? '<button class="spk" data-spk aria-label="Read aloud" title="Read aloud">🔊</button>' : ''}</div>
+      D.speaker.innerHTML = `<div class="avatar">${pic()}</div><div class="say"><div class="name">${esc(o.name || 'Florence')} <em class="${o.tagCls || ''}">${esc(o.tag || 'GUESS')}</em>${!o.thinking && line && canSpeak() ? '<button class="spk" data-spk aria-label="Read aloud" title="Read aloud">🔊</button>' : ''}</div>
         <div class="text">${o.html || ''}</div>${o.sure != null ? `<div class="sure"><div class="bar"><i></i></div><span>${o.sure}% ${esc(o.sureLabel || 'sure')}</span></div>` : ''}${o.why ? `<div class="why">${o.why}</div>` : ''}</div>`;
-      this.show('helper');
+      this.show('helper'); this.portrait?.mount(D.speaker);
       D.speaker.querySelector('[data-spk]')?.addEventListener('click', () => speak(line, { voice: 'helper', force: true }));
       if (o.sure != null) requestAnimationFrame(() => requestAnimationFrame(() => { const i = D.speaker.querySelector('.sure .bar i'); if (i) i.style.width = o.sure + '%'; }));
       if (o.say && !o.mini) this.say(o.say, o.voice || 'helper');
@@ -116,7 +118,8 @@ export function createUI(root, labelsRoot, opts) {
     },
     // Florence talks: her portrait bobs and the 3D Florence nods while the line lasts (about 14 characters a second)
     talking(el, line) {
-      const secs = Math.min(9, 0.8 + line.length / 14); const pic = el.querySelector('.portrait');
+      const secs = Math.min(9, 0.8 + line.length / 14); const pic = el.querySelector('img.portrait');
+      this.portrait?.talk(secs); // the live portrait moves her mouth; the still picture bobs
       if (pic) { pic.classList.add('talk'); clearTimeout(pic._t); pic._t = setTimeout(() => pic.classList.remove('talk'), secs * 1000); }
       this.onTalk?.(secs);
     },
@@ -133,8 +136,8 @@ export function createUI(root, labelsRoot, opts) {
     florence(o) {
       if (!o) { P.florence.classList.add('hide'); return; }
       const line = o.say || h(`<div>${o.html}</div>`).textContent;
-      P.florence.innerHTML = `<div class="fwrap"><img class="portrait" src="img/florence.png" alt="Florence"><div><div class="fhead"><b>Florence</b>${o.tag ? `<em>${esc(o.tag)}</em>` : ''}${canSpeak() ? '<button class="spk" data-spk aria-label="Read aloud" title="Read aloud">🔊</button>' : ''}</div><div class="fbody">${o.html}</div></div></div>`;
-      P.florence.classList.remove('hide', 'mini'); P.florence.onclick = null; P.florence.removeAttribute('role'); P.florence.removeAttribute('tabindex');
+      P.florence.innerHTML = `<div class="fwrap">${pic()}<div><div class="fhead"><b>Florence</b>${o.tag ? `<em>${esc(o.tag)}</em>` : ''}${canSpeak() ? '<button class="spk" data-spk aria-label="Read aloud" title="Read aloud">🔊</button>' : ''}</div><div class="fbody">${o.html}</div></div></div>`;
+      this.portrait?.mount(P.florence); P.florence.classList.remove('hide', 'mini'); P.florence.onclick = null; P.florence.removeAttribute('role'); P.florence.removeAttribute('tabindex');
       P.florence.querySelector('[data-spk]')?.addEventListener('click', () => speak(line, { voice: 'helper', force: true }));
       if (o.say) this.say(o.say, 'helper');
       this.talking(P.florence, line);

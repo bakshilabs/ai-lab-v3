@@ -45,6 +45,11 @@ const out = await p.evaluate(async () => {
     for (const id of Object.keys(S.unlockTip)) if (S.unlockTip[id]) { add(band, S.unlockTip[id], 'helper'); add(band, `${S.unlockTip[id]} ${S.labReady}`, 'helper'); }
     for (const [k, v] of Object.entries(S.intro)) if (!['tag', 'yourTurnTag', 'next', 'skip', 'tiles'].includes(k)) add(band, v, 'helper');
     add(band, 'Built! Now see it from the street.', 'narrator'); add(band, 'Complete. Street-level view.', 'narrator');
+    // feedback lines (Nov 2026): well done when a problem is fixed, next-step ideas, goals met, the intro's goals beat
+    for (const v of Object.values(S.fixed || {})) add(band, v, 'helper');
+    for (const v of Object.values(S.nextIdea || {})) add(band, v, 'helper');
+    for (const v of Object.values(S.goalMet || {})) add(band, v, 'narrator');
+    if (S.introGoals) add(band, S.introGoals, 'helper');
     add(band, S.classInvite, 'helper'); add(band, S.moveIn, 'narrator'); add(band, S.completeText, 'narrator'); add(band, S.planDidntFit, 'narrator');
   }
   // Florence's readings for many instructions (both bands hear them in her voice)
@@ -62,7 +67,7 @@ const out = await p.evaluate(async () => {
 });
 // lines spoken during play-throughs, with the voice they were spoken in
 for (const f of saidFiles) {
-  const band = /senior|\/s\d|-s\b/.test(f) ? 'senior' : 'junior'; const said = JSON.parse(fs.readFileSync(f, 'utf8'));
+  const band = /senior|\/s\d|-s\b|pt-s/.test(f) ? 'senior' : 'junior'; const said = JSON.parse(fs.readFileSync(f, 'utf8')).filter((x) => x.voice === 'narrator' || x.voice === 'helper'); // not the silent floating numbers
   const sents = await p.evaluate(({ said }) => import('./js/ui/voice.js').then((V) => said.flatMap((x) => V.sentences(x.text).map((s) => ({ s, voice: x.voice })))), { said });
   out.res[band].push(...sents);
 }

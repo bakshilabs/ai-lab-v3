@@ -11,6 +11,7 @@ import { createWorld } from './world/world.js';
 import { createInside } from './world/inside.js';
 import { createRig } from './camera/rig.js';
 import { createUI, h, esc } from './ui/ui.js';
+import { createPortrait } from './ui/portrait.js';
 import { createGame } from './game/game.js';
 import { loadModel, modelReady } from './ai/plotter.js';
 import { CONTENT, NAME_IDEAS, cleanTownName } from './game/content.js';
@@ -46,8 +47,11 @@ const app = {
   },
 };
 const ui = app.ui = createUI($('#layer'), $('#labels'), { facilitator: () => app.settings.facilitator });
+// Florence's cards show a live, talking copy of her 3D self that mirrors the island Florence's gestures
+ui.portrait = createPortrait(createFlorence);
+if (ui.portrait) for (const g of ['wave', 'cheer', 'oops', 'shrug', 'proud', 'surprised', 'think', 'nod']) { const orig = bot[g].bind(bot); bot[g] = (...a) => { ui.portrait[g](); return orig(...a); }; }
 function applySettings() {
-  const s = app.settings; ui.readAloud = s.readAloud; rig.reduce = s.reduce; bot.reduce = s.reduce; setSound(s.sound); setMusicOn(s.music !== false); setSfxOn(s.effects !== false);
+  const s = app.settings; ui.readAloud = s.readAloud; rig.reduce = s.reduce; bot.reduce = s.reduce; if (ui.portrait) ui.portrait.reduce = s.reduce; setSound(s.sound); setMusicOn(s.music !== false); setSfxOn(s.effects !== false);
   document.documentElement.dataset.motion = s.reduce ? 'reduce' : ''; document.documentElement.dataset.text = s.text;
   if (s.quality !== 'auto') stage.setTier(s.quality); savePrefs();
 }

@@ -47,7 +47,8 @@ export function createFlorence(stage, world, terrain) {
     card: new THREE.MeshStandardMaterial({ color: '#f6e3c0', map: tex, roughness: 0.7 }), dot: new THREE.MeshStandardMaterial({ color: '#5b3a24' }),
     glass: new THREE.MeshStandardMaterial({ color: '#cfeefc', roughness: 0.15, metalness: 0.1 }),
     brass: new THREE.MeshStandardMaterial({ color: '#c9a04a', roughness: 0.3, metalness: 0.6 }),
-    bulb: new THREE.MeshStandardMaterial({ color: '#16c79a', emissive: '#16c79a', emissiveIntensity: 0.6, roughness: 0.3 }),
+    bulb: new THREE.MeshStandardMaterial({ color: '#c8743a', emissive: '#7a3a12', emissiveIntensity: 0.25, roughness: 0.45, map: tex }), // the antenna's wooden ball, as in the art
+    mid: wood('#b9783f'),
     sweat: new THREE.MeshStandardMaterial({ color: '#7fd0ff', roughness: 0.1 }),
   };
   const mesh = (geo, mat, x = 0, y = 0, z = 0, parent, shadow = true) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.castShadow = shadow; m.receiveShadow = shadow; parent?.add(m); return m; };
@@ -64,12 +65,17 @@ export function createFlorence(stage, world, terrain) {
     const hip = pivot(sd * 0.68, 3.75, 0, body);
     mesh(rbox(1.0, 1.6, 1.0, 0.34), M.limb, 0, -0.8, 0, hip);
     const knee = pivot(0, -1.65, 0, hip); mesh(hinge(0.42, 1.06), M.joint, 0, 0, 0, knee);
+    for (const s2 of [-1, 1]) { deco(hinge(0.48, 0.12), M.mid, s2 * 0.56, 0, 0, knee); deco(hinge(0.18, 0.16), M.light, s2 * 0.62, 0, 0, knee); } // knee discs with a bolt
     mesh(rbox(0.95, 1.45, 0.95, 0.32), M.limb, 0, -0.75, 0, knee);
     const ankle = pivot(0, -1.5, 0, knee);
     mesh(rbox(1.15, 0.6, 1.7, 0.26), M.dark, 0, -0.3, 0.28, ankle);
+    deco(rbox(1.18, 0.42, 0.5, 0.18), M.mid, 0, -0.38, 1.0, ankle);                       // toe cap
+    deco(hinge(0.32, 1.02), M.joint, 0, 0.06, 0, ankle);                                  // ankle joint
     return { hip, knee, ankle };
   });
   mesh(rbox(2.35, 0.85, 1.55, 0.36), M.dark, 0, 4.05, 0, body);                       // pelvis
+  mesh(rbox(2.5, 0.28, 1.68, 0.12), M.mid, 0, 4.38, 0, body);                            // belt
+  for (const x of [-0.8, 0, 0.8]) deco(new THREE.CylinderGeometry(0.09, 0.09, 0.08, 10).rotateX(Math.PI / 2), M.light, x, 4.38, 0.86, body);
   const torso = pivot(0, 4.45, 0, body);
   mesh(rbox(2.85, 2.5, 1.95, 0.6), M.body, 0, 1.25, 0, torso);
   mesh(rbox(1.7, 1.05, 0.2, 0.18), M.light, 0, 1.4, 0.95, torso);                     // chest panel
@@ -77,10 +83,16 @@ export function createFlorence(stage, world, terrain) {
   deco(new THREE.TorusGeometry(0.24, 0.06, 8, 20), M.dark, -0.08, 1.48, 1.07, torso);
   deco(new THREE.CylinderGeometry(0.05, 0.05, 0.36, 8).rotateZ(-Math.PI / 4), M.dark, 0.16, 1.24, 1.07, torso);
   for (const [x, y] of [[-0.68, 1.78], [0.68, 1.78], [-0.68, 1.02], [0.68, 1.02]]) deco(new THREE.CylinderGeometry(0.07, 0.07, 0.08, 10).rotateX(Math.PI / 2), M.dark, x, y, 1.08, torso);
-  const neck = pivot(0, 2.35, 0, torso); mesh(new THREE.CylinderGeometry(0.42, 0.5, 0.4, 14), M.joint, 0, 0.12, 0, neck);
+  // the round dial under the panel and a seam down to the belt (as in the art)
+  deco(new THREE.CylinderGeometry(0.3, 0.3, 0.12, 20).rotateX(Math.PI / 2), M.mid, 0, 0.55, 0.98, torso); deco(new THREE.CylinderGeometry(0.14, 0.14, 0.16, 14).rotateX(Math.PI / 2), M.light, 0, 0.55, 1.02, torso);
+  deco(new THREE.BoxGeometry(0.06, 0.32, 0.04), M.dark, 0, 0.1, 0.98, torso);
+  for (const sd of [-1, 1]) deco(new THREE.BoxGeometry(0.05, 1.9, 0.04), M.dark, sd * 1.2, 1.25, 0.98, torso);    // side seams
+  const neck = pivot(0, 2.35, 0, torso); mesh(new THREE.CylinderGeometry(0.42, 0.5, 0.4, 14), M.joint, 0, 0.12, 0, neck); deco(new THREE.TorusGeometry(0.45, 0.07, 8, 18).rotateX(Math.PI / 2), M.mid, 0, 0.22, 0, neck);
   const head = pivot(0, 0.3, 0, neck);
   mesh(rbox(3.8, 3.1, 2.7, 0.8, 4), M.body, 0, 1.55, 0, head);
+  deco(rbox(3.24, 2.5, 0.16, 0.62), M.mid, 0, 1.45, 1.27, head);                       // the face screen's frame
   mesh(rbox(3.0, 2.25, 0.2, 0.55), M.light, 0, 1.45, 1.3, head);                     // face plate
+  for (const [x, y] of [[-1.62, 2.82], [1.62, 2.82], [-1.62, 0.28], [1.62, 0.28]]) deco(new THREE.CylinderGeometry(0.08, 0.08, 0.08, 10).rotateX(Math.PI / 2), M.dark, x, y, 1.36, head); // corner screws
   // eyes: sclera, iris, pupil, two shines (glance moves the iris group); an eyelid above; happy arcs when smiling hard
   const eyes = [-0.78, 0.78].map((x) => {
     const e = pivot(x, 1.72, 1.42, head);
@@ -92,25 +104,30 @@ export function createFlorence(stage, world, terrain) {
     const happy = deco(new THREE.TorusGeometry(0.26, 0.07, 8, 16, Math.PI), M.pupil, 0, -0.1, 0.18, e); happy.visible = false;
     return { e, sclera, look, lidP, happy };
   });
-  const brows = [-0.78, 0.78].map((x) => deco(rbox(0.58, 0.11, 0.09, 0.04), M.dark, x, 2.32, 1.44, head));
+  const brows = [-0.78, 0.78].map((x) => deco(rbox(0.62, 0.16, 0.1, 0.06), M.dark, x, 2.32, 1.44, head));
   deco(sphere(0.09, 10, 8), M.dark, 0, 1.33, 1.44, head);                               // nose dot
   for (const x of [-1.08, 1.08]) deco(new THREE.CircleGeometry(0.25, 18), M.cheek, x, 1.18, 1.41, head);
   const mouth = pivot(0, 0.98, 1.41, head);
   const smile = deco(new THREE.TorusGeometry(0.34, 0.07, 8, 18, Math.PI).rotateZ(Math.PI), M.mouth, 0, 0.02, 0.01, mouth);
   const open = deco(new THREE.CircleGeometry(0.32, 18, Math.PI, Math.PI), M.inner, 0, 0.02, 0.005, mouth); open.scale.y = 0.001;
   const oh = deco(new THREE.CircleGeometry(0.15, 16), M.inner, 0, -0.12, 0.012, mouth); oh.scale.setScalar(0.001);
-  for (const sd of [-1, 1]) { mesh(new THREE.CylinderGeometry(0.52, 0.52, 0.36, 18).rotateZ(Math.PI / 2), M.dark, sd * 2.02, 1.55, 0, head); deco(new THREE.CylinderGeometry(0.22, 0.22, 0.2, 12).rotateZ(Math.PI / 2), M.joint, sd * 2.25, 1.55, 0, head); }
+  for (const sd of [-1, 1]) { // big ringed ear discs with a bolt, as in the art
+    mesh(new THREE.CylinderGeometry(0.66, 0.66, 0.34, 24).rotateZ(Math.PI / 2), M.dark, sd * 2.02, 1.55, 0, head);
+    deco(new THREE.CylinderGeometry(0.46, 0.46, 0.14, 22).rotateZ(Math.PI / 2), M.mid, sd * 2.2, 1.55, 0, head);
+    deco(new THREE.CylinderGeometry(0.2, 0.2, 0.2, 14).rotateZ(Math.PI / 2), M.light, sd * 2.28, 1.55, 0, head); }
   const antenna = pivot(0, 3.08, 0, head);
-  mesh(new THREE.CylinderGeometry(0.09, 0.09, 1.0, 8), M.dark, 0, 0.5, 0, antenna);
+  mesh(new THREE.CylinderGeometry(0.09, 0.09, 1.0, 8), M.dark, 0, 0.5, 0, antenna); mesh(new THREE.CylinderGeometry(0.28, 0.34, 0.2, 14), M.mid, 0, 0.04, 0, antenna); // rod on a collar
   mesh(sphere(0.3), M.bulb, 0, 1.15, 0, antenna);
   const sweat = pivot(1.95, 2.5, 0.9, head); deco(sphere(0.15, 12, 10), M.sweat, 0, 0, 0, sweat); deco(new THREE.ConeGeometry(0.11, 0.25, 10), M.sweat, 0, 0.17, 0, sweat); sweat.visible = false;
   // arms: shoulder → elbow (hinge) → mitten hand with a thumb
   const arms = [-1, 1].map((sd) => {
     const sh = pivot(sd * 1.68, 2.05, 0, torso); mesh(sphere(0.5), M.joint, 0, 0, 0, sh);
+    mesh(new THREE.CylinderGeometry(0.56, 0.56, 0.18, 20).rotateZ(Math.PI / 2), M.mid, sd * 0.42, 0, 0, sh); deco(new THREE.CylinderGeometry(0.18, 0.18, 0.22, 12).rotateZ(Math.PI / 2), M.light, sd * 0.46, 0, 0, sh); // shoulder disc
     mesh(rbox(0.74, 1.35, 0.74, 0.27), M.limb, 0, -0.75, 0, sh);
-    const el = pivot(0, -1.45, 0, sh); mesh(hinge(0.38, 0.86), M.joint, 0, 0, 0, el);
+    const el = pivot(0, -1.45, 0, sh); mesh(hinge(0.38, 0.86), M.joint, 0, 0, 0, el); for (const s2 of [-1, 1]) deco(hinge(0.16, 0.1), M.light, s2 * 0.45, 0, 0, el);
     mesh(rbox(0.68, 1.2, 0.68, 0.25), M.limb, 0, -0.65, 0, el);
     const hand = pivot(0, -1.4, 0, el); mesh(rbox(0.62, 0.64, 0.52, 0.24), M.light, 0, 0, 0, hand); mesh(sphere(0.18, 12, 10), M.light, -sd * 0.3, 0.08, 0.2, hand);
+    for (const fx of [-0.19, 0, 0.19]) deco(rbox(0.16, 0.34, 0.2, 0.07), M.light, fx, -0.36, 0.1, hand); // three curled fingers
     return { sh, el, hand, sd };
   });
   const R = arms[0], Lh = arms[1];   // her right hand is at -x (on the viewer's left when she faces you)
