@@ -768,3 +768,6 @@ html[data-motion="reduce"] #labels .float { animation: floatfade 1.7s linear for
   #build .btools .erase { height: 40px; } #build .btools .erase .ico { font-size: 1.3em; }
 }
 #settings .menuacts .slot.act { flex-direction: row; gap: 8px; min-height: 44px; padding: 4px 10px; } #settings .menuacts .slot.act .ico { flex: none; font-size: 1.4em; }
+/* the hotbar grew a line (the build info), so Florence's card sits higher, clear of it */
+@media (min-width: 761px) and (min-height: 561px) { #florence { bottom: 262px; } }
+@media (min-width: 1600px) and (min-height: 900px) { #florence { bottom: 300px; } }

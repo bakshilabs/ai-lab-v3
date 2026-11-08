@@ -95,15 +95,21 @@ The user asked for Florence as an animated character (their wooden-robot art is 
   - `game/js/engine/chip.js`: pulse (12.5/25/50/75 % duty), triangle and noise voices, `note()` and `run()`.
   - `game/js/engine/audio.js`: buses (music, sfx → master → limiter), unlock on first input, `setSound`/`setMusicOn`/`setSfxOn`, `duck()` (wired to Florence's voice in `ui/voice.js`), look-ahead scheduler, `setMusic(mood)` with moods day/night/lab/celebrate (old calm/busy map to day), and the `sfx.*` effects (safe to call before init). `renderSong()` is for tests.
   - `game/js/music/songs.js`: the four loops as pattern data (16 steps a bar, 4-bar sections, variants in `order`).
-  - Settings: Sound (everything), Sound effects, Music. Class mode starts with music off.
+  - Settings: one Sound choice (on / effects only / off). Class mode starts with music off (effects only).
   - **Originality rule:** chip style is fine; never copy Nintendo (or any game's) melodies, bass lines or the coin/jump/1-up/power-up cues. If a teacher hums it and says "that's Mario", rewrite it.
   - `tests/audio.test.mjs` renders every cue and loop in headless Chromium (skips the render part without Playwright).
 
 - **Replace, highlight, river (Nov 2026, user feedback):**
   - Free-building taps replace what's on a tile (`game/js/game/replace.js` `planPlace`, used by `placeAt(..., { replace: true })` and `tapPlan` in `game.js`). Missions and plan adoption keep the strict `sandboxReason`. Tests: `tests/replace.test.mjs`.
-  - Tile highlight (`showAllowed`): cyan frame = buildable, striped cyan = replaces, grey = not buildable, red frame = removable. Frame patterns in `world.js` `patternTex`, drawn on top (`top: true` → `depthTest: false`). Key in the build panel (`hlKey`). The old pale-yellow dots were confused with gold town land.
+  - Tile highlight (`showAllowed`): see "Solid visuals" below (kerbs at ground level; it used to be drawn on top of everything). Key in the build panel (`hlKey`). The old pale-yellow dots were confused with gold town land.
   - The river no longer pours off the island: it rises at a spring pool under a mossy outcrop at the back (`SPRING`) and ends in a lagoon behind the beach (`LAGOON`), both in `terrain.js` `inRiverVoxel`. Gorge streams stop short of the edge. River tiles (`gx === 2`) and the simulation are unchanged.
   - **Bottom hotbar layout** (user asked for the UI to take fewer columns): for screens ≥ 761 × 561 the town card is a one-row top strip, `#camctl` a row under `#strip`, `#build` a bottom hotbar (grid: clock/numbers column, 3 × 2 categories, scrolling item row, highlight key), `#florence` above it on the right. All in the last blocks of `css/game.css` (later rules override the older side-panel ones). `frameView` already handles a wide bottom panel (centres the island between the top strip and the bar). Phones keep the tray. Missions use the same bottom position (`html[data-lab=on] #dock`), and `#lensbar`/`#alert` sit under the top strip. The build videos were re-filmed after the river change.
+
+## Solid visuals, shorter interface, more feedback (Nov 2026, user feedback)
+The user asked for: no see-through or blurry visuals (the tile grid was drawn over Florence and houses; it must be below everything), fewer buttons and menus, and more feedback on what to do, what things are, what they earn and the steps on the way.
+- **Solid visuals:** `world.js` `setOverlay` draws everything solid and depth-tested at ground level: the build highlight is a low kerb (`ring()`: cyan = build, violet + corner blocks = replaces, red = remove) and "can't build" a solid grey tile; lens tiles are opaque painted tiles (`patternTex`, `overlayMat` with polygonOffset). No `top`/`depthTest: false` any more. Tilt-shift blur off (`stage.tilt.amount = 0`). Plan ghosts are solid pale blocks with a raised frame and hide the real build under them while shown. Water, flood, smoke, waterfall, carbon cloud, windows (on/off), Florence's glass/cheeks and beam (thin line + solid ring) are opaque. The x-ray build stage hides earlier temporary layers instead of fading them.
+- **Interface:** top-right strip = 🌼 goals · 🔍 lenses (pop-over, hidden until a lens is earned) · 🧪 · ☰ (`ui.js`). One 🎥 button opens the camera row (＋ − ⟲ ⟳ ⌂ 👟 🏠; open by default on coarse pointers wider than 760 px). ☰ = Town report, Watch a whole day, intro again, then settings (Sound: on / effects only / off). The Lab board no longer has the day/report buttons. Track icons open their own mission (`ui.onTrack`). Build bar: one fixed 🧽 Remove (also right-click via `rig.onAltTap`, or `X`), keys `1`–`6` for categories, one ▶ in the info line, fold button only on phones. Florence's tip card: at most one button, tap to close.
+- **Feedback:** `catalog.js` `desc {j,s}` for every item; `js/game/delta.js` (`itemChips`, `simDelta`, `chipsText`; tests `tests/delta.test.mjs`). Info line in the hotbar (`infoHtml`), hover preview of the real sim change (`rig.onHover`), floating chips after a build (`act()` → `ui.labels.float`) and petal flash (`ui.flower` `flash: [petals]`). Next step + bar in the town card (`nextStep`, `ui.setStep`), the 8 goals in the 🌼 pop-over (`renderGoals`, `ui.setGoals`), first-time goal celebrations (`milestones`, saved as `G.milestones`), well-done tips when a shown problem clears (`advisor.js` `solved`, `G.S.fixed`) and next-step ideas when nothing is wrong (`G.S.nextIdea`, each at most every 3 min). Intro has one more beat pointing at the next step, 🌼 and the info line. Strings in `content.js` `SANDBOX`.
 
 ## Beta revision (Nov 2026)
 All 49 notes in the beta tester's file were addressed; see README "How the game plays" and the commit history. Key decisions the user made:
@@ -144,10 +150,10 @@ All 49 notes in the beta tester's file were addressed; see README "How the game 
   - `/admin` redirects (302) to `…cloudflareaccess.com`.
 
 ## Tests
-From `games/ecotown/game` (106 tests, all passing at handoff):
+From `games/ecotown/game` (110 tests, all passing at handoff):
 
 ```bash
-node --test tests/sim.test.mjs tests/model.test.mjs tests/teach.test.mjs tests/syntax.test.mjs tests/codes.test.mjs tests/playtest.test.mjs tests/progress.test.mjs tests/audio.test.mjs tests/replace.test.mjs
+node --test tests/sim.test.mjs tests/model.test.mjs tests/teach.test.mjs tests/syntax.test.mjs tests/codes.test.mjs tests/playtest.test.mjs tests/progress.test.mjs tests/audio.test.mjs tests/replace.test.mjs tests/delta.test.mjs
 ```
 
 There's also a Playwright play-through: `tests/playwright/run.mjs`. See the README.

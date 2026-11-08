@@ -27,7 +27,7 @@ The first build was one long guided sequence: six levels, each a fixed chain of 
 - **Florence advises.** Short, rare tips from the honest simulation, only when something changes (at most one every 25 s, never repeated until fixed). When a tip matches a lesson, it offers "Show me in the AI Lab".
 - **The AI Lab.** The six lessons below are now **missions**, opened from the 🧪 button or Florence's invites. Each runs the acts below on Florence's practice island, ends with the construction film and stars, and asks: use her fixed plan in your town, or keep yours? Finishing a mission gives the player its lens to check their own town.
 - **Class mode** keeps the missions in order for schools.
-- **Town complete** when the scoring below is met; the whole-day sequence and the town report are available any time.
+- **Town complete** when the scoring below is met; the whole-day sequence and the town report are available any time from the ☰ menu.
 
 **Florence, the intro and the frame (Nov 2026, second update).**
 - **Florence is a character**, not a drone: a 3D wooden toy robot from the client's art, who walks the island, peers through her magnifying glass, points, talks, cheers, and pulls an "oops" face (sweat drop, droopy antenna) when a child catches her mistake. Her portrait (the client's picture) heads her tips.

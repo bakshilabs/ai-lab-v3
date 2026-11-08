@@ -68,7 +68,7 @@ Rotate each level. Each role owns one lens or view, so every child has evidence 
 
 The intro can be replayed from ☰, and skipped in later sessions.
 
-**Choose "In order (class)" on the start screen** for a class: only the next AI Lab mission opens, and Florence invites players to it as soon as it is ready, so the class stays roughly together. Between missions, players build freely; that build time is where they grow the town enough to unlock the next mission (homes at 6 tiles of town land, food at 12 families, power at 24, town heart at 36). A useful rhythm is "mission, debrief, build" for each level below. If a group is slow to unlock the next mission, tell them to choose **Use Florence's plan** at the end of a mission: that adds her fixed plan to their town and moves them on. "Any order" suits clubs, museums and home play. With "In order (class)" the music starts **off** (sound effects stay on) so a room of devices stays calm; turn it on from ☰ → Music if you like.
+**Choose "In order (class)" on the start screen** for a class: only the next AI Lab mission opens, and Florence invites players to it as soon as it is ready, so the class stays roughly together. Between missions, players build freely; that build time is where they grow the town enough to unlock the next mission (homes at 6 tiles of town land, food at 12 families, power at 24, town heart at 36). A useful rhythm is "mission, debrief, build" for each level below. If a group is slow to unlock the next mission, tell them to choose **Use Florence's plan** at the end of a mission: that adds her fixed plan to their town and moves them on. "Any order" suits clubs, museums and home play. With "In order (class)" the music starts **off** (sound effects stay on) so a room of devices stays calm; turn it on from ☰ → Sound → On if you like.
 
 DESIGN.md says Levels 4 and 5 merge in shorter versions. Level debriefs (section 9A) happen inside the play time.
 
@@ -79,7 +79,7 @@ DESIGN.md says Levels 4 and 5 merge in shorter versions. Level debriefs (section
 | 0–4 | Warm-up: "Sky or street?": two photos of the same place from above and from the pavement; what can each see? Honesty line: "Florence is pretend. We wrote her plans." |
 | 4–33 | Levels 1, 2, 3, 4+5 and 6 (about 6 minutes each, including a 1–2 minute level debrief) |
 | 33–43 | Final discussion (10 min) |
-| 43–45 | Exit check; town report |
+| 43–45 | Exit check; town report (☰ → Town report) |
 
 **60 minutes**
 
