@@ -116,6 +116,10 @@ The user asked for: no see-through or blurry visuals (the tile grid was drawn ov
 - **Model detail** (`florence.js`, from the client's 2D art): wooden antenna ball on a collar, big ringed ear discs, a framed face screen with corner screws, thicker brows, a neck ring, shoulder discs, bolted elbow and knee caps, three fingers per hand, a chest dial with seams, a belt with bolts, toe caps and ankle joints. Check page: `tests/visual/florence.html?poses=talk&dist=13`.
 - **Voices:** `voice/collect.mjs` also collects the feedback lines (`fixed`, `nextIdea`, `goalMet`, `introGoals`) and skips the silent floating-number log entries; packs re-recorded (cache in the session scratchpad, so only new lines were recorded).
 
+## AI Lab classroom and lighter HUD (Nov 2026, user requests)
+- **Classroom** (`game/js/world/classroom.js`, built at `CLASS_BASE` (700, −800, 0), off the island's tile grid so Florence doesn't snap to a tile above): entering the AI Lab (building or 🧪) fades into a classroom. Florence stands at the front beside a big screen; classmates sit at desks. The player asks questions (text box or suggested chips); `js/game/qa.js` answers from a fixed, kid-safe set (topics + every build by name, `tests/qa.test.mjs`) and the screen plays the matching build video (`VideoTexture`) or shows the answer as a card. "Missions" leaves to the mission board; "Back to building" returns. Game side: `enterClassroom`, `classAsk`, `leaveClassroom` in `game.js`. Answers are in the voice packs.
+- **Lighter HUD** (from a subagent UI review: UI was 35 % of a 1280 × 800 screen, now about 18 %): the town card holds 🌼 goals, name, stars, a Day chip with pause (`ui.setDay`), credits (`ui.setCredits`) and the next step; the mission track is hidden and 🧪 shows how many missions are ready (`setTrack` → `data-ready`); 🎥 sits in the top row (open by default only on ≥ 1600 px touch screens); the hotbar is Remove · categories · one info line · one row of builds, with Florence docked at its right end and her tips above it; a build's sentence shows in a tip above its button (`[data-tip]`). `frameView` treats any panel whose top is below mid-screen as the bottom bar. CSS: the last blocks of `css/game.css`. Phones: one-row card, Remove as the first slot, compact tip card.
+
 ## Beta revision (Nov 2026)
 All 49 notes in the beta tester's file were addressed; see README "How the game plays" and the commit history. Key decisions the user made:
 - **Helper name:** **Florence** (she). Code file names stay `plotter.*`.
@@ -155,7 +159,7 @@ All 49 notes in the beta tester's file were addressed; see README "How the game 
   - `/admin` redirects (302) to `…cloudflareaccess.com`.
 
 ## Tests
-From `games/ecotown/game` (110 tests, all passing at handoff):
+From `games/ecotown/game` (117 tests, all passing at handoff):
 
 ```bash
 node --test tests/sim.test.mjs tests/model.test.mjs tests/teach.test.mjs tests/syntax.test.mjs tests/codes.test.mjs tests/playtest.test.mjs tests/progress.test.mjs tests/audio.test.mjs tests/replace.test.mjs tests/delta.test.mjs tests/qa.test.mjs
