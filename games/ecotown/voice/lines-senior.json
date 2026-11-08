@@ -1160,6 +1160,146 @@
   "key": "227b29cc"
  },
  {
+  "s": "Test it with a lens",
+  "voice": "helper",
+  "key": "7e38a411"
+ },
+ {
+  "s": "You tested it.",
+  "voice": "helper",
+  "key": "69154972"
+ },
+ {
+  "s": "Was the proposal sound?",
+  "voice": "helper",
+  "key": "9e8c2c09"
+ },
+ {
+  "s": "Caught: a confident proposal with a real flaw.",
+  "voice": "helper",
+  "key": "354e087b"
+ },
+ {
+  "s": "Testing before adopting is the habit that matters.",
+  "voice": "helper",
+  "key": "3c0d3a40"
+ },
+ {
+  "s": "Verified: the proposal holds up.",
+  "voice": "helper",
+  "key": "16a8cb9d"
+ },
+ {
+  "s": "Building it.",
+  "voice": "helper",
+  "key": "889a472a"
+ },
+ {
+  "s": "Check the lens again: it shows a problem.",
+  "voice": "helper",
+  "key": "60097447"
+ },
+ {
+  "s": "Confidence was not evidence.",
+  "voice": "helper",
+  "key": "d8f1bb32"
+ },
+ {
+  "s": "The proposal was sound.",
+  "voice": "helper",
+  "key": "46bbe558"
+ },
+ {
+  "s": "Testing was still right.",
+  "voice": "helper",
+  "key": "dde6a652"
+ },
+ {
+  "s": "Proposal: designate the flat riverside land as town land.",
+  "voice": "helper",
+  "key": "51845d26"
+ },
+ {
+  "s": "Level, close to water, easy to build.",
+  "voice": "helper",
+  "key": "75fad8ba"
+ },
+ {
+  "s": "It is winter floodplain.",
+  "voice": "helper",
+  "key": "2a7cce51"
+ },
+ {
+  "s": "Adopted without testing, and it was flawed: It is winter floodplain.",
+  "voice": "helper",
+  "key": "e10af548"
+ },
+ {
+  "s": "Test proposals before adopting them.",
+  "voice": "helper",
+  "key": "4eff6ccf"
+ },
+ {
+  "s": "Proposal: two blocks of concrete flats here, the highest density option.",
+  "voice": "helper",
+  "key": "f26c55b7"
+ },
+ {
+  "s": "Embodied carbon is 30 t each, and they are cold in winter.",
+  "voice": "helper",
+  "key": "51be504c"
+ },
+ {
+  "s": "Proposal: solar roofs on these homes solve the town’s power.",
+  "voice": "helper",
+  "key": "10c2567c"
+ },
+ {
+  "s": "Solar supplies nothing on a still winter night.",
+  "voice": "helper",
+  "key": "4d33cdad"
+ },
+ {
+  "s": "Adopted without testing, and it was flawed: Solar supplies nothing on a still winter night.",
+  "voice": "helper",
+  "key": "0245db92"
+ },
+ {
+  "s": "Proposal: one big field here for maximum food yield.",
+  "voice": "helper",
+  "key": "9c9ec92b"
+ },
+ {
+  "s": "It ploughs habitat the pollinators and deer need.",
+  "voice": "helper",
+  "key": "26d03d96"
+ },
+ {
+  "s": "Adopted without testing, and it was flawed: It ploughs habitat the pollinators and deer need.",
+  "voice": "helper",
+  "key": "ee818c6d"
+ },
+ {
+  "s": "Proposal: site the school here, a quiet spot away from traffic.",
+  "voice": "helper",
+  "key": "d2b5cad7"
+ },
+ {
+  "s": "It breaks the 15-minute walking rule.",
+  "voice": "helper",
+  "key": "6361408b"
+ },
+ {
+  "s": "Proposal: an orchard here, food plus pollinator habitat.",
+  "voice": "helper",
+  "key": "562aa360"
+ },
+ {
+  "s": "Proposal: a park here, for health and community.",
+  "voice": "helper",
+  "key": "9c7341a3"
+ },
+ {
   "s": "I predict from patterns in what I was told, not from checking the world.",
   "voice": "helper",
   "key": "1572a952"

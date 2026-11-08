@@ -1380,6 +1380,156 @@
   "key": "900d9959"
  },
  {
+  "s": "Check it with a lens",
+  "voice": "helper",
+  "key": "4b6ab457"
+ },
+ {
+  "s": "You checked.",
+  "voice": "helper",
+  "key": "99cdfdfb"
+ },
+ {
+  "s": "Was I right?",
+  "voice": "helper",
+  "key": "54baf12e"
+ },
+ {
+  "s": "You caught me!",
+  "voice": "helper",
+  "key": "ac833d07"
+ },
+ {
+  "s": "I was confidently wrong.",
+  "voice": "helper",
+  "key": "5602e655"
+ },
+ {
+  "s": "That’s exactly how to use an AI helper.",
+  "voice": "helper",
+  "key": "4236f3bd"
+ },
+ {
+  "s": "Thanks for checking!",
+  "voice": "helper",
+  "key": "c0d5d92a"
+ },
+ {
+  "s": "It was a good idea this time, so I’ll build it.",
+  "voice": "helper",
+  "key": "dfb3b630"
+ },
+ {
+  "s": "Look again: the lens showed a problem.",
+  "voice": "helper",
+  "key": "f6cf7491"
+ },
+ {
+  "s": "I was wrong, even though I sounded sure.",
+  "voice": "helper",
+  "key": "e52e2599"
+ },
+ {
+  "s": "Actually, that one was fine!",
+  "voice": "helper",
+  "key": "83c814ad"
+ },
+ {
+  "s": "Checking is still the right habit.",
+  "voice": "helper",
+  "key": "f1b95002"
+ },
+ {
+  "s": "I’ll build it.",
+  "voice": "helper",
+  "key": "82cf3ad2"
+ },
+ {
+  "s": "I found perfect flat land by the river for more homes!",
+  "voice": "helper",
+  "key": "9b96de16"
+ },
+ {
+  "s": "Shall I mark it as town land?",
+  "voice": "helper",
+  "key": "b795bad8"
+ },
+ {
+  "s": "That flat land floods every winter.",
+  "voice": "helper",
+  "key": "8461b191"
+ },
+ {
+  "s": "Oops…",
+  "voice": "helper",
+  "key": "e0754872"
+ },
+ {
+  "s": "Next time, check my idea with a lens first!",
+  "voice": "helper",
+  "key": "144f6c16"
+ },
+ {
+  "s": "Concrete flats fit the most families.",
+  "voice": "helper",
+  "key": "2a2ac141"
+ },
+ {
+  "s": "Let’s build two here!",
+  "voice": "helper",
+  "key": "6baa0561"
+ },
+ {
+  "s": "Concrete makes loads of carbon, and the flats are cold.",
+  "voice": "helper",
+  "key": "f6e1c824"
+ },
+ {
+  "s": "Solar roofs on these homes will keep the lights on all year round!",
+  "voice": "helper",
+  "key": "4623e9e0"
+ },
+ {
+  "s": "Solar makes nothing on a dark, still winter night.",
+  "voice": "helper",
+  "key": "ad7f5135"
+ },
+ {
+  "s": "One big field grows the most food.",
+  "voice": "helper",
+  "key": "bcc3d821"
+ },
+ {
+  "s": "Let’s plough these!",
+  "voice": "helper",
+  "key": "58dd8369"
+ },
+ {
+  "s": "A big field ploughs up the wild places the bees and deer need.",
+  "voice": "helper",
+  "key": "53d2443b"
+ },
+ {
+  "s": "Here’s a lovely quiet spot for the school, away from the busy town!",
+  "voice": "helper",
+  "key": "b81d37c6"
+ },
+ {
+  "s": "It’s too far for children to walk to.",
+  "voice": "helper",
+  "key": "121ab180"
+ },
+ {
+  "s": "An orchard here would grow fruit and feed the bees.",
+  "voice": "helper",
+  "key": "e620705c"
+ },
+ {
+  "s": "A park here would make the town healthier.",
+  "voice": "helper",
+  "key": "3568e316"
+ },
+ {
   "s": "I learn from patterns, not from looking at the real island.",
   "voice": "helper",
   "key": "f147eba6"
@@ -2178,6 +2328,16 @@
   "s": "A safe footpath to the school.",
   "voice": "helper",
   "key": "82255e6e"
+ },
+ {
+  "s": "3 tiles of your town land flood in winter.",
+  "voice": "helper",
+  "key": "ca6fed46"
+ },
+ {
+  "s": "Move your town up to the dry slope.",
+  "voice": "helper",
+  "key": "0f56b116"
  },
  {
   "s": "🏡 Homes: unlocked!",
