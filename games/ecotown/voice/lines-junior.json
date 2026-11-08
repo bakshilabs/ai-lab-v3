@@ -1190,6 +1190,181 @@
   "key": "ad8e7aa5"
  },
  {
+  "s": "Nice!",
+  "voice": "helper",
+  "key": "4eb36741"
+ },
+ {
+  "s": "No homes are on the flood meadow now.",
+  "voice": "helper",
+  "key": "b57e834d"
+ },
+ {
+  "s": "The wood is safe again.",
+  "voice": "helper",
+  "key": "14ef96ec"
+ },
+ {
+  "s": "Thank you!",
+  "voice": "helper",
+  "key": "5c686cad"
+ },
+ {
+  "s": "Every road now has a safe crossing.",
+  "voice": "helper",
+  "key": "4e853f06"
+ },
+ {
+  "s": "Those homes are warm now!",
+  "voice": "helper",
+  "key": "9bb6812e"
+ },
+ {
+  "s": "Much less carbon in your homes now.",
+  "voice": "helper",
+  "key": "fffa2fac"
+ },
+ {
+  "s": "Everyone has enough food now!",
+  "voice": "helper",
+  "key": "7bff9bad"
+ },
+ {
+  "s": "The wildlife has room again.",
+  "voice": "helper",
+  "key": "1a449297"
+ },
+ {
+  "s": "The lights will stay on all winter now.",
+  "voice": "helper",
+  "key": "18425021"
+ },
+ {
+  "s": "The rain has somewhere to go now.",
+  "voice": "helper",
+  "key": "59563b1c"
+ },
+ {
+  "s": "Your town has a school!",
+  "voice": "helper",
+  "key": "ee10fb78"
+ },
+ {
+  "s": "Every home is close to school now.",
+  "voice": "helper",
+  "key": "27afda6a"
+ },
+ {
+  "s": "Carbon is back under the limit!",
+  "voice": "helper",
+  "key": "010b7b1a"
+ },
+ {
+  "s": "More families are coming.",
+  "voice": "helper",
+  "key": "eed02ca3"
+ },
+ {
+  "s": "Try a Timber terrace on town land.",
+  "voice": "helper",
+  "key": "12f125aa"
+ },
+ {
+  "s": "Families need food.",
+  "voice": "helper",
+  "key": "6881f53f"
+ },
+ {
+  "s": "Try a Mixed farm or an Orchard.",
+  "voice": "helper",
+  "key": "a5b74197"
+ },
+ {
+  "s": "Nature needs room.",
+  "voice": "helper",
+  "key": "65a37772"
+ },
+ {
+  "s": "Try Keep wild land, a hedge or a park.",
+  "voice": "helper",
+  "key": "42e7d85a"
+ },
+ {
+  "s": "Make it healthier with a Footpath, a Cycle lane or a Park.",
+  "voice": "helper",
+  "key": "6ad6b801"
+ },
+ {
+  "s": "Keep the lights on: try a Wind turbine and a Battery store.",
+  "voice": "helper",
+  "key": "f0e0e926"
+ },
+ {
+  "s": "Give people places to meet: a Market square or a Community hall.",
+  "voice": "helper",
+  "key": "45334fb9"
+ },
+ {
+  "s": "Cut carbon: swap concrete flats for timber or straw homes.",
+  "voice": "helper",
+  "key": "9e38e0b0"
+ },
+ {
+  "s": "Build a Town school close to the homes.",
+  "voice": "helper",
+  "key": "a6d1dba6"
+ },
+ {
+  "s": "Goal done: homes for 40 families!",
+  "voice": "narrator",
+  "key": "222e9a7d"
+ },
+ {
+  "s": "Goal done: enough food for everyone!",
+  "voice": "narrator",
+  "key": "2056445a"
+ },
+ {
+  "s": "Goal done: plenty of room for nature!",
+  "voice": "narrator",
+  "key": "b222417a"
+ },
+ {
+  "s": "Goal done: a healthy town!",
+  "voice": "narrator",
+  "key": "43a61b40"
+ },
+ {
+  "s": "Goal done: lights on all winter!",
+  "voice": "narrator",
+  "key": "35ea0c14"
+ },
+ {
+  "s": "Goal done: lots of places to meet!",
+  "voice": "narrator",
+  "key": "8998fa2f"
+ },
+ {
+  "s": "Goal done: carbon under the limit!",
+  "voice": "narrator",
+  "key": "458f1f67"
+ },
+ {
+  "s": "Goal done: every home is close to school!",
+  "voice": "narrator",
+  "key": "7ea913e3"
+ },
+ {
+  "s": "This line always tells you what to do next.",
+  "voice": "helper",
+  "key": "691fc70c"
+ },
+ {
+  "s": "Tap 🌼 to see all your goals, and tap any build to see what it does.",
+  "voice": "helper",
+  "key": "a5ef9fa2"
+ },
+ {
   "s": "Ready for your first AI Lab mission?",
   "voice": "helper",
   "key": "d1515bfe"
@@ -1640,19 +1815,9 @@
   "key": "b7086450"
  },
  {
-  "s": "Food: unlocked!",
+  "s": "Food · Power · Town heart: unlocked!",
   "voice": "narrator",
-  "key": "61f3616a"
- },
- {
-  "s": "Power & water: unlocked!",
-  "voice": "narrator",
-  "key": "a55f3bee"
- },
- {
-  "s": "Town heart: unlocked!",
-  "voice": "narrator",
-  "key": "5aae6836"
+  "key": "a1c6b21f"
  },
  {
   "s": "88 percent sure.",
@@ -1728,6 +1893,31 @@
   "s": "The farthest home is a 24-minute walk from school.",
   "voice": "helper",
   "key": "d84bd593"
+ },
+ {
+  "s": "Move the school closer or add paths.",
+  "voice": "helper",
+  "key": "1b985b83"
+ },
+ {
+  "s": "Pegging out the town",
+  "voice": "narrator",
+  "key": "fbf99388"
+ },
+ {
+  "s": "Food: unlocked!",
+  "voice": "narrator",
+  "key": "61f3616a"
+ },
+ {
+  "s": "Power & water: unlocked!",
+  "voice": "narrator",
+  "key": "a55f3bee"
+ },
+ {
+  "s": "Town heart: unlocked!",
+  "voice": "narrator",
+  "key": "5aae6836"
  },
  {
   "s": "That's too far!",

@@ -965,6 +965,191 @@
   "key": "ad8e7aa5"
  },
  {
+  "s": "Resolved: no homes on the floodplain.",
+  "voice": "helper",
+  "key": "25356326"
+ },
+ {
+  "s": "Resolved: woodland intact.",
+  "voice": "helper",
+  "key": "b775534a"
+ },
+ {
+  "s": "Resolved: every road has a crossing.",
+  "voice": "helper",
+  "key": "3457c86f"
+ },
+ {
+  "s": "Resolved: homes stay warm in winter.",
+  "voice": "helper",
+  "key": "1698caa5"
+ },
+ {
+  "s": "Resolved: embodied carbon down.",
+  "voice": "helper",
+  "key": "85e90031"
+ },
+ {
+  "s": "Resolved: food supply meets need.",
+  "voice": "helper",
+  "key": "6ddccbe6"
+ },
+ {
+  "s": "Resolved: habitat restored.",
+  "voice": "helper",
+  "key": "37d018b0"
+ },
+ {
+  "s": "Resolved: winter-night supply covers demand.",
+  "voice": "helper",
+  "key": "273812fd"
+ },
+ {
+  "s": "Resolved: drainage in place.",
+  "voice": "helper",
+  "key": "390df2ba"
+ },
+ {
+  "s": "Resolved: the town has a school.",
+  "voice": "helper",
+  "key": "9c78792d"
+ },
+ {
+  "s": "Resolved: every home within the walking limit.",
+  "voice": "helper",
+  "key": "65d51a55"
+ },
+ {
+  "s": "Resolved: carbon under the ceiling.",
+  "voice": "helper",
+  "key": "59c8e7c0"
+ },
+ {
+  "s": "Next: more housing.",
+  "voice": "helper",
+  "key": "9ec103c8"
+ },
+ {
+  "s": "A Timber terrace houses 4 with low embodied carbon.",
+  "voice": "helper",
+  "key": "b37c4b84"
+ },
+ {
+  "s": "Next: food.",
+  "voice": "helper",
+  "key": "a1e1b9ce"
+ },
+ {
+  "s": "A Mixed farm or Orchard raises supply without much carbon.",
+  "voice": "helper",
+  "key": "c9155599"
+ },
+ {
+  "s": "Next: nature.",
+  "voice": "helper",
+  "key": "2d090047"
+ },
+ {
+  "s": "Keep-wild land, hedges and parks raise it.",
+  "voice": "helper",
+  "key": "9efdc6fd"
+ },
+ {
+  "s": "Next: health.",
+  "voice": "helper",
+  "key": "788c3f78"
+ },
+ {
+  "s": "Footpaths, cycle lanes and parks.",
+  "voice": "helper",
+  "key": "74b35090"
+ },
+ {
+  "s": "Next: winter power.",
+  "voice": "helper",
+  "key": "d55f6506"
+ },
+ {
+  "s": "Wind plus a Battery store covers still nights.",
+  "voice": "helper",
+  "key": "6444fc85"
+ },
+ {
+  "s": "Next: community.",
+  "voice": "helper",
+  "key": "48b64c71"
+ },
+ {
+  "s": "A Market square or Community hall.",
+  "voice": "helper",
+  "key": "cf0b8f5c"
+ },
+ {
+  "s": "Next: carbon.",
+  "voice": "helper",
+  "key": "5db47b79"
+ },
+ {
+  "s": "Replace high-embodied-carbon homes.",
+  "voice": "helper",
+  "key": "b49744c1"
+ },
+ {
+  "s": "Next: a Town school within 15 minutes of every home.",
+  "voice": "helper",
+  "key": "cf37a6aa"
+ },
+ {
+  "s": "Target met: 40 households housed.",
+  "voice": "narrator",
+  "key": "81a4ea47"
+ },
+ {
+  "s": "Target met: food supply ≥ need.",
+  "voice": "narrator",
+  "key": "7fbf0689"
+ },
+ {
+  "s": "Target met: nature at 100%.",
+  "voice": "narrator",
+  "key": "852109bb"
+ },
+ {
+  "s": "Target met: health at 100%.",
+  "voice": "narrator",
+  "key": "4d235ce4"
+ },
+ {
+  "s": "Target met: winter-night supply ≥ demand.",
+  "voice": "narrator",
+  "key": "71f4f9b2"
+ },
+ {
+  "s": "Target met: community at 100%.",
+  "voice": "narrator",
+  "key": "bcef903f"
+ },
+ {
+  "s": "Target met: carbon under 160 t.",
+  "voice": "narrator",
+  "key": "efaba033"
+ },
+ {
+  "s": "Target met: every home ≤ 15 min from school.",
+  "voice": "narrator",
+  "key": "29ab8bf3"
+ },
+ {
+  "s": "This line shows your next step.",
+  "voice": "helper",
+  "key": "a14f0b6d"
+ },
+ {
+  "s": "Tap 🌼 for all town targets; select any build to see its effects.",
+  "voice": "helper",
+  "key": "081fea9b"
+ },
+ {
   "s": "Class mode: your first AI Lab mission is ready.",
   "voice": "helper",
   "key": "c9fc4ff5"
@@ -1395,11 +1580,6 @@
   "key": "94b071c9"
  },
  {
-  "s": "2 car tiles on the children’s route at 8:45 am",
-  "voice": "narrator",
-  "key": "d1811c59"
- },
- {
   "s": "Network open 3 stars.",
   "voice": "narrator",
   "key": "2e087fc4"
@@ -1425,14 +1605,14 @@
   "key": "d1ac357b"
  },
  {
-  "s": "Pollinators and deer lost: 6 hedgerow tiles removed",
-  "voice": "narrator",
-  "key": "107c81be"
- },
- {
   "s": "88 percent confidence.",
   "voice": "helper",
   "key": "4678c234"
+ },
+ {
+  "s": "Habitat & species lens: Deer, bees, otters, birds and frogs all stay.",
+  "voice": "narrator",
+  "key": "cd0d672b"
  },
  {
   "s": "Food system running 3 stars.",
@@ -1443,6 +1623,11 @@
   "s": "Still winter night: supply 0 / demand 12.",
   "voice": "helper",
   "key": "9bbdd9ba"
+ },
+ {
+  "s": "Add storage or wind.",
+  "voice": "helper",
+  "key": "1e434fe4"
  },
  {
   "s": "Winter-night supply 0/12 of demand",
@@ -1460,9 +1645,9 @@
   "key": "d591f1cb"
  },
  {
-  "s": "Longest walk to school: 18 min",
+  "s": "Walking-time lens: Longest walk 15 min (town rule 15 min).",
   "voice": "narrator",
-  "key": "435a72e3"
+  "key": "d88b674d"
  },
  {
   "s": "Balanced data: 30% vs 10% really",
@@ -1493,5 +1678,30 @@
   "s": "Longest walk to school 24 min (rule: ≤ 15).",
   "voice": "helper",
   "key": "95b812da"
+ },
+ {
+  "s": "Relocate the school or add paths.",
+  "voice": "helper",
+  "key": "65a41ca5"
+ },
+ {
+  "s": "Pegging out the town",
+  "voice": "narrator",
+  "key": "fbf99388"
+ },
+ {
+  "s": "2 car tiles on the children’s route at 8:45 am",
+  "voice": "narrator",
+  "key": "d1811c59"
+ },
+ {
+  "s": "Pollinators and deer lost: 6 hedgerow tiles removed",
+  "voice": "narrator",
+  "key": "107c81be"
+ },
+ {
+  "s": "Longest walk to school: 18 min",
+  "voice": "narrator",
+  "key": "435a72e3"
  }
 ]
