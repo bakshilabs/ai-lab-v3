@@ -62,7 +62,7 @@ export async function runIntro(api) {
     // 5. the build panel: more unlocks as the town grows
     api.highlight('#build .cats', true); bot.wave(); await step(say(T.unlocks)); api.highlight('#build .cats', false);
     // 5b. what to do next and the town's goals: the next-step line, the 🌼 goals and the build info
-    if (T.goals) { for (const s2 of ['#card .goal', '#strip [data-flower]', '#build [data-info]']) api.highlight(s2, true); await step(say(T.goals)); for (const s2 of ['#card .goal', '#strip [data-flower]', '#build [data-info]']) api.highlight(s2, false); }
+    if (T.goals) { for (const s2 of ['#card .goal', '#card [data-flower]', '#build [data-info]']) api.highlight(s2, true); await step(say(T.goals)); for (const s2 of ['#card .goal', '#card [data-flower]', '#build [data-info]']) api.highlight(s2, false); }
     // 6. the AI Lab: test her plans
     go(labP, 100); await step(bot.walkTo(labP.clone().add(new THREE.Vector3(0, 0, 6)), { maxDur: 3.5 }));
     bot.point(labP.clone().add(new THREE.Vector3(0, 3, 0)), 2.6); api.highlight('#strip [data-lab]', true);
@@ -71,7 +71,7 @@ export async function runIntro(api) {
     bot.cheer(); await step(say(T.overToYou, { tag: T.tag }));
   } catch (e) { if (e.message !== 'skip') throw e; }
   finally {
-    skipBtn.remove(); for (const s of ['#build', '#build .cats', '#strip [data-lab]', '#card .goal', '#strip [data-flower]', '#build [data-info]']) api.highlight(s, false);
+    skipBtn.remove(); for (const s of ['#build', '#build .cats', '#strip [data-lab]', '#card .goal', '#card [data-flower]', '#build [data-info]']) api.highlight(s, false);
     world.setFlood(0); ui.florence(null); await rig.overview(app.reduce ? 0.01 : 1.1);
   }
   return !skipped;

@@ -23,11 +23,11 @@ export function createUI(root, labelsRoot, opts) {
   const P = {};
   const mk = (id, cls, html = '') => { const n = h(`<div id="${id}" class="panel hide ${cls}">${html}</div>`); root.appendChild(n); P[id] = n; return n; };
   // one town card (top-left), one icon strip (top-right), one dock (bottom): the whole frame
-  mk('card', 'from-left', `<div class="crow"><span class="leaf">🌱</span><b class="brand">Eco Town</b><span class="band" data-sub></span><span class="stars"><span class="star">★</span><b data-stars>0</b></span></div>
+  // the town card: 🌼 goals, the town name, stars, the day (with pause) and credits, the next step
+  mk('card', 'from-left', `<div class="crow"><button class="ib" data-flower aria-label="Town goals" title="Town goals" aria-expanded="false"><svg viewBox="-60 -60 120 120"></svg></button><span class="leaf">🌱</span><b class="brand">Eco Town</b><span class="band" data-sub></span><span class="stars"><span class="star">★</span><b data-stars>0</b></span><span class="dayc" data-day hidden><span data-dayt></span><button class="slot mini" data-pause aria-label="Pause" title="Pause">❚❚</button></span><span class="credits" data-credits hidden></span></div>
     <div class="track" data-track>${TRACK_PICS.map((pic, i) => `<i data-l="${i + 1}" role="button" tabindex="0" aria-label="AI Lab mission ${i + 1}"><img src="img/thumbs/${pic}.png" alt=""></i>`).join('<em></em>')}</div><div class="goal" data-goal></div>`);
-  // four buttons: the town's goals (flower), lenses (once one is earned), the AI Lab and the menu
-  mk('strip', 'from-right', `<button class="ib" data-flower aria-label="Town goals" title="Town goals" aria-expanded="false"><svg viewBox="-60 -60 120 120"></svg></button><span class="sep"></span>
-    <button class="ib lensbtn" data-lensbtn aria-label="Lenses" title="Lenses" aria-expanded="false" hidden>🔍</button><button class="ib lab" data-lab aria-label="AI Lab" title="AI Lab"><img src="img/thumbs/ailab.png" alt=""></button><span class="sep"></span><button class="ib" data-menu aria-label="Menu" title="Menu">☰</button>`);
+  // lenses (once one is earned), the AI Lab (with how many missions are ready) and the menu
+  mk('strip', 'from-right', `<button class="ib lensbtn" data-lensbtn aria-label="Lenses" title="Lenses" aria-expanded="false" hidden>🔍</button><button class="ib lab" data-lab aria-label="AI Lab" title="AI Lab"><img src="img/thumbs/ailab.png" alt=""></button><span class="sep"></span><button class="ib" data-menu aria-label="Menu" title="Menu">☰</button>`);
   mk('flowerpop', 'from-right', '<div class="fltop"><svg viewBox="-60 -60 120 120" aria-label="Town flower"></svg><div><div class="ttl"></div><div class="legend"></div></div></div><div class="goals" data-goals></div>');
   mk('lenspop', 'from-right blk', '');
   mk('dock', 'from-bottom', '<div class="head" data-head></div><div class="speaker" data-speaker></div><div class="actions" data-actions></div>');
@@ -41,7 +41,7 @@ export function createUI(root, labelsRoot, opts) {
   // one 🎥 button that opens the controls (always open on touch screens and whiteboards)
   mk('camctl', 'from-right blk', `<button class="ib camtog" data-camtog aria-label="Camera" title="Camera" aria-expanded="false">🎥</button><span class="camrow"><button class="ib" data-cam="in" aria-label="Zoom in" title="Zoom in">＋</button><button class="ib" data-cam="out" aria-label="Zoom out" title="Zoom out">－</button><button class="ib" data-cam="left" aria-label="Turn left" title="Turn left">⟲</button><button class="ib" data-cam="right" aria-label="Turn right" title="Turn right">⟳</button><button class="ib" data-cam="home" aria-label="Back to the whole island" title="Back to the whole island">⌂</button><button class="ib" data-v="street" aria-label="Street view" title="Street view">👟</button><button class="ib" data-v="inside" aria-label="Inside a home" title="Inside a home">🏠</button></span>`);
   const camOpen = (on) => { P.camctl.classList.toggle('open', on); P.camctl.querySelector('[data-camtog]').setAttribute('aria-expanded', on); };
-  camOpen(matchMedia('(pointer: coarse) and (min-width: 761px)').matches); // whiteboards and tablets: open; phones pinch and drag
+  camOpen(matchMedia('(pointer: coarse) and (min-width: 1600px)').matches); // whiteboards: open; everyone else opens it when needed
   P.camctl.querySelector('[data-camtog]').addEventListener('click', () => { camOpen(!P.camctl.classList.contains('open')); requestAnimationFrame(() => ui.onCamToggle?.()); });
   const D = { head: P.dock.querySelector('[data-head]'), speaker: P.dock.querySelector('[data-speaker]'), actions: P.dock.querySelector('[data-actions]') };
   // facilitator notes live in their own card (top left, under the town card), whatever else is on screen
@@ -71,8 +71,15 @@ export function createUI(root, labelsRoot, opts) {
     },
     only(ids) { for (const id of ['helper', 'tray', 'alert', 'lensbar', 'modal', 'settings', 'caption']) this.show(id, ids.includes(id)); this.closePops(); },
     // the small pop-overs under the strip: only one open at a time
-    closePops(except) { for (const [pop, btn] of [[P.flowerpop, '[data-flower]'], [P.lenspop, '[data-lensbtn]']]) if (pop !== except) { pop.classList.add('hide'); P.strip.querySelector(btn).setAttribute('aria-expanded', 'false'); } if (except !== P.settings && !P.settings.classList.contains('hide')) this.show('settings', false); },
-    togglePop(pop, btn) { const open = pop.classList.contains('hide'); this.closePops(open ? pop : null); pop.classList.toggle('hide', !open); P.strip.querySelector(btn).setAttribute('aria-expanded', String(open)); },
+    closePops(except) { for (const [pop, btn] of [[P.flowerpop, '[data-flower]'], [P.lenspop, '[data-lensbtn]']]) if (pop !== except) { pop.classList.add('hide'); root.querySelector(btn)?.setAttribute('aria-expanded', 'false'); } if (except !== P.settings && !P.settings.classList.contains('hide')) this.show('settings', false); },
+    togglePop(pop, btn) { const open = pop.classList.contains('hide'); this.closePops(open ? pop : null); pop.classList.toggle('hide', !open); root.querySelector(btn)?.setAttribute('aria-expanded', String(open)); },
+    // the day chip in the town card (free building only): text, paused?, onPause; null hides it
+    setDay(text, paused = false, onPause = null) {
+      const d = P.card.querySelector('[data-day]'); if (text == null) { d.hidden = true; return; }
+      d.hidden = false; d.querySelector('[data-dayt]').textContent = text;
+      const b = d.querySelector('[data-pause]'); b.textContent = paused ? '▶' : '❚❚'; b.setAttribute('aria-label', paused ? 'Play' : 'Pause'); b.title = paused ? 'Play' : 'Pause'; if (onPause) b.onclick = onPause;
+    },
+    setCredits(text) { const c = P.card.querySelector('[data-credits]'); c.hidden = !text; c.textContent = text || ''; },
     // the goals list in the town-goals pop-over
     setGoals(html) { P.flowerpop.querySelector('[data-goals]').innerHTML = html; },
     setBadge(sub) { P.card.querySelector('[data-sub]').textContent = sub; this.show('card'); this.show('strip'); },
@@ -92,7 +99,9 @@ export function createUI(root, labelsRoot, opts) {
       this.show('card');
     },
     // the six missions on the town card: 'done', 'on' (ready) or '' (not yet). Tapping one opens the AI Lab.
-    setTrack(states) { P.card.querySelectorAll('[data-l]').forEach((e, i) => { e.classList.toggle('done', states[i] === 'done'); e.classList.toggle('on', states[i] === 'on'); }); },
+    setTrack(states) { P.card.querySelectorAll('[data-l]').forEach((e, i) => { e.classList.toggle('done', states[i] === 'done'); e.classList.toggle('on', states[i] === 'on'); });
+      // 🧪 shows how many missions are ready to play
+      const n = states.filter((x) => x === 'on').length; const lab = P.strip.querySelector('[data-lab]'); if (n) lab.dataset.ready = n; else delete lab.dataset.ready; lab.setAttribute('aria-label', n ? `AI Lab: ${n} mission${n === 1 ? '' : 's'} ready` : 'AI Lab'); },
     // lenses (one per AI Lab mission done) in one 🔍 pop-over: [{ id, icon, label, on }]
     setLenses(list, title = 'Lenses') {
       const btn = P.strip.querySelector('[data-lensbtn]'); btn.hidden = !list.length; const on = list.find((l) => l.on);
@@ -187,7 +196,7 @@ export function createUI(root, labelsRoot, opts) {
         s += `<text x="${Math.cos(a) * (R + 1)}" y="${Math.sin(a) * (R + 1) + 4}" font-size="11" text-anchor="middle">${PETAL_ICON[p]}</text>`;
       });
       s += '<circle r="8" fill="#ffd23f"/>';
-      P.flowerpop.querySelector('svg').innerHTML = s; P.strip.querySelector('[data-flower] svg').innerHTML = s;
+      P.flowerpop.querySelector('svg').innerHTML = s; P.card.querySelector('[data-flower] svg').innerHTML = s;
       P.flowerpop.querySelector('.ttl').textContent = title || '';
       // 100% = enough for this town (the dashed ring); carbon is shown in tonnes against its limit, since lower is better
       const c = this.carbonInfo;
@@ -195,10 +204,10 @@ export function createUI(root, labelsRoot, opts) {
         + `<p class="key">100% (the dashed ring) means <b>enough</b> for the town: more is better. A full, bright petal has reached it. Carbon is the opposite: the town must stay under its ${c ? c.limit : ''} t limit, so its petal grows the further under the limit you are.</p>`;
       this.show('strip');
       if (open !== null) P.flowerpop.classList.toggle('hide', !open);
-      if (flash) { const btn = P.strip.querySelector('[data-flower]'); btn.classList.remove('bump'); void btn.offsetWidth; btn.classList.add('bump'); }
+      if (flash) { const btn = P.card.querySelector('[data-flower]'); btn.classList.remove('bump'); void btn.offsetWidth; btn.classList.add('bump'); }
     },
   };
-  P.strip.querySelector('[data-flower]').addEventListener('click', () => ui.togglePop(P.flowerpop, '[data-flower]'));
+  P.card.querySelector('[data-flower]').addEventListener('click', () => ui.togglePop(P.flowerpop, '[data-flower]'));
   P.strip.querySelector('[data-lensbtn]').addEventListener('click', () => ui.togglePop(P.lenspop, '[data-lensbtn]'));
   P.strip.querySelector('[data-lab]').addEventListener('click', () => { ui.closePops(); ui.onLab?.(); });
   P.lenspop.addEventListener('click', (e) => { const b = e.target.closest('[data-lens]'); if (b) { ui.closePops(); ui.onLens?.(b.dataset.lens); } });

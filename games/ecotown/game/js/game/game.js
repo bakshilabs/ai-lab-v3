@@ -351,20 +351,31 @@ export function createGame(app) {
     const cr = G.credits !== Infinity ? `<span class="credits ${G.credits > 0 ? 'ok' : ''}" title="${esc(G.S.credits)}"><b>💰</b>${G.credits} ${G.S.credits}</span>` : '';
     const slot = (idd) => { const it = ITEMS[idd];
       return `<div class="slotwrap"><button class="slot item ${sb.tool === idd ? 'on' : ''}" data-t="${idd}" aria-pressed="${sb.tool === idd}" title="${esc(it.label)}"><img src="${thumb(idd)}" alt=""><span>${esc(it.label)}</span>${!G.j && it.cost ? `<em class="cost">💰${it.cost}</em>` : ''}</button></div>`; };
-    ui.buildPanel(`<div class="bhead"><b>${esc(G.S.buildTitle)}</b><span class="clock" data-clock title="${esc(G.S.dayClock)}">🕖 ${clockText()} · ${esc(G.S.day)} ${G.day}</span><button class="slot mini" data-pause aria-label="${esc(sb.paused ? G.S.play : G.S.pause)}" title="${esc(sb.paused ? G.S.play : G.S.pause)}">${sb.paused ? '▶' : '❚❚'}</button><button class="slot mini fold" data-fold aria-expanded="${!sb.folded}" aria-label="${esc(G.S.tools)}">${sb.folded ? '▴' : '▾'}</button></div>
-      <div class="btools"><button class="slot item erase ${sb.tool === 'erase' ? 'on' : ''}" data-t="erase" aria-pressed="${sb.tool === 'erase'}" title="${esc(G.S.erase)} (X)"><b class="ico">🧽</b><span>${esc(G.S.erase)}</span></button>${cr}</div>
+    // the day, pause and credits live in the town card; the bar is only the tools
+    renderDay(); ui.setCredits(G.credits !== Infinity ? `💰 ${G.credits} ${G.S.credits}` : '');
+    const eraseBtn = `<button class="slot item erase ${sb.tool === 'erase' ? 'on' : ''}" data-t="erase" aria-pressed="${sb.tool === 'erase'}" title="${esc(G.S.erase)} (X)"><b class="ico">🧽</b><span>${esc(G.S.erase)}</span></button>`;
+    ui.buildPanel(`<div class="bhead"><button class="slot mini fold" data-fold aria-expanded="${!sb.folded}" aria-label="${esc(G.S.tools)}">${sb.folded ? '▴' : '▾'}</button></div>
+      <div class="btools">${eraseBtn}</div><div class="slottip" data-tip hidden></div>
       <div class="bbody ${sb.folded ? 'folded' : ''}"><div class="cats" role="tablist" aria-label="${esc(G.S.buildWhat)}">${LEVEL_ORDER.map((id, i) => `<button class="slot cat ${sb.cat === id ? 'on' : ''} ${isOpen(id) ? '' : 'locked'}" data-cat="${id}" role="tab" aria-selected="${sb.cat === id}" title="${esc(G.S.cats[id])} (${i + 1})"><img src="${thumb(TRACK_PICS[i])}" alt=""><span>${esc(G.S.cats[id])}</span>${isOpen(id) ? '' : '<i class="lock">🔒</i>'}</button>`).join('')}</div>
       <div class="info" data-info aria-live="polite">${infoHtml(sb.tool)}</div>
-      <div class="items">${isOpen(sb.cat) ? items.map(slot).join('') : lockedView(tier, s)}</div>${isOpen(sb.cat) || sb.tool === 'erase' ? hlKey((G.placements || 0) >= 5) : ''}</div>`, (tr) => {
+      <div class="items"><div class="slotwrap eraseslot">${eraseBtn.replace('data-t="erase"', 'data-t="erase" data-erase2')}</div>${isOpen(sb.cat) ? items.map(slot).join('') : lockedView(tier, s)}</div>${isOpen(sb.cat) || sb.tool === 'erase' ? hlKey((G.placements || 0) >= 5) : ''}</div>`, (tr) => {
       const info = tr.querySelector('[data-info]'); const bindPlay = () => info.querySelectorAll('[data-play]').forEach((b) => (b.onclick = () => playVideo(b.dataset.play)));
       const showInfo = (id) => { info.innerHTML = infoHtml(id); bindPlay(); };
+      // what a build does, in one sentence, in a small tip above its button (on hover, focus, or just after picking it)
+      const tip = tr.querySelector('[data-tip]');
+      const showTipFor = (b, ms = 0) => { const it = ITEMS[b.dataset.t]; const text = b.dataset.t === 'erase' ? G.S.removeDesc : it?.desc ? pick(it.desc) : ''; if (!text) return (tip.hidden = true);
+        tip.textContent = text; tip.hidden = false; const r = b.getBoundingClientRect(), pr = tr.getBoundingClientRect(); tip.style.left = Math.max(4, Math.min(pr.width - 284, r.left - pr.left + r.width / 2 - 140)) + 'px';
+        clearTimeout(sb.tipT2); if (ms) sb.tipT2 = setTimeout(() => (tip.hidden = true), ms); };
       tr.querySelectorAll('[data-cat]').forEach((b) => (b.onclick = () => pickCat(b.dataset.cat)));
-      tr.querySelectorAll('[data-t]').forEach((b) => { b.onclick = () => pickTool(b.dataset.t); b.onmouseenter = b.onfocus = () => showInfo(b.dataset.t); b.onmouseleave = b.onblur = () => showInfo(sb.tool); });
+      tr.querySelectorAll('[data-t]').forEach((b) => { b.onclick = () => { sb.justPicked = b.dataset.t; pickTool(b.dataset.t); };
+        b.onmouseenter = b.onfocus = () => { showInfo(b.dataset.t); showTipFor(b); }; b.onmouseleave = b.onblur = () => { showInfo(sb.tool); tip.hidden = true; }; });
+      // just picked: show what it does for a few seconds
+      if (sb.justPicked) { const nb = [...tr.querySelectorAll(`[data-t="${sb.justPicked}"]`)].find((x) => x.offsetParent); sb.justPicked = null; if (nb) requestAnimationFrame(() => showTipFor(nb, 4000)); }
       bindPlay();
       tr.querySelector('[data-fold]').onclick = () => { sb.folded = !sb.folded; renderBar(); requestAnimationFrame(reframe); };
-      tr.querySelector('[data-pause]').onclick = () => { sb.paused = !sb.paused; renderBar(); };
     });
   }
+  function renderDay() { ui.setDay(`☀ ${G.S.day} ${G.day} · ${clockText()}`, sb.paused, () => { sb.paused = !sb.paused; renderDay(); }); }
   function pickCat(cat) { sb.cat = cat; if (isOpen(cat)) { sb.tool = LEVELS[cat].palette[0]; showAllowed(sb.tool); } else { if (sb.tool !== 'erase') world.setOverlay(null); } sb.folded = false; audio.tap(); renderBar(); }
   function pickTool(id) { sb.tool = id; showAllowed(id); audio.tap(); renderBar(); }
   // what the selected (or hovered) build is and does: name, one sentence, effect chips, where it goes, cost, ▶
@@ -561,7 +572,7 @@ export function createGame(app) {
     if (before < 18.5 && app.hour >= 18.5) { audio.dusk(); setMusic('night'); }
     if (app.hour >= 22) newDay();
     stage.setTime(app.hour, 0);
-    const ck = ui.P.build.querySelector('[data-clock]'); if (ck) ck.textContent = `🕖 ${clockText()} · ${G.S.day} ${G.day}`;
+    renderDay();
     const now = performance.now();
     if (sb.bubbles.length && now > sb.nextBub && rig.mode === 'sky' && !sb.lens) {
       const b = sb.bubbles[Math.floor(Math.random() * sb.bubbles.length)]; const who = life.residentNear(b.k);
@@ -636,7 +647,7 @@ export function createGame(app) {
     const panel = sb.running && !b.classList.contains('hide') ? b : app.inLab && !d.classList.contains('hide') && d.getBoundingClientRect().left < W * 0.2 ? d : null;
     if (!panel) { if (cam.view?.enabled) cam.clearViewOffset(); rig.inset = { left: 0, right: 0, top: 0, bottom: 0 }; return; }
     const r = panel.getBoundingClientRect();
-    if (r.width > W * 0.6) { const top = ui.P.card.classList.contains('hide') ? 70 : Math.max(70, ui.P.card.getBoundingClientRect().bottom + 8); cam.setViewOffset(W, H, 0, Math.round((H - r.top - top) / 2), W, H); rig.inset = { left: 0, right: 0, top, bottom: H - r.top }; } // the bottom hotbar: centre the island between the top strip and the bar
+    if (r.top > H * 0.5) { const top = ui.P.card.classList.contains('hide') ? 70 : Math.max(70, ui.P.card.getBoundingClientRect().bottom + 8); cam.setViewOffset(W, H, 0, Math.round((H - r.top - top) / 2), W, H); rig.inset = { left: 0, right: 0, top, bottom: H - r.top }; } // the bottom hotbar: centre the island between the top strip and the bar
     else { const right = ui.P.camctl.classList.contains('hide') ? 0 : W - ui.P.camctl.getBoundingClientRect().left + 8; cam.setViewOffset(W, H, -Math.round((r.right - right) / 2), 0, W, H); rig.inset = { left: r.right, right, top: 0, bottom: 0 }; }
   }
   // on resize or when the panels change, keep the same framing (rescale the distance with the frame)
@@ -651,7 +662,7 @@ export function createGame(app) {
     changed(); renderLenses(); setMusic(app.hour >= 18.5 || app.hour < 6.5 ? 'night' : 'day'); app.bot?.show(true); requestAnimationFrame(() => { frameView(); lastFrame = rig.frameDist(); if (!sb.framed) { sb.framed = true; rig.overview(app.reduce ? 0.01 : 1.0); } });
     if (sb.afterLab) { const msg = sb.afterLab; sb.afterLab = null; setTimeout(() => ui.caption(msg, 5000), 2800); } // after any unlock alert
   }
-  function stopBuilding() { sb.running = false; ui.florence(null); frameView(); rig.building = false; clearTimeout(sb.tipT); world.clearGhost(); world.setOverlay(null); ui.labels.clear(); ui.tray(''); ui.buildPanel(''); hideTip(); }
+  function stopBuilding() { sb.running = false; ui.setDay(null); ui.setCredits(''); ui.florence(null); frameView(); rig.building = false; clearTimeout(sb.tipT); world.clearGhost(); world.setOverlay(null); ui.labels.clear(); ui.tray(''); ui.buildPanel(''); hideTip(); }
   const setMusic = (m) => app.setMusic?.(m);
 
   // ================= THE AI LAB CLASSROOM =================
