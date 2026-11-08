@@ -1,4 +1,4 @@
-// Florence's live portrait for her card and the mission dock: a second, small copy of the 3D Florence
+// Florence's live full-body figure for her card and the mission dock: a second, small copy of the 3D Florence
 // (js/engine/florence.js) in her own little scene, so she really talks (mouth, nods, blinks) and makes the same
 // gestures as the Florence on the island (cheer, oops, wave…). One canvas, moved into whichever card shows her.
 // It only renders while it is on screen. Falls back to the still picture if WebGL can't start.
@@ -8,7 +8,7 @@ export function createPortrait(createFlorence) {
   const canvas = document.createElement('canvas'); canvas.className = 'portrait live'; canvas.setAttribute('role', 'img'); canvas.setAttribute('aria-label', 'Florence');
   let renderer;
   try { renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'low-power' }); } catch { return null; }
-  const W = 180, H = 180; renderer.setPixelRatio(Math.min(2, devicePixelRatio || 1)); renderer.setSize(W, H, false);
+  const W = 150, H = 225; // the whole robot, head to feet renderer.setPixelRatio(Math.min(2, devicePixelRatio || 1)); renderer.setSize(W, H, false);
   renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.setClearColor(0x000000, 0);
   const scene = new THREE.Scene();
   scene.add(new THREE.HemisphereLight(0xfff4e0, 0x8a6a4a, 1.6));
@@ -18,8 +18,8 @@ export function createPortrait(createFlorence) {
   const bot = createFlorence({ scene }, { tileTop: () => new THREE.Vector3() }, { tiles: new Map() });
   bot.appear(new THREE.Vector3(0, 0, 0));
   const camera = new THREE.PerspectiveCamera(26, W / H, 0.1, 100);
-  camera.position.set(0, 5.4, 8.6); camera.lookAt(0, 4.85, 0); // head and shoulders
-  bot.look(new THREE.Vector3(0, 5.4, 8.6)); // she looks at the player
+  camera.position.set(0, 4.1, 15.8); camera.lookAt(0, 3.4, 0); // her whole body
+  bot.look(new THREE.Vector3(0, 4.1, 15.8)); // she looks at the player
   let last = performance.now(), t = 0, running = false;
   const visible = () => canvas.isConnected && canvas.offsetParent !== null;
   function frame(now) {
