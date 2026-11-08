@@ -11,6 +11,8 @@ export const CHIP = {
   health: { icon: '❤', col: '#ff7eb6' }, energy: { icon: '⚡', col: '#2f9de0' }, community: { icon: '🤝', col: '#b28cff' },
   carbon: { icon: '☁', col: '#7a8a96' }, walk: { icon: '🚶', col: '#d9a441' }, credits: { icon: '💰', col: '#e0b400' },
 };
+// the word under each icon, so no chip is a mystery symbol ("☁" alone meant nothing to a young tester)
+export const CHIP_WORD = { homes: 'families', food: 'food', nature: 'nature', health: 'health', energy: 'power', community: 'community', carbon: 'carbon', walk: 'walk', credits: 'credits' };
 const ORDER = ['homes', 'food', 'nature', 'health', 'energy', 'community', 'carbon'];
 const round = (v) => Math.round(v * 10) / 10;
 // a chip: { key, v, good } where good says if the change helps the town (less carbon is good)
@@ -41,4 +43,4 @@ export function simDelta(a, b) {
 }
 
 // "+4 👪  −2 ☁": plain text for labels, captions and screen readers
-export function chipsText(chips) { return chips.map((c) => `${c.v > 0 ? '+' : '−'}${Math.abs(c.v)} ${CHIP[c.key].icon}`).join('  '); }
+export function chipsText(chips) { return chips.map((c) => `${c.v > 0 ? '+' : '−'}${Math.abs(c.v)} ${CHIP[c.key].icon} ${CHIP_WORD[c.key]}`).join('  '); }

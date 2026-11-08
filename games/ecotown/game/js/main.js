@@ -97,7 +97,16 @@ async function setView(v) {
   if (inside.root.visible) await rig.fade(() => { inside.root.visible = false; });
   const home = app.G?.cells && [...app.G.cells].find(([, c]) => c.item && /timber|straw|earth|reclaimed|cohousing|concrete/.test(c.item));
   if (v === 'sky') rig.overview(1.2);
-  if (v === 'street') { const k = home?.[0] || terrain.school; const p = world.tileTop(k); rig.toStreet(p.clone().add(new THREE.Vector3(-8, 2.1, -9)), p.clone().add(new THREE.Vector3(0, 1.5, 0))); }
+  if (v === 'street') {
+    // stand on an open neighbouring tile (a path or an empty one), a few steps back, never inside another build
+    const cells = app.G?.cells || new Map(); const homes = [...cells].filter(([, c]) => c.item && /timber|straw|earth|reclaimed|cohousing|concrete/.test(c.item)).map(([k]) => k);
+    const open = (k) => { const c = cells.get(k); return terrain.tiles.has(k) && !terrain.tiles.get(k).fixed && terrain.tiles.get(k).zone !== 'river' && (!c?.item || /path|cycle|road|tram/.test(c.item)); };
+    let k = homes[0] || terrain.school, from = null;
+    for (const hk of homes.length ? homes : [k]) { const t = terrain.tiles.get(hk); if (!t) continue; const n = [[0, 1], [1, 0], [-1, 0], [0, -1]].map(([dx, dz]) => `${t.gx + dx},${t.gz + dz}`).find(open); if (n) { k = hk; from = n; break; } }
+    const p = world.tileTop(k); const q = from ? world.tileTop(from) : p.clone().add(new THREE.Vector3(-8, 0, -9));
+    const dir = p.clone().sub(q).setY(0).normalize(); const eye = q.clone().sub(dir.clone().multiplyScalar(2.5)).add(new THREE.Vector3(0, 2.1, 0));
+    rig.toStreet(eye, p.clone().add(new THREE.Vector3(0, 1.5, 0)));
+  }
   if (v === 'inside') { inside.build(home?.[1].item || 'timber', 20); await rig.fade(() => { inside.root.visible = true; rig.mode = 'inside'; rig.apply(inside.pose()); }); }
 }
 app.setView = setView;

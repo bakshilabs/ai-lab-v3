@@ -177,9 +177,18 @@ export function createRig(stage, canvas, fadeEl) {
   canvas.addEventListener('wheel', (e) => { if (rig.locked || rig.mode !== 'sky') return; e.preventDefault(); zoomTo(sky.dist * Math.exp(e.deltaY * 0.0012), ndc(e)); }, { passive: false });
   // keyboard, only when the island has focus (or nothing in the interface does)
   window.addEventListener('keydown', (e) => {
-    const a = document.activeElement; if (rig.locked || rig.mode !== 'sky') return;
+    const a = document.activeElement; if (rig.locked) return;
     if (a && a !== document.body && a !== canvas) return;
     const k = e.key.toLowerCase(); const step = 6;
+    // street view: the arrows look around (a young tester tried them and nothing happened); Home goes back up
+    if (rig.mode === 'street' && rig.street) {
+      const st = rig.street;
+      if (k === 'arrowleft') st.yaw = clamp(st.yaw + 0.12, -0.7, 0.7); if (k === 'arrowright') st.yaw = clamp(st.yaw - 0.12, -0.7, 0.7);
+      if (k === 'arrowup') st.pitch = clamp(st.pitch + 0.06, -0.25, 0.3); if (k === 'arrowdown') st.pitch = clamp(st.pitch - 0.06, -0.25, 0.3);
+      if (k === 'home') rig.overview(1.2);
+      return;
+    }
+    if (rig.mode !== 'sky') return;
     if (k === 'arrowleft' || k === 'q') sky.vy = 0.03; if (k === 'arrowright' || k === 'e') sky.vy = -0.03;
     if (k === 'arrowup') { sky.vp = -0.02; sky.autoPitch = false; } if (k === 'arrowdown') { sky.vp = 0.02; sky.autoPitch = false; }
     if (k === 'w') rig.panBy(0, step); if (k === 's') rig.panBy(0, -step); if (k === 'a') rig.panBy(-step, 0); if (k === 'd') rig.panBy(step, 0);

@@ -273,7 +273,9 @@ const PLANNERS = {
       for (const t of cand) { const f = walkField(ctx.terrain, applyPlacements(ctx.cells, [{ k: t.k, item: 'school' }]), [t.k]); const w = Math.max(...homes.map((k) => f.get(k) ?? 99)); if (w < bw) { bw = w; best = t; } }
       school = best;
     } else {
-      reading.push('“The middle” = the centre of the island.'); assumptions.push('The middle of the island is the middle of the town.');
+      if (slots.has('middle')) reading.push('“The middle” = the centre of the island.');
+      else reading.push('You didn’t say where, so I guessed: the middle of the island.'); // never quote words the player didn't use
+      assumptions.push('The middle of the island is the middle of the town.');
       school = cand.reduce((a, b) => (distTo(b, [0, 0]) < distTo(a, [0, 0]) ? b : a));
     }
     if (school) placements.push({ k: school.k, item: 'school' });
@@ -305,7 +307,9 @@ const PLANNERS = {
     const after = simulate(ctx.terrain, applyPlacements(ctx.cells, placements));
     const fit = slots.has('walk_time') ? Math.min(1, minutes / Math.max(1, after.walkMax)) : 0.92;
     const near = slots.has('walk_time') || slots.has('near_homes');
-    const habit = near ? null : 'literal'; const habitWhy = near ? '' : 'Florence read “the middle” as the middle of the island, not the middle of the homes.';
+    const said = slots.has('middle');
+    const habit = near ? null : said ? 'literal' : 'missing';
+    const habitWhy = near ? '' : said ? 'Florence read “the middle” as the middle of the island, not the middle of the homes.' : 'Nobody told Florence what mattered (a short walk from every home), so she guessed the middle of the island.';
     return { placements, reading, assumptions, habit, habitWhy, tested: near ? 'walking time from every home' : 'distance from the edges of the island', fit };
   },
 };
