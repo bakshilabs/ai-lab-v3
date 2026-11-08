@@ -128,6 +128,21 @@ A game-designer subagent played the game and found the AI lesson stayed in the o
 - Tips with a button stay until acted on; the speaker card text has ≥ 4.5:1 contrast; no doubled quotes; readable night (moon ×1.9, sky-light floor 0.75); the clock waits while ☰ or a card is open; the Lab board tags the mission the town needs now (`sb.needLab`); the intro target pulses orange; phones: tap once to preview and again to build (`TOUCH`, `sb.armed`), the camera starts closer, no overlaps.
 - Not done yet (bigger bets from that review): town events (winter flood night, blackout), a concrete junior habit quiz quoting the player's words, slower unlock thresholds and a junior budget, collapsible mission sheet on phones.
 
+## No-context playtests: a "child" and a scored designer (Nov 2026)
+Two subagents played with no context (a 9-year-old persona, and a designer scoring 13 aspects out of 10; overall 7, phone 3). Fixes:
+- **Missions/classroom:** Florence's tip card never shows there (`showTip` checks `sb.running`; CSS hides `#florence` under `html[data-lab=on]`). Missions are named by title with "n of 6 done" (numbers only in class mode); the classroom's Missions button says how many are ready. The heart mission's heading is "School planned!" (it used to say "Town complete!"). Habit answers keep a fixed order. After two checks that found nothing, a hint names what to look at. "Ask everyone else" after three residents. The town meeting shows on the result card.
+- **Planner honesty:** a heart instruction without "middle" says "you didn't say where, so I guessed" (habit `missing`); a food instruction that doesn't mention hedges/bees/wildlife ploughs the hedged fields first (at least 3), so the nature lens catches it (`tests/progress.test.mjs` "lazy instruction").
+- **Building:** gold kerb = already your town land (`HL.same`, key `keyHave`); chips carry words (`CHIP_WORD` in `delta.js`), the item card shows qualitative chips (exact numbers only in the preview/floats); a tap that would knock down a home asks for a second tap (`sb.confirm`); tapping off the tiles says where to tap; plainer place reasons (catalog `placeReason`).
+- **Florence's suggestions:** never the same idea twice in a row, not again within 10 min, and none for 2.5 min after a mission; after the lens check the card shows the evidence in numbers (`evidence()`); lenses leave the inside/street view first. Re-opened tips recompute their numbers.
+- **Town events** (`townEvent` in `game.js`): every third day a winter storm (homes on flood land flood) or a still, dark night (winter power), with an alert and a tip to the mission or lens.
+- **Plan adoption:** a placement whose tile is taken goes to the nearest free tile where it is allowed; friendlier "no room" text.
+- **Phone:** Skip intro is a small pill; one tap builds (the old touch preview-then-confirm made taps look dead); missions stack in one column with full-width answers; the result banner and lens key wrap; the camera button sits under the card on the left; the next step may take two lines.
+- **Desktop:** Escape closes the open card (close / not now / keep), the menu, the pop-overs, then the lens. The start screen's mission order is a two-way switch, not a native dropdown. No heartbeat POST on localhost or GitHub Pages.
+- **Report:** ⚠️ on limits that are exceeded, "—" for an empty instruction row, bonus star shown apart (instructions only reset once a mission really restarts). Street view (👟) stands on an open tile; arrow keys look around.
+- **Intro:** five beats (the forced build video is gone; ▶ on any build shows it).
+- **Classroom:** small talk gets a short in-character answer (`qa.js` topic `chat`).
+- Not done (left for the UI/3D designer passes or later): text labels on the top-right icons, a smaller mission panel on desktop, cosmetic rewards for stars, a finale screen, a current-mission queue.
+
 ## Beta revision (Nov 2026)
 All 49 notes in the beta tester's file were addressed; see README "How the game plays" and the commit history. Key decisions the user made:
 - **Helper name:** **Florence** (she). Code file names stay `plotter.*`.
@@ -167,7 +182,7 @@ All 49 notes in the beta tester's file were addressed; see README "How the game 
   - `/admin` redirects (302) to `…cloudflareaccess.com`.
 
 ## Tests
-From `games/ecotown/game` (117 tests, all passing at handoff):
+From `games/ecotown/game` (119 tests, all passing at handoff):
 
 ```bash
 node --test tests/sim.test.mjs tests/model.test.mjs tests/teach.test.mjs tests/syntax.test.mjs tests/codes.test.mjs tests/playtest.test.mjs tests/progress.test.mjs tests/audio.test.mjs tests/replace.test.mjs tests/delta.test.mjs tests/qa.test.mjs
