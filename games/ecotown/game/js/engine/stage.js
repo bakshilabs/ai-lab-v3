@@ -81,7 +81,7 @@ export function createStage(canvas, skyEl) {
   scene.fog = new THREE.Fog(0xd4ecff, 900, 2600);
   const camera = new THREE.PerspectiveCamera(22, 1, 1, 4000);
   const dome = skyDome(); scene.add(dome);
-  const hemi = new THREE.HemisphereLight(0xdcebff, 0x6a5a44, 1.0); scene.add(hemi);
+  const hemi = new THREE.HemisphereLight(0xdcebff, 0x9a6a4a, 1.0) /* warm bounce light under the island */; scene.add(hemi);
   const sun = new THREE.DirectionalLight(0xfff0d8, 2.8); sun.castShadow = true; scene.add(sun, sun.target);
   const sc = sun.shadow.camera; sc.left = -60; sc.right = 60; sc.top = 60; sc.bottom = -60; sc.near = 1; sc.far = 500;
   sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.04; sun.shadow.radius = 1;

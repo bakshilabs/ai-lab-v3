@@ -25,7 +25,7 @@ export function clouds(scene, { n = 9, spread = 260, y = [55, 95], z = [-260, -6
 export function waterfall(scene, { x, y, z, dir = [0, 1], width = 3, length = 30 }) {
   const N = 220;
   const geo = new THREE.BoxGeometry(0.55, 0.9, 0.55);
-  const mat = new THREE.MeshLambertMaterial({ color: '#8fdcff', emissive: new THREE.Color('#2a8fd0'), emissiveIntensity: 0.25 });
+  const mat = new THREE.MeshLambertMaterial({ color: '#6cc4f0', emissive: new THREE.Color('#2a8fd0'), emissiveIntensity: 0.2 });
   const m = new THREE.InstancedMesh(geo, mat, N); m.castShadow = false; m.frustumCulled = false; scene.add(m);
   const mist = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshLambertMaterial({ color: '#ffffff' }), 40); mist.frustumCulled = false; scene.add(mist);
   const d = new THREE.Object3D();
@@ -64,8 +64,8 @@ export function floatingRocks(scene, { n = 7, center = [0, 0, 0], radius = 60, s
   const list = [];
   for (let i = 0; i < n; i++) {
     const v = new Vox(); const s = 2 + Math.floor(rand(i, seed) * 3);
-    for (let x = -s; x <= s; x++) for (let z = -s; z <= s; z++) { const r = Math.hypot(x, z) / s; if (r > 1) continue; const dp = Math.round((1 - r) * s * 1.6) + 1; for (let y = -dp; y <= 0; y++) v.set(x, y, z, y === 0 ? (rand(x, i, z) > 0.4 ? '#7ccf55' : '#6cc04b') : y > -2 ? '#9a6a42' : '#8b8f93'); }
-    if (rand(i, seed, 9) > 0.5) { v.set(0, 1, 0, '#7a5232'); v.box(-1, 2, -1, 1, 3, 1, '#4caf50'); }
+    for (let x = -s; x <= s; x++) for (let z = -s; z <= s; z++) { const r = Math.hypot(x, z) / s; if (r > 1) continue; const dp = Math.round((1 - r) * s * 1.6) + 1; for (let y = -dp; y <= 0; y++) v.set(x, y, z, y === 0 ? (rand(x, i, z) > 0.4 ? '#9bb85e' : '#8fae55') : y > -2 ? '#c96535' : '#d9733f'); }
+    if (rand(i, seed, 9) > 0.5) { v.set(0, 1, 0, '#7a5232'); v.box(-1, 2, -1, 1, 3, 1, '#5f9a45'); }
     const m = v.mesh(); const a = rand(i, seed, 2) * Math.PI * 2, r = radius * (0.8 + rand(i, seed, 3) * 0.5);
     const base = [center[0] + Math.cos(a) * r, center[1] - 6 + rand(i, seed, 4) * 22, center[2] + Math.sin(a) * r];
     m.position.set(...base); scene.add(m); list.push([m, base, rand(i, seed, 5) * 6]);

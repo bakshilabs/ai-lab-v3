@@ -65,11 +65,11 @@ const MESAS = [[-45, 15, 3.6, 12], [-43, -20, 3, 10], [45, -4, 3.4, 13], [43, 18
 // the floor is cut (0 = no canyon). Gorge 1 runs from the massif east to the island edge; gorge 2 cuts the west rim.
 export function canyonDepth(x, z) {
   if (insideTileArea(x, z)) return 0;
-  const c1 = Math.abs(z - (-29 + 4 * Math.sin(x / 7))); const w1 = x > 2 ? Math.max(0, 1 - c1 / (4.6 + Math.max(0, x - 30) * 0.1)) : 0;
+  const c1 = Math.abs(x - (37 + 2 * Math.sin(z / 5))); const w1 = z < -12 ? Math.max(0, 1 - c1 / 3.5) : 0; // east of the massif, so it stays one mass
   const c2 = Math.abs(x - (-45 + 2.5 * Math.sin(z / 5))); const w2 = z < -6 && z > -30 ? Math.max(0, 1 - c2 / 2.2) : 0;
   const c3 = Math.abs(x - (30 + 3 * Math.sin(z / 4))); const w3 = z > 14 ? Math.max(0, 1 - c3 / 3.8) : 0;
   const w = Math.max(w1, w2, w3); if (w <= 0) return 0;
-  return Math.round(4 + w * 14);
+  return Math.round((4 + w * 14) / 3) * 3; // stepped walls (benches), not one sheer face
 }
 export const isLimestone = (x, z, h) => h >= 9 || (h >= 6 && Math.hypot((x - 24) / 28, (z + 30) / 15) < 0.5);
 export const riverX = (z) => -27 + 1.4 * Math.sin(z / 7);

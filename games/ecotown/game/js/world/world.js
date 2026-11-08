@@ -24,11 +24,14 @@ function zoneAtVoxel(x0, z0) {
 }
 // sage and olive greens with ochre dry grass on the slope and fields: the warm brochure palette, not lime
 const TOPS = {
-  rim: ['#8fae55', '#9bb85e', '#a7b766', '#c9a86a'], meadow: ['#94bf58', '#a0c862', '#88b44f'], wetland: ['#7fae5a', '#8ab863', '#76a352'],
-  wood: ['#78a04a', '#83aa52', '#6e9643'], slope: ['#a8bf5e', '#b6c468', '#c9b46a', '#9cb557'], field: ['#9cbf5a', '#a9c463', '#c4b064', '#92b553'],
+  // each zone its own value and temperature, so a child can tell them apart: lush cool meadow, golden dry
+  // fields, olive slope, dark forest floor, teal wetland
+  rim: ['#8fae55', '#9bb85e', '#a7b766', '#c9a86a'], meadow: ['#86b86a', '#93c275', '#7aad60'], wetland: ['#6ea67f', '#7ab289', '#639a74'],
+  wood: ['#5d8743', '#68924d', '#53793b'], slope: ['#a9bb5c', '#b6c467', '#9fae52'], field: ['#cdb56c', '#d8c27a', '#bfa65c', '#b3b464'],
   coast: ['#f6d2a2', '#f0c38c', '#fadfb8'],
 };
 const LIME = ['#e8874c', '#d9733f', '#c4622f', '#f09a5a']; // terracotta mesa (rover palette)
+const tint = (hex, k) => { const n = parseInt(hex.slice(1), 16); const f = (v) => Math.max(0, Math.min(255, Math.round(v * k))); return '#' + [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((v) => f(v).toString(16).padStart(2, '0')).join(''); };
 
 export function createWorld(stage, terrain) {
   const { scene } = stage;
@@ -57,15 +60,20 @@ export function createWorld(stage, terrain) {
     const tz = tt ? terrain.tiles.get(tt[0] + ',' + tt[1]).zone : null; const zw = tt ? zoneAtVoxel(x, z) : null;
     const zone = tt ? (tz === 'wetland' || zw === 'wetland' ? tz : zw) : beach ? 'coast' : 'rim';
     const lime = !tt && isLimestone(x, z, top);
-    let under = Math.round(13 * (1 - r * r * 0.7) + noise2(x / 3, z / 3, 86) * 4) + Math.max(0, top);
+    // a tapered keel underneath (deep in the middle, thin at the rim), measured from the uncarved land, so
+    // canyons don't hang down under the island like loose pillars
+    const bottom = Math.max(0, rimH(x, z), tt ? top : 0) - Math.round(10 + 26 * Math.pow(Math.max(0, 1 - r * r), 1.5) + noise2(x / 3, z / 3, 86) * 5);
+    const under = top - bottom;
     const edge = !insideVoxel(x + 1, z) || !insideVoxel(x - 1, z) || !insideVoxel(x, z + 1) || !insideVoxel(x, z - 1);
-    for (let y = top - under; y <= top; y++) {
-      let c; const dTop = top - y, dBot = y - (top - under);
-      if (dTop === 0) c = river ? '#d9c79a' : !tt && canyonDepth(x, z) ? ['#f2b07a', '#e8955c', '#f6c08e'][Math.floor(rand(x, z, 6) * 3)] : lime ? ['#f6ab70', '#f2b07a', '#e8955c'][Math.floor(rand(x >> 1, z >> 1, 5) * 3)] : dither(TOPS[zone], x, z);
+    for (let y = bottom; y <= top; y++) {
+      let c; const dTop = top - y, dBot = y - bottom;
+      if (dTop === 0) c = river ? '#d9c79a' : !tt && canyonDepth(x, z) ? ['#f2b07a', '#e8955c', '#f6c08e'][Math.floor(rand(x, z, 6) * 3)] : lime ? (top >= 12 ? ['#f3dcb4', '#e9cfa2'][Math.floor(rand(x >> 1, z >> 1, 5) * 2)] : ['#f6ab70', '#f2b07a', '#e8955c'][Math.floor(rand(x >> 1, z >> 1, 5) * 3)]) : dither(TOPS[zone], x, z);
+      // a subtle grid on the buildable land: alternate tiles a touch lighter, and a slightly darker line between tiles
+      if (dTop === 0 && tt && !river) { const lx = ((x - X0) % T + T) % T, lz = ((z - Z0) % T + T) % T; c = tint(c, ((tt[0] + tt[1]) % 2 ? 1.04 : 1) * (lx === 0 || lz === 0 ? 0.93 : 1)); }
       else if (lime && y > 0) c = ['#e07f47', '#d06d3a', '#e8874c', '#c4622f'][(Math.floor(y / 2) + (rand(x >> 1, y >> 1, z >> 1) > 0.8 ? 1 : 0)) % 4]; // terracotta mesa cliffs
       else if (!tt && dTop > 1 && dBot > 2 && nearCanyon(x, z)) c = SAND[(((y + 40) >> 1) + (rand(x, z, y) > 0.85 ? 1 : 0)) % 6]; // canyon strata
       else if (dTop <= 1 && !river) c = zone === 'coast' ? '#eab47a' : '#8a5a2a';                           // turf lip
-      else if (dBot <= 2) c = rand(x, y, z) > 0.5 ? '#6e2f18' : '#5a2612';                                  // dark base
+      else if (dBot <= 2) c = rand(x, y, z) > 0.5 ? '#8a4426' : '#7a3a20';                                  // warm base (not black in shadow)
       else { const streak = (Math.floor(x * 1.7 + z * 2.3) & 3); c = ['#d9733f', '#c96535', '#e07f47', '#b85a2e'][(Math.floor(y / 2) + (rand(x >> 1, y >> 1, z >> 1) > 0.75 ? 1 : 0) + (streak === 0 ? 1 : 0)) % 4]; } // terracotta earth in chunky blocks
       v.set(x, y, z, c);
     }
@@ -82,7 +90,7 @@ export function createWorld(stage, terrain) {
   for (let dx = -5; dx <= 5; dx++) for (let dz = -4; dz <= 1; dz++) {
     const base = heightAt(sx + dx, sz + dz); if (base == null || inRiverVoxel(sx + dx, sz + dz)) continue;
     const hgt = Math.round(springTop * (1 - Math.abs(dx) / 6.5) * (dz > -1 ? 0.75 : 1) - rand(dx, dz, 81) * 1.5);
-    for (let y = base + 1; y <= Math.max(base, hgt); y++) v.set(sx + dx, y, sz + dz, y === Math.max(base, hgt) && rand(dx, dz, 82) > 0.35 ? '#6fae4a' : rand(dx, y, dz) > 0.5 ? '#8b8f93' : '#9aa0a5');
+    for (let y = base + 1; y <= Math.max(base, hgt); y++) v.set(sx + dx, y, sz + dz, y === Math.max(base, hgt) && rand(dx, dz, 82) > 0.35 ? '#7fa858' : rand(dx, y, dz) > 0.5 ? '#bfb29a' : '#a99c84');
   }
   // the lagoon behind the beach: reeds and a few stones round its rim
   for (let a = 0; a < 40; a++) {
@@ -94,16 +102,16 @@ export function createWorld(stage, terrain) {
   for (const [x, z, top, zone, lime] of rimCells) {
     const p = rand(x, z, 41);
     if ((zone === 'rim' && !lime && top >= 2 && p > 0.988) || (zone === 'coast' && p > 0.992)) {
-      const s2 = 1 + Math.floor(rand(x, z, 42) * 2);
-      for (let dx = -s2; dx <= s2; dx++) for (let dz = -s2; dz <= s2; dz++) for (let dy = 1; dy <= s2 + 1; dy++) if (Math.hypot(dx, dz, (dy - 1) * 1.2) <= s2 + 0.3) v.set(x + dx, top + dy, z + dz, dy === s2 + 1 ? '#b4b9bd' : rand(dx, dy, dz) > 0.5 ? '#8b8f93' : '#9aa0a5');
+      const s2 = zone === 'coast' ? 1 : 1 + Math.floor(rand(x, z, 42) * 2);
+      for (let dx = -s2; dx <= s2; dx++) for (let dz = -s2; dz <= s2; dz++) for (let dy = 1; dy <= s2 + 1; dy++) if (Math.hypot(dx, dz, (dy - 1) * 1.2) <= s2 + 0.3) v.set(x + dx, top + dy, z + dz, dy === s2 + 1 ? '#cfc4ae' : rand(dx, dy, dz) > 0.5 ? '#bfb29a' : '#a99c84');
     }
   }
   for (const [x, z, top, zone, lime] of rimCells) { if (zone === 'rim' && !lime && rand(x, z, 71) > 0.985) { v.set(x, top + 1, z, rand(x, z, 72) > 0.5 ? '#7c5a3a' : '#8b8f93'); if (rand(x, z, 73) > 0.6) v.set(x + 1, top + 1, z, '#6e4f33'); } }
   // the beach rim: dune grass, driftwood and shells so the sand is never a blank sheet
   for (const [x, z, top, zone] of rimCells) {
     if (zone !== 'coast') continue; const p = rand(x, z, 61);
-    if (noise2(x / 5, z / 5, 63) > 0.68 && p > 0.45) { v.set(x, top + 1, z, p > 0.8 ? '#7fb54a' : '#9cc45a'); if (p > 0.75) v.set(x, top + 2, z, '#9cc45a'); }
-    else if (p < 0.006) { for (let k = 0; k < 4; k++) v.set(x + k, top + 1, z, '#a07a50'); }
+    if (noise2(x / 5, z / 5, 63) > 0.72 && p > 0.55) { v.set(x, top + 1, z, p > 0.8 ? '#8fa65a' : '#a9b86a'); }
+    else if (p < 0.003) { for (let k = 0; k < 2; k++) v.set(x + k, top + 1, z, '#a07a50'); }
     
   }
   // forest on the rim: tall tiered pines up high, big oaks lower down; fewer, bigger, denser clumps
@@ -114,21 +122,23 @@ export function createWorld(stage, terrain) {
     if (mask < 0.6 || rand(x, z, 19) < 0.25 || nearCanyon(x, z)) continue; // a thinner forest that leaves the canyons open
     const ox = x + Math.floor(rand(x, z, 20) * 3) - 1, oz = z + Math.floor(rand(x, z, 21) * 3) - 1; const k = ox + ',' + oz; if (used.has(k)) continue; used.add(k);
     const h0 = heightAt(ox, oz); if (h0 == null || h0 < 0) continue;
-    tree2(v, ox, h0, oz, top >= 4 || lime ? 'tallpine' : rand(x, z, 22) > 0.4 ? 'oak' : 'tallpine', x * 7 + z);
+    const nearTown = (() => { for (let dx = -6; dx <= 6; dx += 3) for (let dz = -6; dz <= 6; dz += 3) if (inTiles(ox + dx, oz + dz)) return true; return false; })();
+    tree2(v, ox, h0, oz, nearTown ? (rand(x, z, 22) > 0.5 ? 'pine' : 'smalloak') : top >= 4 || lime ? 'tallpine' : rand(x, z, 22) > 0.4 ? 'oak' : 'tallpine', x * 7 + z); // small trees beside the town, taller ones up on the rim
   }
   // landmarks: a giant oak at the meadow's rim edge, an old stone windmill on a rim hill
   const giant = [-44, 6]; bigOakAt(v, giant[0], Math.max(0, heightAt(...giant) ?? 0), giant[1]);
   const millAt = [-30, -36]; const millY = Math.max(0, heightAt(...millAt) ?? 0);
-  for (let y = 1; y <= 11; y++) for (let dx = -2; dx <= 2; dx++) for (let dz = -2; dz <= 2; dz++) { const rr = y > 8 ? 1.5 : 2.3; if (Math.hypot(dx, dz) <= rr) v.set(millAt[0] + dx, millY + y, millAt[1] + dz, (y + dx + dz) % 3 ? '#e9e1d0' : '#d8cdb6'); }
-  for (let y = 12; y <= 14; y++) { const rr = 2.6 - (y - 12) * 0.9; for (let dx = -3; dx <= 3; dx++) for (let dz = -3; dz <= 3; dz++) if (Math.hypot(dx, dz) <= rr) v.set(millAt[0] + dx, millY + y, millAt[1] + dz, '#b5523b'); }
-  v.set(millAt[0], millY + 2, millAt[1] + 2, '#6b4a2e'); v.set(millAt[0], millY + 3, millAt[1] + 2, '#6b4a2e'); v.set(millAt[0], millY + 6, millAt[1] + 2, '#3d5a73');
+  // the old windmill, at house scale (it used to tower over everything)
+  for (let y = 1; y <= 6; y++) for (let dx = -2; dx <= 2; dx++) for (let dz = -2; dz <= 2; dz++) { const rr = y > 4 ? 1.2 : 1.6; if (Math.hypot(dx, dz) <= rr) v.set(millAt[0] + dx, millY + y, millAt[1] + dz, (y + dx + dz) % 3 ? '#e9e1d0' : '#d8cdb6'); }
+  for (let y = 7; y <= 8; y++) { const rr = 1.8 - (y - 7) * 0.9; for (let dx = -2; dx <= 2; dx++) for (let dz = -2; dz <= 2; dz++) if (Math.hypot(dx, dz) <= rr) v.set(millAt[0] + dx, millY + y, millAt[1] + dz, '#b5523b'); }
+  v.set(millAt[0], millY + 1, millAt[1] + 2, '#6b4a2e'); v.set(millAt[0], millY + 4, millAt[1] + 2, '#3d5a73');
   // spring waterfall from the massif down to the river head (water cells for the stream on the hill)
   roots(v, insideVoxel, { rx: RX, rz: RZ, top: 0, count: 26, seed: 4 });
   const ground = v.mesh(); ground.castShadow = true; ground.receiveShadow = true; root.add(ground);
   // windmill sails
   const sails = new THREE.Group(); { const mat = new THREE.MeshLambertMaterial({ color: '#f6efe2' }); const arm = new THREE.MeshLambertMaterial({ color: '#7a5232' });
-    for (let i = 0; i < 4; i++) { const g = new THREE.Group(); const a1 = new THREE.Mesh(new THREE.BoxGeometry(0.4, 8, 0.3), arm); a1.position.y = 4; const sl = new THREE.Mesh(new THREE.BoxGeometry(1.8, 6, 0.15), mat); sl.position.set(1.1, 4.6, 0); g.add(a1, sl); g.rotation.z = i * Math.PI / 2; sails.add(g); }
-    sails.position.set(millAt[0] + 0.5, millY + 11, millAt[1] + 3.2); sails.traverse((o) => { if (o.isMesh) o.castShadow = true; }); root.add(sails); }
+    for (let i = 0; i < 4; i++) { const g = new THREE.Group(); const a1 = new THREE.Mesh(new THREE.BoxGeometry(0.3, 4.5, 0.25), arm); a1.position.y = 2.25; const sl = new THREE.Mesh(new THREE.BoxGeometry(1.1, 3.5, 0.12), mat); sl.position.set(0.7, 2.6, 0); g.add(a1, sl); g.rotation.z = i * Math.PI / 2; sails.add(g); }
+    sails.position.set(millAt[0] + 0.5, millY + 6.5, millAt[1] + 2.4); sails.traverse((o) => { if (o.isMesh) o.castShadow = true; }); root.add(sails); }
   const islets = floatingRocks(scene, { n: 6, center: [0, -6, 0], radius: 95, seed: 8 });
   const waterMesh = water.mesh({ castShadow: false });
   const uTime = { value: 0 }; const uIce = { value: 0 };
@@ -365,7 +375,7 @@ export function createWorld(stage, terrain) {
       for (const [k, o] of spec) {
         const L = layers.get(k); if (!L) continue;
         let m;
-        if (o.ring) m = ring(L, o.color, o.notch);
+        if (o.ring) m = ring(L, o.color, o.notch, o.dashed);
         else { m = new THREE.Mesh(OVERLAY_GEO, overlayMat(o.color, o.pattern)); m.position.set(L.ox + T / 2, L.oy + 1.14 + (o.lift || 0), L.oz + T / 2); m.rotation.x = -Math.PI / 2; }
         L.overlay = m; L.group.add(m);
       }
@@ -426,10 +436,15 @@ function outline(L, color) {
 }
 // the build highlight: a low solid kerb just inside the tile's edge (and solid corner blocks when it replaces
 // something), at ground level so anything standing on the tile hides it, never the other way round
-const KERB_H = 0.42, KERB_W = 0.42, KERB_IN = T - 0.5;
+const KERB_H = 0.3, KERB_W = 0.28, KERB_IN = T - 0.5;
 const KERB_X = new THREE.BoxGeometry(KERB_IN, KERB_H, KERB_W), KERB_Z = new THREE.BoxGeometry(KERB_W, KERB_H, KERB_IN), NOTCH = new THREE.BoxGeometry(1.3, KERB_H + 0.12, 1.3);
-function ring(L, color, notch = false) {
+const DASH_X = new THREE.BoxGeometry(KERB_IN / 5, KERB_H, KERB_W), DASH_Z = new THREE.BoxGeometry(KERB_W, KERB_H, KERB_IN / 5);
+function ring(L, color, notch = false, dashed = false) {
   const mat = basicMat(color); const g = new THREE.Group(); const [cx, cz] = tileCenter(L.t.gx, L.t.gz); const y = L.oy + 1 + KERB_H / 2 - 0.02, h = KERB_IN / 2 - KERB_W / 2;
+  if (dashed) { // "can't build": a dashed kerb (a different shape as well as a different colour)
+    for (const k of [-2, 0, 2]) for (const [geo, dx, dz] of [[DASH_X, k * KERB_IN / 5, -h], [DASH_X, k * KERB_IN / 5, h], [DASH_Z, -h, k * KERB_IN / 5], [DASH_Z, h, k * KERB_IN / 5]]) { const m = new THREE.Mesh(geo, mat); m.position.set(cx + dx, y, cz + dz); g.add(m); }
+    return g;
+  }
   for (const [geo, dx, dz] of [[KERB_X, 0, -h], [KERB_X, 0, h], [KERB_Z, -h, 0], [KERB_Z, h, 0]]) { const m = new THREE.Mesh(geo, mat); m.position.set(cx + dx, y, cz + dz); g.add(m); }
   if (notch) for (const [dx, dz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) { const m = new THREE.Mesh(NOTCH, mat); m.position.set(cx + dx * (h - 0.44), y + 0.06, cz + dz * (h - 0.44)); g.add(m); }
   return g;

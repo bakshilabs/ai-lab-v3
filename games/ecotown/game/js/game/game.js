@@ -275,7 +275,7 @@ export function createGame(app) {
   // every tile shows what a tap with the selected tool would do: a low solid cyan kerb where it can go, a violet
   // kerb with corner blocks where it would replace what's there, a solid grey tile where it can't go, a red kerb
   // where erase works. Colours no tile uses; all solid and at ground level, so buildings and Florence stand in front.
-  const HL = { free: { color: '#18d8f0', ring: true }, swap: { color: '#a55cff', ring: true, notch: true }, erase: { color: '#ff3b3b', ring: true }, no: { color: '#5b6066', pattern: 'solid' } };
+  const HL = { free: { color: '#4fd6e8', ring: true }, swap: { color: '#a55cff', ring: true, notch: true }, erase: { color: '#ff3b3b', ring: true }, no: { color: '#5b6066', ring: true, dashed: true } };
   function showAllowed(tool) {
     const spec = new Map();
     for (const t of terrain.tiles.values()) {
@@ -283,6 +283,7 @@ export function createGame(app) {
       const c = cellOf(G.cells, t.k); let look;
       if (tool === 'erase') look = !!c.item || !!c.mark || c.mods.length > 0 ? 'erase' : 'no';
       else { const r = tapPlan(tool, t, c); look = r.why || r.same ? 'no' : r.replaced ? 'swap' : 'free'; }
+      if (look === 'no' && t.zone === 'river') continue; // the water already says "not here"; nothing painted over it
       spec.set(t.k, HL[look]);
     }
     world.setOverlay(spec);

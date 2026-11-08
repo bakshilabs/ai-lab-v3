@@ -563,10 +563,10 @@ button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focu
 #build .hlkey { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px 10px; margin: 6px 0 2px; font-size: max(12px, .78em); font-weight: 700; color: var(--cream); }
 #build .hlkey span { display: inline-flex; align-items: center; gap: 5px; }
 #build .hk { width: 16px; height: 16px; border-radius: 3px; flex: none; box-sizing: border-box; background: #9bbf5c; position: relative; }
-#build .hk.free { border: 4px solid #18d8f0; }
+#build .hk.free { border: 4px solid #4fd6e8; }
 #build .hk.swap { border: 4px solid #a55cff; background: linear-gradient(#a55cff,#a55cff) 0 0/5px 5px no-repeat, linear-gradient(#a55cff,#a55cff) 100% 100%/5px 5px no-repeat, #9bbf5c; }
 #build .hk.erase { border: 4px solid #ff3b3b; }
-#build .hk.no { background: #5b6066; border: 0; }
+#build .hk.no { border: 4px dashed #5b6066; }
 
 /* ---------- bottom hotbar layout (Nov 2026): free building keeps the island nearly full screen.
    Laptops, tablets and whiteboards: the town card is a slim strip across the top, the camera buttons sit in a
