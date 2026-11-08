@@ -950,7 +950,8 @@ html[data-lab=on] #florence { display: none !important; }
   html[data-lab="on"] #dock .actions .row { display: flex; flex-direction: column; align-items: stretch; gap: 6px; }
   html[data-lab="on"] #dock .actions .row:has(.btn) { flex-direction: row; flex-wrap: wrap; }
   html[data-lab="on"] #dock .actions .row .btn { flex: 1 1 auto; }
-  html[data-lab="on"] #dock .choice { width: 100%; min-height: 44px; flex-direction: row; justify-content: flex-start; text-align: left; gap: 8px; font-size: 14px; padding: 6px 10px; }
+  html[data-lab="on"] #dock .speaker .avatar, html[data-lab="on"] #dock .speaker .avatar:has(canvas.portrait) { width: 44px; }
+  html[data-lab="on"] #dock .choice { flex: none; height: auto; width: 100%; min-height: 44px; flex-direction: row; justify-content: flex-start; text-align: left; gap: 8px; font-size: 14px; padding: 6px 10px; }
   html[data-lab="on"] #dock .choice .ic { flex: none; }
   html[data-lab="on"] #dock .actions h3 { font-size: 15px; margin: 2px 0 6px; }
   /* the result banner and the lens key wrap inside the screen */
