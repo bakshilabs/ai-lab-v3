@@ -87,10 +87,11 @@ export function createGame(app) {
         const used = d.tiles.slice().sort((a, b) => a - b); // tiles stay in their natural sentence order
         const tabs = `<div class="tabs" role="tablist"><button data-m="tiles" class="${mode === 'tiles' ? 'on' : ''}">🧩 ${esc(G.C.ui.useTiles)}</button><button data-m="text" class="${mode === 'text' ? 'on' : ''}">⌨ ${esc(G.C.ui.typeInstead)}</button><button data-m="cards" class="${mode === 'cards' ? 'on' : ''}">🃏 ${esc(G.C.ui.useCards)}</button></div>`;
         let body = '';
-        if (mode === 'tiles') body = `<div class="sentence" data-placeholder="Tap words to build your instruction">${used.map((i) => `<button class="tile" data-u="${i}">${esc(L.tiles[i])}</button>`).join('')}</div><div class="tiles">${L.tiles.map((w, i) => `<button class="tile ${used.includes(i) ? 'used' : ''}" data-w="${i}">${esc(w)}</button>`).join('')}</div><div class="row"><button class="btn go" data-send ${used.length ? '' : 'disabled'}>${esc(G.C.ui.send)} ➜</button><button class="btn alt small" data-clear>Clear</button></div>`;
+        // the sentence with Send and Clear beside it, then the word tiles (one row less than before, so the plan stays in view)
+        if (mode === 'tiles') body = `<div class="sentrow"><div class="sentence" data-placeholder="Tap words to build your instruction">${used.map((i) => `<button class="tile" data-u="${i}">${esc(L.tiles[i])}</button>`).join('')}</div><button class="btn go" data-send ${used.length ? '' : 'disabled'}>${esc(G.C.ui.send)} ➜</button><button class="btn alt small" data-clear ${used.length ? '' : 'disabled'}>Clear</button></div><div class="tiles">${L.tiles.map((w, i) => `<button class="tile ${used.includes(i) ? 'used' : ''}" data-w="${i}">${esc(w)}</button>`).join('')}</div>`;
         if (mode === 'text') body = `<div class="textin"><div class="field"><input data-in maxlength="160" autocomplete="off" spellcheck="true" placeholder="${G.j ? 'Type your instruction…' : 'e.g. goal + what to protect + how to check'}" aria-label="Instruction for Florence"><div class="hl" data-hl></div></div><button class="btn go" data-send ${d.text.trim() ? '' : 'disabled'} title="${esc(G.C.ui.emptyText)}">${esc(G.C.ui.send)} ➜</button></div>`;
         if (mode === 'cards') body = `<div class="row">${cardOrder.map((ci, n) => `<button class="choice" data-card="${ci}"><span class="btn k">${'ABC'[n]}</span>${esc(L.cards[ci][0])}</button>`).join('')}</div>`;
-        ui.tray(`<h3>${esc(heading)}</h3>${tabs}${body}`, (tr) => {
+        ui.tray(`<div class="trayhead"><h3>${esc(heading)}</h3>${tabs}</div>${body}`, (tr) => {
           tr.querySelectorAll('[data-m]').forEach((b) => (b.onclick = () => { mode = G.inputMode = b.dataset.m; render(); }));
           tr.querySelectorAll('[data-w]').forEach((b) => (b.onclick = () => { const i = +b.dataset.w; if (!d.tiles.includes(i)) { d.tiles.push(i); audio.tap(); render(); } }));
           tr.querySelectorAll('[data-u]').forEach((b) => (b.onclick = () => { d.tiles = d.tiles.filter((x) => x !== +b.dataset.u); render(); }));
@@ -122,7 +123,7 @@ export function createGame(app) {
 
   // ---------------- one instruction round: ask Florence, show her colour-coded plan and her reading
   let guess = null; // Florence's latest guess, kept on screen (small) while the player checks it
-  const guessHtml = (res) => `<div class="chips">${res.read.active.map((s) => `<span>${esc(s.replace(/_/g, ' '))}</span>`).join('')}</div><ul>${res.plan.reading.map((r) => `<li>${esc(r)}</li>`).join('')}</ul>${!G.j && res.plan.assumptions.length ? `<p style="color:#ffc83d">Assumed: ${esc(res.plan.assumptions.join(' '))}</p>` : ''}${res.plan.wont?.length ? `<p class="wont"><b>${esc(G.C.ui.wontDo)}</b> ${res.plan.wont.map(esc).join(' ')}</p>` : ''}`;
+  const guessHtml = (res) => `<div class="chips">${res.read.active.map((s) => `<span>${esc(s.replace(/_/g, ' '))}</span>`).join('')}</div><ul>${res.plan.reading.map((r) => `<li>${esc(r)}</li>`).join('')}</ul>${!G.j && res.plan.assumptions.length ? `<p class="assumed"><b>Assumed:</b> ${esc(res.plan.assumptions.join(' '))}</p>` : ''}${res.plan.wont?.length ? `<p class="wont"><b>${esc(G.C.ui.wontDo)}</b> ${res.plan.wont.map(esc).join(' ')}</p>` : ''}`;
   const showGuessMini = () => { if (guess) help({ tag: G.C.ui.plotterGuess, html: guessHtml(guess), sure: guess.sure, sureLabel: G.C.ui.sure, mini: true }); };
   async function round(id, heading) {
     for (;;) {
@@ -373,6 +374,8 @@ export function createGame(app) {
       tr.querySelectorAll('[data-t]').forEach((b) => { b.onclick = () => { sb.justPicked = b.dataset.t; pickTool(b.dataset.t); };
         b.onmouseenter = b.onfocus = () => { showInfo(b.dataset.t); showTipFor(b); }; b.onmouseleave = b.onblur = () => { showInfo(sb.tool); tip.hidden = true; }; });
       // just picked: show what it does for a few seconds
+      // just built with it: the tool's slot gives a little stamp (CSS; reduced motion: a brief gold flash instead)
+      if (sb.stamp) { const sbt = [...tr.querySelectorAll(`[data-t="${sb.stamp}"]`)].find((x) => x.offsetParent); sb.stamp = null; sbt?.classList.add('stamp'); }
       if (sb.justPicked) { const nb = [...tr.querySelectorAll(`[data-t="${sb.justPicked}"]`)].find((x) => x.offsetParent); sb.justPicked = null; if (nb) requestAnimationFrame(() => showTipFor(nb, 4000)); }
       bindPlay();
       tr.querySelector('[data-fold]').onclick = () => { sb.folded = !sb.folded; renderBar(); requestAnimationFrame(reframe); };
@@ -694,7 +697,7 @@ export function createGame(app) {
     const d = simDelta(before, sim()); const spent = G.credits !== Infinity ? G.credits - cr0 : 0;
     const html = d.map(chipHtml).join('') + (spent ? `<span class="chip ${spent > 0 ? 'good' : 'bad'}" style="--c:${CHIP.credits.col}">${spent > 0 ? '+' : '−'}${Math.abs(spent)} 💰</span>` : '');
     if (html) ui.labels.float({ at: world.tileTop(k).add(new THREE.Vector3(0, 5, 0)), html, text: chipsText(d) });
-    showAllowed(sb.tool); changed(); if (d.some((c) => c.good)) flower(d.filter((c) => c.good).map((c) => c.key)); florenceTo(k, 'peer');
+    sb.stamp = tool; showAllowed(sb.tool); changed(); if (d.some((c) => c.good)) flower(d.filter((c) => c.good).map((c) => c.key)); florenceTo(k, 'peer');
     return true;
   }
   const TOUCH = matchMedia('(pointer: coarse)').matches;
@@ -758,7 +761,7 @@ export function createGame(app) {
     // the island is framed in the space the side panels leave free: the build panel while building, the
     // mission rail in the AI Lab. The camera's view offset centres it there, and the rig fits it to that area.
     const cam = stage.camera; const W = innerWidth, H = innerHeight; const b = ui.P.build; const d = ui.P.dock;
-    const panel = sb.running && !b.classList.contains('hide') ? b : app.inLab && !d.classList.contains('hide') && d.getBoundingClientRect().left < W * 0.2 ? d : null;
+    const panel = sb.running && !b.classList.contains('hide') ? b : app.inLab && !d.classList.contains('hide') && (d.getBoundingClientRect().left < W * 0.2 || d.getBoundingClientRect().top > H * 0.5) ? d : null;
     if (!panel) { if (cam.view?.enabled) cam.clearViewOffset(); rig.inset = { left: 0, right: 0, top: 0, bottom: 0 }; return; }
     const r = panel.getBoundingClientRect();
     if (r.top > H * 0.5) { const top = ui.P.card.classList.contains('hide') ? 70 : Math.max(70, ui.P.card.getBoundingClientRect().bottom + 8); cam.setViewOffset(W, H, 0, Math.round((H - r.top - top) / 2), W, H); rig.inset = { left: 0, right: 0, top, bottom: H - r.top }; } // the bottom hotbar: centre the island between the top strip and the bar
