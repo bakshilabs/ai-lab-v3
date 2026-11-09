@@ -21,7 +21,10 @@ export function createRig(stage, canvas, fadeEl) {
     inset: { left: 0, right: 0, top: 0, bottom: 0 },
     freeAspect() { const W = canvas.clientWidth || innerWidth, H = canvas.clientHeight || innerHeight; const w = Math.max(200, W - this.inset.left - this.inset.right), h = Math.max(200, H - this.inset.top - this.inset.bottom); return { aspect: w / h, fw: w / W, fh: h / H }; },
     // distance that fits a span of the island in the free area (the island is ~100 × 75, with cliffs ~40 high)
-    frameDist(span = 112, fill = 0.92) {
+    // tall, narrow free areas (phones held upright): the island is width-limited, so the frame trims the margin
+    // (and the floating rocks) and looks down a little more steeply, letting the island fill more of the screen
+    portrait() { return this.freeAspect().aspect < 0.85; },
+    frameDist(span = this.portrait() ? 90 : 112, fill = 0.92) {
       const { aspect, fw, fh } = this.freeAspect();
       const vf = SKY_FOV * DEG * fh; const hf = 2 * Math.atan(Math.tan((SKY_FOV * DEG) / 2) * cam.aspect) * fw;
       const f = Math.min(hf, vf * 1.25 * Math.min(1, aspect / 1.2 + 0.2));
@@ -59,7 +62,7 @@ export function createRig(stage, canvas, fadeEl) {
       await this.fly(this.skyPose(), dur + (before ? Math.abs(sky.yaw - before.yaw) / (Math.PI / 2) * 0.3 : 0), { orbit: before ? { a: before, b: { ...sky, target: sky.target.clone() } } : null });
       this.mode = 'sky';
     },
-    overview(dur = 1.4) { sky.autoPitch = true; return this.toSky({ target: new THREE.Vector3(0, 1, -2), dist: this.frameDist(), pitch: 34 * DEG }, dur); },
+    overview(dur = 1.4) { sky.autoPitch = true; const tall = this.portrait(); return this.toSky({ target: new THREE.Vector3(tall ? 2 : 0, 1, tall ? 0 : -2), dist: this.frameDist(), pitch: (tall ? 40 : 34) * DEG }, dur); },
     focus(point, { dist = 70, pitch = 42 * DEG, yaw = sky.yaw } = {}, dur = 1.2) { return this.toSky({ target: point.clone(), dist: this.fit(dist), pitch, yaw }, dur); },
     // frame a set of world points (a plan, the tiles a check found): fits their bounding sphere in the free area
     frameBox(points, { pitch = 42 * DEG, pad = 1.25, dur = 1.3, yaw = sky.yaw } = {}) {
@@ -110,7 +113,7 @@ export function createRig(stage, canvas, fadeEl) {
         if (this._snap) { const s = this._snap; const k = ease.inOut(clamp((performance.now() - s.t0) / 450)); sky.yaw = lerp(s.from, s.to, k); if (k >= 1) this._snap = null; }
         sky.yaw += sky.vy; sky.pitch = clamp(sky.pitch + sky.vp, 25 * DEG, 60 * DEG);
         // the tilt follows the zoom: close up you look more from the side (like a street), far away more from above
-        if (sky.autoPitch && !sky.vp) { const zf = clamp((sky.dist - this.minDist()) / (this.frameDist() - this.minDist())); const want = lerp(32, 40, zf) * DEG; sky.pitch += (want - sky.pitch) * Math.min(1, dt * 3); }
+        if (sky.autoPitch && !sky.vp) { const zf = clamp((sky.dist - this.minDist()) / (this.frameDist() - this.minDist())); const want = (lerp(32, 40, zf) + (this.portrait() ? 6 : 0)) * DEG; sky.pitch += (want - sky.pitch) * Math.min(1, dt * 3); }
         const damp = this.building ? 0.00002 : 0.04; sky.vy *= Math.pow(damp, dt); sky.vp *= Math.pow(damp, dt); // no drifting while building
         if (Math.abs(sky.vp) < 1e-5) sky.vp = 0;
         this.apply(this.skyPose());

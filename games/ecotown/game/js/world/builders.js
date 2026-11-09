@@ -86,8 +86,26 @@ export function addMod(B, mod, rec) {
 
 // ---------- marks (Level 1)
 export const MARK = {
-  town(G, B, rec, t, F) { for (let i = 0; i < 12; i++) for (const [x, z] of [[i, 0], [i, 11], [0, i], [11, i]]) G.set(x, 0, z, '#f2c14e'); if (F) for (const [x, z] of [[0, 0], [11, 0], [0, 11], [11, 11]]) { F.set(x, 0, z, '#c99a3a'); F.set(x, 1, z, '#c99a3a'); F.set(x, 2, z, '#e8573f'); } },
-  wild(G, B, rec, t, F) { const s2 = t ? t.gx * 31 + t.gz : 1; for (let i = 0; i < 14; i++) G.set(Math.floor(rand(i, s2, 2) * 12), 1, Math.floor(rand(i, s2, 3) * 12), ['#ff7eb6', '#ffd23f', '#ffffff', '#c7a8ff'][i % 4]); if (F && t && (t.gx + t.gz) % 3 === 0) ftree(F, 6, 6, { h: 2, r: 2 }); },
+  // town land reads as a prepared building plot, not more meadow (art pass, Nov 2026): levelled warm gravel inside
+  // the gold string line, timber corner stakes with little flags, a few pegs and stepping stones
+  town(G, B, rec, t, F) {
+    const s2 = t ? t.gx * 31 + t.gz : 1;
+    for (let x = 0; x < 12; x++) for (let z = 0; z < 12; z++) { const r = rand(x, z, s2); G.set(x, 0, z, x === 0 || z === 0 || x === 11 || z === 11 ? '#f2c14e' : r > 0.86 ? '#cfae72' : (x + z) % 2 ? '#e6cc94' : '#dfc286'); }
+    for (const [x, z] of [[3, 5], [5, 6], [7, 5]]) G.set(x, 0, z, '#c9bfae');
+    if (F) for (const [x, z] of [[0, 0], [11, 0], [0, 11], [11, 11]]) { F.set(x, 0, z, '#9a6a42'); F.set(x, 1, z, '#9a6a42'); F.set(x, 2, z, '#b07a48'); F.set(x + (x ? -1 : 1), 2, z, (x + z) % 2 ? '#e8573f' : '#ffd23f'); }
+  },
+  // keep wild: a shaggy, rewilded patch (long grass tufts, dense wildflowers, a log pile) so it never looks like
+  // plain meadow or a plot
+  wild(G, B, rec, t, F) {
+    const s2 = t ? t.gx * 31 + t.gz : 1;
+    for (let x = 0; x < 12; x++) for (let z = 0; z < 12; z++) G.set(x, 0, z, rand(x, z, s2 + 9) > 0.5 ? '#6f9e4a' : '#7cab52');
+    // flowers in two or three drifts of one colour each, not confetti
+    for (let d = 0; d < 3; d++) { const cx = 2 + Math.floor(rand(d, s2, 2) * 8), cz = 2 + Math.floor(rand(d, s2, 3) * 8), c = ['#ff7eb6', '#ffd23f', '#ffffff', '#c7a8ff'][(s2 + d) % 4]; for (let i = 0; i < 4; i++) G.set(cx + Math.floor(rand(i, d, s2) * 3) - 1, 1, cz + Math.floor(rand(i, d, s2 + 1) * 3) - 1, c); }
+    if (!F) return;
+    for (let i = 0; i < 18; i++) { const x = Math.floor(rand(i, s2, 5) * 12), z = Math.floor(rand(i, s2, 6) * 12); if (F.has(x, 0, z)) continue; const h = 1 + Math.floor(rand(i, s2, 7) * 2); for (let y = 0; y < h; y++) F.set(x, y, z, y === h - 1 && i % 6 === 0 ? ['#ff7eb6', '#ffd23f', '#ffffff'][(s2 + i) % 3] : (i + y) % 2 ? '#5f8f3a' : '#77a845'); }
+    if ((t?.gx + t?.gz) % 3 === 0) ftree(F, 6, 6, { h: 2, r: 2 });
+    else { const lz = 2 + (s2 % 7); for (let x = 3; x <= 7; x++) F.set(x, 0, lz, '#7a5232'); for (let x = 4; x <= 6; x++) F.set(x, 1, lz, '#8a5c38'); F.set(3, 0, lz, '#c9a46a'); F.set(7, 0, lz, '#c9a46a'); }
+  },
 };
 
 // ---------- richer trees: autumn deciduous, olive, cypress, pine (TtC-style mixed palette)
@@ -234,15 +252,28 @@ const FINE = {
       F.set(x, y, z, c);
     }
     F.box(0, 7, 1, 11, 7, 10, '#7a4a2c'); // roof slab
-    // the flask sign above the door
-    F.set(5, 5, 10, '#16c79a'); F.set(6, 5, 10, '#16c79a'); F.set(5, 6, 10, '#bff3e4'); F.set(6, 6, 10, '#bff3e4'); F.set(5, 6, 10, '#16c79a');
-    // glass dome with mint ribs
-    const cx = 5.5, cz = 5.5, R = 3.6;
-    for (let x = 1; x <= 10; x++) for (let z = 1; z <= 10; z++) for (let y = 8; y <= 12; y++) {
-      const d = Math.hypot(x - cx, (y - 8) * 1.1, z - cz); if (d > R || d < R - 1.15) continue;
-      F.set(x, y, z, (x === 5 || x === 6 || z === 5 || z === 6) ? '#16c79a' : '#bfe9f5');
+    for (let x = 0; x <= 11; x++) { F.set(x, 7, 10, x % 2 ? '#c8653d' : '#b9603e'); F.set(x, 7, 1, x % 2 ? '#c8653d' : '#b9603e'); } // terracotta fascia
+    // sills under the front windows, a teal entrance canopy on two posts, planters either side of the door
+    for (const x of [2, 3, 8, 9]) F.set(x, 2, 10, '#fbf6ec');
+    F.box(4, 4, 10, 7, 4, 11, '#2e8b76'); for (const x of [4, 7]) F.box(x, 0, 11, x, 3, 11, '#e9e1d0');
+    for (const x0 of [1, 8]) { F.box(x0, 0, 10, x0 + 2, 0, 11, '#c8653d'); for (let x = x0; x <= x0 + 2; x++) F.set(x, 1, 10 + (x % 2), ['#ff7eb6', '#ffd23f', '#5c9a40'][x % 3]); }
+    // the flask sign above the canopy
+    F.set(5, 5, 10, '#16c79a'); F.set(6, 5, 10, '#16c79a'); F.set(5, 6, 10, '#bff3e4'); F.set(6, 6, 10, '#16c79a');
+    // glass dome on a brass ring, mint ribs, a few bright panes catching the sun
+    const cx = 5.5, cz = 5.5, R = 4.1;
+    for (let x = 0; x <= 11; x++) for (let z = 1; z <= 10; z++) {
+      const d0 = Math.hypot(x - cx, z - cz); if (d0 <= R && d0 > R - 1.2) F.set(x, 8, z, '#c9a04a');
+      for (let y = 9; y <= 13; y++) {
+        const d = Math.hypot(x - cx, (y - 8) * 1.05, z - cz); if (d > R || d < R - 1.15) continue;
+        F.set(x, y, z, (x === 5 || x === 6 || z === 5 || z === 6) ? '#16c79a' : rand(x, y, z) > 0.8 ? '#e2f6fb' : '#bfe9f5');
+      }
     }
-    F.box(5, 12, 5, 6, 14, 6, '#c98a50'); F.box(5, 15, 5, 6, 15, 6, '#b9783f'); // Florence's antenna
+    // Florence's own antenna on top, with her wooden ball
+    F.box(5, 13, 5, 6, 15, 6, '#8a5530'); F.box(5, 16, 5, 6, 17, 6, '#c8743a'); F.set(5, 17, 5, '#e3a05a');
+    // a little dish and two roof planters in the corners
+    F.set(10, 8, 2, '#9aa0a5'); F.box(10, 9, 1, 11, 10, 2, '#e8eef2'); F.set(10, 10, 1, '#3a4752');
+    for (const [x, z] of [[0, 9], [11, 9]]) { F.set(x, 8, z, '#6b4a2e'); F.set(x, 9, z, '#5c9a40'); F.set(x, 8, z + 1, '#6b4a2e'); F.set(x, 9, z + 1, '#6aab4a'); }
+    rec.lamps.push([2.75, 2.2, 5.6]);
     rec.windows.push([1.2, 2, 4.6], [4.6, 2, 4.6]);
   },
   timber(G, B, rec, t, F) {
@@ -265,7 +296,19 @@ const FINE = {
   school(G, B, rec, t, F) { fill(G, null, null, (x, z) => (z > 8 ? (x % 4 === 0 || z === 9 ? '#ffffff' : '#c8553d') : '#94bf58')); fhouse(F, 1, 1, 10, 6, 8, { wall: '#ffe08a', roof: '#c0563a', shutter: '#2f6fd8', floorH: 4 }, rec); F.box(10, 0, 8, 10, 10, 8, '#9aa0a5'); F.set(10, 11, 8, '#16c79a'); F.set(9, 10, 8, '#16c79a'); },
   hall(G, B, rec, t, F) { fill(G, '#e3d6b6'); fhouse(F, 1, 3, 10, 7, 10, { wall: '#f6efe2', roof: '#c0563a', shutter: '#e8dcc4', floorH: 5 }, rec); for (let x = 1; x < 12; x += 3) F.box(x, 0, 1, x, 8, 1, '#e8e2d4'); F.box(0, 9, 0, 11, 9, 2, '#f6efe2'); F.box(10, 15, 6, 10, 18, 6, '#9aa0a5'); F.set(10, 18, 5, '#16c79a'); },
   repair(G, B, rec, t, F) { fill(G, '#e8b98a'); fhouse(F, 1, 3, 9, 6, 7, { wall: '#f1ebe0', roof: '#3a4752', shutter: '#f28c38' }, rec); for (let x = 1; x < 10; x++) { F.set(x, 4, 1, x % 2 ? '#f28c38' : '#ffffff'); F.set(x, 4, 2, x % 2 ? '#f28c38' : '#ffffff'); } F.box(10, 0, 4, 11, 1, 5, '#2f6fd8'); },
-  oldschool(G, B, rec, t, F) { fill(G, null, null, (x, z) => (z > 8 ? ((x + z) % 4 === 0 ? '#c8653d' : '#e9d6a1') : '#e8b98a')); fhouse(F, 1, 1, 8, 6, 6, { wall: '#fff3d6', roof: '#b9603e', shutter: '#4f7f6a' }, rec); F.box(10, 0, 2, 11, 9, 3, '#fff3d6'); F.box(10, 10, 2, 11, 11, 3, '#b9603e'); F.set(10, 8, 1, '#ffd23f'); },
+  // the old island school: a cream schoolhouse with a bell tower (an open belfry with a brass bell under a pointed
+  // roof), a flagpole, a hopscotch court and a low picket fence
+  oldschool(G, B, rec, t, F) {
+    fill(G, null, null, (x, z) => (z > 8 ? ((x + z) % 4 === 0 ? '#c8653d' : '#e9d6a1') : '#e8b98a'));
+    for (const [x, z, c] of [[3, 9, '#ffffff'], [3, 10, '#ffd23f'], [4, 10, '#ffffff'], [3, 11, '#ff7eb6']]) G.set(x, 0, z, c);
+    fhouse(F, 1, 1, 8, 6, 6, { wall: '#fff3d6', roof: '#b9603e', shutter: '#4f7f6a' }, rec);
+    F.box(10, 0, 2, 11, 7, 3, '#fff3d6'); F.box(10, 0, 2, 11, 0, 3, '#c8653d');
+    for (const y of [8, 9]) { F.set(10, y, 2, '#fff3d6'); F.set(11, y, 3, '#fff3d6'); } F.set(10, 9, 3, '#c9a04a'); F.set(11, 9, 2, '#c9a04a'); // open belfry, brass bell
+    F.box(9, 10, 1, 12, 10, 4, '#b9603e'); F.box(10, 11, 2, 11, 11, 3, '#a85a3a'); F.set(10, 12, 2, '#a85a3a'); F.set(10, 13, 2, '#ffd23f');
+    F.set(10, 6, 1, '#ffd23f'); F.set(11, 6, 1, '#3a4752');
+    for (let y = 0; y <= 9; y++) F.set(0, y, 10, '#e8e2d4'); F.box(1, 8, 10, 2, 9, 10, '#2e8b76'); F.set(1, 9, 10, '#ffd23f');
+    for (let x = 5; x <= 11; x++) { if (x % 2) F.set(x, 0, 11, '#fbf6ec'); F.set(x, 1, 11, '#fbf6ec'); }
+  },
   market(G, B, rec, t, F) {
     fill(G, '#e3d6b6', '#d6c6a0');
     [['#ff8a5c', 1, 1], ['#2f6fd8', 7, 1], ['#ffd23f', 1, 7], ['#16c79a', 7, 7]].forEach(([c, x, z]) => {
@@ -302,7 +345,13 @@ function fcar(F, x, z, c, alongX = false) {
   at(0, 0, 1, '#ffe9a8'); at(0, W - 1, 1, '#ffe9a8');
 }
 function fbench(F, x, z, alongX = true) { for (let i = 0; i < 3; i++) { const [a, b] = alongX ? [x + i, z] : [x, z + i]; F.set(a, 1, b, '#9a6a42'); if (i !== 1) F.set(a, 0, b, '#5b4636'); const [c, d] = alongX ? [a, b - 1] : [a - 1, b]; F.set(c, 2, d, '#8a5c38'); } }
-function flamp(F, x, z, rec) { for (let y = 0; y < 6; y++) F.set(x, y, z, '#3a4752'); F.set(x, 6, z, '#ffe9a8'); F.set(x, 7, z, '#3a4752'); rec.lamps.push([(x + 0.5) / 2, 3.3, (z + 0.5) / 2]); }
+// a street lamp (art pass, Nov 2026): a stone foot, a green iron post and a lantern with a little hipped cap, so
+// it reads as a lamp from the sky camera instead of a black stick
+function flamp(F, x, z, rec) {
+  F.set(x, 0, z, '#b9b2a2'); for (let y = 1; y < 6; y++) F.set(x, y, z, y === 1 ? '#2f5a4a' : '#3d6b58');
+  F.set(x, 6, z, '#ffe9a8'); for (const [dx, dz] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) F.set(x + dx, 7, z + dz, '#2f5a4a'); F.set(x, 7, z, '#2f5a4a'); F.set(x, 8, z, '#c8553d');
+  rec.lamps.push([(x + 0.5) / 2, 3.75, (z + 0.5) / 2]); // the light sits in the lantern (fine y 6)
+}
 function ftree(F, x, z, { h = 3, leaf = ['#5c8f3a', '#6b9c42', '#7aa84a'], fruit = null, r = 2 } = {}) {
   for (let y = 0; y < h; y++) F.set(x, y, z, '#6b4a2e');
   for (let dx = -r; dx <= r; dx++) for (let dz = -r; dz <= r; dz++) for (let dy = 0; dy <= r + 1; dy++) {
@@ -313,6 +362,14 @@ function ftree(F, x, z, { h = 3, leaf = ['#5c8f3a', '#6b9c42', '#7aa84a'], fruit
 function freed(F, x, z, h) { for (let y = 0; y < h; y++) F.set(x, y, z, y === h - 1 ? '#8a6a3a' : '#6b8f3a'); }
 const SAGE = '#94bf58', SAGE2 = '#88b44f';
 const FINE2 = {
+  // a car road at the houses' scale: asphalt with a dashed centre line, raised pavements with kerbs, a street lamp
+  road(G, B, rec, t, F) {
+    fill(G, null, null, (x, z) => (z <= 1 || z >= 10 ? '#b9b4a8' : (x * 3 + z) % 5 === 0 ? '#555b62' : '#5b6168'));
+    for (let x = 0; x < 12; x++) if (x % 4 < 2) G.set(x, 0, 5, '#f2f2ea'), G.set(x, 0, 6, '#f2f2ea');
+    for (let x = 0; x < 12; x++) { F.set(x, 0, 1, (x % 3) ? '#cfc9bc' : '#c4beb0'); F.set(x, 0, 10, (x % 3) ? '#cfc9bc' : '#c4beb0'); }
+    flamp(F, 10, 0, rec); F.set(2, 0, 11, '#3d6b58'); F.set(2, 1, 11, '#2f5a4a');
+    rec.cars.push([0.5, 2.6, 'x']);
+  },
   carpark(G, B, rec, t, F) { fill(G, '#7a8088'); for (let z = 0; z < 12; z++) for (const x of [0, 4, 8]) G.set(x, 0, z, z === 5 || z === 6 ? '#7a8088' : '#e8e8e0'); [[1, 0], [5, 0], [9, 7], [1, 7]].forEach(([x, z], i) => fcar(F, x, z, CARS[(i + (t?.gx || 0)) % CARS.length])); },
   path(G, B, rec, t, F) {
     fill(G, SAGE, SAGE2);
@@ -338,15 +395,27 @@ const FINE2 = {
     for (let x = 0; x < 12; x += 3) for (const z of [3, 8]) { F.set(x, 1, z, '#6b4a2e'); F.set(x, 2, z, '#6b4a2e'); }
     for (let x = 0; x < 12; x++) { F.set(x, 3, 3, '#7a5232'); F.set(x, 3, 8, '#7a5232'); }
   },
+  // a big field stands up off the ground (art pass, Nov 2026): raised rows of ripe wheat over dark furrows, so a
+  // planted field never looks like the untouched dry field zone around it; a tractor or hay bales on the headland
   bigfield(G, B, rec, t, F) {
-    fill(G, null, null, (x, z) => (z % 2 ? '#e3c25a' : '#d4ad45'));
-    if (((t?.gx || 0) + (t?.gz || 0)) % 2 === 0) { F.box(2, 0, 2, 6, 1, 4, '#c8553d'); F.box(3, 2, 2, 4, 3, 3, '#bfe6ff'); F.box(0, 0, 2, 1, 1, 4, '#8a8f94'); for (const x of [2, 5]) { F.set(x, 0, 1, '#22262a'); F.set(x, 0, 5, '#22262a'); } }
+    fill(G, null, null, (x, z) => (z % 2 ? '#8a6a3a' : '#7a5a32'));
+    const tractor = ((t?.gx || 0) + (t?.gz || 0)) % 2 === 0;
+    if (tractor) { F.box(2, 0, 2, 6, 1, 4, '#c8553d'); F.box(3, 2, 2, 4, 3, 3, '#bfe6ff'); F.box(0, 0, 2, 1, 1, 4, '#8a8f94'); for (const x of [2, 5]) { F.set(x, 0, 1, '#22262a'); F.set(x, 0, 5, '#22262a'); } }
+    else for (const [x, z] of [[1, 1], [8, 9]]) { F.box(x, 0, z, x + 1, 1, z + 1, '#d9b456'); F.set(x, 1, z, '#e8c870'); }
+    for (let z = 0; z < 12; z += 2) for (let x = 0; x < 12; x++) {
+      if (tractor && x <= 7 && z <= 6) continue; if (!tractor && ((x <= 2 && z <= 2) || (x >= 8 && z >= 8 && z <= 10))) continue;
+      const tall = rand(x, z, 41) > 0.35; F.set(x, 0, z, (x + z) % 3 ? '#d4ad45' : '#c99f3c'); if (tall) F.set(x, 1, z, rand(x, z, 42) > 0.5 ? '#f0d878' : '#e3c25a');
+    }
   },
   mixed(G, B, rec, t, F) {
-    // three crops in rows (cabbages, wheat, beans) beside a sheep pasture, and a small red barn
-    fill(G, null, null, (x, z) => (x < 7 ? (z < 4 ? (x % 2 ? '#5e8f3e' : '#7a5a3a') : z < 8 ? (z % 2 ? '#e3c25a' : '#d4ad45') : (x % 2 ? '#6b9c42' : '#7a5a3a')) : '#a0c862'));
+    // three crops in raised rows (cabbages, wheat, beans on poles) beside a fenced sheep pasture, a small red barn
+    fill(G, null, null, (x, z) => (x < 7 ? (z % 2 ? '#7a5a3a' : '#6b4f32') : (x + z) % 2 ? '#a0c862' : '#94bf58'));
+    for (let x = 0; x < 7; x++) for (const z of [0, 2]) if (x % 2 === 0) { F.set(x, 0, z, '#5e8f3e'); if (x % 4 === 0) F.set(x, 1, z, '#7aae4f'); }
+    for (let x = 0; x < 7; x++) for (const z of [4, 6]) { F.set(x, 0, z, '#d4ad45'); if (rand(x, z, 43) > 0.3) F.set(x, 1, z, '#f0d878'); }
+    for (const x of [1, 3, 5]) for (let y = 0; y < 3; y++) { F.set(x, y, 9, y === 2 ? '#8a6a3a' : '#5c9a40'); F.set(x, y, 11, y === 2 ? '#8a6a3a' : '#6aab4a'); }
     F.box(8, 0, 0, 11, 3, 3, '#a8442e'); F.box(8, 4, 0, 11, 4, 3, '#6b3a28'); F.box(9, 0, 3, 10, 2, 3, '#f1e6d0');
-    for (let z = 4; z < 12; z++) if (z % 2 === 0) F.set(7, 0, z, '#9a7a52'); for (let z = 4; z < 12; z++) F.set(7, 1, z, '#9a7a52');
+    for (let z = 4; z < 12; z++) { if (z % 2 === 0) F.set(7, 0, z, '#9a7a52'); F.set(7, 1, z, '#c9b08a'); }
+    for (let x = 8; x < 12; x++) { if (x % 2 === 0) F.set(x, 0, 11, '#9a7a52'); F.set(x, 1, 11, '#c9b08a'); }
   },
   orchard(G, B, rec, t, F) { fill(G, SAGE, SAGE2); for (const [x, z] of [[2, 2], [8, 3], [3, 8], [9, 9]]) ftree(F, x, z, { h: 2, leaf: ['#4f8f3a', '#5c9a40', '#6aa64a'], fruit: '#d9433a', r: 2 }); },
   allot(G, B, rec, t, F) {
@@ -382,6 +451,32 @@ const FINE2 = {
   },
   reedbed(G, B, rec, t, F) { fill(G, null, null, (x, z) => ((x * 7 + z * 3) % 5 < 2 ? '#4fb3ea' : '#6f9a5a')); for (let i = 0; i < 16; i++) freed(F, Math.floor(rand(i, 4) * 12), Math.floor(rand(i, 5) * 12), 3 + (i % 3)); },
   compost(G, B, rec, t, F) { fill(G, '#9a7a52'); for (const x of [1, 5, 9]) { for (let y = 0; y < 3; y++) for (let i = 0; i < 3; i++) { F.set(x + i, y, 3, y % 2 ? '#7a5232' : '#8a5c38'); F.set(x + i, y, 6, y % 2 ? '#7a5232' : '#8a5c38'); F.set(x, y, 4 + (i % 2), '#7a5232'); F.set(x + 2, y, 4 + (i % 2), '#7a5232'); } F.box(x + 1, 0, 4, x + 1, 1, 5, x === 5 ? '#5f8f3c' : '#5b4030'); } },
+  // the sky-ferry dock (fine scale, art pass Nov 2026): a raised boardwalk pier out to where the ferry moors, rope
+  // rails on posts, a lantern and bollards at the end, a little ticket hut with a striped awning, crates, a bell
+  // and a windsock, so the place every family arrives at reads as a real landing stage
+  dock(G, B, rec, t, F) {
+    fill(G, null, null, (x, z) => ((x * 5 + z * 3) % 7 < 2 ? '#e2c995' : (x + z) % 2 ? '#e9d6a1' : '#efdcab'));
+    const plank = (x, z) => ((z + (x > 5 ? 1 : 0)) % 3 === 0 ? '#8a5c38' : z % 2 ? '#a8754a' : '#9a6a42');
+    for (let z = 2; z <= 17; z++) for (let x = 4; x <= 8; x++) F.set(x, 1, z, plank(x, z));          // deck, a half step above the sand
+    for (let z = 2; z <= 17; z++) for (const x of [4, 8]) F.set(x, 0, z, '#6b4a2e');                // stringers under the edges
+    for (const z of [5, 9, 13, 17]) for (const x of [4, 8]) { for (let y = 0; y <= 3; y++) if (y !== 1) F.set(x, y, z, '#6b4a2e'); } // rail posts
+    for (let z = 5; z <= 17; z++) for (const x of [4, 8]) if (!F.has(x, 3, z)) F.set(x, 3, z, '#d9b77a');       // rope rails
+    for (const x of [5, 7]) { F.set(x, 2, 17, '#3a4752'); F.set(x, 3, 17, '#3a4752'); }                 // mooring bollards
+    for (let y = 2; y <= 8; y++) F.set(8, y, 18, '#3a4752'); F.box(7, 9, 18, 8, 9, 18, '#3a4752'); F.set(7, 10, 18, '#ffe9a8'); F.set(8, 10, 18, '#ffe9a8'); F.box(7, 11, 18, 8, 11, 18, '#c8553d'); // lantern at the pier end
+    rec.lamps.push([4, 5.75, 9.25]);
+    // ticket hut on the sand: cream walls, a teal door, a red-and-white awning and a little roof
+    for (let x = 0; x <= 3; x++) for (let z = 1; z <= 4; z++) for (let y = 0; y <= 4; y++) { const edge = x === 0 || x === 3 || z === 1 || z === 4; if (!edge) continue; F.set(x, y, z, z === 4 && x >= 1 && x <= 2 && y <= 2 ? (y === 2 ? '#bfe6ff' : '#2e8b76') : y === 0 ? '#c8653d' : '#fbf1dc'); }
+    for (let x = -1; x <= 4; x++) { for (let z = 0; z <= 5; z++) F.set(x, 5, z, (x + z) % 2 ? '#b9603e' : '#a85a3a'); F.set(x, 6, 2, '#a85a3a'); F.set(x, 6, 3, '#a85a3a'); }
+    for (let x = 0; x <= 3; x++) F.set(x, 4, 5, x % 2 ? '#c8553d' : '#ffffff');                        // awning over the window
+    F.box(1, 7, 2, 2, 7, 3, '#2e8b76'); F.set(1, 7, 2, '#ffffff');                                      // a little teal sign on the ridge
+    // crates and a barrel by the hut, a ship's bell on a post, a coil of rope
+    F.box(0, 0, 7, 1, 1, 8, '#b07a48'); F.box(0, 2, 7, 0, 2, 7, '#c08a56'); F.box(2, 0, 8, 2, 1, 8, '#9a6a42'); F.set(2, 2, 8, '#6b4a2e');
+    F.box(9, 0, 3, 9, 4, 3, '#6b4a2e'); F.set(10, 4, 3, '#6b4a2e'); F.set(10, 3, 3, '#e3a52c');
+    F.set(9, 2, 15, '#d9b77a'); F.set(10, 2, 15, '#c9a46a'); F.set(9, 2, 16, '#c9a46a'); F.set(10, 2, 16, '#d9b77a');
+    // windsock for the sky-ferry
+    for (let y = 0; y <= 9; y++) F.set(11, y, 6, '#e8e2d4'); for (let i = 0; i < 4; i++) F.set(11, 9 - (i > 2 ? 1 : 0), 7 + i, i % 2 ? '#ffffff' : '#ff8a3d');
+    rec.dock = true;
+  },
   park(G, B, rec, t, F) { fill(G, null, null, (x, z) => (Math.hypot(x - 8, z - 8) < 2.3 ? '#4fb3ea' : (x === 3 || z === 3) ? '#e0b88c' : SAGE)); ftree(F, 1, 1, { h: 2, r: 1 }); ftree(F, 9, 1, { h: 3, r: 2, leaf: ['#c08a3e', '#d39a48', '#b07a36'] }); fbench(F, 5, 6); F.set(1, 0, 9, '#ff7eb6'); F.set(2, 0, 10, '#ffd23f'); },
   greenbridge(G, B, rec, t, F) {
     for (let x = 0; x < 12; x++) for (let z = 0; z < 12; z++) { const h = Math.round(5 * Math.sin(((z + 0.5) / 12) * Math.PI)); for (let y = 0; y <= h; y++) F.set(x, y, z, y === h ? (rand(x, z) > 0.85 ? '#ff7eb6' : '#7aa84a') : y === h - 1 ? '#6b4a2e' : '#8a5c38'); }

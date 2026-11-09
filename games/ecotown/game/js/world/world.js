@@ -182,27 +182,41 @@ export function createWorld(stage, terrain) {
     root.add(L.group); layers.set(t.k, L);
   }
 
+  // ---------------- build-highlight kerbs for all tiles at once (see setOverlay)
+  const KERB_MAX = 1800;
+  const kerbs = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial({ color: '#ffffff' }), KERB_MAX);
+  kerbs.frustumCulled = false; kerbs.count = 0; kerbs.visible = false; kerbs.setColorAt(0, new THREE.Color('#ffffff')); root.add(kerbs);
+
   // ---------------- night lights (windows and lamps), one instanced mesh
   const MAXL = 1600;
   const lightMesh = new THREE.InstancedMesh(new THREE.BoxGeometry(0.42, 0.42, 0.42), new THREE.MeshBasicMaterial({ color: '#ffd66b' }), MAXL);
   lightMesh.frustumCulled = false; lightMesh.count = 0; root.add(lightMesh);
+  // street lamps also throw a warm pool of light on the ground at night (art pass, Nov 2026): a solid, flat,
+  // eight-sided patch just above the paving, depth-tested like the tile kerbs, so it never covers a build or Florence
+  const MAXP = 320;
+  const poolMesh = new THREE.InstancedMesh(new THREE.CylinderGeometry(1.75, 1.75, 0.04, 8), new THREE.MeshBasicMaterial({ color: '#f3c27a', polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -2 }), MAXP);
+  const poolCore = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.95, 0.95, 0.05, 8), new THREE.MeshBasicMaterial({ color: '#ffe2a3', polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -3 }), MAXP);
+  for (const m of [poolMesh, poolCore]) { m.frustumCulled = false; m.count = 0; root.add(m); }
   let lightsOn = new Set(); // tile keys with power
   function rebuildLights() {
-    const d = new THREE.Object3D(); let n = 0;
+    const d = new THREE.Object3D(); let n = 0, p = 0;
     for (const L of layers.values()) {
       const recs = [L.rec, L.fixedRec].filter(Boolean);
-      for (const rec of recs) for (const [x, y, z] of [...rec.windows, ...rec.lamps]) {
-        if (n >= MAXL) break; const on = lightsOn.has(L.t.k) || !!L.fixedRec;
-        d.position.set(L.ox + x, L.oy + 1 + y - 0.5, L.oz + z); d.scale.setScalar(on ? 1 : 0.0001); d.updateMatrix(); lightMesh.setMatrixAt(n++, d.matrix);
+      for (const rec of recs) for (const [i, [x, y, z]] of [...rec.windows, ...rec.lamps].entries()) {
+        if (n >= MAXL) break; const on = lightsOn.has(L.t.k) || !!L.fixedRec; const lamp = i >= rec.windows.length;
+        d.position.set(L.ox + x, L.oy + 1 + y - 0.5, L.oz + z); d.scale.setScalar(on ? (lamp ? 1.35 : 1) : 0.0001); d.updateMatrix(); lightMesh.setMatrixAt(n++, d.matrix);
+        if (lamp && on && p < MAXP) { d.position.set(L.ox + x, L.oy + 1.17, L.oz + z); d.scale.setScalar(1); d.updateMatrix(); poolMesh.setMatrixAt(p, d.matrix); d.position.y += 0.01; d.updateMatrix(); poolCore.setMatrixAt(p++, d.matrix); }
       }
     }
     lightMesh.count = n; lightMesh.instanceMatrix.needsUpdate = true;
+    poolMesh.count = poolCore.count = p; poolMesh.instanceMatrix.needsUpdate = poolCore.instanceMatrix.needsUpdate = true;
   }
 
   // ---------------- pop-in animation and dust
   const anims = [];
-  const DUST = 160; const dust = new THREE.InstancedMesh(new THREE.BoxGeometry(0.35, 0.35, 0.35), new THREE.MeshLambertMaterial({ color: '#efe6d2' }), DUST); dust.frustumCulled = false; root.add(dust);
+  const DUST = 160; const dust = new THREE.InstancedMesh(new THREE.BoxGeometry(0.42, 0.42, 0.42), new THREE.MeshLambertMaterial({ color: '#e6d3a8' }), DUST); dust.frustumCulled = false; root.add(dust);
   const dustP = Array.from({ length: DUST }, () => ({ life: 0 })); let dustI = 0;
+  function puffRing(x, y, z, r, n = 18) { for (let i = 0; i < n; i++) { const p = dustP[dustI = (dustI + 1) % DUST]; const a = (i / n) * 6.28 + Math.random() * 0.3; p.x = x + Math.cos(a) * r; p.y = y; p.z = z + Math.sin(a) * r; p.vx = Math.cos(a) * (3.5 + Math.random() * 1.5); p.vz = Math.sin(a) * (3.5 + Math.random() * 1.5); p.vy = 1.6 + Math.random(); p.life = 0.55 + Math.random() * 0.25; } }
   function puff(x, y, z, n = 14) { for (let i = 0; i < n; i++) { const p = dustP[dustI = (dustI + 1) % DUST]; const a = Math.random() * 6.28; p.x = x; p.y = y; p.z = z; p.vx = Math.cos(a) * 3; p.vz = Math.sin(a) * 3; p.vy = 2 + Math.random() * 2; p.life = 0.7 + Math.random() * 0.3; } }
   // confetti for celebrations
   const CONF = 220; const conf = new THREE.InstancedMesh(new THREE.BoxGeometry(0.45, 0.12, 0.3), new THREE.MeshBasicMaterial({ color: '#ffffff' }), CONF); conf.frustumCulled = false; root.add(conf);
@@ -229,42 +243,34 @@ export function createWorld(stage, terrain) {
   // ---------------- build-up animations: a plane sweeps up (buildings) or across (ground works)
   const FLAT = new Set(['road', 'carpark', 'path', 'cycle', 'tram', 'bridge', 'bigfield', 'mixed', 'allot', 'raingarden', 'reedbed', 'compost', 'town', 'wild']);
   const builds = new Map();
-  // ---- "blocks fly in": a shared swarm of cubes that assemble each build just ahead of the reveal
-  const SW = 4000; const swarm = new THREE.InstancedMesh(new THREE.BoxGeometry(0.42, 0.42, 0.42), new THREE.MeshLambertMaterial({ color: '#ffffff' }), SW);
-  swarm.frustumCulled = false; swarm.castShadow = true; root.add(swarm); const zero = new THREE.Matrix4().makeScale(0, 0, 0);
-  for (let i = 0; i < SW; i++) { swarm.setMatrixAt(i, zero); swarm.setColorAt(i, new THREE.Color('#ffffff')); }
-  const freeSlots = Array.from({ length: SW }, (_, i) => SW - 1 - i);
-  function sampleSwarm(g, n, plane, dir, a, b) {
-    const pts = []; const tmp = new THREE.Vector3(); const col = new THREE.Color();
-    g.updateMatrixWorld(true);
-    g.traverse((o) => { if (!o.isMesh || !o.geometry.attributes.color) return; const pos = o.geometry.attributes.position, c = o.geometry.attributes.color; for (let i = 0; i < pos.count; i += 4) pts.push([o, i, pos, c]); });
-    if (!pts.length) return [];
-    const out = []; const step = Math.max(1, Math.floor(pts.length / n));
-    for (let i = 0; i < pts.length && out.length < n; i += step) {
-      const [o, vi, pos, c] = pts[(i + Math.floor(Math.random() * step)) % pts.length];
-      tmp.set(0, 0, 0); for (let k = 0; k < 4 && vi + k < pos.count; k++) tmp.add(new THREE.Vector3().fromBufferAttribute(pos, vi + k)); tmp.multiplyScalar(0.25).applyMatrix4(o.matrixWorld);
-      col.fromBufferAttribute(c, vi).multiplyScalar(1.15);
-      const slot = freeSlots.pop(); if (slot == null) break;
-      const frac = Math.max(0, Math.min(1, ((dir === 'up' ? tmp.y : tmp.x) - a) / Math.max(0.1, b - a)));
-      const ang = Math.random() * 6.28, rad = 6 + Math.random() * 10;
-      const from = tmp.clone().add(new THREE.Vector3(Math.cos(ang) * rad, 10 + Math.random() * 14, Math.sin(ang) * rad));
-      swarm.setColorAt(slot, col); out.push({ slot, to: tmp.clone(), from, frac, spin: Math.random() * 6 });
-    }
-    swarm.instanceColor.needsUpdate = true; return out;
+  // Build juice (art pass, Nov 2026): when a build's last layer lands it settles with a small squash and spring,
+  // a ring of dust rolls out from its base and a low solid kerb ripples out across the tile. Never with reduce
+  // motion (the build appears at once then). The old shared "blocks fly in" swarm was never used and drew 4000
+  // hidden cubes (and their shadows) every frame, so it is gone.
+  const settles = [];
+  const RIPPLE_MAT = new THREE.MeshBasicMaterial({ color: '#fff3d6' });
+  function landBuild(L, g) {
+    const [cx, cz] = tileCenter(L.t.gx, L.t.gz); const y0 = L.oy + 1;
+    const tall = !!L.cellItem && !FLAT.has(L.cellItem);
+    if (tall) settles.push({ g, t: 0, P: new THREE.Vector3(cx, y0, cz) });
+    puffRing(cx, y0 + 0.3, cz, T * 0.4, tall ? 26 : 16);
+    const rip = ring(L, '#fff3d6'); rip.traverse((o) => { if (o.isMesh) o.material = RIPPLE_MAT; });
+    L.group.add(rip); settles.push({ rip, L, t: 0, P: new THREE.Vector3(cx, y0, cz) });
   }
-  const dObj = new THREE.Object3D();
-  function stepSwarm(B) {
-    const FLY = 0.9;
-    for (const p of B.swarm) {
-      const tArrive = p.frac * B.dur, k = (B.t - (tArrive - FLY)) / FLY;
-      if (k <= 0 || k >= 1.05) { swarm.setMatrixAt(p.slot, zero); continue; }
-      const e = 1 - Math.pow(1 - Math.min(1, k), 3);
-      dObj.position.lerpVectors(p.from, p.to, e); dObj.position.y += Math.sin(e * Math.PI) * 2;
-      dObj.rotation.set(p.spin * (1 - e), p.spin * 0.7 * (1 - e), 0); dObj.scale.setScalar(0.6 + 0.4 * e); dObj.updateMatrix(); swarm.setMatrixAt(p.slot, dObj.matrix);
+  function stepSettles(dt) {
+    for (let i = settles.length - 1; i >= 0; i--) {
+      const s = settles[i]; s.t += dt;
+      if (s.g) {
+        const k = s.t; const sy = 1 - 0.17 * Math.cos(k * 2 * Math.PI / 0.24) * Math.exp(-k * 9); const sx = 1 + (1 - sy) * 0.45;
+        s.g.scale.set(sx, sy, sx); s.g.position.set(s.P.x * (1 - sx), s.P.y * (1 - sy), s.P.z * (1 - sx));
+        if (k >= 0.6) { s.g.scale.set(1, 1, 1); s.g.position.set(0, 0, 0); settles.splice(i, 1); }
+      } else {
+        const k = clamp(s.t / 0.42); const sc = 0.92 + 0.3 * ease.out(k);
+        s.rip.scale.set(sc, Math.max(0.001, 1 - k), sc); s.rip.position.set(s.P.x * (1 - sc), s.P.y * k, s.P.z * (1 - sc));
+        if (k >= 1) { s.L.group.remove(s.rip); settles.splice(i, 1); }
+      }
     }
-    swarm.instanceMatrix.needsUpdate = true;
   }
-  function freeSwarm(B) { for (const p of B.swarm || []) { swarm.setMatrixAt(p.slot, zero); freeSlots.push(p.slot); } B.swarm = []; swarm.instanceMatrix.needsUpdate = true; }
 
   // Construction, system by system and layer by layer: each stage (see construct.js) sweeps in over its own
   // time window; temporary stages (trench, gravel, frame, pipes) disappear once the next real layer covers them.
@@ -289,12 +295,13 @@ export function createWorld(stage, terrain) {
     const box = new THREE.Box3().setFromObject(g);
     builds.set(L.t.k, { L, g, stages, t: -delay, dur, top: box.isEmpty() ? L.oy + 2 : box.max.y, kind, cur: -1, onStage, cable: null, plane: { constant: L.oy } });
   }
-  function endBuild(B) {
+  function endBuild(B, landed = false) {
     for (const st of B.stages) { L_remove(B.L, st.group); }
     if (B.cable) { B.L.group.remove(B.cable); B.cable = null; }
     B.g.visible = true; if (B.L.rotor && B.L.rotor.parent !== B.g) B.g.attach(B.L.rotor);
     if (B.L.rotor && !B.rotorDone) { B.L.rotor.visible = true; rotorDrops.push({ r: B.L.rotor, y: B.L.rotor.position.y, t: 0 }); }
     builds.delete(B.L.t.k);
+    if (landed) landBuild(B.L, B.g);
   }
   function L_remove(L, grp) { L.group.remove(grp); grp.traverse((o) => { if (o.isMesh) { o.geometry.dispose(); o.material.dispose(); } }); }
   function stepBuild(B, dt) {
@@ -309,7 +316,7 @@ export function createWorld(stage, terrain) {
       if (st.cable && B.cable) B.cable.userData.grow(k);
     });
     if (Math.random() < dt * 2.5) { const [cx, cz] = tileCenter(B.L.t.gx, B.L.t.gz); puff(cx + (Math.random() - 0.5) * 5, B.L.oy + 1.3, cz + (Math.random() - 0.5) * 5, 2); }
-    if (B.t >= B.dur + 0.25) endBuild(B);
+    if (B.t >= B.dur + 0.25) endBuild(B, true);
   }
   // a glowing cable laid from a turbine towards the middle of the town
   function makeCable(L) {
@@ -369,16 +376,24 @@ export function createWorld(stage, terrain) {
     // Tile overlays, all solid and drawn at ground level with normal depth, so buildings, trees and Florence
     // always stand in front of them. spec: Map key -> {color, pattern, lift} (a painted tile: lenses, "can't build")
     // or {color, ring: true, notch} (a low solid kerb round the tile: the build highlight)
+    // The kerbs of every highlighted tile go into one instanced mesh (perf pass, Nov 2026: four meshes per tile
+    // used to cost ~380 draw calls whenever a build tool was picked); painted lens tiles stay one mesh per tile.
     setOverlay(spec) {
       for (const L of layers.values()) { if (L.overlay) { L.group.remove(L.overlay); L.overlay = null; } }
+      kerbs.count = 0; kerbs.visible = false;
       if (!spec) return;
+      const d = new THREE.Object3D(); const col = new THREE.Color(); let n = 0;
       for (const [k, o] of spec) {
         const L = layers.get(k); if (!L) continue;
-        let m;
-        if (o.ring) m = ring(L, o.color, o.notch, o.dashed);
-        else { m = new THREE.Mesh(OVERLAY_GEO, overlayMat(o.color, o.pattern)); m.position.set(L.ox + T / 2, L.oy + 1.14 + (o.lift || 0), L.oz + T / 2); m.rotation.x = -Math.PI / 2; }
+        if (o.ring) {
+          col.set(o.color);
+          for (const [geo, x, y, z] of ringBoxes(L, o.notch, o.dashed)) { if (n >= KERB_MAX) break; const p = geo.parameters; d.position.set(x, y, z); d.scale.set(p.width, p.height, p.depth); d.updateMatrix(); kerbs.setMatrixAt(n, d.matrix); kerbs.setColorAt(n++, col); }
+          continue;
+        }
+        const m = new THREE.Mesh(OVERLAY_GEO, overlayMat(o.color, o.pattern)); m.position.set(L.ox + T / 2, L.oy + 1.14 + (o.lift || 0), L.oz + T / 2); m.rotation.x = -Math.PI / 2;
         L.overlay = m; L.group.add(m);
       }
+      kerbs.count = n; kerbs.visible = n > 0; kerbs.instanceMatrix.needsUpdate = true; if (kerbs.instanceColor) kerbs.instanceColor.needsUpdate = true;
     },
     clay: 0, clayTarget: 0,
     setClay(on, reduce = false) { this.clayTarget = on ? 1 : 0; if (reduce) { this.clay = this.clayTarget; WORLD.clay.value = this.clay; } },
@@ -409,10 +424,11 @@ export function createWorld(stage, terrain) {
       // clay fade
       this.clay += (this.clayTarget - this.clay) * Math.min(1, dt * 7); WORLD.clay.value = this.clay;
       // night lights fade with the sky
-      lightMesh.visible = stage.night > 0.45; // windows switch on at dusk (solid, never half see-through)
+      lightMesh.visible = stage.night > 0.45; poolMesh.visible = poolCore.visible = stage.night > 0.55; // windows switch on at dusk (solid, never half see-through)
       for (let i = anims.length - 1; i >= 0; i--) { const a = anims[i]; a.t += dt; const k = clamp(a.t / a.dur); if (a.t >= 0) a.obj.scale.set(1, Math.max(0.001, ease.back(k)), 1); if (k >= 1) anims.splice(i, 1); }
       for (const L of layers.values()) if (L.rotor) L.rotor.rotation.z += dt * (windStill ? 0.25 : 2.2);
       for (const B of [...builds.values()]) stepBuild(B, dt);
+      stepSettles(dt);
       for (let i = rotorDrops.length - 1; i >= 0; i--) { const r = rotorDrops[i]; r.t += dt; const k = Math.min(1, r.t / 1.2); r.r.position.y = r.y + (1 - (1 - (1 - k) ** 3)) * 0 + (1 - k) ** 2 * 14; if (k >= 1) { r.r.position.y = r.y; rotorDrops.splice(i, 1); } }
       const d = new THREE.Object3D();
       for (let i = 0; i < DUST; i++) { const p = dustP[i]; if (p.life > 0) { p.life -= dt; p.vy -= 9 * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.z += p.vz * dt; d.position.set(p.x, Math.max(p.y, 0.5), p.z); d.scale.setScalar(Math.max(0.01, p.life)); } else d.scale.setScalar(0.0001); d.updateMatrix(); dust.setMatrixAt(i, d.matrix); }
@@ -439,14 +455,19 @@ function outline(L, color) {
 const KERB_H = 0.3, KERB_W = 0.28, KERB_IN = T - 0.5;
 const KERB_X = new THREE.BoxGeometry(KERB_IN, KERB_H, KERB_W), KERB_Z = new THREE.BoxGeometry(KERB_W, KERB_H, KERB_IN), NOTCH = new THREE.BoxGeometry(1.3, KERB_H + 0.12, 1.3);
 const DASH_X = new THREE.BoxGeometry(KERB_IN / 5, KERB_H, KERB_W), DASH_Z = new THREE.BoxGeometry(KERB_W, KERB_H, KERB_IN / 5);
-function ring(L, color, notch = false, dashed = false) {
-  const mat = basicMat(color); const g = new THREE.Group(); const [cx, cz] = tileCenter(L.t.gx, L.t.gz); const y = L.oy + 1 + KERB_H / 2 - 0.02, h = KERB_IN / 2 - KERB_W / 2;
+function ringBoxes(L, notch = false, dashed = false) {
+  const out = []; const [cx, cz] = tileCenter(L.t.gx, L.t.gz); const y = L.oy + 1 + KERB_H / 2 - 0.02, h = KERB_IN / 2 - KERB_W / 2;
   if (dashed) { // "can't build": a dashed kerb (a different shape as well as a different colour)
-    for (const k of [-2, 0, 2]) for (const [geo, dx, dz] of [[DASH_X, k * KERB_IN / 5, -h], [DASH_X, k * KERB_IN / 5, h], [DASH_Z, -h, k * KERB_IN / 5], [DASH_Z, h, k * KERB_IN / 5]]) { const m = new THREE.Mesh(geo, mat); m.position.set(cx + dx, y, cz + dz); g.add(m); }
-    return g;
+    for (const k of [-2, 0, 2]) for (const [geo, dx, dz] of [[DASH_X, k * KERB_IN / 5, -h], [DASH_X, k * KERB_IN / 5, h], [DASH_Z, -h, k * KERB_IN / 5], [DASH_Z, h, k * KERB_IN / 5]]) out.push([geo, cx + dx, y, cz + dz]);
+    return out;
   }
-  for (const [geo, dx, dz] of [[KERB_X, 0, -h], [KERB_X, 0, h], [KERB_Z, -h, 0], [KERB_Z, h, 0]]) { const m = new THREE.Mesh(geo, mat); m.position.set(cx + dx, y, cz + dz); g.add(m); }
-  if (notch) for (const [dx, dz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) { const m = new THREE.Mesh(NOTCH, mat); m.position.set(cx + dx * (h - 0.44), y + 0.06, cz + dz * (h - 0.44)); g.add(m); }
+  for (const [geo, dx, dz] of [[KERB_X, 0, -h], [KERB_X, 0, h], [KERB_Z, -h, 0], [KERB_Z, h, 0]]) out.push([geo, cx + dx, y, cz + dz]);
+  if (notch) for (const [dx, dz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) out.push([NOTCH, cx + dx * (h - 0.44), y + 0.06, cz + dz * (h - 0.44)]);
+  return out;
+}
+function ring(L, color, notch = false, dashed = false) {
+  const mat = basicMat(color); const g = new THREE.Group();
+  for (const [geo, x, y, z] of ringBoxes(L, notch, dashed)) { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); g.add(m); }
   return g;
 }
 function makeRotor() {

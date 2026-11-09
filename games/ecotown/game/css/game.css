@@ -968,3 +968,139 @@ html[data-lab=on] #florence { display: none !important; }
 /* the reward card: an odd last tile spans the row (no hole on the right) */
 .stats > div:last-child:nth-child(odd) { grid-column: 1 / -1; }
 .checknote.hint { background: #fff3c4; border-radius: 6px; padding: 4px 8px; color: #4a3410; }
+
+/* =====================================================================================
+   UI designer pass (Nov 2026): labelled top-right buttons, a compact mission dock that keeps the plan in view,
+   a real text box in the classroom, AA contrast on parchment, panels that never fade (never see-through),
+   and a little more "juice" when you build. These rules override the older blocks above. */
+
+/* --- panels appear solid at once and slide in; they vanish at once (no half-transparent frames, even on slow PCs) */
+.panel { transition: transform .3s cubic-bezier(.2, .9, .3, 1.15); }
+.panel.hide { transition: none; }
+html[data-motion="reduce"] .panel { transition: none; }
+
+/* --- contrast: the brown helper text reads at 4.5:1 or better on every parchment shade */
+:root { --ink2: #5e4936; }
+.sentence:empty::before, .ask input::placeholder, .textin input::placeholder { color: #76604b; opacity: 1; }
+.labrow .st { color: #17613a; } .labrow.done .st { color: #7a4f00; }
+#dock .speaker .chips span { background: var(--wd); color: var(--cream); border-radius: 5px; }
+.speaker .wont { color: #8a3a12; }
+.speaker .assumed { color: #5a3a00; margin: 2px 0; font-size: .92em; }
+.choice.tried { opacity: 1; }
+#build .cat.locked, .cat.locked { opacity: 1; }
+#flowerpop li.locked { color: #5e5446; }
+/* the lab board's "your town needs this" tag hugs its words (it stretched across the row) */
+.labrow .t .need { align-self: flex-start; margin: 2px 0; }
+
+/* --- the classroom's question box: a proper parchment field beside Ask (it was a tiny unstyled input) */
+.ask { display: flex; gap: 6px; align-items: stretch; }
+.ask input { flex: 1; min-width: 0; min-height: 46px; border: 0; border-radius: 6px; background: var(--cream); color: var(--ink); box-shadow: inset 0 0 0 3px var(--sandd); padding: 6px 12px; font: 600 15px 'Inter', system-ui, sans-serif; }
+.ask .btn { flex: none; }
+
+/* --- the instruction tray: heading and input tabs share a row; Send and Clear sit beside the sentence */
+.trayhead { display: flex; align-items: center; justify-content: space-between; gap: 6px 10px; flex-wrap: wrap; }
+.trayhead h3 { margin: 0; }
+.trayhead .tabs button { min-height: 44px; }
+.sentrow { display: flex; gap: 6px; align-items: stretch; flex-wrap: wrap; }
+.sentrow .sentence { flex: 1 1 260px; min-width: 0; }
+.sentrow .btn { flex: none; }
+#dock .tile { min-height: 44px; }
+
+/* --- the top-right buttons say what they are: a short caption under each icon (laptops, tablets, boards) */
+.ib .cap { display: none; }
+.ib .ico { font-weight: inherit; font-style: normal; line-height: 1; }
+@media (min-width: 761px) and (min-height: 561px) {
+  #strip .ib, #camctl .camtog { width: auto; min-width: 56px; height: 54px; padding: 4px 7px 3px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
+  #strip .ib .ico, #camctl .camtog .ico { font-size: 21px; }
+  #strip .ib img { width: 30px; height: 30px; }
+  .ib .cap { display: block; font: 800 11px/1 'Inter', system-ui, sans-serif; color: var(--ink); white-space: nowrap; letter-spacing: .01em; }
+  #camctl .ib { height: 54px; }
+  #strip .sep { height: 34px; }
+  /* Skip intro sits under the town card, not on top of its next step */
+  .introskip { left: 14px; top: 86px; transform: none; }
+}
+@media (min-width: 1600px) and (min-height: 900px) {
+  #strip .ib, #camctl .camtog { min-width: 64px; height: 62px; }
+  #strip .ib .ico, #camctl .camtog .ico { font-size: 25px; } #strip .ib img { width: 36px; height: 36px; }
+  .ib .cap { font-size: 12.5px; } #camctl .ib { height: 62px; }
+  .introskip { top: 96px; }
+}
+
+/* --- hotbar: the build's info line and the tile key get their own columns, so the key never covers the chips */
+@media (min-width: 761px) and (min-height: 561px) {
+  #build .bbody { grid-template-columns: auto minmax(0, 1fr) auto; }
+  #build .info { grid-column: 2; }
+  #build .hlkey { grid-column: 3; grid-row: 1; background: none; padding-left: 4px; }
+  #build .items { grid-column: 2 / span 2; }
+  #build .info .chips { overflow: hidden; }
+  #build .hlkey:not(.mini) { gap: 2px 7px; font-size: 11.5px; }
+  #build .hlkey .hk { width: 14px; height: 14px; border-width: 3px; }
+}
+
+/* --- missions on laptops and boards: the dock is as wide as what it holds (it was a full-width plank with one button
+   in it), Florence's card is narrower and shorter, and the choices fill two short rows. About 12–18 % of a 1280 × 800
+   screen instead of 22–30 %, centred under the plan. */
+@media (min-width: 761px) and (min-height: 561px) {
+  html[data-lab="on"] #layer #dock { width: max-content; min-width: 0; max-width: min(1000px, calc(100vw - 24px)); max-height: min(36vh, 320px);
+    left: 50%; right: auto; transform: translateX(-50%); grid-template-columns: minmax(0, 340px) minmax(0, max-content); gap: 8px; padding: 8px; }
+  html[data-lab="on"] #layer #dock.hide { transform: translate(-50%, 30px); }
+  html[data-lab="on"] #layer #dock.talk-only, html[data-lab="on"] #layer #dock.mini:not(:has(.actions[style=""])) { grid-template-columns: minmax(0, 1fr); max-width: min(560px, calc(100vw - 24px)); }
+  html[data-lab="on"] #layer #dock.actions-only { grid-template-columns: minmax(0, 1fr); max-width: min(880px, calc(100vw - 24px)); }
+  html[data-lab="on"] #dock .speaker { padding: 8px 10px; gap: 8px; font-size: 15px; }
+  html[data-lab="on"] #dock .speaker .avatar, html[data-lab="on"] #dock .speaker .avatar:has(canvas.portrait) { width: 60px; }
+  html[data-lab="on"] #dock .speaker .avatar canvas.portrait, html[data-lab="on"] #dock .speaker .avatar img.portrait { width: 60px; }
+  html[data-lab="on"] #dock .speaker .spk { width: 44px; height: 44px; }
+  html[data-lab="on"] #dock .speaker .text ul { margin: 2px 0; }
+  html[data-lab="on"] #dock .actions { gap: 6px; justify-content: flex-start; }
+  html[data-lab="on"] #dock .actions h3 { font-size: 15px; }
+  html[data-lab="on"] #dock .actions .row { display: flex; flex-wrap: wrap; gap: 6px; }
+  html[data-lab="on"] #dock .actions .row .choice { flex: 1 1 148px; max-width: 280px; min-height: 48px; }
+  html[data-lab="on"] #dock .actions .row:has([data-card]) .choice { flex-basis: 240px; max-width: none; }
+  html[data-lab="on"] #dock .actions .row:has(.btn) { justify-content: flex-end; }
+  html[data-lab="on"] #dock .actions .row:has([data-go]:only-child) { justify-content: center; }
+  html[data-lab="on"] #dock .tiles { gap: 5px; }
+  html[data-lab="on"] #dock .tile { padding: 4px 10px; font-size: 14px; }
+  html[data-lab="on"] #dock .sentence { min-height: 46px; }
+  html[data-lab="on"] #dock .textin input { min-height: 46px; }
+  /* the classroom: the question box and the suggestions share the actions column */
+  html[data-lab="on"] #dock .qchips .choice { flex: 1 1 180px; max-width: 320px; font-size: 14px; }
+}
+
+/* --- building feels good: the tool's slot gives a little stamp when it builds, the floating chips pop in one by one */
+.slot.stamp { animation: stamp .4s cubic-bezier(.2, 1.6, .4, 1); }
+@keyframes stamp { 0% { transform: translateY(2px) scale(.9); } 55% { transform: translateY(-5px) scale(1.07); } 100% { transform: translateY(-3px) scale(1); } }
+html[data-motion="reduce"] .slot.stamp { animation: stampflash .5s linear; }
+@keyframes stampflash { 0%, 60% { background: #fff6b8; } }
+#labels .float .chip { animation: chipin .36s cubic-bezier(.2, 1.6, .4, 1) backwards; }
+#labels .float .chip:nth-child(2) { animation-delay: .07s; } #labels .float .chip:nth-child(3) { animation-delay: .14s; }
+#labels .float .chip:nth-child(4) { animation-delay: .21s; } #labels .float .chip:nth-child(n+5) { animation-delay: .28s; }
+@keyframes chipin { from { transform: scale(0); } }
+html[data-motion="reduce"] #labels .float .chip { animation: none; }
+
+/* --- the town report on screen: a parchment sheet in the game's wooden frame (print is unchanged) */
+@media screen {
+  #report { background: var(--wm); background-image: var(--plank); }
+  #report .sheet { background: var(--cream); border-radius: 10px; box-shadow: var(--blk-shadow), inset 0 0 0 3px var(--wd), inset 0 0 0 6px var(--sandd); }
+  #report h1 { color: var(--wm); }
+  #report img.map { border-radius: 8px; box-shadow: 0 0 0 3px var(--wd); }
+  #report td, #report th { border-bottom-color: var(--sand2); }
+}
+/* the A/B/C letter on an instruction card is a small dark tag, not a second button inside the button */
+.choice .btn.k { flex: none; min-height: 0; width: 30px; height: 30px; padding: 0; justify-content: center; border-radius: 6px; background: var(--wd); color: var(--gold); box-shadow: none; font-size: 15px; }
+@media (min-width: 761px) and (min-height: 561px) {
+  /* a lone Next button sits in the middle of its column, not in its top corner */
+  html[data-lab="on"] #dock .actions:has(> .row:only-child) { justify-content: center; }
+}
+/* secondary buttons are raised blocks too (they looked flat, like disabled ones); disabled stays flat */
+.btn.alt:not([disabled]) { box-shadow: var(--slot-bevel); color: var(--ink); }
+.btn.alt:not([disabled]):active { box-shadow: inset 3px 3px 0 rgba(255,255,255,.4), 0 1px 0 var(--wd); }
+html[data-motion="reduce"] .stars3 span.on, html[data-motion="reduce"] .modal .big { animation: none; }
+/* the free-text box: one field (its wrapper used to draw a second, empty box under it) */
+.textin .field { background: none !important; box-shadow: none !important; }
+.textin .hl:empty { display: none; }
+#dock .actions .textin .hl { color: var(--cream); } #dock .actions .textin .hl mark { color: var(--ink); }
+@media (min-width: 761px) and (min-height: 561px) {
+  /* 13–17: Florence's card carries her reasoning ("Why 92%?"), so it gets a wider column and stays short */
+  html[data-lab="on"] #layer #dock:has(.speaker .why) { grid-template-columns: minmax(0, 460px) minmax(0, max-content); }
+  html[data-lab="on"] #dock .speaker .why { font-size: 13px; line-height: 1.3; }
+}
