@@ -141,7 +141,13 @@ Two subagents played with no context (a 9-year-old persona, and a designer scori
 - **Report:** ⚠️ on limits that are exceeded, "—" for an empty instruction row, bonus star shown apart (instructions only reset once a mission really restarts). Street view (👟) stands on an open tile; arrow keys look around.
 - **Intro:** five beats (the forced build video is gone; ▶ on any build shows it).
 - **Classroom:** small talk gets a short in-character answer (`qa.js` topic `chat`).
-- Not done (left for the UI/3D designer passes or later): text labels on the top-right icons, a smaller mission panel on desktop, cosmetic rewards for stars, a finale screen, a current-mission queue.
+- Not done (still open after the designer passes below): cosmetic rewards for stars, a finale screen, a current-mission queue.
+
+## UI designer and 3D designer passes (Nov 2026)
+- **UI** (`css/game.css` end block, `js/ui/ui.js`, presentation parts of `game.js`): top-right buttons have captions (Camera, Lenses / Lens on, AI Lab, Menu; only on screens of at least 761×561); the mission panel is only as wide as its contents (UI share at 1280×800 down from 28% to 18%); the instruction tray header and tabs share one row, with Send and Clear beside the sentence; the classroom question box is styled; `--ink2` is `#5e4936` (at least 5.5:1 on parchment); panels no longer fade (they slide in, solid); the build-bar key has its own column; a slot "stamp" after building; the report is a parchment sheet. New markup: `.cap`/`.ico`, `[data-ico]`, `.trayhead`, `.sentrow`. Clear is disabled while the sentence is empty.
+- **3D** (`js/world/*`, `florence.js`, `rig.js`): Town land is a gravel plot with stakes; Keep wild is a shaggy patch; farms have raised crop rows (shown in the "Crops growing" build step); lamps, road, dock, AI Lab and old school are rebuilt; a build landing has a squash, a dust ring and a kerb ripple (off with reduce motion); lamps throw warm pools at night; Florence is 15% bigger on the island and gets a mint "…" pin when the camera is far; the classroom is furnished; phones frame the island tighter. Highlight kerbs are one instanced mesh and the unused cube effect is gone (draw calls −38% mid, −50% low). `tests/visual/world.html` takes `?place=9,6:timber;…` and `?focus=k:dist:pitch`.
+- After changing a builder, re-render the build-button pictures: `node game/tools/thumbs.mjs http://localhost:8765/`.
+- Still open: Florence walks through buildings (needs pathfinding); on phones the island fills about 45% of the screen height.
 
 ## Beta revision (Nov 2026)
 All 49 notes in the beta tester's file were addressed; see README "How the game plays" and the commit history. Key decisions the user made:
