@@ -83,6 +83,7 @@ const PLANNERS = {
     if (flooded >= 2 || wooded >= 2) {
       if (guessed) { habit = 'missing'; habitWhy = 'Florence didn’t understand the instruction, so she guessed, and nobody told her the flat land floods.'; }
       else if (generic) { habit = 'one_word'; habitWhy = 'Florence turned “best” into “flattest” and forgot about floods and wildlife.'; }
+      else if (flooded >= 2 && (slots.has('near_coast') || slots.has('near_water'))) { habit = 'missing'; habitWhy = slots.has('near_coast') ? 'You asked for land by the beach. The beach was too small, so Florence spread the town onto the low meadow beside it, and nobody told her that meadow floods every winter.' : 'You asked for land near the water. Florence chose the low meadow by the river, and nobody told her it floods every winter.'; }
       else if (flooded >= 2) { habit = 'missing'; habitWhy = 'Florence didn’t know that the flat land by the river floods every winter.'; }
       else { habit = 'missing'; habitWhy = 'Florence didn’t know the old wood is home to deer and birds.'; }
     }
@@ -98,9 +99,11 @@ const PLANNERS = {
     const reading = [], assumptions = [];
     const walkish = ['safe_walking', 'cycling', 'tram', 'no_cars', 'cars_at_edge'].some((s) => slots.has(s));
     const carMode = !walkish && !slots.has('everyone');
-    if (carMode) { reading.push(slots.has('fast') ? '“Fast” = wide roads for cars.' : '“Easy for everyone” = easy for drivers: a wide road and a drop-off car park at the school.'); assumptions.push('Most people travel by car.'); }
-    const habit = !carMode ? null : slots.has('fast') ? 'one_word' : 'typical';
-    const habitWhy = !carMode ? '' : slots.has('fast') ? 'Florence turned “fast” into “wide roads for cars” and forgot about children crossing.' : 'Florence planned for a typical grown-up who drives, not for children walking to school.';
+    const carsOnly = /\bcars? only\b|\bonly (by )?cars?\b|\bcar.?only\b|\bjust cars\b/.test((ctx.text || '').toLowerCase());
+    if (carMode && carsOnly) { reading.push('“Cars only” = car roads to every home and a drop-off at the school gate.'); assumptions.push('Everyone travels by car, including children.'); }
+    else if (carMode) { reading.push(slots.has('fast') ? '“Fast” = wide roads for cars.' : '“Easy for everyone” = easy for drivers: a wide road and a drop-off car park at the school.'); assumptions.push('Most people travel by car.'); }
+    const habit = !carMode ? null : carsOnly ? 'literal' : slots.has('fast') ? 'one_word' : 'typical';
+    const habitWhy = !carMode ? '' : carsOnly ? 'Florence did exactly what the words said, “cars only”, and forgot that children walk and cycle to school.' : slots.has('fast') ? 'Florence turned “fast” into “wide roads for cars” and forgot about children crossing.' : 'Florence planned for a typical grown-up who drives, not for children walking to school.';
     if (slots.has('everyone') && !walkish) reading.push('Everyone, including children and people without cars: footpaths and cycle lanes.');
     if (slots.has('safe_walking')) reading.push('Safe footpaths and crossings.');
     if (slots.has('cycling')) reading.push('Cycle lanes.');
@@ -181,10 +184,10 @@ const PLANNERS = {
   // ---------- Level 4: food
   food(slots, ctx) {
     const reading = [], assumptions = [];
-    const sim0 = simulate(ctx.terrain, ctx.cells); const need = sim0.foodNeed;
+    const sim0 = simulate(ctx.terrain, ctx.cells); const asked = ctx.numbers?.food || 0; const need = Math.max(sim0.foodNeed, asked); // a typed target is planned for
     const maxMode = slots.has('max_food') || (!slots.has('enough_food') && !['bees', 'keep_hedges', 'wildlife', 'allotments', 'orchard', 'local'].some((s) => slots.has(s)));
     if (maxMode) { reading.push('“As much food as possible” = plough every free field into big fields.'); assumptions.push('More food is always better.'); }
-    else reading.push(`Enough food for ${sim0.families} families (${need} baskets).`);
+    else reading.push(asked > sim0.foodNeed ? `Your target: at least ${asked} food units (the families need ${sim0.foodNeed}).` : `Enough food for ${sim0.families} families (${need} baskets).`);
     const habit = maxMode ? 'one_word' : !slots.has('keep_hedges') && !slots.has('bees') && !slots.has('wildlife') ? 'missing' : null;
     const habitWhy = maxMode ? 'Florence chased “as much as possible” and ploughed up every hedge.' : habit ? 'Florence didn’t know the bees and deer live in the hedges.' : '';
     if (slots.has('keep_hedges')) reading.push('Keep the hedges.');
@@ -222,6 +225,7 @@ const PLANNERS = {
     const worst = slots.has('winter') || slots.has('night') || slots.has('storage');
     const placements = [];
     let demand = sim0.power.demand;
+    const asked = ctx.numbers?.power || 0; if (asked > demand) { demand = asked; reading.push(`Your target: at least ${asked} units of power.`); } // a typed target is planned for, not just echoed
     if (!worst) {
       reading.push('Enough clean power on an average day: solar roofs on every home.');
       assumptions.push('Planned for an average day.');
@@ -249,7 +253,9 @@ const PLANNERS = {
       const spots = [...edgeSpots, ...nearby, ...inTown.slice(0, Math.max(0, inTown.length - reserve))];
       let b = 0; while (winter < demand && b < spots.length) { placements.push({ k: spots[b].k, item: 'battery' }); winter += 4; b++; }
       if (b) reading.push(`${b} batter${b > 1 ? 'ies' : 'y'} to store energy for the night.`);
-      if (winter < demand) assumptions.push('Not enough space to cover every still winter night.');
+      // a typed target above the town's need: more turbines on the free land that is left
+      if (asked && winter < demand) { const tk = new Set(placements.map((p) => p.k)); let extra = 0; for (const t of land.slice(nWind)) { if (winter >= demand) break; if (tk.has(t.k)) continue; placements.push({ k: t.k, item: 'wind' }); winter += 1; extra++; } if (extra) reading.push(`${extra} more wind turbine${extra > 1 ? 's' : ''} to reach your target.`); }
+      if (winter < demand) { assumptions.push('Not enough space to cover every still winter night.'); if (asked) reading.push(`There is no more room for turbines or batteries, so I can’t reach ${asked}.`); }
     }
     const townFree = () => townTiles(ctx).filter((t) => !placements.some((p) => p.k === t.k && p.item) && free(ctx, t, 'raingarden'));
     if (slots.has('save_water')) { reading.push('Rain gardens and a reed bed.'); for (const t of townFree().slice(0, 1)) placements.push({ k: t.k, item: 'raingarden' }); const rb = tilesOf(ctx).find((t) => t.zone === 'meadow' && free(ctx, t, 'reedbed') && neighbours(ctx.terrain.tiles, t).some((n) => sim0.homes.some((h) => h.k === n.k)));

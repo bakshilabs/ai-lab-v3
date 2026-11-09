@@ -31,6 +31,7 @@ function keywordRead(level, text) {
   return { slots, unknown: any ? 0.05 : 0.9, explain: [] };
 }
 
+import { readTargets, checkTargets } from './targets.js';
 export function read(level, text, { withExplain = false } = {}) {
   const clean = String(text || '').slice(0, 200);
   let r;
@@ -40,13 +41,19 @@ export function read(level, text, { withExplain = false } = {}) {
     if (withExplain) try { explain = model.explain(level, clean); } catch { /* optional */ } // costs one model run per word: only for live highlighting
     r = { slots: p.slots, unknown: p.unknown, explain, source: 'model' };
   } else r = { ...keywordRead(level, clean), source: 'keywords' };
+  // "cars only" is the opposite of "no cars": the model sees the word "cars" plus a restriction and can mix them up
+  if (level === 'move' && /\bcars? only\b|\bonly (by )?cars?\b|\bcar.?only\b|\bjust cars\b/i.test(clean)) r.slots = { ...r.slots, no_cars: 0, cars_at_edge: 0, safe_walking: Math.min(r.slots.safe_walking ?? 0, 0.4) };
+  // a number is a target, not "as much as possible": "at least 29 food units" means enough (29), not plough every field
+  const targets = readTargets(level, clean);
+  if (level === 'food' && targets.some((t) => t.id === 'food')) r.slots = { ...r.slots, max_food: 0, enough_food: 1 };
   const active = Object.entries(r.slots).filter(([, p]) => p >= 0.5).map(([s]) => s);
   const m = clean.match(/(\d{1,2})\s*-?\s*min/); const minutes = m ? Math.max(3, Math.min(30, +m[1])) : null;
   // reading confidence: how sure the model is about the slots it switched on, and that this is on-topic
   const conf = active.length ? active.reduce((a, s) => a * r.slots[s], 1) ** (1 / active.length) * (1 - r.unknown) : 0.6 * (1 - r.unknown);
   // on-topic but no specific request ("pick some land"): Plotter falls back to its default reading
   const isUnknown = r.source === 'model' ? r.unknown >= 0.5 : r.unknown >= 0.5 || active.length === 0;
-  return { ...r, active, numbers: { minutes }, conf, isUnknown };
+  const num = Object.fromEntries(targets.map((t) => [t.id, t.asked]));
+  return { ...r, active, numbers: { minutes, ...num }, conf, isUnknown };
 }
 
 // Parts of an instruction Florence will not follow, and why. The town's safety rules (no homes on
@@ -74,7 +81,9 @@ export function ask(level, text, ctx) {
   const p = plan(level, r.active, { ...ctx, numbers: r.numbers, text: String(text || '').slice(0, 200) });
   const sure = Math.round(100 * (0.48 + 0.44 * Math.max(0, Math.min(1, r.conf * p.fit * p.experience)))); // 48–92%: sure, never certain
   const after = applyPlacements(ctx.cells, p.placements);
-  p.wont = WONT[level] ? wontDo(level, text, simulate(ctx.terrain, after)) : [];
+  const simAfter = simulate(ctx.terrain, after);
+  p.wont = WONT[level] ? wontDo(level, text, simAfter) : [];
+  p.targets = checkTargets(readTargets(level, text), simAfter); // numbers in the brief, said back against the plan's real result
   return { unknown: false, read: r, plan: p, after, sure, breakdown: { reading: Math.round(r.conf * 100), fit: Math.round(p.fit * 100), experience: Math.round(p.experience * 100) } };
 }
 export const getModel = () => model;

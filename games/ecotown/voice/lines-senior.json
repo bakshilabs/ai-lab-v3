@@ -1100,6 +1100,76 @@
   "key": "cf37a6aa"
  },
  {
+  "s": "Transfer it: one rule for any AI answer.",
+  "voice": "narrator",
+  "key": "0c254339"
+ },
+ {
+  "s": "Complete the sentence.",
+  "voice": "narrator",
+  "key": "46452b99"
+ },
+ {
+  "s": "Select the checks you will actually use, or write your own.",
+  "voice": "narrator",
+  "key": "7bbc1070"
+ },
+ {
+  "s": "This applies to any AI output: essays, search answers, recommendations.",
+  "voice": "narrator",
+  "key": "6c294b9f"
+ },
+ {
+  "s": "It is saved in your town report.",
+  "voice": "narrator",
+  "key": "3cd14256"
+ },
+ {
+  "s": "The town is not complete yet.",
+  "voice": "narrator",
+  "key": "ce2a0073"
+ },
+ {
+  "s": "Next:",
+  "voice": "narrator",
+  "key": "121427b5"
+ },
+ {
+  "s": "The adopted plan meets this promise; your town does not yet (the plan was kept out or did not all fit).",
+  "voice": "narrator",
+  "key": "a1c79fbb"
+ },
+ {
+  "s": "\u201cCars only\u201d = car roads to every home and a drop-off at the school gate.",
+  "voice": "helper",
+  "key": "94e03d8b"
+ },
+ {
+  "s": "Florence did exactly what the words said, \u201ccars only\u201d, and forgot that children walk and cycle to school.",
+  "voice": "helper",
+  "key": "499ac6fd"
+ },
+ {
+  "s": "You asked for land by the beach.",
+  "voice": "helper",
+  "key": "750d292b"
+ },
+ {
+  "s": "The beach was too small, so Florence spread the town onto the low meadow beside it, and nobody told her that meadow floods every winter.",
+  "voice": "helper",
+  "key": "75d484cb"
+ },
+ {
+  "s": "You asked for land near the water.",
+  "voice": "helper",
+  "key": "febc3d76"
+ },
+ {
+  "s": "Florence chose the low meadow by the river, and nobody told her it floods every winter.",
+  "voice": "helper",
+  "key": "798ec24d"
+ },
+ {
   "s": "Suggested: the route from the homes to the mainland bridge.",
   "voice": "helper",
   "key": "87eaad06"
