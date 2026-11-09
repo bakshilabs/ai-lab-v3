@@ -27,6 +27,7 @@ const out = await p.evaluate(async () => {
     const j = band === 'junior'; const C = CONTENT[band]; const pick = (o) => (typeof o === 'string' ? o : j ? o.j : o.s);
     for (const v of Object.values(C.ui)) add(band, v, 'narrator');
     for (const k of ['unknown', 'correct', 'notQuite', 'lookAgain', 'itWas']) add(band, C.ui[k], 'helper');
+    for (const v of Object.values(C.ui.lucky || {})) add(band, v, 'helper'); // a plan that passed from a poor brief (third playtest)
     for (const h of Object.values(C.habits)) { add(band, h.explain, 'helper'); add(band, `${C.ui.correct} ${h.label}`, 'narrator'); }
     for (const r of [...C.stars.flawed, ...C.stars.clean, ...C.stars.missed]) add(band, `★ ${r}`, 'narrator');
     for (const w of WONT_LINES) add(band, w, 'helper');
@@ -63,6 +64,9 @@ const out = await p.evaluate(async () => {
     if (S.events) { const E = S.events; for (const k of ['stormTip', 'darkTip']) add(band, E[k], 'helper'); for (const k of ['stormGood', 'darkBad', 'darkGood']) add(band, E[k], 'narrator'); for (let n = 1; n <= 12; n++) add(band, E.stormBad(n), 'narrator'); }
     for (const w of Object.values(C.checkWhat || {})) add(band, `${j ? 'Hint: try the check that looks at' : 'Hint: test'} ${w}.`, 'narrator');
     if (S.planDidntFit) add(band, S.planDidntFit, 'narrator');
+    // third playtest: keyboard captions, and Florence's literal readings of lorry / "not concrete" / "most families" briefs
+    for (const k of ['kbHint', 'kbHere']) if (S[k]) add(band, S[k], 'narrator');
+    for (const t of ['“Bring the food in” = nothing grown on the island: a lorry and the ferry bring every basket from the mainland.', 'Florence did exactly what the words said: all the food comes from somewhere else, so the town grows none of its own, and the lorry burns fuel every week.', 'Not concrete, so: Timber terrace.', '“Most families” = the shortest walk on average.']) add(band, j ? t : t.replace(/\bbaskets?\b/g, (m) => (m.endsWith('s') ? 'units' : 'unit')), 'helper');
     // the AI Lab classroom: hello, Florence's answers (topics, and every build as "Label: what it does")
     if (S.classHello) add(band, S.classHello, 'helper');
     // Florence's suggestions in the town, and what she says when you judge them
