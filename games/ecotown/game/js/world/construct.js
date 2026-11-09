@@ -6,6 +6,7 @@ import { ITEMS } from './catalog.js';
 
 const ROADS = new Set(['road', 'carpark', 'path', 'cycle', 'tram']);
 const FIELDS = new Set(['bigfield', 'mixed', 'allot']);
+const CROP = new Set(['d4ad45', 'c99f3c', 'f0d878', 'e3c25a', '5e8f3e', '7aae4f', '5c9a40', '6aab4a', '8a6a3a', 'e8573f', 'e6a15a']);
 const HOMES = new Set(['timber', 'straw', 'earth', 'reclaimed', 'cohousing', 'concrete']);
 
 // what each home is made of: frame colour and what the walls are (for captions)
@@ -42,7 +43,9 @@ export function planStages(cell, vox, rec) {
   if (FIELDS.has(id)) {
     const plough = P(), sow = P(), crop = P(), fin = P();
     for (const [x, , z] of vox.G.m.values()) { plough.G.set(x, 0, z, z % 2 ? '#7a4f2d' : '#8f6038'); sow.G.set(x, 0, z, (x * 7 + z * 3) % 5 === 0 ? '#7ccf55' : z % 2 ? '#7a4f2d' : '#8f6038'); }
-    copy(vox.G, crop.G); copy(vox.B, fin.B); copy(vox.F, fin.F);
+    // raised crop rows grow with the crops; tractors, barns, sheds and fences come last
+    const isCrop = (x, y, z, c) => CROP.has(c.getHexString());
+    copy(vox.G, crop.G); copy(vox.F, crop.F, isCrop); copy(vox.B, fin.B); copy(vox.F, fin.F, (...a) => !isCrop(...a));
     add(L('Ploughing the soil', 'Ploughing: turning the soil (releases some carbon)'), plough, { dir: 'x', temp: true });
     add(L('Sowing seeds', 'Sowing in rows'), sow, { dir: 'x', temp: true });
     add(L('Crops growing', 'Crops grow over the season'), crop, { dir: 'x', w: 1.3 });

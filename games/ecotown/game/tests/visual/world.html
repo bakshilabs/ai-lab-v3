@@ -17,12 +17,15 @@ const upto = +(q.get('levels') ?? 6); const vague = q.get('vague');
 const L = [['land',['dry','sunny','keep_meadow']],['move',['safe_walking','cycling','cars_at_edge']],['homes',['warm','low_carbon','natural_materials']],['food',['enough_food','keep_hedges','bees']],['power',['enough_power','winter','night','storage','solar']],['heart',['walk_time','market','nature_links']]];
 let cells = new Map();
 L.slice(0, upto).forEach(([lv, s], i) => { const p = plan(lv, (vague && i === upto-1) ? [vague] : s, { terrain, cells, numbers:{minutes:10} }); cells = applyPlacements(cells, p.placements); });
+// ?place=9,6:timber;10,6:wild puts builds (or marks) on tiles; ?focus=9,6:80:0.6 frames one tile (art checks)
+if (q.get('place')) for (const pair of q.get('place').split(';')) { const i = pair.lastIndexOf(':'); const k = pair.slice(0, i), it = pair.slice(i + 1); cells.set(k, it === 'town' || it === 'wild' ? { mark: it, item: null, mods: [] } : { mark: 'town', item: it, mods: [] }); }
 for (const [k, c] of cells) world.setCell(k, c);
 const sim = simulate(terrain, cells); world.setLights(sim.power.winterOK || !upto ? sim.homes.map(h=>h.k) : []);
 stage.setTime(+(q.get('hour') ?? 12.5), +(q.get('winter') ?? 0));
 if (q.get('flood')) world.setFlood(+q.get('flood'));
 if (q.get('clay')) { world.setClay(true, true); }
 if (q.get('street')) { const k = terrain.school; const p = world.tileTop(k); rig.street = { base: { pos: p.clone().add({x:-8,y:2,z:-10}), look: p.clone().add({x:0,y:1.5,z:0}), fov:50 }, yaw:0, pitch:0 }; rig.mode='street'; }
+if (q.get('focus')) { const [k, d, p] = q.get('focus').split(':'); const t = world.tileTop(k); Object.assign(rig.sky, { dist: +d || 80, pitch: +p || 0.6 }); rig.sky.target.copy(t); rig.sky.autoPitch = false; }
 if (q.get('zoom')) { rig.sky.dist = +q.get('zoom'); rig.sky.target.set(18, 0, 8); }
 let last = performance.now(), T0 = last;
 function loop(now){ const dt=Math.min(0.05,(now-last)/1000); last=now; rig.update(dt); world.update(dt,(now-T0)/1000); stage.render(dt,(now-T0)/1000); requestAnimationFrame(loop); }

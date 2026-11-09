@@ -151,6 +151,33 @@ export function createFlorence(stage, world, terrain) {
   const spotMat = new THREE.MeshBasicMaterial({ color: '#7fe3ff' });
   const spot = new THREE.Mesh(new THREE.RingGeometry(5.6, 6.4, 32).rotateX(-Math.PI / 2), spotMat); stage.scene.add(spot);
 
+  // ---------- finding her on the island (art pass, Nov 2026): she stands a little taller on the island than in
+  // her portrait and the classroom, and when the camera is far out a solid mint "…" pin (her speech card) floats
+  // over her head at a constant size on screen, so a child can always spot her. Island only (never the portrait).
+  const onIsland = !!(stage.camera && terrain.tiles?.size);
+  const ISLAND_SCALE = 1.15;
+  const pin = new THREE.Group();
+  if (onIsland) {
+    const pinMat = new THREE.MeshLambertMaterial({ color: '#16c79a', emissive: '#0b6b52', emissiveIntensity: 0.6 });
+    const dotMat = new THREE.MeshBasicMaterial({ color: '#ffffff' });
+    const card = new THREE.Mesh(rbox(2.8, 1.8, 0.7, 0.45), pinMat); card.position.y = 2.1; pin.add(card);
+    const tip = new THREE.Mesh(new THREE.ConeGeometry(0.95, 1.5, 4).rotateX(Math.PI).rotateY(Math.PI / 4), pinMat); tip.position.y = 0.6; pin.add(tip);
+    for (const dx of [-0.75, 0, 0.75]) { const d = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.42, 0.2), dotMat); d.position.set(dx, 2.1, 0.36); pin.add(d); }
+    pin.visible = false; stage.scene.add(pin);
+  }
+  const vCam = new THREE.Vector3();
+  function placePin(t, rd) {
+    if (!onIsland) return;
+    const inClass = st.pos.y < -300; root.scale.setScalar(inClass ? 1 : ISLAND_SCALE);
+    const d = stage.camera.position.distanceTo(st.pos);
+    pin.visible = root.visible && !inClass && d > 120 && stage.camera.fov < 40;
+    if (!pin.visible) return;
+    const k = d / 190; // constant size on screen
+    pin.scale.setScalar(k);
+    pin.position.set(st.pos.x, st.pos.y + 7.6 + 0.3 * k + (rd ? 0 : Math.sin(t * 2.4) * 0.35 * k), st.pos.z);
+    vCam.copy(stage.camera.position).sub(pin.position); pin.rotation.y = Math.atan2(vCam.x, vCam.z);
+  }
+
   // ---------- state
   const st = {
     pos: new THREE.Vector3(14, 0, 22), yaw: 0, walk: null, phase: 0, speed: 0, gesture: null, gT: 0, gDur: 0, gAt: null,
@@ -184,7 +211,7 @@ export function createFlorence(stage, world, terrain) {
   const bot = {
     group: root, visible: true, get position() { return root.position; },
     set reduce(v) { st.reduce = v; },
-    show(on) { root.visible = on; this.visible = on; if (!on) st.beamT = 0; },
+    show(on) { root.visible = on; this.visible = on; if (!on) { st.beamT = 0; pin.visible = false; } },
     appear(p) { st.pos.copy(p); st.pos.y = groundY(p.x, p.z) ?? p.y; root.position.copy(st.pos); st.walk = null; this.show(true); },
     walkTo(p, { maxDur = 4, stopShort = 0 } = {}) {
       const to = p.clone(); const d = Math.hypot(to.x - st.pos.x, to.z - st.pos.z);
@@ -227,6 +254,7 @@ export function createFlorence(stage, world, terrain) {
       if (walking) { st.phase += dt * Math.min(pace, 11) * (2 * Math.PI) / (5.0 * S / 0.6) * (1 + run * 0.4); const fs = Math.floor(st.phase / Math.PI); if (fs !== st.footStep) { st.footStep = fs; bot.onStep?.(); } } // a footstep sound on each plant
       if (!moving) { const f = st.look || stage.camera.position; st.yaw = turn(st.yaw, Math.atan2(f.x - st.pos.x, f.z - st.pos.z), dt * 4); }
       root.position.copy(st.pos); root.rotation.y = st.yaw;
+      placePin(t, rd);
       // ---- base pose
       const sp = st.speed, ph = st.phase, amp = 0.62 + run * 0.2;
       const sw = Math.sin(ph) * amp * sp; const bob = Math.abs(Math.cos(ph)) * (0.3 + run * 0.6) * sp;
