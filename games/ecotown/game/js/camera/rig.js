@@ -247,6 +247,7 @@ export function createRig(stage, canvas, fadeEl) {
       return;
     }
     if (rig.mode !== 'sky') return;
+    if (k.startsWith('arrow') && rig.tileKeys?.()) return; // the arrows move the build cursor instead (game.js)
     if (k === 'arrowleft' || k === 'q') sky.vy = 0.03; if (k === 'arrowright' || k === 'e') sky.vy = -0.03;
     if (k === 'arrowup') { sky.vp = -0.02; sky.autoPitch = false; } if (k === 'arrowdown') { sky.vp = 0.02; sky.autoPitch = false; }
     if (k === 'w') rig.panBy(0, step); if (k === 's') rig.panBy(0, -step); if (k === 'a') rig.panBy(-step, 0); if (k === 'd') rig.panBy(step, 0);

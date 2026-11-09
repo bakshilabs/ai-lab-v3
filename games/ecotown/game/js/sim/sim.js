@@ -93,7 +93,7 @@ export function simulate(terrain, cells, extra = {}) {
 
   // power: on a still winter night only wind (weakly) and stored energy help
   const anyGen = gen > 0;
-  const winterSupply = winter + (anyGen ? store : 0);
+  const winterSupply = winter + (anyGen ? store : 0) + (R.homes.length ? extra.addWinter || 0 : 0); // + a town-meeting choice (gas from a neighbour, more storage)
   R.power = { avg, winterSupply, demand, avgOK: R.homes.length > 0 && avg >= demand, winterOK: R.homes.length > 0 && winterSupply >= demand };
 
   // walking to school and to daily needs
@@ -133,6 +133,7 @@ export function simulate(terrain, cells, extra = {}) {
 
   // senior town-meeting choices (extra families or carbon) count everywhere: petals, header, charter
   R.families += extra.addFamilies || 0; R.familiesSafe += extra.addFamilies || 0; carbon += extra.addCarbon || 0;
+  health += extra.addHealth || 0; community += extra.addCommunity || 0; nature += extra.addNature || 0;
   const need = Math.max(13, Math.ceil(R.families / 3));
   const natureStart = extra.natureStart || natureBaseline(terrain);
   R.count = count; R.hedges = hedges; R.woodIntact = woodIntact; R.meadowIntact = meadowIntact; R.wetIntact = wetIntact;

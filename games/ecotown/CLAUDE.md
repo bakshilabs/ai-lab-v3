@@ -171,6 +171,19 @@ The user shared a scored review (Ages 8–12: 93/100, Ages 13–17: 95/100, expe
 - **Camera:** `rig.cut(pose)` is a hard cut that ends a running flight (used for the classroom and inside views), so a late flight can't pull the camera back to the island.
 - Not done: child-player sessions (the review's Section 9) and a keyboard/screen-reader pass beyond `a11y.mjs`.
 
+## Third no-context playtest (Nov 2026)
+A no-context subagent played both bands on a laptop, a phone and keyboard only (overall 7/10, phone 5). Fixes:
+- **Scoring can't be gamed:** `js/ai/brief.js` `briefQuality(text)` (tests `tests/brief.test.mjs`) flags briefs of repeats, emoji or one or two words. A plan that passes from such a brief, or only because Florence refused part of it (`plan.wont`), gets no "Well specified / Clear first time" star; Florence says why (`G.C.ui.lucky`, tag LUCKY / UNDERSPECIFIED) and the outcome line repeats it.
+- **Florence follows the brief, the lenses expose it** (`plotter.read` overrides, `planner.js`): "cars" without "no/ban/edge…" never switches on `no_cars` ("fastest route for cars" → car roads → street view); "bring our food in by lorry" (`IMPORTED`) grows nothing (habit literal, the plan misses the food); an explicit "keep the wood / hedges / wildlife" is never dropped (`KEEP`); `avoidsIn()` reads "not concrete" (timber instead); "where most families can reach it" minimises the average walk and says so; homes top up to the 40-family target with bigger homes of the same kind; the assumption line quotes only the words used ("Cheap matters most").
+- **Failed fixes say what to add:** `retry` names the failing check with its number, how Florence read the brief, and one thing to add (`FIX_HINT` per lens, both bands).
+- **Adopted plans vs the town:** after "Use/Adopt the plan", `leaveLab(real, placements, id)` checks the mission's needs on the player's town and says what still differs (`G.S.townDiffers`). The diary line describes the player's town (or says the town was kept), not the practice island.
+- **Town meetings change numbers:** `DILEMMAS` effects now include `winter`, `health`, `community`, `nature`, `credits`; `sim()` passes `addWinter/addHealth/addCommunity/addNature`; `meetingEffect()` words them. The senior bias step waits for Next before a meeting can appear (the "learned from 9 examples" heading was stale).
+- **Class mode:** finished missions stay replayable (`labReady`). The 🧪 badge refreshes on leaving the Lab; no "Next: Next:" in the reflection card.
+- **Classroom questions** (`qa.js`): keys match at word starts ("alive" ≠ "live", "nuclear" ≠ "clear"); new topics `feelings` (honest: not alive) and `otherpower` (nuclear, gas…); the fallback says what Florence can answer.
+- **Building and intro:** the intro's gold targets are only tiles a tap really builds on, and every other tile keeps its usual mark (`allowedSpec`); the intro card hides as soon as Next is pressed (it used to stay, without a button, while she walked); "Homes open at 6 tiles of town land: mark 3 more" (no counter that looks reset). The town-name field selects the suggestion (typing replaces it) and tags are dropped as words.
+- **Keyboard:** with the island focused, arrow keys move a blue tile cursor (screen directions), Enter/Space builds (`tapKey`, `hoverKey`, `rig.tileKeys`); after a tray changes, keyboard focus moves to its first control (`ui.tray`, keyboard users only). 🔊 buttons show `.speaking` while reading aloud. Pop-overs close when the Lab or classroom opens. 13–17 mission text says households/units.
+- Tests: `tests/tester3.test.mjs`, `tests/brief.test.mjs`.
+
 ## Beta revision (Nov 2026)
 All 49 notes in the beta tester's file were addressed; see README "How the game plays" and the commit history. Key decisions the user made:
 - **Helper name:** **Florence** (she). Code file names stay `plotter.*`.
@@ -210,7 +223,7 @@ All 49 notes in the beta tester's file were addressed; see README "How the game 
   - `/admin` redirects (302) to `…cloudflareaccess.com`.
 
 ## Tests
-From `games/ecotown/game` (153 tests, all passing at handoff; run them all with `node --test tests/*.test.mjs`):
+From `games/ecotown/game` (166 tests, all passing at handoff; run them all with `node --test tests/*.test.mjs`):
 
 ```bash
 node --test tests/sim.test.mjs tests/model.test.mjs tests/teach.test.mjs tests/syntax.test.mjs tests/codes.test.mjs tests/playtest.test.mjs tests/progress.test.mjs tests/audio.test.mjs tests/replace.test.mjs tests/delta.test.mjs tests/qa.test.mjs

@@ -28,8 +28,8 @@ export function createPortrait(createFlorence) {
   bot.appear(new THREE.Vector3(0, 0, 0));
   bot.group.traverse((m) => { if (m.isMesh && m.material?.isMeshStandardMaterial) m.material.envMapIntensity = 0.4; });
   const camera = new THREE.PerspectiveCamera(26, W / H, 0.1, 100);
-  camera.position.set(0, 4.1, 15.8); camera.lookAt(0, 3.4, 0); // her whole body
-  bot.look(new THREE.Vector3(0, 4.1, 15.8)); // she looks at the player
+  camera.position.set(0, 4.4, 18); camera.lookAt(0, 3.8, 0); // her whole body, with headroom for a cheer or a jump
+  bot.look(new THREE.Vector3(0, 4.4, 18)); // she looks at the player
   let last = performance.now(), t = 0, running = false;
   const visible = () => canvas.isConnected && canvas.offsetParent !== null;
   function frame(now) {

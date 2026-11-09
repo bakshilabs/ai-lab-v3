@@ -145,6 +145,11 @@
   "key": "c087f7e1"
  },
  {
+  "s": "[object Object]",
+  "voice": "narrator",
+  "key": "b07fa198"
+ },
+ {
   "s": "Town report",
   "voice": "narrator",
   "key": "f451b9ea"
@@ -250,11 +255,6 @@
   "key": "4cce51cb"
  },
  {
-  "s": "[object Object]",
-  "voice": "narrator",
-  "key": "b07fa198"
- },
- {
   "s": "I can\u2019t map that to a plan for this level.",
   "voice": "helper",
   "key": "320d890c"
@@ -278,6 +278,41 @@
   "s": "It was",
   "voice": "helper",
   "key": "33d6f6a3"
+ },
+ {
+  "s": "The plan passed, but the brief was mostly repetition.",
+  "voice": "helper",
+  "key": "d118053b"
+ },
+ {
+  "s": "A well-specified brief states the goal, the constraints and how success is tested.",
+  "voice": "helper",
+  "key": "59e009c1"
+ },
+ {
+  "s": "No star for well specified first time.",
+  "voice": "helper",
+  "key": "7911073c"
+ },
+ {
+  "s": "The plan passed, but emoji are not a specification.",
+  "voice": "helper",
+  "key": "cc9d1c11"
+ },
+ {
+  "s": "State the goal and the constraints in words.",
+  "voice": "helper",
+  "key": "3bf1a898"
+ },
+ {
+  "s": "The plan passed, but a one- or two-word brief leaves Florence guessing the rest.",
+  "voice": "helper",
+  "key": "d786f296"
+ },
+ {
+  "s": "The plan passed only because Florence overrode part of your brief.",
+  "voice": "helper",
+  "key": "a87b80e8"
  },
  {
   "s": "Florence maximised one measurable proxy for a vague word (\u201cbest\u201d \u2192 flattest, \u201cfast\u201d \u2192 wide roads) and ignored everything else.",
@@ -895,6 +930,11 @@
   "key": "6195ab92"
  },
  {
+  "s": "Housing unlocks at 6 town tiles: 3 more.",
+  "voice": "helper",
+  "key": "2b191c83"
+ },
+ {
   "s": "Each build goes up in stages.",
   "voice": "helper",
   "key": "0b6f1993"
@@ -1505,6 +1545,36 @@
   "key": "4fd8be04"
  },
  {
+  "s": "Arrow keys move the blue tile cursor; Enter builds there.",
+  "voice": "narrator",
+  "key": "224964ed"
+ },
+ {
+  "s": "Enter: build here",
+  "voice": "narrator",
+  "key": "2f33e776"
+ },
+ {
+  "s": "\u201cBring the food in\u201d = nothing grown on the island: a lorry and the ferry bring every unit from the mainland.",
+  "voice": "helper",
+  "key": "e706db62"
+ },
+ {
+  "s": "Florence did exactly what the words said: all the food comes from somewhere else, so the town grows none of its own, and the lorry burns fuel every week.",
+  "voice": "helper",
+  "key": "cc6a382b"
+ },
+ {
+  "s": "Not concrete, so: Timber terrace.",
+  "voice": "helper",
+  "key": "ee13bda4"
+ },
+ {
+  "s": "\u201cMost families\u201d = the shortest walk on average.",
+  "voice": "helper",
+  "key": "1f455b41"
+ },
+ {
   "s": "Welcome to the AI Lab.",
   "voice": "helper",
   "key": "0b4ea3f0"
@@ -1655,6 +1725,16 @@
   "key": "9c7341a3"
  },
  {
+  "s": "Gas, coal and oil are high-carbon.",
+  "voice": "helper",
+  "key": "431deb28"
+ },
+ {
+  "s": "This island\u2019s options are wind, solar and storage, tested on a still winter night.",
+  "voice": "helper",
+  "key": "340e5f5b"
+ },
+ {
   "s": "I predict from patterns in what I was told, not from checking the world.",
   "voice": "helper",
   "key": "1572a952"
@@ -1770,6 +1850,21 @@
   "key": "c053e1b0"
  },
  {
+  "s": "No.",
+  "voice": "helper",
+  "key": "1cbae9b2"
+ },
+ {
+  "s": "I\u2019m a program that predicts from patterns in text; I have no feelings or experiences, even when I sound warm or certain.",
+  "voice": "helper",
+  "key": "6a95b3c5"
+ },
+ {
+  "s": "Fluent, confident language is not understanding, which is exactly why my plans need testing.",
+  "voice": "helper",
+  "key": "d4b39b81"
+ },
+ {
   "s": "Fair question.",
   "voice": "helper",
   "key": "6adb01ab"
@@ -1785,14 +1880,14 @@
   "key": "f8364c30"
  },
  {
-  "s": "I don\u2019t have an answer for that.",
+  "s": "That\u2019s outside what I can answer.",
   "voice": "helper",
-  "key": "1ad66cff"
+  "key": "8e0140f2"
  },
  {
-  "s": "Ask about flooding, carbon, power, food, nature, walking to school, or any build by name.",
+  "s": "I only cover this town: how I plan, how to test my plans, flooding, carbon, power, food, nature, walking to school, and any build by name.",
   "voice": "helper",
-  "key": "0af1c187"
+  "key": "f904adc0"
  },
  {
   "s": "Town land: Designates land for building.",
@@ -2135,6 +2230,11 @@
   "key": "d03da1db"
  },
  {
+  "s": "1 Timber terrace instead, to house all 40 families.",
+  "voice": "helper",
+  "key": "8024e6a3"
+ },
+ {
   "s": "Green roofs.",
   "voice": "helper",
   "key": "c6161149"
@@ -2165,9 +2265,19 @@
   "key": "85e2c510"
  },
  {
+  "s": "4 Timber terraces instead, to house all 40 families.",
+  "voice": "helper",
+  "key": "085dfc7f"
+ },
+ {
   "s": "Timber terrace, Straw-bale cottages, Reclaimed-brick terrace.",
   "voice": "helper",
   "key": "b8d38aee"
+ },
+ {
+  "s": "10 Timber terraces instead, to house all 40 families.",
+  "voice": "helper",
+  "key": "87f62e5e"
  },
  {
   "s": "Straw-bale cottages, Reclaimed-brick terrace.",
@@ -2210,9 +2320,19 @@
   "key": "bdff2768"
  },
  {
+  "s": "5 Cohousing courts instead, to house all 40 families.",
+  "voice": "helper",
+  "key": "eccc5781"
+ },
+ {
   "s": "Cohousing court, Timber terrace, Straw-bale cottages, Reclaimed-brick terrace.",
   "voice": "helper",
   "key": "baca3806"
+ },
+ {
+  "s": "4 Cohousing courts instead, to house all 40 families.",
+  "voice": "helper",
+  "key": "632182f6"
  },
  {
   "s": "Cohousing court, Straw-bale cottages, Reclaimed-brick terrace.",
@@ -2220,9 +2340,24 @@
   "key": "23d29be1"
  },
  {
+  "s": "3 Cohousing courts instead, to house all 40 families.",
+  "voice": "helper",
+  "key": "e7af7cef"
+ },
+ {
+  "s": "5 Timber terraces instead, to house all 40 families.",
+  "voice": "helper",
+  "key": "e2762a4e"
+ },
+ {
   "s": "Straw-bale cottages, Timber terrace, Reclaimed-brick terrace.",
   "voice": "helper",
   "key": "8af59990"
+ },
+ {
+  "s": "3 Timber terraces instead, to house all 40 families.",
+  "voice": "helper",
+  "key": "0ddac658"
  },
  {
   "s": "Homes = the usual kind: concrete flats.",
@@ -2380,21 +2515,6 @@
   "key": "4d6bd03b"
  },
  {
-  "s": "Footpaths, cycle lanes and parks.",
-  "voice": "helper",
-  "key": "74b35090"
- },
- {
-  "s": "3 town tiles on the winter floodplain.",
-  "voice": "helper",
-  "key": "3d589b94"
- },
- {
-  "s": "Relocate to higher ground.",
-  "voice": "helper",
-  "key": "de252c47"
- },
- {
   "s": "\ud83c\udfe1 Homes: unlocked",
   "voice": "narrator",
   "key": "f7d29f18"
@@ -2445,6 +2565,11 @@
   "key": "d1ac357b"
  },
  {
+  "s": "Enough food for 42 households (14 units).",
+  "voice": "helper",
+  "key": "92cc31e3"
+ },
+ {
   "s": "88 percent confidence.",
   "voice": "helper",
   "key": "4678c234"
@@ -2485,11 +2610,6 @@
   "key": "d591f1cb"
  },
  {
-  "s": "Walking-time lens: Longest walk 15 min (town rule 15 min).",
-  "voice": "narrator",
-  "key": "d88b674d"
- },
- {
   "s": "Balanced data: 30% vs 10% really",
   "voice": "narrator",
   "key": "b811278e"
@@ -2515,6 +2635,16 @@
   "key": "c8798677"
  },
  {
+  "s": "Before I trust an AI plan, I test it against evidence, not its confidence, stress-test the worst case and ask a friend to check it.",
+  "voice": "narrator",
+  "key": "7a753bfd"
+ },
+ {
+  "s": "Next: health petal to 100%",
+  "voice": "narrator",
+  "key": "efab1390"
+ },
+ {
   "s": "Longest walk to school 24 min (rule: \u2264 15).",
   "voice": "helper",
   "key": "95b812da"
@@ -2528,6 +2658,36 @@
   "s": "Pegging out the town",
   "voice": "narrator",
   "key": "fbf99388"
+ },
+ {
+  "s": "I don\u2019t have an answer for that.",
+  "voice": "helper",
+  "key": "1ad66cff"
+ },
+ {
+  "s": "Ask about flooding, carbon, power, food, nature, walking to school, or any build by name.",
+  "voice": "helper",
+  "key": "0af1c187"
+ },
+ {
+  "s": "Footpaths, cycle lanes and parks.",
+  "voice": "helper",
+  "key": "74b35090"
+ },
+ {
+  "s": "3 town tiles on the winter floodplain.",
+  "voice": "helper",
+  "key": "3d589b94"
+ },
+ {
+  "s": "Relocate to higher ground.",
+  "voice": "helper",
+  "key": "de252c47"
+ },
+ {
+  "s": "Walking-time lens: Longest walk 15 min (town rule 15 min).",
+  "voice": "narrator",
+  "key": "d88b674d"
  },
  {
   "s": "Town centre complete",

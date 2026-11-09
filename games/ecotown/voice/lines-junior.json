@@ -145,6 +145,11 @@
   "key": "35851777"
  },
  {
+  "s": "[object Object]",
+  "voice": "narrator",
+  "key": "b07fa198"
+ },
+ {
   "s": "Town report",
   "voice": "narrator",
   "key": "f451b9ea"
@@ -270,11 +275,6 @@
   "key": "9c20baab"
  },
  {
-  "s": "[object Object]",
-  "voice": "narrator",
-  "key": "b07fa198"
- },
- {
   "s": "I don\u2019t know how to plan that yet.",
   "voice": "helper",
   "key": "fb038d1e"
@@ -298,6 +298,46 @@
   "s": "It was",
   "voice": "helper",
   "key": "33d6f6a3"
+ },
+ {
+  "s": "The plan passed, but your instruction mostly said the same word again and again.",
+  "voice": "helper",
+  "key": "8ab98e72"
+ },
+ {
+  "s": "A clear instruction says what matters and why, so anyone could follow it.",
+  "voice": "helper",
+  "key": "49a6dff3"
+ },
+ {
+  "s": "No star for clear first time.",
+  "voice": "helper",
+  "key": "0200cc69"
+ },
+ {
+  "s": "The plan passed, but pictures aren\u2019t an instruction.",
+  "voice": "helper",
+  "key": "c7e8e903"
+ },
+ {
+  "s": "Say in words what matters and why.",
+  "voice": "helper",
+  "key": "923942a7"
+ },
+ {
+  "s": "The plan passed, but your instruction was only a word or two.",
+  "voice": "helper",
+  "key": "5618e870"
+ },
+ {
+  "s": "Florence had to guess the rest.",
+  "voice": "helper",
+  "key": "5f82e3b1"
+ },
+ {
+  "s": "The plan passed only because Florence refused part of what you asked.",
+  "voice": "helper",
+  "key": "9b463a82"
  },
  {
   "s": "Florence chased one word, like \u201cbest\u201d, \u201cfast\u201d or \u201cmost\u201d, and forgot everything else.",
@@ -1115,6 +1155,11 @@
   "key": "865c2c65"
  },
  {
+  "s": "Mark 3 more tiles and Homes will open.",
+  "voice": "helper",
+  "key": "37e8ceee"
+ },
+ {
   "s": "Here\u2019s how a home gets built.",
   "voice": "helper",
   "key": "32989e20"
@@ -1725,6 +1770,41 @@
   "key": "7ebac91d"
  },
  {
+  "s": "Arrow keys move the blue tile cursor.",
+  "voice": "narrator",
+  "key": "c69b8267"
+ },
+ {
+  "s": "Enter builds there.",
+  "voice": "narrator",
+  "key": "359094a9"
+ },
+ {
+  "s": "Enter: build here",
+  "voice": "narrator",
+  "key": "2f33e776"
+ },
+ {
+  "s": "\u201cBring the food in\u201d = nothing grown on the island: a lorry and the ferry bring every basket from the mainland.",
+  "voice": "helper",
+  "key": "640b2106"
+ },
+ {
+  "s": "Florence did exactly what the words said: all the food comes from somewhere else, so the town grows none of its own, and the lorry burns fuel every week.",
+  "voice": "helper",
+  "key": "cc6a382b"
+ },
+ {
+  "s": "Not concrete, so: Timber terrace.",
+  "voice": "helper",
+  "key": "ee13bda4"
+ },
+ {
+  "s": "\u201cMost families\u201d = the shortest walk on average.",
+  "voice": "helper",
+  "key": "1f455b41"
+ },
+ {
   "s": "Welcome to my classroom!",
   "voice": "helper",
   "key": "c57666da"
@@ -1890,6 +1970,21 @@
   "key": "3568e316"
  },
  {
+  "s": "Nuclear power makes very little carbon while it runs, but a power station is huge, slow and costly to build: far too big for our little island.",
+  "voice": "helper",
+  "key": "75db11bc"
+ },
+ {
+  "s": "Gas, coal and oil make lots of carbon.",
+  "voice": "helper",
+  "key": "5120d0a8"
+ },
+ {
+  "s": "Here we use wind, sun and batteries.",
+  "voice": "helper",
+  "key": "7109356e"
+ },
+ {
   "s": "I learn from patterns, not from looking at the real island.",
   "voice": "helper",
   "key": "f147eba6"
@@ -2045,6 +2140,26 @@
   "key": "a10895af"
  },
  {
+  "s": "No, I\u2019m not alive, and I don\u2019t have feelings.",
+  "voice": "helper",
+  "key": "42a94688"
+ },
+ {
+  "s": "I\u2019m a computer program that spots patterns in words.",
+  "voice": "helper",
+  "key": "79ed3bf9"
+ },
+ {
+  "s": "I can sound friendly and sure of myself, but I don\u2019t feel anything, and I don\u2019t see the island.",
+  "voice": "helper",
+  "key": "3f599962"
+ },
+ {
+  "s": "That\u2019s why you check my plans!",
+  "voice": "helper",
+  "key": "3fbc5494"
+ },
+ {
   "s": "Ooh, fun question!",
   "voice": "helper",
   "key": "a9c0134b"
@@ -2065,14 +2180,14 @@
   "key": "6853b4ab"
  },
  {
-  "s": "Hmm, I don\u2019t know that one yet!",
+  "s": "I can only answer questions about our town: how I make plans, how to check them, and the builds.",
   "voice": "helper",
-  "key": "564a0279"
+  "key": "79a62e0f"
  },
  {
-  "s": "Try asking me about flooding, carbon, winter power, food, bees, or any build, like \u201cWhat does a heat pump do?\u201d",
+  "s": "Try asking about flooding, carbon, winter power, food, bees, or a build, like \u201cWhat does a heat pump do?\u201d",
   "voice": "helper",
-  "key": "98485654"
+  "key": "e5e3f7d9"
  },
  {
   "s": "Town land: Marks land where your town can grow.",
@@ -2470,6 +2585,11 @@
   "key": "d03da1db"
  },
  {
+  "s": "1 Timber terrace instead, to house all 40 families.",
+  "voice": "helper",
+  "key": "8024e6a3"
+ },
+ {
   "s": "Green roofs.",
   "voice": "helper",
   "key": "c6161149"
@@ -2500,9 +2620,19 @@
   "key": "85e2c510"
  },
  {
+  "s": "4 Timber terraces instead, to house all 40 families.",
+  "voice": "helper",
+  "key": "085dfc7f"
+ },
+ {
   "s": "Timber terrace, Straw-bale cottages, Reclaimed-brick terrace.",
   "voice": "helper",
   "key": "b8d38aee"
+ },
+ {
+  "s": "10 Timber terraces instead, to house all 40 families.",
+  "voice": "helper",
+  "key": "87f62e5e"
  },
  {
   "s": "Straw-bale cottages, Reclaimed-brick terrace.",
@@ -2545,9 +2675,19 @@
   "key": "bdff2768"
  },
  {
+  "s": "5 Cohousing courts instead, to house all 40 families.",
+  "voice": "helper",
+  "key": "eccc5781"
+ },
+ {
   "s": "Cohousing court, Timber terrace, Straw-bale cottages, Reclaimed-brick terrace.",
   "voice": "helper",
   "key": "baca3806"
+ },
+ {
+  "s": "4 Cohousing courts instead, to house all 40 families.",
+  "voice": "helper",
+  "key": "632182f6"
  },
  {
   "s": "Cohousing court, Straw-bale cottages, Reclaimed-brick terrace.",
@@ -2555,9 +2695,24 @@
   "key": "23d29be1"
  },
  {
+  "s": "3 Cohousing courts instead, to house all 40 families.",
+  "voice": "helper",
+  "key": "e7af7cef"
+ },
+ {
+  "s": "5 Timber terraces instead, to house all 40 families.",
+  "voice": "helper",
+  "key": "e2762a4e"
+ },
+ {
   "s": "Straw-bale cottages, Timber terrace, Reclaimed-brick terrace.",
   "voice": "helper",
   "key": "8af59990"
+ },
+ {
+  "s": "3 Timber terraces instead, to house all 40 families.",
+  "voice": "helper",
+  "key": "0ddac658"
  },
  {
   "s": "Homes = the usual kind: concrete flats.",
@@ -2815,14 +2970,14 @@
   "key": "c8798677"
  },
  {
-  "s": "Before I trust an AI plan, I check it with a lens first, and test the worst day, not a normal day, and ask a friend to check it.",
+  "s": "Before I trust an AI plan, I check it with a lens first, test the worst day, not a normal day and ask a friend to check it.",
   "voice": "narrator",
-  "key": "55735e94"
+  "key": "8b2a7a99"
  },
  {
-  "s": "Next: Next: a healthier town: paths, parks, warm homes",
+  "s": "Next: a healthier town: paths, parks, warm homes",
   "voice": "narrator",
-  "key": "3705b7e1"
+  "key": "c7d99106"
  },
  {
   "s": "The farthest home is a 24-minute walk from school.",
@@ -2838,6 +2993,26 @@
   "s": "Pegging out the town",
   "voice": "narrator",
   "key": "fbf99388"
+ },
+ {
+  "s": "Hmm, I don\u2019t know that one yet!",
+  "voice": "helper",
+  "key": "564a0279"
+ },
+ {
+  "s": "Try asking me about flooding, carbon, winter power, food, bees, or any build, like \u201cWhat does a heat pump do?\u201d",
+  "voice": "helper",
+  "key": "98485654"
+ },
+ {
+  "s": "Before I trust an AI plan, I check it with a lens first, and test the worst day, not a normal day, and ask a friend to check it.",
+  "voice": "narrator",
+  "key": "55735e94"
+ },
+ {
+  "s": "Next: Next: a healthier town: paths, parks, warm homes",
+  "voice": "narrator",
+  "key": "3705b7e1"
  },
  {
   "s": "Start with site selection: mark town land (\ud83d\uddfa Land), then connect it with paths.",

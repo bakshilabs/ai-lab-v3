@@ -28,7 +28,7 @@ export function newlyUnlocked(before, after) { return after.filter((id) => !befo
 // A lab is ready once its category is open. Class mode: only the first one not done yet.
 export function labReady(id, open, done, classMode = false) {
   if (!open.includes(id)) return false;
-  if (!classMode) return true;
+  if (!classMode || done[id]) return true; // a finished mission can always be replayed (class mode showed it locked)
   return LEVEL_ORDER.find((l) => !done[l]) === id;
 }
 

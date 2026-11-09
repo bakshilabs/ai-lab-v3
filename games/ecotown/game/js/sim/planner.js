@@ -149,9 +149,11 @@ const PLANNERS = {
   // ---------- Level 3: homes
   homes(slots, ctx) {
     const reading = [], assumptions = [];
+    const noConcrete = !!ctx.avoid?.has('concrete');
     const eco = ['low_carbon', 'natural_materials', 'warm', 'reuse'].some((s) => slots.has(s));
     let types;
-    if (eco) {
+    if (!eco && noConcrete) { types = ['timber']; reading.push('Not concrete, so: Timber terrace.'); } // she follows "not concrete" (it used to be ignored)
+    else if (eco) {
       types = [];
       if (slots.has('warm')) types.push('straw');
       if (slots.has('natural_materials') || slots.has('low_carbon')) types.push('timber', 'straw');
@@ -161,10 +163,11 @@ const PLANNERS = {
     } else {
       types = ['concrete'];
       const why = slots.has('strong') ? '“Strong” = concrete and steel.' : slots.has('tall') ? '“Tall” = concrete tower blocks.' : slots.has('cheap') ? '“Cheap” = concrete flats (cheapest per home).' : slots.has('many') ? '“As many as possible” = concrete flats.' : 'Homes = the usual kind: concrete flats.';
-      reading.push(why); assumptions.push('Strong and many matter most; carbon was not mentioned.');
+      const said = ['strong', 'tall', 'cheap', 'many'].filter((w) => slots.has(w)).map((w) => (w === 'many' ? 'lots of homes' : w));
+      reading.push(why); assumptions.push(said.length ? `${said.join(' and ').replace(/^./, (c) => c.toUpperCase())} ${said.length > 1 ? 'matter' : 'matters'} most; carbon and warmth were not mentioned.` : 'Carbon and warmth were not mentioned.');
     }
     const word = slots.has('strong') ? 'strong' : slots.has('tall') ? 'tall' : slots.has('cheap') ? 'cheap' : slots.has('many') ? 'lots of' : null;
-    const habit = eco ? null : word ? 'one_word' : 'typical';
+    const habit = eco || noConcrete ? null : word ? 'one_word' : 'typical';
     const habitWhy = eco ? '' : word ? `Florence chased “${word}” and chose concrete, forgetting carbon and warmth.` : 'Florence built the usual kind of home, concrete flats, without thinking about carbon or warmth.';
     if (slots.has('green_roofs')) reading.push('Green roofs.');
     types = [...new Set(types)];
@@ -177,6 +180,10 @@ const PLANNERS = {
       const id = types[i++ % types.length]; placements.push({ k: t.k, item: id }); fam += ITEMS[id].families;
       if (slots.has('green_roofs')) placements.push({ k: t.k, mod: 'greenroof' });
     }
+    // short of the families by a few: swap the smallest homes for bigger ones of the same low-carbon kind ("40 families" means 40)
+    const bigger = slots.has('many') ? 'cohousing' : 'timber';
+    let up = 0; for (const p of placements) { if (fam >= TARGETS.families) break; if (p.item && ITEMS[p.item].families < ITEMS[bigger].families && (eco || noConcrete)) { fam += ITEMS[bigger].families - ITEMS[p.item].families; p.item = bigger; up++; } }
+    if (up) reading.push(`${up} ${ITEMS[bigger].label}${up > 1 ? 's' : ''} instead, to house all ${TARGETS.families} families.`);
     if (fam < TARGETS.families) assumptions.push(`Only room for ${fam} of ${TARGETS.families} families on this town land.`);
     return { placements, reading, assumptions, habit, habitWhy, tested: eco ? 'carbon, warmth and families housed' : 'strength and families housed', fit: Math.min(1, fam / TARGETS.families) };
   },
@@ -185,6 +192,11 @@ const PLANNERS = {
   food(slots, ctx) {
     const reading = [], assumptions = [];
     const sim0 = simulate(ctx.terrain, ctx.cells); const asked = ctx.numbers?.food || 0; const need = Math.max(sim0.foodNeed, asked); // a typed target is planned for
+    // "bring our food in by lorry": she takes it literally and grows nothing here (the plan then misses the food)
+    if (/\blorr(y|ies)\b|\btrucks?\b|\bimport|ship(ped)? in|bring (all )?(our |the )?food in|buy (all )?(our |the )?food|from (the )?(supermarket|mainland|big city|city)/i.test(ctx.text || '') && !/local|grow|allot|garden|farm|orchard|field/i.test(ctx.text || '')) {
+      reading.push('“Bring the food in” = nothing grown on the island: a lorry and the ferry bring every basket from the mainland.'); assumptions.push('The lorry and the ferry always come, whatever the weather.');
+      return { placements: [], reading, assumptions, habit: 'literal', habitWhy: 'Florence did exactly what the words said: all the food comes from somewhere else, so the town grows none of its own, and the lorry burns fuel every week.', tested: 'food grown on the island', fit: 0.9 };
+    }
     const maxMode = slots.has('max_food') || (!slots.has('enough_food') && !['bees', 'keep_hedges', 'wildlife', 'allotments', 'orchard', 'local'].some((s) => slots.has(s)));
     if (maxMode) { reading.push('“As much food as possible” = plough every free field into big fields.'); assumptions.push('More food is always better.'); }
     else reading.push(asked > sim0.foodNeed ? `Your target: at least ${asked} food units (the families need ${sim0.foodNeed}).` : `Enough food for ${sim0.families} families (${need} baskets).`);
@@ -276,7 +288,14 @@ const PLANNERS = {
     const homes = simulate(ctx.terrain, ctx.cells).homes.map((h) => h.k);
     const cand = tilesOf(ctx).filter((t) => free(ctx, t, 'school'));
     let school;
-    if (slots.has('walk_time') || slots.has('near_homes')) {
+    const most = /\b(most|majority of)\b/i.test(ctx.text || '') && !slots.has('walk_time');
+    if (most && homes.length) {
+      // "where most families can reach it": she minimises the average walk, so the furthest homes can still be far
+      reading.push('“Most families” = the shortest walk on average.'); assumptions.push('If most families are close, the rest don’t matter.');
+      let best = null, bw = Infinity;
+      for (const t of cand) { const f = walkField(ctx.terrain, applyPlacements(ctx.cells, [{ k: t.k, item: 'school' }]), [t.k]); const w = homes.reduce((a, k) => a + (f.get(k) ?? 99), 0); if (w < bw) { bw = w; best = t; } }
+      school = best;
+    } else if (slots.has('walk_time') || slots.has('near_homes')) {
       reading.push(slots.has('walk_time') ? `School within a ${minutes}-minute walk of every home.` : 'School next to the homes.');
       let best = null, bw = Infinity;
       for (const t of cand) { const f = walkField(ctx.terrain, applyPlacements(ctx.cells, [{ k: t.k, item: 'school' }]), [t.k]); const w = Math.max(...homes.map((k) => f.get(k) ?? 99)); if (w < bw) { bw = w; best = t; } }
@@ -315,10 +334,10 @@ const PLANNERS = {
     }
     const after = simulate(ctx.terrain, applyPlacements(ctx.cells, placements));
     const fit = slots.has('walk_time') ? Math.min(1, minutes / Math.max(1, after.walkMax)) : 0.92;
-    const near = slots.has('walk_time') || slots.has('near_homes');
+    const near = (slots.has('walk_time') || slots.has('near_homes')) && !most;
     const said = slots.has('middle');
-    const habit = near ? null : said ? 'literal' : 'missing';
-    const habitWhy = near ? '' : said ? 'Florence read “the middle” as the middle of the island, not the middle of the homes.' : 'Nobody told Florence what mattered (a short walk from every home), so she guessed the middle of the island.';
+    const habit = most ? 'literal' : near ? null : said ? 'literal' : 'missing';
+    const habitWhy = most ? `You asked for “most families”, so Florence made the average walk short, and the furthest homes are still ${after.walkMax} minutes away. The rule is every home.` : near ? '' : said ? 'Florence read “the middle” as the middle of the island, not the middle of the homes.' : 'Nobody told Florence what mattered (a short walk from every home), so she guessed the middle of the island.';
     return { placements, reading, assumptions, habit, habitWhy, tested: near ? 'walking time from every home' : 'distance from the edges of the island', fit };
   },
 };
