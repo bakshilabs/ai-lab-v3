@@ -160,6 +160,17 @@ Two subagents played with no context (a 9-year-old persona, and a designer scori
 - Build videos re-filmed after the art passes.
 - Still open: the classroom camera crops Florence at the knees behind the dock; the camera flies through Florence when a mission starts; at 1024 px the town name is hidden on the card.
 
+## Quality review fixes (9 Nov 2026, expert review document from the user)
+The user shared a scored review (Ages 8–12: 93/100, Ages 13–17: 95/100, expert heuristic) with four open issues and an edge-case list. Fixes:
+- **A-01 charter vs walking result:** the charter was checked on the player's own town while the mission's result was on Florence's practice island. `charterAct(planSim)` now shows each promise with numbers for both ("Florence's plan: longest walk 15 min ✓ · Your town: …"), says why a promise isn't kept yet, and "within 15 min" needs homes and counts exactly 15 as kept.
+- **A-02 numbers in a brief:** `js/ai/targets.js` (`readTargets`, `checkTargets`, `targetLine`; tests `tests/targets.test.mjs`) reads food units, winter power units, households and a carbon cap. `plotter.read` puts them in `numbers` (a food number means "enough to N", not "as much as possible"); the planner plans for them (food `need = max(need, asked)`, power adds turbines toward the target and says if there's no room); `ask()` returns `plan.targets`, shown in Florence's card and said back; the power/carbon lenses add "your brief: ≥ N ✓/✗" (`briefNote` in `checks.js`, `app.briefTargets`). The walk lens marks the town rule and the typed minutes with ✓/✗.
+- **A-03 Skip:** `film.js` races every wait and camera move against Skip; Skip stops the voice, finishes the builds and cuts to the overview. Films are shorter (`short`) for replays and after the first two missions.
+- **A-04 final reflection:** after the sixth mission `reflectAct()` asks "Before I trust an AI plan, I…" (idea chips from the six habits plus own words), reads the rule back, saves it (`G.reflection`, `G.reflectDone`, diary; it prints in the report), then gives one next action: the finale if the town is complete, otherwise "Back to building" with the next step.
+- **Edge cases** (`tests/review.test.mjs`): "cars only" is read as cars, not "no cars" (`plotter.read` override; planner `carsOnly`, habit `literal`), and the street view catches the crossings; the beach brief's diagnosis names the beach; 40 families is a hard target; a 10-minute brief shows both numbers.
+- **No WebGL:** `main.js` shows a plain message (try another browser, turn on graphics acceleration, ask IT) instead of a blank page.
+- **Camera:** `rig.cut(pose)` is a hard cut that ends a running flight (used for the classroom and inside views), so a late flight can't pull the camera back to the island.
+- Not done: child-player sessions (the review's Section 9) and a keyboard/screen-reader pass beyond `a11y.mjs`.
+
 ## Beta revision (Nov 2026)
 All 49 notes in the beta tester's file were addressed; see README "How the game plays" and the commit history. Key decisions the user made:
 - **Helper name:** **Florence** (she). Code file names stay `plotter.*`.
@@ -199,7 +210,7 @@ All 49 notes in the beta tester's file were addressed; see README "How the game 
   - `/admin` redirects (302) to `…cloudflareaccess.com`.
 
 ## Tests
-From `games/ecotown/game` (144 tests, all passing at handoff; run them all with `node --test tests/*.test.mjs`):
+From `games/ecotown/game` (153 tests, all passing at handoff; run them all with `node --test tests/*.test.mjs`):
 
 ```bash
 node --test tests/sim.test.mjs tests/model.test.mjs tests/teach.test.mjs tests/syntax.test.mjs tests/codes.test.mjs tests/playtest.test.mjs tests/progress.test.mjs tests/audio.test.mjs tests/replace.test.mjs tests/delta.test.mjs tests/qa.test.mjs

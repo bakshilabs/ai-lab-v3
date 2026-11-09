@@ -48,6 +48,12 @@ const out = await p.evaluate(async () => {
     // feedback lines (Nov 2026): well done when a problem is fixed, next-step ideas, goals met, the intro's goals beat
     for (const v of Object.values(S.fixed || {})) add(band, v, 'helper');
     for (const v of Object.values(S.nextIdea || {})) add(band, v, 'helper');
+    // the quality review round: the final reflection, the charter note, and Florence's text-dependent explanations
+    if (S.reflect) { const R = S.reflect; add(band, `${R.title} ${R.how}`, 'narrator'); add(band, R.keep, 'narrator'); add(band, R.townLeft, 'narrator'); }
+    if (S.charterGap) add(band, S.charterGap, 'narrator');
+    for (const t of ['“Cars only” = car roads to every home and a drop-off at the school gate.', 'Florence did exactly what the words said, “cars only”, and forgot that children walk and cycle to school.',
+      'You asked for land by the beach. The beach was too small, so Florence spread the town onto the low meadow beside it, and nobody told her that meadow floods every winter.',
+      'You asked for land near the water. Florence chose the low meadow by the river, and nobody told her it floods every winter.']) add(band, t, 'helper');
     // Florence's good spots ("Show me where"), as she says them (without the star)
     if (S.spotWhy) { const say = (t) => add(band, t.replace(/^⭐\s*/, ''), 'helper'); for (const [k, f] of Object.entries(S.spotWhy)) {
       if (typeof f === 'string') say(f); else if (k === 'nearHomes') for (let n = 0; n <= 9; n++) say(f(n)); else for (const to of Object.values(S.spotTo)) say(f(to)); } }
