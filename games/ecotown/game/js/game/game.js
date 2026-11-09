@@ -1135,9 +1135,10 @@ export function createGame(app) {
   }
   // centre the island in the space a side (or bottom) sheet leaves free
   function frameBeside(el) {
-    const r = el.getBoundingClientRect(); const W = innerWidth, H = innerHeight; const cam = stage.camera;
-    if (r.left < W * 0.1 && r.right < W * 0.66) { cam.setViewOffset(W, H, -Math.round(r.right / 2), 0, W, H); rig.inset = { left: r.right, right: 0, top: 0, bottom: 0 }; }
-    else if (r.top > H * 0.3) { cam.setViewOffset(W, H, 0, Math.round((H - r.top) / 2), W, H); rig.inset = { left: 0, right: 0, top: 0, bottom: H - r.top }; }
+    // sizes from the finale sheet's CSS (the card may still be sliding in, so it isn't measured)
+    const W = innerWidth, H = innerHeight; const cam = stage.camera;
+    if (W <= 760 || H <= 560) { const bottom = Math.round(Math.min(el.scrollHeight || H, H * 0.56) + 8); cam.setViewOffset(W, H, 0, Math.round(bottom / 2), W, H); rig.inset = { left: 0, right: 0, top: 0, bottom }; }
+    else { const left = Math.round(16 + Math.min(460, W * 0.46)); cam.setViewOffset(W, H, -Math.round(left / 2), 0, W, H); rig.inset = { left, right: 0, top: 0, bottom: 0 }; }
   }
   // the Star shop (from the stars chip on the town card, or ☰): cosmetic rewards only, saved with the town
   const applyCosmetics = () => app.cosmetics?.set(G.shop.on, { reduce: app.reduce });

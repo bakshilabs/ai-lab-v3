@@ -8,7 +8,7 @@ import { T, X0, Z0, RX, RZ, zoneAt, rimHeight, canyonDepth, isLimestone, insideV
 import { BUILD, MARK, addMod, addModFine, decorate, tree2, bigOakAt } from './builders.js';
 import { ITEMS } from './catalog.js';
 import { planStages } from './construct.js';
-import { createBridge, inBridgeCut, BRIDGE_TILE } from './bridge.js';
+import { createBridge, inBridgeCut, bridgeKeepClear, BRIDGE_TILE } from './bridge.js';
 
 const HEDGE_SAFE = new Set(['mixed', 'orchard', 'hives', 'hedge', 'path', 'cycle', 'park', 'allot', 'greenbridge']);
 // Plan preview: solid, pale, shaded blocks (nothing see-through), told apart from real builds by a raised frame
@@ -120,7 +120,7 @@ export function createWorld(stage, terrain) {
   // forest on the rim: tall tiered pines up high, big oaks lower down; fewer, bigger, denser clumps
   const used = new Set();
   for (const [x, z, top, zone, lime] of rimCells) {
-    if (zone !== 'rim' || x % 4 || z % 4 || inBridgeCut(x, z - 3) || inBridgeCut(x, z + 3)) continue; // keep the bridge approach clear
+    if (zone !== 'rim' || x % 4 || z % 4 || bridgeKeepClear(x, z)) continue; // keep the bridge approach clear and in view
     const mask = noise2(x / 12, z / 12, 17) + (top >= 3 ? 0.25 : 0) - (lime ? 0.7 : 0);
     if (mask < 0.6 || rand(x, z, 19) < 0.25 || nearCanyon(x, z)) continue; // a thinner forest that leaves the canyons open
     const ox = x + Math.floor(rand(x, z, 20) * 3) - 1, oz = z + Math.floor(rand(x, z, 21) * 3) - 1; const k = ox + ',' + oz; if (used.has(k)) continue; used.add(k);

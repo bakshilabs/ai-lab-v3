@@ -3,6 +3,7 @@
 // read by the simulation, and nothing sits on a buildable tile. All solid voxel blocks (nothing see-through).
 // Owned by the UI pass (the rest of js/world is the 3D designer's); the shop logic is js/game/shop.js.
 import * as THREE from 'three';
+import { insideVoxel, inRiverVoxel, tileAt } from './terrain.js';
 
 const mat = (color, o = {}) => new THREE.MeshStandardMaterial({ color, roughness: 0.75, metalness: 0, ...o });
 const M = {
@@ -70,13 +71,23 @@ export function createCosmetics({ stage, world, terrain, bot, portrait }) {
   const root = new THREE.Group(); root.name = 'cosmetics'; stage.scene.add(root);
   const parts = {};
   let on = new Set(); let reduce = false; let ready = false;
-  // the beach by the AI Lab: a spot just past the lab tile, toward the island's edge (off the tile grid)
-  function beachSpot(side) {
-    const lab = terrain.lab && world.tileTop(terrain.lab); if (!lab) return null;
-    const out = new THREE.Vector3(lab.x, 0, lab.z).normalize(); const across = new THREE.Vector3(-out.z, 0, out.x);
-    const p = lab.clone().addScaledVector(out, 6.5).addScaledVector(across, side * 4.2);
-    const hit = new THREE.Raycaster(new THREE.Vector3(p.x, 80, p.z), new THREE.Vector3(0, -1, 0)).intersectObject(world.ground, false)[0];
-    p.y = hit ? hit.point.y : lab.y - 1; p.out = out; return p;
+  // the beach by the AI Lab: open ground just past the lab tile, toward the island's edge, that is no buildable
+  // tile, not river and not the edge itself (sampled outward from the lab, nearest to straight-out first)
+  function beachSpots() {
+    const lab = terrain.lab && world.tileTop(terrain.lab); if (!lab) return [];
+    const out = Math.atan2(lab.z, lab.x); const cand = [];
+    for (const r of [6, 7.5, 9, 10.5]) for (let da = -1.4; da <= 1.4; da += 0.1) {
+      const a = out + da; const x = lab.x + Math.cos(a) * r, z = lab.z + Math.sin(a) * r;
+      const ok = (px, pz) => insideVoxel(px, pz) && !inRiverVoxel(px, pz) && !terrain.tiles.has((tileAt(px, pz) || []).join(','));
+      if (ok(x, z) && ok(x + 2, z) && ok(x - 2, z) && ok(x, z + 2) && ok(x, z - 2) && insideVoxel(x + Math.cos(a) * 3, z + Math.sin(a) * 3)) cand.push({ x, z, a, score: Math.abs(da) + r * 0.05 });
+    }
+    cand.sort((p, q) => p.score - q.score);
+    const picks = [];
+    for (const c of cand) if (picks.every((p) => Math.hypot(p.x - c.x, p.z - c.z) > 8.5)) { picks.push(c); if (picks.length === 2) break; }
+    return picks.map((c) => {
+      const hit = new THREE.Raycaster(new THREE.Vector3(c.x, 80, c.z), new THREE.Vector3(0, -1, 0)).intersectObject(world.ground, false)[0];
+      const v = new THREE.Vector3(c.x, hit ? hit.point.y : lab.y - 1, c.z); v.face = Math.atan2(-Math.cos(c.a), -Math.sin(c.a)); return v; // faces back toward the lab
+    });
   }
   function build() {
     if (ready) return; ready = true;
@@ -86,7 +97,8 @@ export function createCosmetics({ stage, world, terrain, bot, portrait }) {
     if (lab) {
       // the flag stands at the lab tile's outer corner, beside the building (not through its roof)
       const out = new THREE.Vector3(lab.x, 0, lab.z).normalize(); const f = flag(); f.position.copy(lab).addScaledVector(out, 2.6); f.position.y = lab.y - 0.2; f.rotation.y = Math.atan2(out.x, out.z) + Math.PI / 2; f.visible = false; root.add(f); parts.flag = [f];
-      for (const [id, make, side] of [['fountain', fountain, -1], ['statue', statue, 1]]) { const p = beachSpot(side); if (!p) continue; const m = make(); m.position.copy(p); m.rotation.y = Math.atan2(p.out.x, p.out.z) + Math.PI; m.visible = false; root.add(m); parts[id] = [m]; }
+      const spots = beachSpots();
+      [['fountain', fountain], ['statue', statue]].forEach(([id, make], i) => { const p = spots[i]; if (!p) return; const m = make(); m.position.copy(p); m.rotation.y = p.face; m.visible = false; root.add(m); parts[id] = [m]; });
     }
     // fireworks: a pool of small solid cubes that shrink away (never fade)
     const N = 360; const fw = new THREE.InstancedMesh(new THREE.BoxGeometry(0.7, 0.7, 0.7), new THREE.MeshBasicMaterial({ color: '#ffffff' }), N);

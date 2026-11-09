@@ -16,6 +16,8 @@ const X_START = TOX + T;                          // the tile's east edge (x = 4
 export const ISLAND_EDGE = (() => { let x = X_START; while (insideVoxel(x + 1, BRIDGE_Z) || insideVoxel(x + 1, BRIDGE_Z - 2) || insideVoxel(x + 1, BRIDGE_Z + 2)) x++; return x + 1; })();
 // the rim is cut down to the tile's level along the deck, so the bridge leaves the town on the flat
 export const inBridgeCut = (x, z) => x >= X_START - 1 && Math.abs(z + 0.5 - BRIDGE_Z) <= 2.6;
+// no tall rim trees beside the approach or in front of it (towards the default camera, south-west), so it reads
+export const bridgeKeepClear = (x, z) => x >= X_START - 8 && z >= BRIDGE_Z - 5 && z <= BRIDGE_Z + 18;
 
 const GAP = 15, IRX = 12, IRZ = 10;               // the gap and the village island's radii (world units)
 const DECK_W = 2;                                 // half-width of the deck in fine voxels ×2 → 2.5 units wide
@@ -24,13 +26,13 @@ export function createBridge(stage, root, { tileTopY }) {
   const Y = tileTopY;                              // deck and village ground level (world y of the tile top)
   const xe = ISLAND_EDGE, xf = xe + GAP;            // the span: main island cliff → village shore
   const cx = xf + IRX - 1, cz = BRIDGE_Z + 1;       // village island centre
-  const SAG = 1.3;
-  const deckY = (x) => (x <= xe || x >= xf ? Y : Y - SAG * Math.sin(Math.PI * (x - xe) / (xf - xe)));
+  const SAG = 1.1, YV = Y - 2;                      // the village floats a little lower, so the deck dips across
+  const deckY = (x) => { if (x <= xe) return Y; if (x >= xf) return YV; const s = (x - xe) / (xf - xe); return Y + (YV - Y) * s - SAG * Math.sin(Math.PI * s); };
 
   // ---- the village island: coarse voxels like the main island (grass top, turf lip, terracotta keel)
   const g = new Vox(); g.jitter = 0.04;
   const inIsle = (x, z) => { const a = Math.atan2(z - cz, x - cx); const r = Math.hypot((x - cx) / IRX, (z - cz) / IRZ); return r <= 1 + (noise2(Math.cos(a) * 3 + 7, Math.sin(a) * 3 + 7, 55) - 0.5) * 0.22; };
-  const top = Math.round(Y) - 1;                    // ground voxel row; buildings stand on top + 1 = Y
+  const top = Math.round(YV) - 1;                   // ground voxel row; buildings stand on top + 1 = YV
   for (let x = cx - IRX - 3; x <= cx + IRX + 3; x++) for (let z = cz - IRZ - 3; z <= cz + IRZ + 3; z++) {
     if (!inIsle(x, z)) continue;
     const r = Math.hypot((x - cx) / IRX, (z - cz) / IRZ);
@@ -101,7 +103,7 @@ export function createBridge(stage, root, { tileTopY }) {
   // towers at both ends of the span: two posts, a cross beam, and a lantern hanging from each post
   const glow = [];
   for (const tx of [xe - 0.5, xf + 0.5]) {
-    const fx = F(tx), fy = F(Y) - 1;
+    const fx = F(tx), fy = F(deckY(tx)) - 1;
     for (const side of [-1, 1]) {
       const fz = zc + side * (DECK_W * 2 + 1) - (side > 0 ? 1 : 0);
       f.box(fx, fy - 2, fz, fx + 1, fy + 11, fz, '#7a5232'); f.set(fx, fy + 12, fz, '#5c3c22'); f.set(fx + 1, fy + 12, fz, '#5c3c22');
@@ -111,7 +113,7 @@ export function createBridge(stage, root, { tileTopY }) {
     f.box(fx, fy + 12, zc - 2, fx + 1, fy + 13, zc + 1, '#c0563a');                      // a terracotta sign on top
   }
   // main ropes from tower top to tower top (sagging below the deck's own sag), with hangers to the deck edge
-  const ropeY = (x) => { const s = (x - xe) / (xf - xe); return Y + 5.5 - (5.5 - 1.4) * 4 * s * (1 - s); };
+  const ropeY = (x) => { const s = (x - xe) / (xf - xe); return Y + (YV - Y) * s + 5.5 - (5.5 - 1.4 - SAG) * 4 * s * (1 - s); };
   for (let fx = F(xe); fx <= F(xf); fx++) {
     const x = fx / 2; const ry = F(ropeY(x)); const dy = F(deckY(x));
     for (const side of [-1, 1]) {

@@ -46,14 +46,13 @@ export function showFinale(app, G, sum, { left = 0, title = '' } = {}) {
   return app.ui.modal(`<div class="ribbon green">🎉 ${esc(G.S.completeRibbon)}</div>
     <h2>${esc(F.title(G.townName))}</h2>${title ? `<p class="fbadge">🏅 ${esc(title)}</p>` : ''}<p class="flead">${esc(pick(G.S.completeText))}</p>
     <div class="fgrid">
-      ${tile('🏗', F.built, esc(F.builds(sum.builds)), groups ? `<span class="fgroups">${groups}</span>` : '', 'wide')}
-      ${tile('👪', '', esc(F.families(sum.families)), '', 'fam')}
+      ${tile('🏡', F.built, esc(F.builds(sum.builds)), `${groups ? `<span class="fgroups">${groups}</span>` : ''}<span class="ffam">👪 ${esc(F.families(sum.families))}</span>`, 'wide')}
       ${tile('🔍', F.caught, sum.caught, esc(F.caughtSub(sum.missionMistakes, sum.catches)))}
       ${tile('★', F.stars, sum.stars, esc(F.starsSub(left)), 'star')}
     </div>
     ${habits ? `<h3 class="fhead">${esc(F.habits)}</h3><ul class="fhabits">${habits}</ul>` : ''}
     <p class="flesson">💡 ${esc(F.lesson)}</p>
     <div class="row frow"><button class="btn alt" data-act="keep">${esc(G.S.keepBuilding)}</button>${left ? `<button class="btn alt" data-act="shop">★ ${esc(F.shop)}</button>` : ''}<button class="btn go" data-act="report">📜 ${esc(F.report)}</button></div>`,
-  { say, bind: (el) => { el.classList.remove('shopcard'); el.classList.add('finale'); } })
+  { say, bind: (el) => { el.classList.remove('shopcard'); el.classList.add('finale'); setTimeout(() => { el.scrollTop = 0; }, 90); } })
     .finally(() => { delete document.documentElement.dataset.finale; setTimeout(() => app.ui.P.modal.classList.remove('finale'), 380); });
 }
