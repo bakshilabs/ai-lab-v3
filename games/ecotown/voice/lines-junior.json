@@ -10,12 +10,12 @@
   "key": "f80c1ead"
  },
  {
-  "s": "Check Florence’s plan",
+  "s": "Check Florence\u2019s plan",
   "voice": "narrator",
   "key": "5c25da0d"
  },
  {
-  "s": "How will you check Florence’s plan?",
+  "s": "How will you check Florence\u2019s plan?",
   "voice": "narrator",
   "key": "81cc7c89"
  },
@@ -25,7 +25,7 @@
   "key": "05fc4911"
  },
  {
-  "s": "Use Florence’s plan",
+  "s": "Use Florence\u2019s plan",
   "voice": "narrator",
   "key": "44534502"
  },
@@ -80,7 +80,7 @@
   "key": "df0182f4"
  },
  {
-  "s": "I don’t know how to plan that yet.",
+  "s": "I don\u2019t know how to plan that yet.",
   "voice": "narrator",
   "key": "fcabb0cd"
  },
@@ -175,7 +175,7 @@
   "key": "21592efb"
  },
  {
-  "s": "Look at Florence’s guess again:",
+  "s": "Look at Florence\u2019s guess again:",
   "voice": "narrator",
   "key": "08076dd7"
  },
@@ -200,7 +200,7 @@
   "key": "337d84e5"
  },
  {
-  "s": "Florence’s guess",
+  "s": "Florence\u2019s guess",
   "voice": "narrator",
   "key": "2ac5a3f3"
  },
@@ -235,7 +235,7 @@
   "key": "d283bd23"
  },
  {
-  "s": "Florence’s plan, before building",
+  "s": "Florence\u2019s plan, before building",
   "voice": "narrator",
   "key": "4ba269d2"
  },
@@ -255,12 +255,12 @@
   "key": "02e524ac"
  },
  {
-  "s": "One check you haven’t tried shows a problem.",
+  "s": "One check you haven\u2019t tried shows a problem.",
   "voice": "narrator",
   "key": "d98b19a4"
  },
  {
-  "s": "I didn’t do this part:",
+  "s": "I didn\u2019t do this part:",
   "voice": "narrator",
   "key": "59a2dc81"
  },
@@ -275,7 +275,7 @@
   "key": "b07fa198"
  },
  {
-  "s": "I don’t know how to plan that yet.",
+  "s": "I don\u2019t know how to plan that yet.",
   "voice": "helper",
   "key": "fb038d1e"
  },
@@ -290,7 +290,7 @@
   "key": "7bb0b1ac"
  },
  {
-  "s": "Look at Florence’s guess again:",
+  "s": "Look at Florence\u2019s guess again:",
   "voice": "helper",
   "key": "c649c65e"
  },
@@ -300,7 +300,7 @@
   "key": "33d6f6a3"
  },
  {
-  "s": "Florence chased one word, like “best”, “fast” or “most”, and forgot everything else.",
+  "s": "Florence chased one word, like \u201cbest\u201d, \u201cfast\u201d or \u201cmost\u201d, and forgot everything else.",
   "voice": "helper",
   "key": "cdcbea64"
  },
@@ -320,7 +320,7 @@
   "key": "376e1c34"
  },
  {
-  "s": "Florence didn’t have a fact she needed, so she couldn’t plan for it.",
+  "s": "Florence didn\u2019t have a fact she needed, so she couldn\u2019t plan for it.",
   "voice": "helper",
   "key": "156ab732"
  },
@@ -345,7 +345,7 @@
   "key": "37d6e6a1"
  },
  {
-  "s": "Named Florence’s habit first time",
+  "s": "Named Florence\u2019s habit first time",
   "voice": "narrator",
   "key": "f00769ee"
  },
@@ -360,7 +360,7 @@
   "key": "b55be974"
  },
  {
-  "s": "Spotted Florence’s hidden guess",
+  "s": "Spotted Florence\u2019s hidden guess",
   "voice": "narrator",
   "key": "b938e5ee"
  },
@@ -385,17 +385,17 @@
   "key": "527c072d"
  },
  {
-  "s": "I won’t ignore flood risk: homes on flood land would be under water every winter, so I kept the town on dry land.",
+  "s": "I won\u2019t ignore flood risk: homes on flood land would be under water every winter, so I kept the town on dry land.",
   "voice": "helper",
   "key": "db965746"
  },
  {
-  "s": "I won’t clear the wetland: it is protected, and it soaks up the winter floods.",
+  "s": "I won\u2019t clear the wetland: it is protected, and it soaks up the winter floods.",
   "voice": "helper",
   "key": "43fc39e6"
  },
  {
-  "s": "I won’t clear the old wood: the deer and birds live there.",
+  "s": "I won\u2019t clear the old wood: the deer and birds live there.",
   "voice": "helper",
   "key": "227247ff"
  },
@@ -485,7 +485,7 @@
   "key": "1d7afe25"
  },
  {
-  "s": "Our new land gets soggy in winter…",
+  "s": "Our new land gets soggy in winter\u2026",
   "voice": "narrator",
   "key": "5d7e5445"
  },
@@ -510,7 +510,7 @@
   "key": "095c3ad7"
  },
  {
-  "s": "8:45 am: children can’t cross",
+  "s": "8:45 am: children can\u2019t cross",
   "voice": "narrator",
   "key": "f9cb8f79"
  },
@@ -520,7 +520,7 @@
   "key": "4abf586e"
  },
  {
-  "s": "Florence’s plan works!",
+  "s": "Florence\u2019s plan works!",
   "voice": "narrator",
   "key": "0a5465c6"
  },
@@ -640,7 +640,7 @@
   "key": "33e527c0"
  },
  {
-  "s": "It’s cosy!",
+  "s": "It\u2019s cosy!",
   "voice": "narrator",
   "key": "f2e83fc6"
  },
@@ -735,7 +735,7 @@
   "key": "5e0e1721"
  },
  {
-  "s": "There’s enough food in the shop for everyone.",
+  "s": "There\u2019s enough food in the shop for everyone.",
   "voice": "narrator",
   "key": "fe8f324a"
  },
@@ -745,7 +745,7 @@
   "key": "643fb71e"
  },
  {
-  "s": "No bees came to the flowers this year…",
+  "s": "No bees came to the flowers this year\u2026",
   "voice": "narrator",
   "key": "03acf799"
  },
@@ -890,7 +890,7 @@
   "key": "ffc338e4"
  },
  {
-  "s": "The new school is only 12 minutes’ walk away!",
+  "s": "The new school is only 12 minutes\u2019 walk away!",
   "voice": "narrator",
   "key": "8c7f615a"
  },
@@ -905,7 +905,7 @@
   "key": "ff555008"
  },
  {
-  "s": "The new school is a long walk away…",
+  "s": "The new school is a long walk away\u2026",
   "voice": "narrator",
   "key": "4cd8b769"
  },
@@ -930,7 +930,7 @@
   "key": "daf1e56a"
  },
  {
-  "s": "Pick 🗺 Land, then tap tiles on dry ground.",
+  "s": "Pick \ud83d\uddfa Land, then tap tiles on dry ground.",
   "voice": "helper",
   "key": "678608fc"
  },
@@ -940,7 +940,7 @@
   "key": "8ef91869"
  },
  {
-  "s": "Mark that land “Keep wild” instead.",
+  "s": "Mark that land \u201cKeep wild\u201d instead.",
   "voice": "helper",
   "key": "fcfc51e7"
  },
@@ -955,7 +955,7 @@
   "key": "6120bcf8"
  },
  {
-  "s": "Try 🏡 Homes on your town land.",
+  "s": "Try \ud83c\udfe1 Homes on your town land.",
   "voice": "helper",
   "key": "3626445c"
  },
@@ -1075,17 +1075,17 @@
   "key": "890c33c3"
  },
  {
-  "s": "I’m Florence, your AI planning helper.",
+  "s": "I\u2019m Florence, your AI planning helper.",
   "voice": "helper",
   "key": "8e8df0e4"
  },
  {
-  "s": "Let’s build a town together!",
+  "s": "Let\u2019s build a town together!",
   "voice": "helper",
   "key": "b8e2a6ce"
  },
  {
-  "s": "This flat meadow looks perfect for houses… but look!",
+  "s": "This flat meadow looks perfect for houses\u2026 but look!",
   "voice": "helper",
   "key": "7c638035"
  },
@@ -1110,12 +1110,12 @@
   "key": "c80ae205"
  },
  {
-  "s": "That’s the start of your town.",
+  "s": "That\u2019s the start of your town.",
   "voice": "helper",
   "key": "865c2c65"
  },
  {
-  "s": "Here’s how a home gets built.",
+  "s": "Here\u2019s how a home gets built.",
   "voice": "helper",
   "key": "32989e20"
  },
@@ -1125,7 +1125,7 @@
   "key": "2cd42f64"
  },
  {
-  "s": "When homes unlock, tap ▶ on any build to watch how it’s built.",
+  "s": "When homes unlock, tap \u25b6 on any build to watch how it\u2019s built.",
   "voice": "helper",
   "key": "21d13e9a"
  },
@@ -1150,7 +1150,7 @@
   "key": "83593433"
  },
  {
-  "s": "I’m clever… but sometimes I’m confidently wrong.",
+  "s": "I\u2019m clever\u2026 but sometimes I\u2019m confidently wrong.",
   "voice": "helper",
   "key": "0bc2b9b5"
  },
@@ -1165,7 +1165,7 @@
   "key": "7dbdfa5c"
  },
  {
-  "s": "I’ll give you tips while you build.",
+  "s": "I\u2019ll give you tips while you build.",
   "voice": "helper",
   "key": "e16093d9"
  },
@@ -1290,9 +1290,9 @@
   "key": "42e7d85a"
  },
  {
-  "s": "Make it healthier with a Footpath, a Cycle lane or a Park.",
+  "s": "Make it healthier: a Cycle lane from the homes to the bridge or the school, or a Park next to the homes.",
   "voice": "helper",
-  "key": "6ad6b801"
+  "key": "056fce30"
  },
  {
   "s": "Keep the lights on: try a Wind turbine and a Battery store.",
@@ -1313,6 +1313,141 @@
   "s": "Build a Town school close to the homes.",
   "voice": "helper",
   "key": "a6d1dba6"
+ },
+ {
+  "s": "Good spots: a line from the homes to the bridge to the mainland, so people can ride or walk there.",
+  "voice": "helper",
+  "key": "70acf817"
+ },
+ {
+  "s": "Good spots: a line from the homes to the school, so people can ride or walk there.",
+  "voice": "helper",
+  "key": "1e575342"
+ },
+ {
+  "s": "Good spots: a line from the homes to the market, so people can ride or walk there.",
+  "voice": "helper",
+  "key": "3b038e72"
+ },
+ {
+  "s": "Good spots: a line from the homes to the community hall, so people can ride or walk there.",
+  "voice": "helper",
+  "key": "27ca6642"
+ },
+ {
+  "s": "Good spots: a line from the homes to the old school, so people can ride or walk there.",
+  "voice": "helper",
+  "key": "10d88a93"
+ },
+ {
+  "s": "The homes already join up with the bridge to the mainland.",
+  "voice": "helper",
+  "key": "a156c709"
+ },
+ {
+  "s": "The homes already join up with the school.",
+  "voice": "helper",
+  "key": "649a6f84"
+ },
+ {
+  "s": "The homes already join up with the market.",
+  "voice": "helper",
+  "key": "65f89c38"
+ },
+ {
+  "s": "The homes already join up with the community hall.",
+  "voice": "helper",
+  "key": "fe6dcd28"
+ },
+ {
+  "s": "The homes already join up with the old school.",
+  "voice": "helper",
+  "key": "00f9e931"
+ },
+ {
+  "s": "Build some homes first.",
+  "voice": "helper",
+  "key": "6a5ee7dd"
+ },
+ {
+  "s": "Then I\u2019ll show you where a path should go.",
+  "voice": "helper",
+  "key": "9678f0c8"
+ },
+ {
+  "s": "Build a school or a market first, so the path has somewhere to go.",
+  "voice": "helper",
+  "key": "7d0d06e2"
+ },
+ {
+  "s": "Good spots: next to the other homes, so neighbours live close.",
+  "voice": "helper",
+  "key": "61ce088e"
+ },
+ {
+  "s": "Good spots: on your town land, near the old school.",
+  "voice": "helper",
+  "key": "e19f2fb0"
+ },
+ {
+  "s": "Good spots: close to your town land.",
+  "voice": "helper",
+  "key": "b0f2d710"
+ },
+ {
+  "s": "Good spots: in the middle of the homes, so every walk to school is short.",
+  "voice": "helper",
+  "key": "4dcb4c8d"
+ },
+ {
+  "s": "Good spots: near the homes, but not on town land.",
+  "voice": "helper",
+  "key": "ef4da580"
+ },
+ {
+  "s": "Good spots: right by the homes, so families can walk there.",
+  "voice": "helper",
+  "key": "2fba49f4"
+ },
+ {
+  "s": "Good spots: right by the homes (2 homes close by), so families can walk there.",
+  "voice": "helper",
+  "key": "c612ed88"
+ },
+ {
+  "s": "Good spots: right by the homes (3 homes close by), so families can walk there.",
+  "voice": "helper",
+  "key": "d89d6261"
+ },
+ {
+  "s": "Good spots: right by the homes (4 homes close by), so families can walk there.",
+  "voice": "helper",
+  "key": "b5ddc24a"
+ },
+ {
+  "s": "Good spots: right by the homes (5 homes close by), so families can walk there.",
+  "voice": "helper",
+  "key": "292d165b"
+ },
+ {
+  "s": "Good spots: right by the homes (6 homes close by), so families can walk there.",
+  "voice": "helper",
+  "key": "a091d01c"
+ },
+ {
+  "s": "Good spots: right by the homes (7 homes close by), so families can walk there.",
+  "voice": "helper",
+  "key": "312f0d55"
+ },
+ {
+  "s": "Good spots: right by the homes (8 homes close by), so families can walk there.",
+  "voice": "helper",
+  "key": "8207196e"
+ },
+ {
+  "s": "Good spots: right by the homes (9 homes close by), so families can walk there.",
+  "voice": "helper",
+  "key": "77e3035f"
  },
  {
   "s": "Goal done: homes for 40 families!",
@@ -1360,7 +1495,7 @@
   "key": "691fc70c"
  },
  {
-  "s": "Tap 🌼 to see all your goals, and tap any build to see what it does.",
+  "s": "Tap \ud83c\udf3c to see all your goals, and tap any build to see what it does.",
   "voice": "helper",
   "key": "a5ef9fa2"
  },
@@ -1505,7 +1640,7 @@
   "key": "7a6a2770"
  },
  {
-  "s": "Your town has no empty tiles for Florence’s plan yet.",
+  "s": "Your town has no empty tiles for Florence\u2019s plan yet.",
   "voice": "narrator",
   "key": "e09a54ce"
  },
@@ -1520,7 +1655,7 @@
   "key": "c57666da"
  },
  {
-  "s": "Ask me anything about building a green town, and I’ll show you on the big screen.",
+  "s": "Ask me anything about building a green town, and I\u2019ll show you on the big screen.",
   "voice": "helper",
   "key": "3b8da3c6"
  },
@@ -1555,7 +1690,7 @@
   "key": "5602e655"
  },
  {
-  "s": "That’s exactly how to use an AI helper.",
+  "s": "That\u2019s exactly how to use an AI helper.",
   "voice": "helper",
   "key": "4236f3bd"
  },
@@ -1565,7 +1700,7 @@
   "key": "c0d5d92a"
  },
  {
-  "s": "It was a good idea this time, so I’ll build it.",
+  "s": "It was a good idea this time, so I\u2019ll build it.",
   "voice": "helper",
   "key": "dfb3b630"
  },
@@ -1590,7 +1725,7 @@
   "key": "f1b95002"
  },
  {
-  "s": "I’ll build it.",
+  "s": "I\u2019ll build it.",
   "voice": "helper",
   "key": "82cf3ad2"
  },
@@ -1610,7 +1745,7 @@
   "key": "8461b191"
  },
  {
-  "s": "Oops…",
+  "s": "Oops\u2026",
   "voice": "helper",
   "key": "e0754872"
  },
@@ -1625,7 +1760,7 @@
   "key": "2a2ac141"
  },
  {
-  "s": "Let’s build two here!",
+  "s": "Let\u2019s build two here!",
   "voice": "helper",
   "key": "6baa0561"
  },
@@ -1650,7 +1785,7 @@
   "key": "bcc3d821"
  },
  {
-  "s": "Let’s plough these!",
+  "s": "Let\u2019s plough these!",
   "voice": "helper",
   "key": "58dd8369"
  },
@@ -1660,12 +1795,12 @@
   "key": "53d2443b"
  },
  {
-  "s": "Here’s a lovely quiet spot for the school, away from the busy town!",
+  "s": "Here\u2019s a lovely quiet spot for the school, away from the busy town!",
   "voice": "helper",
   "key": "b81d37c6"
  },
  {
-  "s": "It’s too far for children to walk to.",
+  "s": "It\u2019s too far for children to walk to.",
   "voice": "helper",
   "key": "121ab180"
  },
@@ -1690,7 +1825,7 @@
   "key": "87f33b36"
  },
  {
-  "s": "That’s why you check my plans with a lens before you build.",
+  "s": "That\u2019s why you check my plans with a lens before you build.",
   "voice": "helper",
   "key": "23db05ba"
  },
@@ -1710,12 +1845,12 @@
   "key": "8271a124"
  },
  {
-  "s": "“Best land” could mean flat, dry or sunny.",
+  "s": "\u201cBest land\u201d could mean flat, dry or sunny.",
   "voice": "helper",
   "key": "877c2dce"
  },
  {
-  "s": "Say “dry land that never floods”, and I’ll know what you mean.",
+  "s": "Say \u201cdry land that never floods\u201d, and I\u2019ll know what you mean.",
   "voice": "helper",
   "key": "1f6790a6"
  },
@@ -1750,7 +1885,7 @@
   "key": "7b4cd1b8"
  },
  {
-  "s": "Wind turbines and batteries keep the lights on when it’s dark and cold.",
+  "s": "Wind turbines and batteries keep the lights on when it\u2019s dark and cold.",
   "voice": "helper",
   "key": "fe286fc7"
  },
@@ -1820,7 +1955,7 @@
   "key": "16b20317"
  },
  {
-  "s": "I’m Florence, an AI planning helper.",
+  "s": "I\u2019m Florence, an AI planning helper.",
   "voice": "helper",
   "key": "775767ac"
  },
@@ -1830,7 +1965,7 @@
   "key": "67cb245f"
  },
  {
-  "s": "But I don’t see the island like you do, so you’re the checker!",
+  "s": "But I don\u2019t see the island like you do, so you\u2019re the checker!",
   "voice": "helper",
   "key": "a10895af"
  },
@@ -1845,7 +1980,7 @@
   "key": "7b7de870"
  },
  {
-  "s": "I’m a robot, so I never get tired!",
+  "s": "I\u2019m a robot, so I never get tired!",
   "voice": "helper",
   "key": "392a53df"
  },
@@ -1855,12 +1990,12 @@
   "key": "6853b4ab"
  },
  {
-  "s": "Hmm, I don’t know that one yet!",
+  "s": "Hmm, I don\u2019t know that one yet!",
   "voice": "helper",
   "key": "564a0279"
  },
  {
-  "s": "Try asking me about flooding, carbon, winter power, food, bees, or any build, like “What does a heat pump do?”",
+  "s": "Try asking me about flooding, carbon, winter power, food, bees, or any build, like \u201cWhat does a heat pump do?\u201d",
   "voice": "helper",
   "key": "98485654"
  },
@@ -2035,7 +2170,7 @@
   "key": "6a0f06b6"
  },
  {
-  "s": "Rain garden: Soaks up rainwater so streets don’t flood.",
+  "s": "Rain garden: Soaks up rainwater so streets don\u2019t flood.",
   "voice": "helper",
   "key": "76c32be7"
  },
@@ -2045,7 +2180,7 @@
   "key": "216f628b"
  },
  {
-  "s": "Repair café: People fix old things here instead of throwing them away.",
+  "s": "Repair caf\u00e9: People fix old things here instead of throwing them away.",
   "voice": "helper",
   "key": "ad445522"
  },
@@ -2085,7 +2220,7 @@
   "key": "d1515bfe"
  },
  {
-  "s": "Let’s see if you can catch my mistakes!",
+  "s": "Let\u2019s see if you can catch my mistakes!",
   "voice": "helper",
   "key": "ee7352e8"
  },
@@ -2100,7 +2235,7 @@
   "key": "a5702a6b"
  },
  {
-  "s": "Every family has a home, there’s enough food, the lights stay on in winter and every home is close to school.",
+  "s": "Every family has a home, there\u2019s enough food, the lights stay on in winter and every home is close to school.",
   "voice": "narrator",
   "key": "50ed5a45"
  },
@@ -2110,12 +2245,12 @@
   "key": "2b09777f"
  },
  {
-  "s": "“Best” = the flattest land, easiest to build on, next to water.",
+  "s": "\u201cBest\u201d = the flattest land, easiest to build on, next to water.",
   "voice": "helper",
   "key": "4f860b1e"
  },
  {
-  "s": "Florence turned “best” into “flattest” and forgot about floods and wildlife.",
+  "s": "Florence turned \u201cbest\u201d into \u201cflattest\u201d and forgot about floods and wildlife.",
   "voice": "helper",
   "key": "730cc9c3"
  },
@@ -2160,12 +2295,12 @@
   "key": "882bfa8e"
  },
  {
-  "s": "Florence didn’t know that the flat land by the river floods every winter.",
+  "s": "Florence didn\u2019t know that the flat land by the river floods every winter.",
   "voice": "helper",
   "key": "17afc693"
  },
  {
-  "s": "“Easy for everyone” = easy for drivers: a wide road and a drop-off car park at the school.",
+  "s": "\u201cEasy for everyone\u201d = easy for drivers: a wide road and a drop-off car park at the school.",
   "voice": "helper",
   "key": "a56d1c89"
  },
@@ -2200,12 +2335,12 @@
   "key": "53fa7adc"
  },
  {
-  "s": "“Fast” = wide roads for cars.",
+  "s": "\u201cFast\u201d = wide roads for cars.",
   "voice": "helper",
   "key": "f2335a3e"
  },
  {
-  "s": "Florence turned “fast” into “wide roads for cars” and forgot about children crossing.",
+  "s": "Florence turned \u201cfast\u201d into \u201cwide roads for cars\u201d and forgot about children crossing.",
   "voice": "helper",
   "key": "3075a6cf"
  },
@@ -2240,12 +2375,12 @@
   "key": "7f587d2b"
  },
  {
-  "s": "“Strong” = concrete and steel.",
+  "s": "\u201cStrong\u201d = concrete and steel.",
   "voice": "helper",
   "key": "07668524"
  },
  {
-  "s": "Florence chased “strong” and chose concrete, forgetting carbon and warmth.",
+  "s": "Florence chased \u201cstrong\u201d and chose concrete, forgetting carbon and warmth.",
   "voice": "helper",
   "key": "1e62eb5e"
  },
@@ -2300,32 +2435,32 @@
   "key": "2e90b1b9"
  },
  {
-  "s": "“Cheap” = concrete flats (cheapest per home).",
+  "s": "\u201cCheap\u201d = concrete flats (cheapest per home).",
   "voice": "helper",
   "key": "44675d3c"
  },
  {
-  "s": "Florence chased “cheap” and chose concrete, forgetting carbon and warmth.",
+  "s": "Florence chased \u201ccheap\u201d and chose concrete, forgetting carbon and warmth.",
   "voice": "helper",
   "key": "f04abfec"
  },
  {
-  "s": "“Tall” = concrete tower blocks.",
+  "s": "\u201cTall\u201d = concrete tower blocks.",
   "voice": "helper",
   "key": "a0b1fa5d"
  },
  {
-  "s": "Florence chased “tall” and chose concrete, forgetting carbon and warmth.",
+  "s": "Florence chased \u201ctall\u201d and chose concrete, forgetting carbon and warmth.",
   "voice": "helper",
   "key": "b67acaea"
  },
  {
-  "s": "“As many as possible” = concrete flats.",
+  "s": "\u201cAs many as possible\u201d = concrete flats.",
   "voice": "helper",
   "key": "4022c029"
  },
  {
-  "s": "Florence chased “lots of” and chose concrete, forgetting carbon and warmth.",
+  "s": "Florence chased \u201clots of\u201d and chose concrete, forgetting carbon and warmth.",
   "voice": "helper",
   "key": "61bbc5b2"
  },
@@ -2360,12 +2495,12 @@
   "key": "2a632055"
  },
  {
-  "s": "“As much food as possible” = plough every free field into big fields.",
+  "s": "\u201cAs much food as possible\u201d = plough every free field into big fields.",
   "voice": "helper",
   "key": "4aef7f77"
  },
  {
-  "s": "Florence chased “as much as possible” and ploughed up every hedge.",
+  "s": "Florence chased \u201cas much as possible\u201d and ploughed up every hedge.",
   "voice": "helper",
   "key": "e55dd685"
  },
@@ -2400,7 +2535,7 @@
   "key": "86e10049"
  },
  {
-  "s": "Florence didn’t know the bees and deer live in the hedges.",
+  "s": "Florence didn\u2019t know the bees and deer live in the hedges.",
   "voice": "helper",
   "key": "0567186f"
  },
@@ -2445,7 +2580,7 @@
   "key": "456ffa7a"
  },
  {
-  "s": "A repair café.",
+  "s": "A repair caf\u00e9.",
   "voice": "helper",
   "key": "fc25dc1e"
  },
@@ -2455,12 +2590,12 @@
   "key": "78d85600"
  },
  {
-  "s": "“The middle” = the centre of the island.",
+  "s": "\u201cThe middle\u201d = the centre of the island.",
   "voice": "helper",
   "key": "f6791765"
  },
  {
-  "s": "Florence read “the middle” as the middle of the island, not the middle of the homes.",
+  "s": "Florence read \u201cthe middle\u201d as the middle of the island, not the middle of the homes.",
   "voice": "helper",
   "key": "b63bfccb"
  },
@@ -2495,7 +2630,7 @@
   "key": "82255e6e"
  },
  {
-  "s": "You didn’t say where, so I guessed: the middle of the island.",
+  "s": "You didn\u2019t say where, so I guessed: the middle of the island.",
   "voice": "helper",
   "key": "462ace22"
  },
@@ -2505,17 +2640,7 @@
   "key": "4d6bd03b"
  },
  {
-  "s": "3 tiles of your town land flood in winter.",
-  "voice": "helper",
-  "key": "ca6fed46"
- },
- {
-  "s": "Move your town up to the dry slope.",
-  "voice": "helper",
-  "key": "0f56b116"
- },
- {
-  "s": "🏡 Homes: unlocked!",
+  "s": "\ud83c\udfe1 Homes: unlocked!",
   "voice": "narrator",
   "key": "5990a6bb"
  },
@@ -2535,7 +2660,7 @@
   "key": "17b84dfa"
  },
  {
-  "s": "Carbon cloud: 3.0× over the homes’ limit",
+  "s": "Carbon cloud: 3.0\u00d7 over the homes\u2019 limit",
   "voice": "narrator",
   "key": "6f53af27"
  },
@@ -2545,7 +2670,7 @@
   "key": "b7086450"
  },
  {
-  "s": "Food · Power · Town heart: unlocked!",
+  "s": "Food \u00b7 Power \u00b7 Town heart: unlocked!",
   "voice": "narrator",
   "key": "a1c6b21f"
  },
@@ -2580,7 +2705,7 @@
   "key": "2e027f64"
  },
  {
-  "s": "9 of them drive, so I’m very sure!",
+  "s": "9 of them drive, so I\u2019m very sure!",
   "voice": "helper",
   "key": "ecb03f52"
  },
@@ -2605,7 +2730,7 @@
   "key": "99d29013"
  },
  {
-  "s": "Not yet: Every home within 15 minutes’ walk of school.",
+  "s": "Not yet: Every home within 15 minutes\u2019 walk of school.",
   "voice": "narrator",
   "key": "cf35140e"
  },
@@ -2635,12 +2760,432 @@
   "key": "fbf99388"
  },
  {
+  "s": "3 tiles of your town land flood in winter.",
+  "voice": "helper",
+  "key": "ca6fed46"
+ },
+ {
+  "s": "Move your town up to the dry slope.",
+  "voice": "helper",
+  "key": "0f56b116"
+ },
+ {
+  "s": "Start with site selection: mark town land (\ud83d\uddfa Land), then connect it with paths.",
+  "voice": "helper",
+  "key": "78d94887"
+ },
+ {
+  "s": "\ud83c\udfe1 Homes: unlocked",
+  "voice": "narrator",
+  "key": "f7d29f18"
+ },
+ {
+  "s": "Housing unlocked: 40 households need homes on town land.",
+  "voice": "helper",
+  "key": "d7ccc705"
+ },
+ {
+  "s": "Watch embodied carbon.",
+  "voice": "helper",
+  "key": "d34a25b8"
+ },
+ {
+  "s": "New AI Lab mission available.",
+  "voice": "helper",
+  "key": "b544ba0d"
+ },
+ {
+  "s": "Welcome to the AI Lab.",
+  "voice": "helper",
+  "key": "0b4ea3f0"
+ },
+ {
+  "s": "Ask me about any build or problem and I\u2019ll put it on the screen, or choose a mission to test my plans.",
+  "voice": "helper",
+  "key": "227b29cc"
+ },
+ {
+  "s": "Vague words like \u201cbest\u201d or \u201cbig\u201d leave me guessing.",
+  "voice": "helper",
+  "key": "b4103fd2"
+ },
+ {
+  "s": "Flood-risk lens.",
+  "voice": "narrator",
+  "key": "fc95566e"
+ },
+ {
+  "s": "Overlay the winter flood extent on the plan.",
+  "voice": "narrator",
+  "key": "dfcdaa6d"
+ },
+ {
+  "s": "Florence will select 18 tiles of land for 40 households.",
+  "voice": "narrator",
+  "key": "1736a547"
+ },
+ {
+  "s": "You set the brief.",
+  "voice": "narrator",
+  "key": "ea4bd5fa"
+ },
+ {
+  "s": "92 percent confidence.",
+  "voice": "helper",
+  "key": "13dd19cf"
+ },
+ {
+  "s": "17 of 18 town tiles are on the floodplain",
+  "voice": "narrator",
+  "key": "7ae823bf"
+ },
+ {
+  "s": "Correct.",
+  "voice": "narrator",
+  "key": "f0e97d04"
+ },
+ {
+  "s": "Proxy optimisation",
+  "voice": "narrator",
+  "key": "5374e20c"
+ },
+ {
+  "s": "Correct.",
+  "voice": "helper",
+  "key": "a145e3c3"
+ },
+ {
+  "s": "90 percent confidence.",
+  "voice": "helper",
+  "key": "4762618d"
+ },
+ {
+  "s": "PLAN TESTED",
+  "voice": "narrator",
+  "key": "ca78658c"
+ },
+ {
+  "s": "Site agreed 3 stars.",
+  "voice": "narrator",
+  "key": "94b071c9"
+ },
+ {
+  "s": "Housing unlocked: 40 households need homes.",
+  "voice": "helper",
+  "key": "8e4e43b3"
+ },
+ {
+  "s": "Build on town land.",
+  "voice": "helper",
+  "key": "202691f3"
+ },
+ {
+  "s": "Rush-hour ground truth.",
+  "voice": "narrator",
+  "key": "880d2bfb"
+ },
+ {
+  "s": "Observe the route at 8:45 am peak.",
+  "voice": "narrator",
+  "key": "a7dde119"
+ },
+ {
+  "s": "Connect homes to the island school and the ferry.",
+  "voice": "narrator",
+  "key": "13ddf515"
+ },
+ {
+  "s": "Who is \u201ceveryone\u201d?",
+  "voice": "narrator",
+  "key": "89790184"
+ },
+ {
+  "s": "This evidence doesn\u2019t show a problem.",
+  "voice": "narrator",
+  "key": "9a63fdf6"
+ },
+ {
+  "s": "Try another test.",
+  "voice": "narrator",
+  "key": "c522e9e4"
+ },
+ {
+  "s": "Florence assumed shortest-path routing.",
+  "voice": "helper",
+  "key": "bb9f8a45"
+ },
+ {
+  "s": "Real desire lines differ; planners survey them.",
+  "voice": "helper",
+  "key": "d2e3c92c"
+ },
+ {
+  "s": "Network open 3 stars.",
+  "voice": "narrator",
+  "key": "2e087fc4"
+ },
+ {
+  "s": "Next: more housing.",
+  "voice": "helper",
+  "key": "9ec103c8"
+ },
+ {
+  "s": "A Timber terrace houses 4 with low embodied carbon.",
+  "voice": "helper",
+  "key": "b37c4b84"
+ },
+ {
+  "s": "Embodied carbon of the building materials.",
+  "voice": "narrator",
+  "key": "9cf3389a"
+ },
+ {
+  "s": "Embodied-carbon limit: 70 t for the homes\u2019 materials.",
+  "voice": "narrator",
+  "key": "f1ff7046"
+ },
+ {
+  "s": "Households: 40.",
+  "voice": "narrator",
+  "key": "6532b596"
+ },
+ {
+  "s": "Embodied carbon 3.0\u00d7 the 70 t limit",
+  "voice": "narrator",
+  "key": "4e8b2a71"
+ },
+ {
+  "s": "89 percent confidence.",
+  "voice": "helper",
+  "key": "c1d18ce3"
+ },
+ {
+  "s": "Housing delivered 3 stars.",
+  "voice": "narrator",
+  "key": "281d2457"
+ },
+ {
+  "s": "Food \u00b7 Power & water \u00b7 Town heart: unlocked",
+  "voice": "narrator",
+  "key": "d1ac357b"
+ },
+ {
+  "s": "Food unlocked: one food unit feeds three households.",
+  "voice": "helper",
+  "key": "79e9643d"
+ },
+ {
+  "s": "Watch the habitats.",
+  "voice": "helper",
+  "key": "9e1fe67f"
+ },
+ {
+  "s": "Target met: 40 households housed.",
+  "voice": "narrator",
+  "key": "81a4ea47"
+ },
+ {
+  "s": "Habitat & species lens.",
+  "voice": "narrator",
+  "key": "cb482411"
+ },
+ {
+  "s": "Habitat and species presence after the plan.",
+  "voice": "narrator",
+  "key": "ee73da8b"
+ },
+ {
+  "s": "Food need is set by households.",
+  "voice": "narrator",
+  "key": "96772145"
+ },
+ {
+  "s": "Habitats are part of the test.",
+  "voice": "narrator",
+  "key": "d6278429"
+ },
+ {
+  "s": "88 percent confidence.",
+  "voice": "helper",
+  "key": "4678c234"
+ },
+ {
+  "s": "Habitat & species lens: Deer, bees, otters, birds and frogs all stay.",
+  "voice": "narrator",
+  "key": "cd0d672b"
+ },
+ {
+  "s": "Florence assumed a fixed food demand per household (1 unit per 3).",
+  "voice": "helper",
+  "key": "30f5dac7"
+ },
+ {
+  "s": "Real demand varies with diet and family size.",
+  "voice": "helper",
+  "key": "ae35f9de"
+ },
+ {
+  "s": "Food system running 3 stars.",
+  "voice": "narrator",
+  "key": "e73b5378"
+ },
+ {
+  "s": "Target met: food supply \u2265 need.",
+  "voice": "narrator",
+  "key": "7fbf0689"
+ },
+ {
+  "s": "Still winter night: supply 0 / demand 12.",
+  "voice": "helper",
+  "key": "9bbdd9ba"
+ },
+ {
+  "s": "Add storage or wind.",
+  "voice": "helper",
+  "key": "1e434fe4"
+ },
+ {
+  "s": "Worst-case power test.",
+  "voice": "narrator",
+  "key": "a1f156b1"
+ },
+ {
+  "s": "Worst-case test: a still winter night.",
+  "voice": "narrator",
+  "key": "e137dd56"
+ },
+ {
+  "s": "Size power for a still winter night.",
+  "voice": "narrator",
+  "key": "8588d455"
+ },
+ {
+  "s": "Batteries only help if something charges them.",
+  "voice": "narrator",
+  "key": "8a50687a"
+ },
+ {
+  "s": "Also manage rainwater and waste.",
+  "voice": "narrator",
+  "key": "056c0206"
+ },
+ {
+  "s": "Winter-night supply 0/12 of demand",
+  "voice": "narrator",
+  "key": "bcd03309"
+ },
+ {
+  "s": "Average-case assumption",
+  "voice": "narrator",
+  "key": "9c9de7cd"
+ },
+ {
+  "s": "75 percent confidence.",
+  "voice": "helper",
+  "key": "224d76c4"
+ },
+ {
+  "s": "Utilities running 3 stars.",
+  "voice": "narrator",
+  "key": "d591f1cb"
+ },
+ {
+  "s": "Target met: winter-night supply \u2265 demand.",
+  "voice": "narrator",
+  "key": "71f4f9b2"
+ },
+ {
+  "s": "Town heart unlocked: the town still needs its own school.",
+  "voice": "helper",
+  "key": "228ac83c"
+ },
+ {
+  "s": "Resolved: winter-night supply covers demand.",
+  "voice": "helper",
+  "key": "273812fd"
+ },
+ {
+  "s": "Walking time from every home to school.",
+  "voice": "narrator",
+  "key": "2ed571d9"
+ },
+ {
+  "s": "Place the new school.",
+  "voice": "narrator",
+  "key": "ffac740c"
+ },
+ {
+  "s": "Then the market, park and nature links.",
+  "voice": "narrator",
+  "key": "a2e352d1"
+ },
+ {
+  "s": "Florence assumed one walking speed.",
+  "voice": "helper",
+  "key": "1afa064d"
+ },
+ {
+  "s": "Accessibility audits use slower speeds for younger children and wheelchair users.",
+  "voice": "helper",
+  "key": "c2902286"
+ },
+ {
+  "s": "Balanced data: 30% vs 10% really",
+  "voice": "narrator",
+  "key": "b811278e"
+ },
+ {
+  "s": "School and town centre planned 3 stars.",
+  "voice": "narrator",
+  "key": "ee6e2af2"
+ },
+ {
+  "s": "Longest walk to school 24 min (rule: \u2264 15).",
+  "voice": "helper",
+  "key": "95b812da"
+ },
+ {
+  "s": "Relocate the school or add paths.",
+  "voice": "helper",
+  "key": "65a41ca5"
+ },
+ {
+  "s": "Resolved: the town has a school.",
+  "voice": "helper",
+  "key": "9c78792d"
+ },
+ {
+  "s": "Next: health.",
+  "voice": "helper",
+  "key": "788c3f78"
+ },
+ {
+  "s": "A cycle lane linking homes to the mainland bridge or the school, and parks beside the homes.",
+  "voice": "helper",
+  "key": "c6314494"
+ },
+ {
+  "s": "Next: community.",
+  "voice": "helper",
+  "key": "48b64c71"
+ },
+ {
+  "s": "A Market square or Community hall.",
+  "voice": "helper",
+  "key": "cf0b8f5c"
+ },
+ {
+  "s": "Make it healthier with a Footpath, a Cycle lane or a Park.",
+  "voice": "helper",
+  "key": "6ad6b801"
+ },
+ {
   "s": "Town complete!",
   "voice": "narrator",
   "key": "de0b6612"
  },
  {
-  "s": "Florence’s plan didn’t fit your town, so nothing changed.",
+  "s": "Florence\u2019s plan didn\u2019t fit your town, so nothing changed.",
   "voice": "narrator",
   "key": "723ab5ba"
  },

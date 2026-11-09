@@ -48,6 +48,9 @@ const out = await p.evaluate(async () => {
     // feedback lines (Nov 2026): well done when a problem is fixed, next-step ideas, goals met, the intro's goals beat
     for (const v of Object.values(S.fixed || {})) add(band, v, 'helper');
     for (const v of Object.values(S.nextIdea || {})) add(band, v, 'helper');
+    // Florence's good spots ("Show me where"), as she says them (without the star)
+    if (S.spotWhy) { const say = (t) => add(band, t.replace(/^⭐\s*/, ''), 'helper'); for (const [k, f] of Object.entries(S.spotWhy)) {
+      if (typeof f === 'string') say(f); else if (k === 'nearHomes') for (let n = 0; n <= 9; n++) say(f(n)); else for (const to of Object.values(S.spotTo)) say(f(to)); } }
     for (const v of Object.values(S.goalMet || {})) add(band, v, 'narrator');
     if (S.introGoals) add(band, S.introGoals, 'helper');
     // town events and the mission hint (Nov 2026, scored review)

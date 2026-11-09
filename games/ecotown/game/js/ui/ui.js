@@ -24,7 +24,7 @@ export function createUI(root, labelsRoot, opts) {
   const mk = (id, cls, html = '') => { const n = h(`<div id="${id}" class="panel hide ${cls}">${html}</div>`); root.appendChild(n); P[id] = n; return n; };
   // one town card (top-left), one icon strip (top-right), one dock (bottom): the whole frame
   // the town card: 🌼 goals, the town name, stars, the day (with pause) and credits, the next step
-  mk('card', 'from-left', `<div class="crow"><button class="ib" data-flower aria-label="Town goals" title="Town goals" aria-expanded="false"><svg viewBox="-60 -60 120 120"></svg></button><span class="leaf">🌱</span><b class="brand">Eco Town</b><span class="band" data-sub></span><span class="stars"><span class="star">★</span><b data-stars>0</b></span><span class="dayc" data-day hidden><span data-dayt></span><button class="slot mini" data-pause aria-label="Pause" title="Pause">❚❚</button></span><span class="credits" data-credits hidden></span></div>
+  mk('card', 'from-left', `<div class="crow"><button class="ib" data-flower aria-label="Town goals" title="Town goals" aria-expanded="false"><svg viewBox="-60 -60 120 120"></svg></button><span class="leaf">🌱</span><b class="brand">Eco Town</b><span class="band" data-sub></span><button class="stars" data-shop aria-label="Star shop" title="Star shop"><span class="star" aria-hidden="true">★</span><b data-stars>0</b><i class="shopnew" data-shopnew hidden>NEW</i></button><span class="dayc" data-day hidden><span data-dayt></span><button class="slot mini" data-pause aria-label="Pause" title="Pause">❚❚</button></span><span class="credits" data-credits hidden></span></div>
     <div class="track" data-track>${TRACK_PICS.map((pic, i) => `<i data-l="${i + 1}" role="button" tabindex="0" aria-label="AI Lab mission ${i + 1}"><img src="img/thumbs/${pic}.png" alt=""></i>`).join('<em></em>')}</div><div class="goal" data-goal></div>`);
   // lenses (once one is earned), the AI Lab (with how many missions are ready) and the menu
   // each button has a short caption under its icon on laptops and boards (CSS hides it on phones), so nobody has to guess
@@ -110,7 +110,10 @@ export function createUI(root, labelsRoot, opts) {
       P.lenspop.innerHTML = `<b class="poptitle">${esc(title)}</b>` + list.map((l) => `<button class="slot act ${l.on ? 'on' : ''}" data-lens="${l.id}" aria-pressed="${!!l.on}"><b class="ico">${l.icon}</b><span>${esc(l.label)}</span></button>`).join('');
       if (!list.length) P.lenspop.classList.add('hide'); fitStrip();
     },
-    setStars(n) { const b = P.card.querySelector('[data-stars]'); if (b.textContent !== String(n)) { b.textContent = n; b.parentElement.classList.remove('bump'); void b.offsetWidth; b.parentElement.classList.add('bump'); } this.show('card'); },
+    // the stars chip shows the stars there are to spend (ui.wallet, set by the game) and opens the Star shop
+    setStars(n) { const b = P.card.querySelector('[data-stars]'); n = this.wallet ? this.wallet(n) : n; if (b.textContent !== String(n)) { b.textContent = n; b.parentElement.classList.remove('bump'); void b.offsetWidth; b.parentElement.classList.add('bump'); } this.show('card'); },
+    // T: SANDBOX[band].shop. canNew: something new is affordable (a small NEW tag, a word as well as a colour)
+    setShop(left, canNew, T) { const btn = P.card.querySelector('[data-shop]'); const lbl = T?.chip ? T.chip(left) : `Star shop: ${left} stars`; btn.setAttribute('aria-label', canNew && T?.newMark ? `${lbl}. ${T.newMark}` : lbl); btn.title = lbl; btn.querySelector('[data-shopnew]').hidden = !canNew; },
     // Florence speaks in the dock: { tag, tagCls, html, sure, sureLabel, why, thinking, mini, say }
     // mini: a small card kept on screen while the player checks her guess
     helper(o) {
@@ -209,6 +212,7 @@ export function createUI(root, labelsRoot, opts) {
     },
   };
   P.card.querySelector('[data-flower]').addEventListener('click', () => ui.togglePop(P.flowerpop, '[data-flower]'));
+  P.card.querySelector('[data-shop]').addEventListener('click', () => { ui.closePops(); ui.onShop?.(); });
   P.strip.querySelector('[data-lensbtn]').addEventListener('click', () => ui.togglePop(P.lenspop, '[data-lensbtn]'));
   P.strip.querySelector('[data-lab]').addEventListener('click', () => { ui.closePops(); ui.onLab?.(); });
   P.lenspop.addEventListener('click', (e) => { const b = e.target.closest('[data-lens]'); if (b) { ui.closePops(); ui.onLens?.(b.dataset.lens); } });
@@ -227,6 +231,7 @@ export function createUI(root, labelsRoot, opts) {
     float(f) { add('float', f); const a = anchored[anchored.length - 1]; setTimeout(() => remove(a), f.ms || 1700); if (f.text) globalThis.__sayLog?.push({ text: f.text, voice: 'float', missing: [], silent: true }); },
     bubble(b) { const cur = anchored.filter((a) => a.node.classList.contains('bub')); if (cur.length >= 2) remove(cur[0]); add('bub ' + (b.bad ? 'bad' : ''), b); if (!b.quiet) ui.say(b.text, 'narrator'); setTimeout(() => remove(anchored.find((a) => a.data === b)), b.ms || 4200); },
     clear(kind) { for (const a of anchored.slice()) if (!kind || a.node.classList.contains(kind)) remove(a); },
+    spots(list) { this.clear('spot'); for (const l of list) add('spot', l); }, // Florence's good spots: a solid gold ⭐ pin over each tile
     update(camera, canvas) {
       const w = canvas.clientWidth, hgt = canvas.clientHeight;
       // keep bubbles out from under the town card and the icon strip (top corners)

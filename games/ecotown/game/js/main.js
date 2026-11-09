@@ -10,7 +10,9 @@ import { simulate } from './sim/sim.js';
 import { createWorld } from './world/world.js';
 import { createInside } from './world/inside.js';
 import { createClassroom } from './world/classroom.js';
+import { createCosmetics } from './world/cosmetics.js';
 import { createRig } from './camera/rig.js';
+import { createStreetPad } from './camera/streetpad.js';
 import { createUI, h, esc } from './ui/ui.js';
 import { createPortrait } from './ui/portrait.js';
 import { createGame } from './game/game.js';
@@ -52,9 +54,11 @@ const ui = app.ui = createUI($('#layer'), $('#labels'), { facilitator: () => app
 // Florence's cards show a live, talking copy of her 3D self that mirrors the island Florence's gestures
 ui.portrait = createPortrait(createFlorence);
 if (ui.portrait) for (const g of ['wave', 'cheer', 'oops', 'shrug', 'proud', 'surprised', 'think', 'nod']) { const orig = bot[g].bind(bot); bot[g] = (...a) => { ui.portrait[g](); return orig(...a); }; }
+// Star-shop rewards in 3D (hats, flag, fountain, statue, fireworks): looks only, switched on by the game
+const cosmetics = app.cosmetics = createCosmetics({ stage, world, terrain, bot, portrait: ui.portrait });
 function applySettings() {
   const s = app.settings; ui.readAloud = s.readAloud; rig.reduce = s.reduce; bot.reduce = s.reduce; if (ui.portrait) ui.portrait.reduce = s.reduce; setSound(s.sound); setMusicOn(s.music !== false); setSfxOn(s.effects !== false);
-  document.documentElement.dataset.motion = s.reduce ? 'reduce' : ''; document.documentElement.dataset.text = s.text;
+  document.documentElement.dataset.motion = s.reduce ? 'reduce' : ''; document.documentElement.dataset.text = s.text; app.G?.applyCosmetics?.();
   if (s.quality !== 'auto') stage.setTier(s.quality); savePrefs();
 }
 applySettings();
@@ -64,7 +68,7 @@ let last = performance.now(); const T0 = last;
 function loop(now) {
   if (app.manual) { requestAnimationFrame(loop); return; } // the build-video recorder drives frames itself (?shoot=)
   const dt = Math.min(0.05, (now - last) / 1000); last = now; const t = (now - T0) / 1000;
-  rig.update(dt); world.update(dt, t, { windStill: app.winterTest }); life.update(dt, t, app.hour, { windStill: app.winterTest, moveIn: app.moveIn }); inside.update(dt, t); classroom.update(dt, t); bot.update(dt, t);
+  rig.update(dt); { const st = rig.mode === 'street' && !!rig.street; if (st !== world.overlayHidden) { world.hideOverlay(st); document.documentElement.dataset.street = st ? 'on' : 'off'; } } world.update(dt, t, { windStill: app.winterTest }); life.update(dt, t, app.hour, { windStill: app.winterTest, moveIn: app.moveIn }); inside.update(dt, t); classroom.update(dt, t); bot.update(dt, t); cosmetics.update(dt, t, app.hour ?? 12);
   stage.render(dt, t); ui.labels.update(stage.camera, canvas);
   requestAnimationFrame(loop);
 }
@@ -76,7 +80,7 @@ function settingsSheet() {
   const row = (k, label) => `<label>${esc(label)}<input type="checkbox" data-k="${k}" ${s[k] ? 'checked' : ''}></label>`;
   const snd = !s.sound ? 'off' : s.music === false ? 'fx' : 'on';
   P.innerHTML = `<h3 style="margin:0 0 8px">Menu</h3>
-    <div class="menuacts"><button class="slot act" data-m-act="report" ${free ? '' : 'disabled'}><b class="ico">📜</b><span>Town report</span></button><button class="slot act" data-m-act="day" ${free ? '' : 'disabled'}><b class="ico">🌇</b><span>Watch a whole day</span></button><button class="slot act" data-intro ${free ? '' : 'disabled'}><b class="ico">🎬</b><span>Watch Florence’s intro again</span></button></div>
+    <div class="menuacts"><button class="slot act" data-m-act="report" ${free ? '' : 'disabled'}><b class="ico">📜</b><span>Town report</span></button><button class="slot act" data-m-act="day" ${free ? '' : 'disabled'}><b class="ico">🌇</b><span>Watch a whole day</span></button><button class="slot act" data-intro ${free ? '' : 'disabled'}><b class="ico">🎬</b><span>Watch Florence’s intro again</span></button><button class="slot act" data-m-act="shop" ${free ? '' : 'disabled'}><b class="ico">★</b><span>${esc(G?.S?.shop?.menu || 'Star shop')}</span></button>${G?.completeShown ? `<button class="slot act" data-m-act="finale" ${free ? '' : 'disabled'}><b class="ico">🎉</b><span>${esc(G.S.finale.again)}</span></button>` : ''}</div>
     <h4 class="menuhead">Settings</h4>
     <label>Sound<select data-snd><option value="on" ${snd === 'on' ? 'selected' : ''}>On (music and effects)</option><option value="fx" ${snd === 'fx' ? 'selected' : ''}>Effects only</option><option value="off" ${snd === 'off' ? 'selected' : ''}>Off</option></select></label>
     ${row('readAloud', 'Read aloud')}${row('reduce', 'Reduce motion')}${row('facilitator', 'Facilitator notes')}
@@ -87,7 +91,7 @@ function settingsSheet() {
   P.querySelector('[data-snd]').onchange = (e) => { const v = e.target.value; s.sound = v !== 'off'; s.effects = v !== 'off'; s.music = v === 'on'; applySettings(); };
   P.querySelector('[data-close]').onclick = () => ui.show('settings', false);
   P.querySelector('[data-intro]').onclick = () => { ui.show('settings', false); app.G?.replayIntro?.(); };
-  P.querySelectorAll('[data-m-act]').forEach((b) => (b.onclick = () => { ui.show('settings', false); if (b.dataset.mAct === 'report') app.G?.showReport?.(); else app.G?.wholeDay?.(); }));
+  P.querySelectorAll('[data-m-act]').forEach((b) => (b.onclick = () => { ui.show('settings', false); const m = b.dataset.mAct; if (m === 'report') app.G?.showReport?.(); else if (m === 'shop') app.G?.openShop?.(); else if (m === 'finale') app.G?.finale?.(); else app.G?.wholeDay?.(); }));
   ui.closePops(P.settings); ui.show('settings', true);
 }
 ui.P.tr.querySelector('[data-menu]').onclick = () => (ui.P.settings.classList.contains('hide') ? settingsSheet() : ui.show('settings', false));
@@ -110,6 +114,7 @@ async function setView(v) {
   if (v === 'inside') { inside.build(home?.[1].item || 'timber', 20); await rig.fade(() => { inside.root.visible = true; rig.mode = 'inside'; rig.apply(inside.pose()); }); }
 }
 app.setView = setView;
+createStreetPad({ rig, world, terrain, onExit: () => setView('sky') }); // street view: walking, the pad and "Back to the island"
 ui.P.views.addEventListener('click', (e) => {
   const b = e.target.closest('[data-v]'); if (!b || b.disabled) return;
   setView(b.classList.contains('on') ? 'sky' : b.dataset.v); // tap again to come back up

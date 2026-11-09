@@ -26,7 +26,11 @@ import { RULES, newAdvisor, nextTip, tipText } from './advisor.js';
 import { seedTo } from './seed.js';
 import { runIntro } from './intro.js';
 import { planPlace } from './replace.js';
+import { goodSpots } from './spots.js';
 import { CHIP, CHIP_WORD, itemChips, simDelta, chipsText } from './delta.js';
+import { shopState, wallet, canAffordNew } from './shop.js'; // the Star shop (looks only, never the score)
+import { townSummary } from './finale.js';
+import { openShop as shopCard, showFinale } from '../ui/rewards.js';
 import { answer as askFlorence, SUGGEST } from './qa.js';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -63,18 +67,19 @@ export function createGame(app) {
   }
   // stars: three per mission, the best run counts. `run` holds this run's marks while a mission is played.
   let run = null;
-  const totalStars = () => Object.values(G.levelStars).reduce((a, b) => a + b, 0) + Object.values(G.bonus).reduce((a, b) => a + b, 0);
+  // (each flawed idea caught in town with a lens also earns a star: stars are spent in the Star shop)
+  const totalStars = () => Object.values(G.levelStars).reduce((a, b) => a + b, 0) + Object.values(G.bonus).reduce((a, b) => a + b, 0) + (G.catches || 0);
   const shownStars = () => totalStars() + (run ? Math.max(0, run.marks.filter(Boolean).length - (G.levelStars[run.id] || 0)) + (run.bonus && !G.bonus[run.id] ? 1 : 0) : 0);
   function star(i, why = '') { if (!run || run.marks[i]) return; run.marks[i] = true; audio.star(); G.stars = shownStars(); ui.setStars(G.stars); if (why) ui.caption(`★ ${why}`, 2600); }
   function bonusStar(why) { if (!run) return; run.bonus = true; G.stars = shownStars(); ui.setStars(G.stars); ui.caption(`★ ${why}`, 2800); }
   function flower(flash = true) { const s = sim(); ui.carbonInfo = { used: s.carbon, limit: TARGETS.carbonCeiling }; ui.flower(s.petals, G.townName, { flash }); renderGoals(s); }
-  const KEEP = ['milestones', 'placements', 'catches', 'trusted', 'introDone', 'band', 'levelStars', 'starMarks', 'bonus', 'mistakes', 'diary', 'instructions', 'extra', 'credits', 'townName', 'inputMode', 'paths', 'outcomes', 'labs', 'ever', 'classMode', 'day', 'movedIn', 'completeShown', 'charter', 'reflection'];
+  const KEEP = ['milestones', 'placements', 'catches', 'trusted', 'introDone', 'band', 'levelStars', 'starMarks', 'bonus', 'mistakes', 'diary', 'instructions', 'extra', 'credits', 'townName', 'inputMode', 'paths', 'outcomes', 'labs', 'ever', 'classMode', 'day', 'movedIn', 'completeShown', 'charter', 'reflection', 'shop'];
   function save() {
     if (app.inLab || G.full) return; // a mission's practice island is never saved as the player's town
     try { const d = { cells: [...G.cells], li: 1 }; for (const k of KEEP) d[k] = G[k]; if (d.credits === Infinity) d.credits = null; localStorage.setItem(SAVE, JSON.stringify(d)); } catch { /* storage off: keep playing */ }
   }
-  G.load = (data) => { for (const k of KEEP) if (data[k] != null) G[k] = data[k]; if (G.credits == null) G.credits = G.j ? Infinity : 60; G.cells = new Map(data.cells || []); G.stars = totalStars(); };
-  G.paths = {};
+  G.load = (data) => { for (const k of KEEP) if (data[k] != null) G[k] = data[k]; if (G.credits == null) G.credits = G.j ? Infinity : 60; G.cells = new Map(data.cells || []); G.shop = shopState(G.shop); G.stars = totalStars(); };
+  G.paths = {}; G.shop = shopState(null); G.save = save;
 
   // ---------------- input: word tiles (junior default), free text (senior default), cards (fallback)
   // The chosen mode and what was typed or tapped are kept between rounds, so a retry starts from the last try.
@@ -275,10 +280,12 @@ export function createGame(app) {
   const isOpen = (cat) => G.ever.includes(cat);
 
   // ================= FREE BUILDING =================
-  // every tile shows what a tap with the selected tool would do: a low solid cyan kerb where it can go, a violet
-  // kerb with corner blocks where it would replace what's there, a solid grey tile where it can't go, a red kerb
-  // where erase works. Colours no tile uses; all solid and at ground level, so buildings and Florence stand in front.
-  const HL = { free: { color: '#4fd6e8', ring: true }, swap: { color: '#a55cff', ring: true, notch: true }, erase: { color: '#ff3b3b', ring: true }, no: { color: '#5b6066', ring: true, dashed: true }, same: { color: '#ffd23f', ring: true } };
+  // every tile shows what a tap with the selected tool would do: a chunky bright white kerb where it can go, an orange
+  // kerb with corner blocks where it would replace what's there, a solid dark plate over tiles where it can't go, a red
+  // kerb where Remove works and gold where it's already there. Solid and at ground level, so buildings and Florence
+  // stand in front; shape as well as colour (kerb vs plate vs corner blocks).
+  const HL = { free: { color: '#ffffff', ring: true }, swap: { color: '#ff8a1f', ring: true, notch: true }, erase: { color: '#ff3b3b', ring: true }, no: { color: '#3b3430', ring: true, plate: true }, same: { color: '#ffd23f', ring: true }, spot: { color: '#ffd23f', ring: true, notch: true } };
+  function clearOverlay() { world.setOverlay(null); ui.labels.clear('spot'); }
   function showAllowed(tool) {
     const spec = new Map();
     for (const t of terrain.tiles.values()) {
@@ -289,6 +296,10 @@ export function createGame(app) {
       if (look === 'no' && t.zone === 'river') continue; // the water already says "not here"; nothing painted over it
       spec.set(t.k, HL[look]);
     }
+    // Florence's good spots for this build (gold kerb with corner blocks) and a line saying why
+    sb.spots = tool === 'erase' ? null : goodSpots(tool, { tiles: terrain.tiles, cells: G.cells, items: ITEMS, ok: (k) => spec.get(k) === HL.free, bridge: world.bridgeTile || null });
+    for (const k of sb.spots?.keys || []) spec.set(k, HL.spot);
+    ui.labels.spots((sb.spots?.keys || []).map((k, i) => ({ at: world.tileTop(k).add(new THREE.Vector3(0, 3.2, 0)), text: i || innerWidth < 700 ? '★' : '★ ' + G.S.keySpot })));
     world.setOverlay(spec);
   }
   // free building: a tap may replace what's on the tile. Adds the town-land cap and the credits to planPlace.
@@ -382,23 +393,27 @@ export function createGame(app) {
     });
   }
   function renderDay() { ui.setDay(`☀ ${G.S.day} ${G.day} · ${clockText()}`, sb.paused, () => { sb.paused = !sb.paused; renderDay(); }); }
-  function pickCat(cat) { sb.cat = cat; if (isOpen(cat)) { sb.tool = LEVELS[cat].palette[0]; showAllowed(sb.tool); } else { if (sb.tool !== 'erase') world.setOverlay(null); } sb.folded = false; audio.tap(); renderBar(); }
+  function pickCat(cat) { sb.cat = cat; if (isOpen(cat)) { sb.tool = LEVELS[cat].palette[0]; showAllowed(sb.tool); } else { if (sb.tool !== 'erase') clearOverlay(); } sb.folded = false; audio.tap(); renderBar(); }
   function pickTool(id) { sb.tool = id; showAllowed(id); audio.tap(); renderBar(); }
   // what the selected (or hovered) build is and does: name, one sentence, effect chips, where it goes, cost, ▶
   // a chip: "+4 👪 families". num: false for the item card, which shows what a build is good for, not exact
   // numbers (those depend on where it goes; the hover preview and the floating chips show the real change)
   const chipHtml = (c, num = true) => `<span class="chip ${c.good ? 'good' : 'bad'}" style="--c:${CHIP[c.key].col}" title="${esc(CHIP_WORD[c.key])}">${num || c.key === 'homes' ? `${c.v > 0 ? '+' : '−'}${Math.abs(c.v)} ` : c.v > 0 ? '+ ' : '− '}${CHIP[c.key].icon} <small>${esc(CHIP_WORD[c.key])}</small></span>`;
+  function spotLine() {
+    const w = sb.spots?.why; if (!w) return ''; const f = G.S.spotWhy?.[w.type]; if (!f) return '';
+    return typeof f === 'function' ? f(w.type === 'nearHomes' ? w.n : G.S.spotTo[w.to] || '') : f;
+  }
   function infoHtml(id) {
     if (id === 'erase') return `<div class="ihead"><b>🧽 ${esc(G.S.erase)}</b></div><p>${esc(G.S.removeDesc)}</p>`;
     const it = ITEMS[id]; if (!it || !isOpen(sb.cat)) return '';
     const where = it.on.map((z) => G.S.zone[z] || z).join(', ');
-    return `<div class="ihead"><b>${esc(it.label)}</b>${!G.j && it.cost ? `<em class="cost">💰 ${it.cost}</em>` : ''}${G.videos?.has(id) ? `<button class="slot mini play" data-play="${id}" aria-label="${esc(G.S.watchBuilt)}: ${esc(it.label)}" title="${esc(G.S.watchBuilt)}">▶</button>` : ''}</div>
+    return `<div class="ihead"><b>${esc(it.label)}</b>${!G.j && it.cost ? `<em class="cost">💰 ${it.cost}</em>` : ''}${G.videos?.has(id) ? `<button class="slot mini play" data-play="${id}" aria-label="${esc(G.S.watchBuilt)}: ${esc(it.label)}" title="${esc(G.S.watchBuilt)}">▶</button>` : ''}${spotLine() ? `<span class="spotwhy" title="${esc(spotLine())}">${esc(spotLine().replace(/^⭐/, '★'))}</span>` : ''}</div>
       <p>${esc(pick(it.desc || ''))}</p><div class="chips">${itemChips(id).map((c) => chipHtml(c, false)).join('')}<span class="where">${esc(G.S.goesOn)}: ${esc(where)}</span></div>`;
   }
   // the key to the tile highlight (matches showAllowed's colours); after the first few builds it folds to a "?"
   function hlKey(mini = false) {
     const sw = (cls, text) => `<span><i class="hk ${cls}" aria-hidden="true"></i>${esc(text)}</span>`;
-    return `<div class="hlkey ${mini ? 'mini' : ''}" ${mini ? 'tabindex="0" aria-label="Key"' : ''}>${mini ? '<b class="hkq" aria-hidden="true">?</b>' : ''}${sb.tool === 'erase' ? sw('erase', G.S.keyErase) : sw('free', G.S.keyFree) + sw('swap', G.S.keySwap) + (sb.tool === 'town' ? sw('same', G.S.keyHave) : '')}${sw('no', G.S.keyNo)}</div>`;
+    return `<div class="hlkey ${mini ? 'mini' : ''}" ${mini ? 'tabindex="0" aria-label="Key"' : ''}>${mini ? '<b class="hkq" aria-hidden="true">?</b>' : ''}${sb.tool === 'erase' ? sw('erase', G.S.keyErase) : sw('free', G.S.keyFree) + sw('swap', G.S.keySwap) + (sb.tool === 'town' ? sw('same', G.S.keyHave) : '') + (sb.spots?.keys.length ? sw('spot', G.S.keySpot) : '')}${sw('no', G.S.keyNo)}</div>`;
   }
   // a locked category still shows what it will unlock (greyed), with a bar filling toward it
   function lockedView(tier, s) {
@@ -432,6 +447,7 @@ export function createGame(app) {
     const st = nextStep(s); ui.setStep(st.text, st.have, st.need);
     ui.setTrack(LEVEL_ORDER.map((id) => (G.labs[id] ? 'done' : labReady(id, G.ever, G.labs, G.classMode) ? 'on' : '')));
     ui.setStars(G.stars = totalStars());
+    ui.setShop?.(wallet(G.stars, G.shop), canAffordNew(G.stars, G.shop), G.S.shop); // the stars chip opens the Star shop
   }
   const labsDone = () => LEVEL_ORDER.filter((id) => G.labs[id]).length;
   // ---------- Florence suggests: a plan for the player's own town, shown as pale blocks, that is sometimes
@@ -471,14 +487,14 @@ export function createGame(app) {
     el.querySelector('[data-sg="no"]').onclick = () => { world.clearGhost(); sb.sug = null; hideTip(); };
   }
   async function checkSuggestion(sg, after) {
-    const T2 = G.S.suggest; sb.lens = sg.lens; world.setOverlay(null);
+    const T2 = G.S.suggest; sb.lens = sg.lens; clearOverlay();
     app.checkingPlan = true; await checks.run(sg.lens, sim(after), after, {}); app.checkingPlan = false; // the lens bar says "Florence's plan, before building"
     const ev = evidence(sg, sim(), sim(after)); // what the lens shows, in numbers, so Right/Wrong is a judgement on evidence
     const el = ui.florence({ tag: T2.tag, html: `<p class="ev">🔍 ${esc(ev)}</p><p>${esc(T2.judge)}</p><div class="tiprow"><button class="slot act go" data-j="right"><b class="ico">👍</b><span>${esc(T2.right)}</span></button><button class="slot act" data-j="wrong"><b class="ico">👎</b><span>${esc(T2.wrong)}</span></button></div>`, say: T2.judge });
     el.onclick = null;
     el.querySelectorAll('[data-j]').forEach((b) => (b.onclick = async () => {
       const saysWrong = b.dataset.j === 'wrong'; await checks.leave(); sb.lens = null;
-      if (sg.flawed && saysWrong) { G.catches = (G.catches || 0) + 1; audio.star?.(); app.bot?.oops(); if (!app.reduce) world.confetti(world.tileTop(sg.pl[0].k).add(new THREE.Vector3(0, 4, 0)), 70); world.clearGhost(); sayTip(T2.caught, true); ui.caption(T2.catches(G.catches), 3000); }
+      if (sg.flawed && saysWrong) { G.catches = (G.catches || 0) + 1; audio.star?.(); app.bot?.oops(); if (!app.reduce) world.confetti(world.tileTop(sg.pl[0].k).add(new THREE.Vector3(0, 4, 0)), 70); world.clearGhost(); sayTip(T2.caught, true); ui.caption(`★ ${T2.catches(G.catches)}`, 3000); ui.setStars(G.stars = totalStars()); save(); }
       else if (sg.flawed) { sayTip(`${T2.missed} ${T2[sg.id].why}`); world.clearGhost(); }
       else { sayTip(saysWrong ? T2.doubted : T2.goodCheck, !saysWrong); useSuggestion(sg, true); }
       sb.sug = null; if (sb.tool) showAllowed(sb.tool); renderLenses(); save();
@@ -529,7 +545,7 @@ export function createGame(app) {
   async function toggleLens(id) {
     if (G.busy) return;
     if (sb.lens) { const was = sb.lens; sb.lens = null; await checks.leave(); renderLenses(); if (sb.tool) showAllowed(sb.tool); if (was === id) return; }
-    sb.lens = id; world.setOverlay(null); renderLenses();
+    sb.lens = id; clearOverlay(); renderLenses();
     const r = await checks.run(id, sim(), G.cells, {});
     if (sb.lens !== id) return;
     if (r.info?.summary) ui.caption(`${G.C.checks[id].label}: ${r.info.summary}`, 5000);
@@ -571,7 +587,7 @@ export function createGame(app) {
       // nothing wrong: a next step toward the first goal not met yet (each idea at most every 3 minutes)
       if (!tipShown && !sb.adv.pending.length && now - sb.adv.last > 40000) {
         const g = townGoals(s, ctxFor(G.cells)).find((x) => !x.ok && isOpen(GOAL_CAT[x.id]) && now - (sb.ideas[x.id] || -Infinity) > 180000);
-        if (g) { sb.ideas[g.id] = now; sb.adv.last = now; showTip({ id: 'idea-' + g.id, text: G.S.nextIdea[g.id] }); }
+        if (g) { sb.ideas[g.id] = now; sb.adv.last = now; showTip({ id: 'idea-' + g.id, text: G.S.nextIdea[g.id], where: ideaTool(g.id) }); }
       }
       return;
     }
@@ -581,18 +597,31 @@ export function createGame(app) {
   }
   // Florence's tip: one line in the dock, above the build bar. Never blocks; fades after a while.
   let tipShown = null;
-  function showTip({ id, text, lab = null, lens = null, at = null, praise = false, rule = null }) {
+  // which build a next-step idea is about, for its "Show me where" button (only if that category is open)
+  const IDEA_TOOL = { homes: ['timber'], food: ['mixed', 'orchard'], nature: ['park', 'hedge', 'wild'], health: ['cycle', 'park'], energy: ['wind'], community: ['market', 'hall'], walk: ['school'] };
+  const ideaTool = (id) => (IDEA_TOOL[id] || []).find((t) => ITEMS[t] && isOpen(ITEMS[t].level)) || null;
+  // select a build and show Florence's good spots for it: gold kerbs, the camera on them, Florence pointing at the best
+  async function showWhere(tool) {
+    sb.cat = ITEMS[tool].level; sb.tool = tool; sb.folded = false; showAllowed(tool); renderBar(); audio.tap();
+    const keys = sb.spots?.keys || []; const line = spotLine(); if (line) showTip({ id: 'where-' + tool, text: line.replace(/^⭐\s*/, '') });
+    if (!keys.length) return;
+    await rig.frameBox(keys.map((k) => world.tileTop(k)), { pitch: 0.8, pad: 2.2, dur: 1.1 });
+    fNext = 0; florenceTo(keys[0], 'point');
+  }
+  function showTip({ id, text, lab = null, lens = null, at = null, praise = false, rule = null, where = null }) {
     if (!sb.running || app.inLab || sb.inClass) return; // only while building (a late tip once stuck over a mission's answers)
     if (lab) lens = null; // one button at most
-    tipShown = id; lastTip = { id, text, lab, lens, praise, rule }; if (lab) sb.needLab = lab; praise ? audio.good?.() : audio.tip();
-    const act = lab ? `<button class="slot act go" data-tiplab="${lab}"><img src="${thumb('ailab')}" alt=""><span>${esc(G.S.showInLab)}</span></button>` : lens ? `<button class="slot act" data-tiplens="${lens}"><b class="ico">${G.C.checks[lens].icon}</b><span>${esc(G.S.useLens)}</span></button>` : '';
+    tipShown = id; lastTip = { id, text, lab, lens, praise, rule, where }; if (lab) sb.needLab = lab; praise ? audio.good?.() : audio.tip();
+    if (lab || lens) where = null;
+    const act = where ? `<button class="slot act go" data-tipwhere="${where}"><img src="${thumb(where)}" alt=""><span>${esc(G.S.showWhere)}</span></button>` : lab ? `<button class="slot act go" data-tiplab="${lab}"><img src="${thumb('ailab')}" alt=""><span>${esc(G.S.showInLab)}</span></button>` : lens ? `<button class="slot act" data-tiplens="${lens}"><b class="ico">${G.C.checks[lens].icon}</b><span>${esc(G.S.useLens)}</span></button>` : '';
     const el = ui.florence({ tag: praise ? '✓' : G.S.tipTag, html: `<p>${esc(text)}</p>${act ? `<div class="tiprow">${act}</div>` : ''}`, say: text });
     el.classList.toggle('praise', praise); el.title = G.S.dismiss;
     el.querySelector('[data-tiplab]')?.addEventListener('click', () => { hideTip(); openLab(lab); });
     el.querySelector('[data-tiplens]')?.addEventListener('click', () => { hideTip(); toggleLens(lens); });
+    el.querySelector('[data-tipwhere]')?.addEventListener('click', () => { hideTip(); showWhere(where); });
     el.onclick = (e) => { if (!e.target.closest('button')) hideTip(); }; // tap the card to close it
     if (at && sb.running) florenceTo(at, 'point');
-    clearTimeout(sb.tipHide); if (!lab && !lens) sb.tipHide = setTimeout(() => { if (tipShown === id) hideTip(); }, 14000); // a tip with a button stays until you act on it
+    clearTimeout(sb.tipHide); if (!lab && !lens && !where) sb.tipHide = setTimeout(() => { if (tipShown === id) hideTip(); }, 14000); // a tip with a button stays until you act on it
   }
   let lastTip = null;
   function hideTip() { tipShown = null; if (sb.running && lastTip && !sb.intro) ui.florenceMini(() => showTip(lastTip.rule ? { ...lastTip, text: tipText(lastTip.rule, sim(), G.j) } : lastTip)); else ui.florence(null); }
@@ -775,11 +804,11 @@ export function createGame(app) {
   function startBuilding() {
     sb.running = true; rig.building = true; app.levelId = null; app.inLab = false; app.briefMinutes = null;
     ui.only([]); ui.views('sky'); ui.facil(null); ui.show('card'); ui.show('strip');
-    showCells(G.cells); world.setOverlay(null); if (isOpen(sb.cat)) showAllowed(sb.tool);
-    changed(); renderLenses(); setMusic(app.hour >= 18.5 || app.hour < 6.5 ? 'night' : 'day'); app.bot?.show(true); requestAnimationFrame(() => { frameView(); lastFrame = rig.frameDist(); if (!sb.framed) { sb.framed = true; rig.overview(app.reduce ? 0.01 : 1.0).then?.(() => { if (innerWidth <= 760) rig.zoomBy(0.6); }); } }); // phones: closer, so a tile is big enough to tap
+    showCells(G.cells); clearOverlay(); if (isOpen(sb.cat)) showAllowed(sb.tool);
+    changed(); renderLenses(); setMusic(app.hour >= 18.5 || app.hour < 6.5 ? 'night' : 'day'); app.bot?.show(true); requestAnimationFrame(() => { frameView(); lastFrame = rig.frameDist(); if (!sb.framed) { sb.framed = true; rig.overview(app.reduce ? 0.01 : 1.0).then?.(() => { if (innerWidth <= 760 && !rig.portrait()) rig.zoomBy(0.6); }); } }); // landscape phones: closer, so a tile is big enough to tap (upright phones already frame the tiles across the width)
     if (sb.afterLab) { const msg = sb.afterLab; sb.afterLab = null; setTimeout(() => ui.caption(msg, 5000), 2800); } // after any unlock alert
   }
-  function stopBuilding() { sb.running = false; ui.setDay(null); ui.setCredits(''); ui.florence(null); frameView(); rig.building = false; clearTimeout(sb.tipT); world.clearGhost(); world.setOverlay(null); ui.labels.clear(); ui.tray(''); ui.buildPanel(''); hideTip(); }
+  function stopBuilding() { ui.labels.clear('spot'); sb.running = false; ui.setDay(null); ui.setCredits(''); ui.florence(null); frameView(); rig.building = false; clearTimeout(sb.tipT); world.clearGhost(); clearOverlay(); ui.labels.clear(); ui.tray(''); ui.buildPanel(''); hideTip(); }
   const setMusic = (m) => app.setMusic?.(m);
 
   // ================= THE AI LAB CLASSROOM =================
@@ -789,7 +818,7 @@ export function createGame(app) {
     const C = app.classroom; if (!C) return labBoard();
     if (G.busy || !sb.running) return; G.busy = true; stopBuilding(); sb.inClass = true;
     audio.door?.(); setMusic('lab');
-    await rig.fade(() => { C.show(true); rig.mode = 'inside'; rig.apply(C.pose()); app.bot.appear(C.florenceAt()); app.bot.look(C.eye()); });
+    await rig.fade(() => { C.show(true); rig.mode = 'inside'; rig.cut(C.pose()); app.bot.appear(C.florenceAt()); app.bot.look(C.eye()); });
     document.documentElement.dataset.lab = 'on'; ui.show('strip', false); ui.setBadge(''); ui.show('strip', false);
     C.card(G.S.classTitle, [pick(G.S.classHello)], { icon: '🧪' });
     help({ tag: 'HELLO', html: `<p>${esc(G.S.classHello)}</p>`, say: G.S.classHello }); app.bot.wave();
@@ -1083,18 +1112,45 @@ export function createGame(app) {
       ui.labels.clear('bub'); app.hour = 12.5; stage.setTime(12.5, 0); await rig.overview(1.1);
     } finally { G.busy = false; startBuilding(); }
   }
-  async function celebrateTown() {
+  // the finale: all six missions done and the eight town goals met. A summary card (what you built, mistakes
+  // caught, stars, habits learned) beside the island at golden hour, which turns slowly behind it (still with
+  // Reduce motion), with confetti and fireworks. replay: from ☰ once it has been shown.
+  async function celebrateTown(replay = false) {
     sb.celebrating = false;
-    if (G.busy || G.completeShown || !townComplete(sim(), ctxFor(G.cells))) return; // busy: it comes back on the next change
-    G.completeShown = true; G.busy = true; stopBuilding();
+    if (G.busy) return; // busy: it comes back on the next change
+    if (!replay && (G.completeShown || labsDone() < 6 || !townComplete(sim(), ctxFor(G.cells)))) return;
+    G.completeShown = true; G.busy = true; stopBuilding(); save();
+    let a = null;
     try {
-      audio.complete(app.reduce); setMusic('celebrate'); world.confetti(new THREE.Vector3(10, 20, 8), 240); rig.startTurntable(app.reduce ? 0 : 0.1);
-      const s = sim(); flower(true);
-      const a = await ui.modal(`<div class="ribbon green">${esc(G.S.completeRibbon)}</div><div class="big">🌸</div><h2>${esc(G.townName)}: ${esc(s.title)}</h2><p>${esc(pick(G.S.completeText))}</p><div class="row" style="justify-content:center"><button class="btn alt" data-act="keep">${esc(G.S.keepBuilding)}</button><button class="btn alt" data-act="report">📜 ${esc(G.C.ui.report)}</button><button class="btn go" data-act="day">🌇 ${esc(G.S.watchDay)}</button></div>`, { say: `${G.townName}: ${s.title}. ${pick(G.S.completeText)}` });
-      rig.startTurntable(0); G.busy = false;
-      if (a === 'day') return wholeDay(40);
-      if (a === 'report') return showReport();
-    } finally { if (G.busy) { G.busy = false; } if (!sb.running && !G.busy) startBuilding(); }
+      const s = sim(); flower(false); ui.show('card', false); ui.show('strip', false);
+      audio.complete(app.reduce); setMusic('celebrate'); stage.setTime(17.8, 0); app.refreshLights();
+      if (!app.reduce) { world.confetti(new THREE.Vector3(10, 20, 8), 240); app.cosmetics?.celebrate(5); }
+      const stars = totalStars(); const shown = showFinale(app, G, townSummary(G, s, stars), { left: wallet(stars, G.shop), title: s.title });
+      await sleep(80); frameBeside(ui.P.modal);
+      await rig.overview(app.reduce ? 0.01 : 1.6); rig.startTurntable(app.reduce ? 0 : 0.08);
+      a = await shown;
+    } finally { rig.startTurntable(0); stage.setTime(app.hour, 0); G.busy = false; if (a !== 'report') startBuilding(); }
+    if (a === 'report') return showReport();
+    if (a === 'shop') setTimeout(openShop, 300);
+  }
+  // centre the island in the space a side (or bottom) sheet leaves free
+  function frameBeside(el) {
+    // sizes from the finale sheet's CSS (the card may still be sliding in, so it isn't measured)
+    const W = innerWidth, H = innerHeight; const cam = stage.camera;
+    if (W <= 760 || H <= 560) { const bottom = Math.round(Math.min(el.scrollHeight || H, H * 0.56) + 8); cam.setViewOffset(W, H, 0, Math.round(bottom / 2), W, H); rig.inset = { left: 0, right: 0, top: 0, bottom }; }
+    else { const left = Math.round(16 + Math.min(460, W * 0.46)); cam.setViewOffset(W, H, -Math.round(left / 2), 0, W, H); rig.inset = { left, right: 0, top: 0, bottom: 0 }; }
+  }
+  // the Star shop (from the stars chip on the town card, or ☰): cosmetic rewards only, saved with the town
+  const applyCosmetics = () => app.cosmetics?.set(G.shop.on, { reduce: app.reduce });
+  function openShop() {
+    // while building, or in the AI Lab classroom (not during a mission or another card)
+    const ok = G.canMenu() || (sb.inClass && !app.levelId && ui.P.modal.classList.contains('hide'));
+    if (!ok) { ui.caption(G.S.shop.onlyBuilding, 2600); return null; }
+    ui.closePops();
+    return shopCard(app, G, { stars: totalStars(), onChange: (st, bought) => {
+      G.shop = st; applyCosmetics(); save(); ui.setStars(G.stars = totalStars()); ui.setShop(wallet(G.stars, G.shop), canAffordNew(G.stars, G.shop), G.S.shop);
+      if (bought) { audio.star?.(); app.bot?.cheer(); }
+    } });
   }
   async function showReport() {
     if (G.busy) return; G.busy = true; stopBuilding(); ui.show('card', false); ui.show('strip', false);
@@ -1106,6 +1162,7 @@ export function createGame(app) {
   G.run = async () => {
     G.ever = unlocked(sim(), G.ever, G.full); G.stars = totalStars();
     ui.setStars(G.stars); ui.setTownName(G.townName); flower(false);
+    ui.onShop = () => openShop(); ui.wallet = (n) => wallet(n, G.shop); applyCosmetics();
     ui.onLab = () => enterClassroom(); ui.onLens = (id) => toggleLens(id); ui.onTalk = (secs) => app.bot?.talk(secs); ui.onCamToggle = () => reframe();
     // each mission on the track opens that mission when it's ready, otherwise the Lab board
     ui.onTrack = (i) => { const id = LEVEL_ORDER[i]; if (id && !G.busy && sb.running && labReady(id, G.ever, G.labs, G.classMode)) openLab(id); else labBoard(); };
@@ -1132,7 +1189,9 @@ export function createGame(app) {
   }
   G.replayIntro = () => { if (!G.busy && sb.running) intro(); };
   // the ☰ menu: the town report and a whole day, only while building (not in a mission or the intro)
+  G.openShop = openShop; G.finale = () => { if (G.canMenu() && G.completeShown) celebrateTown(true); }; G.applyCosmetics = applyCosmetics;
   G.canMenu = () => sb.running && !G.busy && !sb.intro; G.showReport = () => { if (G.canMenu()) showReport(); }; G.wholeDay = () => { if (G.canMenu()) wholeDay(); };
+  G.showWhere = showWhere;
   G.suggest = () => { const sg = suggestFor(sim()); if (sg) offerSuggestion(sg); return sg?.id || null; };
   G.openLab = openLab; G.labBoard = labBoard; G.enterClassroom = enterClassroom; G.classAsk = classAsk; G.leaveClassroom = leaveClassroom; G.playVideo = playVideo; G.videoCard = videoCard; G.florenceTo = florenceTo; G.placeAt = (k, tool) => { const ok = placeAt(k, tool); if (ok) changed(); return ok; }; G.sim = sim; G.advisor = sb.adv;
   G.saved = () => { try { const d = JSON.parse(localStorage.getItem(SAVE) || 'null'); return d && d.band === G.band ? d : null; } catch { return null; } };

@@ -21,6 +21,11 @@ const classroom = await p.waitForSelector('#dock [data-missions]', { timeout: 30
 const focusedMissions = await tabTo(() => document.activeElement?.hasAttribute('data-missions'), 40); await p.keyboard.press('Enter');
 const board = await p.waitForSelector('#modal:not(.hide) .labs', { timeout: 10000 }).then(() => true).catch(() => false);
 await p.keyboard.press('Escape'); await p.click('#modal:not(.hide) [data-act="close"]').catch(() => {});
+// the Star shop: the stars chip on the town card opens it from the keyboard, and Escape closes it
+await p.waitForSelector('#build [data-cat="land"]', { timeout: 60000 });
+const focusedShop = await tabTo(() => document.activeElement?.hasAttribute('data-shop'), 60); await p.keyboard.press('Enter');
+const shopOpened = await p.waitForSelector('#modal:not(.hide) .shopgrid', { timeout: 10000 }).then(() => true).catch(() => false);
+await p.keyboard.press('Escape'); const shopClosed = await p.waitForSelector('#modal.hide', { state: 'attached', timeout: 5000 }).then(() => true).catch(() => false);
 await p.evaluate(() => { const { G } = window.__eco.app; const ks = [...window.__eco.terrain.tiles.values()].filter((t) => ['field', 'slope'].includes(t.zone) && !t.fixed).slice(0, 4).map((t) => t.k); for (const k of ks) G.placeAt(k, 'town'); });
 await p.waitForTimeout(1500);
 const saved = await p.evaluate(() => !!localStorage.getItem('ecotown.save.v3'));
@@ -29,5 +34,5 @@ const resume = await p.waitForSelector('#modal:not(.hide) [data-act="resume"]', 
 if (resume) await p.click('#modal:not(.hide) [data-act="resume"]');
 await p.waitForSelector('#build [data-cat="land"]', { timeout: 120000 });
 const tilesAfterResume = await p.evaluate(() => window.__eco.app.G.sim().townTiles);
-console.log(JSON.stringify({ focusedAge, focusedStart, focusedBuildTab: focusedTab, focusedLabButton: focusedLab, classroom, focusedMissions, labBoardOpened: board, saved, resumeOffered: resume, tilesAfterResume, errors: errs }, null, 1));
+console.log(JSON.stringify({ focusedAge, focusedStart, focusedBuildTab: focusedTab, focusedLabButton: focusedLab, classroom, focusedMissions, labBoardOpened: board, focusedShop, shopOpened, shopClosed, saved, resumeOffered: resume, tilesAfterResume, errors: errs }, null, 1));
 await b.close();

@@ -8,7 +8,8 @@
 // appear, wave, point, peer, think, nod, talk, oops, proud, surprised. Reduce motion: she slides, no wobble.
 import * as THREE from 'three';
 import { clamp } from './stage.js';
-import { tileAt, key } from '../world/terrain.js';
+import { tileAt, key, tileCenter, GW, GH } from '../world/terrain.js';
+import { findPath, smooth } from '../world/path.js';
 
 // ---------- geometry and materials
 function rbox(w, h, d, r, seg = 3) {
@@ -186,6 +187,18 @@ export function createFlorence(stage, world, terrain) {
   };
   const groundY = (x, z) => { const a = tileAt(x, z); if (a) { const k = key(a[0], a[1]); if (terrain.tiles.has(k)) return world.tileTop(k).y; } return null; };
   st.pos.y = groundY(st.pos.x, st.pos.z) ?? 3; root.position.copy(st.pos);
+  // walking route: around buildings over the tile grid (straight line off the grid, e.g. in the classroom)
+  const cost = (gx, gz) => (terrain.tiles.has(key(gx, gz)) ? world.walkCost?.(key(gx, gz)) ?? 1 : Infinity);
+  function route(from, to) {
+    const a = tileAt(from.x, from.z), b = tileAt(to.x, to.z); const direct = [[from.x, from.z], [to.x, to.z]];
+    if (!a || !b || !terrain.tiles.has(key(...a)) || !terrain.tiles.has(key(...b)) || from.y < -300) return direct;
+    const tiles = findPath(a, b, cost, { w: GW, h: GH }); if (!tiles) return direct;
+    const ends = new Set([key(...a), key(...b)]);
+    const open = (x, z) => { const t = tileAt(x, z); if (!t) return false; const k = key(...t); return ends.has(k) || cost(...t) <= 1; };
+    const clear = (x, z) => open(x, z) && open(x + 1.3, z) && open(x - 1.3, z) && open(x, z + 1.3) && open(x, z - 1.3); // her body is about 2.6 wide
+    const pts = tiles.map(([gx, gz]) => tileCenter(gx, gz)); pts[0] = direct[0]; pts[pts.length - 1] = direct[1];
+    return smooth(pts, clear);
+  }
   const joints = { hipL: legs[0].hip.rotation, hipR: legs[1].hip.rotation, kneeL: legs[0].knee.rotation, kneeR: legs[1].knee.rotation, ankL: legs[0].ankle.rotation, ankR: legs[1].ankle.rotation, shR: R.sh.rotation, elR: R.el.rotation, shL: Lh.sh.rotation, elL: Lh.el.rotation, torso: torso.rotation, head: head.rotation };
   const v3 = new THREE.Vector3(), q = new THREE.Vector3(), qa = new THREE.Quaternion(), qb = new THREE.Quaternion(), qc = new THREE.Quaternion(), DOWN = new THREE.Vector3(0, -1, 0), UP = new THREE.Vector3(0, 1, 0);
   const setPose = (target, dt, rate = 10) => { const k = Math.min(1, dt * rate); for (const [jn, ax] of Object.entries(target)) for (const [a, val] of Object.entries(ax)) { const cur = joints[jn]; cur[a] += (val - cur[a]) * k; } };
@@ -215,10 +228,11 @@ export function createFlorence(stage, world, terrain) {
     appear(p) { st.pos.copy(p); st.pos.y = groundY(p.x, p.z) ?? p.y; root.position.copy(st.pos); st.walk = null; this.show(true); },
     walkTo(p, { maxDur = 4, stopShort = 0 } = {}) {
       const to = p.clone(); const d = Math.hypot(to.x - st.pos.x, to.z - st.pos.z);
-      if (stopShort && d > stopShort) { const k = (d - stopShort) / d; to.x = st.pos.x + (to.x - st.pos.x) * k; to.z = st.pos.z + (to.z - st.pos.z) * k; }
-      const dist = Math.hypot(to.x - st.pos.x, to.z - st.pos.z); if (dist < 0.3) return Promise.resolve();
-      const speed = Math.max(5, dist / maxDur);
-      return new Promise((resolve) => { st.walk?.resolve(); st.walk = { to, speed, resolve }; });
+      if (d < 0.3 || (stopShort && d <= stopShort)) return Promise.resolve();
+      const pts = route(st.pos, to);
+      let len = 0; for (let i = 1; i < pts.length; i++) len += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
+      const speed = Math.max(5, Math.max(0.3, len - stopShort) / maxDur);
+      return new Promise((resolve) => { st.walk?.resolve(); st.walk = { pts, i: 1, to, stopShort, speed, resolve }; });
     },
     look(p) { st.look = p ? p.clone() : null; },
     gesture(name, dur = 1.4, at = null) { st.gesture = name; st.gT = 0; st.gDur = dur; st.gAt = at ? at.clone() : null; return new Promise((r) => setTimeout(r, dur * 1000)); },
@@ -242,10 +256,13 @@ export function createFlorence(stage, world, terrain) {
       // ---- walking (feet planted: the gait phase follows the distance travelled)
       let moving = false, pace = 0;
       if (st.walk) {
-        const w = st.walk; const dx = w.to.x - st.pos.x, dz = w.to.z - st.pos.z; const d = Math.hypot(dx, dz);
-        const step = w.speed * dt * (rd ? 3 : 1);
-        if (d <= step) { st.pos.x = w.to.x; st.pos.z = w.to.z; st.walk = null; w.resolve(); }
-        else { st.pos.x += (dx / d) * step; st.pos.z += (dz / d) * step; moving = true; pace = w.speed; st.yaw = turn(st.yaw, Math.atan2(dx, dz), dt * 8); }
+        const w = st.walk; let step = w.speed * dt * (rd ? 3 : 1); let dx = 0, dz = 0;
+        while (st.walk === w && step > 0) {
+          if (w.stopShort && Math.hypot(w.to.x - st.pos.x, w.to.z - st.pos.z) <= w.stopShort) { st.walk = null; w.resolve(); break; }
+          const [tx, tz] = w.pts[w.i]; dx = tx - st.pos.x; dz = tz - st.pos.z; const d = Math.hypot(dx, dz);
+          if (d <= step) { st.pos.x = tx; st.pos.z = tz; step -= d; if (++w.i >= w.pts.length) { st.walk = null; w.resolve(); } }
+          else { st.pos.x += (dx / d) * step; st.pos.z += (dz / d) * step; step = 0; moving = true; pace = w.speed; st.yaw = turn(st.yaw, Math.atan2(dx, dz), dt * 8); }
+        }
       }
       const gy = groundY(st.pos.x, st.pos.z); if (gy != null) st.pos.y += (gy - st.pos.y) * Math.min(1, dt * (Math.abs(gy - st.pos.y) > 0.5 ? 9 : 14));
       const walking = moving && !rd;

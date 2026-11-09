@@ -141,13 +141,24 @@ Two subagents played with no context (a 9-year-old persona, and a designer scori
 - **Report:** ⚠️ on limits that are exceeded, "—" for an empty instruction row, bonus star shown apart (instructions only reset once a mission really restarts). Street view (👟) stands on an open tile; arrow keys look around.
 - **Intro:** five beats (the forced build video is gone; ▶ on any build shows it).
 - **Classroom:** small talk gets a short in-character answer (`qa.js` topic `chat`).
-- Not done (still open after the designer passes below): cosmetic rewards for stars, a finale screen, a current-mission queue.
+- Not done: a current-mission queue (stars and the finale were done later, below).
 
 ## UI designer and 3D designer passes (Nov 2026)
 - **UI** (`css/game.css` end block, `js/ui/ui.js`, presentation parts of `game.js`): top-right buttons have captions (Camera, Lenses / Lens on, AI Lab, Menu; only on screens of at least 761×561); the mission panel is only as wide as its contents (UI share at 1280×800 down from 28% to 18%); the instruction tray header and tabs share one row, with Send and Clear beside the sentence; the classroom question box is styled; `--ink2` is `#5e4936` (at least 5.5:1 on parchment); panels no longer fade (they slide in, solid); the build-bar key has its own column; a slot "stamp" after building; the report is a parchment sheet. New markup: `.cap`/`.ico`, `[data-ico]`, `.trayhead`, `.sentrow`. Clear is disabled while the sentence is empty.
 - **3D** (`js/world/*`, `florence.js`, `rig.js`): Town land is a gravel plot with stakes; Keep wild is a shaggy patch; farms have raised crop rows (shown in the "Crops growing" build step); lamps, road, dock, AI Lab and old school are rebuilt; a build landing has a squash, a dust ring and a kerb ripple (off with reduce motion); lamps throw warm pools at night; Florence is 15% bigger on the island and gets a mint "…" pin when the camera is far; the classroom is furnished; phones frame the island tighter. Highlight kerbs are one instanced mesh and the unused cube effect is gone (draw calls −38% mid, −50% low). `tests/visual/world.html` takes `?place=9,6:timber;…` and `?focus=k:dist:pitch`.
 - After changing a builder, re-render the build-button pictures: `node game/tools/thumbs.mjs http://localhost:8765/`.
-- Still open: Florence walks through buildings (needs pathfinding); on phones the island fills about 45% of the screen height.
+- (Both fixed in the next round, below.)
+
+## Walking, placement help, star shop, finale, bridge, street view (Nov 2026, user requests + second designer passes)
+- **Florence's route** (`js/world/path.js`: A* over tiles with no corner cutting, then `smooth`; `walkTo`/`route` in `florence.js`; `world.walkCost(k)`: builds and fixed tiles block, river costs 6 unless bridged). Off the grid (classroom) she walks straight. Tests: `tests/path.test.mjs`.
+- **Build highlight** (user: colours hard to see, unclear where you can build): can build = chunky white kerb; can't = solid dark plate over the tile (`HL.no.plate`, `PLATE` in `world.js`); swaps = orange with corner blocks; already your land = gold; Florence's good spot = gold with corners plus a ★ pin (`ui.labels.spots`). Hidden in street view (`world.hideOverlay`, `html[data-street=on]`).
+- **Good spots** (user: "where would a cycle lane or park go?"): `js/game/spots.js` `goodSpots(tool, ctx)` (tests `tests/spots.test.mjs`): paths/cycle lanes/trams = a route from the homes to somewhere to go (cycle lanes prefer the bridge to the mainland, else school/market/hall/old school); parks/markets etc. = most homes within 2 tiles; school = smallest worst walk; homes = beside homes; farms = near homes, off town land; no homes yet = "build homes first". Shown on tool select (`showAllowed` → `sb.spots`), the reason as a gold pill above the build bar (`.spotwhy`), and Florence's next-step ideas have **Show me where** (`showWhere`, `IDEA_TOOL`), which selects the build, frames the spots and has Florence point. Strings `spotWhy`, `spotTo`, `showWhere`, `keySpot` in `content.js`.
+- **Bridge to a village island** (user: "what would you cycle to?"): `js/world/bridge.js`, a rope-and-plank suspension bridge from tile `13,5` (`world.bridgeTile`, `world.bridgeLanding`) to a floating village with houses, a market stall and a bus/bike station; riders cross by day. Scenery only (no tiles or sim change).
+- **Street view** (user: too low, hard to walk): `rig.js` street mode rewritten (eye 3.4 up, FOV 60, WASD/arrows walk, Q/E or ←/→ turn, drag to look, tap the ground to walk there, slides along walls, never inside a build, Home/Esc leaves); `js/camera/streetpad.js` adds on-screen arrows, a hint and "Back to the island". `toStreet` keeps its signature for `checks.js`.
+- **Phones:** upright phones use a `PORTRAIT` pose (island's long axis up the screen): buildable tiles fill 44% of the height (was 23%).
+- **Star shop and finale** (UI designer): `js/game/shop.js` (rules, tests `tests/shop.test.mjs`), `js/ui/rewards.js` (cards), `js/world/cosmetics.js` (hats, flag, fountain, bee statue, fireworks; never on a buildable tile, not in the sim). The ★ chip opens the shop (also ☰ → Star shop); catching a flawed suggestion in town gives ★1. `js/game/finale.js` summarises the town for the finale sheet (town complete now also needs all six missions); ☰ → Celebrate again. Saved as `G.shop`.
+- Build videos re-filmed after the art passes.
+- Still open: the classroom camera crops Florence at the knees behind the dock; the camera flies through Florence when a mission starts; at 1024 px the town name is hidden on the card.
 
 ## Beta revision (Nov 2026)
 All 49 notes in the beta tester's file were addressed; see README "How the game plays" and the commit history. Key decisions the user made:
@@ -188,7 +199,7 @@ All 49 notes in the beta tester's file were addressed; see README "How the game 
   - `/admin` redirects (302) to `…cloudflareaccess.com`.
 
 ## Tests
-From `games/ecotown/game` (119 tests, all passing at handoff):
+From `games/ecotown/game` (144 tests, all passing at handoff; run them all with `node --test tests/*.test.mjs`):
 
 ```bash
 node --test tests/sim.test.mjs tests/model.test.mjs tests/teach.test.mjs tests/syntax.test.mjs tests/codes.test.mjs tests/playtest.test.mjs tests/progress.test.mjs tests/audio.test.mjs tests/replace.test.mjs tests/delta.test.mjs tests/qa.test.mjs
