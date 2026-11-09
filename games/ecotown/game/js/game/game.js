@@ -1096,7 +1096,7 @@ export function createGame(app) {
   // after the sixth mission: an active "Before I trust an AI plan, I…" step (the transfer lesson), then one clear next action
   async function reflectAct() {
     const R = G.S.reflect; const picked = new Set();
-    const sentence = (extra) => [...[...picked].map((i) => R.ideas[i]), extra.trim()].filter(Boolean).join(', and ');
+    const sentence = (extra) => { const a = [...[...picked].map((i) => R.ideas[i]), extra.trim()].filter(Boolean); return a.length < 2 ? a.join('') : `${a.slice(0, -1).join(', ')} and ${a.at(-1)}`; };
     let typed = '';
     await ui.modal(`<div class="ribbon green">${esc(R.ribbon)}</div><h2>${esc(R.title)}</h2><p>${esc(R.how)}</p>
       <h3 class="reflectq">${esc(R.stem)}…</h3><div class="row reflectideas">${R.ideas.map((t, i) => `<button class="choice" data-ri="${i}" aria-pressed="false">${esc(t)}</button>`).join('')}</div>
