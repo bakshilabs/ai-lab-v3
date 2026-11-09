@@ -8,6 +8,7 @@ import { T, X0, Z0, RX, RZ, zoneAt, rimHeight, canyonDepth, isLimestone, insideV
 import { BUILD, MARK, addMod, addModFine, decorate, tree2, bigOakAt } from './builders.js';
 import { ITEMS } from './catalog.js';
 import { planStages } from './construct.js';
+import { createBridge, inBridgeCut, BRIDGE_TILE } from './bridge.js';
 
 const HEDGE_SAFE = new Set(['mixed', 'orchard', 'hives', 'hedge', 'path', 'cycle', 'park', 'allot', 'greenbridge']);
 // Plan preview: solid, pale, shaded blocks (nothing see-through), told apart from real builds by a raised frame
@@ -42,7 +43,9 @@ export function createWorld(stage, terrain) {
   //                  big oaks, a spring waterfall) and a deep brown underside with streaks and hanging roots
   const v = new Vox(); v.jitter = 0.04; const water = new Vox(); water.jitter = 0.03; const riverCells = [];
   const inTiles = (x, z) => { const tt = tileAt(x, z); return tt && terrain.tiles.has(tt[0] + ',' + tt[1]) ? tt : null; };
-  const rimH = (x, z) => Math.round(rimHeight(x, z) * Math.min(1, Math.max(0, (Math.abs(x + 0.5 - riverX(z)) - 2.5) / 6)));
+  const rimH0 = (x, z) => Math.round(rimHeight(x, z) * Math.min(1, Math.max(0, (Math.abs(x + 0.5 - riverX(z)) - 2.5) / 6)));
+  const bridgeH = terrain.tiles.get(BRIDGE_TILE)?.h ?? 0; // the rim is cut to the bridge tile's level where the bridge leaves the town
+  const rimH = (x, z) => (inBridgeCut(x, z) ? Math.min(rimH0(x, z), bridgeH) : rimH0(x, z));
   const canyonBed = (x, z) => { const d = canyonDepth(x, z); return d ? Math.min(rimH(x, z), 0) - d + Math.min(rimH(x, z), 0) * 0 : null; };
   const heightAt = (x, z) => { if (!insideVoxel(x, z)) return null; if (inRiverVoxel(x, z)) return -1; const tt = inTiles(x, z); if (tt) return tileH(tt[0], tt[1]); const cb = canyonBed(x, z); return cb != null ? Math.min(rimH(x, z), cb) : rimH(x, z); };
   // warm sandstone strata exposed wherever the land drops into a canyon
@@ -83,7 +86,7 @@ export function createWorld(stage, terrain) {
     if (river) { water.set(x, 0, z, rand(x, 9, z) > 0.5 ? '#3fa2e6' : '#4aaeea'); riverCells.push([x, z]); }
     // gorge streams pool on the canyon floor and stop short of the island's edge (nothing pours off the island)
     const cd = !tt && canyonDepth(x, z); if (cd && cd >= 12 && insideVoxel(x + 5, z) && insideVoxel(x - 5, z) && insideVoxel(x, z + 5) && insideVoxel(x, z - 5)) water.set(x, top + 1, z, '#3fa2e6');
-    if (!tt && !river && !edge && !cd) rimCells.push([x, z, top, zone, lime]);
+    if (!tt && !river && !edge && !cd && !inBridgeCut(x, z)) rimCells.push([x, z, top, zone, lime]);
   }
   // the river's source: a mossy rock outcrop behind the spring pool, with a little fall from its top into the pool
   const springTop = 8; const sx = Math.round(SPRING.x), sz = Math.round(SPRING.z - SPRING.r - 1);
@@ -117,7 +120,7 @@ export function createWorld(stage, terrain) {
   // forest on the rim: tall tiered pines up high, big oaks lower down; fewer, bigger, denser clumps
   const used = new Set();
   for (const [x, z, top, zone, lime] of rimCells) {
-    if (zone !== 'rim' || x % 4 || z % 4) continue;
+    if (zone !== 'rim' || x % 4 || z % 4 || inBridgeCut(x, z - 3) || inBridgeCut(x, z + 3)) continue; // keep the bridge approach clear
     const mask = noise2(x / 12, z / 12, 17) + (top >= 3 ? 0.25 : 0) - (lime ? 0.7 : 0);
     if (mask < 0.6 || rand(x, z, 19) < 0.25 || nearCanyon(x, z)) continue; // a thinner forest that leaves the canyons open
     const ox = x + Math.floor(rand(x, z, 20) * 3) - 1, oz = z + Math.floor(rand(x, z, 21) * 3) - 1; const k = ox + ',' + oz; if (used.has(k)) continue; used.add(k);
@@ -135,6 +138,8 @@ export function createWorld(stage, terrain) {
   // spring waterfall from the massif down to the river head (water cells for the stream on the hill)
   roots(v, insideVoxel, { rx: RX, rz: RZ, top: 0, count: 26, seed: 4 });
   const ground = v.mesh(); ground.castShadow = true; ground.receiveShadow = true; root.add(ground);
+  // the cycle and foot bridge to the village island (scenery, off the tile grid; see bridge.js)
+  const bridge = createBridge(stage, root, { tileTopY: bridgeH + 1 });
   // windmill sails
   const sails = new THREE.Group(); { const mat = new THREE.MeshLambertMaterial({ color: '#f6efe2' }); const arm = new THREE.MeshLambertMaterial({ color: '#7a5232' });
     for (let i = 0; i < 4; i++) { const g = new THREE.Group(); const a1 = new THREE.Mesh(new THREE.BoxGeometry(0.3, 4.5, 0.25), arm); a1.position.y = 2.25; const sl = new THREE.Mesh(new THREE.BoxGeometry(1.1, 3.5, 0.12), mat); sl.position.set(0.7, 2.6, 0); g.add(a1, sl); g.rotation.z = i * Math.PI / 2; sails.add(g); }
@@ -387,7 +392,7 @@ export function createWorld(stage, terrain) {
         const L = layers.get(k); if (!L) continue;
         if (o.ring) {
           col.set(o.color);
-          for (const [geo, x, y, z] of ringBoxes(L, o.notch, o.dashed)) { if (n >= KERB_MAX) break; const p = geo.parameters; d.position.set(x, y, z); d.scale.set(p.width, p.height, p.depth); d.updateMatrix(); kerbs.setMatrixAt(n, d.matrix); kerbs.setColorAt(n++, col); }
+          for (const [geo, x, y, z] of ringBoxes(L, o.notch, o.dashed, o.plate)) { if (n >= KERB_MAX) break; const p = geo.parameters; d.position.set(x, y, z); d.scale.set(p.width, p.height, p.depth); d.updateMatrix(); kerbs.setMatrixAt(n, d.matrix); kerbs.setColorAt(n++, col); }
           continue;
         }
         const m = new THREE.Mesh(OVERLAY_GEO, overlayMat(o.color, o.pattern)); m.position.set(L.ox + T / 2, L.oy + 1.14 + (o.lift || 0), L.oz + T / 2); m.rotation.x = -Math.PI / 2;
@@ -411,6 +416,8 @@ export function createWorld(stage, terrain) {
     // Florence's route cost for a tile: buildings and the fixed lab/school/dock block her, the river is a long way round
     walkCost(k) { const L = layers.get(k); if (!L) return Infinity; if (L.fixed) return Infinity; if (L.cellItem && !FLAT.has(L.cellItem)) return Infinity; if (L.t.zone === 'river') return L.cellItem === 'bridge' || L.cellItem === 'greenbridge' ? 1 : 6; return 1; },
     tileTop(k) { const L = layers.get(k); const [cx, cz] = tileCenter(L.t.gx, L.t.gz); return new THREE.Vector3(cx, L.oy + 1, cz); },
+    // the cycle bridge to the village island lands beside this buildable edge tile, at bridgeLanding
+    bridgeTile: BRIDGE_TILE, bridgeLanding: bridge.landing.clone(), bridge,
     pick(ndc, camera) {
       const ray = new THREE.Raycaster(); ray.setFromCamera(ndc, camera);
       let y = 1; let hit = null;
@@ -422,7 +429,7 @@ export function createWorld(stage, terrain) {
       return hit;
     },
     update(dt, t, { windStill = false } = {}) {
-      uTime.value = t; uIce.value += ((stage.winter > 0.6 ? 1 : 0) - uIce.value) * Math.min(1, dt * 1.5); sails.rotation.z = -t * 0.6; cloudUpd(t); cloudSea(t * 0.4); islets(t); falls.forEach((f) => f(t));
+      uTime.value = t; uIce.value += ((stage.winter > 0.6 ? 1 : 0) - uIce.value) * Math.min(1, dt * 1.5); sails.rotation.z = -t * 0.6; cloudUpd(t); cloudSea(t * 0.4); islets(t); falls.forEach((f) => f(t)); bridge.update(dt, t);
       // clay fade
       this.clay += (this.clayTarget - this.clay) * Math.min(1, dt * 7); WORLD.clay.value = this.clay;
       // night lights fade with the sky
@@ -454,11 +461,13 @@ function outline(L, color) {
 }
 // the build highlight: a low solid kerb just inside the tile's edge (and solid corner blocks when it replaces
 // something), at ground level so anything standing on the tile hides it, never the other way round
-const KERB_H = 0.3, KERB_W = 0.28, KERB_IN = T - 0.5;
+const KERB_H = 0.55, KERB_W = 0.55, KERB_IN = T - 0.6; // chunky, so the build highlight reads from the default camera and on phones
 const KERB_X = new THREE.BoxGeometry(KERB_IN, KERB_H, KERB_W), KERB_Z = new THREE.BoxGeometry(KERB_W, KERB_H, KERB_IN), NOTCH = new THREE.BoxGeometry(1.3, KERB_H + 0.12, 1.3);
+const PLATE = new THREE.BoxGeometry(T - 0.2, 0.18, T - 0.2);
 const DASH_X = new THREE.BoxGeometry(KERB_IN / 5, KERB_H, KERB_W), DASH_Z = new THREE.BoxGeometry(KERB_W, KERB_H, KERB_IN / 5);
-function ringBoxes(L, notch = false, dashed = false) {
+function ringBoxes(L, notch = false, dashed = false, plate = false) {
   const out = []; const [cx, cz] = tileCenter(L.t.gx, L.t.gz); const y = L.oy + 1 + KERB_H / 2 - 0.02, h = KERB_IN / 2 - KERB_W / 2;
+  if (plate) return [[PLATE, cx, L.oy + 1 + 0.07, cz]]; // "can't build": the whole tile is covered by a solid dark plate
   if (dashed) { // "can't build": a dashed kerb (a different shape as well as a different colour)
     for (const k of [-2, 0, 2]) for (const [geo, dx, dz] of [[DASH_X, k * KERB_IN / 5, -h], [DASH_X, k * KERB_IN / 5, h], [DASH_Z, -h, k * KERB_IN / 5], [DASH_Z, h, k * KERB_IN / 5]]) out.push([geo, cx + dx, y, cz + dz]);
     return out;

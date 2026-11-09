@@ -1104,3 +1104,95 @@ html[data-motion="reduce"] .stars3 span.on, html[data-motion="reduce"] .modal .b
   html[data-lab="on"] #layer #dock:has(.speaker .why) { grid-template-columns: minmax(0, 460px) minmax(0, max-content); }
   html[data-lab="on"] #dock .speaker .why { font-size: 13px; line-height: 1.3; }
 }
+
+/* ---- build highlight key, matching the chunky solid kerbs (lead, Nov 2026): white = can build, orange + corners = swaps,
+   dark plate = can't build, gold + corners = Florence's good spot */
+#build .hk { background: #9bbf5c; border-radius: 3px; }
+#build .hk.free { border: 5px solid #ffffff; box-shadow: 0 0 0 1px #5e4936; }
+#build .hk.swap { border: 5px solid #ff8a1f; background: linear-gradient(#ff8a1f,#ff8a1f) 0 0/5px 5px no-repeat, linear-gradient(#ff8a1f,#ff8a1f) 100% 100%/5px 5px no-repeat, #9bbf5c; }
+#build .hk.no { border: 0; background: #3b3430; box-shadow: 0 0 0 1px #5e4936; }
+#build .hk.spot { border: 5px solid #ffd23f; background: linear-gradient(#ffd23f,#ffd23f) 0 0/5px 5px no-repeat, linear-gradient(#ffd23f,#ffd23f) 100% 100%/5px 5px no-repeat, #9bbf5c; }
+/* Florence's good spots: a solid gold pin over each tile, and the reason in the build bar (lead, Nov 2026) */
+#labels .spot { position: absolute; transform: translate(-50%, -100%); background: #ffd23f; color: #3b2a17; border: 2px solid #5e4936; border-radius: 12px; padding: 2px 8px; font-weight: 900; font-size: .85em; white-space: nowrap; box-shadow: 0 3px 0 #5e4936; }
+#build .info .spotwhy { display: block !important; color: #ffd23f; font-weight: 800; margin: 2px 0 4px; line-height: 1.25; }
+
+/* ==== UI designer 2 (Nov 2026): Star shop, finale card, stars chip as a button. Solid panels, terracotta brochure look. ==== */
+#card button.stars { font: inherit; font-weight: 800; color: var(--gold); border: 0; cursor: pointer; min-height: 44px; min-width: 56px; justify-content: center; position: relative; box-shadow: inset 0 -3px 0 rgba(0,0,0,.35); }
+#card button.stars:hover { background: #4a2e1c; }
+#card button.stars:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+#card .shopnew { position: absolute; top: -7px; right: -8px; font-style: normal; font-size: 10px; letter-spacing: .06em; line-height: 1; padding: 3px 5px; border-radius: 4px; background: #c8553d; color: #fff; box-shadow: 0 0 0 2px var(--wd); }
+#card .shopnew[hidden] { display: none; }
+
+/* the shop card */
+.modal.shopcard { width: min(780px, calc(100vw - 24px)); text-align: left; }
+.shopcard .ribbon { text-align: center; }
+.shopcard .wallet { display: flex; align-items: center; gap: 10px; background: var(--wd); color: var(--cream); border-radius: 8px; padding: 8px 14px; margin: 0 0 8px; }
+.shopcard .wallet .wstar { color: var(--gold); font-size: 1.6em; line-height: 1; }
+.shopcard .wallet b { color: var(--gold); font-size: 1.6em; line-height: 1; }
+.shopcard .wallet span:last-child { font-weight: 700; }
+.shopcard .shopintro { margin: 4px 2px 10px; color: var(--ink); font-weight: 600; font-size: .92em; }
+.shopcard .shopintro .earn { display: block; color: var(--ink2); font-weight: 600; margin-top: 2px; }
+.shopgrid { list-style: none; margin: 0 0 12px; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 10px; }
+.shopitem { display: grid; grid-template-columns: 56px 1fr; grid-template-rows: auto auto; gap: 6px 12px; align-items: center; background: var(--cream); border-radius: 8px; padding: 10px; box-shadow: inset 0 0 0 2px var(--sandd); }
+.shopitem.lit { box-shadow: inset 0 0 0 3px var(--green); }
+.shopitem.locked { background: var(--sand); }
+.shopitem .sico { grid-row: span 2; width: 56px; height: 56px; display: grid; place-items: center; font-size: 32px; border-radius: 8px; background: var(--sand2); box-shadow: inset 0 -3px 0 var(--sandd); }
+.shopitem.locked .sico { filter: grayscale(.7); }
+.shopitem .stxt b { font-size: 1em; }
+.shopitem .stxt small { display: block; color: var(--ink2); font-weight: 600; font-size: .82em; line-height: 1.3; margin-top: 2px; }
+.shopitem .stxt small.note { color: #8a3a26; font-weight: 700; }
+.shopitem .stxt em { font-style: normal; font-weight: 800; font-size: .78em; padding: 1px 7px; border-radius: 4px; margin-left: 4px; white-space: nowrap; }
+.shopitem .stxt em.cost { background: var(--wd); color: var(--gold); }
+.shopitem .stxt em.own { background: #dff3e6; color: #1f6b3d; }
+.shopitem .btn { grid-column: 2; justify-self: start; min-height: 44px; }
+.shopitem .btn.price[disabled] { opacity: 1; color: var(--ink2); background: var(--sand2); box-shadow: none; cursor: default; }
+/* on/off: a word, a check and a switch shape, not colour alone */
+.shopitem .btn.tog { background: var(--sand2); color: var(--ink); min-width: 104px; }
+.shopitem .btn.tog .sw { width: 34px; height: 20px; border-radius: 10px; background: #a99c86; position: relative; box-shadow: inset 0 0 0 2px var(--wd); }
+.shopitem .btn.tog .sw i { position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 2px var(--wd); }
+.shopitem .btn.tog.on { background: var(--green); color: #fff; }
+.shopitem .btn.tog.on .sw { background: #bfe3c9; }
+.shopitem .btn.tog.on .sw i { left: auto; right: 3px; background: var(--green-d); }
+.shopitem .btn.tog.on::after { content: '✓'; }
+
+/* the finale: a side sheet (the island turns beside it), a bottom sheet on phones */
+html[data-finale="on"] #backdrop { background: none; }
+.modal.finale { left: 16px; top: 16px; transform: none; width: min(460px, calc(46vw)); max-height: calc(100vh - 32px); text-align: left; }
+.modal.finale.hide { transform: translateX(-30px); }
+.finale .ribbon { text-align: center; }
+.finale h2 { font-size: 1.7em; color: var(--wm); }
+.finale .fbadge { display: inline-block; margin: 2px 0 4px; padding: 3px 10px; border-radius: 6px; background: var(--wd); color: var(--gold); font-weight: 800; font-size: .9em; }
+.finale .flead { color: var(--ink); font-size: .92em; margin: 4px 0 10px; }
+.finale .fgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.finale .ftile { background: var(--cream); border-radius: 8px; padding: 8px 10px 8px 48px; position: relative; box-shadow: inset 0 0 0 2px var(--sandd); min-height: 56px; }
+.finale .ftile.wide { grid-column: 1 / -1; }
+.finale .ftile .fico { position: absolute; left: 10px; top: 10px; width: 30px; height: 30px; display: grid; place-items: center; font-size: 22px; }
+.finale .ftile.star .fico { color: #d9962a; font-size: 26px; }
+.finale .ftile small { display: block; font-weight: 800; font-size: .72em; letter-spacing: .05em; text-transform: uppercase; color: var(--ink2); }
+.finale .ftile b { display: block; font-size: 1.35em; line-height: 1.15; color: var(--ink); }
+.finale .ftile.fam b { font-size: 1.05em; padding-top: 6px; }
+.finale .ftile .fsub { display: block; font-size: .8em; font-weight: 600; color: var(--ink2); }
+.finale .fgroups { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-top: 2px; }
+.finale .fgroups span { white-space: nowrap; }
+.finale .fhead { margin: 12px 0 6px; font-size: 1em; }
+.finale .fhabits { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.finale .fhabits li { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 6px; background: var(--sand2); font-weight: 700; font-size: .88em; box-shadow: inset 0 -2px 0 var(--sandd); }
+.finale .flesson { margin: 12px 0; padding: 8px 12px; border-radius: 8px; background: #fbe3dc; color: #6b2a1c; font-weight: 700; font-size: .9em; box-shadow: inset 4px 0 0 #c8553d; }
+.finale .frow { justify-content: flex-start; flex-wrap: wrap; gap: 8px; }
+.finale .frow .btn { flex: 1 1 auto; justify-content: center; }
+@media (max-width: 760px), (max-height: 560px) {
+  .modal.finale { left: 8px; right: 8px; top: auto; bottom: 8px; width: auto; max-height: 64vh; padding: 14px; }
+  .modal.finale.hide { transform: translateY(30px); }
+  .finale .ribbon { margin: -14px -14px 10px; }
+  .finale h2 { font-size: 1.35em; }
+  .finale .flead { display: none; }
+  .shopgrid { grid-template-columns: 1fr; }
+  .modal.shopcard { padding: 14px; } .shopcard .ribbon { margin: -14px -14px 10px; }
+}
+html[data-motion="reduce"] .modal.finale.hide, html[data-motion="reduce"] .modal.finale { transition: none; }
+/* start screen: 44 px touch targets for the name ideas, the mission-order switch and the facilitator box */
+#start .names .tile, .names .tile { min-height: 44px; }
+.opts .seg button { min-height: 44px; }
+.opts label { min-height: 44px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+.opts input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--green); }
+#build .info .spotwhy { white-space: normal; display: -webkit-box !important; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: .95em; }
