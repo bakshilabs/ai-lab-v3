@@ -27,6 +27,7 @@ import { seedTo } from './seed.js';
 import { runIntro } from './intro.js';
 import { planPlace } from './replace.js';
 import { goodSpots } from './spots.js';
+import { targetLine } from '../ai/targets.js';
 import { CHIP, CHIP_WORD, itemChips, simDelta, chipsText } from './delta.js';
 import { shopState, wallet, canAffordNew } from './shop.js'; // the Star shop (looks only, never the score)
 import { townSummary } from './finale.js';
@@ -73,7 +74,7 @@ export function createGame(app) {
   function star(i, why = '') { if (!run || run.marks[i]) return; run.marks[i] = true; audio.star(); G.stars = shownStars(); ui.setStars(G.stars); if (why) ui.caption(`★ ${why}`, 2600); }
   function bonusStar(why) { if (!run) return; run.bonus = true; G.stars = shownStars(); ui.setStars(G.stars); ui.caption(`★ ${why}`, 2800); }
   function flower(flash = true) { const s = sim(); ui.carbonInfo = { used: s.carbon, limit: TARGETS.carbonCeiling }; ui.flower(s.petals, G.townName, { flash }); renderGoals(s); }
-  const KEEP = ['milestones', 'placements', 'catches', 'trusted', 'introDone', 'band', 'levelStars', 'starMarks', 'bonus', 'mistakes', 'diary', 'instructions', 'extra', 'credits', 'townName', 'inputMode', 'paths', 'outcomes', 'labs', 'ever', 'classMode', 'day', 'movedIn', 'completeShown', 'charter', 'reflection', 'shop'];
+  const KEEP = ['milestones', 'placements', 'catches', 'trusted', 'introDone', 'band', 'levelStars', 'starMarks', 'bonus', 'mistakes', 'diary', 'instructions', 'extra', 'credits', 'townName', 'inputMode', 'paths', 'outcomes', 'labs', 'ever', 'classMode', 'day', 'movedIn', 'completeShown', 'charter', 'reflection', 'reflectDone', 'shop'];
   function save() {
     if (app.inLab || G.full) return; // a mission's practice island is never saved as the player's town
     try { const d = { cells: [...G.cells], li: 1 }; for (const k of KEEP) d[k] = G[k]; if (d.credits === Infinity) d.credits = null; localStorage.setItem(SAVE, JSON.stringify(d)); } catch { /* storage off: keep playing */ }
@@ -128,7 +129,7 @@ export function createGame(app) {
 
   // ---------------- one instruction round: ask Florence, show her colour-coded plan and her reading
   let guess = null; // Florence's latest guess, kept on screen (small) while the player checks it
-  const guessHtml = (res) => `<div class="chips">${res.read.active.map((s) => `<span>${esc(s.replace(/_/g, ' '))}</span>`).join('')}</div><ul>${res.plan.reading.map((r) => `<li>${esc(r)}</li>`).join('')}</ul>${!G.j && res.plan.assumptions.length ? `<p class="assumed"><b>Assumed:</b> ${esc(res.plan.assumptions.join(' '))}</p>` : ''}${res.plan.wont?.length ? `<p class="wont"><b>${esc(G.C.ui.wontDo)}</b> ${res.plan.wont.map(esc).join(' ')}</p>` : ''}`;
+  const guessHtml = (res) => `<div class="chips">${res.read.active.map((s) => `<span>${esc(s.replace(/_/g, ' '))}</span>`).join('')}</div><ul>${res.plan.reading.map((r) => `<li>${esc(r)}</li>`).join('')}</ul>${!G.j && res.plan.assumptions.length ? `<p class="assumed"><b>Assumed:</b> ${esc(res.plan.assumptions.join(' '))}</p>` : ''}${res.plan.targets?.length ? `<ul class="targets">${res.plan.targets.map((t) => `<li class="${t.met ? 'met' : 'unmet'}">${esc(targetLine(t, G.j))}</li>`).join('')}</ul>` : ''}${res.plan.wont?.length ? `<p class="wont"><b>${esc(G.C.ui.wontDo)}</b> ${res.plan.wont.map(esc).join(' ')}</p>` : ''}`;
   const showGuessMini = () => { if (guess) help({ tag: G.C.ui.plotterGuess, html: guessHtml(guess), sure: guess.sure, sureLabel: G.C.ui.sure, mini: true }); };
   async function round(id, heading) {
     for (;;) {
@@ -148,7 +149,7 @@ export function createGame(app) {
       setTimeout(() => app.bot.beam(false), dur * 1000 + 300);
       res.plan.placements.forEach((_, i) => setTimeout(() => audio.ghost(i), i * 50));
       const why = G.j ? '' : `Why ${res.sure}%? reading <b>${res.breakdown.reading}%</b> × plan fit <b>${res.breakdown.fit}%</b> × experience <b>${res.breakdown.experience}%</b>. Tested: ${esc(res.plan.tested)}.`;
-      help({ tag: G.C.ui.plotterGuess, html: guessHtml(res), sure: res.sure, sureLabel: G.C.ui.sure, why, say: res.plan.reading.join(' ') + ` ${res.sure} percent ${G.C.ui.sure}.` + (res.plan.wont?.length ? ' ' + res.plan.wont.join(' ') : ''), voice: 'helper' });
+      help({ tag: G.C.ui.plotterGuess, html: guessHtml(res), sure: res.sure, sureLabel: G.C.ui.sure, why, say: res.plan.reading.join(' ') + (res.plan.targets?.length ? ' ' + res.plan.targets.map((t) => targetLine(t, G.j)).join(' ') : '') + ` ${res.sure} percent ${G.C.ui.sure}.` + (res.plan.wont?.length ? ' ' + res.plan.wont.join(' ') : ''), voice: 'helper' });
       ui.legend('plan');
       await sleep(dur * 1000);
       return res;
@@ -802,7 +803,7 @@ export function createGame(app) {
   app.reframe = reframe;
   addEventListener('resize', () => requestAnimationFrame(reframe));
   function startBuilding() {
-    sb.running = true; rig.building = true; app.levelId = null; app.inLab = false; app.briefMinutes = null;
+    sb.running = true; rig.building = true; app.levelId = null; app.inLab = false; app.briefMinutes = null; app.briefTargets = [];
     ui.only([]); ui.views('sky'); ui.facil(null); ui.show('card'); ui.show('strip');
     showCells(G.cells); clearOverlay(); if (isOpen(sb.cat)) showAllowed(sb.tool);
     changed(); renderLenses(); setMusic(app.hour >= 18.5 || app.hour < 6.5 ? 'night' : 'day'); app.bot?.show(true); requestAnimationFrame(() => { frameView(); lastFrame = rig.frameDist(); if (!sb.framed) { sb.framed = true; rig.overview(app.reduce ? 0.01 : 1.0).then?.(() => { if (innerWidth <= 760 && !rig.portrait()) rig.zoomBy(0.6); }); } }); // landscape phones: closer, so a tile is big enough to tap (upright phones already frame the tiles across the width)
@@ -911,7 +912,7 @@ export function createGame(app) {
     let res = await round(id, G.C.ui.tell); G.instructions[id] = [res.text];
     // check
     facil(id, 'check');
-    const briefMin = (r) => { app.briefMinutes = id === 'heart' ? r.read.numbers?.minutes || null : null; };
+    const briefMin = (r) => { app.briefMinutes = id === 'heart' ? r.read.numbers?.minutes || null : null; app.briefTargets = r.plan?.targets || []; };
     briefMin(res);
     const chk = await checkAct(id, res);
     const checkName = (c) => G.C.checks[c]?.label || c;
@@ -938,7 +939,7 @@ export function createGame(app) {
     // the fixed plan is built on the practice island, system by system, layer by layer
     ui.views('sky', []); world.clearGhost(); ui.legend(null); ui.helper(null); ui.tray('');
     G.cells = res.after; const changedKeys = new Set(res.plan.placements.map((p) => p.k));
-    await film.play(id, changedKeys, G.cells, { band: G.band });
+    await film.play(id, changedKeys, G.cells, { band: G.band, short: !!G.labs[id] || labsDone() >= 2 }); // later missions and replays: a shorter film (review A-03)
     life.setTown(sim(), G.cells, stage.q); app.refreshLights(); await rig.overview(1.0);
     if (id === 'heart') await biasCheck();
     // senior: a town meeting with an honest trade-off (it changes the player's real town numbers)
@@ -964,7 +965,8 @@ export function createGame(app) {
     G.labs[id] = { stars: G.levelStars[id] }; G.diary.push(diaryLines(id, s2, G.j)[0]);
     const placements = res.plan.placements; run = null;
     await leaveLab(real, choice === 'use' ? placements : null);
-    if (id === 'heart') await charterAct();
+    if (id === 'heart') await charterAct(s2);
+    if (labsDone() >= LEVEL_ORDER.length && !G.reflectDone) await reflectAct();
   }
   // retry until the plan has no problem left on any check and meets the mission's needs
   async function retry(id, res, heading, briefMin) {
@@ -990,7 +992,7 @@ export function createGame(app) {
   async function leaveLab(real, placements = null) {
     world.clearGhost(); ui.legend(null); ui.helper(null); ui.tray(''); ui.facil(null); await checks.leave();
     sb.lastSuggest = performance.now(); // her next idea for the town waits a while after a lesson
-    G.cells = real; app.inLab = false; app.levelId = null; app.briefMinutes = null; delete document.documentElement.dataset.lab; run = null;
+    G.cells = real; app.inLab = false; app.levelId = null; app.briefMinutes = null; app.briefTargets = []; delete document.documentElement.dataset.lab; run = null;
     stage.setTime(app.hour = 12.5, 0);
     if (placements) {
       const keys = new Set(); let skipped = 0;
@@ -1062,11 +1064,17 @@ export function createGame(app) {
       await sleep(1200); await continueBtn();
     }
   }
-  async function charterAct() {
-    // the charter: three promises, checked against the simulation
+  async function charterAct(planSim = null) {
+    // the charter: three promises, each checked with the same numbers the player saw: Florence's fixed plan (the mission
+    // result) and the player's own town (they differ when the plan wasn't used, or didn't all fit)
+    const W = TARGETS.walkMinutes;
     const PROMISES = [
-      [`Every home within ${TARGETS.walkMinutes} minutes’ walk of school`, (x) => x.walkMax <= TARGETS.walkMinutes], [`Town carbon under the ${TARGETS.carbonCeiling} t limit`, (x) => x.carbonOK], ['Lights on through a still winter night', (x) => x.power.winterOK],
-      ['Keep the bees and the deer', (x) => x.species.bees && x.species.deer], ['No home floods', (x) => x.flooded === 0], ['Enough food for everyone', (x) => x.food >= x.foodNeed],
+      [`Every home within ${W} minutes’ walk of school`, (x) => x.homes.length > 0 && x.walkMax <= W, (x) => (x.homes.length ? `longest walk ${x.walkMax} min (rule: ${W} min or less)` : 'no homes yet')],
+      [`Town carbon under the ${TARGETS.carbonCeiling} t limit`, (x) => x.carbonOK, (x) => `${x.carbon} t of ${TARGETS.carbonCeiling} t`],
+      ['Lights on through a still winter night', (x) => x.power.winterOK, (x) => `supply ${x.power.winterSupply}, homes need ${x.power.demand}`],
+      ['Keep the bees and the deer', (x) => x.species.bees && x.species.deer, (x) => `bees ${x.species.bees ? 'stay' : 'gone'}, deer ${x.species.deer ? 'stay' : 'gone'}`],
+      ['No home floods', (x) => x.flooded === 0, (x) => `${x.flooded} home${x.flooded === 1 ? '' : 's'} flood`],
+      ['Enough food for everyone', (x) => x.food >= x.foodNeed, (x) => `${x.food} of ${x.foodNeed} ${G.j ? 'baskets' : 'units'}`],
     ];
     const chosen = await new Promise((resolve) => { const sel = new Set(); ui.tray(`<h3>Write your town charter: choose 3 promises <span class="count" data-count>0 of 3 chosen</span></h3><div class="row">${PROMISES.map(([p], i) => `<button class="choice" data-p="${i}">📜 ${esc(p)}</button>`).join('')}</div><div class="row" style="justify-content:flex-end;margin-top:8px"><button class="btn go" data-ok disabled>Sign the charter ✍</button></div>`, (tr) => {
       tr.querySelectorAll('[data-p]').forEach((b) => (b.onclick = () => {
@@ -1076,10 +1084,40 @@ export function createGame(app) {
       }));
       tr.querySelector('[data-ok]').onclick = () => { ui.tray(''); resolve([...sel]); };
     }); });
-    const s3 = sim(); G.charter = chosen.map((i) => ({ text: PROMISES[i][0], kept: PROMISES[i][1](s3) }));
-    await ui.modal(`<div class="ribbon green">${esc(G.townName)} charter</div>${G.charter.map((c) => `<p style="text-align:left;color:var(--ink)">${c.kept ? '✅ Kept:' : '⚠️ Not yet:'} ${esc(c.text)}</p>`).join('')}<button class="btn go" data-act="ok">${esc(G.C.ui.continue)}</button>`, { say: G.charter.map((c) => `${c.kept ? 'Kept' : 'Not yet'}: ${c.text}.`).join(' ') });
+    const s3 = sim();
+    G.charter = chosen.map((i) => { const [text, ok, num] = PROMISES[i]; return { text, kept: ok(s3), town: num(s3), plan: planSim ? num(planSim) : null, planKept: planSim ? ok(planSim) : null }; });
+    const row = (c) => `<li class="${c.kept ? 'kept' : 'notyet'}"><b>${c.kept ? '✅ Kept' : '⚠️ Not yet'}:</b> ${esc(c.text)}
+      <small>${planSim ? `${esc(G.S.charterPlan)}: ${esc(c.plan)} ${c.planKept ? '✓' : '✗'} · ` : ''}${esc(G.S.charterTown)}: ${esc(c.town)} ${c.kept ? '✓' : '✗'}</small></li>`;
+    const anyGap = G.charter.some((c) => !c.kept && c.planKept);
+    await ui.modal(`<div class="ribbon green">${esc(G.townName)} charter</div><ul class="charter">${G.charter.map(row).join('')}</ul>${anyGap ? `<p class="usenote">${esc(G.S.charterGap)}</p>` : ''}<button class="btn go" data-act="ok">${esc(G.C.ui.continue)}</button>`,
+      { say: G.charter.map((c) => `${c.kept ? 'Kept' : 'Not yet'}: ${c.text}.`).join(' ') + (anyGap ? ` ${G.S.charterGap}` : '') });
   }
 
+  // after the sixth mission: an active "Before I trust an AI plan, I…" step (the transfer lesson), then one clear next action
+  async function reflectAct() {
+    const R = G.S.reflect; const picked = new Set();
+    const sentence = (extra) => [...[...picked].map((i) => R.ideas[i]), extra.trim()].filter(Boolean).join(', and ');
+    let typed = '';
+    await ui.modal(`<div class="ribbon green">${esc(R.ribbon)}</div><h2>${esc(R.title)}</h2><p>${esc(R.how)}</p>
+      <h3 class="reflectq">${esc(R.stem)}…</h3><div class="row reflectideas">${R.ideas.map((t, i) => `<button class="choice" data-ri="${i}" aria-pressed="false">${esc(t)}</button>`).join('')}</div>
+      <label class="reflectown">${esc(R.own)}<input data-rown type="text" maxlength="140" autocomplete="off" placeholder="${esc(R.placeholder)}"></label>
+      <p class="reflectsay" data-rsay aria-live="polite"></p>
+      <div class="row" style="justify-content:center"><button class="btn go" data-act="done" disabled>${esc(R.done)}</button></div>`, {
+      say: `${R.title} ${R.how}`,
+      bind: (el) => {
+        const upd = () => { const t = sentence(typed); el.querySelector('[data-rsay]').textContent = t ? `“${R.stem} ${t}.”` : ''; el.querySelector('[data-act="done"]').disabled = !t; };
+        el.querySelectorAll('[data-ri]').forEach((b) => (b.onclick = () => { const i = +b.dataset.ri; picked.has(i) ? picked.delete(i) : picked.add(i); b.classList.toggle('pick', picked.has(i)); b.setAttribute('aria-pressed', picked.has(i)); audio.tap(); upd(); }));
+        el.querySelector('[data-rown]').oninput = (e) => { typed = e.target.value; upd(); };
+      },
+    });
+    G.reflection = sentence(typed); G.reflectDone = true; G.diary.push(`${R.stem} ${G.reflection}.`); save();
+    const done = townComplete(sim(), ctxFor(G.cells)); const step = done ? '' : nextStep(sim())?.text || '';
+    const a = await ui.modal(`<div class="ribbon green">${esc(R.ruleHead)}</div><h2>“${esc(R.stem)} ${esc(G.reflection)}.”</h2><p>${esc(R.keep)}</p>
+      ${done ? '' : `<p class="usenote">${esc(R.townLeft)} <b>${esc(step)}</b></p>`}
+      <div class="row" style="justify-content:center">${done ? `<button class="btn go" data-act="finale">🎉 ${esc(R.toFinale)}</button>` : `<button class="btn go" data-act="build">${esc(R.toBuild)}</button>`}</div>`,
+      { say: `${R.stem} ${G.reflection}. ${R.keep}${done ? '' : ` ${R.townLeft} ${step}`}` });
+    if (a === 'finale') { const go = () => (G.busy ? setTimeout(go, 300) : celebrateTown()); setTimeout(go, 300); }
+  }
   // one plain sentence per mission for the reward card and the report: what happened to the brief, and who caught it
   function outcomeFor(id, s2) {
     const oc = { ...(G.outcomes[id] || { kind: 'clean', detail: '' }) };

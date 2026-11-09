@@ -15,6 +15,12 @@ export function createChecks(app) {
   let cloud = null, kids = null;
   const clear = () => { if (kids) { stage.scene.remove(kids); kids = null; } world.setOverlay(null); world.setClay(false, app.reduce); world.setFlood(0); ui.labels.clear('lbl'); ui.lensbar(null); if (cloud) { cloud.visible = false; } };
 
+  // a number the player typed into the brief, said back against the same measurement (review A-02)
+  function briefNote(id, got) {
+    const t = (app.briefTargets || []).find((x) => x.id === id); if (!t) return '';
+    const met = t.dir === 'min' ? got >= t.asked : got <= t.asked;
+    return app.G?.j ? ` · you asked for ${t.dir === 'min' ? 'at least' : 'at most'} ${t.asked} ${met ? '✓' : '✗'}` : ` · your brief: ${t.dir === 'min' ? '≥' : '≤'} ${t.asked} ${met ? '✓ met' : '✗ not met'}`;
+  }
   function carbonCloud(level, center) {
     if (!cloud) { const v = new Vox(); for (let x = -6; x <= 6; x++) for (let y = -2; y <= 2; y++) for (let z = -4; z <= 4; z++) if ((x / 6.5) ** 2 + (y / 2.6) ** 2 + (z / 4.5) ** 2 < 1 + Math.sin(x * 1.3 + z) * 0.15) v.set(x, y, z, y > 0 ? '#5d5650' : '#3f3a36'); cloud = v.mesh({ castShadow: false });
       // its own dark, smoky material, so it stands out on the pale clay island (the clay tint doesn't apply to it)
@@ -67,7 +73,7 @@ export function createChecks(app) {
       if (!keys.length) { ui.labels.set([{ at: c.clone().add(new THREE.Vector3(0, 8, 0)), text: j ? 'Nothing built yet, so no carbon' : 'No carbon sources in this plan yet', cls: 'ok' }]); }
       else { carbonCloud(ratio * 1.4, c); labels.push({ at: c.clone().add(new THREE.Vector3(0, 24, 0)), text: homesLevel ? `${j ? 'Building carbon' : 'Embodied carbon'}: ${used} of ${limit} ${j ? 'tonnes' : 't'}` : `${j ? 'Town carbon' : 'Town total'}: ${used} of ${limit} ${j ? 'tonnes' : 't'}`, cls: ratio > 1 ? 'bad' : 'ok' }); ui.labels.set(labels); }
       ui.lensbar(`🌫 ${esc(app.C.checks.carbon.label)} <span class="legend"><span><i style="background:#e5533d"></i>High</span><span><i style="background:#ffb43d"></i>Medium</span><span><i style="background:#4caf50"></i>Low</span></span>`);
-      await sleep(app.reduce ? 200 : 900); return { focusPoint: c, summary: keys.length ? `${homesLevel ? (j ? 'Building carbon' : 'Embodied carbon') : (j ? 'Town carbon' : 'Town total')} ${used} of ${limit} t` : 'Nothing that makes carbon in this plan yet' };
+      await sleep(app.reduce ? 200 : 900); return { focusPoint: c, summary: keys.length ? `${homesLevel ? (j ? 'Building carbon' : 'Embodied carbon') : (j ? 'Town carbon' : 'Town total')} ${used} of ${limit} t${homesLevel ? briefNote('carbon', used) : ''}` : 'Nothing that makes carbon in this plan yet' };
     },
     async walk(sim, cells) {
       world.setClay(true, app.reduce); const spec = new Map(); const labels = [];
@@ -82,7 +88,7 @@ export function createChecks(app) {
       ui.lensbar(`🚶 ${esc(app.C.checks.walk.label)} <span class="legend"><span><i style="background:#4caf50"></i>${W} min or less (town rule)</span><span><i style="background:#e5533d"></i>Too far (over ${W})</span><span><i style="background:#2f6fd8"></i>School</span>${ask ? `<span>Your brief: ${ask} min</span>` : ''}</span>`);
       await sleep(app.reduce ? 200 : 900);
       const homes = sim.homes.length;
-      return { summary: !homes ? 'No homes yet' : `Longest walk ${sim.walkMax} min (town rule ${W} min${ask ? `, your brief ${ask} min` : ''})` };
+      return { summary: !homes ? 'No homes yet' : `Longest walk ${sim.walkMax} min (town rule ${W} min or less ${sim.walkMax <= W ? '✓' : '✗'}${ask ? `; your brief ${ask} min ${sim.walkMax <= ask ? '✓' : '✗ not met'}` : ''})` };
     },
     async winter(sim) {
       const j = app.G?.j; const sup = Math.round(sim.power.winterSupply), dem = Math.round(sim.power.demand);
@@ -97,7 +103,7 @@ export function createChecks(app) {
         if (i > steps * 0.55) { const f = (i - steps * 0.55) / (steps * 0.45); const n = Math.round(homes.length - (homes.length - keep) * f); world.setLights(homes.slice(0, n)); if (homes.length) ui.labels.set([{ at: world.tileTop(homes[0]).add(new THREE.Vector3(0, 10, 0)), text: sim.power.winterOK ? (j ? 'Lights on in every home' : 'All homes supplied') : `${j ? 'Lights on' : 'Supplied'}: ${n} of ${homes.length} homes`, cls: sim.power.winterOK ? 'ok' : n < homes.length ? 'bad' : '' }]); }
         await sleep(app.reduce ? 0 : 95);
       }
-      await sleep(app.reduce ? 300 : 1600); return { summary: !homes.length ? 'No homes to power yet' : sim.power.winterOK ? `Lights stay on: supply ${sup}, homes need ${dem}` : `Supply ${sup}, homes need ${dem}` };
+      await sleep(app.reduce ? 300 : 1600); return { summary: !homes.length ? 'No homes to power yet' : (sim.power.winterOK ? `Lights stay on: supply ${sup}, homes need ${dem}` : `Supply ${sup}, homes need ${dem}`) + briefNote('power', sup) };
     },
     async access(sim, cells) {
       // follow the routes from the town to the school gate and the ferry, as a wheelchair user would

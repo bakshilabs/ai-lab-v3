@@ -128,7 +128,15 @@ for (const [id, check, vague, clear] of LEVELS) {
     if (act === 'keep' || act === 'use') { await p.waitForTimeout(500); await shot(`${id}-reward`); await click(`#modal:not(.hide) [data-act="${id === 'move' ? 'keep' : 'use'}"]`); break; }
     await m.click(); await p.waitForTimeout(500);
   }
-  if (id === 'heart') { await p.waitForSelector(A + '[data-p]', { timeout: 30000 }); for (const i of [0, 1, 2, 3]) await click(`${A}[data-p="${i}"]`); await shot('charter'); await click(A + '[data-ok]'); await click('#modal:not(.hide) [data-act="ok"]'); }
+  if (id === 'heart') { await p.waitForSelector(A + '[data-p]', { timeout: 30000 }); for (const i of [0, 1, 2, 3]) await click(`${A}[data-p="${i}"]`); await shot('charter'); await click(A + '[data-ok]'); checks.charterNumbers = await p.evaluate(() => !!document.querySelector('#modal ul.charter small')); await shot('charter-result'); await click('#modal:not(.hide) [data-act="ok"]');
+    // after the sixth mission: the "Before I trust an AI plan, I…" reflection (review A-04), then one clear next action
+    if (Object.keys(await p.evaluate(() => window.__eco.app.G.labs)).length >= 6) {
+      await p.waitForSelector('#modal:not(.hide) [data-ri]', { timeout: 30000 }); await click('#modal [data-ri="0"]'); await click('#modal [data-ri="3"]'); await p.fill('#modal [data-rown]', 'ask a friend to check it'); await shot('reflection');
+      checks.reflectionSentence = await p.evaluate(() => document.querySelector('#modal [data-rsay]')?.textContent || ''); await click('#modal [data-act="done"]');
+      await p.waitForSelector('#modal:not(.hide) [data-act="build"], #modal:not(.hide) [data-act="finale"]', { timeout: 30000 }); await shot('reflection-rule');
+      checks.reflectionSaved = await p.evaluate(() => !!window.__eco.app.G.reflectDone && /ask a friend/.test(window.__eco.app.G.reflection));
+      await p.click('#modal:not(.hide) [data-act="build"], #modal:not(.hide) [data-act="finale"]');
+    } }
   await p.waitForSelector('#build [data-cat]', { timeout: 30000 }); await p.waitForTimeout(800);
   const after = await p.evaluate(() => JSON.stringify([...window.__eco.app.G.cells]));
   if (id === 'move') checks.keepLeavesTownUnchanged = before === after;

@@ -155,6 +155,14 @@ export const SANDBOX = {
     notNow: 'Not now', tellMissing: 'Tell Florence what her plan left out', missionDone: 'Mission complete', newTool: 'New lens to use',
     useQuestion: 'Want Florence’s fixed plan in your town? It goes on empty tiles. Your builds stay.',
     keepMine: 'Keep my town as it is', usePlan: 'Use Florence’s plan',
+    charterPlan: 'Florence’s plan', charterTown: 'Your town', charterGap: 'Florence’s plan keeps this promise, but your own town doesn’t yet. Use her plan, or build it yourself.',
+    reflect: {
+      ribbon: 'All six missions done!', title: 'You can catch an AI’s mistakes now.', how: 'Finish the sentence. Tap the ideas you will use, or write your own.',
+      stem: 'Before I trust an AI plan, I', own: 'Or in my own words:', placeholder: 'check what it guessed', done: 'This is my rule',
+      ideas: ['check it with a lens first', 'ask what it guessed', 'look for a word it took too far', 'test the worst day, not a normal day', 'ask everyone, not just some people', 'check the numbers myself'],
+      ruleHead: 'Your AI rule', keep: 'Use this rule with any AI: at school, at home, anywhere. It is saved in your town report.',
+      townLeft: 'Your town is not finished yet. Next:', toBuild: 'Back to building', toFinale: 'See my finished town',
+    },
     planUsed: (n, skip) => `Added ${n} part${n === 1 ? '' : 's'} of Florence’s plan to your town.${skip ? ` ${skip} didn’t fit, so they were left out.` : ''}`, planDidntFit: 'Your town has no empty tiles for Florence’s plan yet. Mark more town land, then her ideas can fit!',
     completeRibbon: 'Town complete!', completeText: 'Every family has a home, there’s enough food, the lights stay on in winter and every home is close to school. Well done!', keepBuilding: 'Keep building',
     // the Star shop (js/ui/rewards.js): looks only, never the score
@@ -260,6 +268,14 @@ export const SANDBOX = {
     notNow: 'Not now', tellMissing: 'Specify the missing requirement', missionDone: 'Mission complete', newTool: 'New lens',
     useQuestion: 'Adopt Florence’s fixed plan in your town? The AI Lab funds it. Only placements that fit are applied; nothing you built is replaced.',
     keepMine: 'Keep my town', usePlan: 'Adopt the plan',
+    charterPlan: 'Florence’s plan', charterTown: 'Your town', charterGap: 'The adopted plan meets this promise; your town does not yet (the plan was kept out or did not all fit).',
+    reflect: {
+      ribbon: 'All six missions complete', title: 'Transfer it: one rule for any AI answer.', how: 'Complete the sentence. Select the checks you will actually use, or write your own.',
+      stem: 'Before I trust an AI plan, I', own: 'Or in your own words:', placeholder: 'ask which assumptions it made', done: 'Save my rule',
+      ideas: ['test it against evidence, not its confidence', 'ask which assumptions it made', 'check it hasn’t over-optimised one word', 'stress-test the worst case', 'check who is missing from the data', 'compare the result with the stated target and units'],
+      ruleHead: 'Your rule', keep: 'This applies to any AI output: essays, search answers, recommendations. It is saved in your town report.',
+      townLeft: 'The town is not complete yet. Next:', toBuild: 'Back to the build', toFinale: 'View the finished town',
+    },
     planUsed: (n, skip) => `Applied ${n} placement${n === 1 ? '' : 's'} from Florence’s plan, funded by the AI Lab (no credits spent).${skip ? ` ${skip} skipped (occupied or not allowed).` : ''}`, planDidntFit: 'No free tiles for the plan’s placements. Designate more town land to make room.',
     completeRibbon: 'Town complete', completeText: 'All petals at "enough", carbon under the ceiling, winter-night power secured, every home within 15 minutes of school.', keepBuilding: 'Keep building',
     shop: {

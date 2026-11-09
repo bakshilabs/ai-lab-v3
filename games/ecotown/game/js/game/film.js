@@ -6,6 +6,7 @@ import { Vox } from '../engine/voxel.js';
 import { person } from '../engine/kit.js';
 import { ITEMS } from '../world/catalog.js';
 import { h, esc } from '../ui/ui.js';
+import { stopSpeech } from '../ui/voice.js';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 export const FILMS = {
@@ -56,11 +57,14 @@ export function createFilm(app) {
   // ---------- director
   const film = {
     playing: false, skip: false,
-    async play(levelId, keys, cells, { band = 'junior' } = {}) {
+    async play(levelId, keys, cells, { band = 'junior', short = false } = {}) {
       const F = FILMS[levelId]; keys = [...keys];
       if (!keys.length) return;
       if (app.reduce) { for (const k of keys) world.setCell(k, cells.get(k)); return; }
       this.playing = true; this.skip = false; clear();
+      // Skip is immediate: every wait and camera move races against it, the voice stops, the builds finish at once
+      let onSkip; const skipped = new Promise((r) => { onSkip = r; });
+      const until = (p) => Promise.race([p, skipped]);
       const tall = (k) => { const c = cells.get(k); const it = c?.item && ITEMS[c.item]; return it && !['road', 'carpark', 'path', 'cycle', 'tram', 'bridge', 'bigfield', 'mixed', 'allot', 'raingarden', 'reedbed', 'compost', 'hedge', 'hives'].includes(c.item); };
       const ordered = keys.slice().sort((a, b) => world.tileTop(a).x - world.tileTop(b).x);
       const pickItem = (...ids) => { for (const id of ids) { const k = ordered.find((kk) => cells.get(kk)?.item === id); if (k) return k; } return null; };
@@ -71,11 +75,11 @@ export function createFilm(app) {
       // UI: letterbox + title, everything else away
       ui.only([]); ui.show('card', false); ui.show('strip', false); app.bot.show(false); bars.classList.add('on'); app.ui.caption(null);
       const title = h(`<div id="filmtitle"><span>${F.icon}</span><b>${esc(F.title)}</b><small>${esc(band === 'junior' ? F.lines.j : F.lines.s)}</small></div>`); document.getElementById('layer').appendChild(title);
-      const skipBtn = h('<button class="btn alt" id="filmskip">Skip ⏭</button>'); document.getElementById('layer').appendChild(skipBtn); skipBtn.onclick = () => { this.skip = true; };
+      const skipBtn = h('<button class="btn alt" id="filmskip">Skip ⏭</button>'); document.getElementById('layer').appendChild(skipBtn); skipBtn.onclick = () => { if (this.skip) return; this.skip = true; stopSpeech(); rig.cut?.(rig.skyPose()); world.finishBuilds(); onSkip(); }; this._skipNow = skipBtn.onclick;
       app.ui.say(band === 'junior' ? F.lines.j : F.lines.s);
       // shot 1: establishing, the crew arrives; surroundings first
-      const heroDur = { land: 5, move: 9, homes: 16, food: 9, power: 13, heart: 14 }[levelId] || 10;
-      await rig.focus(centre, { dist: 70, pitch: 0.62, yaw: rig.sky.yaw + 0.3 }, 1.3);
+      const heroDur = ({ land: 5, move: 9, homes: 16, food: 9, power: 13, heart: 14 }[levelId] || 10) * (short ? 0.45 : 1); // a replayed mission gets a shorter film
+      await until(rig.focus(centre, { dist: 70, pitch: 0.62, yaw: rig.sky.yaw + 0.3 }, short ? 0.8 : 1.3));
       // crew
       const crewUpd = [];
       const st = () => world.buildState(hero);
@@ -118,22 +122,22 @@ export function createFilm(app) {
       }
       // the crane stands on the far side of the build from the camera, so its cable never crosses the view
       if (F.crew === 'crane' && tall(hero)) { const away = new THREE.Vector3(-Math.sin(yawOut), 0, -Math.cos(yawOut)); const side = new THREE.Vector3(away.z, 0, -away.x); crewUpd.push(crane(heroP.clone().add(away.multiplyScalar(9)).add(side.multiplyScalar(5)), 20)); }
-      if (!this.skip && levelId === 'land') await rig.focus(centre, { dist: 72, pitch: 0.85, yaw: rig.sky.yaw }, 1.2);
-      else if (!this.skip) await rig.focus(heroP.clone().add(new THREE.Vector3(0, cells.get(hero)?.item === 'wind' ? 5 : isTall ? 6 : 2, 0)), { dist: cells.get(hero)?.item === 'wind' ? 64 : isTall ? 52 : levelId === 'food' || levelId === 'move' ? 34 : 24, pitch: levelId === 'food' || levelId === 'move' ? 0.95 : cells.get(hero)?.item === 'wind' ? 0.42 : isTall ? 0.35 : 0.55, yaw: yawOut }, 1.4);
+      if (!this.skip && levelId === 'land') await until(rig.focus(centre, { dist: 72, pitch: 0.85, yaw: rig.sky.yaw }, 1.2));
+      else if (!this.skip) await until(rig.focus(heroP.clone().add(new THREE.Vector3(0, cells.get(hero)?.item === 'wind' ? 5 : isTall ? 6 : 2, 0)), { dist: cells.get(hero)?.item === 'wind' ? 64 : isTall ? 52 : levelId === 'food' || levelId === 'move' ? 34 : 24, pitch: levelId === 'food' || levelId === 'move' ? 0.95 : cells.get(hero)?.item === 'wind' ? 0.42 : isTall ? 0.35 : 0.55, yaw: yawOut }, short ? 0.9 : 1.4));
       const t0 = performance.now();
       rig.startTurntable(0.04);
-      while (!this.skip && (world.builds.has(hero) || performance.now() - t0 < 1200) && performance.now() - t0 < 300000) await sleep(80);
+      while (!this.skip && (world.builds.has(hero) || performance.now() - t0 < 1200) && performance.now() - t0 < 300000) await until(sleep(80));
       rig.startTurntable(0);
       // finale: pull back, little celebration
-      if (!this.skip) await sleep(1500); // hold on the finished build
+      if (!this.skip) await until(sleep(short ? 500 : 1500)); // hold on the finished build
       // then the rest of this level's plan goes up quickly around it
-      rig.startTurntable(0); if (!this.skip) await rig.focus(centre, { dist: 70, pitch: 0.7 }, 1.0);
-      ordered.forEach((k, i) => { if (k !== hero) world.setCell(k, cells.get(k), { build: { dur: 1.8, delay: i * 0.1 } }); });
-      const t1 = performance.now(); while (!this.skip && world.builds.size && performance.now() - t1 < 30000) await sleep(80);
+      rig.startTurntable(0); if (!this.skip) await until(rig.focus(centre, { dist: 70, pitch: 0.7 }, 1.0));
+      ordered.forEach((k, i) => { if (k !== hero) world.setCell(k, cells.get(k), this.skip ? {} : { build: { dur: short ? 1 : 1.8, delay: i * (short ? 0.05 : 0.1) } }); });
+      const t1 = performance.now(); while (!this.skip && world.builds.size && performance.now() - t1 < 30000) await until(sleep(80));
       world.finishBuilds();
       world.confetti(heroP.clone().add(new THREE.Vector3(0, 8, 0)), 70); audio.good();
       // a wide shot of the whole result before the film ends (also after Skip)
-      await rig.overview(this.skip ? 0.6 : 1.6); if (!this.skip) await sleep(900);
+      if (this.skip) await rig.overview(0.35); else { await rig.overview(1.6); await until(sleep(short ? 300 : 900)); }
       stage.updaters.splice(stage.updaters.indexOf(loop), 1);
       clear(); title.remove(); skipBtn.remove(); this._steps?.remove(); bars.classList.remove('on'); ui.show('card'); ui.show('strip'); app.bot.show(true); this.playing = false;
     },
