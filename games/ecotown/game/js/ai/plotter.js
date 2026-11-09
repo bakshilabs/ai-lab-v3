@@ -32,6 +32,7 @@ function keywordRead(level, text) {
 }
 
 import { readTargets, checkTargets } from './targets.js';
+import { sillyIn } from './brief.js';
 const NO_CARS = /no cars|car.?free|ban(ned)? cars|without cars|keep cars out|cars? (out|banned|kept out)|not by car|fewer cars|less cars|cars at the edge/i;
 export const IMPORTED = /\blorr(y|ies)\b|\btrucks?\b|\bimport|ship(ped)? in|fly (it |food )?in|bring (all )?(our |the )?food in|buy (all )?(our |the )?food|from (the )?(supermarket|mainland|big city|city)/i;
 const KEEP_W = '(keep|protect|save|leave|look after|don.?t (touch|build on|clear))';
@@ -63,11 +64,15 @@ export function read(level, text, { withExplain = false } = {}) {
   if (level === 'food' && IMPORTED.test(clean) && !/local|grow|allot|garden|farm|orchard|field/i.test(clean)) r.slots = { ...r.slots, local: 0, allotments: 0, orchard: 0 };
   // the school "where most families can reach it" / "close to the homes": the homes are what matters
   if (level === 'heart' && /\breach\b|\bget to\b|close to (the |all |every |most )?(homes|houses|families|everyone)/i.test(clean)) r.slots = { ...r.slots, near_homes: Math.max(r.slots.near_homes ?? 0, 0.9) };
+  // "the school by the richest families' big houses" is a place, so she plans it (it was read as "no place given" once, then passed)
+  if (level === 'heart' && /\b(rich|richest|wealthy|wealthiest|posh|biggest (houses|homes))\b/i.test(clean)) { r.slots = { ...r.slots, near_homes: Math.max(r.slots.near_homes ?? 0, 0.9) }; r.unknown = Math.min(r.unknown, 0.2); }
   // "keep the wood wild", "protect the hedges": an explicit "keep" is never dropped
   for (const [slot, re] of KEEP[level] || []) if (re.test(clean)) r.slots = { ...r.slots, [slot]: Math.max(r.slots[slot] ?? 0, 0.9) };
   // "not concrete", "no tower blocks": what the brief rules out (the slot is switched off and the planner avoids it)
   const avoid = avoidsIn(clean);
   if (level === 'homes' && avoid.has('concrete')) r.slots = { ...r.slots, tall: 0 };
+  // "the cheapest concrete": concrete was asked for by name, so she uses it (it used to turn into timber and straw, and pass)
+  if (level === 'homes' && !avoid.has('concrete') && /\b(concrete|cement|tower blocks?)\b/i.test(clean) && !/low.?carbon|timber|straw|\beco|reclaim|recycl|reuse|warm|insulat|natural/i.test(clean)) r.slots = { ...r.slots, low_carbon: 0, natural_materials: 0, warm: 0, reuse: 0 };
   // a number is a target, not "as much as possible": "at least 29 food units" means enough (29), not plough every field
   const targets = readTargets(level, clean);
   if (level === 'food' && targets.some((t) => t.id === 'food')) r.slots = { ...r.slots, max_food: 0, enough_food: 1 };
@@ -94,10 +99,20 @@ const WONT = {
     [/ignore (the )?(pedestrian|walker|crossing|cyclist|children|kids|safety)/, 'I won’t ignore people on foot or on bikes: children walk this way to school at 8:45 am.', (x) => x.unsafeCrossings === 0],
     [/priorit[iy]s?e (the )?driver|car roads? (from|to) every|fastest .*car|cars? (first|only)/, 'I didn’t plan fast car roads to the school gate: cars rushing past at 8:45 am would make the crossings unsafe for children.', (x) => x.unsafeCrossings === 0],
   ],
+  // unwise asks she can't follow on this island: she says so, so they never pass silently (a tester's diesel and pesticide)
+  food: [
+    [/pesticide|weed ?killer|poison|spray (the )?(bugs|insects|crops)/, 'I didn’t spray pesticide: it kills the bees, and the orchards need bees to make fruit.', () => true],
+    [/(clear|cut down|chop|remove|flatten|bulldoze) (any |the |all )?(old )?(wood|woods|woodland|forest|trees)/, 'I won’t clear the old wood for farms: the deer and birds live there.', (x) => x.townOnWood <= 1],
+  ],
+  power: [
+    [/diesel|coal|\bgas\b|petrol|\boil\b|fossil/, 'I didn’t plan a diesel or gas generator: burning fuel makes a lot of carbon and smoke, and the fuel has to come by boat. I planned clean power instead.', () => true],
+  ],
 };
 // only claimed when the plan really kept to the rule (checked on the honest simulation)
 export const WONT_LINES = Object.values(WONT).flat().map(([, why]) => why); // for the voice recorder
-function wontDo(level, text, after) { const t = String(text || '').toLowerCase(); return (WONT[level] || []).filter(([re, , kept]) => re.test(t) && kept(after)).map(([, why]) => why); }
+// "don't clear the wetland", "no diesel": a request that is negated is not a request
+const negated = (t, re) => { const m = t.match(re); return !!m && /\b(no|not|never|without|avoid|instead of|rather than|don.?t|do not|stop)\b(\s+\w+){0,2}\s*$/.test(t.slice(0, m.index)); };
+function wontDo(level, text, after) { const t = String(text || '').toLowerCase(); return (WONT[level] || []).filter(([re, , kept]) => re.test(t) && !negated(t, re) && kept(after)).map(([, why]) => why); }
 
 // Read + plan + reply. ctx: { terrain, cells }
 export function ask(level, text, ctx) {
@@ -109,6 +124,10 @@ export function ask(level, text, ctx) {
   const simAfter = simulate(ctx.terrain, after);
   p.wont = WONT[level] ? wontDo(level, text, simAfter) : [];
   p.targets = checkTargets(readTargets(level, text), simAfter); // numbers in the brief, said back against the plan's real result
+  const silly = sillyIn(text); if (silly.length) { // things a town can't build are named; joke words ("lol") are just skipped
+    p.silly = silly; const things = silly.filter((w) => !/^(lol+|lmao|lmfao|rofl|haha+|hehe+|xd|jk|yolo|bruh)$/.test(w));
+    p.reading.unshift(things.length ? `A town can’t build “${things.join('” or “')}”, so I left ${things.length > 1 ? 'them' : 'that'} out.` : 'I skipped the joke words.');
+  }
   return { unknown: false, read: r, plan: p, after, sure, breakdown: { reading: Math.round(r.conf * 100), fit: Math.round(p.fit * 100), experience: Math.round(p.experience * 100) } };
 }
 export const getModel = () => model;

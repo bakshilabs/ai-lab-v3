@@ -133,7 +133,7 @@ export function simulate(terrain, cells, extra = {}) {
 
   // senior town-meeting choices (extra families or carbon) count everywhere: petals, header, charter
   R.families += extra.addFamilies || 0; R.familiesSafe += extra.addFamilies || 0; carbon += extra.addCarbon || 0;
-  health += extra.addHealth || 0; community += extra.addCommunity || 0; nature += extra.addNature || 0;
+  homesCarbon += extra.addHomesCarbon || 0; health += extra.addHealth || 0; community += extra.addCommunity || 0; nature += extra.addNature || 0;
   const need = Math.max(13, Math.ceil(R.families / 3));
   const natureStart = extra.natureStart || natureBaseline(terrain);
   R.count = count; R.hedges = hedges; R.woodIntact = woodIntact; R.meadowIntact = meadowIntact; R.wetIntact = wetIntact;
@@ -159,7 +159,7 @@ export function simulate(terrain, cells, extra = {}) {
     carbon: carbon <= ceil ? 1 + 0.5 * (ceil - carbon) / ceil : ceil / carbon,
   };
   for (const p of PETALS) R.petals[p] = Math.max(0, Math.min(1.5, R.petals[p]));
-  R.title = townTitle(R.petals);
+  R.title = townTitle(R.petals, R.species);
   return R;
 }
 
@@ -172,8 +172,10 @@ export function natureBaseline(terrain) {
 
 const ADJ = { homes: 'Hearth', food: 'Orchard', nature: 'Wild Garden', health: 'Cycle', energy: 'Windmill', community: 'Market', carbon: 'Green Leaf' };
 const NOUN = { homes: 'Village', food: 'Valley', nature: 'Meadows', health: 'Town', energy: 'Hill', community: 'Square', carbon: 'Vale' };
-export function townTitle(p) {
-  const top = PETALS.slice().sort((a, b) => p[b] - p[a]);
+export function townTitle(p, species) {
+  // a town without its bees or deer is never called "Wild Garden" (a tester's charter said "bees gone" next to that badge)
+  const wildOk = !species || (species.bees && species.deer);
+  const top = PETALS.slice().filter((x) => wildOk || x !== 'nature').sort((a, b) => p[b] - p[a]);
   return `${ADJ[top[0]]} ${NOUN[top[1]]}`;
 }
 

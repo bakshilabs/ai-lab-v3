@@ -91,7 +91,7 @@ export function createGame(app) {
     return new Promise((resolve) => {
       const finish = (text, via) => { resolve({ text, via }); };
       const render = () => {
-        const used = d.tiles.slice().sort((a, b) => a - b); // tiles stay in their natural sentence order
+        const used = d.tiles.slice(); // tiles stay in the order they were tapped (sorting them made tiles jump about under the finger)
         const tabs = `<div class="tabs" role="tablist"><button data-m="tiles" class="${mode === 'tiles' ? 'on' : ''}">🧩 ${esc(G.C.ui.useTiles)}</button><button data-m="text" class="${mode === 'text' ? 'on' : ''}">⌨ ${esc(G.C.ui.typeInstead)}</button><button data-m="cards" class="${mode === 'cards' ? 'on' : ''}">🃏 ${esc(G.C.ui.useCards)}</button></div>`;
         let body = '';
         // the sentence with Send and Clear beside it, then the word tiles (one row less than before, so the plan stays in view)
@@ -180,6 +180,11 @@ export function createGame(app) {
     const hint = () => { const w = Object.keys(reveal)[0]; return tried.length >= 2 && w && !tried.includes(w) ? `<p class="checknote hint">💡 ${esc(G.j ? 'Hint: try the check that looks at' : 'Hint: test')} ${esc(G.C.checkWhat[w])}.</p>` : ''; };
     const accept = async () => {
       ui.show('tray', false);
+      if (!flawed && res.plan.unfair) { // the checks pass, but the brief asked for the richest families: not a fair plan (bias mission)
+        audio.bad(); help({ tag: G.C.ui.unfairTag, tagCls: 'bad', html: `<p>${esc(G.C.ui.unfair)}</p>`, say: G.C.ui.unfair, voice: 'helper' }); star(0, G.C.ui.checked);
+        await sleep(1600); await continueBtn();
+        return { flawed: false, missed: [G.j ? 'a school that is fair to every family' : 'a fair test: every household, not the richest'], tried };
+      }
       if (!flawed) { // the plan really is fine
         // the plan passed; the brief earns "well specified first time" only if it really was one (not repeats, emoji, or a part she refused)
         const q = briefQuality(res.text); const lucky = res.plan.wont?.length ? 'wont' : q.issues[0];
@@ -259,9 +264,9 @@ export function createGame(app) {
     const order = [...HABITS]; const wrong = new Set(); // the same order every time (a shuffled row made a young tester misclick)
     for (;;) {
       const pickH = await new Promise((resolve) => ui.tray(`<h3>${esc(G.C.ui.whyWrong)}</h3><div class="row">${order.map((k) => `<button class="choice ${wrong.has(k) ? 'wrong' : ''}" data-h="${k}" ${wrong.has(k) ? 'disabled' : ''}><span class="ic">${G.C.habits[k].icon}</span>${esc(G.C.habits[k].label)}</button>`).join('')}</div>`, (tr) => tr.querySelectorAll('[data-h]').forEach((b) => (b.onclick = () => resolve(b.dataset.h)))));
-      if (pickH === right) {
-        audio.good(); ui.alert(`${G.C.ui.correct} ${G.C.habits[right].label}`, true, 2600); if (!wrong.size) star(1, `${G.C.ui.correct} ${G.C.habits[right].label}`);
-        G.mistakes.push({ level: id, habit: right, why });
+      if (pickH === right || pickH === res.plan.habitAlt) { // some plans fit two habits ("fastest roads for cars": one word, and the words read exactly)
+        audio.good(); ui.alert(`${G.C.ui.correct} ${G.C.habits[pickH].label}`, true, 2600); if (!wrong.size) star(1, `${G.C.ui.correct} ${G.C.habits[pickH].label}`);
+        G.mistakes.push({ level: id, habit: pickH, why });
         help({ tag: G.j ? 'SPOTTED' : 'DIAGNOSED', tagCls: 'ok', html: `<p><b>${esc(G.C.ui.correct)}</b> ${esc(why)}</p>`, say: `${G.C.ui.correct} ${why}`, voice: 'helper' }); await sleep(600); return;
       }
       audio.tap(); wrong.add(pickH);
@@ -604,7 +609,7 @@ export function createGame(app) {
       // nothing wrong: a next step toward the first goal not met yet (each idea at most every 3 minutes)
       if (!tipShown && !sb.adv.pending.length && now - sb.adv.last > 40000) {
         const g = townGoals(s, ctxFor(G.cells)).find((x) => !x.ok && isOpen(GOAL_CAT[x.id]) && now - (sb.ideas[x.id] || -Infinity) > 180000);
-        if (g) { sb.ideas[g.id] = now; sb.adv.last = now; showTip({ id: 'idea-' + g.id, text: G.S.nextIdea[g.id], where: ideaTool(g.id) }); }
+        if (g) { sb.ideas[g.id] = now; sb.adv.last = now; showTip({ id: 'idea-' + g.id, text: g.id === 'walk' && ctxFor(G.cells).hasSchool ? G.S.nextIdea.walk2 : G.S.nextIdea[g.id], where: ideaTool(g.id) }); /* a school already stands: say "a second school" */ }
       }
       return;
     }
@@ -789,22 +794,26 @@ export function createGame(app) {
     canvas.addEventListener('pointerleave', () => { if (sb.kc) return; world.clearGhost(); app._hk = null; ui.labels.clear('lbl'); });
     // keyboard play (a tester could do everything by keyboard except build): with the island focused, the arrow keys move a
     // tile cursor in screen directions, Enter or Space builds there with the selected tool, and the preview says what it does
-    const kbOn = () => sb.running && !G.busy && !sb.lens && !sb.intro && document.activeElement === canvas && rig.mode === 'sky';
+    // (it used to be off during the intro, which is exactly when the player is asked to designate three tiles: a keyboard tester
+    // could never build. Mouse taps work during the intro, so the cursor does too.)
+    const kbOn = () => sb.running && !G.busy && !sb.lens && document.activeElement === canvas && rig.mode === 'sky';
     rig.tileKeys = kbOn;
     const scr = (k) => { const v = world.tileTop(k).project(stage.camera); return [v.x, -v.y]; };
-    const setCursor = (k) => { sb.kc = k; app._hk = null; showAllowed(sb.tool); hoverKey(k); if (!ui.labels.has('lbl')) ui.labels.set([{ at: world.tileTop(k).add(new THREE.Vector3(0, 4, 0)), text: G.S.kbHere }]); };
+    const setCursor = (k) => { sb.kc = k; app._hk = null; if (sb.intro && sb.introGlow) sb.introGlow(); else showAllowed(sb.tool); hoverKey(k); if (!ui.labels.has('lbl')) ui.labels.set([{ at: world.tileTop(k).add(new THREE.Vector3(0, 4, 0)), text: G.S.kbHere }]); };
     canvas.addEventListener('keydown', (e) => {
       if (!kbOn()) return;
       const dir = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] }[e.key];
       if (dir) {
         e.preventDefault(); e.stopPropagation();
-        if (!sb.kc) { sb.kc = [...terrain.tiles.values()].filter((t) => !t.fixed && t.zone !== 'river').sort((a, b) => Math.hypot(...scr(a.k)) - Math.hypot(...scr(b.k)))[0]?.k; return sb.kc && setCursor(sb.kc); }
+        if (!sb.kc) { sb.kc = firstTile(); return sb.kc && setCursor(sb.kc); }
         const t = terrain.tiles.get(sb.kc); const from = scr(sb.kc); let best = null, bs = -Infinity;
         for (let dx = -1; dx <= 1; dx++) for (let dz = -1; dz <= 1; dz++) { if (!dx && !dz) continue; const n = terrain.tiles.get(`${t.gx + dx},${t.gz + dz}`); if (!n) continue; const to = scr(n.k); const v = [to[0] - from[0], to[1] - from[1]]; const len = Math.hypot(...v) || 1; const sc = (v[0] * dir[0] + v[1] * dir[1]) / len - (dx && dz ? 0.15 : 0); if (sc > bs) { bs = sc; best = n.k; } }
         if (best && bs > 0.3) setCursor(best);
       } else if ((e.key === 'Enter' || e.key === ' ') && sb.kc) { e.preventDefault(); if (sb.kc === terrain.lab) return enterClassroom(); tapKey(sb.kc); app._hk = null; setTimeout(() => sb.kc && setCursor(sb.kc), 50); }
     });
-    canvas.addEventListener('focus', () => { if (kbOn() && !sb.kc && !TOUCH) ui.caption(G.S.kbHint, 3200); });
+    // reached with Tab: the cursor shows straight away (on the tile nearest the middle of the screen) with the hint
+    const firstTile = () => [...terrain.tiles.values()].filter((t) => !t.fixed && t.zone !== 'river').sort((a, b) => Math.hypot(...scr(a.k)) - Math.hypot(...scr(b.k)))[0]?.k;
+    canvas.addEventListener('focus', () => { if (!kbOn() || sb.kc || !canvas.matches(':focus-visible')) return; ui.caption(G.S.kbHint, 4000); const k = firstTile(); if (k) setCursor(k); });
     canvas.addEventListener('blur', () => { if (!sb.kc) return; sb.kc = null; app._hk = null; world.clearGhost(); ui.labels.clear('lbl'); if (sb.running) showAllowed(sb.tool); });
   }
   // Escape anywhere: close the open card if it has a close or "not now" button, else the pop-overs, else the lens
@@ -848,7 +857,7 @@ export function createGame(app) {
     changed(); renderLenses(); setMusic(app.hour >= 18.5 || app.hour < 6.5 ? 'night' : 'day'); app.bot?.show(true); requestAnimationFrame(() => { frameView(); lastFrame = rig.frameDist(); if (!sb.framed) { sb.framed = true; rig.overview(app.reduce ? 0.01 : 1.0).then?.(() => { if (innerWidth <= 760 && !rig.portrait()) rig.zoomBy(0.6); }); } }); // landscape phones: closer, so a tile is big enough to tap (upright phones already frame the tiles across the width)
     if (sb.afterLab) { const msg = sb.afterLab; sb.afterLab = null; setTimeout(() => ui.caption(msg, msg.length > 90 ? 9000 : 5000), 2800); } // after any unlock alert
   }
-  function stopBuilding() { ui.labels.clear('spot'); sb.running = false; ui.setDay(null); ui.setCredits(''); ui.florence(null); frameView(); rig.building = false; clearTimeout(sb.tipT); world.clearGhost(); clearOverlay(); ui.labels.clear(); ui.tray(''); ui.buildPanel(''); hideTip(); }
+  function stopBuilding() { sb.introAbort?.(); ui.labels.clear('spot'); sb.running = false; ui.setDay(null); ui.setCredits(''); ui.florence(null); frameView(); rig.building = false; clearTimeout(sb.tipT); world.clearGhost(); clearOverlay(); ui.labels.clear(); ui.tray(''); ui.buildPanel(''); hideTip(); }
   const setMusic = (m) => app.setMusic?.(m);
 
   // ================= THE AI LAB CLASSROOM =================
@@ -987,6 +996,15 @@ export function createGame(app) {
       const e = d.options[+a].effect; for (const k of ['families', 'carbon', 'winter', 'health', 'community', 'nature']) if (e[k]) G.extra[k] = (G.extra[k] || 0) + e[k];
       if (e.credits && Number.isFinite(G.credits)) G.credits = Math.max(0, G.credits + e.credits);
       run.meeting = `${d.options[+a].label}: ${meetingEffect(e)}`; G.diary.push(`Town meeting: ${run.meeting}.`);
+      // a choice can break the mission's own limit (a tester's extra concrete floor took 66 t to 96 t against 70 t, unremarked)
+      const xs = { natureStart: app.natureStart, addFamilies: G.extra.families, addCarbon: G.extra.carbon, addWinter: G.extra.winter || 0, addHealth: G.extra.health || 0, addCommunity: G.extra.community || 0, addNature: G.extra.nature || 0 };
+      const sM = simulate(terrain, G.cells, { ...xs, addHomesCarbon: id === 'homes' ? e.carbon || 0 : 0 }); const sB = simulate(terrain, G.cells, { ...xs, addFamilies: (G.extra.families || 0) - (e.families || 0), addCarbon: (G.extra.carbon || 0) - (e.carbon || 0), addWinter: (G.extra.winter || 0) - (e.winter || 0) });
+      const okB = new Map(lv.needs(sB, ctxFor(G.cells), G.j).map((n, i) => [i, n.ok]));
+      const broke = lv.needs(sM, ctxFor(G.cells), G.j).filter((n, i) => !n.ok && okB.get(i)).map((n) => n.label.replace(/^\P{L}+/u, ''));
+      if (broke.length) {
+        run.broke = broke; run.meeting += `. ⚠ ${G.S.meetingBroke(broke.join('; '))}`;
+        audio.bad(); await ui.modal(`<div class="ribbon">Town meeting</div><h2>⚠ ${esc(G.S.meetingBrokeHead)}</h2><p>${esc(G.S.meetingBroke(broke.join('; ')))}</p><div class="row" style="justify-content:center"><button class="btn go" data-act="ok">${esc(G.C.ui.ok || 'OK')}</button></div>`, { say: G.S.meetingBroke(broke.join('; ')) });
+      }
     }
     // the reward card, then: use Florence's plan in your town, or keep your town as it is
     const s2 = sim(); audio.fanfare(); setMusic('celebrate'); world.confetti(new THREE.Vector3(10, 20, 8), 200); rig.startTurntable(app.reduce ? 0 : 0.1);
@@ -1018,6 +1036,7 @@ export function createGame(app) {
       const again = await checkAct(id, res, { auto: true });
       if (!again.flawed) {
         const sA = sim(res.after); const cx = ctxFor(res.after);
+        if (lv.pass(sA, cx) && res.plan.unfair) { help({ tag: G.C.ui.unfairTag, tagCls: 'bad', html: `<p>${esc(G.C.ui.unfair)}</p>`, say: G.C.ui.unfair, voice: 'helper' }); audio.bad(); heading = G.S.tellMissing; continue; } // the same biased words never pass on a retry
         if (lv.pass(sA, cx)) {
           audio.pass(); app.bot.proud(); world.confetti(app.bot.group.position.clone(), 90); ui.alert(G.C.ui.checked, true, 1800);
           help({ tag: G.C.ui.checked, tagCls: 'ok', html: `<ul>${res.plan.reading.map((r) => `<li>${esc(r)}</li>`).join('')}</ul>`, sure: res.sure, sureLabel: G.C.ui.sure });
@@ -1071,7 +1090,7 @@ export function createGame(app) {
       showCells(G.cells, keys);
       sb.afterLab = keys.size ? G.S.planUsed(keys.size, skipped) : G.S.planDidntFit;
       // the plan passed on the practice island; the player's town is different. Say what still differs, with numbers.
-      if (id && LEVELS[id]) { const gap = LEVELS[id].needs(sim(), ctxFor(G.cells), G.j).filter((n) => !n.ok && !/^(🚶 Paths|Routes to)/.test(n.label)).map((n) => n.label.replace(/^\P{L}+/u, '')); if (gap.length) sb.afterLab += ` ${G.S.townDiffers(gap.join('; '))}`; }
+      if (id && LEVELS[id]) { const sT = sim(); const gap = LEVELS[id].needs(sT, ctxFor(G.cells), G.j).filter((n) => !n.ok && !/^(🚶 Paths|Routes to)/.test(n.label) && !(id === 'land' && /Town land:/.test(n.label) && sT.townTiles > TARGETS.townTiles)) /* more town land than the practice target is fine in your own town (“24 of 18 tiles”) */.map((n) => n.label.replace(/^\P{L}+/u, '')); if (gap.length) sb.afterLab += ` ${G.S.townDiffers(gap.join('; '))}`; }
     } else showCells(G.cells);
     renderCard(); await rig.overview(1.0); save();
   }
@@ -1182,6 +1201,7 @@ export function createGame(app) {
     const oc = { ...(G.outcomes[id] || { kind: 'clean', detail: '' }) };
     const b = app.briefMinutes, W = TARGETS.walkMinutes;
     if (id === 'heart' && b && s2.walkMax > b) oc.detail += ` ${G.j ? 'You' : 'The brief'} asked for a ${b}-minute walk; the longest route is ${s2.walkMax} minutes. That meets the town’s ${W}-minute rule, but not ${G.j ? 'your' : 'the'} brief.`;
+    if (run?.broke) oc.detail += ` ${G.S.meetingBroke(run.broke.join('; '))}`;
     G.outcomes[id] = oc; return oc;
   }
 
@@ -1279,7 +1299,7 @@ export function createGame(app) {
     try {
       await runIntro({ app, G, T: { ...G.S.intro, goals: G.S.introGoals },
         selectTool: (cat, tool) => { sb.cat = cat; sb.tool = tool; sb.folded = false; showAllowed(tool); renderBar(); },
-        townTiles: () => sim().townTiles, allowedSpec: () => allowedSpec('town'), canBuild: (k) => allowedSpec('town').get(k) === HL.free,
+        townTiles: () => sim().townTiles, allowedSpec: () => allowedSpec('town'), setAbort: (f) => (sb.introAbort = f), cursor: () => (sb.kc && terrain.tiles.has(sb.kc) ? [sb.kc, HL.cursor] : null), setGlow: (f) => (sb.introGlow = f), canBuild: (k) => allowedSpec('town').get(k) === HL.free,
         videoCard: G.videos?.has('timber') ? (id) => videoCard(ITEMS[id].label, id, null) : null,
         highlight: (sel, on) => document.querySelector(sel)?.classList.toggle('pulse', on) });
     } finally { sb.intro = false; renderCard(); G.introDone = true; save(); sb.adv.last = performance.now(); }

@@ -61,6 +61,17 @@ export function createUI(root, labelsRoot, opts) {
   if (typeof ResizeObserver === 'function') { const ro = new ResizeObserver(() => { const s = document.documentElement.style; s.setProperty('--buildh', P.build.offsetHeight + 'px'); s.setProperty('--dockh', P.dock.offsetHeight + 'px'); }); ro.observe(P.build); ro.observe(P.dock); }
   // focus follows the next step only for keyboard players (a mouse or touch player's screen doesn't jump)
   let kbUser = false; addEventListener('keydown', (e) => { if (e.key === 'Tab' || e.key === 'Enter' || e.key === ' ') kbUser = true; }, true); addEventListener('pointerdown', () => (kbUser = false), true);
+  // an open card or the settings sheet keeps Tab inside it (it used to escape to the HUD behind the card)
+  const FOCUSABLE = 'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href], video[controls], [tabindex]:not([tabindex="-1"])';
+  addEventListener('keydown', (e) => {
+    if (e.key !== 'Tab' || e.defaultPrevented) return;
+    const box = !P.modal.classList.contains('hide') ? P.modal : !P.settings.classList.contains('hide') ? P.settings : null; if (!box) return;
+    const list = [...box.querySelectorAll(FOCUSABLE)].filter((n) => n.offsetParent || n.getClientRects().length); if (!list.length) return;
+    const a = document.activeElement; const i = list.indexOf(a);
+    if (i < 0) { e.preventDefault(); (e.shiftKey ? list[list.length - 1] : list[0]).focus(); }
+    else if (!e.shiftKey && i === list.length - 1) { e.preventDefault(); list[0].focus(); }
+    else if (e.shiftKey && i === 0) { e.preventDefault(); list[list.length - 1].focus(); }
+  });
   const ui = {
     P, readAloud: false,
     show(id, on = true) {
@@ -149,7 +160,15 @@ export function createUI(root, labelsRoot, opts) {
       P.florence.onclick = open; P.florence.onkeydown = open;
     },
     // the build panel (left): html + bind, like the tray. Empty html hides it.
-    buildPanel(html, bind) { if (!html) { P.build.classList.add('hide'); return P.build; } P.build.innerHTML = html; P.build.classList.remove('hide'); bind?.(P.build); return P.build; },
+    // keyboard focus stays on the same button when the panel redraws (choosing a build with Enter used to drop focus to the page start)
+    buildPanel(html, bind) {
+      if (!html) { P.build.classList.add('hide'); return P.build; }
+      const a = document.activeElement; const had = a && P.build.contains(a) ? ['data-t', 'data-cat', 'data-fold', 'data-play'].find((x) => a.hasAttribute(x)) : null;
+      const sel = had ? `[${had}${a.getAttribute(had) ? `="${CSS.escape(a.getAttribute(had))}"` : ''}]` : null;
+      P.build.innerHTML = html; P.build.classList.remove('hide'); bind?.(P.build);
+      if (sel) ([...P.build.querySelectorAll(sel)].find((x) => x.offsetParent) || P.build.querySelector('button'))?.focus({ preventScroll: true });
+      return P.build;
+    },
     // Florence's card (right) while building: { tag, html, say } or null to hide
     florence(o) {
       if (!o) { P.florence.classList.add('hide'); return; }

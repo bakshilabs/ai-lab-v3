@@ -1267,3 +1267,21 @@ html[data-lab=on] .streetpad, html[data-inclass=on] .streetpad { display: none !
 @keyframes spkpulse { from { transform: scale(1); } to { transform: scale(1.08); } }
 @media (prefers-reduced-motion: reduce) { .spk.speaking { animation: none; } }
 html[data-reduce] .spk.speaking { animation: none; }
+
+/* ---- playtest 4 (Nov 2026): interface, keyboard and phone fixes */
+/* Skip intro never sits over a card, a menu, the goals or the AI Lab (it is also removed as soon as the intro ends) */
+.introskip { z-index: 2; }
+html:has(#modal:not(.hide)) .introskip, html:has(#settings:not(.hide)) .introskip, html:has(#flowerpop:not(.hide)) .introskip,
+html:has(#lenspop:not(.hide)) .introskip, html[data-lab=on] .introskip, html:has(#filmtitle) .introskip { visibility: hidden; }
+/* film captions: solid (no see-through), the title and its line wrap instead of squeezing the line into a thin column */
+#filmtitle { background: #0d1422; box-shadow: 0 0 0 3px #2b3a55; max-width: min(820px, calc(100vw - 300px)); }
+#filmtitle small { opacity: 1; color: #e6edf5; }
+#filmsteps span { background: #0d1422; color: #c9d4df; }
+@media (max-width: 760px) {
+  #filmtitle { left: 12px; right: 12px; transform: none; max-width: none; display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; padding: 10px 14px; bottom: calc(9vh + 72px); animation: none; }
+  #filmtitle span { font-size: 1.5em; } #filmtitle b { white-space: normal; font-size: 1.15em; line-height: 1.15; }
+  #filmtitle small { grid-column: 1 / -1; font-size: .9em; line-height: 1.35; }
+  #filmskip { bottom: calc(9vh + 12px); min-height: 48px; }
+}
+/* the instruction keeps room for two lines of tiles, so the word bank under it never jumps when it wraps */
+#dock .sentrow .sentence { min-height: 103px; align-content: flex-start; box-sizing: border-box; }

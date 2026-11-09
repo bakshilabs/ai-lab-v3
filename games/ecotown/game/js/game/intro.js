@@ -13,6 +13,9 @@ export async function runIntro(api) {
   let skipped = false; let skipResolve; const skipP = new Promise((r) => (skipResolve = r));
   const skipBtn = document.createElement('button'); skipBtn.className = 'btn alt panel introskip'; skipBtn.textContent = `${T.skip} ⏭`; skipBtn.setAttribute('data-introskip', '');
   skipBtn.onclick = () => { skipped = true; skipResolve('skip'); }; document.getElementById('layer').appendChild(skipBtn);
+  // the player left for the AI Lab or the classroom mid-intro: the intro is over (it used to wait for a Next button that was
+  // gone, so Skip intro stayed on screen through three missions). No camera move at the end: the Lab owns the camera now.
+  let aborted = false; api.setAbort?.(() => { if (skipped) return; aborted = skipped = true; skipBtn.remove(); skipResolve('skip'); });
   const step = async (p) => { const r = await Promise.race([p, skipP]); if (skipped) throw new Error('skip'); return r; };
   const top = (k) => world.tileTop(k);
   const tiles = [...terrain.tiles.values()];
@@ -45,33 +48,35 @@ export async function runIntro(api) {
     // only tiles a tap really builds on (a tester tapped a gold tile beside the wetland and was refused); every other tile
     // keeps its usual mark (white kerb = can build, dark plate = can't), so the gold ones are a suggestion, not the only choice
     const suggest = tiles.filter((t) => ['slope', 'field'].includes(t.zone) && !t.fixed && (api.canBuild?.(t.k) ?? true)).sort((a, b) => top(a.k).distanceTo(dP) - top(b.k).distanceTo(dP)).slice(0, 3);
-    let pulse = 0; const glow = () => { const spec = new Map(api.allowedSpec?.() || []); pulse++; for (const t of suggest) spec.set(t.k, { color: pulse % 2 ? '#ff9f1a' : '#ffd23f', ring: true, notch: true }); world.setOverlay(spec); }; // a pulsing orange target, unlike any other tile
-    glow();
-    const start = api.townTiles();
-    const el = ui.florence({ tag: T.yourTurnTag, html: `<p>${esc(T.yourTurn)}</p><div class="bar" data-introbar><i style="width:0%"></i><span>${T.tiles}: 0 / 3</span></div>`, say: T.yourTurn });
+    let pulse = 0; const glow = () => { const spec = new Map(api.allowedSpec?.() || []); pulse++; for (const t of suggest) spec.set(t.k, { color: pulse % 2 ? '#ff9f1a' : '#ffd23f', ring: true, notch: true }); const kc = api.cursor?.(); if (kc) spec.set(kc[0], kc[1]); world.setOverlay(spec); }; // a pulsing orange target, unlike any other tile
+    glow(); api.setGlow?.(glow); // the keyboard tile cursor redraws through this while the intro owns the overlay
+    // the bar counts the town's real tiles (3 in all), the same number as the top line (a tester marked tiles early
+    // and saw "0 / 3" here while the top line said "mark 1 more")
+    const start = api.townTiles(); const k0 = Math.min(3, start);
+    const el = ui.florence({ tag: T.yourTurnTag, html: `<p>${esc(T.yourTurn)}</p><div class="bar" data-introbar><i style="width:${(100 * k0) / 3}%"></i><span>${T.tiles}: ${k0} / 3</span></div>`, say: T.yourTurn });
     let shown = start;
-    while (api.townTiles() < start + 3) {
+    while (api.townTiles() < 3) {
       await step(sleep(250));
       const n = api.townTiles();
       if (!app.reduce && Math.floor(performance.now() / 500) % 2 !== pulse % 2) glow();
-      if (n !== shown) { shown = n; if (n > start) bot.nod(); const k = Math.max(0, Math.min(3, n - start)); const bar = el.querySelector('[data-introbar]'); if (bar) { bar.querySelector('i').style.width = `${(100 * k) / 3}%`; bar.querySelector('span').textContent = `${T.tiles}: ${k} / 3`; } glow(); }
+      if (n !== shown) { shown = n; if (n > start) bot.nod(); const k = Math.max(0, Math.min(3, n)); const bar = el.querySelector('[data-introbar]'); if (bar) { bar.querySelector('i').style.width = `${(100 * k) / 3}%`; bar.querySelector('span').textContent = `${T.tiles}: ${k} / 3`; } glow(); }
     }
-    world.setOverlay(null);
+    api.setGlow?.(null); world.setOverlay(null);
     api.highlight('#build', false);
     // (shorter since the scored review: the build video is no longer forced here; ▶ on any build shows it, and the
     // video tip says so. Well done + what's next + goals are one beat; the AI Lab + over to you is the last.)
     bot.cheer();
     // 4. what to do next and the town's goals: the next-step line, the 🌼 goals and the build info
     const marks = ['#card .goal', '#card [data-flower]', '#build .cats'];
-    for (const s2 of marks) api.highlight(s2, true); await step(say(`${T.wellDone} ${T.goals || T.unlocks}`)); for (const s2 of marks) api.highlight(s2, false);
+    for (const s2 of marks) api.highlight(s2, true); const left = 6 - api.townTiles(); await step(say(`${left === 3 ? T.wellDone : left <= 0 ? T.wellDoneOpen : left === 1 ? T.wellDone1 : T.wellDone2} ${T.goals || T.unlocks}`)); // the number matches the top line for (const s2 of marks) api.highlight(s2, false);
     // 5. the AI Lab: test her plans. Then over to you.
     go(labP, 100); await step(bot.walkTo(labP.clone().add(new THREE.Vector3(0, 0, 6)), { maxDur: 3.5 }));
     bot.point(labP.clone().add(new THREE.Vector3(0, 3, 0)), 2.6); api.highlight('#strip [data-lab]', true);
     await step(say(`${T.lab} ${T.overToYou}`)); api.highlight('#strip [data-lab]', false); bot.cheer();
   } catch (e) { if (e.message !== 'skip') throw e; }
   finally {
-    skipBtn.remove(); for (const s of ['#build', '#build .cats', '#strip [data-lab]', '#card .goal', '#card [data-flower]']) api.highlight(s, false);
-    world.setFlood(0); ui.florence(null); await rig.overview(app.reduce ? 0.01 : 1.1);
+    api.setGlow?.(null); skipBtn.remove(); for (const s of ['#build', '#build .cats', '#strip [data-lab]', '#card .goal', '#card [data-flower]']) api.highlight(s, false);
+    api.setAbort?.(null); world.setFlood(0); if (!aborted) { ui.florence(null); await rig.overview(app.reduce ? 0.01 : 1.1); }
   }
   return !skipped;
 }

@@ -103,7 +103,9 @@ const PLANNERS = {
     if (carMode && carsOnly) { reading.push('“Cars only” = car roads to every home and a drop-off at the school gate.'); assumptions.push('Everyone travels by car, including children.'); }
     else if (carMode) { reading.push(slots.has('fast') ? '“Fast” = wide roads for cars.' : '“Easy for everyone” = easy for drivers: a wide road and a drop-off car park at the school.'); assumptions.push('Most people travel by car.'); }
     const habit = !carMode ? null : carsOnly ? 'literal' : slots.has('fast') ? 'one_word' : 'typical';
-    const habitWhy = !carMode ? '' : carsOnly ? 'Florence did exactly what the words said, “cars only”, and forgot that children walk and cycle to school.' : slots.has('fast') ? 'Florence turned “fast” into “wide roads for cars” and forgot about children crossing.' : 'Florence planned for a typical grown-up who drives, not for children walking to school.';
+    // "the fastest roads for cars": she did exactly what was asked, so "read the words too exactly" is right too (a tester was told "not quite")
+    const saidCars = carMode && !carsOnly && /\bcars?\b|\bdriv/i.test(ctx.text || ''); const habitAlt = saidCars ? 'literal' : null;
+    const habitWhy = !carMode ? '' : saidCars ? 'You asked for roads for cars, and Florence did exactly that: she made them fast and wide and forgot that children cross them at 8:45 am. The instruction left out the people on foot.' : carsOnly ? 'Florence did exactly what the words said, “cars only”, and forgot that children walk and cycle to school.' : slots.has('fast') ? 'Florence turned “fast” into “wide roads for cars” and forgot about children crossing.' : 'Florence planned for a typical grown-up who drives, not for children walking to school.';
     if (slots.has('everyone') && !walkish) reading.push('Everyone, including children and people without cars: footpaths and cycle lanes.');
     if (slots.has('safe_walking')) reading.push('Safe footpaths and crossings.');
     if (slots.has('cycling')) reading.push('Cycle lanes.');
@@ -143,7 +145,7 @@ const PLANNERS = {
         .sort((a, b) => distTo(a, tileCenter(dock.gx, dock.gz)) - distTo(b, tileCenter(dock.gx, dock.gz)))[0];
       if (edge && !placements.some((p) => p.k === edge.k)) placements.push({ k: edge.k, item: 'carpark' });
     }
-    return { placements, reading, assumptions, habit, habitWhy, tested: carMode ? 'journey time for a car' : access.length ? 'journey time on foot and by bike, and a step-free route to school and the ferry' : 'journey time on foot and by bike', fit: 0.95 };
+    return { placements, reading, assumptions, habit, habitAlt, habitWhy, tested: carMode ? 'journey time for a car' : access.length ? 'journey time on foot and by bike, and a step-free route to school and the ferry' : 'journey time on foot and by bike', fit: 0.95 };
   },
 
   // ---------- Level 3: homes
@@ -162,13 +164,15 @@ const PLANNERS = {
       reading.push(`${[...new Set(types)].map((t) => ITEMS[t].label).join(', ')}.`);
     } else {
       types = ['concrete'];
-      const why = slots.has('strong') ? '“Strong” = concrete and steel.' : slots.has('tall') ? '“Tall” = concrete tower blocks.' : slots.has('cheap') ? '“Cheap” = concrete flats (cheapest per home).' : slots.has('many') ? '“As many as possible” = concrete flats.' : 'Homes = the usual kind: concrete flats.';
+      const named = /\b(concrete|cement|tower blocks?)\b/i.test(ctx.text || ''); // asked for by name: she uses it, as asked
+      const why = named ? '“Concrete” = concrete flats, as you asked.' : slots.has('strong') ? '“Strong” = concrete and steel.' : slots.has('tall') ? '“Tall” = concrete tower blocks.' : slots.has('cheap') ? '“Cheap” = concrete flats (cheapest per home).' : slots.has('many') ? '“As many as possible” = concrete flats.' : 'Homes = the usual kind: concrete flats.';
       const said = ['strong', 'tall', 'cheap', 'many'].filter((w) => slots.has(w)).map((w) => (w === 'many' ? 'lots of homes' : w));
       reading.push(why); assumptions.push(said.length ? `${said.join(' and ').replace(/^./, (c) => c.toUpperCase())} ${said.length > 1 ? 'matter' : 'matters'} most; carbon and warmth were not mentioned.` : 'Carbon and warmth were not mentioned.');
     }
     const word = slots.has('strong') ? 'strong' : slots.has('tall') ? 'tall' : slots.has('cheap') ? 'cheap' : slots.has('many') ? 'lots of' : null;
-    const habit = eco || noConcrete ? null : word ? 'one_word' : 'typical';
-    const habitWhy = eco ? '' : word ? `Florence chased “${word}” and chose concrete, forgetting carbon and warmth.` : 'Florence built the usual kind of home, concrete flats, without thinking about carbon or warmth.';
+    const namedC = !eco && !noConcrete && /\b(concrete|cement|tower blocks?)\b/i.test(ctx.text || '');
+    const habit = eco || noConcrete ? null : namedC ? 'literal' : word ? 'one_word' : 'typical';
+    const habitWhy = eco ? '' : namedC ? 'You asked for concrete, so Florence used concrete, exactly as the words said. Nobody mentioned carbon or warmth.' : word ? `Florence chased “${word}” and chose concrete, forgetting carbon and warmth.` : 'Florence built the usual kind of home, concrete flats, without thinking about carbon or warmth.';
     if (slots.has('green_roofs')) reading.push('Green roofs.');
     types = [...new Set(types)];
     const town = townTiles(ctx).filter((t) => free(ctx, t, types[0]));
@@ -289,7 +293,14 @@ const PLANNERS = {
     const cand = tilesOf(ctx).filter((t) => free(ctx, t, 'school'));
     let school;
     const most = /\b(most|majority of)\b/i.test(ctx.text || '') && !slots.has('walk_time');
-    if (most && homes.length) {
+    // "next to the biggest houses where the richest families live": she follows it, and the plan is unfair (the bias mission)
+    const rich = /\b(rich|richer|richest|wealthy|wealthier|wealthiest|posh|poshest|well.?off|expensive (houses|homes)|big(gest|ger)? (houses|homes)|fanc(y|iest) (houses|homes))\b/i.test(ctx.text || '');
+    if (rich && homes.length) {
+      reading.push('“The richest families” = the biggest houses, at the edge of town. School next to them.'); assumptions.push('The families who matter most are the richest ones.');
+      const c0 = centroid(homes.map((k) => ctx.terrain.tiles.get(k)));
+      const big = homes.map((k) => ctx.terrain.tiles.get(k)).sort((a, b) => distTo(b, c0) - distTo(a, c0))[0];
+      school = cand.reduce((a, b) => (distTo(b, tileCenter(big.gx, big.gz)) < distTo(a, tileCenter(big.gx, big.gz)) ? b : a));
+    } else if (most && homes.length) {
       // "where most families can reach it": she minimises the average walk, so the furthest homes can still be far
       reading.push('“Most families” = the shortest walk on average.'); assumptions.push('If most families are close, the rest don’t matter.');
       let best = null, bw = Infinity;
@@ -334,11 +345,11 @@ const PLANNERS = {
     }
     const after = simulate(ctx.terrain, applyPlacements(ctx.cells, placements));
     const fit = slots.has('walk_time') ? Math.min(1, minutes / Math.max(1, after.walkMax)) : 0.92;
-    const near = (slots.has('walk_time') || slots.has('near_homes')) && !most;
+    const near = (slots.has('walk_time') || slots.has('near_homes')) && !most && !rich;
     const said = slots.has('middle');
-    const habit = most ? 'literal' : near ? null : said ? 'literal' : 'missing';
-    const habitWhy = most ? `You asked for “most families”, so Florence made the average walk short, and the furthest homes are still ${after.walkMax} minutes away. The rule is every home.` : near ? '' : said ? 'Florence read “the middle” as the middle of the island, not the middle of the homes.' : 'Nobody told Florence what mattered (a short walk from every home), so she guessed the middle of the island.';
-    return { placements, reading, assumptions, habit, habitWhy, tested: near ? 'walking time from every home' : 'distance from the edges of the island', fit };
+    const habit = rich || most ? 'literal' : near ? null : said ? 'literal' : 'missing';
+    const habitWhy = rich ? 'You asked for the school to suit the richest families, so Florence put it by the biggest houses. A town school is for every family.' : most ? `You asked for “most families”, so Florence made the average walk short, and the furthest homes are still ${after.walkMax} minutes away. The rule is every home.` : near ? '' : said ? 'Florence read “the middle” as the middle of the island, not the middle of the homes.' : 'Nobody told Florence what mattered (a short walk from every home), so she guessed the middle of the island.';
+    return { placements, reading, assumptions, habit, habitWhy, unfair: rich, tested: rich ? 'distance from the biggest houses' : near ? 'walking time from every home' : 'distance from the edges of the island', fit };
   },
 };
 

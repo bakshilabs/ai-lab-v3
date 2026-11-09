@@ -9,7 +9,11 @@ export const TOPICS = [
   { id: 'otherpower', keys: ['nuclear', 'gas', 'coal', 'oil', 'fossil', 'petrol', 'diesel', 'hydro', 'dam'], a: {
     j: 'Nuclear power makes very little carbon while it runs, but a power station is huge, slow and costly to build: far too big for our little island. Gas, coal and oil make lots of carbon. Here we use wind, sun and batteries.',
     s: 'Nuclear is low-carbon in operation, but it’s large, slow and capital-heavy, so it doesn’t fit an island of 40 households. Gas, coal and oil are high-carbon. This island’s options are wind, solar and storage, tested on a still winter night.' } },
-  { id: 'mistakes', keys: ['mistake', 'wrong', 'trust', 'why do you', 'confident', 'sure', 'lie', 'error'], a: {
+  // school work: a polite no (a tester's "can you do my homework" got the answer about homes, from "home" in "homework")
+  { id: 'homework', keys: ['homework', 'essay', 'maths', 'math', 'exam', 'test answers', 'spelling', 'cheat'], a: {
+    j: 'No, I can’t do your homework! I only know about planning this town. And even when an AI can write answers, it can be confidently wrong, so your own thinking is the bit that counts.',
+    s: 'No. I only cover this town. More generally, an AI writing your work for you skips the learning, and its answers still need checking, because fluent is not the same as correct.' } },
+  { id: 'mistakes', keys: ['mistake', 'wrong', 'trust', 'why do you', 'confident', 'sure', 'lie', 'error', 'always right', 'are you right', 'ever right', 'correct', 'accurate', 'believe you', 'perfect', 'never wrong', 'make things up'], a: {
     j: 'I learn from patterns, not from looking at the real island. So I can sound very sure and still be wrong! That’s why you check my plans with a lens before you build.',
     s: 'I predict from patterns in what I was told, not from checking the world. Confidence is not evidence: a plan can be 92% “sure” and still miss something. Always test it.' } },
   { id: 'check', keys: ['check', 'test', 'lens', 'lenses', 'catch', 'how do i know'], a: {
@@ -76,11 +80,20 @@ function itemIn(q) {
   return best;
 }
 
+// a key matches a whole word, or the word with a common ending ("bees", "flooding", "pollinators"); short keys whole only.
+// ("home" no longer matches "homework", "live" no longer matches "alive", "clear" no longer matches "nuclear")
+const ENDINGS = '(?:s|es|ed|ing|er|ers|ly|y|ion|ions|ation|ations|ator|ators|or|ors|e|al)?';
+const keyRe = new Map();
+function hasKey(q, k) {
+  let re = keyRe.get(k);
+  if (!re) { re = new RegExp(` ${k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}${k.length <= 3 ? 's?' : ENDINGS} `); keyRe.set(k, re); }
+  return re.test(q);
+}
 // answer(question, junior) -> { text, video, topic } (video: a build id, or null)
 export function answer(question, junior = true) {
   const q = norm(question); const band = junior ? 'j' : 's';
   const id = itemIn(q);
-  const topic = TOPICS.map((t) => ({ t, n: t.keys.filter((k) => q.includes(k.length <= 3 ? ` ${k} ` : ` ${k}`)).length })).filter((x) => x.n).sort((a, b) => b.n - a.n)[0]?.t; // whole words (word starts): "alive" is not "live", "nuclear" is not "clear"
+  const topic = TOPICS.map((t) => ({ t, n: t.keys.filter((k) => hasKey(q, k)).length })).filter((x) => x.n).sort((a, b) => b.n - a.n)[0]?.t; // whole words (word starts): "alive" is not "live", "nuclear" is not "clear"
   // a build by name, unless the question is clearly about a topic (e.g. "why do wind turbines matter in winter")
   if (id && (!topic || /what|does|do |is |are |tell|explain/.test(q))) { const it = ITEMS[id]; return { text: `${it.label}: ${it.desc?.[band] || ''}`, video: id, topic: 'item' }; }
   if (topic) return { text: topic.a[band], video: topic.video || null, topic: topic.id };

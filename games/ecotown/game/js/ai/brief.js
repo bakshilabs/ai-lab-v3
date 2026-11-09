@@ -8,8 +8,14 @@ export function briefQuality(text) {
   const counts = {}; for (const w of words) counts[w] = (counts[w] || 0) + 1;
   const distinct = Object.keys(counts).length; const top = Math.max(0, ...Object.values(counts));
   const issues = [];
+  if (sillyIn(t).length) issues.push('silly');
   if (top >= 3 || (words.length >= 4 && distinct / words.length < 0.6)) issues.push('repeats');
   if (emoji >= 2 || (emoji && emoji * 2 >= words.length)) issues.push('emoji');
   if (distinct < 3) issues.push('short');
   return { ok: !issues.length, issues };
 }
+
+// Things a town can't build, and joke words: Florence says she left them out (she used to plan around them silently,
+// and "grow pizza trees everywhere lol" earned "Clear first time").
+const SILLY = /\b(lol+|lmao|lmfao|rofl|haha+|hehe+|xd|jk|yolo|bruh|pizzas?(?: trees?)?|candy(?: \w+)?|sweets|chocolate(?: \w+)?|ice ?creams?|lollipops?|cakes?|burgers?|chips trees?|doughnuts?|donuts?|cookies?|marshmallows?|unicorns?|dragons?|fair(?:y|ies)|wizards?|aliens?|dinosaurs?|magic(?:al)?(?: \w+)?|rainbows?|money trees?|lava|spaceships?|robot army|castles? made of \w+)\b/gi;
+export function sillyIn(text) { return [...new Set((String(text || '').match(SILLY) || []).map((w) => w.toLowerCase()))]; }

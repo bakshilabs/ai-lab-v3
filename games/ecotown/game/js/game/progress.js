@@ -38,7 +38,7 @@ export function townGoals(s, ctx) {
   return [
     { id: 'homes', ok: s.familiesSafe >= TARGETS.families },
     { id: 'food', ok: s.food >= s.foodNeed },
-    { id: 'nature', ok: s.petals.nature >= 1 },
+    { id: 'nature', ok: s.petals.nature >= 1 && !!s.species?.bees && !!s.species?.deer }, // the petal alone said “done” while the charter said “bees gone”
     { id: 'health', ok: s.petals.health >= 1 },
     { id: 'energy', ok: s.power.winterOK && s.homes.length > 0 },
     { id: 'community', ok: s.petals.community >= 1 },
