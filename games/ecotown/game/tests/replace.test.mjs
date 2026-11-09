@@ -43,11 +43,18 @@ test('the same thing again is no change', () => {
   assert.equal(planPlace('timber', field, cell({ mark: 'town', item: 'timber' })).same, true);
   assert.equal(planPlace('solar', field, cell({ mark: 'town', item: 'timber', mods: ['solar'] })).same, true);
 });
-test('still blocked: fixed tiles, the river, the wetland, homes off town land, add-ons without a home', () => {
+test('a home on open, unmarked land marks the tile as town land and builds in one tap', () => {
+  const r = planPlace('timber', field, cell());
+  assert.equal(r.why, undefined); assert.equal(r.marked, true);
+  assert.deepEqual({ mark: r.cell.mark, item: r.cell.item }, { mark: 'town', item: 'timber' });
+  assert.ok(planPlace('timber', wetland, cell()).why, 'never on the wetland');
+  assert.ok(planPlace('timber', river, cell()).why, 'never on the river');
+  assert.ok(planPlace('timber', field, cell({ item: 'mixed' })).why, 'a farm is not swapped for a home by one tap');
+});
+test('still blocked: fixed tiles, the river, the wetland, homes on kept-wild land, add-ons without a home', () => {
   assert.ok(planPlace('town', fixed, cell()).why);
   assert.ok(planPlace('town', river, cell()).why);
   assert.ok(planPlace('mixed', wetland, cell()).why);
-  assert.ok(planPlace('timber', field, cell()).why);
   assert.ok(planPlace('timber', field, cell({ mark: 'wild' })).why);
   assert.ok(planPlace('solar', field, cell({ mark: 'town' })).why);
 });

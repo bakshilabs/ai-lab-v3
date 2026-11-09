@@ -301,7 +301,7 @@ export function createGame(app) {
   // kerb where Remove works and gold where it's already there. Solid and at ground level, so buildings and Florence
   // stand in front; shape as well as colour (kerb vs plate vs corner blocks).
   const HL = { free: { color: '#ffffff', ring: true }, swap: { color: '#ff8a1f', ring: true, notch: true }, erase: { color: '#ff3b3b', ring: true }, no: { color: '#3b3430', ring: true, plate: true }, same: { color: '#ffd23f', ring: true }, spot: { color: '#ffd23f', ring: true, notch: true }, cursor: { color: '#1e6fff', ring: true, notch: true } };
-  function clearOverlay() { world.setOverlay(null); ui.labels.clear('spot'); }
+  function clearOverlay() { world.setOverlay(null); ui.labels.clear('spot'); document.querySelectorAll('.spotwhy').forEach((n) => n.remove()); } // the good-spot reason goes with the marks it explains
   function showAllowed(tool) {
     const spec = allowedSpec(tool);
     // Florence's good spots for this build (gold kerb with corner blocks) and a line saying why
@@ -327,7 +327,7 @@ export function createGame(app) {
   // free building: a tap may replace what's on the tile. Adds the town-land cap and the credits to planPlace.
   function tapPlan(tool, t, c, { free = false } = {}) {
     const r = planPlace(tool, t, c); if (r.why || r.same) return r;
-    if (tool === 'town' && c.mark !== 'town' && sim().townTiles >= SANDBOX_TOWN_CAP) return { why: G.S.townFull(SANDBOX_TOWN_CAP) };
+    if (((tool === 'town' && c.mark !== 'town') || r.marked) && sim().townTiles >= SANDBOX_TOWN_CAP) return { why: G.S.townFull(SANDBOX_TOWN_CAP) };
     const net = (ITEMS[tool].cost || 0) - r.removed.reduce((a, id) => a + (ITEMS[id]?.cost || 0), 0);
     if (!free && G.credits !== Infinity && net > G.credits) return { why: G.S.noCredits };
     return r;
@@ -499,6 +499,7 @@ export function createGame(app) {
   function planCells(sg) { const after = new Map([...G.cells].map(([k, c]) => [k, { ...c, mods: [...(c.mods || [])] }])); for (const p of sg.pl) { const t = terrain.tiles.get(p.k); const r = planPlace(p.item, t, after.get(p.k) || emptyCell()); if (r.cell) after.set(p.k, r.cell); } return after; }
   function offerSuggestion(sg) {
     const T2 = G.S.suggest; const text = T2[sg.id].text; const sure = 88 + Math.floor(Math.random() * 10); sb.sug = sg; sb.lastSugId = sg.id; (sb.sugSeen ||= {})[sg.id] = performance.now();
+    clearOverlay(); // her pale plan is the only thing marked on the island while she offers it (it was lost among the build kerbs)
     const after = planCells(sg); world.showGhost(sg.pl.map((p) => ({ k: p.k, item: p.item })), after, { reduce: app.reduce });
     audio.tip(); tipShown = 'sug-' + sg.id; lastTip = null;
     const el = ui.florence({ tag: T2.tag, html: `<p>${esc(text)}</p><p class="sure">${esc(T2.sure(sure))}</p><div class="tiprow"><button class="slot act go" data-sg="check"><b class="ico">${G.C.checks[sg.lens]?.icon || '🔍'}</b><span>${esc(T2.check)}</span></button><button class="slot act" data-sg="use"><b class="ico">✓</b><span>${esc(T2.use)}</span></button><button class="slot act" data-sg="no"><b class="ico">✕</b><span>${esc(T2.no)}</span></button></div>`, say: text });
@@ -506,7 +507,7 @@ export function createGame(app) {
     const at = sg.pl[0].k; florenceTo(at, 'point');
     el.querySelector('[data-sg="check"]').onclick = () => checkSuggestion(sg, after);
     el.querySelector('[data-sg="use"]').onclick = () => useSuggestion(sg, false);
-    el.querySelector('[data-sg="no"]').onclick = () => { world.clearGhost(); sb.sug = null; hideTip(); };
+    el.querySelector('[data-sg="no"]').onclick = () => { world.clearGhost(); sb.sug = null; hideTip(); if (sb.tool && isOpen(sb.cat)) showAllowed(sb.tool); };
   }
   async function checkSuggestion(sg, after) {
     const T2 = G.S.suggest; sb.lens = sg.lens; clearOverlay();
@@ -539,7 +540,7 @@ export function createGame(app) {
     world.clearGhost(); let n = 0; for (const p of sg.pl) if (placeAt(p.k, p.item, { replace: true, free: true })) n++;
     if (n) { audio.pop(0, sb.cat); changed(); }
     if (!checked) { if (sg.flawed) { G.trusted = (G.trusted || 0) + 1; setTimeout(() => { app.bot?.oops(); sayTip(G.S.suggest.oops(G.S.suggest[sg.id].why)); }, 1800); } else hideTip(); }
-    sb.sug = null; save();
+    sb.sug = null; if (sb.tool && isOpen(sb.cat)) showAllowed(sb.tool); save();
   }
   function sayTip(text, praise = false) { showTip({ id: 'sg-' + Math.random(), text, praise }); }
 
@@ -549,7 +550,7 @@ export function createGame(app) {
     const goals = townGoals(s, ctxFor(G.cells)); const done = goals.filter((g) => g.ok).length;
     const cr = G.credits !== Infinity ? ` · 💰 ${G.credits} ${esc(G.S.credits)}` : '';
     ui.setGoals(`<b class="gtitle">${esc(G.S.goalsTitle)} <em>${esc(G.S.goalsDone(done))}</em></b><ul>${goals.map((g) => { const open = isOpen(GOAL_CAT[g.id]);
-      return `<li class="${g.ok ? 'ok' : ''} ${open ? '' : 'locked'}"><i aria-hidden="true">${g.ok ? '✓' : open ? '○' : '🔒'}</i><span><b>${esc(G.S.goal[g.id](s))}</b><small>${esc(g.ok ? '' : open ? G.S.goalHow[g.id] : G.S.opensWith(G.S.cats[GOAL_CAT[g.id]]))}</small></span></li>`; }).join('')}
+      return `<li class="${g.ok ? 'ok' : ''} ${open ? '' : 'locked'}"><i aria-hidden="true">${g.ok ? '✓' : open ? '○' : '🔒'}</i><span><b>${esc(G.S.goal[g.id](s).replace(/^\p{Ll}/u, (c) => c.toUpperCase()))}</b><small>${esc(g.ok ? '' : open ? G.S.goalHow[g.id] : G.S.opensWith(G.S.cats[GOAL_CAT[g.id]]))}</small></span></li>`; }).join('')}
       <li class="${labsDone() >= 6 ? 'ok' : ''}"><i aria-hidden="true">${labsDone() >= 6 ? '✓' : '🧪'}</i><span><b>${esc(G.S.labGoal(labsDone()))}</b><small>${esc(labsDone() >= 6 ? '' : G.S.labGoalHow)}${G.catches ? ` · ${esc(G.S.suggest.catches(G.catches))}` : ''}</small></span></li></ul>
       <p class="gstats">🏘 ${s.townTiles}/${SANDBOX_TOWN_CAP} ${esc(G.S.tiles)} · 👪 ${s.familiesSafe}/${TARGETS.families} ${esc(G.S.families)}${cr}</p>`);
   }
@@ -608,7 +609,7 @@ export function createGame(app) {
       if (!tipShown && !sb.adv.pending.length && now - (sb.lastSuggest || 0) > 150000 && now - sb.adv.last > 20000 && suggestFor(s)) { sb.lastSuggest = now; sb.adv.last = now; return offerSuggestion(suggestFor(s)); }
       // nothing wrong: a next step toward the first goal not met yet (each idea at most every 3 minutes)
       if (!tipShown && !sb.adv.pending.length && now - sb.adv.last > 40000) {
-        const g = townGoals(s, ctxFor(G.cells)).find((x) => !x.ok && isOpen(GOAL_CAT[x.id]) && now - (sb.ideas[x.id] || -Infinity) > 180000);
+        const g = townGoals(s, ctxFor(G.cells)).find((x) => !x.ok && isOpen(GOAL_CAT[x.id]) && (x.id === 'homes' || s.homes.length > 0) && now - (sb.ideas[x.id] || -Infinity) > 180000); // no homes yet: no ideas about "the homes" (a tester with four tiles of land was told to run a cycle lane from them)
         if (g) { sb.ideas[g.id] = now; sb.adv.last = now; showTip({ id: 'idea-' + g.id, text: g.id === 'walk' && ctxFor(G.cells).hasSchool ? G.S.nextIdea.walk2 : G.S.nextIdea[g.id], where: ideaTool(g.id) }); /* a school already stands: say "a second school" */ }
       }
       return;
@@ -836,6 +837,7 @@ export function createGame(app) {
     else if (e.key === 'Escape') ui.closePops();
   });
   // centre the island in the free space beside (or above) the build panel
+  app.frameView = () => frameView(); // checks.js reframes before a lens (the mission dock is shorter by then)
   function frameView() {
     // the island is framed in the space the side panels leave free: the build panel while building, the
     // mission rail in the AI Lab. The camera's view offset centres it there, and the rig fits it to that area.
@@ -968,7 +970,9 @@ export function createGame(app) {
     // brief, with what this mission adds (a new lens or test). "Not now" goes straight back to building.
     const N = L.newThing; const lens = G.C.checks[N.lens]; const newLabel = N.label ? pick(N.label) : lens.label;
     facil(id, 'brief');
-    const go = await ui.modal(`<div class="ribbon">🧪 ${esc(G.S.labTitle)} · ${esc(N.test ? G.C.ui.newTest : G.C.ui.newLens)}</div><div class="big">${lens.icon}</div><h2>${esc(newLabel)}</h2><p>${esc(pick(N))}</p><div class="levelbar"><b>${G.classMode ? `${esc(G.S.mission)} ${lv.n} OF 6` : esc(G.S.missionsDone(labsDone()))}</b><span>${esc(L.title)}</span><span class="dots">${[1, 2, 3, 4, 5, 6].map((i) => `<i class="${G.labs[LEVEL_ORDER[i - 1]] || i === lv.n ? 'on' : ''}"></i>`).join('')}</span></div><p class="brief">${esc(pick(L.brief))}</p><p class="practice">${esc(pick(G.S.practice))}</p><div class="row" style="justify-content:center"><button class="btn alt" data-act="later">${esc(G.S.notNow)}</button><button class="btn go" data-act="go">${esc(G.C.ui.start)} ➜</button></div>`, { say: `${newLabel}. ${pick(N)} ${pick(L.brief)}` });
+    // the mission first (its name and the job), then the new lens it brings. (The card used to lead with "New lens unlocked"
+    // and a big "Carbon lens" heading, with the mission's name in a small bar underneath: testers read it as a prize screen.)
+    const go = await ui.modal(`<div class="ribbon">🧪 ${esc(G.S.labTitle)} · ${G.classMode ? `${esc(G.S.mission)} ${lv.n} OF 6` : esc(G.S.missionsDone(labsDone()))}</div><h2 class="mtitle">${esc(L.title)}</h2><p class="brief">${esc(pick(L.brief))}</p><div class="newtool"><b class="big" aria-hidden="true">${lens.icon}</b><span><small>${esc(N.test ? G.C.ui.newTest : G.C.ui.newLens)}</small><b>${esc(newLabel)}</b><em>${esc(pick(N))}</em></span></div><div class="levelbar"><span class="dots">${[1, 2, 3, 4, 5, 6].map((i) => `<i class="${i === lv.n ? 'now' : G.labs[LEVEL_ORDER[i - 1]] ? 'on' : ''}"></i>`).join('')}</span></div><p class="practice">${esc(pick(G.S.practice))}</p><div class="row" style="justify-content:center"><button class="btn alt" data-act="later">${esc(G.S.notNow)}</button><button class="btn go" data-act="go">${esc(G.C.ui.start)} ➜</button></div>`, { say: `${pick(L.brief)} ${newLabel}. ${pick(N)}` });
     if (go === 'later') return leaveLab(real);
     G.paths[id] = null; G.instructions[id] = []; G.mistakes = G.mistakes.filter((m) => m.level !== id); // only once the mission really starts again ("Not now" kept an empty row in the report)
     stage.setTime(12.5);
@@ -1108,7 +1112,7 @@ export function createGame(app) {
       // the plan passed on the practice island; the player's town is different. Say what still differs, with numbers.
       if (id && LEVELS[id]) { const sT = sim(); const gap = LEVELS[id].needs(sT, ctxFor(G.cells), G.j).filter((n) => !n.ok && !/^(🚶 Paths|Routes to)/.test(n.label) && !(id === 'land' && /Town land:/.test(n.label) && sT.townTiles > TARGETS.townTiles)) /* more town land than the practice target is fine in your own town (“24 of 18 tiles”) */.map((n) => n.label.replace(/^\P{L}+/u, '')); if (gap.length) sb.afterLab += ` ${G.S.townDiffers(gap.join('; '))}`; }
     } else showCells(G.cells);
-    renderCard(); await rig.overview(1.0); save();
+    renderCard(); await rig.overview(1.0, true); save();
   }
 
   // ---------------- the town heart mission's extras: the residents' summary check (sampling bias), then the charter on the player's own town
@@ -1228,7 +1232,7 @@ export function createGame(app) {
     try {
       const s = sim(); ui.only([]); ui.setTask(0, `A day in ${G.townName}`); ui.views('sky'); app.bot.show(false);
       const list = s.homes.length ? bubblesFor(s, G.cells, terrain, G.j, 'final') : []; const pois = poiList(s);
-      const lines = diaryLines('heart', s, G.j); let shown = -1; let skip = false;
+      const lines = diaryLines('day', s, G.j); let shown = -1; let skip = false;
       ui.tray(`<div class="row liverow"><span class="clock" data-clock>7:00</span><span class="diary" data-diary></span><button class="btn alt" data-skip>Skip ⏭</button></div>`, (tr) => { tr.querySelector('[data-skip]').onclick = () => (skip = true); });
       ui.caption(`A day in ${G.townName}`, 3000);
       const t0 = performance.now(); let bi = 0, pi = 0, nextB = 2, nextP = 0;
@@ -1242,7 +1246,7 @@ export function createGame(app) {
         if (el >= nextB && list.length) { const b = list[bi++ % list.length]; const who = life.residentNear(b.k); if (who) ui.labels.bubble({ at: () => who.position.clone().add(new THREE.Vector3(0, 1.9, 0)), text: b.text, bad: b.bad }); nextB = el + 3.4; }
         await sleep(50);
       }
-      ui.labels.clear('bub'); app.hour = 12.5; stage.setTime(12.5, 0); await rig.overview(1.1);
+      ui.labels.clear('bub'); app.hour = 12.5; stage.setTime(12.5, 0); await rig.overview(1.1, true);
     } finally { G.busy = false; startBuilding(); }
   }
   // the finale: all six missions done and the eight town goals met. A summary card (what you built, mistakes

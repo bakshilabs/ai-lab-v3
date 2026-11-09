@@ -8,6 +8,7 @@ import { findPath } from '../world/path.js';
 const LINK = new Set(['path', 'cycle', 'tram']);
 const DEST = { school: 'school', market: 'market', hall: 'hall' };
 const FARM = new Set(['bigfield', 'mixed', 'orchard', 'hives', 'hedge']);
+const SERVICE = new Set(['wind', 'battery', 'raingarden', 'reedbed']);
 const ROUTE = new Set(['road', 'path', 'cycle', 'tram', 'bridge', 'greenbridge']);
 const xy = (k) => k.split(',').map(Number);
 const cheb = (a, b) => { const [ax, az] = xy(a), [bx, bz] = xy(b); return Math.max(Math.abs(ax - bx), Math.abs(az - bz)); };
@@ -17,7 +18,10 @@ export function goodSpots(tool, { tiles, cells, items, ok, bridge = null, max = 
   const all = [...tiles.keys()]; const cell = (k) => cells.get(k) || {};
   const homes = all.filter((k) => items[cell(k).item]?.home);
   const town = all.filter((k) => cell(k).mark === 'town' || cell(k).item);
-  const free = all.filter((k) => ok(k));
+  let free = all.filter((k) => ok(k));
+  // homes and town buildings can now go straight onto open land (the tap marks it as town land), but a good spot is
+  // still town land the player chose, or dry ground if none is free: never the flood meadow, the wood or the beach
+  if (it.on?.includes('town')) { const marked = free.filter((k) => cell(k).mark === 'town'); const dry = free.filter((k) => ['slope', 'field'].includes(tiles.get(k)?.zone)); free = marked.length ? marked : dry.length ? dry : free; }
   const centre = (keys) => { if (!keys.length) return null; let x = 0, z = 0; for (const k of keys) { const [a, b] = xy(k); x += a; z += b; } return [x / keys.length, z / keys.length]; };
   const distTo = (c) => (k) => { const [a, b] = xy(k); return Math.hypot(a - c[0], b - c[1]); };
   const byNear = (keys, c) => [...keys].sort((a, b) => distTo(c)(a) - distTo(c)(b));
@@ -50,6 +54,9 @@ export function goodSpots(tool, { tiles, cells, items, ok, bridge = null, max = 
     const score = (k) => -anchor.filter((h) => cheb(h, k) <= 1).length + distTo(centre(anchor))(k) * 0.05;
     return { keys: [...free].sort((a, b) => score(a) - score(b)).slice(0, max), why: { type: homes.length ? 'besideHomes' : 'firstHomes' } };
   }
+  // town land: dry ground beside the town so far; keep wild: the meadow, the wood and the wetland, where the wildlife lives
+  if (tool === 'town') { const dry = free.filter((k) => ['slope', 'field'].includes(tiles.get(k)?.zone)); const c = centre(town.length ? town : all.filter((k) => tiles.get(k).fixed)) || [0, 0]; return { keys: byNear(dry.length ? dry : free, c).slice(0, max), why: { type: 'nearTown' } }; }
+  if (tool === 'wild') { const wildish = free.filter((k) => ['meadow', 'wood', 'wetland'].includes(tiles.get(k)?.zone)); if (wildish.length) return { keys: byNear(wildish, centre(wildish)).slice(0, max), why: { type: 'wild' } }; }
   if (!homes.length && !FARM.has(tool)) return { keys: byNear(free, centre(town.length ? town : all.filter((k) => tiles.get(k).fixed)) || [0, 0]).slice(0, max), why: { type: 'nearTown' } };
   // the school: in the middle of the homes, so no walk is too long
   if (tool === 'school') {
@@ -64,5 +71,6 @@ export function goodSpots(tool, { tiles, cells, items, ok, bridge = null, max = 
   // everything else people use (parks, markets, halls, allotments…): where the most homes are within a short walk
   const near = (k) => homes.filter((h) => cheb(h, k) <= 2).length;
   const keys = [...free].sort((a, b) => near(b) - near(a) || distTo(centre(homes))(a) - distTo(centre(homes))(b)).slice(0, max);
-  return { keys, why: { type: 'nearHomes', n: near(keys[0]) } };
+  // wind, batteries and drains are not places people walk to: the reason is the homes they serve
+  return { keys, why: SERVICE.has(tool) ? { type: 'service' } : { type: 'nearHomes', n: near(keys[0]) } };
 }

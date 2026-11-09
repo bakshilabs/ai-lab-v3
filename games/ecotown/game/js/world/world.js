@@ -392,7 +392,7 @@ export function createWorld(stage, terrain) {
         const L = layers.get(k); if (!L) continue;
         if (o.ring) {
           col.set(o.color);
-          for (const [geo, x, y, z] of ringBoxes(L, o.notch, o.dashed, o.plate)) { if (n >= KERB_MAX) break; const p = geo.parameters; d.position.set(x, y, z); d.scale.set(p.width, p.height, p.depth); d.updateMatrix(); kerbs.setMatrixAt(n, d.matrix); kerbs.setColorAt(n++, col); }
+          for (const [geo, x, y, z, ry = 0] of ringBoxes(L, o.notch, o.dashed, o.plate)) { if (n >= KERB_MAX) break; const p = geo.parameters; d.position.set(x, y, z); d.rotation.set(0, ry, 0); d.scale.set(p.width, p.height, p.depth); d.updateMatrix(); kerbs.setMatrixAt(n, d.matrix); kerbs.setColorAt(n++, col); }
           continue;
         }
         const m = new THREE.Mesh(OVERLAY_GEO, overlayMat(o.color, o.pattern)); m.position.set(L.ox + T / 2, L.oy + 1.14 + (o.lift || 0), L.oz + T / 2); m.rotation.x = -Math.PI / 2;
@@ -466,11 +466,13 @@ function outline(L, color) {
 // something), at ground level so anything standing on the tile hides it, never the other way round
 const KERB_H = 0.55, KERB_W = 0.55, KERB_IN = T - 0.6; // chunky, so the build highlight reads from the default camera and on phones
 const KERB_X = new THREE.BoxGeometry(KERB_IN, KERB_H, KERB_W), KERB_Z = new THREE.BoxGeometry(KERB_W, KERB_H, KERB_IN), NOTCH = new THREE.BoxGeometry(1.3, KERB_H + 0.12, 1.3);
-const PLATE = new THREE.BoxGeometry(T - 0.2, 0.18, T - 0.2);
+const CROSS = new THREE.BoxGeometry(T * 0.5, 0.3, 0.62); // one arm of the "can't build" cross
 const DASH_X = new THREE.BoxGeometry(KERB_IN / 5, KERB_H, KERB_W), DASH_Z = new THREE.BoxGeometry(KERB_W, KERB_H, KERB_IN / 5);
 function ringBoxes(L, notch = false, dashed = false, plate = false) {
   const out = []; const [cx, cz] = tileCenter(L.t.gx, L.t.gz); const y = L.oy + 1 + KERB_H / 2 - 0.02, h = KERB_IN / 2 - KERB_W / 2;
-  if (plate) return [[PLATE, cx, L.oy + 1 + 0.07, cz]]; // "can't build": the whole tile is covered by a solid dark plate
+  // "can't build": a small dark ✕ lying in the middle of the tile. (It used to be a dark plate over the whole tile; with a
+  // homes tool picked that blacked out four fifths of the island and hid the land the player was choosing between.)
+  if (plate) return [[CROSS, cx, L.oy + 1 + 0.13, cz, Math.PI / 4], [CROSS, cx, L.oy + 1 + 0.13, cz, -Math.PI / 4]];
   if (dashed) { // "can't build": a dashed kerb (a different shape as well as a different colour)
     for (const k of [-2, 0, 2]) for (const [geo, dx, dz] of [[DASH_X, k * KERB_IN / 5, -h], [DASH_X, k * KERB_IN / 5, h], [DASH_Z, -h, k * KERB_IN / 5], [DASH_Z, h, k * KERB_IN / 5]]) out.push([geo, cx + dx, y, cz + dz]);
     return out;

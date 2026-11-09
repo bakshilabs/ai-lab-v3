@@ -103,7 +103,7 @@ export function createFilm(app) {
       // the hero tile is built slowly, stage by stage, with a numbered step strip so children can follow the method
       const steps = h('<div id="filmsteps"></div>'); document.getElementById('layer').appendChild(steps); this._steps = steps;
       const onStage = (i, st, all) => {
-        steps.innerHTML = all.map((x, j) => `<span class="${j < i ? 'done' : j === i ? 'on' : ''}"><i>${j + 1}</i>${esc(band === 'junior' ? x.label.j : x.label.s)}</span>`).join('');
+        steps.innerHTML = all.map((x, j) => `<span class="${j < i ? 'done' : j === i ? 'on' : ''}"><i>${j < i ? '✓' : j + 1}</i><em>${esc(band === 'junior' ? x.label.j : x.label.s)}</em></span>`).join('');
         audio.tap(); if (band === 'junior') ui.say(all[i].label.j);
         if (st.ribbon) { const rb = ribbon(heroP.clone().add(new THREE.Vector3(0, 0, -4.2))); ui.say(band === 'junior' ? 'Ribbon-cutting time!' : 'Opening ceremony.'); setTimeout(() => { rb.r.visible = false; world.confetti(heroP.clone().add(new THREE.Vector3(0, 4, -4)), 60); audio.good(); }, 900); }
       };

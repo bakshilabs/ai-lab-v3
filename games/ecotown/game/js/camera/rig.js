@@ -16,10 +16,11 @@ const SKY_FOV = 22;                 // the diorama lens (frameDist always uses t
 const PAN = { x: [-45, 45], z: [-36, 32] };
 // portrait (phone) overview: seen from the south-west at a steeper yaw, the tile area (84 × 66) is ~68 wide
 // and ~80 deep on screen, matching an upright phone's free area; span/depth are the world units to fit
+const HOME_YAW = -40 * DEG;        // the island's starting direction (landscape screens)
 const PORTRAIT = { yaw: -88 * DEG, pitch: 52 * DEG, span: 64, depth: 78, target: [12, 1, 1] };
 export function createRig(stage, canvas, fadeEl) {
   const cam = stage.camera;
-  const sky = { target: new THREE.Vector3(0, 1, -2), yaw: -40 * DEG, pitch: 34 * DEG, dist: 220, vy: 0, vp: 0, autoPitch: true };
+  const sky = { target: new THREE.Vector3(0, 1, -2), yaw: HOME_YAW, pitch: 34 * DEG, dist: 220, vy: 0, vp: 0, autoPitch: true };
   const rig = {
     // building: while a build tool is selected, taps must place tiles, not move the camera
     mode: 'sky', reduce: false, locked: false, building: false, sky, onTap: null, onDoubleTap: null, onHover: null,
@@ -31,7 +32,7 @@ export function createRig(stage, canvas, fadeEl) {
     // tall, narrow free areas (phones held upright): the island is width-limited, so the frame trims the margin
     // (and the floating rocks) and looks down a little more steeply, letting the island fill more of the screen
     portrait() { return this.freeAspect().aspect < 0.85; },
-    frameDist(span = this.portrait() ? 90 : 112, fill = 0.92) {
+    frameDist(span = this.portrait() ? 90 : 102, fill = 0.92) { // 102: the buildable land fills the free area; the rim's far rocks and the cliff's roots may run off it (112 left tiles 22 px wide on a laptop)
       const { aspect, fw, fh } = this.freeAspect();
       if (this.portrait()) {
         // phones held upright: fit the buildable tiles (not the wild rim) across the width, seen from the
@@ -78,10 +79,12 @@ export function createRig(stage, canvas, fadeEl) {
       await this.fly(this.skyPose(), dur + (before ? Math.abs(sky.yaw - before.yaw) / (Math.PI / 2) * 0.3 : 0), { orbit: before ? { a: before, b: { ...sky, target: sky.target.clone() } } : null });
       if (gen === this._modeGen) this.mode = 'sky'; // unless something else (the classroom, a house) took the camera meanwhile
     },
-    overview(dur = 1.4) {
+    // home: also turn back to the starting direction (after a mission's turntable, or the ⌂ button: a lost player wants
+    // the view they know; it used to keep whatever way the island had turned)
+    overview(dur = 1.4, home = false) {
       sky.autoPitch = true;
       if (this.portrait()) return this.toSky({ target: new THREE.Vector3(...PORTRAIT.target), dist: this.frameDist(), pitch: PORTRAIT.pitch, yaw: PORTRAIT.yaw }, dur);
-      return this.toSky({ target: new THREE.Vector3(0, 1, -2), dist: this.frameDist(), pitch: 34 * DEG }, dur);
+      return this.toSky({ target: new THREE.Vector3(0, 1, -2), dist: this.frameDist(), pitch: 34 * DEG, ...(home ? { yaw: HOME_YAW } : {}) }, dur);
     },
     focus(point, { dist = 70, pitch = 42 * DEG, yaw = sky.yaw } = {}, dur = 1.2) { return this.toSky({ target: point.clone(), dist: this.fit(dist), pitch, yaw }, dur); },
     // frame a set of world points (a plan, the tiles a check found): fits their bounding sphere in the free area
@@ -252,7 +255,7 @@ export function createRig(stage, canvas, fadeEl) {
     if (k === 'arrowup') { sky.vp = -0.02; sky.autoPitch = false; } if (k === 'arrowdown') { sky.vp = 0.02; sky.autoPitch = false; }
     if (k === 'w') rig.panBy(0, step); if (k === 's') rig.panBy(0, -step); if (k === 'a') rig.panBy(-step, 0); if (k === 'd') rig.panBy(step, 0);
     if (k === '+' || k === '=') zoomTo(sky.dist * 0.85); if (k === '-') zoomTo(sky.dist * 1.15);
-    if (k === 'home') rig.overview(1.2);
+    if (k === 'home') rig.overview(1.2, true);
   });
   sky.dist = rig.frameDist(); rig.apply(rig.skyPose());
   return rig;

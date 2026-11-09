@@ -39,5 +39,12 @@ export function planPlace(tool, t, c0) {
       return { cell: { ...bare, item: tool, mods: [] }, removed: [c.item, ...c.mods].filter(Boolean), replaced: c.item ? ITEMS[c.item].label : ITEMS[c.mark].label };
     }
   }
+  // a home or town building on open, unmarked land: one tap marks the tile as town land and builds on it. (It used to
+  // answer "Build this on town land", so the first thing most new players did with Homes was a dead tap, followed by
+  // two trips to the Land tab.)
+  if (!c.mark && !c.item && it.on.includes('town') && !placeReason('town', t, c)) {
+    const town = { ...c, mark: 'town' };
+    if (!placeReason(tool, t, town)) return { cell: { ...town, item: tool, mods: [] }, removed: [], replaced: null, marked: true };
+  }
   return { why: direct };
 }

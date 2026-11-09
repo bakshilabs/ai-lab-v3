@@ -205,6 +205,22 @@ A no-context subagent played four sessions (laptop 8–12, phone 13–17 through
   - Small fixes: confidence bar pinned on phones; card headings clear the 🔊; A/B/C letters a fixed width; the goals button has a 🌼 badge; used word tiles are solid grey (no opacity).
   - Still open: on phones the reward card is taller than the screen (it scrolls) and the island strip above it is small.
 
+## Fifth playtest: designer play-through (Nov 2026)
+The user asked for a full no-context play-through by an educational game designer, with every improvement made directly. The lead session played Ages 8–12 on a laptop; two no-context subagents played Ages 13–17 on a laptop and Ages 8–12 on a phone and tablet. Changes:
+- **Building:**
+  - "Can't build" is a small dark ✕ on the tile (`CROSS` in `world.js` `ringBoxes`; key swatch `.hk.no`). The dark plate over the whole tile blacked out four fifths of the island whenever a homes tool was picked.
+  - A home or town building tapped on open, unmarked land marks the tile as town land and builds in one tap (`replace.js` `planPlace` returns `marked`; `tapPlan` applies the town-land cap). "Build this on town land" used to be most players' first dead tap. Missions and plan adoption keep the strict rule.
+  - Good spots (`spots.js`): builds that need town land prefer the player's marked land, then dry ground (never the flood meadow); Town land, Keep wild and wind/battery/rain garden/reed bed have their own reasons (`spotWhy.nearTown`, `wild`, `service`).
+  - No next-step idea mentions "the homes" before any exist (`advise`).
+  - While Florence offers a plan for the town, the build kerbs and the good-spot line are hidden, so her pale plan is the only mark (`offerSuggestion`, `clearOverlay`).
+- **Camera:** `rig.overview(dur, home)`: `home = true` also turns the island back to its starting direction (`HOME_YAW`). Used after a mission, after "Watch a whole day" and by ⌂ / Home (the reward card's turntable used to leave the island turned away). The default frame is a little closer (`frameDist` span 102, was 112). Lenses reframe for the current panels first (`app.frameView` from `checks.js`): the island stayed a third of the screen after the tall instruction tray.
+- **Start screen:** with a saved town the first screen has "▶ Carry on building <town>" (`[data-carry]` in `main.js`), which skips the age, the name and the old "Welcome back" card. Picking an age still starts the normal flow.
+- **Missions:** the start card leads with the mission's name and job, then a "New lens in this mission" box (`.mtitle`, `.newtool`; it used to lead with "New lens unlocked" and the lens name). The current mission's dot is gold. Mission 6 is titled "A school for everyone" ("Complete the town" read as the end of the game). Build films show one row of step dots with only the current step named (`#filmsteps em`).
+- **Classroom** (`qa.js`): new topics `bias`, `stars`, `next`, `where`; "where should…" no longer means flooding; a build named in a "how many / how much" question gets its own answer.
+- **Whole day:** `diaryLines('day', …)` describes the player's real town (no market day without a market).
+- **Small things:** the count on the next-step bar reads on both the fill and the track; goal lines start with a capital; the inside view uses the home's real winter temperature, shows a caption and closes with Esc/Home; street view hides the build bar; the intro's highlights are cleared when its fourth beat ends (the call sat inside a comment); plainer wording for the adopted-plan note and the Menu's privacy line.
+- Tests: `tests/replace.test.mjs` (one-tap homes), `tests/playwright/a11y.mjs` (Carry on button).
+
 ## Beta revision (Nov 2026)
 All 49 notes in the beta tester's file were addressed; see README "How the game plays" and the commit history. Key decisions the user made:
 - **Helper name:** **Florence** (she). Code file names stay `plotter.*`.

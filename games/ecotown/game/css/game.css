@@ -1331,3 +1331,35 @@ html[data-text="large"] #build .slottip { font-size: 16px; }
 /* "More ▾": the dock's buttons go on below (phones, Large text); solid, no fade */
 #dock .actions > .morecue { position: sticky; bottom: 0; align-self: center; flex: none; margin: 4px auto 0; min-height: 44px; padding: 0 22px; border: 0; border-radius: 999px; background: var(--gold); color: #2a1a0e; font: 900 15px 'Inter', system-ui, sans-serif; box-shadow: 0 3px 0 var(--wd), 0 0 0 3px var(--wd); cursor: pointer; z-index: 2; }
 #dock .actions > .morecue[hidden] { display: none; }
+
+/* ---------- playtest 5 (designer play-through) ---------- */
+/* the "can't build" mark is a small dark cross on the tile (it was a dark plate over the whole tile); the key matches */
+#build .hk.no { border: 0; box-shadow: none; background: linear-gradient(45deg, transparent 40%, #3b3430 40% 60%, transparent 60%), linear-gradient(-45deg, transparent 40%, #3b3430 40% 60%, transparent 60%), #9bbf5c; }
+/* a saved town: carry on from the first screen */
+#start .resume { display: grid; justify-items: center; gap: 8px; margin: 14px 0 -6px; }
+#start .resume .btn { font-size: 1.1em; padding: 12px 22px; }
+#start .resume span { font-weight: 700; color: var(--ink2); font-size: .9em; }
+/* the count on the next-step bar reads on the gold fill and on the dark track ("37/40" lost its "40" past the fill) */
+#card .goal .gbar b { color: #fffaf0; font-size: 10px; text-shadow: -1px 0 0 #3a2716, 1px 0 0 #3a2716, 0 -1px 0 #3a2716, 0 1px 0 #3a2716, 0 0 3px #3a2716; }
+/* build film: one row of step dots, with only the step being built spelled out (nine named chips wrapped into
+   three rows across the top and covered the house going up) */
+#filmsteps { flex-wrap: nowrap; align-items: center; gap: 5px; }
+#filmsteps span em { font-style: normal; white-space: nowrap; }
+#filmsteps span:not(.on) { padding: 3px; }
+#filmsteps span:not(.on) em { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+#filmsteps span.on { transform: none; padding: 4px 14px 4px 4px; font-size: .95em; }
+@media (max-width: 520px) { #filmsteps span:not(.on) i { width: 1.25em; height: 1.25em; font-size: .8em; } #filmsteps span.on em { white-space: normal; } }
+/* mission start card: the mission and its job first, then the lens it brings */
+#modal .mtitle { font-size: 2em; margin: 6px 0 2px; }
+#modal .mtitle + .brief { font-size: 1.12em; font-weight: 700; margin: 0 0 12px; }
+#modal .newtool { display: flex; align-items: center; gap: 12px; text-align: left; margin: 0 auto 10px; padding: 10px 14px; max-width: 460px; border-radius: 10px; background: #fff7df; border: 2px solid #e2c98f; }
+#modal .newtool .big { font-size: 2.2em; line-height: 1; margin: 0; flex: none; }
+#modal .newtool span { display: grid; gap: 1px; min-width: 0; }
+#modal .newtool small { font-weight: 800; letter-spacing: .06em; text-transform: uppercase; font-size: .7em; color: var(--ink2); }
+#modal .newtool span b { font: 800 1.15em 'Bricolage', 'Inter'; }
+#modal .newtool em { font-style: normal; font-size: .92em; color: var(--ink2); }
+#modal .newtool ~ .levelbar { padding: 6px 12px; background: none !important; }
+.levelbar .dots i.now { background: var(--yellow); outline: 2px solid var(--ink); outline-offset: 1px; }
+/* street view is for looking: the build bar and its good-spot line step aside (nothing can be built from the street,
+   and the pill sat under the walking hint) */
+html[data-street="on"] #build, html[data-street="on"] .spotwhy { visibility: hidden; }

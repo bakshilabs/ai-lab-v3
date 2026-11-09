@@ -22,7 +22,7 @@ export const TOPICS = [
   { id: 'instructions', keys: ['instruction', 'tell you', 'say', 'words', 'prompt', 'clear', 'better'], a: {
     j: 'Tell me exactly what matters. “Best land” could mean flat, dry or sunny. Say “dry land that never floods”, and I’ll know what you mean.',
     s: 'Vague words like “best” or “big” leave me guessing. Name the constraint you care about and any numbers: “dry land, out of the floodplain, 18 tiles”.' } },
-  { id: 'flood', keys: ['flood', 'river', 'water', 'rain', 'meadow', 'safe to build', 'where should', 'where can', 'dry'], video: 'raingarden', a: {
+  { id: 'flood', keys: ['flood', 'river', 'water', 'rain', 'meadow', 'safe to build', 'dry'], video: 'raingarden', a: {
     j: 'The meadow by the river floods every winter. Build your town up on the dry slope, and add rain gardens so rainwater soaks away.',
     s: 'The river meadow is floodplain: homes there flood in winter. Build on higher ground and add drainage like rain gardens or reed beds.' } },
   { id: 'carbon', keys: ['carbon', 'co2', 'pollution', 'climate', 'emission'], video: 'timber', a: {
@@ -49,6 +49,16 @@ export const TOPICS = [
   { id: 'community', keys: ['community', 'meet', 'friends', 'market', 'hall', 'fun', 'play', 'park'], video: 'market', a: {
     j: 'People need places to meet: a market, a hall, allotments and a park. Happy neighbours make a happy town!',
     s: 'Shared spaces raise community: market square, hall, allotments, parks and festivals.' } },
+  // fairness and bias: the last mission's idea (a tester asked "what is bias?" and was told Florence only knows about the town)
+  { id: 'bias', keys: ['bias', 'biased', 'fair', 'unfair', 'fairness', 'left out', 'everyone', 'who did you ask', 'only asked'], a: {
+    j: 'Bias means leaning one way without noticing. If I only ask the people who live near the school, I will think everyone is happy, and forget the families who live far away. So always ask: who did the AI learn from, and who is missing?',
+    s: 'Bias is a systematic lean in what a model learned. If my examples come mostly from households near the school, my summary speaks for them and misses the rest. Ask who is in the data, who is missing, and test the plan for the people it leaves out.' } },
+  { id: 'stars', keys: ['star', 'stars', 'shop', 'hat', 'crown', 'points', 'score', 'prize', 'reward'], a: {
+    j: 'You earn stars in my AI Lab missions: one for finding the problem with your first check, one for naming my mistake, and one for a plan that passes. Catching a wrong idea of mine in your town earns a star too. Spend them in the Star shop: tap the ★ at the top.',
+    s: 'Stars come from AI Lab missions (a first check that finds the flaw, naming the failure pattern, a plan that passes) and from catching a flawed suggestion in your town. They buy cosmetics in the Star shop (★ in the top bar) and never change the town’s score.' } },
+  { id: 'next', keys: ['next', 'stuck', 'what should i do', 'what do i do', 'what now', 'how do i play', 'how to play', 'goal', 'goals', 'win', 'finish', 'mission', 'missions'], a: {
+    j: 'The line at the top of the screen always says your next step, and the 🌼 shows all your town’s goals. Grow the town, then come back here and try a mission: each one gives you a new lens for catching my mistakes.',
+    s: 'The top bar shows your next step and 🌼 lists every town target. Build toward them, and run the AI Lab missions: each adds a lens for testing my plans. The town is complete when all targets are met and all six missions are done.' } },
   { id: 'ai', keys: ['what are you', 'who are you', 'robot', 'ai', 'computer', 'think'], a: {
     j: 'I’m Florence, an AI planning helper. I read your instructions and make a plan, very fast. But I don’t see the island like you do, so you’re the checker!',
     s: 'I’m an AI planner: I turn your instruction into a plan by matching patterns. I don’t observe the world, so human checking is part of the job.' } },
@@ -56,6 +66,9 @@ export const TOPICS = [
   { id: 'feelings', keys: ['alive', 'feelings', 'do you feel', 'emotion', 'conscious', 'real person', 'are you human', 'brain', 'sentient', 'are you real'], a: {
     j: 'No, I’m not alive, and I don’t have feelings. I’m a computer program that spots patterns in words. I can sound friendly and sure of myself, but I don’t feel anything, and I don’t see the island. That’s why you check my plans!',
     s: 'No. I’m a program that predicts from patterns in text; I have no feelings or experiences, even when I sound warm or certain. Fluent, confident language is not understanding, which is exactly why my plans need testing.' } },
+  { id: 'where', keys: ['where should', 'where can', 'where do', 'where to', 'best place', 'good spot', 'good spots'], a: {
+    j: 'It depends what you are building! Homes: dry land up on the slope, never the flood meadow. A school: in the middle of the homes. Farms: near the homes, but not on town land. Pick a build and look for the ★ good spots I mark.',
+    s: 'It depends on the build. Housing: dry slope, out of the floodplain. A school: where the longest walk is shortest. Farms: near homes, off town land. Select a build to see the ★ suggested tiles and the reason.' } },
   // small talk: a short, warm answer in character, then back to the town (a reviewer's "fav colour?" got a flat deflection)
   { id: 'chat', keys: ['favourite', 'favorite', 'colour', 'color', 'hello', 'hi', 'how are you', 'your name', 'how old', 'joke', 'pet', 'hobby'], a: {
     j: 'Ooh, fun question! My favourite colour is leaf green, like a healthy hedge, and my favourite sound is bees buzzing. I’m a robot, so I never get tired! Now ask me about your town: floods, bees, or any build.',
@@ -95,7 +108,7 @@ export function answer(question, junior = true) {
   const id = itemIn(q);
   const topic = TOPICS.map((t) => ({ t, n: t.keys.filter((k) => hasKey(q, k)).length })).filter((x) => x.n).sort((a, b) => b.n - a.n)[0]?.t; // whole words (word starts): "alive" is not "live", "nuclear" is not "clear"
   // a build by name, unless the question is clearly about a topic (e.g. "why do wind turbines matter in winter")
-  if (id && (!topic || /what|does|do |is |are |tell|explain/.test(q))) { const it = ITEMS[id]; return { text: `${it.label}: ${it.desc?.[band] || ''}`, video: id, topic: 'item' }; }
+  if (id && (!topic || /what|does|do |is |are |tell|explain|how many|how much/.test(q))) { const it = ITEMS[id]; return { text: `${it.label}: ${it.desc?.[band] || ''}`, video: id, topic: 'item' }; }
   if (topic) return { text: topic.a[band], video: topic.video || null, topic: topic.id };
   return { text: FALLBACK[band], video: null, topic: null };
 }

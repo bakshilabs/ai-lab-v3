@@ -76,7 +76,8 @@ export async function runIntro(api) {
     bot.cheer();
     // 4. what to do next and the town's goals: the next-step line, the 🌼 goals and the build info
     const marks = ['#card .goal', '#card [data-flower]', '#build .cats'];
-    for (const s2 of marks) api.highlight(s2, true); const left = 6 - api.townTiles(); await step(say(`${left === 3 ? T.wellDone : left <= 0 ? T.wellDoneOpen : left === 1 ? T.wellDone1 : T.wellDone2} ${T.goals || T.unlocks}`)); // the number matches the top line for (const s2 of marks) api.highlight(s2, false);
+    for (const s2 of marks) api.highlight(s2, true); const left = 6 - api.townTiles(); await step(say(`${left === 3 ? T.wellDone : left <= 0 ? T.wellDoneOpen : left === 1 ? T.wellDone1 : T.wellDone2} ${T.goals || T.unlocks}`)); // the number matches the top line
+    for (const s2 of marks) api.highlight(s2, false);
     // 5. the AI Lab: test her plans. Then over to you.
     go(labP, 100); await step(bot.walkTo(labP.clone().add(new THREE.Vector3(0, 0, 6)), { maxDur: 3.5 }));
     bot.point(labP.clone().add(new THREE.Vector3(0, 3, 0)), 2.6); api.highlight('#strip [data-lab]', true);

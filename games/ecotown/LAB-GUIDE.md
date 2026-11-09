@@ -43,7 +43,7 @@ Children name their town, start with a small floating island (an old school, a d
 | 3. Homes | "Build strong homes" → concrete and steel (85%) | Carbon lens; inside view | "Warm, low-carbon homes from local timber and straw." |
 | 4. Food | "Grow as much food as possible" → plough every field and hedge (79%) | Nature lens: bees and deer leave | "Enough food, and keep the hedges for the bees." |
 | 5. Water, power, waste | "Make enough clean power" → solar roofs only, for an average day (90%) | Winter test: blackout | "Enough power for a still winter night. Store the sunshine." |
-| 6. Complete the town | "Put the school in the middle" → the middle of the island, far from the homes | Walking-time lens: over 15 min | "School within a 15-minute walk of every home." |
+| 6. A school for everyone | "Put the school in the middle" → the middle of the island, far from the homes | Walking-time lens: over 15 min | "School within a 15-minute walk of every home." |
 
 **"Unsure but right" moment (added):** in Level 5, after the clearer card, the helper says "Wind, battery and rain gardens. I haven't planned for winter before: 74% sure the lights stay on." The winter test passes. (The trailer shows 87% for this line; use the lower figure in the lab so the moment reads clearly.) DESIGN.md's rule that the AI is sometimes less sure after a clearer card is the basis.
 
@@ -158,7 +158,7 @@ Run each one with the lens or view still on screen. Ask the first question every
 - Unsure but right: "The new plan was only 74% sure. Was that worse?" Strong: "No: it was honest about something it hadn't done before, and the test passed."
 - Real place: BedZED found bins far from homes were used less ([Passive House Plus](https://passivehouseplus.co.uk/blogs/bedding-sustainability-into-british-buildings-bioregional-s-bedzed)). "Where would you put the bins?"
 
-**Level 6: Complete the town**
+**Level 6: A school for everyone**
 - "'The middle' of what?" Strong: "The AI used the middle of the island, but the homes aren't in the middle; the wetland is." Probe: "What should 'middle' mean for a school?"
 - Optional: "The AI said residents want more car parks. Who did it count?" Strong: "Only drivers. We tallied the school gate and most walked."
 
