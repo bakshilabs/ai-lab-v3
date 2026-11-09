@@ -19,7 +19,7 @@ export const inBridgeCut = (x, z) => x >= X_START - 1 && Math.abs(z + 0.5 - BRID
 // no tall rim trees beside the approach or in front of it (towards the default camera, south-west), so it reads
 export const bridgeKeepClear = (x, z) => x >= X_START - 8 && z >= BRIDGE_Z - 5 && z <= BRIDGE_Z + 18;
 
-const GAP = 15, IRX = 12, IRZ = 10;               // the gap and the village island's radii (world units)
+const GAP = 11, IRX = 12, IRZ = 10;               // the gap and the village island's radii (world units)
 const DECK_W = 2;                                 // half-width of the deck in fine voxels ×2 → 2.5 units wide
 
 export function createBridge(stage, root, { tileTopY }) {

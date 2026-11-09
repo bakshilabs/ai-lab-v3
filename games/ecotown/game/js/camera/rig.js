@@ -1,5 +1,8 @@
 // Camera rig: sky orbit with pan, zoom-to-cursor, tilt that follows zoom (25–60°), directed flights between
-// poses, street view on rails with limited look-around, turntable and follow shots. No shake, capped turn speed.
+// poses, a walkable street view, turntable and follow shots. No shake, capped turn speed.
+// Street view (redesign, Nov 2026: "you are too low, and it is hard to walk around"): eye at child-on-a-bike
+// height, WASD/arrows walk and turn, drag looks, a tap on the ground walks there along open tiles (rig.streetNav,
+// set by streetpad.js, keeps you off buildings, the river and the rim), Home or Escape goes back up.
 // With reduce-motion every flight becomes a quick fade.
 // Input (camera review, Nov 2026): drag pans (mouse and one finger), right-drag / two-finger twist rotates,
 // two-finger drag up/down tilts, wheel / pinch zoom towards the cursor or pinch point, double-tap flies in.
@@ -8,11 +11,12 @@ import * as THREE from 'three';
 import { clamp, lerp, ease } from '../engine/stage.js';
 
 const DEG = Math.PI / 180;
+const STREET = { eye: 3.4, fov: 55, speed: 7, turn: 1.9, pitch: [-0.55, 0.35], r: 0.7 }; // eye ≈ over hedges and parked cars
 const SKY_FOV = 22;                 // the diorama lens (frameDist always uses this, whatever the current view)
 const PAN = { x: [-45, 45], z: [-36, 32] };
 // portrait (phone) overview: seen from the south-west at a steeper yaw, the tile area (84 × 66) is ~68 wide
 // and ~80 deep on screen, matching an upright phone's free area; span/depth are the world units to fit
-const PORTRAIT = { yaw: -72 * DEG, pitch: 52 * DEG, span: 64, depth: 78, target: [0, 1, 1] };
+const PORTRAIT = { yaw: -88 * DEG, pitch: 52 * DEG, span: 64, depth: 78, target: [12, 1, 1] };
 export function createRig(stage, canvas, fadeEl) {
   const cam = stage.camera;
   const sky = { target: new THREE.Vector3(0, 1, -2), yaw: -40 * DEG, pitch: 34 * DEG, dist: 220, vy: 0, vp: 0, autoPitch: true };
@@ -85,13 +89,26 @@ export function createRig(stage, canvas, fadeEl) {
       const d = clamp(Math.max(16, sph.radius) / Math.tan(f / 2) * pad, this.minDist() * 1.5, this.maxDist()); // small plans keep their surroundings in view
       return this.toSky({ target: sph.center, dist: d, pitch, yaw }, dur);
     },
-    // Street view: eye height ~1.2 m for a child (2 world units), looking at `look`.
+    // Street view: stand at `pos` (raised to eye height over the ground there), facing `look`
     async toStreet(pos, look, dur = 1.6) {
       this.mode = 'flying'; this.turntable = 0; this.follow = null;
-      const to = { pos: pos.clone(), look: look.clone(), fov: 50 };
+      const nav = this.streetNav; const eye = pos.clone();
+      if (nav) {
+        // never start inside a building: step towards what we look at until the ground is open
+        const d = look.clone().sub(eye).setY(0); const n = Math.ceil(d.length());
+        for (let i = 0; i <= n && !nav.ok(eye.x, eye.z); i++) eye.addScaledVector(d, 1 / Math.max(1, n));
+        const g = nav.ground(eye.x, eye.z); if (g != null) eye.y = g + STREET.eye;
+      }
+      const dir = look.clone().sub(eye); const yaw = Math.atan2(-dir.x, -dir.z); const pitch = clamp(Math.atan2(dir.y, Math.hypot(dir.x, dir.z)), STREET.pitch[0], STREET.pitch[1]);
+      const to = this.streetPose({ pos: eye, yaw, pitch });
       await this.fly(to, dur, { arc: 0.45 });
-      this.street = { base: to, yaw: 0, pitch: 0 }; this.mode = 'street';
+      this.street = { pos: eye, yaw, pitch, path: null, move: { f: 0, s: 0, turn: 0 } }; this.mode = 'street';
     },
+    streetPose(st) { const c = Math.cos(st.pitch); return { pos: st.pos.clone(), look: st.pos.clone().add(new THREE.Vector3(-Math.sin(st.yaw) * c, Math.sin(st.pitch), -Math.cos(st.yaw) * c).multiplyScalar(10)), fov: STREET.fov }; },
+    // walk in street view: to a world point along open tiles (a tap on the ground)
+    walkTo(p) { const st = this.street, nav = this.streetNav; if (this.mode !== 'street' || !st || !nav) return false; const r = nav.route(st.pos, p); if (!r || !r.length) return false; st.path = r; return true; },
+    // the point on the ground under a screen position in street view
+    streetGround(n) { if (!this.street) return null; ray.setFromCamera(n, cam); const y = (this.streetNav?.ground(this.street.pos.x, this.street.pos.z) ?? this.street.pos.y - STREET.eye); const p = new THREE.Vector3(); return ray.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 1, 0), -y), p) ? p : null; },
     startTurntable(speed = 0.12) { this.turntable = this.reduce ? 0 : speed; },
     followTarget(fn) { this.follow = fn; this.mode = 'follow'; },
     // on-screen and keyboard helpers
@@ -131,10 +148,27 @@ export function createRig(stage, canvas, fadeEl) {
         if (Math.abs(sky.vp) < 1e-5) sky.vp = 0;
         this.apply(this.skyPose());
       } else if (this.mode === 'street' && this.street) {
-        const s = this.street; const b = s.base;
-        const dir = b.look.clone().sub(b.pos); const len = dir.length();
-        dir.applyAxisAngle(new THREE.Vector3(0, 1, 0), s.yaw); dir.y += Math.tan(s.pitch) * len;
-        this.apply({ pos: b.pos, look: b.pos.clone().add(dir), fov: 50 });
+        const st = this.street; const nav = this.streetNav; const k = keys; const m = st.move;
+        if (st.base && !st.pos) { const d = st.base.look.clone().sub(st.base.pos); Object.assign(st, { pos: st.base.pos.clone(), yaw: Math.atan2(-d.x, -d.z) + (st.yaw || 0), pitch: st.pitch || 0, move: { f: 0, s: 0, turn: 0 } }); } // (old callers set a base pose)
+        const f = (k.has('w') || k.has('arrowup') ? 1 : 0) - (k.has('s') || k.has('arrowdown') ? 1 : 0) + (m?.f || 0);
+        const sd = (k.has('d') ? 1 : 0) - (k.has('a') ? 1 : 0) + (m?.s || 0);
+        const tn = (k.has('arrowleft') || k.has('q') ? 1 : 0) - (k.has('arrowright') || k.has('e') ? 1 : 0) + (m?.turn || 0);
+        if (tn) st.yaw += clamp(tn, -1, 1) * STREET.turn * dt;
+        let dx = 0, dz = 0; const fw = new THREE.Vector2(-Math.sin(st.yaw), -Math.cos(st.yaw)), rt = new THREE.Vector2(Math.cos(st.yaw), -Math.sin(st.yaw));
+        if (f || sd) { st.path = null; dx = fw.x * f + rt.x * sd; dz = fw.y * f + rt.y * sd; const l = Math.hypot(dx, dz); dx *= STREET.speed * dt / l; dz *= STREET.speed * dt / l; }
+        else if (st.path?.length) {
+          // follow a tapped route; turn smoothly to face the way we walk
+          const w = st.path[0]; const ex = w.x - st.pos.x, ez = w.z - st.pos.z; const d = Math.hypot(ex, ez);
+          if (d < 0.4) st.path.shift(); else { const sp = Math.min(d, STREET.speed * dt); dx = ex / d * sp; dz = ez / d * sp; let dy = Math.atan2(-ex, -ez) - st.yaw; dy = Math.atan2(Math.sin(dy), Math.cos(dy)); st.yaw += dy * Math.min(1, dt * 4); }
+        }
+        if (dx || dz) {
+          // slide along walls: try each axis on its own, checking a little ahead (a body radius)
+          const ok = (x, z) => !nav || nav.ok(x, z) || !nav.ok(st.pos.x, st.pos.z); const r = STREET.r;
+          if (ok(st.pos.x + dx + Math.sign(dx) * r, st.pos.z)) st.pos.x += dx; else if (st.path) st.path = null;
+          if (ok(st.pos.x, st.pos.z + dz + Math.sign(dz) * r)) st.pos.z += dz; else if (st.path) st.path = null;
+        }
+        const g = nav?.ground(st.pos.x, st.pos.z); if (g != null) st.pos.y += (g + STREET.eye - st.pos.y) * Math.min(1, dt * 6);
+        this.apply(this.streetPose(st));
       } else if (this.mode === 'follow' && this.follow) {
         const { pos, look } = this.follow(dt); const cur = this.current();
         this.apply({ pos: cur.pos.lerp(pos, Math.min(1, dt * 2.5)), look: cur.look.lerp(look, Math.min(1, dt * 3)), fov: 36 });
@@ -165,7 +199,7 @@ export function createRig(stage, canvas, fadeEl) {
   });
   canvas.addEventListener('pointermove', (e) => {
     const p = pts.get(e.pointerId);
-    if (!p) { rig.onHover?.(ndc(e), e); return; }
+    if (!p) { if (rig.mode !== 'street') rig.onHover?.(ndc(e), e); return; }
     const dx = e.clientX - p.x, dy = e.clientY - p.y; p.x = e.clientX; p.y = e.clientY; moved += Math.abs(dx) + Math.abs(dy);
     if (rig.locked) return;
     if (pts.size === 2 && rig.mode === 'sky') {
@@ -180,28 +214,29 @@ export function createRig(stage, canvas, fadeEl) {
       if (button === 2 || e.shiftKey) { const cap = 0.06; sky.vy = clamp(-dx * 0.0045, -cap, cap); sky.vp = clamp(dy * 0.0035, -cap, cap); if (Math.abs(dy) > 1) sky.autoPitch = false; }
       else rig.panScreen(dx, dy);
     }
-    if (rig.mode === 'street' && rig.street && moved > 6) { rig.street.yaw = clamp(rig.street.yaw - dx * 0.004, -0.7, 0.7); rig.street.pitch = clamp(rig.street.pitch + dy * 0.003, -0.25, 0.3); }
+    if (rig.mode === 'street' && rig.street && moved > 6) { rig.street.yaw += dx * 0.005; rig.street.pitch = clamp(rig.street.pitch + dy * 0.004, STREET.pitch[0], STREET.pitch[1]); } // drag to look (the view follows the finger)
   });
   const up = (e) => {
     const was = pts.has(e.pointerId); pts.delete(e.pointerId); if (pts.size < 2) { pinch0 = 0; mid0 = null; }
     if (button === 2) { if (was && moved <= 4 && performance.now() - downAt < 700) rig.onAltTap?.(ndc(e), e); return; } // a right-click (not a right-drag): erase while building
     if (!was || moved > (rig.building ? 14 : 8) || performance.now() - downAt > 700) return;
     const now = performance.now();
+    if (rig.mode === 'street') { const g = rig.streetGround(ndc(e)); if (g && !rig.walkTo(g)) rig.onStreetBlocked?.(); return; } // street view: tap the ground to walk there
     if (now - lastTap < 320) { rig.onDoubleTap?.(ndc(e), e); lastTap = 0; } else { lastTap = now; rig.onTap?.(ndc(e), e); }
   };
   canvas.addEventListener('pointerup', up); canvas.addEventListener('pointercancel', (e) => pts.delete(e.pointerId));
   canvas.addEventListener('wheel', (e) => { if (rig.locked || rig.mode !== 'sky') return; e.preventDefault(); zoomTo(sky.dist * Math.exp(e.deltaY * 0.0012), ndc(e)); }, { passive: false });
   // keyboard, only when the island has focus (or nothing in the interface does)
+  const STREET_KEYS = new Set(['w', 'a', 's', 'd', 'q', 'e', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright']); const keys = new Set();
+  window.addEventListener('keyup', (e) => keys.delete(e.key.toLowerCase())); window.addEventListener('blur', () => keys.clear());
   window.addEventListener('keydown', (e) => {
     const a = document.activeElement; if (rig.locked) return;
     if (a && a !== document.body && a !== canvas) return;
     const k = e.key.toLowerCase(); const step = 6;
-    // street view: the arrows look around (a young tester tried them and nothing happened); Home goes back up
+    // street view: WASD / arrows walk and turn (held keys, see update); Home or Escape goes back up
     if (rig.mode === 'street' && rig.street) {
-      const st = rig.street;
-      if (k === 'arrowleft') st.yaw = clamp(st.yaw + 0.12, -0.7, 0.7); if (k === 'arrowright') st.yaw = clamp(st.yaw - 0.12, -0.7, 0.7);
-      if (k === 'arrowup') st.pitch = clamp(st.pitch + 0.06, -0.25, 0.3); if (k === 'arrowdown') st.pitch = clamp(st.pitch - 0.06, -0.25, 0.3);
-      if (k === 'home') rig.overview(1.2);
+      if (STREET_KEYS.has(k)) { keys.add(k); e.preventDefault(); }
+      if (k === 'home' || k === 'escape') { keys.clear(); if (rig.onStreetExit) rig.onStreetExit(); else rig.overview(1.2); }
       return;
     }
     if (rig.mode !== 'sky') return;

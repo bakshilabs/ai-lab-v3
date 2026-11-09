@@ -299,7 +299,7 @@ export function createGame(app) {
     // Florence's good spots for this build (gold kerb with corner blocks) and a line saying why
     sb.spots = tool === 'erase' ? null : goodSpots(tool, { tiles: terrain.tiles, cells: G.cells, items: ITEMS, ok: (k) => spec.get(k) === HL.free, bridge: world.bridgeTile || null });
     for (const k of sb.spots?.keys || []) spec.set(k, HL.spot);
-    ui.labels.spots((sb.spots?.keys || []).map((k, i) => ({ at: world.tileTop(k).add(new THREE.Vector3(0, 3.2, 0)), text: i ? '★' : '★ ' + G.S.keySpot })));
+    ui.labels.spots((sb.spots?.keys || []).map((k, i) => ({ at: world.tileTop(k).add(new THREE.Vector3(0, 3.2, 0)), text: i || innerWidth < 700 ? '★' : '★ ' + G.S.keySpot })));
     world.setOverlay(spec);
   }
   // free building: a tap may replace what's on the tile. Adds the town-land cap and the credits to planPlace.
