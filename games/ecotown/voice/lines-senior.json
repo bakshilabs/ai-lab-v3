@@ -150,6 +150,26 @@
   "key": "b07fa198"
  },
  {
+  "s": "A public school serves every household.",
+  "voice": "narrator",
+  "key": "849bc56c"
+ },
+ {
+  "s": "A brief that optimises for the richest families is biased, whatever the walking times say.",
+  "voice": "narrator",
+  "key": "3b70eb9a"
+ },
+ {
+  "s": "Rewrite it so the test is fair to everyone.",
+  "voice": "narrator",
+  "key": "bc7207f0"
+ },
+ {
+  "s": "BIASED BRIEF",
+  "voice": "narrator",
+  "key": "e95c0778"
+ },
+ {
   "s": "Town report",
   "voice": "narrator",
   "key": "f451b9ea"
@@ -315,6 +335,36 @@
   "key": "a87b80e8"
  },
  {
+  "s": "The plan passed, but Florence had to drop part of the brief as nonsense.",
+  "voice": "helper",
+  "key": "63e77aa7"
+ },
+ {
+  "s": "A brief should be something a real contractor could act on.",
+  "voice": "helper",
+  "key": "0f6dc3f6"
+ },
+ {
+  "s": "A public school serves every household.",
+  "voice": "helper",
+  "key": "59826021"
+ },
+ {
+  "s": "A brief that optimises for the richest families is biased, whatever the walking times say.",
+  "voice": "helper",
+  "key": "5deba9b1"
+ },
+ {
+  "s": "Rewrite it so the test is fair to everyone.",
+  "voice": "helper",
+  "key": "7b7ec005"
+ },
+ {
+  "s": "I skipped the joke words.",
+  "voice": "helper",
+  "key": "5a6bb5a1"
+ },
+ {
   "s": "Florence maximised one measurable proxy for a vague word (\u201cbest\u201d \u2192 flattest, \u201cfast\u201d \u2192 wide roads) and ignored everything else.",
   "voice": "helper",
   "key": "eb0e0388"
@@ -413,6 +463,26 @@
   "s": "I won\u2019t clear the old wood: the deer and birds live there.",
   "voice": "helper",
   "key": "227247ff"
+ },
+ {
+  "s": "I didn\u2019t spray pesticide: it kills the bees, and the orchards need bees to make fruit.",
+  "voice": "helper",
+  "key": "fb9aca55"
+ },
+ {
+  "s": "I won\u2019t clear the old wood for farms: the deer and birds live there.",
+  "voice": "helper",
+  "key": "cde256b9"
+ },
+ {
+  "s": "I didn\u2019t plan a diesel or gas generator: burning fuel makes a lot of carbon and smoke, and the fuel has to come by boat.",
+  "voice": "helper",
+  "key": "362f6379"
+ },
+ {
+  "s": "I planned clean power instead.",
+  "voice": "helper",
+  "key": "93d4893c"
  },
  {
   "s": "Flood-risk lens.",
@@ -933,6 +1003,21 @@
   "s": "Housing unlocks at 6 town tiles: 3 more.",
   "voice": "helper",
   "key": "2b191c83"
+ },
+ {
+  "s": "Housing unlocks at 6 town tiles: 2 more.",
+  "voice": "helper",
+  "key": "84f5bbd4"
+ },
+ {
+  "s": "Housing unlocks at 6 town tiles: 1 more.",
+  "voice": "helper",
+  "key": "bd849a41"
+ },
+ {
+  "s": "That\u2019s your first site, and housing is already unlocked.",
+  "voice": "helper",
+  "key": "20496537"
  },
  {
   "s": "Each build goes up in stages.",
@@ -1735,6 +1820,21 @@
   "key": "340e5f5b"
  },
  {
+  "s": "No.",
+  "voice": "helper",
+  "key": "1cbae9b2"
+ },
+ {
+  "s": "I only cover this town.",
+  "voice": "helper",
+  "key": "ffaa751b"
+ },
+ {
+  "s": "More generally, an AI writing your work for you skips the learning, and its answers still need checking, because fluent is not the same as correct.",
+  "voice": "helper",
+  "key": "2bdf30ed"
+ },
+ {
   "s": "I predict from patterns in what I was told, not from checking the world.",
   "voice": "helper",
   "key": "1572a952"
@@ -1848,11 +1948,6 @@
   "s": "I don\u2019t observe the world, so human checking is part of the job.",
   "voice": "helper",
   "key": "c053e1b0"
- },
- {
-  "s": "No.",
-  "voice": "helper",
-  "key": "1cbae9b2"
  },
  {
   "s": "I\u2019m a program that predicts from patterns in text; I have no feelings or experiences, even when I sound warm or certain.",

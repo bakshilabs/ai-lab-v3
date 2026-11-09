@@ -101,10 +101,12 @@ function settingsSheet() {
     <h4 class="menuhead">Settings</h4>
     <label>Sound<select data-snd><option value="on" ${snd === 'on' ? 'selected' : ''}>On (music and effects)</option><option value="fx" ${snd === 'fx' ? 'selected' : ''}>Effects only</option><option value="off" ${snd === 'off' ? 'selected' : ''}>Off</option></select></label>
     ${row('readAloud', 'Read aloud')}${row('reduce', 'Reduce motion')}${row('facilitator', 'Facilitator notes')}
-    <label>Text size<select data-k="text"><option value="normal">Normal</option><option value="large" ${s.text === 'large' ? 'selected' : ''}>Large</option></select></label>
+    <div class="setrow"><span id="tsz">Text size</span><span class="seg" role="radiogroup" aria-labelledby="tsz">${['normal', 'large'].map((v) => `<button type="button" role="radio" data-tsize="${v}" aria-checked="${(s.text || 'normal') === v}">${v === 'large' ? 'Large' : 'Normal'}</button>`).join('')}</span></div>
     <label>Graphics<select data-k="quality">${['auto', 'low', 'mid', 'high'].map((q) => `<option ${s.quality === q ? 'selected' : ''}>${q}</option>`).join('')}</select></label>
     <p style="font-size:.8em;color:#46596a">Florence: ${modelReady() ? 'small language model (on this device)' : 'keyword reader (model not loaded)'}. Voices: recorded on this device’s game files. Nothing you type is stored or sent.</p><button class="btn go" data-close>Done</button>`;
   P.querySelectorAll('[data-k]').forEach((i) => (i.onchange = () => { s[i.dataset.k] = i.type === 'checkbox' ? i.checked : i.value; applySettings(); ui.refreshFacil(); }));
+  // text size: two buttons, not a drop-down (a drop-down list opened over "Facilitator notes", and a tap meant for "Large" ticked it)
+  P.querySelectorAll('[data-tsize]').forEach((b) => (b.onclick = () => { s.text = b.dataset.tsize; P.querySelectorAll('[data-tsize]').forEach((x) => x.setAttribute('aria-checked', String(x === b))); applySettings(); }));
   P.querySelector('[data-snd]').onchange = (e) => { const v = e.target.value; s.sound = v !== 'off'; s.effects = v !== 'off'; s.music = v === 'on'; applySettings(); };
   P.querySelector('[data-close]').onclick = () => ui.show('settings', false);
   P.querySelector('[data-intro]').onclick = () => { ui.show('settings', false); app.G?.replayIntro?.(); };
