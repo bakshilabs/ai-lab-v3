@@ -119,7 +119,7 @@ for (const [id, check, vague, clear] of LEVELS) {
   if (!process.env.FAST) { await p.waitForSelector('#filmtitle', { timeout: 40000 }); await p.waitForTimeout(4200); await shot(`${id}-film`); }
   if (id === 'heart') {
     if (band === 'junior') { await p.waitForSelector(A + '[data-r]', { timeout: 400000 }); await shot('heart-ask'); for (let i = 0; i < 6; i++) await click(`${A}[data-r="${i}"]`); await click(A + '[data-act="all"]'); await p.waitForTimeout(800); await shot('heart-counted'); await click(A + '[data-go]'); }
-    else { await click(A + '[data-act="gate"]', 400000); await p.waitForTimeout(1500); await shot('heart-teach'); }
+    else { await click(A + '[data-act="gate"]', 400000); await p.waitForTimeout(1500); await shot('heart-teach'); await click(A + '[data-go]', 60000); } // the balanced result waits for Next (a town meeting used to cover it)
   }
   // senior town meetings, then the reward card: use Florence's plan, or keep the town
   for (let i = 0; i < 3; i++) {

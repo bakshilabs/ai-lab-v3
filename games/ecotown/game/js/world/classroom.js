@@ -101,7 +101,12 @@ export function createClassroom(stage) {
     eye: () => CLASS_BASE.clone().add(new THREE.Vector3(0, 8.5, Z1 - 1)),
     screenAt: () => screen.getWorldPosition(new THREE.Vector3()),
     // the player's seat at the back: Florence and the whole screen in view
-    pose() { return { pos: CLASS_BASE.clone().add(new THREE.Vector3(0, 9.6, Z1 + 3)), look: CLASS_BASE.clone().add(new THREE.Vector3(-1.5, 4.6, Z0)), fov: 56 }; },
+    // upright phones: a wider view centred on the screen, so its whole width fits and it sits above the dock
+    pose() {
+      const a = innerWidth / Math.max(1, innerHeight);
+      if (a < 0.75) { const fov = Math.min(90, (2 * Math.atan(Math.tan((21 * Math.PI) / 180) / a) * 180) / Math.PI); return { pos: CLASS_BASE.clone().add(new THREE.Vector3(0, 9.6, Z1 + 3)), look: CLASS_BASE.clone().add(new THREE.Vector3(0, 1.2, Z0)), fov }; }
+      return { pos: CLASS_BASE.clone().add(new THREE.Vector3(0, 9.6, Z1 + 3)), look: CLASS_BASE.clone().add(new THREE.Vector3(-1.5, 4.6, Z0)), fov: 56 };
+    },
     card,
     // play a build video on the screen; resolves when it ends (or is stopped)
     play(src) {

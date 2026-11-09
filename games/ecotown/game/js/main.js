@@ -19,7 +19,10 @@ import { createGame } from './game/game.js';
 import { loadModel, modelReady } from './ai/plotter.js';
 import { CONTENT, NAME_IDEAS, cleanTownName } from './game/content.js';
 import { loadVoices, setSpeakingHook } from './ui/voice.js';
-setSpeakingHook((v) => duck(v));
+// while a 🔊 read-aloud plays, its button shows it (a tester couldn't tell whether anything was happening)
+let spkBtn = null;
+document.addEventListener('click', (e) => { const b = e.target.closest?.('[data-spk]'); if (b) { spkBtn?.classList.remove('speaking'); spkBtn = b; } }, true);
+setSpeakingHook((v) => { duck(v); if (spkBtn) { spkBtn.classList.toggle('speaking', v); spkBtn.setAttribute('aria-pressed', String(v)); if (!v) spkBtn = null; } });
 
 const $ = (s) => document.querySelector(s);
 const prefs = (() => { try { return JSON.parse(localStorage.getItem('ecotown.prefs') || '{}'); } catch { return {}; } })();
@@ -174,7 +177,7 @@ async function start() {
   // an in-game two-way switch (a native dropdown clashed with the style and stalled on some machines)
   card.querySelectorAll('[data-order]').forEach((b) => (b.onclick = () => { const v = b.dataset.order; app.classMode = v === 'class'; card.querySelectorAll('[data-order]').forEach((x) => x.setAttribute('aria-checked', String(x === b))); sn.textContent = ORDER[v]; app.settings.music = !app.classMode; applySettings(); })); // music starts off in class mode (the teacher can turn it on in ☰)
   card.querySelector('[data-facil]').onchange = (e) => { app.settings.facilitator = e.target.checked; applySettings(); ui.refreshFacil(); };
-  const inp = card.querySelector('[data-name]'); inp.value = NAME_IDEAS[Math.floor(Math.random() * NAME_IDEAS.length)]; setTimeout(() => inp.focus(), 50);
+  const inp = card.querySelector('[data-name]'); inp.value = NAME_IDEAS[Math.floor(Math.random() * NAME_IDEAS.length)]; inp.addEventListener('focus', () => inp.select()); inp.addEventListener('pointerup', (e) => { if (!inp.dataset.typed) { e.preventDefault(); inp.select(); } }); inp.addEventListener('input', () => (inp.dataset.typed = '1')); setTimeout(() => { inp.focus(); inp.select(); }, 50); // typing replaces the suggestion (it used to append to it)
   card.querySelectorAll('[data-n]').forEach((b) => (b.onclick = () => { inp.value = b.dataset.n; inp.focus(); }));
   app.townName = await new Promise((res) => { const go = () => { const n = cleanTownName(inp.value); if (!n) { card.querySelector('[data-err]').textContent = 'Please choose a friendly name, or pick one above.'; return; } res(n); }; card.querySelector('[data-go]').onclick = go; inp.onkeydown = (e) => { if (e.key === 'Enter') go(); }; });
   sfx.good(); ui.setTownName(app.townName);

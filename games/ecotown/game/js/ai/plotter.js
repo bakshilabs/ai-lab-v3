@@ -20,7 +20,7 @@ const KW = {
   land: { best: /\b(best|good|nice|perfect|ideal|great)\b/, flat: /\bflat|level\b/, sunny: /\bsun|south/, dry: /\bdry|flood|high ground/, keep_meadow: /meadow|wild ?flower/, keep_wood: /\bwood|forest|trees\b/, keep_wetland: /wetland|marsh|pond|reed/, near_water: /near (the )?(river|water)/, near_coast: /beach|coast|sea/, big: /space|room|big/ },
   move: { easy_access: /\beasy|convenient|quick to get/, safe_walking: /walk|foot|pavement|crossing|safe/, cycling: /bike|cycl/, tram: /tram|bus|train/, cars_at_edge: /edge|outside|park(ing)? at/, no_cars: /no cars|car.?free|ban cars/, fast: /\bfast|quick\b/, everyone: /wheelchair|children|kids|without (a )?car/ },
   homes: { strong: /strong|sturdy|solid/, cheap: /cheap|afford|low cost/, many: /lots of|many|as many/, tall: /tall|tower|high.?rise|flats/, low_carbon: /low.?carbon|eco|green(?! roof)|pollution/, warm: /warm|cosy|cozy|insulat/, natural_materials: /timber|wood|straw|earth|natural|local/, green_roofs: /green roof|roof garden|plants on/, reuse: /reclaim|recycl|reuse/ },
-  food: { max_food: /as much|most|maximum|max\b/, enough_food: /enough/, keep_hedges: /hedge/, bees: /\bbee|pollinat|hive/, wildlife: /wildlife|nature|animal|deer|bird/, local: /local|lorr|near (our )?home/, allotments: /allotment|garden|grow (our|their) own/, orchard: /orchard|fruit|apple/ },
+  food: { max_food: /as much|most|maximum|max\b/, enough_food: /enough/, keep_hedges: /hedge/, bees: /\bbee|pollinat|hive/, wildlife: /wildlife|nature|animal|deer|bird/, local: /local|near (our )?home|grow (it )?here/, allotments: /allotment|garden|grow (our|their) own/, orchard: /orchard|fruit|apple/ },
   power: { clean_power: /clean|green|renewable/, enough_power: /enough|always on|reliable/, winter: /winter|cold|still|no wind|worst/, night: /night|dark/, storage: /stor|batter|save (the )?sun/, wind: /wind/, solar: /solar|sunshine|sun/, save_water: /rain|water|flood/, repair: /repair|reuse|recycl|waste/, compost: /compost/ },
   heart: { middle: /middle|centre|center|central/, walk_time: /\d+.?min|walk(ing)? distance|short walk/, near_homes: /near|next to|close to/, nature_links: /green bridge|corridor|nature link|connect nature|for nature/, market: /market|shop|square/, safe_route: /safe route|safe way|away from traffic/ },
 };
@@ -32,6 +32,20 @@ function keywordRead(level, text) {
 }
 
 import { readTargets, checkTargets } from './targets.js';
+const NO_CARS = /no cars|car.?free|ban(ned)? cars|without cars|keep cars out|cars? (out|banned|kept out)|not by car|fewer cars|less cars|cars at the edge/i;
+export const IMPORTED = /\blorr(y|ies)\b|\btrucks?\b|\bimport|ship(ped)? in|fly (it |food )?in|bring (all )?(our |the )?food in|buy (all )?(our |the )?food|from (the )?(supermarket|mainland|big city|city)/i;
+const KEEP_W = '(keep|protect|save|leave|look after|don.?t (touch|build on|clear))';
+const KEEP = {
+  land: [['keep_wood', new RegExp(`${KEEP_W}[^.]{0,30}\\b(wood|woods|forest|trees)\\b`, 'i')], ['keep_wetland', new RegExp(`${KEEP_W}[^.]{0,30}\\b(wetland|marsh|pond|reeds?)\\b`, 'i')], ['keep_meadow', new RegExp(`${KEEP_W}[^.]{0,30}\\b(meadow|wild ?flowers?)\\b`, 'i')]],
+  food: [['keep_hedges', new RegExp(`${KEEP_W}[^.]{0,30}\\bhedges?\\b`, 'i')], ['bees', /\bbees?\b|pollinat/i], ['wildlife', new RegExp(`${KEEP_W}[^.]{0,30}\\b(wildlife|nature|animals|deer|birds)\\b`, 'i')]],
+};
+// what a brief rules out: "not concrete", "no tower blocks", "without steel", "avoid cars"
+const AVOIDABLE = { concrete: /concrete|cement|steel|tower|high.?rise|flats/, cars: /cars?|roads?|driv/, field: /big fields?|plough/ };
+export function avoidsIn(text) {
+  const out = new Set(); const t = String(text || '').toLowerCase();
+  for (const m of t.matchAll(/\b(?:not|no|never|without|avoid|instead of|rather than|don.?t use|nothing)\s+((?:\w+\s+){0,2}\w+)/g)) for (const [k, re] of Object.entries(AVOIDABLE)) if (re.test(m[1])) out.add(k);
+  return out;
+}
 export function read(level, text, { withExplain = false } = {}) {
   const clean = String(text || '').slice(0, 200);
   let r;
@@ -43,6 +57,17 @@ export function read(level, text, { withExplain = false } = {}) {
   } else r = { ...keywordRead(level, clean), source: 'keywords' };
   // "cars only" is the opposite of "no cars": the model sees the word "cars" plus a restriction and can mix them up
   if (level === 'move' && /\bcars? only\b|\bonly (by )?cars?\b|\bcar.?only\b|\bjust cars\b/i.test(clean)) r.slots = { ...r.slots, no_cars: 0, cars_at_edge: 0, safe_walking: Math.min(r.slots.safe_walking ?? 0, 0.4) };
+  // the words around "cars" decide what they mean: "fastest route for cars" is about cars, not "no cars"
+  if (level === 'move' && /\bcars?\b/i.test(clean) && !NO_CARS.test(clean)) r.slots = { ...r.slots, no_cars: Math.min(r.slots.no_cars ?? 0, 0.1) };
+  // "bring our food in by lorry": food from somewhere else, so nothing is grown here (she follows it; the plan then misses the food)
+  if (level === 'food' && IMPORTED.test(clean) && !/local|grow|allot|garden|farm|orchard|field/i.test(clean)) r.slots = { ...r.slots, local: 0, allotments: 0, orchard: 0 };
+  // the school "where most families can reach it" / "close to the homes": the homes are what matters
+  if (level === 'heart' && /\breach\b|\bget to\b|close to (the |all |every |most )?(homes|houses|families|everyone)/i.test(clean)) r.slots = { ...r.slots, near_homes: Math.max(r.slots.near_homes ?? 0, 0.9) };
+  // "keep the wood wild", "protect the hedges": an explicit "keep" is never dropped
+  for (const [slot, re] of KEEP[level] || []) if (re.test(clean)) r.slots = { ...r.slots, [slot]: Math.max(r.slots[slot] ?? 0, 0.9) };
+  // "not concrete", "no tower blocks": what the brief rules out (the slot is switched off and the planner avoids it)
+  const avoid = avoidsIn(clean);
+  if (level === 'homes' && avoid.has('concrete')) r.slots = { ...r.slots, tall: 0 };
   // a number is a target, not "as much as possible": "at least 29 food units" means enough (29), not plough every field
   const targets = readTargets(level, clean);
   if (level === 'food' && targets.some((t) => t.id === 'food')) r.slots = { ...r.slots, max_food: 0, enough_food: 1 };
@@ -53,7 +78,7 @@ export function read(level, text, { withExplain = false } = {}) {
   // on-topic but no specific request ("pick some land"): Plotter falls back to its default reading
   const isUnknown = r.source === 'model' ? r.unknown >= 0.5 : r.unknown >= 0.5 || active.length === 0;
   const num = Object.fromEntries(targets.map((t) => [t.id, t.asked]));
-  return { ...r, active, numbers: { minutes, ...num }, conf, isUnknown };
+  return { ...r, active, numbers: { minutes, ...num }, avoid: [...avoid], conf, isUnknown };
 }
 
 // Parts of an instruction Florence will not follow, and why. The town's safety rules (no homes on
@@ -78,7 +103,7 @@ function wontDo(level, text, after) { const t = String(text || '').toLowerCase()
 export function ask(level, text, ctx) {
   const r = read(level, text);
   if (r.isUnknown) return { unknown: true, read: r, hints: SCHEMA.hints[level] };
-  const p = plan(level, r.active, { ...ctx, numbers: r.numbers, text: String(text || '').slice(0, 200) });
+  const p = plan(level, r.active, { ...ctx, numbers: r.numbers, avoid: new Set(r.avoid), text: String(text || '').slice(0, 200) });
   const sure = Math.round(100 * (0.48 + 0.44 * Math.max(0, Math.min(1, r.conf * p.fit * p.experience)))); // 48–92%: sure, never certain
   const after = applyPlacements(ctx.cells, p.placements);
   const simAfter = simulate(ctx.terrain, after);

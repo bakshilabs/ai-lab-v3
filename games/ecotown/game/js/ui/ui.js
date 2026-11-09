@@ -56,6 +56,11 @@ export function createUI(root, labelsRoot, opts) {
   // the town card (top left) never runs under the icon strip (top right), which grows as lenses are earned
   const fitStrip = () => requestAnimationFrame(() => { const w = P.strip.classList.contains('hide') ? 0 : P.strip.getBoundingClientRect().width; document.documentElement.style.setProperty('--stripw', Math.round(w || 520) + 'px'); });
   addEventListener('resize', fitStrip); fitStrip();
+  // phones: Florence's tip sits just above the build tray and the facilitator note just above the mission dock,
+  // however tall those are (CSS reads --buildh and --dockh)
+  if (typeof ResizeObserver === 'function') { const ro = new ResizeObserver(() => { const s = document.documentElement.style; s.setProperty('--buildh', P.build.offsetHeight + 'px'); s.setProperty('--dockh', P.dock.offsetHeight + 'px'); }); ro.observe(P.build); ro.observe(P.dock); }
+  // focus follows the next step only for keyboard players (a mouse or touch player's screen doesn't jump)
+  let kbUser = false; addEventListener('keydown', (e) => { if (e.key === 'Tab' || e.key === 'Enter' || e.key === ' ') kbUser = true; }, true); addEventListener('pointerdown', () => (kbUser = false), true);
   const ui = {
     P, readAloud: false,
     show(id, on = true) {
@@ -156,7 +161,13 @@ export function createUI(root, labelsRoot, opts) {
       this.talking(P.florence, line);
       return P.florence;
     },
-    tray(html, bind) { D.actions.innerHTML = html; this.show('tray', !!html); bind?.(D.actions); return D.actions; },
+    tray(html, bind) {
+      // keyboard players keep their place: if focus was in the old tray (or fell back to the page), it moves to the new tray's first control
+      const a = document.activeElement; const lost = !a || a === document.body || D.actions.contains(a) || P.dock.contains(a);
+      D.actions.innerHTML = html; this.show('tray', !!html); bind?.(D.actions);
+      if (html && lost && kbUser) D.actions.querySelector('input:not([disabled]), button:not([disabled])')?.focus({ preventScroll: true });
+      return D.actions;
+    },
     alert(text, good = false, ms = 0) {
       P.alert.classList.toggle('good', good); P.alert.querySelector('.x').textContent = good ? '✓' : '✕'; P.alert.querySelector('[data-t]').textContent = text; this.show('alert');
       this.say(text, 'narrator'); clearTimeout(this._at); if (ms) this._at = setTimeout(() => this.show('alert', false), ms);
@@ -231,6 +242,7 @@ export function createUI(root, labelsRoot, opts) {
     float(f) { add('float', f); const a = anchored[anchored.length - 1]; setTimeout(() => remove(a), f.ms || 1700); if (f.text) globalThis.__sayLog?.push({ text: f.text, voice: 'float', missing: [], silent: true }); },
     bubble(b) { const cur = anchored.filter((a) => a.node.classList.contains('bub')); if (cur.length >= 2) remove(cur[0]); add('bub ' + (b.bad ? 'bad' : ''), b); if (!b.quiet) ui.say(b.text, 'narrator'); setTimeout(() => remove(anchored.find((a) => a.data === b)), b.ms || 4200); },
     clear(kind) { for (const a of anchored.slice()) if (!kind || a.node.classList.contains(kind)) remove(a); },
+    has(kind) { return anchored.some((a) => a.node.classList.contains(kind)); },
     spots(list) { this.clear('spot'); for (const l of list) add('spot', l); }, // Florence's good spots: a solid gold ⭐ pin over each tile
     update(camera, canvas) {
       const w = canvas.clientWidth, hgt = canvas.clientHeight;

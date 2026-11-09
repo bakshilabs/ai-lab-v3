@@ -29,7 +29,7 @@ export const CONTENT = {
       whyWrong: 'Why did Florence get it wrong?', tryClearer: 'Give Florence a clearer instruction', nothingHere: 'No problem shows up here. Try another way to check.',
       unknown: 'I don’t know how to plan that yet.', tryWords: 'Try words like', sure: 'sure', plotterGuess: 'GUESS', checked: 'PLAN CHECKED',
       foundIt: 'You found the problem!', moveIn: 'Moving day', live: 'A day in your town', continue: 'Continue', back: 'Back to the island',
-      reward: 'Level complete', stars: 'Stars', firstTry: 'Clear first time!', report: 'Town report', newLens: 'New lens unlocked', newTest: 'New test unlocked', petition: 'Residents are worried',
+      reward: 'Level complete', stars: 'Stars', firstTry: 'Clear first time!', lucky: { repeats: 'The plan passed, but your instruction mostly said the same word again and again. A clear instruction says what matters and why, so anyone could follow it. No star for clear first time.', emoji: 'The plan passed, but pictures aren’t an instruction. Say in words what matters and why. No star for clear first time.', short: 'The plan passed, but your instruction was only a word or two. Florence had to guess the rest. No star for clear first time.', wont: 'The plan passed only because Florence refused part of what you asked. No star for clear first time.' }, report: 'Town report', newLens: 'New lens unlocked', newTest: 'New test unlocked', petition: 'Residents are worried',
       correct: 'Correct!', notQuite: 'Not quite.', lookAgain: 'Look at Florence’s guess again:', itWas: 'It was', hidden: 'Florence still guessed one thing. Which one?',
       emptyText: 'Type an instruction first', guessCard: 'Florence’s guess',
       checkAnother: 'Check another way', accept: 'No problem found: use this plan', checkHelp: 'Not sure yet? Try another check. Happy with what you saw? Use the plan.',
@@ -65,7 +65,7 @@ export const CONTENT = {
       whyWrong: 'Which failure mode caused this?', tryClearer: 'Rewrite the instruction: goal + limit + check', nothingHere: 'This evidence doesn’t show a problem. Try another test.',
       unknown: 'I can’t map that to a plan for this level.', tryWords: 'Try including', sure: 'confidence', plotterGuess: 'GUESS', checked: 'PLAN TESTED',
       foundIt: 'Evidence found', moveIn: 'Move-in', live: 'A day in the town', continue: 'Continue', back: 'Back to the island',
-      reward: 'Level complete', stars: 'Stars', firstTry: 'Well specified first time', report: 'Town report', newLens: 'New lens unlocked', newTest: 'New test unlocked', petition: 'Residents’ petition',
+      reward: 'Level complete', stars: 'Stars', firstTry: 'Well specified first time', lucky: { repeats: 'The plan passed, but the brief was mostly repetition. A well-specified brief states the goal, the constraints and how success is tested. No star for well specified first time.', emoji: 'The plan passed, but emoji are not a specification. State the goal and the constraints in words. No star for well specified first time.', short: 'The plan passed, but a one- or two-word brief leaves Florence guessing the rest. No star for well specified first time.', wont: 'The plan passed only because Florence overrode part of your brief. No star for well specified first time.' }, report: 'Town report', newLens: 'New lens unlocked', newTest: 'New test unlocked', petition: 'Residents’ petition',
       correct: 'Correct.', notQuite: 'Not quite.', lookAgain: 'Re-read Florence’s reading:', itWas: 'It was', hidden: 'The plan passed, but Florence still made an unstated assumption. Which?',
       emptyText: 'Write an instruction first', guessCard: 'Florence’s guess',
       checkAnother: 'Run another test', accept: 'No issue found: accept the plan', checkHelp: 'Keep testing if the evidence doesn’t cover your brief yet; accept the plan when it does.',
@@ -99,7 +99,7 @@ export const SANDBOX = {
     keyFree: 'You can build here', keySwap: 'Swaps out what’s there', keyNo: 'Can’t build here', keyErase: 'You can remove this',
     events: { stormBad: (n) => `Winter storm! The river rose in the night and ${n} home${n === 1 ? '' : 's'} flooded.`, stormTip: 'The storm flooded homes on the meadow. Build homes up on dry land, or add rain gardens and reed beds.', stormGood: 'Winter storm last night, and every home stayed dry!',
       darkBad: 'A still, dark winter night: no wind, no sun, and the lights went out!', darkTip: 'The lights went out on a still winter night. Wind turbines and battery stores keep them on.', darkGood: 'A still, dark winter night, and the lights stayed on!' },
-    keyHave: 'Already your town land', missionsDone: (n) => `${n} OF 6 MISSIONS DONE`, readyN: (n) => `${n} ready`, tapAgain: (name) => `Tap again to knock down the ${name} and build here`, tapTile: 'Tap a tile on the island to build there',
+    keyHave: 'Already your town land', missionsDone: (n) => `${n} OF 6 MISSIONS DONE`, readyN: (n) => `${n} ready`, tapAgain: (name) => `Tap again to knock down the ${name} and build here`, tapTile: 'Tap a tile on the island to build there', kbHint: 'Arrow keys move the blue tile cursor. Enter builds there.', kbHere: 'Enter: build here',
     nextGoal: 'Next goal',
     suggest: {
       tag: 'IDEA', sure: (n) => `I’m ${n}% sure!`, check: 'Check it with a lens', use: 'Use it', no: 'No thanks', judge: 'You checked. Was I right?', right: 'Right', wrong: 'Wrong',
@@ -117,7 +117,7 @@ export const SANDBOX = {
     classHello: 'Welcome to my classroom! Ask me anything about building a green town, and I’ll show you on the big screen. Or pick a mission to test my plans.', askPlaceholder: 'Ask Florence a question…', askFlorence: 'Ask Florence', ask: 'Ask', missions: 'Missions', askTag: 'ANSWER', classTitle: 'AI Lab classroom',
     next: 'Next', goesOn: 'Goes on', removeDesc: 'Takes away the top thing on a tile (an add-on, then the building, then the land mark). You get its credits back.',
     zone: { town: 'town land', field: 'fields', meadow: 'the flood meadow', slope: 'the slope', coast: 'the beach', wood: 'the old wood', wetland: 'the wetland (marsh)', river: 'the river', home: 'a home' },
-    nextStep: { land: (n) => `Mark ${n} more tile${n === 1 ? '' : 's'} of town land to unlock Homes`, fam: (n, cat) => `Build homes for ${n} more famil${n === 1 ? 'y' : 'ies'} to unlock ${cat}`, food: (n) => `Grow ${n} more basket${n === 1 ? '' : 's'} of food to unlock Town heart` },
+    nextStep: { land: (n, of = 6) => (of === 3 ? `Mark ${n} more tile${n === 1 ? '' : 's'} of town land` : `Homes open at ${of} tiles of town land: mark ${n} more`), fam: (n, cat) => `Build homes for ${n} more famil${n === 1 ? 'y' : 'ies'} to unlock ${cat}`, food: (n) => `Grow ${n} more basket${n === 1 ? '' : 's'} of food to unlock Town heart` },
     goalsTitle: 'Your town’s goals', goalsDone: (n) => `${n} of 8 goals done`, opensWith: (cat) => `opens with ${cat}`, tapGoals: 'Tap 🌼 to see all your goals',
     goalMet: { homes: 'Goal done: homes for 40 families!', food: 'Goal done: enough food for everyone!', nature: 'Goal done: plenty of room for nature!', health: 'Goal done: a healthy town!', energy: 'Goal done: lights on all winter!', community: 'Goal done: lots of places to meet!', carbon: 'Goal done: carbon under the limit!', walk: 'Goal done: every home is close to school!' },
     goalHow: { homes: 'Build homes on town land', food: 'Farms, orchards and allotments', nature: 'Keep wild land, hedges, parks', health: 'Paths, cycle lanes, parks, warm homes', energy: 'Wind turbines and batteries', community: 'Market, hall, allotments, festival', carbon: 'Low-carbon homes, fewer cars', walk: 'A school near every home' },
@@ -163,7 +163,7 @@ export const SANDBOX = {
       ruleHead: 'Your AI rule', keep: 'Use this rule with any AI: at school, at home, anywhere. It is saved in your town report.',
       townLeft: 'Your town is not finished yet. Next:', toBuild: 'Back to building', toFinale: 'See my finished town',
     },
-    planUsed: (n, skip) => `Added ${n} part${n === 1 ? '' : 's'} of Florence’s plan to your town.${skip ? ` ${skip} didn’t fit, so they were left out.` : ''}`, planDidntFit: 'Your town has no empty tiles for Florence’s plan yet. Mark more town land, then her ideas can fit!',
+    planUsed: (n, skip) => `Added ${n} part${n === 1 ? '' : 's'} of Florence’s plan to your town.${skip ? ` ${skip} didn’t fit, so they were left out.` : ''}`, planDidntFit: 'Your town has no empty tiles for Florence’s plan yet. Mark more town land, then her ideas can fit!', townDiffers: (g) => `Your town isn’t the same as the practice island, so it still needs: ${g}.`,
     completeRibbon: 'Town complete!', completeText: 'Every family has a home, there’s enough food, the lights stay on in winter and every home is close to school. Well done!', keepBuilding: 'Keep building',
     // the Star shop (js/ui/rewards.js): looks only, never the score
     shop: {
@@ -195,7 +195,7 @@ export const SANDBOX = {
       hello: 'Hi! I’m Florence, your AI planning helper. Let’s build a town together!',
       meadow: 'This flat meadow looks perfect for houses… but look! The river spills over it every winter.',
       yourTurn: 'Up here it stays dry and sunny. Your turn: tap three tiles to make town land.',
-      wellDone: 'Brilliant! That’s the start of your town.',
+      wellDone: 'Brilliant! That’s the start of your town. Mark 3 more tiles and Homes will open.',
       video: 'Here’s how a home gets built. Watch from above, then from the street.',
       videoLater: 'When homes unlock, tap ▶ on any build to watch how it’s built.',
       unlocks: 'More builds unlock as your town grows. Forty families are on their way!',
@@ -212,7 +212,7 @@ export const SANDBOX = {
     keyFree: 'Buildable', keySwap: 'Replaces existing', keyNo: 'Not buildable', keyErase: 'Removable',
     events: { stormBad: (n) => `Winter storm: ${n} home${n === 1 ? '' : 's'} on the floodplain flooded overnight.`, stormTip: 'Storm damage on the floodplain. Move housing to higher ground or add drainage (rain gardens, reed beds).', stormGood: 'Winter storm overnight: no homes flooded.',
       darkBad: 'Still winter night: demand exceeded supply and the grid went dark.', darkTip: 'Blackout on a still winter night. Add wind and battery storage to cover the worst case.', darkGood: 'Still winter night: supply covered demand.' },
-    keyHave: 'Already town land', missionsDone: (n) => `${n} / 6 MISSIONS COMPLETE`, readyN: (n) => `${n} ready`, tapAgain: (name) => `Click again to replace the ${name}`, tapTile: 'Click a tile on the island to build there',
+    keyHave: 'Already town land', missionsDone: (n) => `${n} / 6 MISSIONS COMPLETE`, readyN: (n) => `${n} ready`, tapAgain: (name) => `Click again to replace the ${name}`, tapTile: 'Click a tile on the island to build there', kbHint: 'Arrow keys move the blue tile cursor; Enter builds there.', kbHere: 'Enter: build here',
     nextGoal: 'Next target',
     suggest: {
       tag: 'PROPOSAL', sure: (n) => `Confidence: ${n}%`, check: 'Test it with a lens', use: 'Adopt it', no: 'Decline', judge: 'You tested it. Was the proposal sound?', right: 'Sound', wrong: 'Flawed',
@@ -230,7 +230,7 @@ export const SANDBOX = {
     classHello: 'Welcome to the AI Lab. Ask me about any build or problem and I’ll put it on the screen, or choose a mission to test my plans.', askPlaceholder: 'Ask Florence…', askFlorence: 'Ask Florence', ask: 'Ask', missions: 'Missions', askTag: 'ANSWER', classTitle: 'AI Lab',
     next: 'Next', goesOn: 'Allowed on', removeDesc: 'Removes the top layer of a tile (add-on, then building, then land designation). Its cost is refunded.',
     zone: { town: 'town land', field: 'fields', meadow: 'meadow', slope: 'slope', coast: 'coast', wood: 'woodland', wetland: 'wetland', river: 'river', home: 'a home' },
-    nextStep: { land: (n) => `Designate ${n} more town tile${n === 1 ? '' : 's'} to unlock Housing`, fam: (n, cat) => `House ${n} more household${n === 1 ? '' : 's'} to unlock ${cat}`, food: (n) => `${n} more food unit${n === 1 ? '' : 's'} to unlock Town heart` },
+    nextStep: { land: (n, of = 6) => (of === 3 ? `Designate ${n} more town tile${n === 1 ? '' : 's'}` : `Housing unlocks at ${of} town tiles: ${n} more to designate`), fam: (n, cat) => `House ${n} more household${n === 1 ? '' : 's'} to unlock ${cat}`, food: (n) => `${n} more food unit${n === 1 ? '' : 's'} to unlock Town heart` },
     goalsTitle: 'Town targets', goalsDone: (n) => `${n} / 8 targets met`, opensWith: (cat) => `unlocks with ${cat}`, tapGoals: 'Tap 🌼 for all targets',
     goalMet: { homes: 'Target met: 40 households housed.', food: 'Target met: food supply ≥ need.', nature: 'Target met: nature at 100%.', health: 'Target met: health at 100%.', energy: 'Target met: winter-night supply ≥ demand.', community: 'Target met: community at 100%.', carbon: 'Target met: carbon under 160 t.', walk: 'Target met: every home ≤ 15 min from school.' },
     goalHow: { homes: 'Homes on town land', food: 'Farms, orchards, allotments', nature: 'Wild land, hedges, parks', health: 'Active travel, parks, warm homes', energy: 'Wind and storage for winter nights', community: 'Market, hall, allotments', carbon: 'Low embodied carbon, fewer cars', walk: 'School within 15 min of every home' },
@@ -276,7 +276,7 @@ export const SANDBOX = {
       ruleHead: 'Your rule', keep: 'This applies to any AI output: essays, search answers, recommendations. It is saved in your town report.',
       townLeft: 'The town is not complete yet. Next:', toBuild: 'Back to the build', toFinale: 'View the finished town',
     },
-    planUsed: (n, skip) => `Applied ${n} placement${n === 1 ? '' : 's'} from Florence’s plan, funded by the AI Lab (no credits spent).${skip ? ` ${skip} skipped (occupied or not allowed).` : ''}`, planDidntFit: 'No free tiles for the plan’s placements. Designate more town land to make room.',
+    planUsed: (n, skip) => `Applied ${n} placement${n === 1 ? '' : 's'} from Florence’s plan, funded by the AI Lab (no credits spent).${skip ? ` ${skip} skipped (occupied or not allowed).` : ''}`, planDidntFit: 'No free tiles for the plan’s placements. Designate more town land to make room.', townDiffers: (g) => `The plan passed on the practice island; your town differs (more homes or other builds). Still open here: ${g}.`,
     completeRibbon: 'Town complete', completeText: 'All petals at "enough", carbon under the ceiling, winter-night power secured, every home within 15 minutes of school.', keepBuilding: 'Keep building',
     shop: {
       title: 'Star shop', menu: 'Star shop', done: 'Done', on: 'On', off: 'Off', owned: 'Unlocked',
@@ -306,7 +306,7 @@ export const SANDBOX = {
       hello: 'Hi, I’m Florence, the town’s AI planning assistant. You make the decisions; I make plans.',
       meadow: 'The river meadow is flat and cheap to build on. It is also the winter floodplain.',
       yourTurn: 'This slope stays dry. Designate three tiles of town land to start.',
-      wellDone: 'Good. That’s your first site.',
+      wellDone: 'Good. That’s your first site. Housing unlocks at 6 town tiles: 3 more.',
       video: 'Each build goes up in stages. Here is a timber terrace, from above and at street level.',
       videoLater: 'Once housing unlocks, ▶ on any build shows how it is constructed.',
       unlocks: 'Categories unlock as the town grows. Target: 40 households, under 160 t of carbon.',
@@ -446,18 +446,23 @@ export function diaryLines(id, s, junior) {
 
 // Dilemmas (senior only): a choice at the end of a level with honest trade-offs.
 export const DILEMMAS = {
-  homes: { text: 'A developer offers to add a floor of concrete flats: +6 families, +30 t carbon.', options: [{ label: 'Accept', effect: { families: 6, carbon: 30 } }, { label: 'Decline', effect: {} }] },
-  move: { text: 'Shop owners want 4 parking spaces outside their shops.', options: [{ label: 'Add parking', effect: { carbon: 5, health: -1, community: 1 } }, { label: 'Loading bay only', effect: { community: 0.5 } }] },
-  power: { text: 'A neighbour island offers to sell you power on still nights, but it comes from gas.', options: [{ label: 'Buy it', effect: { carbon: 20, energy: 0.3 } }, { label: 'Build more storage', effect: { cost: 6 } }] },
+  homes: { text: 'A developer offers to add a floor of concrete flats: +6 households, +30 t carbon.', options: [{ label: 'Accept', effect: { families: 6, carbon: 30 } }, { label: 'Decline', effect: {} }] },
+  move: { text: 'Shop owners want 4 parking spaces outside their shops: more trade, but more cars by the pavements.', options: [{ label: 'Add parking', effect: { carbon: 5, health: -1, community: 1 } }, { label: 'Loading bay only', effect: { community: 0.5 } }] },
+  power: { text: 'A neighbour island offers power on still nights, but it comes from gas. Or you pay for more batteries.', options: [{ label: 'Buy it', effect: { winter: 6, carbon: 20 } }, { label: 'Build more storage', effect: { winter: 4, credits: -6 } }] },
   heart: { text: 'The park or 4 more homes on the last free tile?', options: [{ label: 'Park', effect: { health: 1, nature: 1 } }, { label: 'Homes', effect: { families: 4, carbon: 8 } }] },
 };
+// what a town-meeting choice changes, in words (every choice changes at least one real number)
+export function meetingEffect(e) {
+  const sg = (n) => (n > 0 ? '+' : '') + n;
+  return [e.families && `${sg(e.families)} households`, e.carbon && `${sg(e.carbon)} t carbon`, e.winter && `${sg(e.winter)} winter-night power`, e.health && `${sg(e.health)} health`, e.community && `${sg(e.community)} community`, e.nature && `${sg(e.nature)} nature`, e.credits && `${sg(e.credits)} credits`].filter(Boolean).join(', ') || 'no change to the numbers';
+}
 
 // Town names offered on the start screen, and a tiny filter for typed names.
 export const NAME_IDEAS = ['Willow Bay', 'Otter Bend', 'Bramble Hill', 'Sunny Hollow', 'Kestrel Cove', 'Meadowmere'];
 const BLOCK_ANY = /(fuck|shit|cunt|bitch|bastard|wank|twat|nazi|porn)/i;          // anywhere, even run together
 const BLOCK_WORD = /\b(piss|dick|cock|slag|sex|sexy|arse|arsehole|poo|willy|boob|boobs|tits|crap|bum|butt)\b/i; // whole words only (so Sussex, Poole are fine)
 export function cleanTownName(raw) {
-  const t = String(raw || '').replace(/[^A-Za-z0-9 '\-]/g, '').replace(/\s+/g, ' ').trim().slice(0, 24);
+  const t = String(raw || '').replace(/<[^>]*>?/g, ' ').replace(/[^A-Za-z0-9 '\-]/g, '').replace(/\s+/g, ' ').trim().slice(0, 24);
   if (!t || BLOCK_ANY.test(t.replace(/[^a-z]/gi, '')) || BLOCK_WORD.test(t)) return null;
   return t.replace(/\b\w/g, (c) => c.toUpperCase());
 }

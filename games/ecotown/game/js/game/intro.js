@@ -22,7 +22,7 @@ export async function runIntro(api) {
   // one line from Florence in her card, with a Next button (or none, while she waits for the player)
   const say = (text, { next = true, tag = T.tag } = {}) => new Promise((resolve) => {
     const el = ui.florence({ tag, html: `<p>${esc(text)}</p>${next ? `<div class="tiprow"><button class="slot act go" data-next><b class="ico">▶</b><span>${esc(T.next)}</span></button></div>` : ''}`, say: text });
-    el.querySelector('[data-next]')?.addEventListener('click', (e) => { e.currentTarget.closest('.tiprow').remove(); resolve(); }); if (!next) resolve();
+    el.querySelector('[data-next]')?.addEventListener('click', () => { ui.florence(null); resolve(); }); if (!next) resolve(); // the line goes once read (it used to stay, without its Next button, while she walked on)
   });
   const go = (p, dist = 110) => (app.reduce ? rig.focus(p, { dist, pitch: 0.7 }, 0.01) : rig.focus(p, { dist, pitch: 0.7, yaw: rig.sky.yaw }, 1.3));
   try {
@@ -42,8 +42,10 @@ export async function runIntro(api) {
     bot.point(dP.clone().add(new THREE.Vector3(0, 1, 0)), 2.5);
     api.selectTool('land', 'town'); api.highlight('#build', true);
     // three suggested dry tiles glow gold; the progress bar sits in Florence's card
-    const suggest = tiles.filter((t) => ['slope', 'field'].includes(t.zone) && !t.fixed).sort((a, b) => top(a.k).distanceTo(dP) - top(b.k).distanceTo(dP)).slice(0, 3);
-    let pulse = 0; const glow = () => { const spec = new Map(); pulse++; for (const t of suggest) spec.set(t.k, { color: pulse % 2 ? '#ff9f1a' : '#ffd23f', ring: true, notch: true }); world.setOverlay(spec); }; // a pulsing orange target, unlike any other tile
+    // only tiles a tap really builds on (a tester tapped a gold tile beside the wetland and was refused); every other tile
+    // keeps its usual mark (white kerb = can build, dark plate = can't), so the gold ones are a suggestion, not the only choice
+    const suggest = tiles.filter((t) => ['slope', 'field'].includes(t.zone) && !t.fixed && (api.canBuild?.(t.k) ?? true)).sort((a, b) => top(a.k).distanceTo(dP) - top(b.k).distanceTo(dP)).slice(0, 3);
+    let pulse = 0; const glow = () => { const spec = new Map(api.allowedSpec?.() || []); pulse++; for (const t of suggest) spec.set(t.k, { color: pulse % 2 ? '#ff9f1a' : '#ffd23f', ring: true, notch: true }); world.setOverlay(spec); }; // a pulsing orange target, unlike any other tile
     glow();
     const start = api.townTiles();
     const el = ui.florence({ tag: T.yourTurnTag, html: `<p>${esc(T.yourTurn)}</p><div class="bar" data-introbar><i style="width:0%"></i><span>${T.tiles}: 0 / 3</span></div>`, say: T.yourTurn });

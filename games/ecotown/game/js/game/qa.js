@@ -5,6 +5,10 @@ import { ITEMS } from '../world/catalog.js';
 
 // topics: keys (words that point to it), a: { j, s } answers, video: a build video id to show
 export const TOPICS = [
+  // other kinds of power (a tester asked about nuclear and got a tip about vague words, from "clear" inside "nuclear")
+  { id: 'otherpower', keys: ['nuclear', 'gas', 'coal', 'oil', 'fossil', 'petrol', 'diesel', 'hydro', 'dam'], a: {
+    j: 'Nuclear power makes very little carbon while it runs, but a power station is huge, slow and costly to build: far too big for our little island. Gas, coal and oil make lots of carbon. Here we use wind, sun and batteries.',
+    s: 'Nuclear is low-carbon in operation, but it’s large, slow and capital-heavy, so it doesn’t fit an island of 40 households. Gas, coal and oil are high-carbon. This island’s options are wind, solar and storage, tested on a still winter night.' } },
   { id: 'mistakes', keys: ['mistake', 'wrong', 'trust', 'why do you', 'confident', 'sure', 'lie', 'error'], a: {
     j: 'I learn from patterns, not from looking at the real island. So I can sound very sure and still be wrong! That’s why you check my plans with a lens before you build.',
     s: 'I predict from patterns in what I was told, not from checking the world. Confidence is not evidence: a plan can be 92% “sure” and still miss something. Always test it.' } },
@@ -44,14 +48,18 @@ export const TOPICS = [
   { id: 'ai', keys: ['what are you', 'who are you', 'robot', 'ai', 'computer', 'think'], a: {
     j: 'I’m Florence, an AI planning helper. I read your instructions and make a plan, very fast. But I don’t see the island like you do, so you’re the checker!',
     s: 'I’m an AI planner: I turn your instruction into a plan by matching patterns. I don’t observe the world, so human checking is part of the job.' } },
+  // "are you alive?": honest, in character (it used to match "live" inside "alive" and talk about homes)
+  { id: 'feelings', keys: ['alive', 'feelings', 'do you feel', 'emotion', 'conscious', 'real person', 'are you human', 'brain', 'sentient', 'are you real'], a: {
+    j: 'No, I’m not alive, and I don’t have feelings. I’m a computer program that spots patterns in words. I can sound friendly and sure of myself, but I don’t feel anything, and I don’t see the island. That’s why you check my plans!',
+    s: 'No. I’m a program that predicts from patterns in text; I have no feelings or experiences, even when I sound warm or certain. Fluent, confident language is not understanding, which is exactly why my plans need testing.' } },
   // small talk: a short, warm answer in character, then back to the town (a reviewer's "fav colour?" got a flat deflection)
   { id: 'chat', keys: ['favourite', 'favorite', 'colour', 'color', 'hello', 'hi', 'how are you', 'your name', 'how old', 'joke', 'pet', 'hobby'], a: {
     j: 'Ooh, fun question! My favourite colour is leaf green, like a healthy hedge, and my favourite sound is bees buzzing. I’m a robot, so I never get tired! Now ask me about your town: floods, bees, or any build.',
     s: 'Fair question. If a planner can have a favourite, mine is hedge green: it means the habitat links are intact. Now, ask me about your town: carbon, flood risk, power, or any build.' } },
 ];
 const FALLBACK = {
-  j: 'Hmm, I don’t know that one yet! Try asking me about flooding, carbon, winter power, food, bees, or any build, like “What does a heat pump do?”',
-  s: 'I don’t have an answer for that. Ask about flooding, carbon, power, food, nature, walking to school, or any build by name.',
+  j: 'I can only answer questions about our town: how I make plans, how to check them, and the builds. Try asking about flooding, carbon, winter power, food, bees, or a build, like “What does a heat pump do?”',
+  s: 'That’s outside what I can answer. I only cover this town: how I plan, how to test my plans, flooding, carbon, power, food, nature, walking to school, and any build by name.',
 };
 export const SUGGEST = {
   j: ['Why do you make mistakes?', 'How do I check your plan?', 'What does a heat pump do?', 'How do I stop flooding?', 'How do I keep the lights on in winter?', 'Why do bees matter?'],
@@ -72,7 +80,7 @@ function itemIn(q) {
 export function answer(question, junior = true) {
   const q = norm(question); const band = junior ? 'j' : 's';
   const id = itemIn(q);
-  const topic = TOPICS.map((t) => ({ t, n: t.keys.filter((k) => q.includes(k.length <= 3 ? ` ${k} ` : k)).length })).filter((x) => x.n).sort((a, b) => b.n - a.n)[0]?.t;
+  const topic = TOPICS.map((t) => ({ t, n: t.keys.filter((k) => q.includes(k.length <= 3 ? ` ${k} ` : ` ${k}`)).length })).filter((x) => x.n).sort((a, b) => b.n - a.n)[0]?.t; // whole words (word starts): "alive" is not "live", "nuclear" is not "clear"
   // a build by name, unless the question is clearly about a topic (e.g. "why do wind turbines matter in winter")
   if (id && (!topic || /what|does|do |is |are |tell|explain/.test(q))) { const it = ITEMS[id]; return { text: `${it.label}: ${it.desc?.[band] || ''}`, video: id, topic: 'item' }; }
   if (topic) return { text: topic.a[band], video: topic.video || null, topic: topic.id };
