@@ -408,6 +408,8 @@ export function createWorld(stage, terrain) {
       this.floodLevel = level; this.flood.visible = level > 0.01; this.flood.scale.y = Math.max(0.01, level * 2.6); this.flood.position.y = -0.4 + level * 0.9;
     },
     confetti(at, n) { confetti(at, n); },
+    // Florence's route cost for a tile: buildings and the fixed lab/school/dock block her, the river is a long way round
+    walkCost(k) { const L = layers.get(k); if (!L) return Infinity; if (L.fixed) return Infinity; if (L.cellItem && !FLAT.has(L.cellItem)) return Infinity; if (L.t.zone === 'river') return L.cellItem === 'bridge' || L.cellItem === 'greenbridge' ? 1 : 6; return 1; },
     tileTop(k) { const L = layers.get(k); const [cx, cz] = tileCenter(L.t.gx, L.t.gz); return new THREE.Vector3(cx, L.oy + 1, cz); },
     pick(ndc, camera) {
       const ray = new THREE.Raycaster(); ray.setFromCamera(ndc, camera);
