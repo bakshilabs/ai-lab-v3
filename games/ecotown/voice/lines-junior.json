@@ -2663,5 +2663,15 @@
   "s": "That's too far!",
   "voice": "helper",
   "key": "575a7de2"
+ },
+ {
+  "s": "Stand in the street at 8:45 am, when children walk to school.",
+  "voice": "narrator",
+  "key": "2430cc04"
+ },
+ {
+  "s": "Street view: No busy crossings on the school route at 8:45 am.",
+  "voice": "narrator",
+  "key": "071c262a"
  }
 ]
