@@ -398,8 +398,11 @@ export function createWorld(stage, terrain) {
         const m = new THREE.Mesh(OVERLAY_GEO, overlayMat(o.color, o.pattern)); m.position.set(L.ox + T / 2, L.oy + 1.14 + (o.lift || 0), L.oz + T / 2); m.rotation.x = -Math.PI / 2;
         L.overlay = m; L.group.add(m);
       }
-      kerbs.count = n; kerbs.visible = n > 0; kerbs.instanceMatrix.needsUpdate = true; if (kerbs.instanceColor) kerbs.instanceColor.needsUpdate = true;
+      kerbs.count = n; kerbs.visible = n > 0 && !this.overlayHidden; kerbs.instanceMatrix.needsUpdate = true; if (kerbs.instanceColor) kerbs.instanceColor.needsUpdate = true;
     },
+    // street view: the build highlight would cover the ground at eye level, so it hides (and comes back on leaving)
+    overlayHidden: false,
+    hideOverlay(on) { if (on === this.overlayHidden) return; this.overlayHidden = on; kerbs.visible = !on && kerbs.count > 0; for (const L of layers.values()) if (L.overlay) L.overlay.visible = !on; },
     clay: 0, clayTarget: 0,
     setClay(on, reduce = false) { this.clayTarget = on ? 1 : 0; if (reduce) { this.clay = this.clayTarget; WORLD.clay.value = this.clay; } },
     // flood: 0..1 water level over the floodplain and wetland

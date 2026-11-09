@@ -407,8 +407,8 @@ export function createGame(app) {
     if (id === 'erase') return `<div class="ihead"><b>🧽 ${esc(G.S.erase)}</b></div><p>${esc(G.S.removeDesc)}</p>`;
     const it = ITEMS[id]; if (!it || !isOpen(sb.cat)) return '';
     const where = it.on.map((z) => G.S.zone[z] || z).join(', ');
-    return `<div class="ihead"><b>${esc(it.label)}</b>${!G.j && it.cost ? `<em class="cost">💰 ${it.cost}</em>` : ''}${G.videos?.has(id) ? `<button class="slot mini play" data-play="${id}" aria-label="${esc(G.S.watchBuilt)}: ${esc(it.label)}" title="${esc(G.S.watchBuilt)}">▶</button>` : ''}</div>
-      <p>${esc(pick(it.desc || ''))}</p>${spotLine() ? `<div class="spotwhy">${esc(spotLine())}</div>` : ''}<div class="chips">${itemChips(id).map((c) => chipHtml(c, false)).join('')}<span class="where">${esc(G.S.goesOn)}: ${esc(where)}</span></div>`;
+    return `<div class="ihead"><b>${esc(it.label)}</b>${!G.j && it.cost ? `<em class="cost">💰 ${it.cost}</em>` : ''}${G.videos?.has(id) ? `<button class="slot mini play" data-play="${id}" aria-label="${esc(G.S.watchBuilt)}: ${esc(it.label)}" title="${esc(G.S.watchBuilt)}">▶</button>` : ''}${spotLine() ? `<span class="spotwhy" title="${esc(spotLine())}">${esc(spotLine().replace(/^⭐/, '★'))}</span>` : ''}</div>
+      <p>${esc(pick(it.desc || ''))}</p><div class="chips">${itemChips(id).map((c) => chipHtml(c, false)).join('')}<span class="where">${esc(G.S.goesOn)}: ${esc(where)}</span></div>`;
   }
   // the key to the tile highlight (matches showAllowed's colours); after the first few builds it folds to a "?"
   function hlKey(mini = false) {
@@ -603,7 +603,7 @@ export function createGame(app) {
   // select a build and show Florence's good spots for it: gold kerbs, the camera on them, Florence pointing at the best
   async function showWhere(tool) {
     sb.cat = ITEMS[tool].level; sb.tool = tool; sb.folded = false; showAllowed(tool); renderBar(); audio.tap();
-    const keys = sb.spots?.keys || []; const line = spotLine(); if (line) ui.caption(line, 5000);
+    const keys = sb.spots?.keys || []; const line = spotLine(); if (line) showTip({ id: 'where-' + tool, text: line.replace(/^⭐\s*/, '') });
     if (!keys.length) return;
     await rig.frameBox(keys.map((k) => world.tileTop(k)), { pitch: 0.8, pad: 2.2, dur: 1.1 });
     fNext = 0; florenceTo(keys[0], 'point');
@@ -805,7 +805,7 @@ export function createGame(app) {
     sb.running = true; rig.building = true; app.levelId = null; app.inLab = false; app.briefMinutes = null;
     ui.only([]); ui.views('sky'); ui.facil(null); ui.show('card'); ui.show('strip');
     showCells(G.cells); clearOverlay(); if (isOpen(sb.cat)) showAllowed(sb.tool);
-    changed(); renderLenses(); setMusic(app.hour >= 18.5 || app.hour < 6.5 ? 'night' : 'day'); app.bot?.show(true); requestAnimationFrame(() => { frameView(); lastFrame = rig.frameDist(); if (!sb.framed) { sb.framed = true; rig.overview(app.reduce ? 0.01 : 1.0).then?.(() => { if (innerWidth <= 760) rig.zoomBy(rig.portrait() ? 0.85 : 0.6); }); } }); // phones: closer, so a tile is big enough to tap (upright phones already frame the tiles tightly)
+    changed(); renderLenses(); setMusic(app.hour >= 18.5 || app.hour < 6.5 ? 'night' : 'day'); app.bot?.show(true); requestAnimationFrame(() => { frameView(); lastFrame = rig.frameDist(); if (!sb.framed) { sb.framed = true; rig.overview(app.reduce ? 0.01 : 1.0).then?.(() => { if (innerWidth <= 760 && !rig.portrait()) rig.zoomBy(0.6); }); } }); // landscape phones: closer, so a tile is big enough to tap (upright phones already frame the tiles across the width)
     if (sb.afterLab) { const msg = sb.afterLab; sb.afterLab = null; setTimeout(() => ui.caption(msg, 5000), 2800); } // after any unlock alert
   }
   function stopBuilding() { ui.labels.clear('spot'); sb.running = false; ui.setDay(null); ui.setCredits(''); ui.florence(null); frameView(); rig.building = false; clearTimeout(sb.tipT); world.clearGhost(); clearOverlay(); ui.labels.clear(); ui.tray(''); ui.buildPanel(''); hideTip(); }

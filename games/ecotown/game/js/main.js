@@ -12,6 +12,7 @@ import { createInside } from './world/inside.js';
 import { createClassroom } from './world/classroom.js';
 import { createCosmetics } from './world/cosmetics.js';
 import { createRig } from './camera/rig.js';
+import { createStreetPad } from './camera/streetpad.js';
 import { createUI, h, esc } from './ui/ui.js';
 import { createPortrait } from './ui/portrait.js';
 import { createGame } from './game/game.js';
@@ -67,7 +68,7 @@ let last = performance.now(); const T0 = last;
 function loop(now) {
   if (app.manual) { requestAnimationFrame(loop); return; } // the build-video recorder drives frames itself (?shoot=)
   const dt = Math.min(0.05, (now - last) / 1000); last = now; const t = (now - T0) / 1000;
-  rig.update(dt); world.update(dt, t, { windStill: app.winterTest }); life.update(dt, t, app.hour, { windStill: app.winterTest, moveIn: app.moveIn }); inside.update(dt, t); classroom.update(dt, t); bot.update(dt, t); cosmetics.update(dt, t, app.hour ?? 12);
+  rig.update(dt); { const st = rig.mode === 'street' && !!rig.street; if (st !== world.overlayHidden) { world.hideOverlay(st); document.documentElement.dataset.street = st ? 'on' : 'off'; } } world.update(dt, t, { windStill: app.winterTest }); life.update(dt, t, app.hour, { windStill: app.winterTest, moveIn: app.moveIn }); inside.update(dt, t); classroom.update(dt, t); bot.update(dt, t); cosmetics.update(dt, t, app.hour ?? 12);
   stage.render(dt, t); ui.labels.update(stage.camera, canvas);
   requestAnimationFrame(loop);
 }
@@ -113,6 +114,7 @@ async function setView(v) {
   if (v === 'inside') { inside.build(home?.[1].item || 'timber', 20); await rig.fade(() => { inside.root.visible = true; rig.mode = 'inside'; rig.apply(inside.pose()); }); }
 }
 app.setView = setView;
+createStreetPad({ rig, world, terrain, onExit: () => setView('sky') }); // street view: walking, the pad and "Back to the island"
 ui.P.views.addEventListener('click', (e) => {
   const b = e.target.closest('[data-v]'); if (!b || b.disabled) return;
   setView(b.classList.contains('on') ? 'sky' : b.dataset.v); // tap again to come back up

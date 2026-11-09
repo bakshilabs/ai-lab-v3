@@ -11,7 +11,7 @@ import * as THREE from 'three';
 import { clamp, lerp, ease } from '../engine/stage.js';
 
 const DEG = Math.PI / 180;
-const STREET = { eye: 3.4, fov: 55, speed: 7, turn: 1.9, pitch: [-0.55, 0.35], r: 0.7 }; // eye ≈ over hedges and parked cars
+const STREET = { eye: 3.4, fov: 60, speed: 7, turn: 1.9, pitch: [-0.55, 0.35], r: 0.7 }; // eye ≈ over hedges and parked cars
 const SKY_FOV = 22;                 // the diorama lens (frameDist always uses this, whatever the current view)
 const PAN = { x: [-45, 45], z: [-36, 32] };
 // portrait (phone) overview: seen from the south-west at a steeper yaw, the tile area (84 × 66) is ~68 wide
@@ -97,6 +97,8 @@ export function createRig(stage, canvas, fadeEl) {
         // never start inside a building: step towards what we look at until the ground is open
         const d = look.clone().sub(eye).setY(0); const n = Math.ceil(d.length());
         for (let i = 0; i <= n && !nav.ok(eye.x, eye.z); i++) eye.addScaledVector(d, 1 / Math.max(1, n));
+        // and stand back far enough to see the whole building and a bit of the street (about 10 units away)
+        const back = d.clone().normalize().negate(); for (let i = 0; i < 16 && Math.hypot(look.x - eye.x, look.z - eye.z) < 12 && nav.ok(eye.x + back.x * 1.2, eye.z + back.z * 1.2); i++) eye.addScaledVector(back, 0.5);
         const g = nav.ground(eye.x, eye.z); if (g != null) eye.y = g + STREET.eye;
       }
       const dir = look.clone().sub(eye); const yaw = Math.atan2(-dir.x, -dir.z); const pitch = clamp(Math.atan2(dir.y, Math.hypot(dir.x, dir.z)), STREET.pitch[0], STREET.pitch[1]);
