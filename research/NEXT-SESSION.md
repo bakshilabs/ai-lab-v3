@@ -2,6 +2,8 @@
 
 Read this first if you are picking up the research in a new session.
 
+> **Update, 9 November 2026:** round 3 has already been run. All ten reports are in `research/round-3/`, so skip steps 1–5 below. What is left is step 6, the synthesis: `research/synthesis.md` does not exist yet. The Exa connector needed re-authorising in the user's claude.ai connector settings in the last session. That only matters if you need fresh searches.
+
 ## Where things stand (4 November 2026)
 
 - `deltaopslearning-brochure/`: the 12-page DeltaOps Learning partner guide (HTML/CSS source, images, PDFs). The lab screenshots in `img/` show the voxel "AI labs" this research is about.
