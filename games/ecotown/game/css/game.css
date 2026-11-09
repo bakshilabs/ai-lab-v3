@@ -1367,3 +1367,315 @@ html[data-street="on"] #build, html[data-street="on"] .spotwhy { visibility: hid
 #florence .tipx { position: absolute; top: 10px; right: 62px; width: 44px; height: 44px; border: 0; border-radius: 8px; background: var(--wd, #3a2716); color: var(--cream, #fff3d6); font: 900 16px/1 'Inter', sans-serif; cursor: pointer; }
 #florence .tipx:hover, #florence .tipx:focus-visible { background: #5a3d24; }
 @media (max-width: 760px) { #florence .tipx { top: 6px; right: 54px; width: 40px; height: 40px; } }
+
+/* =====================================================================================================
+   ui pass 6 (Nov 2026): one lighter, warmer kit. START OF BLOCK (everything from here to the end of the file).
+   Why: the dark-brown planks with stacked bevels read heavy and dated beside the bright island, the next step was
+   small text in a busy card, and cards / pop-overs / panels each had their own look.
+   What: - light oak panels, cream reading cards, ONE outline + ONE hard block shadow (no bevel stacks, no glow, no blur)
+         - terracotta / sage / ochre accents taken from the island
+         - type scale 12 / 14 / 16 / 20 / 28 px (x --ts, 1.2 in Large text), spacing 4 / 8 / 12 / 16 px
+         - the next step is the biggest thing in the top card
+         - Florence's tip is a speech bubble over her docked figure, not a second panel over the town
+   Everything is solid. Rules here override the older blocks above; tokens first, then components, then screens.
+   ===================================================================================================== */
+:root {
+  --p6-oak: #ecd5a8; --p6-oak2: #e0c48f; --p6-well: #d8b97f;      /* panel, plank seam, recessed well */
+  --p6-line: #6b4426; --p6-lip: #55341c;                        /* outline, block shadow */
+  --p6-card: #fff9ea; --p6-card2: #f7ebd0; --p6-edge: #c79f66; --p6-edge2: #a57a45;   /* reading card, quiet card, slot outline + lip */
+  --p6-ink: #33241a; --p6-ink2: #5c4733;
+  --p6-terra: #b5472a; --p6-terra-d: #8c3520; --p6-sage: #256f47; --p6-sage-d: #174d30; --p6-sage-bg: #d5ecd3; --p6-ochre: #ffcf4a; --p6-ochre-d: #c98a12;
+  --ts: 1; --t12: calc(12px * var(--ts)); --t14: calc(14px * var(--ts)); --t16: calc(16px * var(--ts)); --t20: calc(20px * var(--ts)); --t28: calc(28px * var(--ts));
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px;
+  /* the older blocks draw with these: re-pointing them re-skins every slot, tag and frame at once */
+  --ink: var(--p6-ink); --ink2: var(--p6-ink2);
+  --wd: #5a381f; --sand: var(--p6-card2); --sand2: #efdfbd; --sandd: var(--p6-edge); --cream: #fff9ea; --paper: var(--p6-card); --paper2: var(--p6-card2);
+  --green: var(--p6-sage); --green-d: var(--p6-sage-d);
+  --plank: repeating-linear-gradient(180deg, var(--p6-oak2) 0 2px, transparent 2px 30px);
+  --blk-shadow: 0 4px 0 var(--p6-lip), 0 9px 0 rgba(40, 24, 12, .16);
+  --slot-bevel: inset 0 0 0 2px var(--p6-edge), 0 3px 0 var(--p6-edge2);
+  --p6-frame: inset 0 0 0 2px var(--p6-line);
+}
+html[data-text="large"] { --ts: 1.2; --fs: clamp(17px, 0.6vw + 13px, 25px); }
+
+/* ---------- components ---------- */
+/* panel: light oak plank, one outline, one block shadow */
+.blk, #card, #strip, #dock, #lensbar { background: var(--p6-oak); background-image: var(--plank); color: var(--p6-ink); border-radius: 12px; box-shadow: var(--blk-shadow), var(--p6-frame); }
+/* card: the cream reading surface (centre cards, pop-overs, the menu, the report sheet) */
+.panel, .modal, #flowerpop, #settings, #alert { background: var(--p6-card); color: var(--p6-ink); border-radius: 12px; box-shadow: var(--blk-shadow), var(--p6-frame); }
+.blk, #card, #strip, #dock, #lensbar { background: var(--p6-oak); background-image: var(--plank); }
+.modal { border-radius: 14px; }
+.modal .ribbon, .modal .ribbon.green { background: var(--p6-terra); background-image: none; color: #fff9ea; text-shadow: none; border-radius: 12px 12px 0 0; box-shadow: inset 0 -3px 0 var(--p6-terra-d), var(--p6-frame); font-size: var(--t14); }
+.modal .ribbon.green { background: var(--p6-sage); box-shadow: inset 0 -3px 0 var(--p6-sage-d), var(--p6-frame); }
+.modal h2 { font-size: var(--t28); color: var(--p6-ink); }
+.modal p { color: var(--p6-ink2); }
+
+/* slot: the one button shape. Cream block, one outline, one lip. Selected = ochre with a dark outline (+ the ✓ badge) */
+.slot { background: var(--p6-card); color: var(--p6-ink); border-radius: 8px; box-shadow: var(--slot-bevel); font-size: var(--t12); transition: transform .1s; }
+.slot img { filter: none; }
+.slot:hover { background: #fff; transform: translateY(-1px); }
+.slot:active { transform: translateY(2px); box-shadow: inset 0 0 0 2px var(--p6-edge), 0 1px 0 var(--p6-edge2); }
+.slot.on, #card .track i.on, #strip .ib.on, #camctl .camtog.on, #camctl.open .camtog { background: var(--p6-ochre); box-shadow: inset 0 0 0 3px var(--p6-line), 0 3px 0 var(--p6-lip); }
+.slot.go, #strip .ib.lab { background: var(--p6-sage-bg); box-shadow: inset 0 0 0 2px #6fa77a, 0 3px 0 #4c8459; } .slot.go:hover { background: #e4f4e0; }
+.slot.locked img { filter: grayscale(1); opacity: 1; }
+.slot .lock { filter: none; }
+#strip .ib, #camctl .ib, #card [data-flower] { background: var(--p6-card); color: var(--p6-ink); border-radius: 8px; box-shadow: var(--slot-bevel); }
+#strip .ib:hover, #camctl .ib:hover { background: #fff; }
+.choice, .tile, .tabs button { border-radius: 8px !important; background: var(--p6-card) !important; color: var(--p6-ink) !important; }
+.choice:hover, .tile:hover { background: #fff !important; }
+.tabs button.on, .choice.pick { background: var(--p6-ochre) !important; box-shadow: inset 0 0 0 3px var(--p6-line), 0 3px 0 var(--p6-lip) !important; }
+.pulse { animation: p6pulse 1.1s steps(2, jump-none) infinite; }
+.slot.pulse, .ib.pulse { animation: p6pulseslot 1.1s steps(2, jump-none) infinite; }
+@keyframes p6pulse { 50% { box-shadow: var(--blk-shadow), var(--p6-frame), 0 0 0 5px var(--p6-ochre); } }
+@keyframes p6pulseslot { 50% { box-shadow: var(--slot-bevel), 0 0 0 4px var(--p6-ochre), 0 0 0 6px var(--p6-line); } }
+html[data-motion="reduce"] .pulse, html[data-motion="reduce"] .slot.pulse, html[data-motion="reduce"] .ib.pulse { animation: none; outline: 4px solid var(--p6-ochre-d); }
+
+/* buttons: flat blocks with one lip. Primary = sage, secondary = cream, disabled = flat grey */
+.btn { border-radius: 8px; background: var(--p6-card); color: var(--p6-ink); box-shadow: inset 0 0 0 2px var(--p6-edge), 0 3px 0 var(--p6-edge2); font-size: var(--t16); }
+.btn.go, #settings [data-close] { background: var(--p6-sage); color: #fff; box-shadow: inset 0 0 0 2px var(--p6-sage-d), 0 3px 0 var(--p6-sage-d); }
+.btn.go:hover { background: #2b7d51; }
+.btn.alt, .btn.alt:not([disabled]) { background: var(--p6-card); color: var(--p6-ink); box-shadow: inset 0 0 0 2px var(--p6-edge), 0 3px 0 var(--p6-edge2); }
+.btn:active, .btn.alt:not([disabled]):active { transform: translateY(2px); box-shadow: inset 0 0 0 2px var(--p6-edge); }
+.btn.go:active { box-shadow: inset 0 0 0 2px var(--p6-sage-d); }
+.btn[disabled], .btn.go[disabled] { background: #e3d9c5; color: #5c5345; box-shadow: inset 0 0 0 2px #c9bda6; cursor: default; }
+.btn.small { font-size: var(--t14); }
+#settings [data-close] { box-shadow: inset 0 0 0 2px var(--p6-sage-d), 0 0 0 8px var(--p6-card); }
+/* small dark tags (costs, letters) stay dark: they are the only dark pieces left */
+.chip { box-shadow: none; border-radius: 6px; font-size: var(--t12); }
+
+/* ---------- top card: 🌼 · NEXT STEP (dominant) · town · ★ · day ---------- */
+#card .brand { color: var(--p6-ink); text-shadow: none; font: 800 var(--t16) 'Bricolage', 'Inter', sans-serif; }
+#card .goal { color: var(--p6-ink); }
+#card .goal .gt { font: 800 var(--t16)/1.2 'Inter', system-ui, sans-serif; color: var(--p6-ink); }
+#card .goal .gbar { height: 12px; border-radius: 6px; background: #fff; box-shadow: inset 0 0 0 2px var(--p6-line); }
+#card .goal .gbar i { background: var(--p6-ochre); box-shadow: inset 0 0 0 2px var(--p6-line); border-radius: 6px; }
+#card .goal .gbar b { color: var(--p6-ink); text-shadow: none; font: 900 10px/12px 'Inter', sans-serif; padding-right: 6px; }
+#card button.stars { background: var(--p6-card); color: var(--p6-ink); border-radius: 8px; box-shadow: var(--slot-bevel); font-size: var(--t16); }
+#card button.stars:hover { background: #fff; }
+#card button.stars:focus-visible { outline: 3px solid var(--blue); }
+#card .stars .star { color: var(--p6-ochre); -webkit-text-stroke: 1.5px var(--p6-line); paint-order: stroke fill; font-size: 1.25em; }
+#card .shopnew { background: var(--p6-terra); box-shadow: 0 0 0 2px var(--p6-card); }
+#card [data-flower] .flowermark { background: var(--p6-card); box-shadow: 0 0 0 2px var(--p6-line); }
+@media (min-width: 761px) and (min-height: 561px) {
+  #card { padding: 6px; gap: var(--s2); align-items: center; flex-wrap: nowrap; }
+  #card .crow { display: contents; }
+  #card [data-flower] { order: 0; }
+  #card .goal { order: 1; flex: 1 1 300px; min-width: 210px; max-width: 400px; background: var(--p6-card); border-radius: 8px; padding: 5px 10px 6px; box-shadow: inset 0 0 0 2px var(--p6-line), inset 5px 0 0 var(--p6-terra); padding-left: 14px; gap: 4px; min-height: 44px; justify-content: center; }
+  #card .goal:empty { display: none; }
+  #card .brand { order: 2; max-width: 150px; margin-left: var(--s1); }
+  #card .band { order: 2; }
+  #card button.stars { order: 3; margin-left: 0; }
+  #card .dayc { order: 4; background: none; color: var(--p6-ink2); padding: 0; gap: 6px; font: 800 var(--t12)/1 'Inter', sans-serif; }
+  #card .credits { order: 5; background: var(--p6-sage-bg); color: var(--p6-sage-d); box-shadow: inset 0 0 0 2px #6fa77a; font-size: var(--t12); border-radius: 8px; }
+}
+
+/* ---------- top-right: camera, lenses, AI Lab, menu ---------- */
+.ib .cap { color: var(--p6-ink); font-size: calc(11px * var(--ts)); }
+#strip .sep { background: var(--p6-oak2); }
+#strip .lab[data-ready]::after { background: var(--p6-terra); box-shadow: 0 0 0 2px var(--p6-card); border-radius: 10px; }
+
+/* ---------- build bar ---------- */
+#build .items { background: var(--p6-well); box-shadow: inset 0 0 0 2px var(--p6-edge2); border-radius: 8px; }
+#build .info, #build .hlkey, #build .lockmsg, #build .lockbar { color: var(--p6-ink); }
+#build .info .ihead b { color: var(--p6-ink); font: 800 var(--t16) 'Bricolage', 'Inter', sans-serif; }
+#build .info .where { color: var(--p6-ink2); }
+#build .info .ihead .cost, #build .item .cost { background: var(--wd); color: #fff9ea; }
+#build .play, #build .info .play { background: var(--p6-card); color: var(--p6-sage-d); box-shadow: var(--slot-bevel); border-radius: 6px; }
+#build .play:hover, #build .info .play:hover { background-color: #fff; }
+#build .hlkey .hkq { background: var(--p6-card); color: var(--p6-ink); box-shadow: inset 0 0 0 2px var(--p6-edge2); }
+#build .hlkey { font-size: var(--t12); }
+#build .btools .credits, #build .bfoot span, #build .clock { background: var(--p6-card); color: var(--p6-ink); }
+#build .slottip { background: var(--p6-card); color: var(--p6-ink); border-radius: 8px; box-shadow: var(--p6-frame), 0 3px 0 var(--p6-lip); font-size: var(--t14); padding: 8px 12px; z-index: 5; }
+#build .cat.on::after, #build .item.on::after { background: var(--p6-line); color: #fff; }
+/* the good-spot line: the same ochre pin as the ★ pins on the island */
+#build .info .ihead .spotwhy, #build .info .spotwhy { color: var(--p6-ink); }
+@media (min-width: 761px) {
+  #build .info .ihead .spotwhy { background: #ffd23f; color: #33241a; border: 2px solid #5e4936; border-radius: 10px; box-shadow: 0 3px 0 #5e4936; font-size: var(--t14); padding: 4px 12px; left: 0; bottom: calc(100% + 8px); }
+}
+#labels .spot { border-radius: 10px; }
+
+/* ---------- Florence ---------- */
+#florence .fhead b { color: var(--p6-ink); text-shadow: none; font: 800 var(--t16) 'Bricolage', 'Inter', sans-serif; }
+#florence .fhead em { background: var(--p6-sage); color: #fff; border-radius: 6px; font-size: 11px; padding: 2px 6px; }
+#florence .fbody { background: var(--p6-card); color: var(--p6-ink); box-shadow: inset 0 0 0 2px var(--p6-edge); }
+#florence .fbody .sure { color: var(--p6-ink2); }
+#florence .tipx, .spk { background: var(--p6-card); color: var(--p6-ink); border-radius: 8px; box-shadow: var(--slot-bevel); }
+#florence .tipx:hover, #florence .tipx:focus-visible { background-color: #fff; }
+#florence.praise { box-shadow: var(--blk-shadow), inset 0 0 0 3px var(--p6-sage); }
+canvas.portrait.live { background: #f3dcae; box-shadow: inset 0 0 0 2px var(--p6-line); border-radius: 8px; }
+.bar { background: #fff; box-shadow: inset 0 0 0 2px var(--p6-line); }
+
+/* ---------- mission dock ---------- */
+#dock .actions, #dock .actions h3 { color: var(--p6-ink); text-shadow: none; }
+#dock .actions h3 { font: 800 var(--t16) 'Bricolage', 'Inter', sans-serif; }
+#dock .speaker { background: var(--p6-card); color: var(--p6-ink); box-shadow: inset 0 0 0 2px var(--p6-edge); border-radius: 8px; }
+#dock .speaker .name { color: var(--p6-ink); }
+#dock .actions .checknote, #dock .actions .checknote.hint { color: var(--p6-ink); }
+#dock .actions .textin .hl { color: var(--p6-ink); }
+#lensbar { color: var(--p6-ink); }
+#lenspop .poptitle { color: var(--p6-ink); }
+#dock .actions > .morecue { background: var(--p6-ochre); border-radius: 8px; box-shadow: inset 0 0 0 2px var(--p6-line), 0 3px 0 var(--p6-lip); }
+
+/* ---------- pop-overs and the menu ---------- */
+#flowerpop li { background: var(--p6-card2); border-radius: 6px; font-size: var(--t14); }
+#flowerpop li.ok { background: var(--p6-sage-bg); } #flowerpop li.ok i { color: var(--p6-sage-d); }
+#flowerpop li.locked { background: #ebe3d3; color: #5c5345; }
+#settings .seg { border-radius: 8px; box-shadow: inset 0 0 0 2px var(--p6-edge); }
+#settings .seg button[aria-checked="true"] { background: var(--p6-line); color: #fff9ea; }
+#settings select, #start select { border-radius: 8px; border: 2px solid var(--p6-edge); background: #fff; }
+.modal.shopcard > .row:last-of-type, .modal.finale .frow { background: var(--p6-card); }
+.shopcard .wallet { background: var(--p6-card2); color: var(--p6-ink); box-shadow: inset 0 0 0 2px var(--p6-edge); }
+.shopcard .wallet b { color: var(--p6-ink); } .shopcard .wallet .wstar { color: var(--p6-ochre); -webkit-text-stroke: 1.5px var(--p6-line); paint-order: stroke fill; }
+.shopitem { background: #fff; } .shopitem.locked { background: var(--p6-card2); }
+.shopitem .btn.price[disabled] { background: #e3d9c5; color: #5c5345; }
+@media screen {
+  #report { background: var(--p6-oak); background-image: var(--plank); }
+  #report .sheet { background: var(--p6-card); border-radius: 12px; box-shadow: var(--blk-shadow), var(--p6-frame); }
+  #report h1 { color: var(--p6-ink); }
+}
+
+/* ---------- start screen: the same card kit as the game ---------- */
+#start .card { background: var(--p6-card); border-radius: 14px; box-shadow: 0 5px 0 var(--p6-lip), 0 11px 0 rgba(40, 24, 12, .16), var(--p6-frame), inset 0 10px 0 var(--p6-terra), inset 0 12px 0 var(--p6-line); padding-top: 34px; }
+#start .chip { background: var(--p6-line); color: #fff9ea; border-radius: 6px; font-size: var(--t12); padding: 4px 10px; }
+#start h1 span { color: var(--p6-sage); }
+#start .age { border-radius: 10px; background: #fff; box-shadow: inset 0 0 0 2px var(--p6-edge), 0 4px 0 var(--p6-edge2); padding: 14px 14px 14px 104px; position: relative; }
+#start .age::before { content: ''; position: absolute; left: 12px; top: 50%; width: 80px; height: 80px; margin-top: -40px; background: var(--p6-card2) url(../img/thumbs/timber.png) center / 84% no-repeat; border-radius: 8px; box-shadow: inset 0 0 0 2px var(--p6-edge); }
+#start .age[data-band="senior"]::before { background-image: url(../img/thumbs/hall.png); }
+#start .age:hover, #start .age:focus-visible { transform: translateY(-2px); box-shadow: inset 0 0 0 3px var(--p6-sage), 0 4px 0 var(--p6-sage-d); }
+/* ===== end of the first part of ui pass 6 (more below) ===== */
+
+/* ---------- ui pass 6, part 2: drawn icons (one set, the same on every device; the emoji underneath stay as text for
+   screen-reader labels and as a fallback, they are just not painted) ---------- */
+:root { --i-cam: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='2' y='6' width='14' height='12' fill='%2333241a'/%3E%3Cpath d='M16 10l6-4v12l-6-4z' fill='%2333241a'/%3E%3Crect x='5' y='9' width='4' height='3' fill='%23ffcf4a'/%3E%3C/svg%3E"); --i-menu: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='3' y='4' width='18' height='3.4' fill='%2333241a'/%3E%3Crect x='3' y='10.3' width='18' height='3.4' fill='%2333241a'/%3E%3Crect x='3' y='16.6' width='18' height='3.4' fill='%2333241a'/%3E%3C/svg%3E"); --i-lens: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='10' cy='10' r='6.5' fill='%23cfe9f5' stroke='%2333241a' stroke-width='2.6'/%3E%3Cpath d='M15 15l6.5 6.5' stroke='%2333241a' stroke-width='3.6'/%3E%3C/svg%3E"); --i-zin: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='10' cy='10' r='7' fill='%23fff' stroke='%2333241a' stroke-width='2.6'/%3E%3Cpath d='M15.5 15.5l6 6' stroke='%2333241a' stroke-width='3.6'/%3E%3Cpath d='M6.5 10h7M10 6.5v7' stroke='%2333241a' stroke-width='2.4'/%3E%3C/svg%3E"); --i-zout: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='10' cy='10' r='7' fill='%23fff' stroke='%2333241a' stroke-width='2.6'/%3E%3Cpath d='M15.5 15.5l6 6' stroke='%2333241a' stroke-width='3.6'/%3E%3Cpath d='M6.5 10h7' stroke='%2333241a' stroke-width='2.4'/%3E%3C/svg%3E"); --i-left: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 9.5a7.5 7.5 0 1 1 0 8' fill='none' stroke='%2333241a' stroke-width='2.6'/%3E%3Cpath d='M2 5l1.2 8.2L11 10z' fill='%2333241a'/%3E%3C/svg%3E"); --i-right: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg transform='translate(24 0) scale(-1 1)'%3E%3Cpath d='M7 9.5a7.5 7.5 0 1 1 0 8' fill='none' stroke='%2333241a' stroke-width='2.6'/%3E%3Cpath d='M2 5l1.2 8.2L11 10z' fill='%2333241a'/%3E%3C/g%3E%3C/svg%3E"); --i-home: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 9V3h6M15 3h6v6M21 15v6h-6M9 21H3v-6' fill='none' stroke='%2333241a' stroke-width='2.6'/%3E%3Cpath d='M7 11h10l-2 5H9z' fill='%23b5472a'/%3E%3Crect x='7' y='9' width='10' height='3' fill='%23256f47'/%3E%3C/svg%3E"); --i-walk: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12.5' cy='4' r='2.6' fill='%2333241a'/%3E%3Cpath d='M12.5 8v7M12.5 15l-4 6.5M12.5 15l4 6.5M7 12l5.5-3 5 3' fill='none' stroke='%2333241a' stroke-width='2.6'/%3E%3C/svg%3E"); --i-inside: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 11.5L12 3l9 8.5V21H3z' fill='%23ffcf4a' stroke='%2333241a' stroke-width='2.4'/%3E%3Crect x='10' y='13' width='4.5' height='8' fill='%2333241a'/%3E%3C/svg%3E"); --i-spk: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M2.5 9h4.5l6-5v16l-6-5H2.5z' fill='%2333241a'/%3E%3Cpath d='M16.5 9c1.6 1.6 1.6 4.4 0 6M19.5 6c3.2 3.2 3.2 8.8 0 12' fill='none' stroke='%2333241a' stroke-width='2.6'/%3E%3C/svg%3E"); --i-spkw: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M2.5 9h4.5l6-5v16l-6-5H2.5z' fill='%23fff'/%3E%3Cpath d='M16.5 9c1.6 1.6 1.6 4.4 0 6M19.5 6c3.2 3.2 3.2 8.8 0 12' fill='none' stroke='%23fff' stroke-width='2.6'/%3E%3C/svg%3E"); --i-x: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 5l14 14M19 5L5 19' stroke='%2333241a' stroke-width='3.6'/%3E%3C/svg%3E"); --i-pause: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='5' y='4' width='5' height='16' fill='%2333241a'/%3E%3Crect x='14' y='4' width='5' height='16' fill='%2333241a'/%3E%3C/svg%3E"); --i-play: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 3.5l14 8.5-14 8.5z' fill='%23256f47'/%3E%3C/svg%3E"); --i-erase: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg transform='rotate(-38 12 12)'%3E%3Crect x='2.5' y='7.5' width='19' height='9.5' rx='1.5' fill='%23ffcf4a' stroke='%2333241a' stroke-width='2.2'/%3E%3Crect x='2.5' y='7.5' width='6.5' height='9.5' rx='1.5' fill='%23e9826a' stroke='%2333241a' stroke-width='2.2'/%3E%3C/g%3E%3Cpath d='M4 22h16' stroke='%2333241a' stroke-width='2.2'/%3E%3C/svg%3E"); }
+#strip .ib .ico, #camctl .ib .ico, #build .erase .ico { font-size: 0 !important; width: 26px; height: 26px; flex: none; display: block; background: center / contain no-repeat; }
+#camctl .camtog .ico { background-image: var(--i-cam); }
+#strip [data-menu] .ico { background-image: var(--i-menu); }
+#strip .lensbtn:not(.on) .ico { background-image: var(--i-lens); }
+#strip .lensbtn.on .ico { font-size: 21px !important; width: auto; height: 26px; line-height: 26px; background: none; }
+#camctl [data-cam="in"] .ico { background-image: var(--i-zin); } #camctl [data-cam="out"] .ico { background-image: var(--i-zout); }
+#camctl [data-cam="left"] .ico { background-image: var(--i-left); } #camctl [data-cam="right"] .ico { background-image: var(--i-right); }
+#camctl [data-cam="home"] .ico { background-image: var(--i-home); } #camctl [data-v="street"] .ico { background-image: var(--i-walk); } #camctl [data-v="inside"] .ico { background-image: var(--i-inside); }
+#build .erase .ico { background-image: var(--i-erase); width: 34px; height: 34px; }
+.spk, #florence .tipx, #card [data-pause], #build .info .play, #build .play { font-size: 0 !important; background-repeat: no-repeat; background-position: center; background-size: 22px 22px; }
+.spk { background-image: var(--i-spk); } #florence .tipx { background-image: var(--i-x); background-size: 18px 18px; }
+#card [data-pause] { background-image: var(--i-pause); background-size: 18px 18px; } #card [data-pause][aria-label="Play"] { background-image: var(--i-play); }
+#build .info .play, #build .play { background-image: var(--i-play); background-size: 14px 14px; }
+.spk.speaking { background: var(--p6-sage) var(--i-spkw) center / 22px 22px no-repeat !important; box-shadow: inset 0 0 0 2px var(--p6-sage-d), 0 3px 0 var(--p6-sage-d); }
+.spk { min-width: 44px; min-height: 44px; }
+
+/* ---------- ui pass 6, part 3: layout ---------- */
+/* --- laptops, tablets, boards --- */
+@media (min-width: 761px) and (min-height: 561px) {
+  /* camera row: every button has a picture and a word */
+  #strip .ib, #camctl .ib { width: auto; min-width: 56px; height: 54px; padding: 4px 6px 3px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
+  #camctl { gap: 5px; }
+  #strip .ib img { width: 28px; height: 28px; }
+
+  /* build bar: the tile key sits in the free end of the builds row when a category has five builds or fewer;
+     with more builds it is a row of swatches, and the words open above it on hover / focus */
+  #build { padding: 8px; }
+  #build .bbody { grid-template-rows: 22px auto; }
+  #build .info { grid-column: 2 / span 2; gap: var(--s2); }
+  #build .info .ihead { margin-right: 0; }
+  #build .info .play { width: 36px; height: 22px; }
+  #build .hlkey, #build .hlkey:not(.mini) { grid-column: 3; grid-row: 2; align-self: center; justify-self: end; z-index: 1; display: flex; flex-direction: column; flex-wrap: nowrap; align-items: flex-start; gap: 2px; margin: 0 10px 0 0; padding: 0; background: none; font: 700 var(--t12)/1.2 'Inter', sans-serif; color: var(--p6-ink); }
+  #build .hlkey:not(.mini) span, #build .hlkey:not(.mini) span:nth-child(n+2) { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+  #build .hlkey .hk { width: 13px; height: 13px; border-width: 3px; flex: none; }
+  #build .bbody:has(.items .slotwrap:nth-child(7)) .hlkey:not(.mini), #build .hlkey.mini { grid-row: 1; flex-direction: row; gap: 5px; margin: 0; position: relative; }
+  #build .bbody:has(.items .slotwrap:nth-child(7)) .info, #build .bbody:has(.hlkey.mini) .info { grid-column: 2; }
+  #build .bbody:has(.items .slotwrap:nth-child(7)) .hlkey:not(.mini) span { font-size: 0; gap: 0; }
+  #build .bbody:has(.items .slotwrap:nth-child(7)) .hlkey:not(.mini):hover, #build .bbody:has(.items .slotwrap:nth-child(7)) .hlkey:not(.mini):focus-within, #build .hlkey.mini:hover, #build .hlkey.mini:focus-within, #build .hlkey.mini:focus {
+    position: absolute; right: 8px; bottom: calc(100% - 30px); flex-direction: column; gap: 3px; background: var(--p6-card); border-radius: 8px; padding: 8px 12px; box-shadow: var(--p6-frame), 0 3px 0 var(--p6-lip); z-index: 6; }
+  #build .bbody:has(.items .slotwrap:nth-child(7)) .hlkey:not(.mini):hover span, #build .bbody:has(.items .slotwrap:nth-child(7)) .hlkey:not(.mini):focus-within span { font-size: var(--t12); gap: 6px; }
+  #build .hlkey.mini:hover span, #build .hlkey.mini:focus-within span, #build .hlkey.mini:focus span { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+  #build .cat { font-size: var(--t12); border-radius: 8px; }
+  #build .item { font-size: var(--t12); }
+  #build .item.on { transform: none; }
+
+  /* Florence's tip: a speech bubble over her docked figure (it was a second wooden panel over the town centre) */
+  #layer #florence:not(.mini) { bottom: 10px; width: 372px; padding: 0; background: none; box-shadow: none; pointer-events: none; }
+  #florence:not(.mini) .fwrap, #florence:not(.mini) .fwrap:has(canvas.portrait) { display: grid; grid-template-columns: 1fr 84px; grid-template-rows: auto auto; gap: 12px 0; align-items: end; }
+  #florence:not(.mini) .fwrap > .portrait, #florence:not(.mini) .fwrap canvas.portrait { grid-column: 2; grid-row: 2; width: 70px; margin: 6px 7px 6px; pointer-events: auto; box-shadow: inset 0 0 0 2px var(--p6-line), 0 0 0 4px var(--p6-oak), 0 0 0 6px var(--p6-line), 0 4px 0 6px var(--p6-lip); }
+  #florence:not(.mini) .fwrap > div { grid-column: 1 / -1; grid-row: 1; position: relative; pointer-events: auto; background: var(--p6-card); border-radius: 12px; box-shadow: var(--blk-shadow), var(--p6-frame); padding: 8px 12px 12px; min-height: 60px; }
+  #florence:not(.mini) .fwrap > div::after { content: ''; position: absolute; right: 34px; bottom: -8px; width: 14px; height: 14px; background: var(--p6-card); box-shadow: 2px 2px 0 var(--p6-line); transform: rotate(45deg); }
+  #florence:not(.mini) .fhead { min-height: 44px; margin: -2px 0 2px; padding-right: 96px; align-items: center; gap: 8px; }
+  #florence:not(.mini) .fhead .spk { position: absolute; top: 6px; right: 6px; width: 44px; height: 44px; margin: 0; }
+  #florence:not(.mini) .tipx { top: 6px; right: 56px; }
+  #florence:not(.mini) .fbody { background: none; box-shadow: none; padding: 0; margin: 0; font-size: var(--t16); line-height: 1.3; }
+  #florence:not(.mini) .fbody p { margin: 0 0 6px; }
+  #florence.praise:not(.mini) .fwrap > div { box-shadow: var(--blk-shadow), inset 0 0 0 3px var(--p6-sage); }
+  #florence.mini { box-shadow: var(--blk-shadow), var(--p6-frame); }
+  /* the good-spot line sits on the bar's left shoulder; Florence's bubble has the right one */
+  #build .info .ihead .spotwhy { max-width: min(480px, 44vw); }
+}
+
+/* --- phones (portrait) --- */
+@media (max-width: 760px) {
+  /* top card: ONE row. 🌼 · next step (the big thing) · ★ · pause. It used to take two rows whenever the day chip showed */
+  #card { flex-wrap: nowrap; align-items: center; padding: 6px; gap: 6px; }
+  #card .goal, #card:has(.dayc:not([hidden])) .goal, #card:has(.credits:not([hidden])) .goal { order: 1; flex: 1 1 0; min-width: 0; background: var(--p6-card); border-radius: 8px; padding: 4px 8px 5px 12px; box-shadow: inset 0 0 0 2px var(--p6-line), inset 5px 0 0 var(--p6-terra); gap: 3px; min-height: 44px; justify-content: center; }
+  #card .goal .gt, #card:has(.dayc:not([hidden])) .goal .gt, #card:has(.credits:not([hidden])) .goal .gt { font: 800 calc(13px * var(--ts))/1.15 'Inter', sans-serif; -webkit-line-clamp: 3; }
+  #card .goal .gbar { height: 10px; min-width: 0; } #card .goal .gbar b { font: 900 9px/10px 'Inter', sans-serif; }
+  #card button.stars { order: 2; min-width: 44px; padding: 2px 5px; flex: none; }
+  #card .dayc { order: 3; background: none; flex: none; } #card .credits { order: 4; }
+  html:has(#card:not(.hide) .dayc:not([hidden])) #camctl, html:has(#card:not(.hide) .dayc:not([hidden])) .introskip,
+  html:has(#card:not(.hide) .dayc:not([hidden])) #flowerpop, html:has(#card:not(.hide) .dayc:not([hidden])) #lensbar { top: 84px; }
+  html:has(#card:not(.hide) .dayc:not([hidden])) #toast { top: 96px !important; }
+  html:has(#card:not(.hide) .dayc:not([hidden])) #alert { top: 150px; }
+
+  /* the right-hand buttons and the camera buttons carry a word under the picture */
+  .ib .cap { display: block; font: 800 9.5px/1 'Inter', system-ui, sans-serif; color: var(--p6-ink); white-space: nowrap; }
+  #strip .ib, #camctl .ib { width: 48px; height: 48px; padding: 3px 1px 2px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
+  #strip .ib .ico, #camctl .ib .ico { width: 22px; height: 22px; } #strip .ib img { width: 26px; height: 26px; }
+  #strip .sep { width: 30px; }
+  #camctl { padding: 5px; gap: 4px; }
+  #camctl.open { display: grid; grid-template-columns: repeat(4, 56px); max-width: none; }   /* 8 buttons = 4 x 2, none left over */
+  #camctl.open .ib { width: 56px; }
+  #camctl .ib .cap { font-size: 9px; letter-spacing: -.01em; }
+
+  /* build tray: two-line names (no "Straw-bale…"), a tile key while it is still needed, and an arrow tab when the row goes on */
+  #build .item span { white-space: normal; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.05; font-size: 11px; word-break: normal; overflow-wrap: anywhere; }
+  #build .item { height: 84px; } #build .items .erase { height: 84px; } #build .item img { width: 50%; }
+  #build .hlkey:not(.mini) { display: flex; flex-wrap: wrap; gap: 3px 10px; margin: 0; font: 700 11px/1.2 'Inter', sans-serif; color: var(--p6-ink); }
+  #build .hlkey:not(.mini) span { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+  #build .hlkey .hk { width: 12px; height: 12px; border-width: 3px; flex: none; }
+  #build .items { scroll-snap-type: x proximity; padding-right: 30px; }
+  #build .bbody { position: relative; }
+  #build .bbody:has(.items .slotwrap:nth-child(5))::after { content: '›'; position: absolute; right: 0; bottom: 26px; width: 22px; height: 44px; display: grid; place-items: center; background: var(--p6-ochre); color: var(--p6-ink); font: 900 22px/1 'Inter', sans-serif; border-radius: 8px 0 0 8px; box-shadow: inset 0 0 0 2px var(--p6-line); pointer-events: none; }
+  #build .info .ihead b { font-size: 15px; }
+  #build .info .play { width: 44px; height: 30px; position: relative; } #build .info .play::before { content: ''; position: absolute; inset: -7px 0; }
+  #build .info .ihead .spotwhy { font-size: 12.5px; font-weight: 700; }
+
+  /* Florence's tip: a short strip above the tray (small figure, words, one button; ✕ and 🔊 in a column at the right).
+     It was a 250 px tall panel that left about 110 px of island */
+  #layer #florence:not(.mini) { padding: 6px 54px 6px 6px; min-height: 100px; background: var(--p6-card); background-image: none; box-shadow: var(--blk-shadow), var(--p6-frame); }
+  #florence:not(.mini) .fwrap, #florence:not(.mini) .fwrap:has(canvas.portrait) { grid-template-columns: 40px 1fr; gap: 8px; align-items: start; }
+  #florence:not(.mini) .fwrap canvas.portrait, #florence:not(.mini) .fwrap .portrait { width: 40px; }
+  #florence:not(.mini) .fhead { margin: 0; min-height: 0; gap: 6px; align-items: center; }
+  #florence:not(.mini) .fhead b { font-size: 12px; } #florence:not(.mini) .fhead em { font-size: 10px; padding: 1px 5px; margin: 0; }
+  #florence:not(.mini) .fhead .spk { position: absolute; right: 6px; top: 52px; width: 42px; height: 42px; min-width: 0; min-height: 0; margin: 0; }
+  #florence:not(.mini) .tipx { right: 6px; top: 6px; width: 42px; height: 42px; }
+  #florence:not(.mini) .fbody { background: none; box-shadow: none; padding: 0; margin: 2px 0 0; font-size: calc(14px * var(--ts)); line-height: 1.25; }
+  #florence:not(.mini) .fbody p { margin: 0 0 4px; }
+  #florence:not(.mini) .fbody .slot.act { min-height: 44px; padding: 2px 10px 2px 4px; flex-direction: row; gap: 6px; font-size: 13px; }
+  #florence:not(.mini) .fbody .slot.act img { width: 30px; }
+
+  /* missions: the instruction box and Send / Clear stay put; only the word bank scrolls */
+  html[data-lab="on"] #dock .actions:has(.sentrow) { display: flex; flex-direction: column; overflow: hidden; max-height: none; flex: 0 1 auto; min-height: 0; }
+  html[data-lab="on"] #dock .actions:has(.sentrow) > * { flex: none; }
+  html[data-lab="on"] #dock .actions:has(.sentrow) .tiles { flex: 0 1 auto; min-height: 50px; max-height: 22vh; overflow-y: auto; overscroll-behavior: contain; padding: 2px 2px 6px; }
+  html[data-lab="on"] #dock .actions:has(.sentrow) > .morecue { display: none; }
+  html[data-lab] #dock .sentrow .sentence, #dock .sentrow .sentence { min-height: 54px; flex: 1 1 100%; }
+  #dock .sentrow .btn { flex: 1 1 auto; justify-content: center; min-height: 44px; }
+  #dock .sentrow .btn.go { flex: 3 1 auto; }
+  .trayhead .tabs { flex-wrap: nowrap; width: 100%; } .trayhead .tabs button { flex: 1 1 0; padding: 2px 4px; font-size: 12px; min-width: 0; }
+  html[data-lab="on"] #dock .speaker .spk { width: 44px; height: 44px; }
+
+  /* centre cards: the last row of buttons stays in view while the card scrolls */
+  .modal > .row:last-child, .modal > .row:last-of-type { position: sticky; bottom: -14px; background: var(--p6-card); padding: 8px 0 10px; margin-bottom: -10px; z-index: 1; box-shadow: 0 -2px 0 var(--p6-card2); }
+  /* the menu: Done sits under the settings, not over them */
+  #settings { max-height: calc(100dvh - 24px); top: 8px; padding-bottom: 0; }
+  #settings [data-close] { bottom: 0; box-shadow: inset 0 0 0 2px var(--p6-sage-d), 0 -10px 0 0 var(--p6-card), 0 10px 0 0 var(--p6-card); margin: 14px 0 10px; }
+  /* the report's table fits the sheet */
+  #report { padding: 8px; } #report .sheet { padding: 12px; } #report table { table-layout: fixed; font-size: 12px; } #report td, #report th { padding: 4px 3px; overflow-wrap: anywhere; }
+}
