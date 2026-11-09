@@ -818,7 +818,7 @@ export function createGame(app) {
     const C = app.classroom; if (!C) return labBoard();
     if (G.busy || !sb.running) return; G.busy = true; stopBuilding(); sb.inClass = true;
     audio.door?.(); setMusic('lab');
-    await rig.fade(() => { C.show(true); rig.mode = 'inside'; rig.apply(C.pose()); app.bot.appear(C.florenceAt()); app.bot.look(C.eye()); });
+    await rig.fade(() => { C.show(true); rig.mode = 'inside'; rig.cut(C.pose()); app.bot.appear(C.florenceAt()); app.bot.look(C.eye()); });
     document.documentElement.dataset.lab = 'on'; ui.show('strip', false); ui.setBadge(''); ui.show('strip', false);
     C.card(G.S.classTitle, [pick(G.S.classHello)], { icon: '🧪' });
     help({ tag: 'HELLO', html: `<p>${esc(G.S.classHello)}</p>`, say: G.S.classHello }); app.bot.wave();

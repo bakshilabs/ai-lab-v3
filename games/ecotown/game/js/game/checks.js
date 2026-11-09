@@ -144,7 +144,7 @@ export function createChecks(app) {
       const counts = {}; for (const hh of sim.homes) counts[hh.item] = (counts[hh.item] || 0) + 1;
       const type = Object.keys(counts).sort((a, b) => counts[b] - counts[a])[0] || 'timber';
       const temp = ITEMS[type]?.temp ?? 20; inside.build(type, temp);
-      await rig.fade(() => { inside.root.visible = true; rig.mode = 'inside'; rig.apply(inside.pose()); });
+      await rig.fade(() => { inside.root.visible = true; rig.mode = 'inside'; rig.cut(inside.pose()); });
       ui.lensbar(`🏠 ${esc(app.C.checks.inside.label)} · ${esc(inside.label)} · <b>${temp} °C</b> with the heating off`);
       return { temp, summary: `${temp} °C inside with the heating off` };
     },

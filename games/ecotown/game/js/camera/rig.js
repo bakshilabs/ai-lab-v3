@@ -53,6 +53,8 @@ export function createRig(stage, canvas, fadeEl) {
     },
     current() { return { pos: cam.position.clone(), look: this._look.clone(), fov: cam.fov }; },
     _look: new THREE.Vector3(),
+    // a hard cut (classroom, inside a house) ends any flight still running, so it can't pull the camera back afterwards
+    cut(pose) { if (this.flight) { const f = this.flight; this.flight = null; f.res(); } this._modeGen = (this._modeGen || 0) + 1; this.apply(pose); },
     apply(pose) { cam.position.copy(pose.pos); this._look.copy(pose.look); cam.lookAt(pose.look); if (cam.fov !== pose.fov) { cam.fov = pose.fov; cam.updateProjectionMatrix(); } },
     // Fly from the current view to a pose. Sky-to-sky flights move along the orbit (shortest turn), others along
     // a gentle arc. A new flight replaces the one in progress. Timed on the clock, so slow devices don't stretch it.
@@ -72,8 +74,9 @@ export function createRig(stage, canvas, fadeEl) {
       clampTarget();
       this.street = null; this.follow = null; this.turntable = 0;
       if (before) { let dy = sky.yaw - before.yaw; dy = Math.atan2(Math.sin(dy), Math.cos(dy)); dy = clamp(dy, -100 * DEG, 100 * DEG); sky.yaw = before.yaw + dy; }
+      const gen = this._modeGen = (this._modeGen || 0) + 1;
       await this.fly(this.skyPose(), dur + (before ? Math.abs(sky.yaw - before.yaw) / (Math.PI / 2) * 0.3 : 0), { orbit: before ? { a: before, b: { ...sky, target: sky.target.clone() } } : null });
-      this.mode = 'sky';
+      if (gen === this._modeGen) this.mode = 'sky'; // unless something else (the classroom, a house) took the camera meanwhile
     },
     overview(dur = 1.4) {
       sky.autoPitch = true;
