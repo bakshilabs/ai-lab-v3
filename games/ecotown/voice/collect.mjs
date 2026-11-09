@@ -27,7 +27,9 @@ const out = await p.evaluate(async () => {
     const j = band === 'junior'; const C = CONTENT[band]; const pick = (o) => (typeof o === 'string' ? o : j ? o.j : o.s);
     for (const v of Object.values(C.ui)) add(band, v, 'narrator');
     for (const k of ['unknown', 'correct', 'notQuite', 'lookAgain', 'itWas']) add(band, C.ui[k], 'helper');
-    for (const v of Object.values(C.ui.lucky || {})) add(band, v, 'helper'); // a plan that passed from a poor brief (third playtest)
+    for (const v of Object.values(C.ui.lucky || {})) add(band, v, 'helper');
+    if (C.ui.unfair) add(band, C.ui.unfair, 'helper'); // a biased school brief never passes (fourth playtest)
+    add(band, 'I skipped the joke words.', 'helper'); // a plan that passed from a poor brief (third playtest)
     for (const h of Object.values(C.habits)) { add(band, h.explain, 'helper'); add(band, `${C.ui.correct} ${h.label}`, 'narrator'); }
     for (const r of [...C.stars.flawed, ...C.stars.clean, ...C.stars.missed]) add(band, `★ ${r}`, 'narrator');
     for (const w of WONT_LINES) add(band, w, 'helper');

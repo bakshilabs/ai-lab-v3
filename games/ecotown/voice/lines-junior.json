@@ -60,9 +60,9 @@
   "key": "558a5202"
  },
  {
-  "s": "Why did Florence get it wrong?",
+  "s": "Why did this plan go wrong?",
   "voice": "narrator",
-  "key": "797c9cc0"
+  "key": "f7de95ec"
  },
  {
   "s": "Give Florence a clearer instruction",
@@ -148,6 +148,21 @@
   "s": "[object Object]",
   "voice": "narrator",
   "key": "b07fa198"
+ },
+ {
+  "s": "Wait: the school is meant for every family, not just the richest ones.",
+  "voice": "narrator",
+  "key": "5ad84e8a"
+ },
+ {
+  "s": "Ask for a place that is fair to everyone.",
+  "voice": "narrator",
+  "key": "ac4c7a3f"
+ },
+ {
+  "s": "NOT FAIR",
+  "voice": "narrator",
+  "key": "9e8132d5"
  },
  {
   "s": "Town report",
@@ -340,6 +355,31 @@
   "key": "9b463a82"
  },
  {
+  "s": "The plan passed, but only because Florence left out the silly part: it isn\u2019t something a town can build.",
+  "voice": "helper",
+  "key": "d1788863"
+ },
+ {
+  "s": "A clear instruction is one a real builder could follow.",
+  "voice": "helper",
+  "key": "87691f71"
+ },
+ {
+  "s": "Wait: the school is meant for every family, not just the richest ones.",
+  "voice": "helper",
+  "key": "45437b89"
+ },
+ {
+  "s": "Ask for a place that is fair to everyone.",
+  "voice": "helper",
+  "key": "8367023a"
+ },
+ {
+  "s": "I skipped the joke words.",
+  "voice": "helper",
+  "key": "5a6bb5a1"
+ },
+ {
   "s": "Florence chased one word, like \u201cbest\u201d, \u201cfast\u201d or \u201cmost\u201d, and forgot everything else.",
   "voice": "helper",
   "key": "cdcbea64"
@@ -438,6 +478,26 @@
   "s": "I won\u2019t clear the old wood: the deer and birds live there.",
   "voice": "helper",
   "key": "227247ff"
+ },
+ {
+  "s": "I didn\u2019t spray pesticide: it kills the bees, and the orchards need bees to make fruit.",
+  "voice": "helper",
+  "key": "fb9aca55"
+ },
+ {
+  "s": "I won\u2019t clear the old wood for farms: the deer and birds live there.",
+  "voice": "helper",
+  "key": "cde256b9"
+ },
+ {
+  "s": "I didn\u2019t plan a diesel or gas generator: burning fuel makes a lot of carbon and smoke, and the fuel has to come by boat.",
+  "voice": "helper",
+  "key": "362f6379"
+ },
+ {
+  "s": "I planned clean power instead.",
+  "voice": "helper",
+  "key": "93d4893c"
  },
  {
   "s": "Flood lens.",
@@ -1160,6 +1220,21 @@
   "key": "37e8ceee"
  },
  {
+  "s": "Mark 2 more tiles and Homes will open.",
+  "voice": "helper",
+  "key": "ff0f8361"
+ },
+ {
+  "s": "Mark 1 more tile and Homes will open.",
+  "voice": "helper",
+  "key": "18aad36b"
+ },
+ {
+  "s": "That\u2019s the start of your town, and Homes are open now.",
+  "voice": "helper",
+  "key": "3cd0d02a"
+ },
+ {
   "s": "Here\u2019s how a home gets built.",
   "voice": "helper",
   "key": "32989e20"
@@ -1358,6 +1433,16 @@
   "s": "Build a Town school close to the homes.",
   "voice": "helper",
   "key": "a6d1dba6"
+ },
+ {
+  "s": "Some homes are too far from the school.",
+  "voice": "helper",
+  "key": "ae675c4b"
+ },
+ {
+  "s": "Build a second Town school near them.",
+  "voice": "helper",
+  "key": "746daa5c"
  },
  {
   "s": "You can catch an AI\u2019s mistakes now.",
@@ -1983,6 +2068,21 @@
   "s": "Here we use wind, sun and batteries.",
   "voice": "helper",
   "key": "7109356e"
+ },
+ {
+  "s": "No, I can\u2019t do your homework!",
+  "voice": "helper",
+  "key": "0765db67"
+ },
+ {
+  "s": "I only know about planning this town.",
+  "voice": "helper",
+  "key": "ccf72f1f"
+ },
+ {
+  "s": "And even when an AI can write answers, it can be confidently wrong, so your own thinking is the bit that counts.",
+  "voice": "helper",
+  "key": "86a082d1"
  },
  {
   "s": "I learn from patterns, not from looking at the real island.",
@@ -2870,164 +2970,9 @@
   "key": "4d6bd03b"
  },
  {
-  "s": "\ud83c\udfe1 Homes: unlocked!",
-  "voice": "narrator",
-  "key": "5990a6bb"
- },
- {
-  "s": "92 percent sure.",
-  "voice": "helper",
-  "key": "a37acb14"
- },
- {
-  "s": "90 percent sure.",
-  "voice": "helper",
-  "key": "86fe8b0a"
- },
- {
-  "s": "3 stars.",
-  "voice": "narrator",
-  "key": "17b84dfa"
- },
- {
-  "s": "Carbon cloud: 3.0\u00d7 over the homes\u2019 limit",
-  "voice": "narrator",
-  "key": "6f53af27"
- },
- {
-  "s": "89 percent sure.",
-  "voice": "helper",
-  "key": "b7086450"
- },
- {
-  "s": "Food \u00b7 Power \u00b7 Town heart: unlocked!",
-  "voice": "narrator",
-  "key": "a1c6b21f"
- },
- {
-  "s": "88 percent sure.",
-  "voice": "helper",
-  "key": "219ad03b"
- },
- {
-  "s": "Nature lens: Deer, bees, otters, birds and frogs all stay.",
-  "voice": "narrator",
-  "key": "daa6d843"
- },
- {
-  "s": "75 percent sure.",
-  "voice": "helper",
-  "key": "c64c776b"
- },
- {
-  "s": "Residents want more car parks.",
-  "voice": "helper",
-  "key": "b042529a"
- },
- {
-  "s": "I asked 10 people at the car park.",
-  "voice": "helper",
-  "key": "2e027f64"
- },
- {
-  "s": "9 of them drive, so I\u2019m very sure!",
-  "voice": "helper",
-  "key": "ecb03f52"
- },
- {
-  "s": "Most residents want safe paths and cycle lanes.",
-  "voice": "helper",
-  "key": "fe53f940"
- },
- {
-  "s": "At the school gate, 9 of 10 walk or cycle.",
-  "voice": "helper",
-  "key": "266f1613"
- },
- {
-  "s": "I was 90 percent sure before because I only asked drivers.",
-  "voice": "helper",
-  "key": "02f77ca3"
- },
- {
-  "s": "Asking different people changed my answer!",
-  "voice": "helper",
-  "key": "99d29013"
- },
- {
-  "s": "Not yet: Every home within 15 minutes\u2019 walk of school.",
-  "voice": "narrator",
-  "key": "cf35140e"
- },
- {
-  "s": "Kept: Town carbon under the 160 t limit.",
-  "voice": "narrator",
-  "key": "c63bf58a"
- },
- {
-  "s": "Kept: Lights on through a still winter night.",
-  "voice": "narrator",
-  "key": "c8798677"
- },
- {
-  "s": "Before I trust an AI plan, I check it with a lens first, test the worst day, not a normal day and ask a friend to check it.",
-  "voice": "narrator",
-  "key": "8b2a7a99"
- },
- {
-  "s": "Next: a healthier town: paths, parks, warm homes",
-  "voice": "narrator",
-  "key": "c7d99106"
- },
- {
-  "s": "The farthest home is a 24-minute walk from school.",
-  "voice": "helper",
-  "key": "d84bd593"
- },
- {
-  "s": "Move the school closer or add paths.",
-  "voice": "helper",
-  "key": "1b985b83"
- },
- {
-  "s": "Pegging out the town",
-  "voice": "narrator",
-  "key": "fbf99388"
- },
- {
-  "s": "Hmm, I don\u2019t know that one yet!",
-  "voice": "helper",
-  "key": "564a0279"
- },
- {
-  "s": "Try asking me about flooding, carbon, winter power, food, bees, or any build, like \u201cWhat does a heat pump do?\u201d",
-  "voice": "helper",
-  "key": "98485654"
- },
- {
-  "s": "Before I trust an AI plan, I check it with a lens first, and test the worst day, not a normal day, and ask a friend to check it.",
-  "voice": "narrator",
-  "key": "55735e94"
- },
- {
-  "s": "Next: Next: a healthier town: paths, parks, warm homes",
-  "voice": "narrator",
-  "key": "3705b7e1"
- },
- {
   "s": "Start with site selection: mark town land (\ud83d\uddfa Land), then connect it with paths.",
   "voice": "helper",
   "key": "78d94887"
- },
- {
-  "s": "3 town tiles on the winter floodplain.",
-  "voice": "helper",
-  "key": "3d589b94"
- },
- {
-  "s": "Relocate to higher ground.",
-  "voice": "helper",
-  "key": "de252c47"
  },
  {
   "s": "\ud83c\udfe1 Homes: unlocked",
@@ -3050,11 +2995,6 @@
   "key": "b544ba0d"
  },
  {
-  "s": "Resolved: no homes on the floodplain.",
-  "voice": "helper",
-  "key": "25356326"
- },
- {
   "s": "Welcome to the AI Lab.",
   "voice": "helper",
   "key": "0b4ea3f0"
@@ -3065,14 +3005,14 @@
   "key": "227b29cc"
  },
  {
-  "s": "Town land: Designates land for building.",
+  "s": "I predict from patterns in what I was told, not from checking the world.",
   "voice": "helper",
-  "key": "1ad0b9ab"
+  "key": "1572a952"
  },
  {
-  "s": "Homes and town buildings need it.",
+  "s": "Always test it.",
   "voice": "helper",
-  "key": "7918419a"
+  "key": "8995701b"
  },
  {
   "s": "Flood-risk lens.",
@@ -3225,6 +3165,11 @@
   "key": "c1d18ce3"
  },
  {
+  "s": "Trade-offs are real: the mission passed, but this town now fails that test.",
+  "voice": "narrator",
+  "key": "38cc0173"
+ },
+ {
   "s": "Housing delivered 3 stars.",
   "voice": "narrator",
   "key": "281d2457"
@@ -3268,6 +3213,11 @@
   "s": "Habitats are part of the test.",
   "voice": "narrator",
   "key": "d6278429"
+ },
+ {
+  "s": "Enough food for 42 households (14 units).",
+  "voice": "helper",
+  "key": "92cc31e3"
  },
  {
   "s": "88 percent confidence.",
@@ -3405,6 +3355,21 @@
   "key": "ee6e2af2"
  },
  {
+  "s": "Not yet: Every home within 15 minutes\u2019 walk of school.",
+  "voice": "narrator",
+  "key": "cf35140e"
+ },
+ {
+  "s": "Kept: Town carbon under the 160 t limit.",
+  "voice": "narrator",
+  "key": "c63bf58a"
+ },
+ {
+  "s": "Kept: Lights on through a still winter night.",
+  "voice": "narrator",
+  "key": "c8798677"
+ },
+ {
   "s": "The adopted plan meets this promise; your town does not yet (the plan was kept out or did not all fit).",
   "voice": "narrator",
   "key": "a1c79fbb"
@@ -3425,9 +3390,9 @@
   "key": "7bbc1070"
  },
  {
-  "s": "Before I trust an AI plan, I test it against evidence, not its confidence, and stress-test the worst case, and ask a friend to check it.",
+  "s": "Before I trust an AI plan, I test it against evidence, not its confidence, stress-test the worst case and ask a friend to check it.",
   "voice": "narrator",
-  "key": "5c968b80"
+  "key": "7a753bfd"
  },
  {
   "s": "This applies to any AI output: essays, search answers, recommendations.",
@@ -3440,9 +3405,9 @@
   "key": "ce2a0073"
  },
  {
-  "s": "Next: Next: health petal to 100%",
+  "s": "Next: health petal to 100%",
   "voice": "narrator",
-  "key": "87f80363"
+  "key": "efab1390"
  },
  {
   "s": "Longest walk to school 24 min (rule: \u2264 15).",
@@ -3460,6 +3425,11 @@
   "key": "9c78792d"
  },
  {
+  "s": "Pegging out the town",
+  "voice": "narrator",
+  "key": "fbf99388"
+ },
+ {
   "s": "Next: health.",
   "voice": "helper",
   "key": "788c3f78"
@@ -3468,6 +3438,171 @@
   "s": "A cycle lane linking homes to the mainland bridge or the school, and parks beside the homes.",
   "voice": "helper",
   "key": "c6314494"
+ },
+ {
+  "s": "\ud83c\udfe1 Homes: unlocked!",
+  "voice": "narrator",
+  "key": "5990a6bb"
+ },
+ {
+  "s": "92 percent sure.",
+  "voice": "helper",
+  "key": "a37acb14"
+ },
+ {
+  "s": "90 percent sure.",
+  "voice": "helper",
+  "key": "86fe8b0a"
+ },
+ {
+  "s": "3 stars.",
+  "voice": "narrator",
+  "key": "17b84dfa"
+ },
+ {
+  "s": "Carbon cloud: 3.0\u00d7 over the homes\u2019 limit",
+  "voice": "narrator",
+  "key": "6f53af27"
+ },
+ {
+  "s": "89 percent sure.",
+  "voice": "helper",
+  "key": "b7086450"
+ },
+ {
+  "s": "Food \u00b7 Power \u00b7 Town heart: unlocked!",
+  "voice": "narrator",
+  "key": "a1c6b21f"
+ },
+ {
+  "s": "88 percent sure.",
+  "voice": "helper",
+  "key": "219ad03b"
+ },
+ {
+  "s": "Nature lens: Deer, bees, otters, birds and frogs all stay.",
+  "voice": "narrator",
+  "key": "daa6d843"
+ },
+ {
+  "s": "75 percent sure.",
+  "voice": "helper",
+  "key": "c64c776b"
+ },
+ {
+  "s": "Residents want more car parks.",
+  "voice": "helper",
+  "key": "b042529a"
+ },
+ {
+  "s": "I asked 10 people at the car park.",
+  "voice": "helper",
+  "key": "2e027f64"
+ },
+ {
+  "s": "9 of them drive, so I\u2019m very sure!",
+  "voice": "helper",
+  "key": "ecb03f52"
+ },
+ {
+  "s": "Most residents want safe paths and cycle lanes.",
+  "voice": "helper",
+  "key": "fe53f940"
+ },
+ {
+  "s": "At the school gate, 9 of 10 walk or cycle.",
+  "voice": "helper",
+  "key": "266f1613"
+ },
+ {
+  "s": "I was 90 percent sure before because I only asked drivers.",
+  "voice": "helper",
+  "key": "02f77ca3"
+ },
+ {
+  "s": "Asking different people changed my answer!",
+  "voice": "helper",
+  "key": "99d29013"
+ },
+ {
+  "s": "Before I trust an AI plan, I check it with a lens first, test the worst day, not a normal day and ask a friend to check it.",
+  "voice": "narrator",
+  "key": "8b2a7a99"
+ },
+ {
+  "s": "Next: a healthier town: paths, parks, warm homes",
+  "voice": "narrator",
+  "key": "c7d99106"
+ },
+ {
+  "s": "The farthest home is a 24-minute walk from school.",
+  "voice": "helper",
+  "key": "d84bd593"
+ },
+ {
+  "s": "Move the school closer or add paths.",
+  "voice": "helper",
+  "key": "1b985b83"
+ },
+ {
+  "s": "Why did Florence get it wrong?",
+  "voice": "narrator",
+  "key": "797c9cc0"
+ },
+ {
+  "s": "Hmm, I don\u2019t know that one yet!",
+  "voice": "helper",
+  "key": "564a0279"
+ },
+ {
+  "s": "Try asking me about flooding, carbon, winter power, food, bees, or any build, like \u201cWhat does a heat pump do?\u201d",
+  "voice": "helper",
+  "key": "98485654"
+ },
+ {
+  "s": "Before I trust an AI plan, I check it with a lens first, and test the worst day, not a normal day, and ask a friend to check it.",
+  "voice": "narrator",
+  "key": "55735e94"
+ },
+ {
+  "s": "Next: Next: a healthier town: paths, parks, warm homes",
+  "voice": "narrator",
+  "key": "3705b7e1"
+ },
+ {
+  "s": "3 town tiles on the winter floodplain.",
+  "voice": "helper",
+  "key": "3d589b94"
+ },
+ {
+  "s": "Relocate to higher ground.",
+  "voice": "helper",
+  "key": "de252c47"
+ },
+ {
+  "s": "Resolved: no homes on the floodplain.",
+  "voice": "helper",
+  "key": "25356326"
+ },
+ {
+  "s": "Town land: Designates land for building.",
+  "voice": "helper",
+  "key": "1ad0b9ab"
+ },
+ {
+  "s": "Homes and town buildings need it.",
+  "voice": "helper",
+  "key": "7918419a"
+ },
+ {
+  "s": "Before I trust an AI plan, I test it against evidence, not its confidence, and stress-test the worst case, and ask a friend to check it.",
+  "voice": "narrator",
+  "key": "5c968b80"
+ },
+ {
+  "s": "Next: Next: health petal to 100%",
+  "voice": "narrator",
+  "key": "87f80363"
  },
  {
   "s": "Proposal: designate the flat riverside land as town land.",
