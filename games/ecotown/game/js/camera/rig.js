@@ -194,7 +194,7 @@ export function createRig(stage, canvas, fadeEl) {
   rig.zoomTo = zoomTo;
 
   // ---------- input
-  const pts = new Map(); let downAt = 0, moved = 0, lastTap = 0, pinch0 = 0, dist0 = 0, ang0 = 0, mid0 = null, button = 0;
+  const pts = new Map(); let downAt = 0, moved = 0, lastTap = 0, lastXY = null, pinch0 = 0, dist0 = 0, ang0 = 0, mid0 = null, button = 0;
   const ndc = (e) => { const r = canvas.getBoundingClientRect(); return new THREE.Vector2(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1); };
   const ndcAt = (x, y) => { const r = canvas.getBoundingClientRect(); return new THREE.Vector2(((x - r.left) / r.width) * 2 - 1, -((y - r.top) / r.height) * 2 + 1); };
   canvas.addEventListener('contextmenu', (e) => e.preventDefault());
@@ -227,7 +227,9 @@ export function createRig(stage, canvas, fadeEl) {
     if (!was || moved > (rig.building ? 14 : 8) || performance.now() - downAt > 700) return;
     const now = performance.now();
     if (rig.mode === 'street') { const g = rig.streetGround(ndc(e)); if (g && !rig.walkTo(g)) rig.onStreetBlocked?.(); return; } // street view: tap the ground to walk there
-    if (now - lastTap < 320) { rig.onDoubleTap?.(ndc(e), e); lastTap = 0; } else { lastTap = now; rig.onTap?.(ndc(e), e); }
+    // a double-tap is two taps on the same spot: quick taps on different tiles (a child building fast) each build
+    const near = lastXY && Math.hypot(e.clientX - lastXY[0], e.clientY - lastXY[1]) < 24;
+    if (now - lastTap < 320 && near) { rig.onDoubleTap?.(ndc(e), e); lastTap = 0; } else { lastTap = now; lastXY = [e.clientX, e.clientY]; rig.onTap?.(ndc(e), e); }
   };
   canvas.addEventListener('pointerup', up); canvas.addEventListener('pointercancel', (e) => pts.delete(e.pointerId));
   canvas.addEventListener('wheel', (e) => { if (rig.locked || rig.mode !== 'sky') return; e.preventDefault(); zoomTo(sky.dist * Math.exp(e.deltaY * 0.0012), ndc(e)); }, { passive: false });
