@@ -153,7 +153,7 @@ export function createGame(app) {
       const dur = world.showGhost(res.plan.placements, res.after, { reduce: app.reduce });
       setTimeout(() => app.bot.beam(false), dur * 1000 + 300);
       res.plan.placements.forEach((_, i) => setTimeout(() => audio.ghost(i), i * 50));
-      const why = G.j ? '' : `Why ${res.sure}%? reading <b>${res.breakdown.reading}%</b> × plan fit <b>${res.breakdown.fit}%</b> × experience <b>${res.breakdown.experience}%</b>. Tested: ${esc(res.plan.tested)}.`;
+      const why = G.j ? '' : `Why ${res.sure}%? Based on: reading <b>${res.breakdown.reading}%</b>, plan fit <b>${res.breakdown.fit}%</b>, experience <b>${res.breakdown.experience}%</b>, scaled to 48–92% (never certain). Tested: ${esc(res.plan.tested)}.`; // it used to show the three joined by × as if they multiplied to the total
       help({ tag: G.C.ui.plotterGuess, html: guessHtml(res), sure: res.sure, sureLabel: G.C.ui.sure, why, say: res.plan.reading.join(' ') + (res.plan.targets?.length ? ' ' + res.plan.targets.map((t) => targetLine(t, G.j)).join(' ') : '') + ` ${res.sure} percent ${G.C.ui.sure}.` + (res.plan.wont?.length ? ' ' + res.plan.wont.join(' ') : ''), voice: 'helper' });
       ui.legend('plan');
       await sleep(dur * 1000);
@@ -637,8 +637,9 @@ export function createGame(app) {
     tipShown = id; lastTip = { id, text, lab, lens, praise, rule, where }; if (lab) sb.needLab = lab; praise ? audio.good?.() : audio.tip();
     if (lab || lens) where = null;
     const act = where ? `<button class="slot act go" data-tipwhere="${where}"><img src="${thumb(where)}" alt=""><span>${esc(G.S.showWhere)}</span></button>` : lab ? `<button class="slot act go" data-tiplab="${lab}"><img src="${thumb('ailab')}" alt=""><span>${esc(G.S.showInLab)}</span></button>` : lens ? `<button class="slot act" data-tiplens="${lens}"><b class="ico">${G.C.checks[lens].icon}</b><span>${esc(G.S.useLens)}</span></button>` : '';
-    const el = ui.florence({ tag: praise ? '✓' : G.S.tipTag, html: `<p>${esc(text)}</p>${act ? `<div class="tiprow">${act}</div>` : ''}`, say: text });
+    const el = ui.florence({ tag: praise ? '✓' : G.S.tipTag, html: `<p>${esc(text)}</p>${act ? `<div class="tiprow">${act}</div>` : ''}<button class="tipx" data-tipx aria-label="${esc(G.S.dismiss)}" title="${esc(G.S.dismiss)}">✕</button>`, say: text });
     el.classList.toggle('praise', praise); el.title = G.S.dismiss;
+    el.querySelector('[data-tipx]').addEventListener('click', () => hideTip()); // a visible way to fold the tip away (tapping the card did it, but nothing said so)
     el.querySelector('[data-tiplab]')?.addEventListener('click', () => { hideTip(); openLab(lab); });
     el.querySelector('[data-tiplens]')?.addEventListener('click', () => { hideTip(); toggleLens(lens); });
     el.querySelector('[data-tipwhere]')?.addEventListener('click', () => { hideTip(); showWhere(where); });
@@ -966,7 +967,7 @@ export function createGame(app) {
     run = { id, marks: [false, false, false], bonus: false }; app.__lucky = null;
     G.cells = seedTo(terrain, id); showCells(G.cells);
     ui.setBadge(G.classMode ? `🧪 AI LAB · ${lv.n}/6` : `🧪 ${L.title}`); ui.setTask(lv.n, pick(L.goal)); ui.helper(null); ui.facil(null); ui.views(null, []);
-    stage.setTime(12); app.hour = 12.5; await rig.overview(1.4);
+    sb.hourWas = app.hour; stage.setTime(12); app.hour = 12.5; await rig.overview(1.4); // the town's clock carries on where it was after the mission
     // brief, with what this mission adds (a new lens or test). "Not now" goes straight back to building.
     const N = L.newThing; const lens = G.C.checks[N.lens]; const newLabel = N.label ? pick(N.label) : lens.label;
     facil(id, 'brief');
@@ -1056,6 +1057,7 @@ export function createGame(app) {
       const again = await checkAct(id, res, { auto: true });
       if (!again.flawed) {
         const sA = sim(res.after); const cx = ctxFor(res.after);
+        if (lv.pass(sA, cx) && res.plan.contra) { const m = G.C.ui.contra(res.plan.contra[0]); help({ tag: G.j ? 'MIXED UP' : 'CONTRADICTORY', tagCls: 'bad', html: `<p>${esc(m)}</p>`, say: m, voice: 'helper' }); audio.bad(); heading = G.S.tellMissing; continue; } // a rewrite that says the opposite of its own key word never passes
         if (lv.pass(sA, cx) && res.plan.unfair) { help({ tag: G.C.ui.unfairTag, tagCls: 'bad', html: `<p>${esc(G.C.ui.unfair)}</p>`, say: G.C.ui.unfair, voice: 'helper' }); audio.bad(); heading = G.S.tellMissing; continue; } // the same biased words never pass on a retry
         if (lv.pass(sA, cx)) {
           audio.pass(); app.bot.proud(); world.confetti(app.bot.group.position.clone(), 90); ui.alert(G.C.ui.checked, true, 1800);
@@ -1089,11 +1091,12 @@ export function createGame(app) {
     world.clearGhost(); ui.legend(null); ui.helper(null); ui.tray(''); ui.facil(null); await checks.leave();
     sb.lastSuggest = performance.now(); // her next idea for the town waits a while after a lesson
     G.cells = real; app.inLab = false; app.levelId = null; app.briefMinutes = null; app.briefTargets = []; delete document.documentElement.dataset.lab; run = null;
-    stage.setTime(app.hour = 12.5, 0);
+    stage.setTime(app.hour = sb.hourWas ?? 12.5, 0); sb.hourWas = null; // (every mission used to reset the day to 12:30, so a whole game fitted inside Day 1)
     if (placements) {
       const keys = new Set(); let skipped = 0;
       for (const p of placements) {
         const tool = p.item || p.mod || p.mark; if (!tool || !ITEMS[tool]) continue;
+        if (ITEMS[tool].unique && [...G.cells.values()].some((cc) => cc.item === tool)) { skipped++; continue; } // the player's own school stays where they built it (adopting used to move it)
         const t = terrain.tiles.get(p.k); const c = cellOf(G.cells, p.k);
         let k = p.k;
         // the tile is taken (or not allowed in this town): the nearest free tile where it can go, so adopting a plan
@@ -1110,7 +1113,7 @@ export function createGame(app) {
       showCells(G.cells, keys);
       sb.afterLab = keys.size ? G.S.planUsed(keys.size, skipped) : G.S.planDidntFit;
       // the plan passed on the practice island; the player's town is different. Say what still differs, with numbers.
-      if (id && LEVELS[id]) { const sT = sim(); const gap = LEVELS[id].needs(sT, ctxFor(G.cells), G.j).filter((n) => !n.ok && !/^(🚶 Paths|Routes to)/.test(n.label) && !(id === 'land' && /Town land:/.test(n.label) && sT.townTiles > TARGETS.townTiles)) /* more town land than the practice target is fine in your own town (“24 of 18 tiles”) */.map((n) => n.label.replace(/^\P{L}+/u, '')); if (gap.length) sb.afterLab += ` ${G.S.townDiffers(gap.join('; '))}`; }
+      if (id && LEVELS[id]) { const sT = sim(); const gap = LEVELS[id].needs(sT, ctxFor(G.cells), G.j).filter((n) => !n.ok && !/^(🚶 Paths|Routes to)/.test(n.label) && !(id === 'land' && /Town land:/.test(n.label) && sT.townTiles > TARGETS.townTiles)) /* more town land than the practice target is fine in your own town (“24 of 18 tiles”) */.map((n) => n.label.replace(/^\P{L}+/u, '')).map((l) => (/\d/.test(l) ? l : `${l}: not yet`)); if (gap.length) sb.afterLab += ` ${G.S.townDiffers(gap.join('; '))}`; }
     } else showCells(G.cells);
     renderCard(); await rig.overview(1.0, true); save();
   }
@@ -1232,7 +1235,7 @@ export function createGame(app) {
     try {
       const s = sim(); ui.only([]); ui.setTask(0, `A day in ${G.townName}`); ui.views('sky'); app.bot.show(false);
       const list = s.homes.length ? bubblesFor(s, G.cells, terrain, G.j, 'final') : []; const pois = poiList(s);
-      const lines = diaryLines('day', s, G.j); let shown = -1; let skip = false;
+      const lines = diaryLines('day', s, G.j).map((l) => l.replace(/^(Morning|Afternoon|Evening): /, '')); let shown = -1; let skip = false; const hourWas = app.hour;
       ui.tray(`<div class="row liverow"><span class="clock" data-clock>7:00</span><span class="diary" data-diary></span><button class="btn alt" data-skip>Skip ⏭</button></div>`, (tr) => { tr.querySelector('[data-skip]').onclick = () => (skip = true); });
       ui.caption(`A day in ${G.townName}`, 3000);
       const t0 = performance.now(); let bi = 0, pi = 0, nextB = 2, nextP = 0;
@@ -1240,13 +1243,13 @@ export function createGame(app) {
         const el = (performance.now() - t0) / 1000; if (el > seconds) break;
         app.hour = 7 + (el / seconds) * 14; stage.setTime(app.hour, 0);
         const ck = ui.P.tray.querySelector('[data-clock]'); if (ck) ck.textContent = clockText();
-        const part = app.hour < 11 ? 0 : app.hour < 16 ? 1 : 2;
+        const part = app.hour < 12 ? 0 : app.hour < 17 ? 1 : 2;
         if (part !== shown) { shown = part; const dd = ui.P.tray.querySelector('[data-diary]'); if (dd) { dd.textContent = `📔 ${['Morning', 'Afternoon', 'Evening'][part]}: “${lines[part]}”`; dd.classList.remove('flash'); void dd.offsetWidth; dd.classList.add('flash'); } }
         if (el >= nextP && pois.length && !app.reduce && rig.mode === 'sky') { const p = pois[pi++ % pois.length]; rig.focus(p, { dist: 70, pitch: 0.6, yaw: rig.sky.yaw + 0.5 }, 3.2); nextP = el + 6; }
         if (el >= nextB && list.length) { const b = list[bi++ % list.length]; const who = life.residentNear(b.k); if (who) ui.labels.bubble({ at: () => who.position.clone().add(new THREE.Vector3(0, 1.9, 0)), text: b.text, bad: b.bad }); nextB = el + 3.4; }
         await sleep(50);
       }
-      ui.labels.clear('bub'); app.hour = 12.5; stage.setTime(12.5, 0); await rig.overview(1.1, true);
+      ui.labels.clear('bub'); app.hour = hourWas; stage.setTime(hourWas, 0); await rig.overview(1.1, true);
     } finally { G.busy = false; startBuilding(); }
   }
   // the finale: all six missions done and the eight town goals met. A summary card (what you built, mistakes

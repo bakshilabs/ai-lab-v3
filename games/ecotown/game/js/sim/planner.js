@@ -230,6 +230,17 @@ const PLANNERS = {
       const id = slots.has('keep_hedges') && t.hedge ? 'mixed' : maxMode || !slots.has('keep_hedges') ? 'bigfield' : 'mixed';
       put(t, id); used.add(t.k);
     }
+    // her own tally can be a basket out (bees and hedges change the real harvest): when the brief asked for "enough", she
+    // checks the simulated result and adds a field until it is met. (A clear "at least 16 units, keep the hedges" came back
+    // "15 of 16" and was marked as missing a requirement the player had written.)
+    if (!maxMode) {
+      for (const t of land) {
+        const real = simulate(ctx.terrain, applyPlacements(ctx.cells, placements)); food = real.food;
+        if (real.food >= Math.max(real.foodNeed, asked) || placements.length > 30) break;
+        if (used.has(t.k)) continue;
+        put(t, slots.has('keep_hedges') || t.hedge ? 'mixed' : 'bigfield'); used.add(t.k);
+      }
+    }
     return { placements, reading, assumptions, habit, habitWhy, tested: 'food produced', fit: Math.min(1, food / need) };
   },
 

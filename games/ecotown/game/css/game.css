@@ -1363,3 +1363,7 @@ html[data-text="large"] #build .slottip { font-size: 16px; }
 /* street view is for looking: the build bar and its good-spot line step aside (nothing can be built from the street,
    and the pill sat under the walking hint) */
 html[data-street="on"] #build, html[data-street="on"] .spotwhy { visibility: hidden; }
+/* Florence's tip: a visible close button beside the speaker */
+#florence .tipx { position: absolute; top: 10px; right: 62px; width: 44px; height: 44px; border: 0; border-radius: 8px; background: var(--wd, #3a2716); color: var(--cream, #fff3d6); font: 900 16px/1 'Inter', sans-serif; cursor: pointer; }
+#florence .tipx:hover, #florence .tipx:focus-visible { background: #5a3d24; }
+@media (max-width: 760px) { #florence .tipx { top: 6px; right: 54px; width: 40px; height: 40px; } }

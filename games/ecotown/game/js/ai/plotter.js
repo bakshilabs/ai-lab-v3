@@ -32,7 +32,7 @@ function keywordRead(level, text) {
 }
 
 import { readTargets, checkTargets } from './targets.js';
-import { sillyIn } from './brief.js';
+import { sillyIn, contraIn } from './brief.js';
 const NO_CARS = /no cars|car.?free|ban(ned)? cars|without cars|keep cars out|cars? (out|banned|kept out)|not by car|fewer cars|less cars|cars at the edge/i;
 export const IMPORTED = /\blorr(y|ies)\b|\btrucks?\b|\bimport|ship(ped)? in|fly (it |food )?in|bring (all )?(our |the )?food in|buy (all )?(our |the )?food|from (the )?(supermarket|mainland|big city|city)/i;
 const KEEP_W = '(keep|protect|save|leave|look after|don.?t (touch|build on|clear))';
@@ -92,7 +92,7 @@ export function read(level, text, { withExplain = false } = {}) {
 const WONT = {
   land: [
     [/ignore (the )?flood|even if .*flood|floodplain is fine|don.?t (care|worry) about flood/, 'I won’t ignore flood risk: homes on flood land would be under water every winter, so I kept the town on dry land.', (x) => x.townFlooded === 0],
-    [/(clear|drain|fill in|build on|destroy|remove) (any |the |all )?(wetland|marsh)/, 'I won’t clear the wetland: it is protected, and it soaks up the winter floods.', (x) => x.townOnWetland === 0],
+    [/(clear|drain|fill in|build on|destroy|remove|pave|pave over|concrete over) (any |the |all )?(wetland|marsh)/, 'I won’t clear the wetland: it is protected, and it soaks up the winter floods.', (x) => x.townOnWetland === 0],
     [/(clear|cut down|chop|remove) (any |the |all )?(wood|forest|trees)/, 'I won’t clear the old wood: the deer and birds live there.', (x) => x.townOnWood <= 1],
   ],
   move: [
@@ -124,6 +124,8 @@ export function ask(level, text, ctx) {
   const simAfter = simulate(ctx.terrain, after);
   p.wont = WONT[level] ? wontDo(level, text, simAfter) : [];
   p.targets = checkTargets(readTargets(level, text), simAfter); // numbers in the brief, said back against the plan's real result
+  // "do NOT make it safe": she reads the goal word and misses the "not". She says so, and the plan can't pass on those words.
+  const contra = contraIn(text); if (contra.length) { p.contra = contra; p.reading.unshift(`You wrote “${contra[0]}”. I pick out key words and can miss a “not”, so I may have read the opposite. Say what you do want.`); }
   const silly = sillyIn(text); if (silly.length) { // things a town can't build are named; joke words ("lol") are just skipped
     p.silly = silly; const things = silly.filter((w) => !/^(lol+|lmao|lmfao|rofl|haha+|hehe+|xd|jk|yolo|bruh)$/.test(w));
     p.reading.unshift(things.length ? `A town can’t build “${things.join('” or “')}”, so I left ${things.length > 1 ? 'them' : 'that'} out.` : 'I skipped the joke words.');
