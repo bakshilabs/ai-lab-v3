@@ -38,12 +38,42 @@ export function insideTileArea(x, z) {
   return r <= w;
 }
 // Full island outline for the mesh: bigger and more ragged, with a few notches.
+// Headlands (art pass): the outline swells in three places so the silhouette is not one oval hugging the grid:
+// a deep shelf behind the mesas (north-east), a headland beyond the front gorge (south-east) and the old oak's
+// point (west). Each is cut off to exactly zero away from its centre, so the river's two ends and the bridge
+// landing (east, angle 0) sit where they always did.
+const LOBES = [[-0.95, 0.48, 0.36], [0.8, 0.2, 0.14], [2.92, 0.2, 0.1], [1.52, 0.16, 0.05]]; // [angle, width, how far out]
+function lobe(a) { let w = 0; for (const [a0, s, k] of LOBES) { const d = Math.abs(a - a0); if (d < s * 1.8) w += k * Math.exp(-(d / s) * (d / s)); } return w; }
 export function insideVoxel(x, z) {
   const a = Math.atan2(z / RZ, x / RX), r = Math.hypot(x / RX, z / RZ);
-  const w = 1 + (noise2(Math.cos(a) * 4 + 3, Math.sin(a) * 4 + 3, 91) - 0.5) * 0.2 + (noise2(Math.cos(a) * 11, Math.sin(a) * 11, 13) - 0.5) * 0.07;
+  const w = 1 + (noise2(Math.cos(a) * 4 + 3, Math.sin(a) * 4 + 3, 91) - 0.5) * 0.2 + (noise2(Math.cos(a) * 11, Math.sin(a) * 11, 13) - 0.5) * 0.07 + lobe(a);
   return r <= w || insideTileArea(x, z);
 }
-// Height of the wild rim belt (0 inside the tile area): hills and terraces, higher at the back (north/east)
+// The mesas: flat-topped terracotta buttes that rise in sheer benches (ledges), not one rounded lump.
+// [centre x, centre z, radius x, radius z, [[edge, height], …] from the foot inwards, seed]
+const BUTTES = [
+  [24, -38, 15, 9.5, [[1, 8], [0.82, 15], [0.6, 22]], 12],   // the big mesa behind the wood
+  [3, -39.5, 8, 4.4, [[1, 6], [0.6, 11]], 14],                   // its lower neighbour to the west
+  [42.5, -21.5, 3, 3, [[1, 9], [0.6, 15]], 16],                   // a tower east of the gorge
+  [-45, 15, 3.4, 3.1, [[1, 7], [0.66, 12]], 31], [-43, -20, 2.9, 2.6, [[1, 6], [0.62, 10]], 32],
+  [45, -4, 3.3, 3, [[1, 8], [0.62, 13]], 33], [43, 18, 2.8, 2.5, [[1, 6], [0.62, 10]], 34], [37.5, 30.5, 2.6, 2.4, [[1, 5], [0.55, 9]], 35],
+];
+// Height of the mesa at a point (0 = no mesa here), and whether the point is on a mesa's scree foot.
+export function mesaAt(x, z) {
+  let h = 0;
+  for (const [cx, cz, rx, rz, levels, seed] of BUTTES) {
+    const d0 = Math.hypot((x - cx) / rx, (z - cz) / rz); if (d0 > 1.5) continue;
+    // ragged walls: broad bays plus narrow flutes, the same on every bench so the cliffs line up as buttresses
+    const d = d0 + (noise2(x / 4.5, z / 4.5, seed) - 0.5) * 0.3 + (noise2(x / 1.7, z / 1.7, seed + 1) - 0.5) * 0.12;
+    for (const [edge, lh] of levels) if (d < edge) h = Math.max(h, lh);
+    if (d >= levels[0][0] && d < levels[0][0] + 0.3) h = Math.max(h, Math.round((levels[0][0] + 0.3 - d) / 0.3 * 3)); // scree at the foot
+  }
+  // the ledge that joins the two big mesas: a tarn on it feeds the waterfall
+  if (z < -30.5 && x > 2 && x < 22 && Math.abs(z + 35) < 4.2 + noise2(x / 4, z / 4, 15) * 1.2) h = Math.max(h, 8);
+  return h;
+}
+export const TARN = { x: 13.5, z: -33.5, r: 2.1 };
+// Height of the wild rim belt (0 inside the tile area): terraced hills, higher at the back (north/east)
 // and low at the front (south coast), so the town stays in view from the default camera.
 export function rimHeight(x, z) {
   if (insideTileArea(x, z)) return 0;
@@ -51,16 +81,11 @@ export function rimHeight(x, z) {
   const t = Math.max(0, Math.min(1, (rIn - 1) / ((RX / TRX) - 1)));            // 0 at the tile edge → 1 at the outline
   const back = Math.max(0, Math.min(1, 0.45 - z / 34 + x / 160));              // north/back of the island
   const hills = noise2(x / 8, z / 8, 5) * 0.65 + noise2(x / 3.5, z / 3.5, 6) * 0.35;
-  // the massif: a limestone mountain on the north-east shoulder, rising steeply behind the wood
-  const m = Math.max(0, 1 - Math.hypot((x - 24) / 28, (z + 30) / 15));
-  const massif = (m * 1.4 - m * m * 0.55) * 15 + noise2(x / 5, z / 5, 12) * 3 * m;   // broad, rounded shoulders with a craggy top
-  const h = (1.5 + back * 7) * hills * Math.min(1, t * 2.4) + back * 2 * t + massif * Math.min(1, t * 1.8 + 0.25);
-  // stepped terracotta mesas on the west and east rim and the back corners (tall enough to read as terracotta, h >= 9)
-  let mesa = 0;
-  for (const [cx, cz, r, mh] of MESAS) { const d = Math.hypot(x - cx, (z - cz) * 1.1) + noise2(x / 2.5, z / 2.5, 31) * 1.2; if (d < r) mesa = Math.max(mesa, mh); else if (d < r + 1.8) mesa = Math.max(mesa, Math.round(mh * 0.62)); }
-  return Math.max(0, Math.round(h), mesa);
+  let h = (1.5 + back * 7) * hills * Math.min(1, t * 2.4) + back * 2 * t;
+  if (h >= 3) h = Math.round(h / 2) * 2;                                       // the higher hills step up in terraces
+  const mesa = mesaAt(x, z) * Math.min(1, t * 3 + 0.34);                       // mesas never crowd the town edge
+  return Math.max(0, Math.round(h), Math.round(mesa));
 }
-const MESAS = [[-45, 15, 3.6, 12], [-43, -20, 3, 10], [45, -4, 3.4, 13], [43, 18, 2.8, 10]];
 // Canyons: deep gorges carved through the rim (never into the tile area). Returns how far below the rim top
 // the floor is cut (0 = no canyon). Gorge 1 runs from the massif east to the island edge; gorge 2 cuts the west rim.
 export function canyonDepth(x, z) {
@@ -71,7 +96,7 @@ export function canyonDepth(x, z) {
   const w = Math.max(w1, w2, w3); if (w <= 0) return 0;
   return Math.round((4 + w * 14) / 3) * 3; // stepped walls (benches), not one sheer face
 }
-export const isLimestone = (x, z, h) => h >= 9 || (h >= 6 && Math.hypot((x - 24) / 28, (z + 30) / 15) < 0.5);
+export const isLimestone = (x, z, h) => h >= 4 && mesaAt(x, z) >= 5;
 export const riverX = (z) => -27 + 1.4 * Math.sin(z / 7);
 // The river is a closed system on the island: it rises at a spring pool under a rock outcrop at the back
 // and ends in a lagoon behind the beach at the front, so no water pours off the floating island.

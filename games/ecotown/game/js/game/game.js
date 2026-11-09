@@ -511,10 +511,13 @@ export function createGame(app) {
   }
   async function checkSuggestion(sg, after) {
     const T2 = G.S.suggest; sb.lens = sg.lens; clearOverlay();
+    // the card says she is being checked and loses its buttons at once. (On a slow phone the three buttons stayed for 17 s;
+    // a tester tapped "Use it" meanwhile, the Right/Wrong question flashed past, and she was told off for not checking.)
+    { const w = ui.florence({ tag: T2.tag, html: `<p>${esc(G.j ? 'Checking my idea with the lens…' : 'Running the test on the proposal…')}</p>` }); w.onclick = null; clearTimeout(sb.tipHide); }
     app.checkingPlan = true; await checks.run(sg.lens, sim(after), after, {}); app.checkingPlan = false; // the lens bar says "Florence's plan, before building"
     const ev = evidence(sg, sim(), sim(after)); // what the lens shows, in numbers, so Right/Wrong is a judgement on evidence
-    const el = ui.florence({ tag: T2.tag, html: `<p class="ev">🔍 ${esc(ev)}</p><p>${esc(T2.judge)}</p><div class="tiprow"><button class="slot act go" data-j="right"><b class="ico">👍</b><span>${esc(T2.right)}</span></button><button class="slot act" data-j="wrong"><b class="ico">👎</b><span>${esc(T2.wrong)}</span></button></div>`, say: T2.judge });
-    el.onclick = null;
+    const el = ui.florence({ tag: T2.tag, html: `<p class="ev">🔍 ${esc(ev)}</p><p>${esc(T2.judge)}</p><div class="tiprow"><button class="slot act" data-j="right"><b class="ico">👍</b><span>${esc(T2.right)}</span></button><button class="slot act" data-j="wrong"><b class="ico">👎</b><span>${esc(T2.wrong)}</span></button></div>`, say: T2.judge });
+    el.onclick = null; clearTimeout(sb.tipHide); // the question waits for an answer
     el.querySelectorAll('[data-j]').forEach((b) => (b.onclick = async () => {
       const saysWrong = b.dataset.j === 'wrong'; await checks.leave(); sb.lens = null;
       if (sg.flawed && saysWrong) { G.catches = (G.catches || 0) + 1; audio.star?.(); app.bot?.oops(); if (!app.reduce) world.confetti(world.tileTop(sg.pl[0].k).add(new THREE.Vector3(0, 4, 0)), 70); world.clearGhost(); sayTip(T2.caught, true); ui.caption(`★ ${T2.catches(G.catches)}`, 3000); ui.setStars(G.stars = totalStars()); save(); }
@@ -616,7 +619,10 @@ export function createGame(app) {
     }
     const lab = rule.lab && !G.labs[rule.lab] && labReady(rule.lab, G.ever, G.labs, G.classMode) ? rule.lab : null;
     const lens = rule.lab && G.labs[rule.lab] && rule.lens === LAB_LENS[rule.lab] ? rule.lens : null;
-    showTip({ id: rule.id, text: tipText(rule, s, G.j), lab, lens, at: tipAt(rule.id, s), rule });
+    // a tip that names a build and has no Lab or lens button gets "Show me where" (it used to have no button at all)
+    const RULE_IDEA = { homesNext: 'homes', hungry: 'food', winter: 'energy', school: 'walk' };
+    const where = !lab && !lens ? (rule.id === 'rain' && isOpen('power') ? 'raingarden' : RULE_IDEA[rule.id] ? ideaTool(RULE_IDEA[rule.id]) : null) : null;
+    showTip({ id: rule.id, text: tipText(rule, s, G.j), lab, lens, where, at: tipAt(rule.id, s), rule });
   }
   // Florence's tip: one line in the dock, above the build bar. Never blocks; fades after a while.
   let tipShown = null;

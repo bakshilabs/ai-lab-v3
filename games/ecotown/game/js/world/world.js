@@ -2,9 +2,9 @@
 // window lights, turbine rotors and picking. Reads terrain + cells; never decides anything itself.
 import * as THREE from 'three';
 import { Vox, WORLD, rand, noise2, clipMaterial } from '../engine/voxel.js';
-import { clouds, waterfall, roots, floatingRocks } from '../engine/extras.js';
+import { cloudSea as makeCloudSea, waterfall, roots, floatingRocks } from '../engine/extras.js';
 import { ease, clamp } from '../engine/stage.js';
-import { T, X0, Z0, RX, RZ, zoneAt, rimHeight, canyonDepth, isLimestone, insideVoxel, inRiverVoxel, riverX, SPRING, LAGOON, tileAt, tileOrigin, tileCenter, ZONES } from './terrain.js';
+import { T, X0, Z0, RX, RZ, zoneAt, rimHeight, canyonDepth, isLimestone, mesaAt, TARN, insideVoxel, inRiverVoxel, riverX, SPRING, LAGOON, tileAt, tileOrigin, tileCenter, ZONES } from './terrain.js';
 import { BUILD, MARK, addMod, addModFine, decorate, tree2, bigOakAt } from './builders.js';
 import { ITEMS } from './catalog.js';
 import { planStages } from './construct.js';
@@ -20,8 +20,10 @@ const ghostMat = (lv) => { if (!ghostMats.has(lv)) ghostMats.set(lv, new THREE.M
 const GHOST_BAD = new THREE.MeshLambertMaterial({ color: '#ffb3a6' });
 
 function zoneAtVoxel(x0, z0) {
-  // wobble the boundaries a little so zones blend instead of following the tile grid
-  return zoneAt(x0 + (noise2(x0 * 0.18, z0 * 0.18, 31) - 0.5) * 3, z0 + (noise2(x0 * 0.18, z0 * 0.18, 47) - 0.5) * 3);
+  // wobble the boundaries so zones blend instead of following the tile grid, and stipple the last voxel or two,
+  // so one kind of land fades into the next
+  const j = (rand(x0, z0, 53) - 0.5) * 2.6, k = (rand(x0, z0, 59) - 0.5) * 2.6;
+  return zoneAt(x0 + (noise2(x0 * 0.18, z0 * 0.18, 31) - 0.5) * 3.4 + j, z0 + (noise2(x0 * 0.18, z0 * 0.18, 47) - 0.5) * 3.4 + k);
 }
 // sage and olive greens with ochre dry grass on the slope and fields: the warm brochure palette, not lime
 const TOPS = {
@@ -46,14 +48,32 @@ export function createWorld(stage, terrain) {
   const rimH0 = (x, z) => Math.round(rimHeight(x, z) * Math.min(1, Math.max(0, (Math.abs(x + 0.5 - riverX(z)) - 2.5) / 6)));
   const bridgeH = terrain.tiles.get(BRIDGE_TILE)?.h ?? 0; // the rim is cut to the bridge tile's level where the bridge leaves the town
   const rimH = (x, z) => (inBridgeCut(x, z) ? Math.min(rimH0(x, z), bridgeH) : rimH0(x, z));
-  const canyonBed = (x, z) => { const d = canyonDepth(x, z); return d ? Math.min(rimH(x, z), 0) - d + Math.min(rimH(x, z), 0) * 0 : null; };
+  // the keel under the island: deep in the middle, thin at the rim. It steps down in benches (strata ledges) with
+  // a few clusters of hanging pinnacles, instead of one mass of random spikes
+  const keel = (x, z) => {
+    const r = Math.hypot(x / RX, z / RZ);
+    let d = Math.round((9 + 24 * Math.pow(Math.max(0, 1 - r * r), 1.3) + (noise2(x / 9, z / 9, 86) - 0.5) * 9) / 3) * 3 + (rand(x >> 1, z >> 1, 87) > 0.9 ? 1 : 0);
+    const s = noise2(x / 4.5, z / 4.5, 88); if (s > 0.76) d += Math.round((s - 0.76) * 42);
+    return -d;
+  };
+  // gorges never cut through the keel (the floor rises towards the island's edge, so nothing hangs or pours off)
+  const canyonBed = (x, z) => { const d = canyonDepth(x, z); return d ? Math.max(-d, keel(x, z) + 5) : null; };
   const heightAt = (x, z) => { if (!insideVoxel(x, z)) return null; if (inRiverVoxel(x, z)) return -1; const tt = inTiles(x, z); if (tt) return tileH(tt[0], tt[1]); const cb = canyonBed(x, z); return cb != null ? Math.min(rimH(x, z), cb) : rimH(x, z); };
-  // warm sandstone strata exposed wherever the land drops into a canyon
-  const SAND = ['#f0955a', '#d9733f', '#b85a2e', '#f6ab70', '#9a4424', '#e07f47'];
-  const nearCanyon = (x, z) => { for (let dx = -3; dx <= 3; dx++) for (let dz = -3; dz <= 3; dz++) if (canyonDepth(x + dx, z + dz)) return true; return false; };
+  // One sandstone sequence for the whole island (mesa walls, gorge walls, keel), so the layers line up from the
+  // mesa tops down to the keel: terracotta beds with thin cream and dark red bands, gently warped
+  const BEDS = ['#d9733f', '#d9733f', '#e8874c', '#f4b783', '#d06d3a', '#d06d3a', '#b85a2e', '#e07f47', '#e07f47', '#f6c796', '#c96535', '#c96535', '#a04a26', '#e8874c', '#e8874c', '#d9733f'];
+  const bed = (x, y, z) => BEDS[(((y + 64 + Math.round((noise2(x / 15, z / 15, 52) - 0.5) * 4) + (rand(x >> 1, y, z >> 1) > 0.88 ? 1 : 0)) % 16) + 16) % 16];
+  const deep = (c, y) => (y > -8 ? c : tint(c, Math.max(0.58, 1 + (y + 8) * 0.017)));         // the keel darkens (warm) towards its foot
+  const HILL = ['#d6b072', '#c79d5c', '#e0bd82'];                                               // ochre risers of the terraced rim hills
+  const RISER = { slope: ['#d8caa6', '#c9b990', '#e2d6b6'], field: ['#b9925a', '#a9824c', '#c29c62'], wood: ['#6f5133', '#5f4329', '#7a5a3a'], coast: ['#eab47a', '#e0a66a', '#f0c088'] };
   const dither = (pal, x, z) => { const bx = x >> 1, bz = z >> 1; const n = rand(bx, bz, 3) * 0.75 + rand(x, z, 4) * 0.25 + (noise2(x * 0.12, z * 0.12, 9) - 0.5) * 0.7; return pal[n < 0.33 ? 2 : n < 0.7 ? 0 : 1]; };
-  const rimCells = [];
-  for (let x = -RX - 4; x <= RX + 4; x++) for (let z = -RZ - 4; z <= RZ + 4; z++) {
+  const nearWater = (x, z) => inRiverVoxel(x + 1, z) || inRiverVoxel(x - 1, z) || inRiverVoxel(x, z + 1) || inRiverVoxel(x, z - 1);
+  const rimCells = [], edgeCells = [];
+  const X_LO = -RX - 16, X_HI = RX + 16, Z_LO = -RZ - 16, Z_HI = RZ + 12;
+  const canyonNear = new Set(); // columns within 3 of a gorge show strata
+  for (let x = X_LO; x <= X_HI; x++) for (let z = Z_LO; z <= Z_HI; z++) if (canyonDepth(x, z)) for (let dx = -3; dx <= 3; dx++) for (let dz = -3; dz <= 3; dz++) canyonNear.add((x + dx) + ',' + (z + dz));
+  const nearCanyon = (x, z) => canyonNear.has(x + ',' + z);
+  for (let x = X_LO; x <= X_HI; x++) for (let z = Z_LO; z <= Z_HI; z++) {
     if (!insideVoxel(x, z)) continue;
     const tt = inTiles(x, z); const river = inRiverVoxel(x, z); const top = heightAt(x, z);
     const r = Math.hypot(x / RX, z / RZ);
@@ -62,32 +82,74 @@ export function createWorld(stage, terrain) {
     // looks like wetland always follows the wetland rule
     const tz = tt ? terrain.tiles.get(tt[0] + ',' + tt[1]).zone : null; const zw = tt ? zoneAtVoxel(x, z) : null;
     const zone = tt ? (tz === 'wetland' || zw === 'wetland' ? tz : zw) : beach ? 'coast' : 'rim';
-    const lime = !tt && isLimestone(x, z, top);
-    // a tapered keel underneath (deep in the middle, thin at the rim), measured from the uncarved land, so
-    // canyons don't hang down under the island like loose pillars
-    const bottom = Math.max(0, rimH(x, z), tt ? top : 0) - Math.round(10 + 26 * Math.pow(Math.max(0, 1 - r * r), 1.5) + noise2(x / 3, z / 3, 86) * 5);
-    const under = top - bottom;
+    const lime = !tt && isLimestone(x, z, top); const cd = !tt && canyonDepth(x, z); const strataCol = !tt && (lime || nearCanyon(x, z));
+    const bottom = Math.min(keel(x, z), top - 3);
     const edge = !insideVoxel(x + 1, z) || !insideVoxel(x - 1, z) || !insideVoxel(x, z + 1) || !insideVoxel(x, z - 1);
+    let topC;
     for (let y = bottom; y <= top; y++) {
       let c; const dTop = top - y, dBot = y - bottom;
-      if (dTop === 0) c = river ? '#d9c79a' : !tt && canyonDepth(x, z) ? ['#f2b07a', '#e8955c', '#f6c08e'][Math.floor(rand(x, z, 6) * 3)] : lime ? (top >= 12 ? ['#f3dcb4', '#e9cfa2'][Math.floor(rand(x >> 1, z >> 1, 5) * 2)] : ['#f6ab70', '#f2b07a', '#e8955c'][Math.floor(rand(x >> 1, z >> 1, 5) * 3)]) : dither(TOPS[zone], x, z);
-      // a subtle grid on the buildable land: alternate tiles a touch lighter, and a slightly darker line between tiles
-      if (dTop === 0 && tt && !river) { const lx = ((x - X0) % T + T) % T, lz = ((z - Z0) % T + T) % T; c = tint(c, ((tt[0] + tt[1]) % 2 ? 1.04 : 1) * (lx === 0 || lz === 0 ? 0.93 : 1)); }
-      else if (lime && y > 0) c = ['#e07f47', '#d06d3a', '#e8874c', '#c4622f'][(Math.floor(y / 2) + (rand(x >> 1, y >> 1, z >> 1) > 0.8 ? 1 : 0)) % 4]; // terracotta mesa cliffs
-      else if (!tt && dTop > 1 && dBot > 2 && nearCanyon(x, z)) c = SAND[(((y + 40) >> 1) + (rand(x, z, y) > 0.85 ? 1 : 0)) % 6]; // canyon strata
-      else if (dTop <= 1 && !river) c = zone === 'coast' ? '#eab47a' : '#8a5a2a';                           // turf lip
-      else if (dBot <= 2) c = rand(x, y, z) > 0.5 ? '#8a4426' : '#7a3a20';                                  // warm base (not black in shadow)
-      else { const streak = (Math.floor(x * 1.7 + z * 2.3) & 3); c = ['#d9733f', '#c96535', '#e07f47', '#b85a2e'][(Math.floor(y / 2) + (rand(x >> 1, y >> 1, z >> 1) > 0.75 ? 1 : 0) + (streak === 0 ? 1 : 0)) % 4]; } // terracotta earth in chunky blocks
+      if (dTop === 0) {
+        c = river ? '#d9c79a' : cd ? ['#f2b07a', '#e8955c', '#f6c08e'][Math.floor(rand(x, z, 6) * 3)]
+          : lime ? (top >= 12 ? (noise2(x / 3, z / 3, 58) > 0.62 ? ['#a7b766', '#9bb85e'][(x + z) & 1] : ['#f3dcb4', '#ecd0a4', '#f6e2c0'][Math.floor(rand(x >> 1, z >> 1, 5) * 3)]) : ['#f6b47c', '#f2b07a', '#eda06a'][Math.floor(rand(x >> 1, z >> 1, 5) * 3)])
+          : dither(TOPS[zone], x, z);
+        if (!river && !lime && !cd) {
+          const lg = Math.hypot((x + 0.5 - LAGOON.x) * 0.85, z - LAGOON.z) - LAGOON.r;                       // distance to the lagoon's shore
+          if (zone === 'coast') {
+            if (lg < 1.6) c = lg < 0.7 ? '#d3a877' : '#e0b784';                                             // wet sand round the lagoon
+            else if (((z + Math.round(noise2(x / 6, z / 6, 64) * 5)) % 5 + 5) % 5 === 0 && rand(x >> 1, z, 65) > 0.4) c = tint(c, 0.955); // wind ripples in the sand
+            else if (rand(x, z, 66) > 0.985) c = rand(x, z, 67) > 0.5 ? '#fff4e2' : '#f2a99a';               // shells
+          } else if (zone === 'wood') { if (rand(x, z, 68) > 0.86) c = rand(x, z, 69) > 0.5 ? '#8a7a3e' : '#6f5a34'; }      // leaf litter on the forest floor
+          else if (zone === 'wetland') { if (noise2(x / 2.2, z / 2.2, 70) > 0.66) c = '#58907a'; }           // dark, wet patches
+          else if (zone === 'meadow') { if (rand(x, z, 71) > 0.965) c = '#b9d48a'; }                         // pale new grass
+          else if (zone === 'slope') { if (noise2(x / 3, z / 3, 72) > 0.7) c = '#c2b866'; }                  // sun-dried patches
+          if (zone !== 'coast' && nearWater(x, z)) c = zone === 'rim' || zone === 'meadow' ? '#6fa55c' : c;  // a lush green bank beside the river
+        }
+        // a subtle grid on the buildable land: alternate tiles a touch lighter, and a slightly darker line between tiles
+        if (tt && !river) { const lx = ((x - X0) % T + T) % T, lz = ((z - Z0) % T + T) % T; c = tint(c, ((tt[0] + tt[1]) % 2 ? 1.04 : 1) * (lx === 0 || lz === 0 ? 0.93 : 1)); }
+        topC = c;
+      }
+      else if (dBot <= 1) c = rand(x, y, z) > 0.5 ? '#7c3d22' : '#6e351d';                                 // warm foot (not black in shadow)
+      else if (y >= 0 && strataCol) c = bed(x, y, z);                                                       // mesa cliffs and gorge walls
+      else if (y >= 0 && !river) c = tt ? (RISER[zone] || ['#8a5a2a', '#7c5126', '#94622e'])[Math.floor(rand(x >> 1, y, z >> 1) * 3)] : beach ? RISER.coast[Math.floor(rand(x >> 1, y, z >> 1) * 3)] : HILL[(y + (rand(x >> 1, y, z >> 1) > 0.7 ? 1 : 0)) % 3]; // terrace walls
+      else if (dTop === 1 && !river && !strataCol) c = zone === 'coast' ? '#eab47a' : '#8a5a2a';              // turf lip
+      else c = deep(bed(x, y, z), y);                                                                       // the keel's strata
       v.set(x, y, z, c);
     }
-    // dark root tips under the rim
-    if (r > 0.55 && rand(x, z, 77) > 0.94) { const by = top - under; const len = 2 + Math.floor(rand(x, z, 78) * 5); for (let k = 1; k <= len; k++) v.set(x, by - k, z, k === len ? '#4a1c0c' : '#7a3418'); }
-    if (edge && rand(x, z, 31) > 0.86) { const nx = insideVoxel(x + 1, z) ? -1 : 1; const y0 = top - 3 - Math.floor(rand(x, z, 32) * 5); v.set(x + nx, y0, z, '#b85a2e'); v.set(x + nx, y0 + 1, z, '#5fbf3f'); }
-    if (river) { water.set(x, 0, z, rand(x, 9, z) > 0.5 ? '#3fa2e6' : '#4aaeea'); riverCells.push([x, z]); }
+    // a few thin root tips under the rim
+    if (r > 0.55 && rand(x, z, 77) > 0.965) { const len = 2 + Math.floor(rand(x, z, 78) * 4); for (let k = 1; k <= len; k++) v.set(x, bottom - k, z, k === len ? '#4a1c0c' : '#7a3418'); }
+    if (edge) edgeCells.push([x, z, top, topC, beach, lime || !!cd]);
+    if (river) riverCells.push([x, z]);
     // gorge streams pool on the canyon floor and stop short of the island's edge (nothing pours off the island)
-    const cd = !tt && canyonDepth(x, z); if (cd && cd >= 12 && insideVoxel(x + 5, z) && insideVoxel(x - 5, z) && insideVoxel(x, z + 5) && insideVoxel(x, z - 5)) water.set(x, top + 1, z, '#3fa2e6');
+    if (cd && cd >= 12 && top <= -9 && insideVoxel(x + 5, z) && insideVoxel(x - 5, z) && insideVoxel(x, z + 5) && insideVoxel(x, z - 5)) water.set(x, top + 1, z, rand(x, 9, z) > 0.5 ? '#3fa2e6' : '#4aaeea');
     if (!tt && !river && !edge && !cd && !inBridgeCut(x, z)) rimCells.push([x, z, top, zone, lime]);
   }
+  // the island's lip: turf that overhangs here and there and vines that hang down the cliff, so the outline is
+  // broken and soft instead of a sheer cut
+  for (const [x, z, top, topC, beach, bare] of edgeCells) {
+    if (inBridgeCut(x, z)) continue;
+    for (const [dx, dz] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      if (insideVoxel(x + dx, z + dz)) continue; const p = rand(x + dx * 3, z + dz * 3, 31);
+      if (!bare && noise2(x / 4, z / 4, 33) > 0.5 && p > 0.3) { v.set(x + dx, top, z + dz, topC); }
+      else if (!bare && !beach && p > 0.9) { const len = 2 + Math.floor(rand(x, z, 32) * 3); for (let k = 1; k <= len; k++) v.set(x + dx, top - k, z + dz, k === len ? '#9cc45a' : (k & 1 ? '#6f9a4a' : '#86ab58')); }
+      else if (p < 0.022) { const y0 = top - 4 - Math.floor(rand(x, z, 34) * 6); v.set(x + dx, y0, z + dz, '#c4622f'); v.set(x + dx, y0 + 1, z + dz, '#8fae55'); } // a tuft on a ledge
+    }
+  }
+  // the river: pale shallows along the banks, a deeper blue channel in the middle and in the lagoon, white water
+  // where the spring fall lands, and a few lily pads on the lagoon
+  const shore = (x, z) => { for (let d = 1; d <= 2; d++) for (let dx = -d; dx <= d; dx++) for (let dz = -d; dz <= d; dz++) if (!inRiverVoxel(x + dx, z + dz)) return d; return 3; };
+  const pads = new Set(); for (let i = 0; i < 4; i++) { const a = i * 1.7 + 0.4, px = Math.round(LAGOON.x + Math.cos(a) * LAGOON.r * 0.5), pz = Math.round(LAGOON.z + Math.sin(a) * LAGOON.r * 0.45); pads.add(px + ',' + pz); if (i & 1) pads.add((px + 1) + ',' + pz); }
+  for (const [x, z] of riverCells) {
+    const d = shore(x, z); const foam = Math.hypot(x + 0.5 - SPRING.x, z - (SPRING.z - SPRING.r + 1.2)) < 1.7;
+    water.set(x, 0, z, foam ? (rand(x, 9, z) > 0.4 ? '#e4f3fb' : '#bfe3f6') : pads.has(x + ',' + z) && d === 3 ? '#74ad52' : d === 1 ? (rand(x, 9, z) > 0.5 ? '#6cc2ec' : '#62b9e8') : d === 2 ? (rand(x, 9, z) > 0.5 ? '#48a8e4' : '#4fb0e8') : (rand(x >> 1, 9, z >> 1) > 0.5 ? '#3193d8' : '#3a9bdd'));
+  }
+  // the tarn on the mesa ledge that feeds the waterfall
+  const lime0 = (x, z) => !inTiles(x, z);
+  const tarn = new Set();
+  for (let x = Math.floor(TARN.x - 3); x <= TARN.x + 3; x++) for (let z = Math.floor(TARN.z - 3); z <= TARN.z + 3; z++) {
+    const h = heightAt(x, z); if (Math.hypot(x + 0.5 - TARN.x, z + 0.5 - TARN.z) >= TARN.r || h == null || h < 5 || lime0(x, z) === false) continue;
+    v.set(x, h, z, null); v.set(x, h - 1, z, '#d9c79a'); water.set(x, h, z, rand(x, 9, z) > 0.5 ? '#3fa2e6' : '#4aaeea'); tarn.add(x + ',' + z);
+  }
+  for (let i = rimCells.length - 1; i >= 0; i--) if (tarn.has(rimCells[i][0] + ',' + rimCells[i][1])) rimCells.splice(i, 1);
   // the river's source: a mossy rock outcrop behind the spring pool, with a little fall from its top into the pool
   const springTop = 8; const sx = Math.round(SPRING.x), sz = Math.round(SPRING.z - SPRING.r - 1);
   for (let dx = -5; dx <= 5; dx++) for (let dz = -4; dz <= 1; dz++) {
@@ -117,6 +179,10 @@ export function createWorld(stage, terrain) {
     else if (p < 0.003) { for (let k = 0; k < 2; k++) v.set(x + k, top + 1, z, '#a07a50'); }
     
   }
+  // storytelling on the wild beach (never on a tile): a rowing boat hauled up on the sand
+  { const free = (x, z) => { const h = heightAt(x, z); return h != null && !inTiles(x, z) && !inRiverVoxel(x, z) && insideVoxel(x + 2, z) && insideVoxel(x - 2, z) && insideVoxel(x, z + 2) ? h : null; };
+    let spot = null; for (let z = Math.round(LAGOON.z) + 1; z <= Math.round(LAGOON.z) + 9 && !spot; z++) for (let x = Math.round(LAGOON.x) + 5; x <= Math.round(LAGOON.x) + 22 && !spot; x++) { const h = free(x, z); if (h == null) continue; let ok = true; for (let dx = 0; dx < 5 && ok; dx++) for (let dz = 0; dz < 2; dz++) if (free(x + dx, z + dz) !== h) ok = false; if (ok) spot = [x, h, z]; }
+    if (spot) { const [bx, by, bz] = spot; for (let dx = 0; dx < 5; dx++) for (let dz = 0; dz < 2; dz++) v.set(bx + dx, by + 1, bz + dz, dx === 0 || dx === 4 ? '#b5523b' : dx === 2 ? '#8a5c38' : '#f6efe2'); v.set(bx - 1, by + 1, bz, '#b5523b'); v.set(bx + 2, by + 2, bz + 1, '#a07a50'); v.set(bx + 3, by + 2, bz + 1, '#a07a50'); } }
   // forest on the rim: tall tiered pines up high, big oaks lower down; fewer, bigger, denser clumps
   const used = new Set();
   for (const [x, z, top, zone, lime] of rimCells) {
@@ -144,7 +210,7 @@ export function createWorld(stage, terrain) {
   const sails = new THREE.Group(); { const mat = new THREE.MeshLambertMaterial({ color: '#f6efe2' }); const arm = new THREE.MeshLambertMaterial({ color: '#7a5232' });
     for (let i = 0; i < 4; i++) { const g = new THREE.Group(); const a1 = new THREE.Mesh(new THREE.BoxGeometry(0.3, 4.5, 0.25), arm); a1.position.y = 2.25; const sl = new THREE.Mesh(new THREE.BoxGeometry(1.1, 3.5, 0.12), mat); sl.position.set(0.7, 2.6, 0); g.add(a1, sl); g.rotation.z = i * Math.PI / 2; sails.add(g); }
     sails.position.set(millAt[0] + 0.5, millY + 6.5, millAt[1] + 2.4); sails.traverse((o) => { if (o.isMesh) o.castShadow = true; }); root.add(sails); }
-  const islets = floatingRocks(scene, { n: 6, center: [0, -6, 0], radius: 95, seed: 8 });
+  const islets = floatingRocks(scene, { groups: 5, center: [0, -6, 0], radius: 100, seed: 8 });
   const waterMesh = water.mesh({ castShadow: false });
   const uTime = { value: 0 }; const uIce = { value: 0 };
   waterMesh.material = new THREE.MeshLambertMaterial({ vertexColors: true }); // solid water: colour and moving ripples, not see-through
@@ -164,8 +230,8 @@ export function createWorld(stage, terrain) {
   // falls that land on the island: the spring over its outcrop into the pool, and the massif spring
   const falls = [waterfall(scene, { x: SPRING.x, y: springTop - 0.5, z: sz - 1.2, dir: [0, 1], width: 2, length: springTop + 0.2 }),
     waterfall(scene, { x: 14, y: heightAt(14, -31) + 0.5, z: -31, dir: [0, 1], width: 2, length: Math.max(4, heightAt(14, -31) - 1) })];
-  const cloudUpd = clouds(scene, { n: 8, spread: 300, y: [25, 55], z: [-200, -110], scale: 2.2, seed: 5 });
-  const cloudSea = () => {};
+  const cloudUpd = () => {};
+  const cloudSea = makeCloudSea(scene, { n: 26, seed: 5, night: () => stage.night });
 
   // ---------------- per-tile layers
   const layers = new Map();
@@ -432,7 +498,7 @@ export function createWorld(stage, terrain) {
       return hit;
     },
     update(dt, t, { windStill = false } = {}) {
-      uTime.value = t; uIce.value += ((stage.winter > 0.6 ? 1 : 0) - uIce.value) * Math.min(1, dt * 1.5); sails.rotation.z = -t * 0.6; cloudUpd(t); cloudSea(t * 0.4); islets(t); falls.forEach((f) => f(t)); bridge.update(dt, t);
+      uTime.value = t; uIce.value += ((stage.winter > 0.6 ? 1 : 0) - uIce.value) * Math.min(1, dt * 1.5); sails.rotation.z = -t * 0.6; cloudUpd(t); cloudSea(t); islets(t); falls.forEach((f) => f(t)); bridge.update(dt, t);
       // clay fade
       this.clay += (this.clayTarget - this.clay) * Math.min(1, dt * 7); WORLD.clay.value = this.clay;
       // night lights fade with the sky

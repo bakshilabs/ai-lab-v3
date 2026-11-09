@@ -59,18 +59,71 @@ export function roots(v, inside, { rx = 30, rz = 22, top = 0, count = 40, seed =
   }
 }
 
-// Small rocks floating around an island. Returns update(t) that bobs them.
-export function floatingRocks(scene, { n = 7, center = [0, 0, 0], radius = 60, seed = 4 } = {}) {
-  const list = [];
+// A sea of solid, blocky clouds far below and around the island (plus a few at its own height, far off), so the
+// island is seen to float above something and the sky has depth. One instanced mesh (one draw call); lower and
+// farther clouds are tinted towards the sky. It turns very slowly as one piece, so nothing is updated per cloud.
+// night() returns 0..1: the clouds stop glowing after dark.
+export function cloudSea(scene, { n = 20, high = 7, seed = 3, night = () => 0 } = {}) {
+  const slabs = [];
+  const BASE = new THREE.Color('#c9d1f1'), MID = new THREE.Color('#e2e6fa'), CROWN = new THREE.Color('#fbf8ff'), FAR = new THREE.Color('#9fb0ea');
+  // a cloud is three stacked slabs and two end puffs; each layer is a shade lighter, so its shape reads from above
+  const cloud = (cx, cy, cz, k, fade, i) => {
+    const w = (15 + rand(i, seed, 1) * 16) * k, d = (9 + rand(i, seed, 2) * 8) * k, h = 3 * k, yaw = rand(i, seed, 3) * 0.5 - 0.25;
+    const put = (ox, oy, oz, sx, sy, sz, col) => { const c = Math.cos(yaw), s = Math.sin(yaw); slabs.push([cx + ox * c + oz * s, cy + oy, cz - ox * s + oz * c, sx, sy, sz, yaw, col.clone().lerp(FAR, fade)]); };
+    put(0, 0, 0, w, h, d, BASE);
+    put((rand(i, seed, 4) - 0.5) * w * 0.3, h * 0.9, (rand(i, seed, 5) - 0.5) * d * 0.2, w * 0.6, h, d * 0.62, MID);
+    put((rand(i, seed, 6) - 0.5) * w * 0.3, h * 1.75, 0, w * 0.28, h * 0.8, d * 0.34, CROWN);
+    put(-w * 0.52, -h * 0.15, d * 0.18, w * 0.3, h * 0.7, d * 0.5, BASE); put(w * 0.5, h * 0.1, -d * 0.22, w * 0.26, h * 0.75, d * 0.44, MID);
+  };
   for (let i = 0; i < n; i++) {
-    const v = new Vox(); const s = 2 + Math.floor(rand(i, seed) * 3);
-    for (let x = -s; x <= s; x++) for (let z = -s; z <= s; z++) { const r = Math.hypot(x, z) / s; if (r > 1) continue; const dp = Math.round((1 - r) * s * 1.6) + 1; for (let y = -dp; y <= 0; y++) v.set(x, y, z, y === 0 ? (rand(x, i, z) > 0.4 ? '#9bb85e' : '#8fae55') : y > -2 ? '#c96535' : '#d9733f'); }
-    if (rand(i, seed, 9) > 0.5) { v.set(0, 1, 0, '#7a5232'); v.box(-1, 2, -1, 1, 3, 1, '#5f9a45'); }
-    const m = v.mesh(); const a = rand(i, seed, 2) * Math.PI * 2, r = radius * (0.8 + rand(i, seed, 3) * 0.5);
-    const base = [center[0] + Math.cos(a) * r, center[1] - 6 + rand(i, seed, 4) * 22, center[2] + Math.sin(a) * r];
-    m.position.set(...base); scene.add(m); list.push([m, base, rand(i, seed, 5) * 6]);
+    const a = (i / n) * Math.PI * 2 * 3 + rand(i, seed, 7) * 0.9, r = 50 + rand(i, seed, 8) * 280;   // three turns round the island, near to far
+    const y = -100 - rand(i, seed, 9) * 90; const depth = Math.min(1, (-y - 100) / 90);
+    cloud(Math.cos(a) * r, y, Math.sin(a) * r, 0.75 + rand(i, seed, 10) * 0.75, depth * 0.55, i);
   }
-  return (t) => list.forEach(([m, b, ph]) => { m.position.y = b[1] + Math.sin(t * 0.8 + ph) * 0.9; m.rotation.y = Math.sin(t * 0.2 + ph) * 0.15; });
+  for (let i = 0; i < high; i++) {
+    const a = (i / high) * Math.PI * 2 + rand(i, seed, 11) * 0.7, r = 330 + rand(i, seed, 12) * 260;
+    cloud(Math.cos(a) * r, 8 + rand(i, seed, 13) * 70, Math.sin(a) * r, 1.6 + rand(i, seed, 14) * 1.2, 0, 100 + i);
+  }
+  const mat = new THREE.MeshLambertMaterial({ color: '#ffffff', emissive: new THREE.Color('#ffe9dc'), emissiveIntensity: 0.14 });
+  const m = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), mat, slabs.length); m.frustumCulled = false; m.castShadow = false; m.receiveShadow = false;
+  const o = new THREE.Object3D();
+  slabs.forEach(([x, y, z, sx, sy, sz, yaw, col], i) => { o.position.set(x, y, z); o.rotation.set(0, yaw, 0); o.scale.set(sx, sy, sz); o.updateMatrix(); m.setMatrixAt(i, o.matrix); m.setColorAt(i, col); });
+  m.instanceMatrix.needsUpdate = true; m.instanceColor.needsUpdate = true; scene.add(m);
+  return (t) => { m.rotation.y = t * 0.0035; mat.emissiveIntensity = 0.14 * (1 - night()) + 0.02; };
+}
+
+// Rocks floating around an island, in a few groups (one mesh per group, so few draw calls): grassy islets with the
+// island's own strata, bare terracotta shards, flat slabs with a small tree, and trails of pebbles.
+// Returns update(t) that bobs each group.
+const ROCK_BEDS = ['#d9733f', '#e8874c', '#f4b783', '#d06d3a', '#b85a2e', '#e07f47', '#c96535'];
+export function floatingRocks(scene, { groups = 5, center = [0, 0, 0], radius = 95, seed = 4 } = {}) {
+  const list = [];
+  const islet = (v, ox, oy, oz, s, i, tree) => {
+    for (let x = -s; x <= s; x++) for (let z = -s; z <= s; z++) {
+      const r = Math.hypot(x, z * 1.15) / s + (noise2(x * 0.7 + i * 9, z * 0.7, seed) - 0.5) * 0.35; if (r > 1) continue;
+      const dp = Math.round((1 - r * r) * s * 1.7) + 1;
+      for (let y = -dp; y <= 0; y++) v.set(ox + x, oy + y, oz + z, y === 0 ? (rand(x, i, z) > 0.4 ? '#9bb85e' : '#8fae55') : y === -dp ? '#8a4426' : ROCK_BEDS[(((oy + y) >> 1) + 40) % 7]);
+    }
+    if (tree === 1) { v.set(ox, oy + 1, oz, '#7a5232'); v.set(ox, oy + 2, oz, '#7a5232'); v.box(ox - 1, oy + 3, oz - 1, ox + 1, oy + 4, oz + 1, '#5f9a45'); v.set(ox, oy + 5, oz, '#6aa64c'); }
+    if (tree === 2) { v.set(ox, oy + 1, oz, '#6b4a2e'); v.box(ox - 1, oy + 2, oz - 1, ox + 1, oy + 2, oz + 1, '#3d6e44'); v.set(ox, oy + 3, oz, '#477a4b'); v.set(ox, oy + 4, oz, '#477a4b'); }
+    if (tree === 3) { v.set(ox + 1, oy + 1, oz, '#bfb29a'); v.set(ox - 1, oy + 1, oz + 1, '#a7b766'); }
+  };
+  const shard = (v, ox, oy, oz, hgt, i) => { // a bare splinter of sandstone, widest in the middle
+    for (let y = -hgt; y <= hgt; y++) { const w = Math.max(0, Math.round((1 - Math.abs(y) / hgt) * (1.2 + rand(i, seed, 20)))); for (let x = -w; x <= w; x++) for (let z = -w; z <= w; z++) if (Math.abs(x) + Math.abs(z) <= w + (rand(x + i, y, z) > 0.6 ? 1 : 0)) v.set(ox + x, oy + y, oz + z, y === hgt ? '#f4b783' : ROCK_BEDS[(((oy + y) >> 1) + 40) % 7]); }
+  };
+  for (let g = 0; g < groups; g++) {
+    const v = new Vox(); v.jitter = 0.04; const kind = g % 5;
+    if (kind === 0) { islet(v, 0, 0, 0, 5, g, 1); islet(v, 8, -5, 3, 2, g + 20, 0); shard(v, -8, -3, -2, 3, g); }
+    else if (kind === 1) { shard(v, 0, 0, 0, 6, g); shard(v, 5, -6, 2, 3, g + 7); v.set(-4, -2, 3, '#d06d3a'); v.set(-6, 1, 1, '#e07f47'); }
+    else if (kind === 2) { islet(v, 0, 0, 0, 3, g, 2); islet(v, -7, 3, 2, 2, g + 20, 3); for (let k = 0; k < 4; k++) v.set(5 + k * 2, -1 - k, (k & 1) * 2 - 1, ROCK_BEDS[k]); }
+    else if (kind === 3) { islet(v, 0, 0, 0, 4, g, 3); islet(v, 7, 4, -4, 3, g + 20, 1); shard(v, -6, -7, 2, 2, g); }
+    else { islet(v, 0, 0, 0, 2, g, 0); islet(v, 6, -2, 1, 1, g + 20, 0); islet(v, -5, 2, -3, 2, g + 30, 2); }
+    const m = v.mesh({ castShadow: false });
+    const a = (g / groups) * Math.PI * 2 + rand(g, seed, 2) * 0.9, r = radius * (0.85 + rand(g, seed, 3) * 0.45);
+    const base = [center[0] + Math.cos(a) * r, center[1] - 16 + rand(g, seed, 4) * 24, center[2] + Math.sin(a) * r];
+    m.position.set(...base); m.rotation.y = rand(g, seed, 6) * 6.28; scene.add(m); list.push([m, base, rand(g, seed, 5) * 6, m.rotation.y]);
+  }
+  return (t) => list.forEach(([m, b, ph, ry]) => { m.position.y = b[1] + Math.sin(t * 0.6 + ph) * 1.1; m.rotation.y = ry + Math.sin(t * 0.15 + ph) * 0.12; });
 }
 
 // Wind-swept grass tufts on given cells [[x,z],...] at height y. GPU wind via onBeforeCompile.
