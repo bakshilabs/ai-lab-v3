@@ -24,7 +24,7 @@ export async function runIntro(api) {
   const meadow = near(dockP, ['meadow']); const dry = near(top(meadow.k), ['slope', 'field']);
   // one line from Florence in her card, with a Next button (or none, while she waits for the player)
   const say = (text, { next = true, tag = T.tag } = {}) => new Promise((resolve) => {
-    const el = ui.florence({ tag, html: `<p>${esc(text)}</p>${next ? `<div class="tiprow"><button class="slot act go" data-next><b class="ico">▶</b><span>${esc(T.next)}</span></button></div>` : ''}`, say: text });
+    const el = ui.florence({ tag, html: `<p>${esc(text)}</p>${next ? `<div class="tiprow"><button class="slot act go" data-next aria-label="${esc(T.next)}"><b class="ico" aria-hidden="true">▶</b><span>${esc(T.next)}</span></button></div>` : ''}`, say: text });
     el.querySelector('[data-next]')?.addEventListener('click', () => { ui.florence(null); resolve(); }); if (!next) resolve(); // the line goes once read (it used to stay, without its Next button, while she walked on)
   });
   const go = (p, dist = 110) => (app.reduce ? rig.focus(p, { dist, pitch: 0.7 }, 0.01) : rig.focus(p, { dist, pitch: 0.7, yaw: rig.sky.yaw }, 1.3));
@@ -41,13 +41,21 @@ export async function runIntro(api) {
     let lvl = 0; const flood = setInterval(() => { lvl = Math.min(0.7, lvl + 0.05); world.setFlood(lvl); }, 60);
     try { await step(say(T.meadow)); } finally { clearInterval(flood); world.setFlood(0); }
     // 3. the dry slope: the player's first three tiles of town land
-    const dP = top(dry.k); go(dP, 120); await step(bot.walkTo(dP, { stopShort: 6, maxDur: 3 }));
-    bot.point(dP.clone().add(new THREE.Vector3(0, 1, 0)), 2.5);
-    api.selectTool('land', 'town'); api.highlight('#build', true);
+    const dP = top(dry.k); go(dP, 120);
     // three suggested dry tiles glow gold; the progress bar sits in Florence's card
     // only tiles a tap really builds on (a tester tapped a gold tile beside the wetland and was refused); every other tile
     // keeps its usual mark (white kerb = can build, dark plate = can't), so the gold ones are a suggestion, not the only choice
     const suggest = tiles.filter((t) => ['slope', 'field'].includes(t.zone) && !t.fixed && (api.canBuild?.(t.k) ?? true)).sort((a, b) => top(a.k).distanceTo(dP) - top(b.k).distanceTo(dP)).slice(0, 3);
+    // Florence stands beside the targets, to the side of the screen (she used to stand on one, so phone taps hit her)
+    const mid = suggest.reduce((v, t) => v.add(top(t.k)), new THREE.Vector3()).divideScalar(Math.max(1, suggest.length));
+    const right = new THREE.Vector3(Math.cos(rig.sky.yaw), 0, -Math.sin(rig.sky.yaw));
+    const spread = Math.max(0, ...suggest.map((t) => Math.abs(top(t.k).clone().sub(mid).dot(right))));
+    let stand = mid.clone().add(right.clone().multiplyScalar(spread + 7));
+    const onTarget = (p) => suggest.some((t) => Math.hypot(top(t.k).x - p.x, top(t.k).z - p.z) < 5);
+    if (onTarget(stand)) stand = mid.clone().sub(right.clone().multiplyScalar(spread + 7));
+    await step(bot.walkTo(stand, { maxDur: 3 }));
+    bot.point(mid.clone().add(new THREE.Vector3(0, 1, 0)), 2.5);
+    api.selectTool('land', 'town'); api.highlight('#build', true);
     let pulse = 0; const glow = () => { const spec = new Map(api.allowedSpec?.() || []); pulse++; for (const t of suggest) spec.set(t.k, { color: pulse % 2 ? '#ff9f1a' : '#ffd23f', ring: true, notch: true }); const kc = api.cursor?.(); if (kc) spec.set(kc[0], kc[1]); world.setOverlay(spec); }; // a pulsing orange target, unlike any other tile
     glow(); api.setGlow?.(glow); // the keyboard tile cursor redraws through this while the intro owns the overlay
     // the bar counts the town's real tiles (3 in all), the same number as the top line (a tester marked tiles early

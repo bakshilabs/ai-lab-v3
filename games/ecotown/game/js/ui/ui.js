@@ -24,7 +24,7 @@ export function createUI(root, labelsRoot, opts) {
   const mk = (id, cls, html = '') => { const n = h(`<div id="${id}" class="panel hide ${cls}">${html}</div>`); root.appendChild(n); P[id] = n; return n; };
   // one town card (top-left), one icon strip (top-right), one dock (bottom): the whole frame
   // the town card: 🌼 goals, the town name, stars, the day (with pause) and credits, the next step
-  mk('card', 'from-left', `<div class="crow"><button class="ib" data-flower aria-label="Town goals" title="Town goals" aria-expanded="false"><svg viewBox="-60 -60 120 120"></svg></button><span class="leaf">🌱</span><b class="brand">Eco Town</b><span class="band" data-sub></span><button class="stars" data-shop aria-label="Star shop" title="Star shop"><span class="star" aria-hidden="true">★</span><b data-stars>0</b><i class="shopnew" data-shopnew hidden>NEW</i></button><span class="dayc" data-day hidden><span data-dayt></span><button class="slot mini" data-pause aria-label="Pause" title="Pause">❚❚</button></span><span class="credits" data-credits hidden></span></div>
+  mk('card', 'from-left', `<div class="crow"><button class="ib" data-flower aria-label="Town goals" title="Town goals" aria-expanded="false"><svg viewBox="-60 -60 120 120"></svg><b class="flowermark" aria-hidden="true">🌼</b></button><span class="leaf">🌱</span><b class="brand">Eco Town</b><span class="band" data-sub></span><button class="stars" data-shop aria-label="Star shop" title="Star shop"><span class="star" aria-hidden="true">★</span><b data-stars>0</b><i class="shopnew" data-shopnew hidden>NEW</i></button><span class="dayc" data-day hidden><span data-dayt></span><button class="slot mini" data-pause aria-label="Pause" title="Pause">❚❚</button></span><span class="credits" data-credits hidden></span></div>
     <div class="track" data-track>${TRACK_PICS.map((pic, i) => `<i data-l="${i + 1}" role="button" tabindex="0" aria-label="AI Lab mission ${i + 1}"><img src="img/thumbs/${pic}.png" alt=""></i>`).join('<em></em>')}</div><div class="goal" data-goal></div>`);
   // lenses (once one is earned), the AI Lab (with how many missions are ready) and the menu
   // each button has a short caption under its icon on laptops and boards (CSS hides it on phones), so nobody has to guess
@@ -61,17 +61,32 @@ export function createUI(root, labelsRoot, opts) {
   if (typeof ResizeObserver === 'function') { const ro = new ResizeObserver(() => { const s = document.documentElement.style; s.setProperty('--buildh', P.build.offsetHeight + 'px'); s.setProperty('--dockh', P.dock.offsetHeight + 'px'); }); ro.observe(P.build); ro.observe(P.dock); }
   // focus follows the next step only for keyboard players (a mouse or touch player's screen doesn't jump)
   let kbUser = false; addEventListener('keydown', (e) => { if (e.key === 'Tab' || e.key === 'Enter' || e.key === ' ') kbUser = true; }, true); addEventListener('pointerdown', () => (kbUser = false), true);
+  // emoji icons inside buttons are decoration: screen readers hear the word beside them ("Demolish", not "🧽 Demolish")
+  const quietIcons = (r) => r.querySelectorAll?.('button .ico:not([aria-hidden]), [role="button"] .ico:not([aria-hidden]), button .lock:not([aria-hidden])').forEach((n) => n.setAttribute('aria-hidden', 'true'));
+  if (typeof MutationObserver === 'function') new MutationObserver((ms) => { for (const m of ms) for (const n of m.addedNodes) if (n.nodeType === 1) { quietIcons(n); if (n.matches?.('.ico, .lock') && n.closest('button')) n.setAttribute('aria-hidden', 'true'); } }).observe(root, { childList: true, subtree: true });
+  quietIcons(root);
   // an open card or the settings sheet keeps Tab inside it (it used to escape to the HUD behind the card)
   const FOCUSABLE = 'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href], video[controls], [tabindex]:not([tabindex="-1"])';
   addEventListener('keydown', (e) => {
     if (e.key !== 'Tab' || e.defaultPrevented) return;
-    const box = !P.modal.classList.contains('hide') ? P.modal : !P.settings.classList.contains('hide') ? P.settings : null; if (!box) return;
-    const list = [...box.querySelectorAll(FOCUSABLE)].filter((n) => n.offsetParent || n.getClientRects().length); if (!list.length) return;
+    // with nothing open, Tab wraps from the last control to the first (the page itself was an invisible stop in between)
+    const box = !P.modal.classList.contains('hide') ? P.modal : !P.settings.classList.contains('hide') ? P.settings : document.body;
+    const list = [...box.querySelectorAll(FOCUSABLE)].filter((n) => (n.offsetParent || n.getClientRects().length) && getComputedStyle(n).visibility !== 'hidden' && !n.closest('[inert], [aria-hidden="true"]')); if (!list.length) return;
     const a = document.activeElement; const i = list.indexOf(a);
     if (i < 0) { e.preventDefault(); (e.shiftKey ? list[list.length - 1] : list[0]).focus(); }
     else if (!e.shiftKey && i === list.length - 1) { e.preventDefault(); list[0].focus(); }
     else if (e.shiftKey && i === 0) { e.preventDefault(); list[list.length - 1].focus(); }
   });
+  // when the mission dock's buttons run past its bottom edge (phones, Large text), a solid "More ▾" tab says so and scrolls on
+  const moreCue = () => {
+    const a = D.actions; if (!a.isConnected) return; let m = a.querySelector(':scope > .morecue');
+    const over = a.scrollHeight - a.clientHeight - a.scrollTop > 8 && a.clientHeight > 0;
+    if (!m && !over) return;
+    if (!m) { m = h('<button class="morecue" type="button" tabindex="-1" aria-hidden="true">More ▾</button>'); m.onclick = () => a.scrollBy({ top: Math.round(a.clientHeight * 0.7), behavior: 'smooth' }); a.appendChild(m); }
+    m.hidden = !over;
+  };
+  D.actions.addEventListener('scroll', moreCue, { passive: true }); addEventListener('resize', () => requestAnimationFrame(moreCue));
+  if (typeof ResizeObserver === 'function') new ResizeObserver(() => moreCue()).observe(D.actions);
   const ui = {
     P, readAloud: false,
     show(id, on = true) {
@@ -183,8 +198,8 @@ export function createUI(root, labelsRoot, opts) {
     tray(html, bind) {
       // keyboard players keep their place: if focus was in the old tray (or fell back to the page), it moves to the new tray's first control
       const a = document.activeElement; const lost = !a || a === document.body || D.actions.contains(a) || P.dock.contains(a);
-      D.actions.innerHTML = html; this.show('tray', !!html); bind?.(D.actions);
-      if (html && lost && kbUser) D.actions.querySelector('input:not([disabled]), button:not([disabled])')?.focus({ preventScroll: true });
+      D.actions.innerHTML = html; this.show('tray', !!html); bind?.(D.actions); requestAnimationFrame(moreCue);
+      if (html && lost && kbUser && !D.actions.contains(document.activeElement)) D.actions.querySelector('input:not([disabled]), button:not([disabled])')?.focus({ preventScroll: true });
       return D.actions;
     },
     alert(text, good = false, ms = 0) {
@@ -202,7 +217,7 @@ export function createUI(root, labelsRoot, opts) {
       P.modal.innerHTML = html + (say && canSpeak() ? '<button class="spk modalspk" data-spk aria-label="Read aloud" title="Read aloud">🔊</button>' : ''); this.show('modal'); if (say) this.say(say, 'narrator');
       P.modal.querySelector('[data-spk]')?.addEventListener('click', (e) => { e.stopPropagation(); speak(say, { voice: 'narrator', force: true }); });
       bind?.(P.modal);
-      const first = P.modal.querySelector('button:not([data-spk])'); setTimeout(() => first?.focus(), 50);
+      const first = P.modal.querySelector('button:not([data-spk])'); setTimeout(() => { first?.focus({ preventScroll: true }); P.modal.scrollTop = 0; }, 50); // the card opens at its top (stars and heading), not scrolled to its first button
       return new Promise((res) => { P.modal.onclick = (e) => { const b = e.target.closest('[data-act]'); if (!b) return; P.modal.onclick = null; this.show('modal', false); this._mClosed = performance.now(); stopSpeech(); res(b.dataset.act); }; });
     },
     // short status line: shown as the dock's headline, or as a toast when the dock is hidden
@@ -276,7 +291,11 @@ export function createUI(root, labelsRoot, opts) {
       }
     },
   };
-  function add(cls, data) { const n = h(`<div class="${cls}">${data.html || esc(data.text)}</div>`); labelsRoot.appendChild(n); anchored.push({ node: n, data }); }
+  function add(cls, data) {
+    const n = h(`<div class="${cls}">${data.html || esc(data.text)}</div>`); labelsRoot.appendChild(n); anchored.push({ node: n, data });
+    // a pin that stands for its tile (Florence's ★ good spots): tapping the pin is a tap on the tile (it used to do nothing)
+    if (data.tap) { n.classList.add('tappable'); n.addEventListener('click', (e) => { e.stopPropagation(); data.tap(); }); }
+  }
   function remove(a) { if (!a) return; a.node.remove(); anchored.splice(anchored.indexOf(a), 1); }
   return ui;
 }

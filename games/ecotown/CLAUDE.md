@@ -195,6 +195,15 @@ A no-context subagent played four sessions (laptop 8–12, phone 13–17 through
 - **Diagnosis:** "fastest roads for cars" accepts "Read the words too exactly" as well as "one word" (`plan.habitAlt`); the junior question is "Why did this plan go wrong?". The walk tip says "a second school" when one exists (`nextIdea.walk2`).
 - **Classroom** (`qa.js` `hasKey`): keys match whole words with common endings ("home" ≠ "homework", "car" = "cars"); new topic `homework` (a polite no); "are you always right?" answers the mistakes topic.
 - Tests: `tests/tester4.test.mjs`.
+- **Interface** (a helper agent; `game.js`, `intro.js`, `checks.js`, `ui.js`, `main.js`, the "playtest 4" block at the end of `css/game.css`):
+  - Keyboard building works during the intro too (`kbOn` no longer waits for it; the intro draws the cursor into its own glow); Tab onto the island shows the cursor at once; focus stays on the build button after Enter; Tab wraps and stays inside open cards and the Menu; 🧽 and ▶ have labels, emoji are hidden from screen readers.
+  - The intro ends cleanly whenever building stops (Lab, classroom, day, report), so Skip intro no longer lingers; Skip is hidden under cards, menus, pop-overs, films and the Lab. Phone film captions wrap full width; caption backgrounds are solid.
+  - Walking into the Lab is a short wide shot by the door (no long close-up). The mission reward card sits to the right with the island framed on the left (`rewardView()`; phones: island strip above). Cards open at their top.
+  - Flood lens: flooded town tiles are lifted above the water, red with a cross-hatch. Notes under lens results are cream on the dark dock.
+  - Phones: Florence stands beside the intro's target tiles; a tap on a ★ pin builds on its tile; a "More ▾" tab shows when the dock's buttons run past its edge.
+  - Instruction panel: Type it instead keeps the box focused; the sentence keeps room for two rows (the bank no longer jumps); word tiles stay in tapped order; Large text enlarges the dock, Florence's card, the town card and the Menu; Text size is two buttons (Normal / Large) instead of a dropdown.
+  - Small fixes: confidence bar pinned on phones; card headings clear the 🔊; A/B/C letters a fixed width; the goals button has a 🌼 badge; used word tiles are solid grey (no opacity).
+  - Still open: on phones the reward card is taller than the screen (it scrolls) and the island strip above it is small.
 
 ## Beta revision (Nov 2026)
 All 49 notes in the beta tester's file were addressed; see README "How the game plays" and the commit history. Key decisions the user made:

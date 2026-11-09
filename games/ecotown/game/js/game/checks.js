@@ -33,11 +33,15 @@ export function createChecks(app) {
       world.setClay(true, app.reduce); const spec = new Map();
       for (const t of terrain.tiles.values()) {
         const c = cells.get(t.k); const wet = t.zone === 'meadow' || t.zone === 'wetland';
-        if (wet) spec.set(t.k, { color: c?.mark === 'town' || (c?.item && ITEMS[c.item].home) ? '#e5533d' : '#3d9de0', pattern: 'waves' });
+        // town on flood land: red with a cross-hatch (a pattern as well as a colour), lifted to sit on top of the winter water
+        // (the full flood's top is at y = 3.1, see world.setFlood); it used to be painted at ground level, under the water,
+        // so the key promised red tiles nobody could see
+        const town = c?.mark === 'town' || (c?.item && ITEMS[c.item].home);
+        if (wet) spec.set(t.k, town ? { color: '#e5533d', pattern: 'cross', lift: Math.max(0, 3.25 - (t.h + 1.14)) } : { color: '#3d9de0', pattern: 'waves' });
       }
       world.setOverlay(spec);
       const flooded = [...cells].filter(([k, c]) => (c.mark === 'town' || (c.item && ITEMS[c.item].home)) && ['meadow', 'wetland'].includes(terrain.tiles.get(k)?.zone)).map(([k]) => k);
-      ui.lensbar(`🌊 ${esc(app.C.checks.flood.label)} <span class="legend"><span><i style="background:#3d9de0"></i>Floods in winter</span><span><i style="background:#e5533d"></i>Town on flood land: ${flooded.length} tile${flooded.length === 1 ? '' : 's'}</span></span>`);
+      ui.lensbar(`🌊 ${esc(app.C.checks.flood.label)} <span class="legend"><span><i style="background:#3d9de0"></i>Floods in winter</span><span><i style="background:repeating-linear-gradient(45deg,#e5533d 0 4px,#9c2a18 4px 6px)"></i>Town on flood land: ${flooded.length} tile${flooded.length === 1 ? '' : 's'}</span></span>`);
       for (let i = 0; i <= 20; i++) { world.setFlood(i / 20); await sleep(app.reduce ? 0 : 45); }
       if (flooded.length) ui.labels.set([{ at: world.tileTop(flooded[0]).add(new THREE.Vector3(0, 3, 0)), text: `${flooded.length} tiles under water`, cls: 'bad' }]);
       return { focus: flooded[0], summary: flooded.length ? `${flooded.length} town tiles on flood land` : (app.G?.j ? 'No town land floods' : 'No town land on the floodplain') };

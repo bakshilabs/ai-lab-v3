@@ -308,7 +308,7 @@ export function createGame(app) {
     sb.spots = tool === 'erase' ? null : goodSpots(tool, { tiles: terrain.tiles, cells: G.cells, items: ITEMS, ok: (k) => spec.get(k) === HL.free, bridge: world.bridgeTile || null });
     for (const k of sb.spots?.keys || []) spec.set(k, HL.spot);
     if (sb.kc && terrain.tiles.has(sb.kc)) spec.set(sb.kc, HL.cursor); // the keyboard cursor
-    ui.labels.spots((sb.spots?.keys || []).map((k, i) => ({ at: world.tileTop(k).add(new THREE.Vector3(0, 3.2, 0)), text: i || innerWidth < 700 ? '★' : '★ ' + G.S.keySpot })));
+    ui.labels.spots((sb.spots?.keys || []).map((k, i) => ({ at: world.tileTop(k).add(new THREE.Vector3(0, 3.2, 0)), text: i || innerWidth < 700 ? '★' : '★ ' + G.S.keySpot, tap: () => sb.tapKey?.(k) })));
     world.setOverlay(spec);
   }
   // what a tap with the tool would do on every tile (the intro reuses it, so its gold targets sit among the usual marks)
@@ -390,7 +390,7 @@ export function createGame(app) {
       return `<div class="slotwrap"><button class="slot item ${sb.tool === idd ? 'on' : ''}" data-t="${idd}" aria-pressed="${sb.tool === idd}" title="${esc(it.label)}"><img src="${thumb(idd)}" alt=""><span>${esc(it.label)}</span>${!G.j && it.cost ? `<em class="cost">💰${it.cost}</em>` : ''}</button></div>`; };
     // the day, pause and credits live in the town card; the bar is only the tools
     renderDay(); ui.setCredits(G.credits !== Infinity ? `💰 ${G.credits} ${G.S.credits}` : '');
-    const eraseBtn = `<button class="slot item erase ${sb.tool === 'erase' ? 'on' : ''}" data-t="erase" aria-pressed="${sb.tool === 'erase'}" title="${esc(G.S.erase)} (X)"><b class="ico">🧽</b><span>${esc(G.S.erase)}</span></button>`;
+    const eraseBtn = `<button class="slot item erase ${sb.tool === 'erase' ? 'on' : ''}" data-t="erase" aria-pressed="${sb.tool === 'erase'}" aria-label="${esc(G.S.erase)} (X)" title="${esc(G.S.erase)} (X)"><b class="ico">🧽</b><span>${esc(G.S.erase)}</span></button>`;
     ui.buildPanel(`<div class="bhead"><button class="slot mini fold" data-fold aria-expanded="${!sb.folded}" aria-label="${esc(G.S.tools)}">${sb.folded ? '▴' : '▾'}</button></div>
       <div class="btools">${eraseBtn}</div><div class="slottip" data-tip hidden></div>
       <div class="bbody ${sb.folded ? 'folded' : ''}"><div class="cats" role="tablist" aria-label="${esc(G.S.buildWhat)}">${LEVEL_ORDER.map((id, i) => `<button class="slot cat ${sb.cat === id ? 'on' : ''} ${isOpen(id) ? '' : 'locked'}" data-cat="${id}" role="tab" aria-selected="${sb.cat === id}" title="${esc(G.S.cats[id])} (${i + 1})"><img src="${thumb(TRACK_PICS[i])}" alt=""><span>${esc(G.S.cats[id])}</span>${isOpen(id) ? '' : '<i class="lock">🔒</i>'}</button>`).join('')}</div>
@@ -773,6 +773,7 @@ export function createGame(app) {
       act(k, sb.tool);
     };
     // right-click (not drag) removes, whatever tool is selected
+    sb.tapKey = (k) => { if (sb.running && !G.busy && !sb.lens) tapKey(k); }; // a tap on a ★ pin builds on its tile
     rig.onAltTap = (ndc) => { if (!sb.running || G.busy || sb.lens) return; const k = world.pick(ndc, stage.camera); if (k && k !== terrain.lab) act(k, 'erase'); };
     rig.onHover = (ndc) => { if (sb.kc) return; hoverKey(world.pick(ndc, stage.camera)); };
     const hoverKey = (k) => {
@@ -844,6 +845,17 @@ export function createGame(app) {
     const r = panel.getBoundingClientRect();
     if (r.top > H * 0.5) { const top = ui.P.card.classList.contains('hide') ? 70 : Math.max(70, ui.P.card.getBoundingClientRect().bottom + 8); cam.setViewOffset(W, H, 0, Math.round((H - r.top - top) / 2), W, H); rig.inset = { left: 0, right: 0, top, bottom: H - r.top }; } // the bottom hotbar: centre the island between the top strip and the bar
     else { const right = ui.P.camctl.classList.contains('hide') ? 0 : W - ui.P.camctl.getBoundingClientRect().left + 8; cam.setViewOffset(W, H, -Math.round((r.right - right) / 2), 0, W, H); rig.inset = { left: r.right, right, top: 0, bottom: 0 }; }
+  }
+  // the mission-complete card: on wide screens the card sits on the right and the island is framed in the space to its left
+  // (the camera used to stay framed for the mission dock, so testers saw empty sky with the island half behind the card);
+  // on narrow screens the island is framed in the strip above the card's top edge
+  function rewardView(on) {
+    const cam = stage.camera; const W = innerWidth, H = innerHeight;
+    if (!on) { delete document.documentElement.dataset.reward; frameView(); return; }
+    document.documentElement.dataset.reward = W >= 900 ? 'side' : 'top';
+    if (W >= 900) { const cw = Math.min(600, W * 0.5) + 28; cam.setViewOffset(W, H, Math.round(cw / 2), 0, W, H); rig.inset = { left: 0, right: cw, top: 0, bottom: 0 }; }
+    else { const top = 70, band = Math.round(H * 0.24); cam.setViewOffset(W, H, 0, Math.round((H - band) / 2 - top), W, H); rig.inset = { left: 0, right: 0, top, bottom: H - top - band }; }
+    rig.overview(app.reduce ? 0.01 : 1.0);
   }
   // on resize or when the panels change, keep the same framing (rescale the distance with the frame)
   let lastFrame = 0;
@@ -935,10 +947,14 @@ export function createGame(app) {
   async function walkIntoLab() {
     const bot = app.bot; if (!bot || !terrain.lab) return;
     const door = world.tileTop(terrain.lab).add(new THREE.Vector3(0, 0, 4.5)); const inside = world.tileTop(terrain.lab).add(new THREE.Vector3(0, 0, 0.5));
-    bot.show(true);
-    await rig.focus(door, { dist: 40, pitch: 0.55, yaw: rig.sky.yaw }, 1.2);
-    await bot.walkTo(door, { maxDur: app.reduce ? 0.3 : 2.2 }); bot.look(inside); if (!app.reduce) await bot.wave();
-    audio.door(); await bot.walkTo(inside, { maxDur: 0.6 }); bot.show(false);
+    // short (a few seconds) and framed on the building: she used to walk across the island in front of a close camera, so
+    // testers watched 12-20 s of her legs. Now she steps out beside the door (to the side of the screen, not towards the camera)
+    // and walks in.
+    const yaw = rig.sky.yaw; const side = new THREE.Vector3(Math.cos(yaw), 0, -Math.sin(yaw)).multiplyScalar(5);
+    bot.show(true); bot.appear(door.clone().add(side));
+    await rig.focus(door.clone().add(new THREE.Vector3(0, 3, 0)), { dist: 64, pitch: 0.6, yaw }, app.reduce ? 0.01 : 0.9);
+    await bot.walkTo(door, { maxDur: app.reduce ? 0.2 : 0.9 }); bot.look(inside);
+    audio.door(); await bot.walkTo(inside, { maxDur: 0.4 }); bot.show(false);
     await rig.fade?.(() => {});
   }
   // one mission, on Florence's practice island
@@ -1007,7 +1023,7 @@ export function createGame(app) {
       }
     }
     // the reward card, then: use Florence's plan in your town, or keep your town as it is
-    const s2 = sim(); audio.fanfare(); setMusic('celebrate'); world.confetti(new THREE.Vector3(10, 20, 8), 200); rig.startTurntable(app.reduce ? 0 : 0.1);
+    const s2 = sim(); audio.fanfare(); setMusic('celebrate'); world.confetti(new THREE.Vector3(10, 20, 8), 200); rewardView(true); rig.startTurntable(app.reduce ? 0 : 0.1);
     const stars = run.marks.filter(Boolean).length; const rules = G.C.stars[G.paths[id] || 'flawed'];
     const [statLabel, statVal] = lv.stat(s2, G.j); const oc = outcomeFor(id, s2);
     const heading = pick(L.complete); const newLens = G.C.checks[LAB_LENS[id]];
@@ -1017,7 +1033,7 @@ export function createGame(app) {
       <div class="stats"><div><small>${esc(statLabel)}</small>${esc(statVal)}</div><div><small>${esc(G.S.newTool)}</small>${newLens.icon} ${esc(newLens.label)}</div><div><small>${G.j ? 'Fact' : 'Evidence'}</small>${esc(pick(L.fact))}</div>${run.meeting ? `<div><small>Town meeting</small>${esc(run.meeting)}</div>` : ''}</div>
       <p class="usenote">${esc(G.paths[id] === 'clean' ? pick(G.S.useQuestion).replace('fixed ', '') : pick(G.S.useQuestion))}</p>
       <div class="row" style="justify-content:center"><button class="btn alt" data-act="keep">${esc(G.S.keepMine)}</button><button class="btn go" data-act="use">✓ ${esc(G.S.usePlan)}</button></div>`, { say: `${heading} ${stars} stars.` });
-    rig.startTurntable(0);
+    rig.startTurntable(0); rewardView(false);
     // keep the best run's stars
     G.levelStars[id] = Math.max(G.levelStars[id] || 0, stars); if (run.bonus) G.bonus[id] = 1;
     G.labs[id] = { stars: G.levelStars[id] };
