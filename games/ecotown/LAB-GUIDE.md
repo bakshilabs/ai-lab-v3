@@ -109,6 +109,8 @@ DESIGN.md says Levels 4 and 5 merge in shorter versions. Level debriefs (section
   - Level 6's bias check adds a bonus star.
   - **the plan missed something:** ★ checked the plan before building · ★ told Florence what her plan missed · ★ her new plan passes.
   - Missions can be replayed; the best run's stars count.
+- **Badges** (under the ★ Star shop): 14 things to try in the town, one star each, such as a car-free town, a 10-minute town, or catching five of Florence's wrong ideas without using one unchecked. They give early finishers a reason to rebuild. Ask: which badge would be hardest in a real town, and why?
+- **Feeding the families:** Power and Town heart open only when the families already housed have enough food. If a child is stuck with locked tabs, the next-step line at the top says how many baskets are missing.
 - **Checking:** after each check that shows no problem, children choose **Check another way** or **No problem found: use this plan**. Ask them to say what the check tested before they accept. If they accept too early, the game shows the problem before building, so nothing is lost.
 - **Level 2, "everyone":** the step-free check follows the route to school and the ferry as a wheelchair user would. Ask: who else needs a step-free route? (buggies, older residents, a child with a broken leg.)
 - **Level card wording:** "No problem found", "Florence misunderstood" or "The plan missed something", with a sentence saying what happened and which check caught it.
