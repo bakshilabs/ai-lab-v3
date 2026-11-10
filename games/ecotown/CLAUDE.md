@@ -235,7 +235,7 @@ The user asked for a full no-context play-through by an educational game designe
   - **Quiz:** a defensible answer is never marked wrong. `HABIT_NEAR` in `game.js` (one word ↔ read too exactly, one word ↔ missing information) plus `plan.habitAlt`; Florence adds "the closest name is …" (`G.C.ui.alsoFits`). Each answer button carries a one-line meaning (`habits[k].hint`, `.choice .hl small`).
   - **Stars:** the third star on the fix path needs a fix within two rewrites (`run.tries`, `G.C.ui.manyTries`); retries stay free and unlimited. This replaces the old rule that retries never cost stars.
   - **Adoption:** "Use Florence's plan" lays the groundwork (land marks, paths and other routes, hedges) and builds the first four buildings (`ADOPT_CAP`); the rest is the player's (`G.planLeft`, `G.S.planLeft`). `tests/playwright/run.mjs` builds the remainder itself.
-  - Build videos re-filmed on the new island. The classroom site (the Cloudflare Worker) was NOT redeployed in that session: the deploy command was blocked by the permission checker, so it still serves the previous version until someone runs the deploy.
+  - Build videos re-filmed on the new island. The classroom site (the Cloudflare Worker) was redeployed from `main` at merge 365c64b after the user allowed the deploy command (the permission checker blocks it by default); post-deploy checks passed (`/` 200 passcode page, `/assets/x.js` 403, `/admin` 302 to Cloudflare Access).
 - Voices re-recorded (the Kokoro model and clip cache were still in the earlier session's scratchpad; `collect.mjs` overwrites the lines files, so the old lines were merged back by key before `render.py`).
 
 ## Beta revision (Nov 2026)
