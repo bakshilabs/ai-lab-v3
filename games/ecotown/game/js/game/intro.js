@@ -85,7 +85,7 @@ export async function runIntro(api) {
   } catch (e) { if (e.message !== 'skip') throw e; }
   finally {
     api.setGlow?.(null); skipBtn.remove(); for (const s of ['#build', '#build .cats', '#strip [data-lab]', '#card .goal', '#card [data-flower]']) api.highlight(s, false);
-    api.setAbort?.(null); world.setFlood(0); if (!aborted) { ui.florence(null); await rig.overview(app.reduce ? 0.01 : 1.1); }
+    api.setAbort?.(null); world.setFlood(0); if (!aborted) { ui.florence(null); await (api.home ? api.home() : rig.overview(app.reduce ? 0.01 : 1.1)); }
   }
   return !skipped;
 }

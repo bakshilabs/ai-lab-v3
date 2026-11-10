@@ -21,7 +21,7 @@ export function bubblesFor(s, cells, terrain, junior, levelId) {
   if (s.species.deer && levelId !== 'land') add(h2, 'I saw deer by the old wood!', false, 'nature');
   if (s.food && s.food < s.foodNeed) add(at, 'Not enough food in the shop.', true, 'food');
   if (any('allot') || any('orchard')) add(any('allot') || any('orchard'), 'We grew our own carrots!', false, 'food');
-  if (['power', 'heart', 'final'].includes(levelId) && homes.length) add(h0, s.power.winterOK ? 'Snowy night, and our lights stayed on!' : 'The lights went out again.', !s.power.winterOK, 'power');
+  if (['power', 'heart', 'final'].includes(levelId) && homes.length && (levelId !== 'final' || s.power.winterOK || s.power.winterSupply > 0)) add(h0, s.power.winterOK ? 'Snowy night, and our lights stayed on!' : 'The lights went out again.', !s.power.winterOK, 'power');
   if (any('raingarden')) add(any('raingarden'), 'The rain garden soaked up the puddles!', false, 'power');
   if (any('market')) add(any('market'), 'Market day! Apples from our orchard.', false, 'centre');
   if (any('school') && s.walkMax > TARGETS.walkMinutes) add(any('school'), 'School is too far to walk.', true, 'school');

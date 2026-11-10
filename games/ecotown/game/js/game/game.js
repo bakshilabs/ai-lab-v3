@@ -210,7 +210,7 @@ export function createGame(app) {
       return { flawed: false, missed, tried };
     };
     for (;;) {
-      const choice = await new Promise((resolve) => ui.tray(`<h3>${esc(tried.length ? G.C.ui.checkHelp : G.C.ui.how)}</h3>${hint()}<div class="row">${opts.map((c) => `<button class="choice ${tried.includes(c) ? 'tried' : ''}" data-c="${c}"><span class="ic">${G.C.checks[c].icon}</span>${esc(label(c))}${tried.includes(c) ? ' ✓' : ''}</button>`).join('')}</div>${tried.length ? `<div class="row" style="justify-content:flex-end;margin-top:6px"><button class="btn go" data-accept>✓ ${esc(G.C.ui.accept)}</button></div>` : ''}`,
+      const choice = await new Promise((resolve) => ui.tray(`<h3>${esc(tried.length ? G.C.ui.checkHelp : G.C.ui.how)}</h3>${hint()}<div class="row">${opts.map((c) => `<button class="choice ${tried.includes(c) ? 'tried' : ''}" data-c="${c}"><span class="ic">${G.C.checks[c].icon}</span><span class="hl">${esc(label(c))}${tried.includes(c) ? ' ✓' : ''}<small>${esc((G.j ? 'checks ' : 'tests ') + G.C.checkWhat[c])}</small></span></button>`).join('')}</div>${tried.length ? `<div class="row" style="justify-content:flex-end;margin-top:6px"><button class="btn go" data-accept>✓ ${esc(G.C.ui.accept)}</button></div>` : ''}`,
         (tr) => { tr.querySelectorAll('[data-c]').forEach((b) => (b.onclick = () => resolve(b.dataset.c))); tr.querySelector('[data-accept]')?.addEventListener('click', () => resolve(null)); }));
       if (!choice) return accept();
       ui.show('tray', false); showGuessMini(); ui.legend(null); tries++;
@@ -314,7 +314,7 @@ export function createGame(app) {
     sb.spots = tool === 'erase' ? null : goodSpots(tool, { tiles: terrain.tiles, cells: G.cells, items: ITEMS, ok: (k) => spec.get(k) === HL.free, bridge: world.bridgeTile || null });
     for (const k of sb.spots?.keys || []) spec.set(k, HL.spot);
     if (sb.kc && terrain.tiles.has(sb.kc)) spec.set(sb.kc, HL.cursor); // the keyboard cursor
-    ui.labels.spots((sb.spots?.keys || []).map((k, i) => ({ at: world.tileTop(k).add(new THREE.Vector3(0, 3.2, 0)), text: i || innerWidth < 700 ? '★' : '★ ' + G.S.keySpot, tap: () => sb.tapKey?.(k) })));
+    ui.labels.spots((sb.spots?.keys || []).slice(0, innerWidth < 700 ? 1 : 9).map((k, i) => ({ at: world.tileTop(k).add(new THREE.Vector3(0, 3.2, 0)), text: i || innerWidth < 700 ? '★' : '★ ' + G.S.keySpot, tap: () => sb.tapKey?.(k) })));
     world.setOverlay(spec);
   }
   // what a tap with the tool would do on every tile (the intro reuses it, so its gold targets sit among the usual marks)
@@ -571,7 +571,7 @@ export function createGame(app) {
     { const ctx = ctxFor(G.cells); G.badges ||= {};
       const got = newBadges(s, { hasSchool: ctx.hasSchool, catches: G.catches || 0, trusted: G.trusted || 0, labs: labsDone(), threeStars: Object.values(G.levelStars).filter((n) => n >= 3).length, complete: goals.every((g) => g.ok) }, G.badges);
       for (const id of got) G.badges[id] = true;
-      if (got.length && !first && !quiet && sb.running) { audio.star?.(); ui.caption(`★ ${G.j ? 'New badge' : 'Badge earned'}: ${badge(got[0]).name}${got.length > 1 ? ` (+${got.length - 1})` : ''}`, 3600); ui.setStars(G.stars = totalStars()); } }
+      if (got.length && !first && !quiet && sb.running) { const say = () => { audio.star?.(); ui.caption(`★ ${G.j ? 'New badge' : 'Badge earned'}: ${badge(got[0]).name}${got.length > 1 ? ` (+${got.length - 1})` : ''}`, 3600); }; if (fresh.length) setTimeout(say, 3400); else say(); /* after the goal banner, not on top of it */ ui.setStars(G.stars = totalStars()); } }
     if (first || quiet || !fresh.length || !sb.running || !s.homes.length) return;
     const g = fresh[0]; audio.reward?.(); ui.alert(G.S.goalMet[g.id], true, 3200); app.bot?.cheer();
     const town = [...G.cells].filter(([, c]) => c.item || c.mark === 'town').map(([k]) => k); const k = town[Math.floor(town.length / 2)];
@@ -583,6 +583,7 @@ export function createGame(app) {
     if (G.busy) return;
     if (sb.lens) { const was = sb.lens; sb.lens = null; await checks.leave(); renderLenses(); if (sb.tool) showAllowed(sb.tool); if (was === id) return; }
     sb.lens = id; clearOverlay(); renderLenses();
+    if (id !== 'winter') stage.setTime(12.5, 0);
     const r = await checks.run(id, sim(), G.cells, {});
     if (sb.lens !== id) return;
     if (r.info?.summary) ui.caption(`${G.C.checks[id].label}: ${r.info.summary}`, 5000);
@@ -614,6 +615,7 @@ export function createGame(app) {
   function adviseSoon(ms) { clearTimeout(sb.tipT); sb.tipT = setTimeout(advise, ms); }
   function advise() {
     if (!sb.running || sb.paused || G.busy || sb.lens || sb.intro) return;
+    if (performance.now() < (sb.quietUntil || 0)) return; // the player closed a tip with ✕: no new tip for a while (the next one used to pop up at once)
     const s = sim(); const now = performance.now(); const rule = nextTip(sb.adv, s, { open: G.ever, hasSchool: ctxFor(G.cells).hasSchool }, now);
     if (!rule) {
       // a problem she pointed out is fixed: say so
@@ -668,7 +670,7 @@ export function createGame(app) {
     const act = where ? `<button class="slot act go" data-tipwhere="${where}"><img src="${thumb(where)}" alt=""><span>${esc(G.S.showWhere)}</span></button>` : lab ? `<button class="slot act go" data-tiplab="${lab}"><img src="${thumb('ailab')}" alt=""><span>${esc(G.S.showInLab)}</span></button>` : lens ? `<button class="slot act" data-tiplens="${lens}"><b class="ico">${G.C.checks[lens].icon}</b><span>${esc(G.S.useLens)}</span></button>` : '';
     const el = ui.florence({ tag: praise ? '✓' : G.S.tipTag, html: `<p>${esc(text)}</p>${act ? `<div class="tiprow">${act}</div>` : ''}<button class="tipx" data-tipx aria-label="${esc(G.S.dismiss)}" title="${esc(G.S.dismiss)}">✕</button>`, say: text });
     el.classList.toggle('praise', praise); el.title = G.S.dismiss;
-    el.querySelector('[data-tipx]').addEventListener('click', () => hideTip()); // a visible way to fold the tip away (tapping the card did it, but nothing said so)
+    el.querySelector('[data-tipx]').addEventListener('click', () => { sb.quietUntil = performance.now() + 45000; hideTip(); }); // a visible way to fold the tip away (tapping the card did it, but nothing said so)
     el.querySelector('[data-tiplab]')?.addEventListener('click', () => { hideTip(); openLab(lab); });
     el.querySelector('[data-tiplens]')?.addEventListener('click', () => { hideTip(); toggleLens(lens); });
     el.querySelector('[data-tipwhere]')?.addEventListener('click', () => { hideTip(); showWhere(where); });
@@ -677,9 +679,12 @@ export function createGame(app) {
     // a tip with a button stays until you act on it; on a phone it folds to Florence's small figure after a while
     // (tap her to read it again): the open card covered a fifth of the screen for as long as it was ignored
     const phone = typeof matchMedia === 'function' && matchMedia('(max-width: 760px)').matches;
-    clearTimeout(sb.tipHide); if ((!lab && !lens && !where) || phone) sb.tipHide = setTimeout(() => { if (tipShown === id) hideTip(); }, phone ? 9000 : 14000);
+    clearTimeout(sb.tipHide); sb.tipHide = setTimeout(() => { if (tipShown === id) hideTip(); }, phone ? 9000 : (!lab && !lens && !where) ? 14000 : 25000); // every tip folds to Florence's figure in the end (a tester's tip sat over the island for minutes)
   }
   let lastTip = null;
+  // phones: after the intro the camera stays near the town (the whole-island view left tiles about 15 px wide)
+  function townView() { const ks = [...G.cells].filter(([, c]) => c.mark === 'town' || c.item).map(([k]) => k); const dur = app.reduce ? 0.01 : 1.1;
+    return innerWidth >= 700 || !ks.length ? rig.overview(dur) : rig.frameBox(ks.map((k) => world.tileTop(k)), { pitch: 0.9, pad: 1.5, dur }); }
   function hideTip() { tipShown = null; if (sb.running && lastTip && !sb.intro) ui.florenceMini(() => showTip(lastTip.rule ? { ...lastTip, text: tipText(lastTip.rule, sim(), G.j) } : lastTip)); else ui.florence(null); }
   // where on the island a tip is about, so Florence can walk over and point at it
   function tipAt(id, s) {
@@ -741,7 +746,7 @@ export function createGame(app) {
     const before = app.hour; app.hour += (16 / DAY_SECONDS) * 0.2;
     if (before < 18.5 && app.hour >= 18.5) { audio.dusk(); setMusic('night'); }
     if (app.hour >= 22) newDay();
-    stage.setTime(app.hour, 0);
+    stage.setTime(sb.lens && sb.lens !== 'winter' ? 12.5 : app.hour, 0); // a lens is read in daylight (at dusk the carbon lens was grey on purple)
     renderDay();
     const now = performance.now();
     if (sb.bubbles.length && now > sb.nextBub && rig.mode === 'sky' && !sb.lens) {
@@ -975,6 +980,7 @@ export function createGame(app) {
   async function openLab(id) {
     if (G.busy || !id) return; if (sb.lens) { sb.lens = null; await checks.leave(); renderLenses(); }
     G.busy = true; stopBuilding();
+    ui.caption(G.j ? '🧪 Going into the AI Lab…' : '🧪 Entering the AI Lab…', 7000); // the walk takes a few seconds: a tester thought the button had done nothing
     try { await walkIntoLab(); await runLab(id); } finally { G.busy = false; startBuilding(); app.bot?.appear(world.tileTop(terrain.lab).add(new THREE.Vector3(-2, 0, 7))); }
   }
 
@@ -1361,7 +1367,7 @@ export function createGame(app) {
   async function intro() {
     if (sb.intro) return; sb.intro = true; hideTip(); renderCard(); // the card's step now matches the intro's three tiles
     try {
-      await runIntro({ app, G, T: { ...G.S.intro, goals: G.S.introGoals },
+      await runIntro({ app, G, home: townView, T: { ...G.S.intro, goals: G.S.introGoals },
         selectTool: (cat, tool) => { sb.cat = cat; sb.tool = tool; sb.folded = false; showAllowed(tool); renderBar(); },
         townTiles: () => sim().townTiles, allowedSpec: () => allowedSpec('town'), setAbort: (f) => (sb.introAbort = f), cursor: () => (sb.kc && terrain.tiles.has(sb.kc) ? [sb.kc, HL.cursor] : null), setGlow: (f) => (sb.introGlow = f), canBuild: (k) => allowedSpec('town').get(k) === HL.free,
         videoCard: G.videos?.has('timber') ? (id) => videoCard(ITEMS[id].label, id, null) : null,
