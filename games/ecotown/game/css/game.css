@@ -1881,3 +1881,9 @@ html .streetpad [data-sp-exit] { white-space: nowrap; }
 /* ---------- playtest 5, part 2: the four "why did it go wrong" answers carry a one-line meaning ---------- */
 .choice .hl { display: grid; gap: 1px; text-align: left; min-width: 0; }
 .choice .hl small { font-weight: 600; font-size: .78em; line-height: 1.2; opacity: 1; color: var(--ink2, #5e4936); }
+/* the bias step's training examples: enough of the list shows to judge it (two of eight showed in a 100 px box), compact rows */
+#dock .tiles.exlist { max-height: 12.5em; overflow: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 4px 6px; }
+#dock .tiles.exlist .tile { padding: 5px 8px; font-size: .86em; min-height: 0; text-align: left; cursor: default; }
+@media (max-width: 760px) { #dock .tiles.exlist { grid-template-columns: 1fr; max-height: 9.5em; } }
+/* the mission-complete card sits below the top-right buttons (its top edge covered them) */
+@media (min-width: 900px) { html[data-reward=side] .modal { top: calc(50% + 38px); max-height: calc(100vh - 112px); overflow: auto; } }
