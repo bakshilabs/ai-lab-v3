@@ -430,9 +430,9 @@
   "key": "ee57c546"
  },
  {
-  "s": "Fixed specification passes",
+  "s": "Fixed within two rewrites",
   "voice": "narrator",
-  "key": "df27ec18"
+  "key": "ffdba5e8"
  },
  {
   "s": "Found the unstated assumption",
@@ -2703,6 +2703,11 @@
   "s": "Nobody told Florence what mattered (a short walk from every home), so she guessed the middle of the island.",
   "voice": "helper",
   "key": "4d6bd03b"
+ },
+ {
+  "s": "Fixed specification passes",
+  "voice": "narrator",
+  "key": "df27ec18"
  },
  {
   "s": "This evidence doesn’t show a problem.",

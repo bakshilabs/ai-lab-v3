@@ -1877,3 +1877,7 @@ html .streetpad [data-sp-exit] { white-space: nowrap; }
 #settings select { min-height: 44px; } #settings input[type="checkbox"] { width: 28px; height: 28px; }
 .tile { min-width: 44px; }
 /* ===== END of ui pass 6 ===== */
+
+/* ---------- playtest 5, part 2: the four "why did it go wrong" answers carry a one-line meaning ---------- */
+.choice .hl { display: grid; gap: 1px; text-align: left; min-width: 0; }
+.choice .hl small { font-weight: 600; font-size: .78em; line-height: 1.2; opacity: 1; color: var(--ink2, #5e4936); }

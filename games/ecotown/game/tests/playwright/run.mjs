@@ -138,6 +138,9 @@ for (const [id, check, vague, clear] of LEVELS) {
       await p.click('#modal:not(.hide) [data-act="build"], #modal:not(.hide) [data-act="finale"]');
     } }
   await p.waitForSelector('#build [data-cat]', { timeout: 30000 }); await p.waitForTimeout(800);
+  // adopting a plan lays the groundwork and builds the first four; the player builds the rest. The run builds them where the
+  // plan had them (as a player following the good spots would), so the town still grows through every unlock.
+  if (id !== 'move') { checks[`${id}PlanLeftForPlayer`] = await p.evaluate(() => { const { G } = window.__eco.app; const left = G.planLeft || []; let n = 0; for (const q of left) { const tool = q.item || q.mod || q.mark; if (G.placeAt(q.k, tool, { free: true })) n++; } G.planLeft = []; return `${n}/${left.length}`; }); await p.waitForTimeout(1200); }
   const after = await p.evaluate(() => JSON.stringify([...window.__eco.app.G.cells]));
   if (id === 'move') checks.keepLeavesTownUnchanged = before === after;
   else checks[`${id}PlanAdded`] = before !== after;

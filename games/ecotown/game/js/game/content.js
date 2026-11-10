@@ -11,10 +11,10 @@ export const CONTENT = {
     name: 'Ages 8–12',
     helperName: HELPER,
     habits: {
-      one_word: { label: 'Took one word too far', icon: '🎯', explain: 'Florence chased one word, like “best”, “fast” or “most”, and forgot everything else.' },
-      typical: { label: 'Only thought of a normal day', icon: '📅', explain: 'Florence planned for a normal day or a typical person, not for everyone or for the hardest day.' },
-      missing: { label: 'Was missing information', icon: '🧩', explain: 'Florence didn’t have a fact she needed, so she couldn’t plan for it.' },
-      literal: { label: 'Read the words too exactly', icon: '📏', explain: 'Florence did exactly what the words said, not what you meant.' },
+      one_word: { label: 'Took one word too far', hint: 'chased “best”, “fast” or “most”', icon: '🎯', explain: 'Florence chased one word, like “best”, “fast” or “most”, and forgot everything else.' },
+      typical: { label: 'Only thought of a normal day', hint: 'forgot the hardest day, or some people', icon: '📅', explain: 'Florence planned for a normal day or a typical person, not for everyone or for the hardest day.' },
+      missing: { label: 'Was missing information', hint: 'did not know a fact she needed', icon: '🧩', explain: 'Florence didn’t have a fact she needed, so she couldn’t plan for it.' },
+      literal: { label: 'Read the words too exactly', hint: 'did what you said, not what you meant', icon: '📏', explain: 'Florence did exactly what the words said, not what you meant.' },
     },
     checks: {
       flood: { label: 'Flood lens', icon: '🌊' }, carbon: { label: 'Carbon lens', icon: '🌫' }, nature: { label: 'Nature lens', icon: '🦋' },
@@ -29,7 +29,7 @@ export const CONTENT = {
       whyWrong: 'Why did this plan go wrong?', tryClearer: 'Give Florence a clearer instruction', nothingHere: 'No problem shows up here. One check only tests one thing: check another way, or use the plan if you are happy.',
       unknown: 'I don’t know how to plan that yet.', tryWords: 'Try words like', sure: 'sure', plotterGuess: 'GUESS', checked: 'PLAN CHECKED',
       foundIt: 'You found the problem!', moveIn: 'Moving day', live: 'A day in your town', continue: 'Continue', back: 'Back to the island',
-      reward: 'Level complete', stars: 'Stars', firstTry: 'Clear first time!', contra: (w) => `Hold on: you wrote “${w}”, but my plan did the opposite and still passed. I only spot key words, so I missed your “not”. Tell me what you really want.`, lucky: { contra: 'The plan passed, but your instruction said the opposite of what the plan does. Florence missed a “not”. No star for clear first time.', repeats: 'The plan passed, but your instruction mostly said the same word again and again. A clear instruction says what matters and why, so anyone could follow it. No star for clear first time.', emoji: 'The plan passed, but pictures aren’t an instruction. Say in words what matters and why. No star for clear first time.', short: 'The plan passed, but your instruction was only a word or two. Florence had to guess the rest. No star for clear first time.', wont: 'The plan passed only because Florence refused part of what you asked. No star for clear first time.', silly: 'The plan passed, but only because Florence left out the silly part: it isn’t something a town can build. A clear instruction is one a real builder could follow. No star for clear first time.' },
+      reward: 'Level complete', stars: 'Stars', firstTry: 'Clear first time!', alsoFits: (n) => `Good thinking: that fits. The closest name is “${n}”.`, manyTries: (n) => `Fixed in ${n} tries! The third star is for fixing it in one or two. Play the mission again to earn it.`, contra: (w) => `Hold on: you wrote “${w}”, but my plan did the opposite and still passed. I only spot key words, so I missed your “not”. Tell me what you really want.`, lucky: { contra: 'The plan passed, but your instruction said the opposite of what the plan does. Florence missed a “not”. No star for clear first time.', repeats: 'The plan passed, but your instruction mostly said the same word again and again. A clear instruction says what matters and why, so anyone could follow it. No star for clear first time.', emoji: 'The plan passed, but pictures aren’t an instruction. Say in words what matters and why. No star for clear first time.', short: 'The plan passed, but your instruction was only a word or two. Florence had to guess the rest. No star for clear first time.', wont: 'The plan passed only because Florence refused part of what you asked. No star for clear first time.', silly: 'The plan passed, but only because Florence left out the silly part: it isn’t something a town can build. A clear instruction is one a real builder could follow. No star for clear first time.' },
       unfair: 'Wait: the school is meant for every family, not just the richest ones. Ask for a place that is fair to everyone.', unfairTag: 'NOT FAIR', report: 'Town report', newLens: 'New lens in this mission', newTest: 'New test in this mission', petition: 'Residents are worried',
       correct: 'Correct!', notQuite: 'Not quite.', lookAgain: 'Look at Florence’s guess again:', itWas: 'It was', hidden: 'Florence still guessed one thing. Which one?',
       emptyText: 'Type an instruction first', guessCard: 'Florence’s guess',
@@ -39,7 +39,7 @@ export const CONTENT = {
       outcome: { clean: 'No problem found', flawed: 'Florence misunderstood', missed: 'The plan missed something' },
     },
     stars: {
-      flawed: ['Found the problem with your first check', 'Named Florence’s habit first time', 'Fixed the plan so it passes'],
+      flawed: ['Found the problem with your first check', 'Named Florence’s habit first time', 'Fixed the plan in one or two tries'],
       clean: ['Clear instruction first time', 'Spotted Florence’s hidden guess', 'The plan passed its check'],
 
       missed: ['Checked the plan before building', 'Told Florence what her plan missed', 'Her new plan passes'],
@@ -49,10 +49,10 @@ export const CONTENT = {
     name: 'Ages 13–17',
     helperName: HELPER,
     habits: {
-      one_word: { label: 'Proxy optimisation', icon: '🎯', explain: 'Florence maximised one measurable proxy for a vague word (“best” → flattest, “fast” → wide roads) and ignored everything else. Also called specification gaming.' },
-      typical: { label: 'Average-case assumption', icon: '📅', explain: 'Florence optimised for the typical case (an average day, a typical user) instead of the worst case or every group.' },
-      missing: { label: 'Missing or biased data', icon: '🧩', explain: 'Florence’s data left out something that matters, so she couldn’t account for it.' },
-      literal: { label: 'Specification ambiguity', icon: '📏', explain: 'The instruction had more than one reading and Florence chose the literal one.' },
+      one_word: { label: 'Proxy optimisation', hint: 'one vague word became one number to maximise', icon: '🎯', explain: 'Florence maximised one measurable proxy for a vague word (“best” → flattest, “fast” → wide roads) and ignored everything else. Also called specification gaming.' },
+      typical: { label: 'Average-case assumption', hint: 'typical day or user, not the worst case or every group', icon: '📅', explain: 'Florence optimised for the typical case (an average day, a typical user) instead of the worst case or every group.' },
+      missing: { label: 'Missing or biased data', hint: 'something that matters was not in what she knew', icon: '🧩', explain: 'Florence’s data left out something that matters, so she couldn’t account for it.' },
+      literal: { label: 'Specification ambiguity', hint: 'two readings; she took the literal one', icon: '📏', explain: 'The instruction had more than one reading and Florence chose the literal one.' },
     },
     checks: {
       flood: { label: 'Flood-risk lens', icon: '🌊' }, carbon: { label: 'Carbon lens', icon: '🌫' }, nature: { label: 'Habitat & species lens', icon: '🦋' },
@@ -66,7 +66,7 @@ export const CONTENT = {
       whyWrong: 'Which failure mode caused this?', tryClearer: 'Rewrite the instruction: goal + limit + check', nothingHere: 'This test shows no problem. One test covers one risk: run another, or accept the plan.',
       unknown: 'I can’t map that to a plan for this level.', tryWords: 'Try including', sure: 'confidence', plotterGuess: 'GUESS', checked: 'PLAN TESTED',
       foundIt: 'Evidence found', moveIn: 'Move-in', live: 'A day in the town', continue: 'Continue', back: 'Back to the island',
-      reward: 'Level complete', stars: 'Stars', firstTry: 'Well specified first time', contra: (w) => `Your brief says “${w}”, yet the plan does the opposite and passes. I match key words and missed the negation. State what you actually want.`, lucky: { contra: 'The plan passed, but the brief negates what the plan does: Florence missed the negation. No star for well specified first time.', repeats: 'The plan passed, but the brief was mostly repetition. A well-specified brief states the goal, the constraints and how success is tested. No star for well specified first time.', emoji: 'The plan passed, but emoji are not a specification. State the goal and the constraints in words. No star for well specified first time.', short: 'The plan passed, but a one- or two-word brief leaves Florence guessing the rest. No star for well specified first time.', wont: 'The plan passed only because Florence overrode part of your brief. No star for well specified first time.', silly: 'The plan passed, but Florence had to drop part of the brief as nonsense. A brief should be something a real contractor could act on. No star for well specified first time.' },
+      reward: 'Level complete', stars: 'Stars', firstTry: 'Well specified first time', alsoFits: (n) => `That reading is defensible. The closest label is “${n}”.`, manyTries: (n) => `Fixed after ${n} rewrites. The third star needs a fix within two; replay the mission to earn it.`, contra: (w) => `Your brief says “${w}”, yet the plan does the opposite and passes. I match key words and missed the negation. State what you actually want.`, lucky: { contra: 'The plan passed, but the brief negates what the plan does: Florence missed the negation. No star for well specified first time.', repeats: 'The plan passed, but the brief was mostly repetition. A well-specified brief states the goal, the constraints and how success is tested. No star for well specified first time.', emoji: 'The plan passed, but emoji are not a specification. State the goal and the constraints in words. No star for well specified first time.', short: 'The plan passed, but a one- or two-word brief leaves Florence guessing the rest. No star for well specified first time.', wont: 'The plan passed only because Florence overrode part of your brief. No star for well specified first time.', silly: 'The plan passed, but Florence had to drop part of the brief as nonsense. A brief should be something a real contractor could act on. No star for well specified first time.' },
       unfair: 'A public school serves every household. A brief that optimises for the richest families is biased, whatever the walking times say. Rewrite it so the test is fair to everyone.', unfairTag: 'BIASED BRIEF', report: 'Town report', newLens: 'New lens in this mission', newTest: 'New test in this mission', petition: 'Residents’ petition',
       correct: 'Correct.', notQuite: 'Not quite.', lookAgain: 'Re-read Florence’s reading:', itWas: 'It was', hidden: 'The plan passed, but Florence still made an unstated assumption. Which?',
       emptyText: 'Write an instruction first', guessCard: 'Florence’s guess',
@@ -76,7 +76,7 @@ export const CONTENT = {
       outcome: { clean: 'No issue found', flawed: 'Florence misunderstood the brief', missed: 'The plan missed part of the brief' },
     },
     stars: {
-      flawed: ['Found the evidence with your first test', 'Identified the failure mode first time', 'Fixed specification passes'],
+      flawed: ['Found the evidence with your first test', 'Identified the failure mode first time', 'Fixed within two rewrites'],
       clean: ['Well specified first time', 'Found the unstated assumption', 'The plan passed its test'],
 
       missed: ['Tested the plan before building', 'Specified the missing requirement', 'Revised plan passes'],
@@ -155,7 +155,7 @@ export const SANDBOX = {
     watchDay: 'Watch a whole day', backToBuilding: 'Back to building', mission: 'MISSION',
     practice: 'Florence practises on a copy of the island. Your town is safe until you choose to use her plan.',
     notNow: 'Not now', tellMissing: 'Tell Florence what her plan left out', missionDone: 'Mission complete', newTool: 'New lens to use',
-    useQuestion: 'Want Florence’s fixed plan in your town? It goes on empty tiles. Your builds stay.',
+    useQuestion: 'Want Florence’s fixed plan in your town? She marks it out and builds the first few on empty tiles. You build the rest. Your builds stay.',
     keepMine: 'Keep my town as it is', usePlan: 'Use Florence’s plan',
     charterPlan: 'Florence’s plan', charterTown: 'Your town', charterGap: 'Florence’s plan keeps this promise on the practice island, but your own town doesn’t yet: it has grown differently. Tap 🌼 to see what your town still needs.',
     reflect: {
@@ -166,7 +166,7 @@ export const SANDBOX = {
       townLeft: 'Your town is not finished yet. Next:', toBuild: 'Back to building', toFinale: 'See my finished town',
     },
     meetingBroke: (what) => `That choice breaks a rule the plan had kept: ${what}.`, meetingBrokeHead: 'This choice breaks a rule',
-    planUsed: (n, skip) => `Added ${n} part${n === 1 ? '' : 's'} of Florence’s plan to your town.${skip ? ` ${skip} didn’t fit, so they were left out.` : ''}`, planDidntFit: 'Your town has no empty tiles for Florence’s plan yet. Mark more town land, then her ideas can fit!', townDiffers: (g) => `Your town is different from the practice island. Still to do here: ${g}.`,
+    planUsed: (n, skip) => `Added ${n} part${n === 1 ? '' : 's'} of Florence’s plan to your town.${skip ? ` ${skip} didn’t fit, so they were left out.` : ''}`, planLeft: (n) => `She built the first few. ${n} more ${n === 1 ? 'is' : 'are'} yours to build: pick the build and look for the ★ good spots.`, planDidntFit: 'Your town has no empty tiles for Florence’s plan yet. Mark more town land, then her ideas can fit!', townDiffers: (g) => `Your town is different from the practice island. Still to do here: ${g}.`,
     completeRibbon: 'Town complete!', completeText: 'Every family has a home, there’s enough food, the lights stay on in winter and every home is close to school. Well done!', keepBuilding: 'Keep building',
     // the Star shop (js/ui/rewards.js): looks only, never the score
     shop: {
@@ -270,7 +270,7 @@ export const SANDBOX = {
     watchDay: 'Watch a full day', backToBuilding: 'Back to the build', mission: 'MISSION',
     practice: 'Florence plans on a test copy of the island. Your town changes only if you adopt her plan.',
     notNow: 'Not now', tellMissing: 'Specify the missing requirement', missionDone: 'Mission complete', newTool: 'New lens',
-    useQuestion: 'Adopt Florence’s fixed plan in your town? The AI Lab funds it. Only placements that fit are applied; nothing you built is replaced.',
+    useQuestion: 'Adopt Florence’s fixed plan in your town? The AI Lab funds the groundwork and the first four buildings; you build the rest. Nothing you built is replaced.',
     keepMine: 'Keep my town', usePlan: 'Adopt the plan',
     charterPlan: 'Florence’s plan', charterTown: 'Your town', charterGap: 'The adopted plan meets this promise; your town does not yet (the plan was kept out or did not all fit).',
     reflect: {
@@ -281,7 +281,7 @@ export const SANDBOX = {
       townLeft: 'The town is not complete yet. Next:', toBuild: 'Back to the build', toFinale: 'View the finished town',
     },
     meetingBroke: (what) => `That choice breaks a limit the plan had met: ${what}. Trade-offs are real: the mission passed, but this town now fails that test.`, meetingBrokeHead: 'This choice breaks a limit',
-    planUsed: (n, skip) => `Applied ${n} placement${n === 1 ? '' : 's'} from Florence’s plan, funded by the AI Lab (no credits spent).${skip ? ` ${skip} skipped (occupied or not allowed).` : ''}`, planDidntFit: 'No free tiles for the plan’s placements. Designate more town land to make room.', townDiffers: (g) => `The plan passed on the practice island; your town differs (more homes or other builds). Still open here: ${g}.`,
+    planUsed: (n, skip) => `Applied ${n} placement${n === 1 ? '' : 's'} from Florence’s plan, funded by the AI Lab (no credits spent).${skip ? ` ${skip} skipped (occupied or not allowed).` : ''}`, planLeft: (n) => `The Lab funds the first few buildings; the remaining ${n} ${n === 1 ? 'is' : 'are'} yours to build.`, planDidntFit: 'No free tiles for the plan’s placements. Designate more town land to make room.', townDiffers: (g) => `The plan passed on the practice island; your town differs (more homes or other builds). Still open here: ${g}.`,
     completeRibbon: 'Town complete', completeText: 'All petals at "enough", carbon under the ceiling, winter-night power secured, every home within 15 minutes of school.', keepBuilding: 'Keep building',
     shop: {
       title: 'Star shop', menu: 'Star shop', done: 'Done', on: 'On', off: 'Off', owned: 'Unlocked',
