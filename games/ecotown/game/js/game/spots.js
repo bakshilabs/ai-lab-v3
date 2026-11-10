@@ -66,7 +66,17 @@ export function goodSpots(tool, { tiles, cells, items, ok, bridge = null, max = 
   // farms: close to the homes but off the town land
   if (FARM.has(tool)) {
     const c = centre(homes.length ? homes : town.length ? town : all);
-    const keys = byNear(free.filter((k) => cell(k).mark !== 'town'), c); return { keys: (keys.length ? keys : byNear(free, c)).slice(0, max), why: { type: 'farm' } };
+    // one tile back from the homes and the town land where there is room, so the town can still grow and the school
+    // can go in the middle later (farms right against the homes used to box the town in)
+    const gap = (k) => Math.min(...(town.length ? town : [k]).map((h) => cheb(h, k)));
+    const off = free.filter((k) => cell(k).mark !== 'town'); const back = off.filter((k) => gap(k) >= 2);
+    const keys = byNear(back.length ? back : off, c); return { keys: (keys.length ? keys : byNear(free, c)).slice(0, max), why: { type: 'farm' } };
+  }
+  // wind turbines: open ground out past the homes (turbines next to the homes used to take the middle of the town)
+  if (tool === 'wind') {
+    const away = (k) => Math.min(...homes.map((h) => cheb(h, k)));
+    const out = free.filter((k) => away(k) >= 3 && cell(k).mark !== 'town');
+    if (out.length) return { keys: [...out].sort((a, b) => away(a) - away(b) || distTo(centre(homes))(a) - distTo(centre(homes))(b)).slice(0, max), why: { type: 'windy' } };
   }
   // everything else people use (parks, markets, halls, allotments…): where the most homes are within a short walk
   const near = (k) => homes.filter((h) => cheb(h, k) <= 2).length;

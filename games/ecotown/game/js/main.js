@@ -154,6 +154,20 @@ ui.P.camctl.addEventListener('click', async (e) => {
   if (a === 'in') rig.zoomBy(0.72); if (a === 'out') rig.zoomBy(1.38); if (a === 'left') rig.rotateBy(Math.PI / 4); if (a === 'right') rig.rotateBy(-Math.PI / 4);
 });
 
+// ---------------- safety net: an unexpected error must never leave a child with a frozen game and no way on.
+// The town is autosaved, so the notice offers a reload ("Carry on building" is then the first button). It never
+// stops the game: it is one small notice, shown once, and only for errors after the game has started.
+{ let told = false;
+  const oops = (msg) => {
+    if (told || !app.G || /ResizeObserver|NotAllowedError|AbortError|play\(\)|interrupted/i.test(String(msg))) return; told = true;
+    try { app.G.save?.(); } catch { /* */ }
+    const n = h('<div id="oops" role="alert"><span>Something went wrong. Your town is saved.</span><button class="btn go" data-reload>Reload</button><button class="btn alt" data-x aria-label="Close">✕</button></div>');
+    n.querySelector('[data-reload]').onclick = () => location.reload(); n.querySelector('[data-x]').onclick = () => n.remove();
+    document.getElementById('app').appendChild(n);
+  };
+  addEventListener('error', (e) => oops(e.message || e.error)); addEventListener('unhandledrejection', (e) => oops(e.reason?.message || e.reason));
+}
+
 // ---------------- start screen
 async function start() {
   rig.sky.yaw = -0.6; rig.startTurntable(0.05);
@@ -189,7 +203,7 @@ async function start() {
   card.innerHTML = `<span class="chip">${band === 'junior' ? 'AGES 8–12' : 'AGES 13–17'}</span><h1>Name your <span>town</span></h1><p style="font-weight:600;color:#46596a">Pick a name or type your own.</p>
     <div class="names">${NAME_IDEAS.map((n) => `<button class="tile" data-n="${n}">${n}</button>`).join('')}</div>
     <div class="textin" style="margin-top:12px"><div class="field"><input data-name maxlength="24" placeholder="Your town’s name" aria-label="Town name" autocomplete="off"></div></div><p class="nameerr" data-err></p>
-    <h3 class="setuphead">Session setup</h3>
+    <h2 class="setuphead">Session setup</h2>
     <div class="opts"><span class="seglab">AI Lab missions</span><span class="seg" role="radiogroup" aria-label="AI Lab missions"><button type="button" role="radio" data-order="free" aria-checked="${!app.classMode}">Any order</button><button type="button" role="radio" data-order="class" aria-checked="${!!app.classMode}">In order (class)</button></span>
     <label><input type="checkbox" data-facil ${app.settings.facilitator ? 'checked' : ''}> Facilitator notes</label></div>
     <p class="sessnote" data-sessnote></p>

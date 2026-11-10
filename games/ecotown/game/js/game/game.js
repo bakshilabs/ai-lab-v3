@@ -446,7 +446,7 @@ export function createGame(app) {
   // a locked category still shows what it will unlock (greyed), with a bar filling toward it
   function lockedView(tier, s) {
     const [have, need] = tier.progress(s); const pct = Math.round(100 * Math.min(1, have / need));
-    return `<div class="lockbar"><p>🔒 ${esc(G.S.unlocksWhen)} <b>${esc(pick(tier.need))}</b></p><div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="${need}" aria-valuenow="${Math.min(have, need)}"><i style="width:${pct}%"></i><span>${Math.min(have, need)} / ${need}</span></div></div>`
+    return `<div class="lockbar"><p>🔒 ${esc(G.S.unlocksWhen)} <b>${esc(pick(tier.need))}</b></p><div class="bar" role="progressbar" aria-label="Progress to unlock" aria-valuemin="0" aria-valuemax="${need}" aria-valuenow="${Math.min(have, need)}"><i style="width:${pct}%"></i><span>${Math.min(have, need)} / ${need}</span></div></div>`
       + LEVELS[tier.id].palette.map((idd) => `<div class="slotwrap"><div class="slot item locked" aria-disabled="true" title="${esc(ITEMS[idd].label)}"><img src="${thumb(idd)}" alt=""><span>${esc(ITEMS[idd].label)}</span><i class="lock">🔒</i></div></div>`).join('');
   }
   function progressNow(cat, s) {
@@ -461,7 +461,7 @@ export function createGame(app) {
     const nu = nextUnlock(s, G.ever);
     if (nu && sb.intro && nu.id === 'homes' && nu.have < 3) return { text: G.S.nextStep.land(3 - nu.have, 3), have: nu.have, need: 3 }; // the intro asks for three first
     if (nu) { const left = nu.need - nu.have; return { text: nu.id === 'homes' ? G.S.nextStep.land(left, nu.need) : nu.kind === 'food' ? G.S.nextStep.food(Math.max(1, left), G.S.cats[nu.id]) : G.S.nextStep.fam(left, G.S.cats[nu.id]), have: nu.have, need: nu.need }; }
-    const goals = townGoals(s, ctxFor(G.cells)); const next = goals.find((g) => !g.ok); const done = goals.filter((g) => g.ok).length;
+    const goals = townGoals(s, ctxFor(G.cells)); const next = firstGoal(goals); const done = goals.filter((g) => g.ok).length;
     if (!next) return labsDone() < 6 ? { text: `${G.S.next}: ${G.S.labGoal(labsDone())}`, have: labsDone(), need: 6 } : { text: G.S.allGoals, have: 1, need: 1 };
     const pct = (v) => Math.min(100, Math.round(v * 100));
     const [have, need] = { homes: [s.familiesSafe, TARGETS.families], food: [s.food, s.foodNeed], nature: [pct(s.petals.nature), 100], health: [pct(s.petals.health), 100], community: [pct(s.petals.community), 100],
@@ -623,7 +623,7 @@ export function createGame(app) {
       if (!tipShown && !sb.adv.pending.length && now - (sb.lastSuggest || 0) > 150000 && now - sb.adv.last > 20000 && suggestFor(s)) { sb.lastSuggest = now; sb.adv.last = now; return offerSuggestion(suggestFor(s)); }
       // nothing wrong: a next step toward the first goal not met yet (each idea at most every 3 minutes)
       if (!tipShown && !sb.adv.pending.length && now - sb.adv.last > 40000) {
-        const g = townGoals(s, ctxFor(G.cells)).find((x) => !x.ok && isOpen(GOAL_CAT[x.id]) && (x.id === 'homes' || s.homes.length > 0) && now - (sb.ideas[x.id] || -Infinity) > 180000); // no homes yet: no ideas about "the homes" (a tester with four tiles of land was told to run a cycle lane from them)
+        const g = firstGoal(townGoals(s, ctxFor(G.cells)), (x) => isOpen(GOAL_CAT[x.id]) && (x.id === 'homes' || s.homes.length > 0) && now - (sb.ideas[x.id] || -Infinity) > 180000); // no homes yet: no ideas about "the homes" (a tester with four tiles of land was told to run a cycle lane from them)
         if (g) { sb.ideas[g.id] = now; sb.adv.last = now; showTip({ id: 'idea-' + g.id, text: g.id === 'walk' && ctxFor(G.cells).hasSchool ? G.S.nextIdea.walk2 : G.S.nextIdea[g.id], where: ideaTool(g.id) }); /* a school already stands: say "a second school" */ }
       }
       return;
@@ -638,8 +638,20 @@ export function createGame(app) {
   // Florence's tip: one line in the dock, above the build bar. Never blocks; fades after a while.
   let tipShown = null;
   // which build a next-step idea is about, for its "Show me where" button (only if that category is open)
-  const IDEA_TOOL = { homes: ['timber'], food: ['mixed', 'orchard'], nature: ['park', 'hedge', 'wild'], health: ['cycle', 'park'], energy: ['wind'], community: ['market', 'hall'], walk: ['school'] };
-  const ideaTool = (id) => (IDEA_TOOL[id] || []).find((t) => ITEMS[t] && isOpen(ITEMS[t].level)) || null;
+  // The build Florence points to for a goal: one that is open and has a good spot right now, and of those the kind the
+  // town has fewest of. (A player who only followed the hints was sent to build ten wind turbines and three markets in a
+  // row, and then to a cycle lane with nowhere to go.)
+  const IDEA_TOOL = { homes: ['timber'], food: ['mixed', 'orchard', 'allot'], nature: ['park', 'hedge', 'wild'], health: ['cycle', 'park', 'path'], energy: ['wind', 'battery'], community: ['market', 'hall', 'allot'], walk: ['school'] };
+  const hasSpot = (t) => { const spec = allowedSpec(t); return goodSpots(t, { tiles: terrain.tiles, cells: G.cells, items: ITEMS, ok: (k) => spec.get(k) === HL.free, bridge: world.bridgeTile || null }).keys.length > 0; };
+  const ideaTool = (id) => {
+    const open = (IDEA_TOOL[id] || []).filter((t) => ITEMS[t] && isOpen(ITEMS[t].level)); if (!open.length) return null;
+    const count = (t) => [...G.cells.values()].filter((c) => c.item === t || c.mods?.includes(t)).length;
+    const ok = open.filter(hasSpot); return (ok.length ? ok : open).map((t, i) => [t, count(t), i]).sort((a, b) => a[1] - b[1] || a[2] - b[2])[0][0];
+  };
+  // the order the next step and Florence's ideas work through the goals: the school goes in while there is still room
+  // in the middle of the homes, before the turbines, the market and the parks
+  const GOAL_ORDER = ['homes', 'food', 'walk', 'energy', 'community', 'health', 'nature', 'carbon'];
+  const firstGoal = (goals, ok = () => true) => GOAL_ORDER.map((id) => goals.find((g) => g.id === id)).find((g) => g && !g.ok && ok(g)) || null;
   // select a build and show Florence's good spots for it: gold kerbs, the camera on them, Florence pointing at the best
   async function showWhere(tool) {
     sb.cat = ITEMS[tool].level; sb.tool = tool; sb.folded = false; showAllowed(tool); renderBar(); audio.tap();
@@ -1361,6 +1373,12 @@ export function createGame(app) {
   G.openShop = openShop; G.finale = () => { if (G.canMenu() && G.completeShown) celebrateTown(true); }; G.applyCosmetics = applyCosmetics;
   G.canMenu = () => sb.running && !G.busy && !sb.intro; G.showReport = () => { if (G.canMenu()) showReport(); }; G.wholeDay = () => { if (G.canMenu()) wholeDay(); };
   G.showWhere = showWhere;
+  // test hook: what the game itself points a player to next (the next-step line, the build it suggests and Florence's
+  // good spots for it), so a scripted "player who only follows the hints" can check the hints lead to a complete town
+  G.hint = () => { const s = sim(); const nu = nextUnlock(s, G.ever); const g = nu ? null : firstGoal(townGoals(s, ctxFor(G.cells)));
+    const tool = nu ? (nu.id === 'homes' ? 'town' : nu.kind === 'food' ? ideaTool('food') : 'timber') : g ? ideaTool(g.id) : null;
+    if (tool) { sb.cat = ITEMS[tool].level; sb.tool = tool; showAllowed(tool); }
+    return { step: nextStep(s).text, unlock: nu?.id || null, goal: g?.id || null, tool, spots: tool ? [...(sb.spots?.keys || [])] : [], why: tool ? spotLine() : '' }; };
   G.suggest = () => { const sg = suggestFor(sim()); if (sg) offerSuggestion(sg); return sg?.id || null; };
   G.openLab = openLab; G.labBoard = labBoard; G.enterClassroom = enterClassroom; G.classAsk = classAsk; G.leaveClassroom = leaveClassroom; G.playVideo = playVideo; G.videoCard = videoCard; G.florenceTo = florenceTo; G.placeAt = (k, tool, o) => { const ok = placeAt(k, tool, o); if (ok) changed(); return ok; }; G.sim = sim; G.advisor = sb.adv;
   G.saved = () => { try { const d = JSON.parse(localStorage.getItem(SAVE) || 'null'); return d && d.band === G.band ? d : null; } catch { return null; } };
