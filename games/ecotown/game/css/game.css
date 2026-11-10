@@ -1941,3 +1941,9 @@ html .streetpad [data-sp-exit] { white-space: nowrap; }
 @media (max-width: 560px) and (orientation: portrait) {
   html .introskip { left: 74px; top: 92px; bottom: auto; transform: none; height: 36px; padding: 0 12px; font-size: 13px; } /* beside the Camera button, off the island */
 }
+@media (max-width: 560px) and (orientation: portrait) {
+  /* short messages sit under the top card while building: above the build bar they landed on Florence's tip */
+  html:not([data-lab="on"]) #layer #toast, html:not([data-lab="on"]):has(#card:not(.hide) .dayc:not([hidden])) #layer #toast { top: 148px !important; bottom: auto !important; width: calc(100vw - 24px); font-size: 14px; line-height: 1.25; padding: 8px 12px; }
+}
+
+#fpsbox { position: absolute; left: 50%; top: 0; transform: translateX(-50%); white-space: nowrap; z-index: 95; padding: 3px 8px; border-radius: 6px; background: #1d1a17; color: #fff; font: 700 12px/1.3 ui-monospace, monospace; pointer-events: none; }
