@@ -55,15 +55,15 @@ export function roots(v, inside, { rx = 30, rz = 22, top = 0, count = 40, seed =
     if (!inside(x, z)) continue;
     let y = top; while (v.has(x, y - 1, z) && y > top - 40) y--;
     const len = 2 + Math.floor(rand(i, seed, 3) * 6);
-    for (let k = 1; k <= len; k++) v.set(x + (k > 3 && rand(i, k) > 0.7 ? 1 : 0), y - k, z, k === len ? '#5fae4a' : rand(i, k, 9) > 0.5 ? '#6b4a2e' : '#4f8f3c');
+    for (let k = 1; k <= len; k++) v.set(x + (k > 3 && rand(i, k) > 0.7 ? 1 : 0), y - k, z, k === len ? '#8fae55' : rand(i, k, 9) > 0.5 ? '#6b4a2e' : '#6f8f45');
   }
 }
 
 // A sea of solid, blocky clouds far below and around the island (plus a few at its own height, far off), so the
 // island is seen to float above something and the sky has depth. One instanced mesh (one draw call); lower and
 // farther clouds are tinted towards the sky. It turns very slowly as one piece, so nothing is updated per cloud.
-// night() returns 0..1: the clouds stop glowing after dark.
-export function cloudSea(scene, { n = 20, high = 7, seed = 3, night = () => 0 } = {}) {
+// night() returns 0..1: the clouds stop glowing after dark. dim() returns 0..1: they step back (greyer) while a data lens is on.
+export function cloudSea(scene, { n = 20, high = 7, seed = 3, night = () => 0, dim = () => 0 } = {}) {
   const slabs = [];
   const BASE = new THREE.Color('#c9d1f1'), MID = new THREE.Color('#e2e6fa'), CROWN = new THREE.Color('#fbf8ff'), FAR = new THREE.Color('#9fb0ea');
   // a cloud is three stacked slabs and two end puffs; each layer is a shade lighter, so its shape reads from above
@@ -89,7 +89,7 @@ export function cloudSea(scene, { n = 20, high = 7, seed = 3, night = () => 0 } 
   const o = new THREE.Object3D();
   slabs.forEach(([x, y, z, sx, sy, sz, yaw, col], i) => { o.position.set(x, y, z); o.rotation.set(0, yaw, 0); o.scale.set(sx, sy, sz); o.updateMatrix(); m.setMatrixAt(i, o.matrix); m.setColorAt(i, col); });
   m.instanceMatrix.needsUpdate = true; m.instanceColor.needsUpdate = true; scene.add(m);
-  return (t) => { m.rotation.y = t * 0.0035; mat.emissiveIntensity = 0.14 * (1 - night()) + 0.02; };
+  return (t) => { m.rotation.y = t * 0.0035; mat.emissiveIntensity = 0.14 * (1 - night()) + 0.02; mat.color.setScalar(1 - 0.38 * dim()); };
 }
 
 // Rocks floating around an island, in a few groups (one mesh per group, so few draw calls): grassy islets with the

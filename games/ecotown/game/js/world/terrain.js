@@ -72,7 +72,7 @@ export function mesaAt(x, z) {
   if (z < -30.5 && x > 2 && x < 22 && Math.abs(z + 35) < 4.2 + noise2(x / 4, z / 4, 15) * 1.2) h = Math.max(h, 8);
   return h;
 }
-export const TARN = { x: 13.5, z: -33.5, r: 2.1 };
+export const TARN = { x: 12.5, z: -34, r: 2.3, h: 8 };
 // Height of the wild rim belt (0 inside the tile area): terraced hills, higher at the back (north/east)
 // and low at the front (south coast), so the town stays in view from the default camera.
 export function rimHeight(x, z) {

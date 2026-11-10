@@ -1557,7 +1557,7 @@ canvas.portrait.live { background: #f3dcae; box-shadow: inset 0 0 0 2px var(--p6
 #camctl [data-cam="home"] .ico { background-image: var(--i-home); } #camctl [data-v="street"] .ico { background-image: var(--i-walk); } #camctl [data-v="inside"] .ico { background-image: var(--i-inside); }
 #build .erase .ico { background-image: var(--i-erase); width: 34px; height: 34px; }
 .spk, #florence .tipx, #card [data-pause], #build .info .play, #build .play { font-size: 0 !important; background-repeat: no-repeat; background-position: center; background-size: 22px 22px; }
-.spk { background-image: var(--i-spk); } #florence .tipx { background-image: var(--i-x); background-size: 18px 18px; }
+.spk { background: var(--p6-card) var(--i-spk) center / 22px 22px no-repeat !important; box-shadow: var(--slot-bevel) !important; } .spk:hover { background-color: #fff !important; } #florence .tipx { background-image: var(--i-x); background-size: 18px 18px; }
 #card [data-pause] { background-image: var(--i-pause); background-size: 18px 18px; } #card [data-pause][aria-label="Play"] { background-image: var(--i-play); }
 #build .info .play, #build .play { background-image: var(--i-play); background-size: 14px 14px; }
 .spk.speaking { background: var(--p6-sage) var(--i-spkw) center / 22px 22px no-repeat !important; box-shadow: inset 0 0 0 2px var(--p6-sage-d), 0 3px 0 var(--p6-sage-d); }
@@ -1646,20 +1646,6 @@ canvas.portrait.live { background: #f3dcae; box-shadow: inset 0 0 0 2px var(--p6
   #build .info .play { width: 44px; height: 30px; position: relative; } #build .info .play::before { content: ''; position: absolute; inset: -7px 0; }
   #build .info .ihead .spotwhy { font-size: 12.5px; font-weight: 700; }
 
-  /* Florence's tip: a short strip above the tray (small figure, words, one button; ✕ and 🔊 in a column at the right).
-     It was a 250 px tall panel that left about 110 px of island */
-  #layer #florence:not(.mini) { padding: 6px 54px 6px 6px; min-height: 100px; background: var(--p6-card); background-image: none; box-shadow: var(--blk-shadow), var(--p6-frame); }
-  #florence:not(.mini) .fwrap, #florence:not(.mini) .fwrap:has(canvas.portrait) { grid-template-columns: 40px 1fr; gap: 8px; align-items: start; }
-  #florence:not(.mini) .fwrap canvas.portrait, #florence:not(.mini) .fwrap .portrait { width: 40px; }
-  #florence:not(.mini) .fhead { margin: 0; min-height: 0; gap: 6px; align-items: center; }
-  #florence:not(.mini) .fhead b { font-size: 12px; } #florence:not(.mini) .fhead em { font-size: 10px; padding: 1px 5px; margin: 0; }
-  #florence:not(.mini) .fhead .spk { position: absolute; right: 6px; top: 52px; width: 42px; height: 42px; min-width: 0; min-height: 0; margin: 0; }
-  #florence:not(.mini) .tipx { right: 6px; top: 6px; width: 42px; height: 42px; }
-  #florence:not(.mini) .fbody { background: none; box-shadow: none; padding: 0; margin: 2px 0 0; font-size: calc(14px * var(--ts)); line-height: 1.25; }
-  #florence:not(.mini) .fbody p { margin: 0 0 4px; }
-  #florence:not(.mini) .fbody .slot.act { min-height: 44px; padding: 2px 10px 2px 4px; flex-direction: row; gap: 6px; font-size: 13px; }
-  #florence:not(.mini) .fbody .slot.act img { width: 30px; }
-
   /* missions: the instruction box and Send / Clear stay put; only the word bank scrolls */
   html[data-lab="on"] #dock .actions:has(.sentrow) { display: flex; flex-direction: column; overflow: hidden; max-height: none; flex: 0 1 auto; min-height: 0; }
   html[data-lab="on"] #dock .actions:has(.sentrow) > * { flex: none; }
@@ -1678,4 +1664,150 @@ canvas.portrait.live { background: #f3dcae; box-shadow: inset 0 0 0 2px var(--p6
   #settings [data-close] { bottom: 0; box-shadow: inset 0 0 0 2px var(--p6-sage-d), 0 -10px 0 0 var(--p6-card), 0 10px 0 0 var(--p6-card); margin: 14px 0 10px; }
   /* the report's table fits the sheet */
   #report { padding: 8px; } #report .sheet { padding: 12px; } #report table { table-layout: fixed; font-size: 12px; } #report td, #report th { padding: 4px 3px; overflow-wrap: anywhere; }
+}
+
+/* --- phones, both ways up --- */
+@media (max-width: 760px), (max-height: 560px) {
+  /* Florence's tip: a short strip above the tray (small figure, words, one button; ✕ and 🔊 in a column at the right).
+     It was a 250 px tall panel that left about 110 px of island */
+  #layer #florence:not(.mini) { padding: 6px 54px 6px 6px; min-height: 100px; background: var(--p6-card); background-image: none; box-shadow: var(--blk-shadow), var(--p6-frame); }
+  #florence:not(.mini) .fwrap, #florence:not(.mini) .fwrap:has(canvas.portrait) { grid-template-columns: 40px 1fr; gap: 8px; align-items: start; }
+  #florence:not(.mini) .fwrap canvas.portrait, #florence:not(.mini) .fwrap .portrait { width: 40px; }
+  #florence:not(.mini) .fhead { margin: 0; min-height: 0; gap: 6px; align-items: center; }
+  #florence:not(.mini) .fhead b { font-size: 12px; } #florence:not(.mini) .fhead em { font-size: 10px; padding: 1px 5px; margin: 0; }
+  #florence:not(.mini) .fhead .spk { position: absolute; right: 6px; top: 52px; width: 42px; height: 42px; min-width: 0; min-height: 0; margin: 0; }
+  #florence:not(.mini) .tipx { right: 6px; top: 6px; width: 42px; height: 42px; }
+  #florence:not(.mini) .fbody { background: none; box-shadow: none; padding: 0; margin: 2px 0 0; font-size: calc(14px * var(--ts)); line-height: 1.25; }
+  #florence:not(.mini) .fbody p { margin: 0 0 4px; }
+  #florence:not(.mini) .fbody .slot.act { min-height: 44px; padding: 2px 10px 2px 4px; flex-direction: row; gap: 6px; font-size: 13px; }
+  #florence:not(.mini) .fbody .slot.act img { width: 30px; }
+  #layer #florence:not(.mini) { z-index: 3; max-height: calc(100dvh - var(--buildh, 206px) - 150px); overflow-y: auto; }
+  #florence .fbody .tiprow { gap: 4px; }
+  #lensbar [data-lensx], #lensbar button { min-height: 44px; }
+  #settings input[type="checkbox"] { width: 28px; height: 28px; }
+  /* toasts sit just above the bottom panel: clear of the lens key (top) and of Florence's words (in the panel) */
+  #layer #toast, html:has(#card:not(.hide) .dayc:not([hidden])) #layer #toast { top: auto !important; bottom: calc(var(--buildh, 206px) + 14px); max-width: calc(100vw - 16px); white-space: normal; text-align: center; border-radius: 10px; z-index: 7; }
+  html[data-lab="on"] #layer #toast { bottom: calc(var(--dockh, 50vh) + 14px); }
+}
+
+/* --- street view and the inside-a-home view are for looking: everything but Back, the walking pad and its hint steps aside --- */
+html[data-street="on"] #florence, html[data-street="on"] #camctl, html[data-street="on"] #flowerpop,
+html[data-inside="on"] #build, html[data-inside="on"] #florence, html[data-inside="on"] #camctl, html[data-inside="on"] .spotwhy, html[data-inside="on"] #labels .spot { visibility: hidden !important; }
+#insideback { position: absolute; left: 50%; top: 84px; transform: translateX(-50%); z-index: 30; white-space: nowrap; }
+#insideback[hidden] { display: none; }
+@media (max-width: 760px) { #insideback, html .streetpad [data-sp-exit] { top: 84px; } }
+
+/* --- the start and name screens scroll when the card is taller than the screen (phones on their side: Start was out of reach) --- */
+#start { display: flex; overflow-y: auto; padding: 12px 0; }
+#start .card { margin: auto; flex: none; }
+@media (max-height: 560px) {
+  #start .card { padding: 26px 16px 14px; } #start h1 { font-size: 2em; margin: 2px 0; } #start .ages { margin: 8px 0; } #start .age { min-height: 0; padding-top: 8px; padding-bottom: 8px; }
+}
+@media (max-width: 560px) { #start .age { padding-left: 84px; } #start .age::before { width: 60px; height: 60px; margin-top: -30px; } }
+
+/* --- phones on their side (short screens): a thin top bar, the build tray down the left edge, Florence small in the corner --- */
+@media (max-height: 560px) and (min-width: 561px) {
+  #card { left: 6px; top: 6px; width: auto; max-width: calc(100vw - var(--stripw, 110px) - 76px); display: flex; flex-wrap: nowrap; align-items: center; gap: 6px; padding: 4px 6px; }
+  #card .crow { display: contents; } #card .leaf, #card .track, #card .band, #card .brand { display: none; }
+  #card [data-flower] { order: 0; width: 44px; height: 44px; flex: none; padding: 0; } #card [data-flower] svg { width: 40px; height: 40px; display: block; }
+  #card .goal { order: 1; flex: 1 1 240px; min-width: 150px; max-width: 360px; background: var(--p6-card); border-radius: 8px; padding: 3px 8px 4px 12px; box-shadow: inset 0 0 0 2px var(--p6-line), inset 5px 0 0 var(--p6-terra); gap: 2px; min-height: 44px; justify-content: center; }
+  #card .goal .gt { font: 800 calc(13px * var(--ts))/1.15 'Inter', sans-serif; -webkit-line-clamp: 2; }
+  #card .goal .gbar { height: 10px; } #card .goal .gbar b { font: 900 9px/10px 'Inter', sans-serif; }
+  #card button.stars { order: 2; flex: none; min-width: 44px; padding: 2px 6px; }
+  #card .dayc { order: 3; display: inline-flex; background: none; padding: 0; height: 44px; } #card .dayc [data-dayt] { display: none; } #card .dayc .slot.mini { width: 44px; height: 44px; }
+  #layer #strip { top: 6px; right: 6px; flex-direction: row; padding: 4px; gap: 4px; } #strip .sep { width: 3px; height: 26px; }
+  #strip .ib, #camctl .ib { width: 48px; height: 46px; padding: 3px 1px 2px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
+  .ib .cap { display: block; font: 800 9.5px/1 'Inter', system-ui, sans-serif; color: var(--p6-ink); white-space: nowrap; }
+  #strip .ib .ico, #camctl .ib .ico { width: 22px; height: 22px; } #strip .ib img { width: 24px; height: 24px; }
+  #layer #camctl { top: 6px; right: calc(var(--stripw, 110px) + 12px); left: auto; bottom: auto; padding: 4px; gap: 4px; flex-direction: row; z-index: 5; }
+  #layer #camctl.open { display: grid; grid-template-columns: repeat(4, 54px); } #camctl.open .ib { width: 54px; } #camctl .ib .cap { font-size: 9px; }
+  .introskip { left: 222px; top: 62px; transform: none; height: 40px; }
+
+  #layer #build { left: 6px; top: 62px; bottom: 6px; right: auto; width: 208px; max-height: none; transform: none; display: flex; flex-direction: column; padding: 5px; gap: 4px; }
+  #layer #build.hide { transform: translateX(-30px); }
+  #build .bhead, #build .btools, #build .hlkey { display: none; }
+  #build .bbody { flex: 1; min-height: 0; display: grid; grid-template-columns: 46px minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); gap: 4px 5px; }
+  #build .cats { grid-column: 1; grid-row: 1 / span 2; display: flex; flex-direction: column; gap: 3px; overflow-y: auto; overflow-x: hidden; padding: 0 0 4px; align-items: stretch; }
+  #build .cat { width: 46px; height: 46px; min-height: 46px; flex: none; padding: 2px; }
+  #build .cat img { width: 30px; } #build .cat span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  #build .info { grid-column: 2; grid-row: 1; display: block; white-space: normal; overflow: hidden; font-size: 12px; }
+  #build .info .ihead { flex-wrap: wrap; gap: 4px; } #build .info .ihead b { font-size: 13px; }
+  #build .info .play { width: 40px; height: 26px; position: relative; } #build .info .play::before { content: ''; position: absolute; inset: -9px -2px; }
+  #build .info .ihead .spotwhy { position: static; background: none; border: 0; box-shadow: none; padding: 0; max-width: none; font: 700 11px/1.2 'Inter', sans-serif; white-space: normal; display: -webkit-box !important; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex: 1 1 100%; }
+  #build .info .chips { flex-wrap: wrap; gap: 2px; } #build .info .chip { font-size: 10.5px; line-height: 16px; padding: 0 4px; }
+  #build .items { grid-column: 2; grid-row: 2; display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: 68px; gap: 4px; overflow-y: auto; overflow-x: hidden; padding: 4px; align-content: start; }
+  #build .slotwrap { width: auto; min-width: 0; } #build .item, #build .items .erase { height: 68px; width: 100%; min-height: 0; padding: 2px; }
+  #build .item img { width: 44%; } #build .erase .ico { width: 28px; height: 28px; }
+  #build .item span { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.05; font-size: 10px; overflow-wrap: anywhere; }
+
+  #layer #florence.mini { right: 6px; bottom: 6px; left: auto; width: auto; padding: 3px; }
+  #florence.mini .fwrap canvas.portrait { width: 44px; } #florence.mini .fwrap, #florence.mini .fwrap:has(canvas.portrait) { grid-template-columns: 44px; }
+  #layer #florence:not(.mini) { right: 6px; bottom: 6px; left: auto; width: min(340px, calc(100vw - 232px)); max-height: calc(100dvh - 72px); }
+  #flowerpop, #lenspop, #settings { top: 58px; max-height: calc(100dvh - 64px); }
+  #layer #toast { bottom: 10px; left: 226px; right: 66px; transform: none; max-width: none; }
+
+  /* missions: the dock is a column on the right, so the plan shows on the left */
+  html[data-lab="on"] #layer #dock { left: auto; right: 6px; top: 58px; bottom: 6px; width: min(400px, 50vw); max-width: none; max-height: none; transform: none; display: flex; flex-direction: column; gap: 6px; padding: 6px; overflow-y: auto; }
+  html[data-lab="on"] #layer #dock.hide { transform: translateX(30px); }
+  html[data-lab="on"] #layer #dock.talk-only, html[data-lab="on"] #layer #dock.actions-only { width: min(400px, 50vw); max-width: none; }
+  html[data-lab="on"] #dock .speaker, html[data-lab="on"] #dock .actions { flex: none; overflow: visible; max-height: none; }
+  html[data-lab="on"] #dock .speaker { grid-template-columns: 44px 1fr; padding: 6px; font-size: 14px; }
+  html[data-lab="on"] #dock .speaker .avatar, html[data-lab="on"] #dock .speaker .avatar:has(canvas.portrait), html[data-lab="on"] #dock .speaker .avatar canvas.portrait { width: 44px; }
+  html[data-lab] #dock .sentrow .sentence, #dock .sentrow .sentence { min-height: 54px; }
+  html[data-lab="on"] #layer #toast { left: 8px; right: auto; bottom: 10px; max-width: 44vw; }
+  #lensbar { left: 6px; right: auto; top: 58px; transform: none; max-width: 46vw; } #alert { left: 6px; right: auto; top: 112px; transform: none; max-width: 46vw; white-space: normal; font-size: 15px; }
+  .modal { max-height: calc(100dvh - 12px); padding: 14px; } .modal .ribbon { margin: -14px -14px 8px; padding: 6px; }
+  .modal > .row:last-child, .modal > .row:last-of-type { position: sticky; bottom: -14px; background: var(--p6-card); padding: 8px 0 10px; margin-bottom: -10px; z-index: 1; }
+}
+/* ===== end of ui pass 6, parts 1-3 ===== */
+
+/* ---------- ui pass 6, part 4: fixes after looking ---------- */
+@media (min-width: 761px) and (min-height: 561px) {
+  /* the open camera row drops under the top-right buttons (in the top row it ran over the town card) */
+  #camctl { position: absolute; }
+  #camctl.open .camrow { display: flex; gap: 5px; position: absolute; top: calc(100% + 8px); right: calc(-1 * var(--stripw, 140px) - 8px); padding: 5px; background: var(--p6-oak); background-image: var(--plank); border-radius: 12px; box-shadow: var(--blk-shadow), var(--p6-frame); }
+  html:has(#camctl.open) #lensbar { top: 156px; } html:has(#camctl.open) #alert { top: 214px; }
+  html:has(#camctl.open) #flowerpop, html:has(#camctl.open) #lenspop, html:has(#camctl.open) #settings { z-index: 7; }
+}
+
+/* --- Large text: about 20 % bigger everywhere (it was about 8 %), and the fixed-size boxes grow with it --- */
+html[data-text="large"] #card .goal .gt, html[data-text="large"] #card:has(.dayc:not([hidden])) .goal .gt, html[data-text="large"] #card:has(.credits:not([hidden])) .goal .gt { font-size: var(--t16); }
+html[data-text="large"] .ib .cap { font-size: 13px; }
+html[data-text="large"] #florence .fbody, html[data-text="large"] #florence:not(.mini) .fbody { font-size: var(--t16); }
+html[data-text="large"] #settings .menuacts .slot.act span, html[data-text="large"] #settings .setrow, html[data-text="large"] #settings label { font-size: var(--t16); }
+@media (min-width: 761px) and (min-height: 561px) {
+  html[data-text="large"] #strip .ib, html[data-text="large"] #camctl .ib { min-width: 66px; height: 60px; }
+  html[data-text="large"] #card .goal { max-width: 470px; }
+  html[data-text="large"] #build .bbody { grid-template-rows: 26px auto; }
+  html[data-text="large"] #build .slotwrap { width: 98px; } html[data-text="large"] #build .item { height: 94px; }
+  html[data-text="large"] #layer #florence:not(.mini) { width: 430px; }
+}
+@media (min-width: 1101px) and (min-height: 561px) {
+  html[data-text="large"] #build .cats { grid-template-columns: repeat(3, 88px); grid-auto-rows: 54px; }
+  html[data-text="large"] #build .cat { width: 88px; height: 54px; }
+  html[data-text="large"] #build .cat span { font-size: 13px; }
+}
+@media (max-width: 760px) {
+  html[data-text="large"] #card .goal .gt, html[data-text="large"] #card:has(.dayc:not([hidden])) .goal .gt, html[data-text="large"] #card:has(.credits:not([hidden])) .goal .gt { font-size: 15.5px; }
+  html[data-text="large"] #build .item span { font-size: 13px; } html[data-text="large"] #build .item { height: 96px; } html[data-text="large"] #build .items .erase { height: 96px; }
+  html[data-text="large"] #build .cat span { font-size: 11.5px; }
+  html[data-text="large"] .ib .cap { font-size: 10.5px; }
+}
+#flowerpop li { font-size: calc(13px * var(--ts)); padding: 3px 6px; } #flowerpop li small { font-size: var(--t12); }
+@media (min-width: 761px) and (min-height: 561px) {
+  #card .goal { flex: 0 1 auto; }                       /* as wide as its words (up to 400 px), so the card is no wider than before */
+  #build { padding: 6px 8px; } #build .bbody { grid-template-rows: 20px auto; }
+  #settings { top: 86px; max-height: calc(100vh - 100px); }
+}
+@media (min-width: 1101px) and (min-height: 561px) { #build .cat span { font-size: calc(11.5px * var(--ts)); } }
+#alert { color: var(--p6-terra-d); border-radius: 12px; box-shadow: var(--blk-shadow), inset 0 0 0 3px var(--p6-terra); } #alert .x { border-radius: 8px; background: var(--p6-terra); }
+#alert.good { color: var(--p6-sage-d); box-shadow: var(--blk-shadow), inset 0 0 0 3px var(--p6-sage); } #alert.good .x { background: var(--p6-sage); }
+.stats div, .modal .newtool, #modal .newtool { border-radius: 8px; box-shadow: inset 0 0 0 2px var(--p6-edge); border: 0; background: var(--p6-card2); }
+.tile, #report .tile { min-height: 44px; }
+html[data-inclass="on"] #insideback, html[data-lab="on"] #insideback { display: none; }   /* the classroom has its own "Back to building" */
+@media (max-width: 760px) {
+  /* "there is more this way": an ochre tab that stays on the row's right edge until you reach the end */
+  #build .bbody:has(.items .slotwrap:nth-child(5))::after { content: none; }
+  #build .items { padding-right: 4px; }
+  #build .items:has(.slotwrap:nth-child(5))::after { content: '›'; position: sticky; right: -4px; flex: none; align-self: center; width: 22px; height: 48px; margin-left: -8px; display: grid; place-items: center; background: var(--p6-ochre); color: var(--p6-ink); font: 900 22px/1 'Inter', sans-serif; border-radius: 8px 0 0 8px; box-shadow: inset 0 0 0 2px var(--p6-line); pointer-events: none; }
 }
