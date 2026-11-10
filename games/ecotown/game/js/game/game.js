@@ -393,7 +393,7 @@ export function createGame(app) {
     const tier = TIERS.find((t) => t.id === sb.cat);
     const cr = G.credits !== Infinity ? `<span class="credits ${G.credits > 0 ? 'ok' : ''}" title="${esc(G.S.credits)}"><b>💰</b>${G.credits} ${G.S.credits}</span>` : '';
     const slot = (idd) => { const it = ITEMS[idd];
-      return `<div class="slotwrap"><button class="slot item ${sb.tool === idd ? 'on' : ''}" data-t="${idd}" aria-pressed="${sb.tool === idd}" title="${esc(it.label)}"><img src="${thumb(idd)}" alt=""><span>${esc(it.label)}</span>${!G.j && it.cost ? `<em class="cost">💰${it.cost}</em>` : ''}</button></div>`; };
+      return `<div class="slotwrap"><button class="slot item ${sb.tool === idd ? 'on' : ''}" data-t="${idd}" aria-pressed="${sb.tool === idd}" title="${esc(it.label)}"><img src="${thumb(idd)}" alt=""><span>${esc(innerWidth < 560 && it.short ? it.short : it.label)}</span>${!G.j && it.cost ? `<em class="cost">💰${it.cost}</em>` : ''}</button></div>`; };
     // the day, pause and credits live in the town card; the bar is only the tools
     renderDay(); ui.setCredits(G.credits !== Infinity ? `💰 ${G.credits} ${G.S.credits}` : '');
     const eraseBtn = `<button class="slot item erase ${sb.tool === 'erase' ? 'on' : ''}" data-t="erase" aria-pressed="${sb.tool === 'erase'}" aria-label="${esc(G.S.erase)} (X)" title="${esc(G.S.erase)} (X)"><b class="ico">🧽</b><span>${esc(G.S.erase)}</span></button>`;
