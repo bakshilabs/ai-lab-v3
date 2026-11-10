@@ -1873,4 +1873,7 @@ html .streetpad [data-sp-exit] { white-space: nowrap; }
 }
 /* tablets: no room for the clock words (the town name is already hidden here); pause stays, the sky shows the time of day */
 @media (min-width: 761px) and (max-width: 1100px) and (min-height: 561px) { #card .dayc [data-dayt] { display: none; } }
+@media (min-width: 1101px) and (min-height: 561px) { #build .cat span { font-size: calc(10.5px * var(--ts)); line-height: 1; } #build .cat img { width: 22px; } }
+#settings select { min-height: 44px; } #settings input[type="checkbox"] { width: 28px; height: 28px; }
+.tile { min-width: 44px; }
 /* ===== END of ui pass 6 ===== */
