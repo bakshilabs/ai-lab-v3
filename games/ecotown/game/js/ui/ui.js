@@ -127,7 +127,7 @@ export function createUI(root, labelsRoot, opts) {
     setStep(text, have, need) {
       const g = P.card.querySelector('[data-goal]'); const pct = Math.round(100 * Math.min(1, have / Math.max(1, need)));
       const prev = +(g.dataset.have ?? -1); g.dataset.have = have;
-      g.innerHTML = `<span class="gt">${esc(text)}</span><span class="gbar" role="progressbar" aria-valuemin="0" aria-valuemax="${need}" aria-valuenow="${have}"><i style="width:${pct}%"></i><b>${have}/${need}</b></span>`;
+      g.innerHTML = `<span class="gt">${esc(text)}</span><span class="gbar" role="progressbar" aria-label="Progress on the next step" aria-valuemin="0" aria-valuemax="${need}" aria-valuenow="${have}"><i style="width:${pct}%"></i><b>${have}/${need}</b></span>`;
       if (prev >= 0 && have > prev) { g.classList.remove('bump'); void g.offsetWidth; g.classList.add('bump'); }
       this.show('card');
     },

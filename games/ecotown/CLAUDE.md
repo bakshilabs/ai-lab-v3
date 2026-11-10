@@ -68,11 +68,21 @@ The user asked whether the game was ready for millions of students (answer: not 
   - Loading screen: `#boot` in `index.html` (CSS at the end of `game.css`), removed in `start()`. It is a message only, not a WebGL check.
 - **Classroom site load (done in code, NOT deployed yet):** `worker/worker.js` reuses a successful session check for 60 s for files other than the page (one page load was about 100 calls to the single code store), and content-hashed files are sent with `Cache-Control: private, max-age=604800, immutable`. The page and heartbeats still ask the store every time. One store handles roughly 1,000 requests a second, so heartbeats cap it near 50,000 players at once; beyond that the store needs sharding by batch.
 - **Building pushes back (done):** Power and Town heart open only when the families are also fed (`progress.js` `TIERS`, `nextUnlock().kind`, `nextStep.food`). Eight taps of one house used to open every category in 40 seconds.
-- **Badges (done):** `js/game/badges.js` (13 badges, tests `tests/badges.test.mjs`), saved as `G.badges`, ★1 each, shown under the Star shop (`ui/rewards.js`), checked in `milestones()`.
+- **Badges (done):** `js/game/badges.js` (13 badges at first, tests `tests/badges.test.mjs`), saved as `G.badges`, ★1 each, shown under the Star shop (`ui/rewards.js`), checked in `milestones()`.
 - **Phone portrait (done):** compact build bar (last block of `game.css`); tips with a button fold to Florence's small figure after 9 s on screens up to 760 px wide. Panels went from about 66 % of a 390 × 664 screen to about 46 %.
 - **Graphics "auto" (done):** `main.js` keeps watching the frame time and steps the quality down after four slow seconds.
 - **Still open (cannot be done from a cloud session):** sessions with real children; frame rates on a real Chromebook, an older iPad and a mid-range Android phone.
 - **Still open (can be done):** a screen-reader pass; other languages; a budget for ages 8–12; the four voice lines without a recording (lines with live numbers are read by the device voice by design).
+
+## Ship-readiness round 2 (10 Nov 2026)
+- **A player who only follows the hints** (`tests/playwright/hints.mjs [junior|senior]`, using the test hook `G.hint()`): the next-step line and Florence's first good spot must lead to all eight town goals with no dead end and no build suggested more than four times running. Before the fixes it suggested ten wind turbines and three markets in a row, boxed in the town centre, put the school where walks got longer and ended on a cycle lane with nowhere to go. Now ages 8–12 reach all eight goals in 27 builds and are sent to the AI Lab. Ages 13–17 run out of credits after the school (by design: households pay each evening).
+  - `game.js`: `ideaTool` picks an open build that has a good spot now, the kind the town has fewest of (`IDEA_TOOL` lists more kinds); `GOAL_ORDER`/`firstGoal` put the school before power, community, health and nature in the next step and in Florence's ideas.
+  - `spots.js`: farms keep one tile back from the town where there is room; wind turbines go on open ground at least three tiles from the homes (reason `windy`).
+- **Badges:** 14 now. "Light footprint" needs carbon ≤ 75 (≤ 100 was earned by default); new "Room for more" (52 families, fed, none flooded).
+- **Safety net:** `main.js` shows one small notice ("Something went wrong. Your town is saved." with Reload) on an uncaught error after the game has started. It never stops the game.
+- **Accessibility:** axe-core (WCAG 2 A/AA and best practice) on the start, name, building, shop, menu and mission-start screens: 0 issues after naming the progress bars, making the page a `<main>` landmark and fixing one heading level. A screen-reader walk-through of a whole mission is still not done.
+- **Checked:** 180 unit tests; six-mission play-throughs for ages 8–12 (1366 × 768) and ages 13–17 (390 × 844, typed briefs): no errors; `a11y.mjs` passes.
+- **Decision left for the user:** a budget for ages 8–12. It would make choices matter, but a child who runs out must wait for the evening, and that needs testing with children first.
 
 ## Free-build redesign (Nov 2026, after the beta)
 The user found the guided six-level sequence exhausting ("prompt after prompt, a tunnel") and asked for a StarCraft-style city builder: **build first, get tips from Florence, step into the AI Lab, come back to building**. Decisions the user made:
