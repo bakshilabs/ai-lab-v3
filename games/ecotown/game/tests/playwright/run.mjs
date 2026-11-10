@@ -107,6 +107,7 @@ for (const [id, check, vague, clear] of LEVELS) {
     await shot(`${id}-habit`);
     const habit = await p.evaluate(() => window.__eco.app.__expectHabit);
     await click(`${A}[data-h="${habit}"]`); await p.waitForTimeout(900);
+    await p.waitForTimeout(1200); await shot(`${id}-retry`); // Florence's explanation above the instruction tray (must be readable on a phone)
     await instruct(clear, 1);
   } else {
     await instruct(clear, 1); await p.waitForTimeout(2200); await shot(`${id}-plan-clear`);

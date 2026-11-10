@@ -166,7 +166,7 @@ export const SANDBOX = {
       townLeft: 'Your town is not finished yet. Next:', toBuild: 'Back to building', toFinale: 'See my finished town',
     },
     meetingBroke: (what) => `That choice breaks a rule the plan had kept: ${what}.`, meetingBrokeHead: 'This choice breaks a rule',
-    planUsed: (n, skip) => `Added ${n} part${n === 1 ? '' : 's'} of Florence’s plan to your town.${skip ? ` ${skip} didn’t fit, so they were left out.` : ''}`, planLeft: (n) => `She built the first few. ${n} more ${n === 1 ? 'is' : 'are'} yours to build: pick the build and look for the ★ good spots.`, planDidntFit: 'Your town has no empty tiles for Florence’s plan yet. Mark more town land, then her ideas can fit!', townDiffers: (g) => `Your town is different from the practice island. Still to do here: ${g}.`,
+    planUsed: (n, skip) => `Florence built ${n} part${n === 1 ? '' : 's'} of her plan in your town.${skip ? ` ${skip} didn’t fit.` : ''}`, planLeft: (n) => `${n} more ${n === 1 ? 'is' : 'are'} yours to build: look for the ★.`, planDidntFit: 'Your town has no empty tiles for Florence’s plan yet. Mark more town land, then her ideas can fit!', townDiffers: (g) => `Still to do in your town: ${g}.`,
     completeRibbon: 'Town complete!', completeText: 'Every family has a home, there’s enough food, the lights stay on in winter and every home is close to school. Well done!', keepBuilding: 'Keep building',
     // the Star shop (js/ui/rewards.js): looks only, never the score
     shop: {
