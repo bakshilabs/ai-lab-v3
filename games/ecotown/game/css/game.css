@@ -1811,3 +1811,66 @@ html[data-inclass="on"] #insideback, html[data-lab="on"] #insideback { display: 
   #build .items { padding-right: 4px; }
   #build .items:has(.slotwrap:nth-child(5))::after { content: '›'; position: sticky; right: -4px; flex: none; align-self: center; width: 22px; height: 48px; margin-left: -8px; display: grid; place-items: center; background: var(--p6-ochre); color: var(--p6-ink); font: 900 22px/1 'Inter', sans-serif; border-radius: 8px 0 0 8px; box-shadow: inset 0 0 0 2px var(--p6-line); pointer-events: none; }
 }
+@media (max-width: 760px) {
+  /* the info block is one wrapped line: name · ▶ · what it gives, then the good-spot line */
+  #build .info { display: flex; flex-wrap: wrap; align-items: center; gap: 3px 8px; }
+  #build .info .ihead { display: contents; }
+  #build .info .ihead b { order: 1; } #build .info .play { order: 2; } #build .info .chips { order: 3; } #build .info .ihead .spotwhy { order: 4; flex: 1 1 100%; }
+  #build .item, #build .items .erase { height: 78px; }
+  #build .hlkey:not(.mini) { gap: 2px 8px; font-size: 10.5px; }
+  #settings { padding-bottom: 6px; }
+}
+@media (max-width: 760px), (max-height: 560px) {
+  html[data-lab="on"] #dock .actions:has(.sentrow) .tiles { max-height: 34vh; }
+  /* the classroom: the suggested questions are one sideways-scrolling row, so Missions and Back to building stay on screen */
+  html #layer #dock .actions .qchips { display: flex; flex-direction: row; flex-wrap: nowrap; overflow-x: auto; overscroll-behavior: contain; gap: 6px; padding-bottom: 4px; }
+  html #layer #dock .actions .qchips .choice { flex: none; width: auto; max-width: 72vw; white-space: nowrap; }
+  /* "More": a small tab at the right, so it does not sit on the main button's words */
+  #dock .actions > .morecue { align-self: flex-end; margin: 4px 0 0 auto; padding: 0 12px; font-size: 13px; }
+  #layer #florence:not(.mini) .fhead .spk, #layer #florence:not(.mini) .tipx { width: 44px; height: 44px; } #layer #florence:not(.mini) .fhead .spk { top: 54px; }
+  #layer #florence:not(.mini) { padding-right: 56px; min-height: 106px; }
+  #settings select { min-height: 44px; }
+}
+@media (min-width: 761px) and (min-height: 561px) {
+  #card .goal { max-width: 340px; }
+  #build .info .ihead .spotwhy { font-size: calc(13px * var(--ts)); padding: 3px 10px; }
+}
+@media (min-width: 761px) and (max-width: 1100px) and (min-height: 561px) {
+  /* tablets: the build categories keep their names (they were six unlabelled 44 px pictures) */
+  #build .cats { grid-template-columns: repeat(3, 62px); }
+  #build .cat { width: 62px; }
+  #build .cat span { position: static; width: auto; height: auto; clip-path: none; overflow: hidden; white-space: nowrap; font-size: 10.5px; line-height: 1.1; display: block; }
+  #card .goal { max-width: 300px; min-width: 180px; }
+  #card .goal .gt { font-size: calc(15px * var(--ts)); }
+  #build .items:has(.slotwrap:nth-child(9))::after { content: '›'; position: sticky; right: -4px; flex: none; align-self: center; width: 20px; height: 48px; margin-left: -8px; display: grid; place-items: center; background: var(--p6-ochre); color: var(--p6-ink); font: 900 22px/1 'Inter', sans-serif; border-radius: 8px 0 0 8px; box-shadow: inset 0 0 0 2px var(--p6-line); pointer-events: none; }
+}
+@media (max-width: 760px), (max-height: 560px) {
+  html #layer #dock { overflow-x: hidden; } html #layer #dock .actions, html #layer #dock .speaker { min-width: 0; max-width: 100%; }
+  html #layer #dock .actions .ask { min-width: 0; } html #layer #dock .actions .qchips { max-width: 100%; min-width: 0; }
+}
+/* street view: with the build bar out of the way, the walking pad and its hint sit at the bottom edge */
+html[data-street="on"] .streetpad { --sp-bottom: 16px !important; }
+html .streetpad [data-sp-exit] { white-space: nowrap; }
+/* toasts and the inside-view caption: the one dark piece, solid, no plank lines */
+#toast { background: var(--wd); background-image: none; color: #fff9ea; border-radius: 10px; box-shadow: 0 4px 0 var(--p6-lip), inset 0 0 0 2px var(--p6-lip); }
+@media (min-width: 761px) and (min-height: 561px) {
+  html[data-text="large"] #build { grid-template-columns: 80px minmax(0, 1fr); }
+  html[data-text="large"] #build .items:has(.slotwrap:nth-child(8))::after { content: '›'; position: sticky; right: -4px; flex: none; align-self: center; width: 20px; height: 48px; margin-left: -8px; display: grid; place-items: center; background: var(--p6-ochre); color: var(--p6-ink); font: 900 22px/1 'Inter', sans-serif; border-radius: 8px 0 0 8px; box-shadow: inset 0 0 0 2px var(--p6-line); pointer-events: none; }
+}
+/* top card (laptops, tablets): the day sits under the town name, so the card is no wider than the old one */
+@media (min-width: 761px) and (min-height: 561px) {
+  #card { display: grid; grid-template-columns: 44px auto auto auto auto auto; grid-template-rows: auto auto; column-gap: var(--s2); row-gap: 0; align-items: center; }
+  #card .dayc { display: contents; }
+  #card [data-flower] { grid-column: 1; grid-row: 1 / 3; }
+  #card .goal { grid-column: 2; grid-row: 1 / 3; }
+  #card .brand { grid-column: 3; grid-row: 1; align-self: end; margin: 0; line-height: 1.15; }
+  #card .dayc [data-dayt], #card .band { grid-column: 3; grid-row: 2; align-self: start; justify-self: start; }
+  #card .dayc [data-dayt] { font: 800 var(--t12)/1.2 'Inter', sans-serif; color: var(--p6-ink2); white-space: nowrap; }
+  #card:not(:has(.dayc:not([hidden]))):not(:has(.band:not(:empty))) .brand { grid-row: 1 / 3; align-self: center; }
+  #card button.stars { grid-column: 4; grid-row: 1 / 3; }
+  #card .dayc [data-pause] { grid-column: 5; grid-row: 1 / 3; width: 44px; height: 44px; }
+  #card .credits { grid-column: 6; grid-row: 1 / 3; }
+}
+/* tablets: no room for the clock words (the town name is already hidden here); pause stays, the sky shows the time of day */
+@media (min-width: 761px) and (max-width: 1100px) and (min-height: 561px) { #card .dayc [data-dayt] { display: none; } }
+/* ===== END of ui pass 6 ===== */
