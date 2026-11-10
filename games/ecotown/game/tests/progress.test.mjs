@@ -12,7 +12,7 @@ import { accessCheck } from '../js/sim/access.js';
 import { LEVELS, LEVEL_ORDER } from '../js/game/levels.js';
 import { LEVEL_TEXT, SANDBOX } from '../js/game/content.js';
 import { ITEMS } from '../js/world/catalog.js';
-import { TIERS, unlocked, newlyUnlocked, labReady, townGoals, townComplete, SANDBOX_TOWN_CAP } from '../js/game/progress.js';
+import { TIERS, unlocked, newlyUnlocked, labReady, townGoals, townComplete, SANDBOX_TOWN_CAP, nextUnlock } from '../js/game/progress.js';
 import { RULES, newAdvisor, nextTip, tipText, COOLDOWN } from '../js/game/advisor.js';
 import { seedTo } from '../js/game/seed.js';
 
@@ -121,4 +121,15 @@ for (const [id, text] of [['food', 'grow enough food for everyone'], ['heart', '
   const base = seedTo(terrain, id); const lv = LEVELS[id];
   const v = ask(id, text, { terrain, cells: base }); const sv = simulate(terrain, v.after); const cv = ctxFor(v.after, id);
   assert.ok(Object.keys(lv.reveal(sv, simulate(terrain, base), cv)).length > 0 || !lv.pass(sv, cv), `"${text}" is flawed`);
+});
+
+test('power and the town heart wait until the families are fed (homes alone do not open everything)', () => {
+  const cells = mark(new Map(), 10); let n = 0;
+  for (const [, c] of cells) if (n++ < 9) c.item = 'timber'; // 36 families, no food
+  const s = simulate(terrain, cells); const open = unlocked(s);
+  assert.equal(s.families, 36); assert.ok(open.includes('food') && !open.includes('power') && !open.includes('heart'), open.join());
+  const nu = nextUnlock(s, open); assert.equal(nu.id, 'power'); assert.equal(nu.kind, 'food'); assert.ok(nu.need > nu.have);
+  for (const t of tiles) if (s.food + n < 99 && ['field'].includes(t.zone) && !t.fixed && !cells.get(t.k) && n < 14) { cells.set(t.k, { mark: null, item: 'mixed', mods: [], locked: false }); n++; }
+  const s2 = simulate(terrain, cells); assert.ok(s2.food >= s2.foodNeed, `${s2.food}/${s2.foodNeed}`);
+  assert.ok(unlocked(s2).includes('power') && unlocked(s2).includes('heart'));
 });

@@ -70,10 +70,16 @@ function applySettings() {
 applySettings();
 
 // ---------------- render loop
-let last = performance.now(); const T0 = last;
+let last = performance.now(); const T0 = last; let slowAvg = 16, slowFor = 0;
 function loop(now) {
   if (app.manual) { requestAnimationFrame(loop); return; } // the build-video recorder drives frames itself (?shoot=)
-  const dt = Math.min(0.05, (now - last) / 1000); last = now; const t = (now - T0) / 1000;
+  const raw = now - last;
+  const dt = Math.min(0.05, raw / 1000); last = now; const t = (now - T0) / 1000;
+  // Graphics "auto" keeps watching: the start-up check measures an empty island, and a full town on a school laptop
+  // can be much slower. Four seconds under about 22 frames a second steps the quality down one level (never back up).
+  if (app.settings.quality === 'auto' && app.G && !document.hidden && raw < 500) {
+    slowAvg += (raw - slowAvg) * 0.05; if (slowAvg > 45) { slowFor += raw; if (slowFor > 4000 && stage.tier !== 'low') { stage.setTier(stage.tier === 'high' ? 'mid' : 'low'); slowFor = 0; slowAvg = 16; } } else slowFor = 0;
+  }
   rig.update(dt);
   { const ins = rig.mode === 'inside' && inside.root.visible && !app.inLab; /* not the classroom, which also uses the inside camera */ if (ins !== app._ins) { app._ins = ins; document.documentElement.dataset.inside = ins ? 'on' : 'off'; if (app.insideBack) app.insideBack.hidden = !ins; } } // the free inside view: its own Back button, panels step aside (CSS)
   { const st = rig.mode === 'street' && !!rig.street; if (st !== world.overlayHidden) { world.hideOverlay(st); document.documentElement.dataset.street = st ? 'on' : 'off'; } } world.update(dt, t, { windStill: app.winterTest }); life.update(dt, t, app.hour, { windStill: app.winterTest, moveIn: app.moveIn }); inside.update(dt, t); classroom.update(dt, t); bot.update(dt, t); cosmetics.update(dt, t, app.hour ?? 12);
@@ -151,7 +157,9 @@ ui.P.camctl.addEventListener('click', async (e) => {
 // ---------------- start screen
 async function start() {
   rig.sky.yaw = -0.6; rig.startTurntable(0.05);
-  const modelP = loadModel('./models/');
+  // Florence's language model (2 MB) is only needed in the AI Lab: it loads in the background and a mission waits for it
+  app.modelP = loadModel('./models/').catch(() => {});
+  document.getElementById('boot')?.remove();
   const quality = app.settings.quality === 'auto' ? probeTier(stage) : Promise.resolve(app.settings.quality);
   const scr = h(`<div id="start"><div class="card">
     <span class="chip">A DELTAOPS LEARNING AI LAB</span><h1>Eco <span>Town</span></h1>
@@ -198,7 +206,6 @@ async function start() {
   ui.setTownName(app.townName);
   scr.remove();
   const tier = await quality; if (app.settings.quality === 'auto') stage.setTier(tier);
-  await modelP;
   const G = createGame(app);
   const saved = G.saved();
   if (saved && resume) { G.load(saved); ui.setTownName(G.townName); }

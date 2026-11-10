@@ -33,6 +33,7 @@ import { CHIP, CHIP_WORD, itemChips, simDelta, chipsText } from './delta.js';
 import { shopState, wallet, canAffordNew } from './shop.js'; // the Star shop (looks only, never the score)
 import { townSummary } from './finale.js';
 import { openShop as shopCard, showFinale } from '../ui/rewards.js';
+import { newBadges, badgeCount, badge } from './badges.js';
 import { answer as askFlorence, SUGGEST } from './qa.js';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -70,12 +71,12 @@ export function createGame(app) {
   // stars: three per mission, the best run counts. `run` holds this run's marks while a mission is played.
   let run = null;
   // (each flawed idea caught in town with a lens also earns a star: stars are spent in the Star shop)
-  const totalStars = () => Object.values(G.levelStars).reduce((a, b) => a + b, 0) + Object.values(G.bonus).reduce((a, b) => a + b, 0) + (G.catches || 0);
+  const totalStars = () => Object.values(G.levelStars).reduce((a, b) => a + b, 0) + Object.values(G.bonus).reduce((a, b) => a + b, 0) + (G.catches || 0) + badgeCount(G.badges);
   const shownStars = () => totalStars() + (run ? Math.max(0, run.marks.filter(Boolean).length - (G.levelStars[run.id] || 0)) + (run.bonus && !G.bonus[run.id] ? 1 : 0) : 0);
   function star(i, why = '') { if (!run || run.marks[i]) return; run.marks[i] = true; audio.star(); G.stars = shownStars(); ui.setStars(G.stars); if (why) ui.caption(`★ ${why}`, 2600); }
   function bonusStar(why) { if (!run) return; run.bonus = true; G.stars = shownStars(); ui.setStars(G.stars); ui.caption(`★ ${why}`, 2800); }
   function flower(flash = true) { const s = sim(); ui.carbonInfo = { used: s.carbon, limit: TARGETS.carbonCeiling }; ui.flower(s.petals, G.townName, { flash }); renderGoals(s); }
-  const KEEP = ['milestones', 'placements', 'catches', 'trusted', 'introDone', 'band', 'levelStars', 'starMarks', 'bonus', 'mistakes', 'diary', 'instructions', 'extra', 'credits', 'townName', 'inputMode', 'paths', 'outcomes', 'labs', 'ever', 'classMode', 'day', 'movedIn', 'completeShown', 'charter', 'reflection', 'reflectDone', 'shop'];
+  const KEEP = ['badges', 'milestones', 'placements', 'catches', 'trusted', 'introDone', 'band', 'levelStars', 'starMarks', 'bonus', 'mistakes', 'diary', 'instructions', 'extra', 'credits', 'townName', 'inputMode', 'paths', 'outcomes', 'labs', 'ever', 'classMode', 'day', 'movedIn', 'completeShown', 'charter', 'reflection', 'reflectDone', 'shop'];
   function save() {
     if (app.inLab || G.full) return; // a mission's practice island is never saved as the player's town
     try { const d = { cells: [...G.cells], li: 1 }; for (const k of KEEP) d[k] = G[k]; if (d.credits === Infinity) d.credits = null; localStorage.setItem(SAVE, JSON.stringify(d)); } catch { /* storage off: keep playing */ }
@@ -459,7 +460,7 @@ export function createGame(app) {
   function nextStep(s) {
     const nu = nextUnlock(s, G.ever);
     if (nu && sb.intro && nu.id === 'homes' && nu.have < 3) return { text: G.S.nextStep.land(3 - nu.have, 3), have: nu.have, need: 3 }; // the intro asks for three first
-    if (nu) { const left = nu.need - nu.have; return { text: nu.id === 'homes' ? G.S.nextStep.land(left, nu.need) : G.S.nextStep.fam(left, G.S.cats[nu.id]), have: nu.have, need: nu.need }; }
+    if (nu) { const left = nu.need - nu.have; return { text: nu.id === 'homes' ? G.S.nextStep.land(left, nu.need) : nu.kind === 'food' ? G.S.nextStep.food(Math.max(1, left), G.S.cats[nu.id]) : G.S.nextStep.fam(left, G.S.cats[nu.id]), have: nu.have, need: nu.need }; }
     const goals = townGoals(s, ctxFor(G.cells)); const next = goals.find((g) => !g.ok); const done = goals.filter((g) => g.ok).length;
     if (!next) return labsDone() < 6 ? { text: `${G.S.next}: ${G.S.labGoal(labsDone())}`, have: labsDone(), need: 6 } : { text: G.S.allGoals, have: 1, need: 1 };
     const pct = (v) => Math.min(100, Math.round(v * 100));
@@ -566,6 +567,11 @@ export function createGame(app) {
   function milestones(s, { quiet = false } = {}) {
     const goals = townGoals(s, ctxFor(G.cells)); const first = !G.milestones; G.milestones ||= {};
     const fresh = goals.filter((g) => g.ok && !G.milestones[g.id]); for (const g of fresh) G.milestones[g.id] = true;
+    // badges: extra things to try (js/game/badges.js); each gives a star, with a short line the first time
+    { const ctx = ctxFor(G.cells); G.badges ||= {};
+      const got = newBadges(s, { hasSchool: ctx.hasSchool, catches: G.catches || 0, trusted: G.trusted || 0, labs: labsDone(), threeStars: Object.values(G.levelStars).filter((n) => n >= 3).length, complete: goals.every((g) => g.ok) }, G.badges);
+      for (const id of got) G.badges[id] = true;
+      if (got.length && !first && !quiet && sb.running) { audio.star?.(); ui.caption(`★ ${G.j ? 'New badge' : 'Badge earned'}: ${badge(got[0]).name}${got.length > 1 ? ` (+${got.length - 1})` : ''}`, 3600); ui.setStars(G.stars = totalStars()); } }
     if (first || quiet || !fresh.length || !sb.running || !s.homes.length) return;
     const g = fresh[0]; audio.reward?.(); ui.alert(G.S.goalMet[g.id], true, 3200); app.bot?.cheer();
     const town = [...G.cells].filter(([, c]) => c.item || c.mark === 'town').map(([k]) => k); const k = town[Math.floor(town.length / 2)];
@@ -656,7 +662,10 @@ export function createGame(app) {
     el.querySelector('[data-tipwhere]')?.addEventListener('click', () => { hideTip(); showWhere(where); });
     el.onclick = (e) => { if (!e.target.closest('button')) hideTip(); }; // tap the card to close it
     if (at && sb.running) florenceTo(at, 'point');
-    clearTimeout(sb.tipHide); if (!lab && !lens && !where) sb.tipHide = setTimeout(() => { if (tipShown === id) hideTip(); }, 14000); // a tip with a button stays until you act on it
+    // a tip with a button stays until you act on it; on a phone it folds to Florence's small figure after a while
+    // (tap her to read it again): the open card covered a fifth of the screen for as long as it was ignored
+    const phone = typeof matchMedia === 'function' && matchMedia('(max-width: 760px)').matches;
+    clearTimeout(sb.tipHide); if ((!lab && !lens && !where) || phone) sb.tipHide = setTimeout(() => { if (tipShown === id) hideTip(); }, phone ? 9000 : 14000);
   }
   let lastTip = null;
   function hideTip() { tipShown = null; if (sb.running && lastTip && !sb.intro) ui.florenceMini(() => showTip(lastTip.rule ? { ...lastTip, text: tipText(lastTip.rule, sim(), G.j) } : lastTip)); else ui.florence(null); }
@@ -975,6 +984,7 @@ export function createGame(app) {
   async function runLab(id) {
     const real = G.cells; const lv = LEVELS[id]; const L = T(id);
     app.levelId = id; app.inLab = true; document.documentElement.dataset.lab = 'on'; guess = null; setMusic('lab'); ui.closePops(); // the 🌼 goals stayed open over the mission
+    if (app.modelP) await app.modelP; // Florence's language model loads in the background from the start screen
     run = { id, marks: [false, false, false], bonus: false }; app.__lucky = null;
     G.cells = seedTo(terrain, id); showCells(G.cells);
     ui.setBadge(G.classMode ? `🧪 AI LAB · ${lv.n}/6` : `🧪 ${L.title}`); ui.setTask(lv.n, pick(L.goal)); ui.helper(null); ui.facil(null); ui.views(null, []);

@@ -12,7 +12,9 @@ export function sentences(text) {
 export function norm(s) { return String(s).replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/\s+/g, ' ').trim().toLowerCase(); }
 export function keyOf(sentence, voice) { let h = 0x811c9dc5; const s = voice + '|' + norm(sentence); for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; } return h.toString(16).padStart(8, '0'); }
 
-// ---- the recorded pack: voice/pack-<band>.json (index) + voice/pack-<band>.bin (all clips, back to back)
+// ---- the recorded pack: voice/pack-<band>.json (index) + small chunk files of clips, back to back. Only the index
+// (about 20 KB) and the first chunk are fetched at the start; a chunk of about 200 KB is fetched when a line in it is
+// first spoken. (One 10 MB file used to have to arrive before the recorded voice could say anything.)
 let pack = null, packBand = null, loading = null;
 export function loadVoices(band, base = './voice/') {
   if (packBand === band && (pack || loading)) return loading;
@@ -20,15 +22,20 @@ export function loadVoices(band, base = './voice/') {
   loading = (async () => {
     try {
       const idx = await (await fetch(`${base}pack-${band}.json`)).json();
-      const buf = await (await fetch(`${base}${idx.bin}`)).arrayBuffer();
-      const clips = new Map(); for (const [k, off, len] of idx.clips) clips.set(k, { off, len, url: null });
-      pack = { buf, clips, type: idx.type || 'audio/mpeg' };
+      const files = idx.chunks || [idx.bin]; const clips = new Map();
+      for (const c of idx.clips) { const [k, ci, off, len] = c.length === 4 ? c : [c[0], 0, c[1], c[2]]; clips.set(k, { ci, off, len, url: null }); }
+      pack = { base, files, bufs: new Map(), clips, type: idx.type || 'audio/mpeg' };
+      chunk(0).catch(() => {});
     } catch { pack = null; }
     return !!pack;
   })();
   return loading;
 }
-const clipUrl = (c) => (c.url ||= URL.createObjectURL(new Blob([pack.buf.slice(c.off, c.off + c.len)], { type: pack.type })));
+function chunk(i, p = pack) {
+  if (!p.bufs.has(i)) { const job = fetch(p.base + p.files[i]).then((r) => { if (!r.ok) throw new Error('voice chunk'); return r.arrayBuffer(); }); job.catch(() => p.bufs.delete(i)); p.bufs.set(i, job); }
+  return p.bufs.get(i);
+}
+const clipUrl = async (c, p = pack) => (c.url ||= URL.createObjectURL(new Blob([(await chunk(c.ci, p)).slice(c.off, c.off + c.len)], { type: p.type })));
 
 // ---- fallback: the most natural system voice available
 let sysVoice;
@@ -53,9 +60,12 @@ export function speak(text, { voice = 'narrator' } = {}) {
   if (globalThis.__sayLog) globalThis.__sayLog.push({ text, voice, missing: queue.filter((q) => !q.clip).map((q) => q.s) });
   const next = () => {
     if (my !== token) return; if (!queue.length) { onSpeaking?.(false); return; } onSpeaking?.(true); const q = queue.shift();
-    if (q.clip && audio) { audio.src = clipUrl(q.clip); audio.onended = next; audio.onerror = next; audio.play().catch(next); return; }
-    const v = bestSystemVoice(); if (!v) return next();
-    try { const u = new SpeechSynthesisUtterance(q.s); u.voice = v; u.lang = v.lang; u.rate = 0.96; u.onend = next; u.onerror = next; speechSynthesis.speak(u); } catch { next(); }
+    const sys = () => { const v = bestSystemVoice(); if (!v) return next();
+      try { const u = new SpeechSynthesisUtterance(q.s); u.voice = v; u.lang = v.lang; u.rate = 0.96; u.onend = next; u.onerror = next; speechSynthesis.speak(u); } catch { next(); } };
+    // a clip whose chunk can't be fetched (offline, a dropped connection) is read by the device's voice instead
+    if (q.clip && audio) { clipUrl(q.clip).then((url) => { if (my !== token) return; audio.src = url; audio.onended = next; audio.onerror = next; audio.play().catch(next); }, () => { if (my === token) sys(); }); return; }
+    return sys();
   };
+  for (const q of queue) if (q.clip && pack) chunk(q.clip.ci).catch(() => {}); // the whole line's chunks, so sentences follow without a gap
   next();
 }
