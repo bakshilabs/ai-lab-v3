@@ -240,9 +240,9 @@
   "key": "fe3b8b16"
  },
  {
-  "s": "No issue found: accept the plan",
+  "s": "I judge it sound: accept the plan",
   "voice": "narrator",
-  "key": "5beb2820"
+  "key": "139101be"
  },
  {
   "s": "Keep testing if the evidence doesn’t cover your brief yet; accept the plan when it does.",
@@ -1403,6 +1403,11 @@
   "s": "Suggested: close to the homes it serves.",
   "voice": "helper",
   "key": "e0fa8a4d"
+ },
+ {
+  "s": "Suggested: open ground beyond the homes (clear of the town’s centre).",
+  "voice": "helper",
+  "key": "641ea9d2"
  },
  {
   "s": "Suggested: the tile that keeps the longest walk to school shortest.",
@@ -2705,6 +2710,11 @@
   "key": "4d6bd03b"
  },
  {
+  "s": "No issue found: accept the plan",
+  "voice": "narrator",
+  "key": "5beb2820"
+ },
+ {
   "s": "Fixed specification passes",
   "voice": "narrator",
   "key": "df27ec18"
@@ -2948,5 +2958,30 @@
   "s": "Street view: No busy crossings on the school route at 8:45 am.",
   "voice": "narrator",
   "key": "071c262a"
+ },
+ {
+  "s": "Your reading counts.",
+  "voice": "helper",
+  "key": "8ac3e68a"
+ },
+ {
+  "s": "“Proxy optimisation” fits it too.",
+  "voice": "helper",
+  "key": "8631641a"
+ },
+ {
+  "s": "“Average-case assumption” fits it too.",
+  "voice": "helper",
+  "key": "98c56569"
+ },
+ {
+  "s": "“Missing or biased data” fits it too.",
+  "voice": "helper",
+  "key": "2460e0eb"
+ },
+ {
+  "s": "“Specification ambiguity” fits it too.",
+  "voice": "helper",
+  "key": "43b0e038"
  }
 ]

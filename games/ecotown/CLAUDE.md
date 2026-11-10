@@ -84,6 +84,17 @@ The user asked whether the game was ready for millions of students (answer: not 
 - **Checked:** 180 unit tests; six-mission play-throughs for ages 8–12 (1366 × 768) and ages 13–17 (390 × 844, typed briefs): no errors; `a11y.mjs` passes.
 - **Decision left for the user:** a budget for ages 8–12. It would make choices matter, but a child who runs out must wait for the evening, and that needs testing with children first.
 
+## Ship-readiness round 3 (10–11 Nov 2026): a no-context "9-year-old" playtest
+A subagent played with no knowledge of the code (laptop 7/10, phone 4/10). Fixed from its report:
+- **"Show me in the AI Lab" looked dead** (nothing showed for 5–7 s while Florence walks to the Lab): `openLab` shows a "Going into the AI Lab…" caption at once.
+- **Choosing a lens was a guess:** each lens button carries a line from `checkWhat` ("checks which land floods in winter").
+- **Quiz and accept wording:** `alsoFits` says both answers count; the accept button is "I think it's fine: use this plan" (the game may still show a problem, so "No problem found" read as a lie).
+- **Tips:** every tip folds to Florence's figure (9 s phones, 14 s plain, 25 s with a button); ✕ sets `sb.quietUntil` for 45 s so the next tip does not pop up at once.
+- **Phones:** after the intro the camera frames the town (`townView`, passed to the intro as `api.home`); one ★ pin instead of three overlapping ones.
+- **Small:** lenses are shown in daylight (`tick`, `toggleLens`; not the winter lens); a new badge is announced after a goal banner, not over it; no "lights went out" bubble before the town has power (`bubbles.js`).
+- **Voices:** `voice/collect.mjs` no longer collects the source text of functions as lines; the changed lines were recorded (Kokoro and the clip cache were still in the session scratchpad; the old lines were merged back by key before `render.py`, as before).
+- **Not addressed from that report:** the building film is long on a slow machine; phone build-tray labels are cut ("Rammed-earth…") and the tray shifts when a tip shows; the classroom board is blurry on phones; silly taps (the river) only get a short message; Florence has no joke for off-topic questions.
+
 ## Free-build redesign (Nov 2026, after the beta)
 The user found the guided six-level sequence exhausting ("prompt after prompt, a tunnel") and asked for a StarCraft-style city builder: **build first, get tips from Florence, step into the AI Lab, come back to building**. Decisions the user made:
 - **Replace** the guided flow. A start-screen option "AI Lab missions: Any order / In order (class)" keeps the lessons in order for classes.

@@ -22,7 +22,7 @@ const out = await p.evaluate(async () => {
   const V = await import('./js/ui/voice.js');
   const { WONT_LINES } = await import('./js/ai/plotter.js');
   const res = { junior: [], senior: [] };
-  const add = (band, text, voice) => { for (const s of V.sentences(text)) if (!/\{n\}/.test(s)) res[band].push({ s, voice }); };
+  const add = (band, text, voice) => { if (typeof text !== 'string') return; /* a function's source is not a line */ for (const s of V.sentences(text)) if (!/\{n\}/.test(s)) res[band].push({ s, voice }); };
   for (const band of ['junior', 'senior']) {
     const j = band === 'junior'; const C = CONTENT[band]; const pick = (o) => (typeof o === 'string' ? o : j ? o.j : o.s);
     for (const v of Object.values(C.ui)) add(band, v, 'narrator');
