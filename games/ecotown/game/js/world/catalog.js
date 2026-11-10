@@ -1,4 +1,5 @@
 // Everything that can be placed on a tile, with the honest numbers the simulation uses.
+// short: the name on a phone's small build buttons (the full name still shows in the info line).
 // kind: 'mark' (land use in Level 1), 'build' (occupies the tile), 'mod' (added to a home tile).
 // on: zones (or 'town') where it may be placed. Units are game units, explained in senior mode.
 
@@ -10,16 +11,16 @@ export const ITEMS = {
   // ---- Level 2: getting around (cost in credits for the senior budget)
   road:    { level: 'move', kind: 'build', label: 'Car road', icon: '🚗', color: '#5b6168', on: ['town', 'field', 'slope', 'meadow', 'coast'], cost: 3, carbon: 6, health: -1, walk: 2, car: true },
   carpark: { level: 'move', kind: 'build', label: 'Car park', icon: '🅿', color: '#7a8088', on: ['town', 'field', 'slope', 'meadow', 'coast'], cost: 2, carbon: 5, health: -1, walk: 2, car: true },
-  path:    { level: 'move', kind: 'build', label: 'Footpath & crossing', icon: '🚶', color: '#d9c9a0', on: ['town', 'field', 'slope', 'meadow', 'coast', 'wetland'], cost: 1, carbon: 0.2, health: 1, walk: 1 },
+  path:    { level: 'move', kind: 'build', label: 'Footpath & crossing', short: 'Footpath', icon: '🚶', color: '#d9c9a0', on: ['town', 'field', 'slope', 'meadow', 'coast', 'wetland'], cost: 1, carbon: 0.2, health: 1, walk: 1 },
   cycle:   { level: 'move', kind: 'build', label: 'Cycle lane', icon: '🚲', color: '#c8553d', on: ['town', 'field', 'slope', 'meadow', 'coast'], cost: 1, carbon: 0.5, health: 1.5, walk: 1 },
   tram:    { level: 'move', kind: 'build', label: 'Tram stop', icon: '🚋', color: '#2f6fd8', on: ['town', 'field', 'slope', 'coast'], cost: 4, carbon: 2, health: 0.5, community: 1, walk: 1 },
   bridge:  { level: 'move', kind: 'build', label: 'Bridge', icon: '🌉', color: '#9a6a42', on: ['river'], cost: 2, carbon: 1, walk: 1 },
 
   // ---- Level 3: homes (families per tile, embodied carbon, indoor °C with the heating off in winter)
   timber:    { level: 'homes', kind: 'build', label: 'Timber terrace', icon: '🪵', color: '#b07a4a', on: ['town'], cost: 4, families: 4, embodied: 6, temp: 21, home: true },
-  straw:     { level: 'homes', kind: 'build', label: 'Straw-bale cottages', icon: '🌾', color: '#e8cf8a', on: ['town'], cost: 3, families: 3, embodied: 4, temp: 22, home: true },
-  earth:     { level: 'homes', kind: 'build', label: 'Rammed-earth homes', icon: '🧱', color: '#c98a5a', on: ['town'], cost: 4, families: 3, embodied: 7, temp: 20, home: true },
-  reclaimed: { level: 'homes', kind: 'build', label: 'Reclaimed-brick terrace', icon: '♻', color: '#b5523b', on: ['town'], cost: 3, families: 4, embodied: 8, temp: 18, home: true },
+  straw:     { level: 'homes', kind: 'build', label: 'Straw-bale cottages', short: 'Straw cottages', icon: '🌾', color: '#e8cf8a', on: ['town'], cost: 3, families: 3, embodied: 4, temp: 22, home: true },
+  earth:     { level: 'homes', kind: 'build', label: 'Rammed-earth homes', short: 'Earth homes', icon: '🧱', color: '#c98a5a', on: ['town'], cost: 4, families: 3, embodied: 7, temp: 20, home: true },
+  reclaimed: { level: 'homes', kind: 'build', label: 'Reclaimed-brick terrace', short: 'Brick terrace', icon: '♻', color: '#b5523b', on: ['town'], cost: 3, families: 4, embodied: 8, temp: 18, home: true },
   cohousing: { level: 'homes', kind: 'build', label: 'Cohousing court', icon: '🏡', color: '#e6a15a', on: ['town'], cost: 5, families: 5, embodied: 9, temp: 21, community: 2, home: true },
   concrete:  { level: 'homes', kind: 'build', label: 'Concrete flats', icon: '🏢', color: '#9aa0a5', on: ['town'], cost: 5, families: 6, embodied: 30, temp: 14, home: true },
   greenroof: { level: 'homes', kind: 'mod', label: 'Green roof', icon: '🌿', color: '#4caf50', on: ['home'], cost: 1, embodied: -1, nature: 0.4 },

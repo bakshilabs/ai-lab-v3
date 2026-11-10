@@ -71,6 +71,9 @@ applySettings();
 
 // ---------------- render loop
 let last = performance.now(); const T0 = last; let slowAvg = 16, slowFor = 0;
+// ?fps=1 shows a small frame-rate readout, for testing on real school devices (see docs/DEVICE-AND-CHILD-TESTS.md)
+let fpsBox = null, fpsN = 0, fpsT = 0, fpsMax = 0;
+if (new URLSearchParams(location.search).has('fps')) { fpsBox = document.createElement('div'); fpsBox.id = 'fpsbox'; fpsBox.setAttribute('aria-hidden', 'true'); document.getElementById('app').appendChild(fpsBox); }
 function loop(now) {
   if (app.manual) { requestAnimationFrame(loop); return; } // the build-video recorder drives frames itself (?shoot=)
   const raw = now - last;
@@ -84,6 +87,7 @@ function loop(now) {
   { const ins = rig.mode === 'inside' && inside.root.visible && !app.inLab; /* not the classroom, which also uses the inside camera */ if (ins !== app._ins) { app._ins = ins; document.documentElement.dataset.inside = ins ? 'on' : 'off'; if (app.insideBack) app.insideBack.hidden = !ins; } } // the free inside view: its own Back button, panels step aside (CSS)
   { const st = rig.mode === 'street' && !!rig.street; if (st !== world.overlayHidden) { world.hideOverlay(st); document.documentElement.dataset.street = st ? 'on' : 'off'; } } world.update(dt, t, { windStill: app.winterTest }); life.update(dt, t, app.hour, { windStill: app.winterTest, moveIn: app.moveIn }); inside.update(dt, t); classroom.update(dt, t); bot.update(dt, t); cosmetics.update(dt, t, app.hour ?? 12);
   stage.render(dt, t); ui.labels.update(stage.camera, canvas);
+  if (fpsBox) { fpsN++; fpsT += raw; fpsMax = Math.max(fpsMax, raw); if (fpsT >= 1000) { const r = stage.renderer.info.render; fpsBox.textContent = `${Math.round(1000 * fpsN / fpsT)} fps · worst ${Math.round(fpsMax)} ms · ${stage.tier} · ${r.calls} calls · ${Math.round(r.triangles / 1000)}k tris · ${canvas.width}×${canvas.height}`; fpsN = 0; fpsT = 0; fpsMax = 0; } }
   requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);

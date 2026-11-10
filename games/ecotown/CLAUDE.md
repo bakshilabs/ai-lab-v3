@@ -95,6 +95,15 @@ A subagent played with no knowledge of the code (laptop 7/10, phone 4/10). Fixed
 - **Voices:** `voice/collect.mjs` no longer collects the source text of functions as lines; the changed lines were recorded (Kokoro and the clip cache were still in the session scratchpad; the old lines were merged back by key before `render.py`, as before).
 - **Not addressed from that report:** the building film is long on a slow machine; phone build-tray labels are cut ("Rammed-earth…") and the tray shifts when a tip shows; the classroom board is blurry on phones; silly taps (the river) only get a short message; Florence has no joke for off-topic questions.
 
+## Ship-readiness round 4 (11 Nov 2026): a second no-context playtest, phone only
+A subagent played ages 8–12 on an upright phone with taps only (6.5/10; the phone was 4/10 before round 3). Fixed from its report:
+- **Florence's words were cut off in missions** (the speaker card shrank to a line or two above the instruction tray): on phone portrait the dock may be 70 % of the screen, her card takes what its text needs up to 34 vh, and the answer tray scrolls (last blocks of `game.css`). `run.mjs` now takes a `<mission>-retry` screenshot of that step.
+- **Plan-adopted message** was 11 lines on a phone: `planUsed`, `planLeft`, `townDiffers` are now short.
+- **Phone messages** (`#toast`) sit under the top card while building (they landed on Florence's tip); **Skip intro** sits beside the Camera button, off the island; long build names have a `short` form in `catalog.js` for phone buttons.
+- **For people to run:** `docs/DEVICE-AND-CHILD-TESTS.md` (a device test with a frame-rate readout, `?fps=1`, from `main.js`; a child-session sheet; a class load test).
+- **Voices:** nothing new to record this round. Do not run `render.py` after `collect.mjs` when no line is new: collecting reorders the lines, which rebuilds every chunk under a new name (about 19 MB of churn in git).
+- **Not addressed from that report:** the intro has about six Next taps and asks for three tiles and then three more; the mission list does not say which missions are optional (none are: all six are needed to complete the town); a ★ pin can sit on a speech bubble; the Lenses pop-over covers the next-step text on a phone; the classroom board is blurry on a phone.
+
 ## Free-build redesign (Nov 2026, after the beta)
 The user found the guided six-level sequence exhausting ("prompt after prompt, a tunnel") and asked for a StarCraft-style city builder: **build first, get tips from Florence, step into the AI Lab, come back to building**. Decisions the user made:
 - **Replace** the guided flow. A start-screen option "AI Lab missions: Any order / In order (class)" keeps the lessons in order for classes.

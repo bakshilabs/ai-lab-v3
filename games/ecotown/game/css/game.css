@@ -1929,3 +1929,21 @@ html .streetpad [data-sp-exit] { white-space: nowrap; }
 /* ---------- the "something went wrong" notice (main.js): small, bottom left, never blocks play */
 #oops { position: absolute; left: 10px; bottom: 10px; z-index: 90; display: flex; gap: 8px; align-items: center; max-width: calc(100vw - 20px); padding: 8px 10px; border-radius: 14px; background: #fff6d8; color: #3b2a1e; box-shadow: 0 6px 18px rgba(0,0,0,.25), inset 0 0 0 2px #b0331f; font-weight: 700; }
 #oops .btn { min-height: 40px; padding: 4px 12px; }
+
+/* ---------- phone portrait, missions: Florence's words are never squeezed to a line or two (a playtester on a phone
+   could not read why a fix was still wrong). Her card takes the room its text needs, up to a third of the screen, and
+   the answer tray below scrolls instead. */
+@media (max-width: 760px) and (orientation: portrait) {
+  html[data-lab="on"] #layer #dock { max-height: 70vh; max-height: 70dvh; }
+  html[data-lab="on"] #layer #dock .speaker { flex: 0 0 auto; max-height: 34vh; overflow-y: auto; }
+  html[data-lab="on"] #layer #dock .actions { flex: 1 1 auto; min-height: 96px; overflow-y: auto; }
+}
+@media (max-width: 560px) and (orientation: portrait) {
+  html .introskip { left: 74px; top: 92px; bottom: auto; transform: none; height: 36px; padding: 0 12px; font-size: 13px; } /* beside the Camera button, off the island */
+}
+@media (max-width: 560px) and (orientation: portrait) {
+  /* short messages sit under the top card while building: above the build bar they landed on Florence's tip */
+  html:not([data-lab="on"]) #layer #toast, html:not([data-lab="on"]):has(#card:not(.hide) .dayc:not([hidden])) #layer #toast { top: 148px !important; bottom: auto !important; width: calc(100vw - 24px); font-size: 14px; line-height: 1.25; padding: 8px 12px; }
+}
+
+#fpsbox { position: absolute; left: 50%; top: 0; transform: translateX(-50%); white-space: nowrap; z-index: 95; padding: 3px 8px; border-radius: 6px; background: #1d1a17; color: #fff; font: 700 12px/1.3 ui-monospace, monospace; pointer-events: none; }
