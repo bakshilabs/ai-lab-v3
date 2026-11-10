@@ -39,4 +39,4 @@ Model: **Kokoro-82M** (Apache-2.0), ONNX build from Hugging Face `onnx-community
    python3 games/ecotown/voice/render.py <dir> <cache dir>
    ```
 
-5. Commit `game/voice/pack-*.json` and `pack-*.bin`, then deploy.
+5. Commit `game/voice/pack-*.json` and the `pack-*.bin` chunks (about 200 KB each; the game fetches a chunk when it first needs a line in it), then deploy.

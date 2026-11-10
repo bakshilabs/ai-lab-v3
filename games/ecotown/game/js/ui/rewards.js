@@ -3,6 +3,7 @@
 import { esc } from './ui.js';
 import { SHOP, wallet, owns, isOn, needs, buy, setOn } from '../game/shop.js';
 import { FINALE_GROUPS } from '../game/finale.js';
+import { BADGES, badgeCount } from '../game/badges.js';
 
 const GROUP_ICON = { homes: '🏡', food: '🍎', power: '⚡', heart: '🏫', move: '🚲' };
 
@@ -19,7 +20,10 @@ export function openShop(app, G, { stars, onChange }) {
         : `<button class="btn go price" data-buy="${r.id}">${esc(T.buy(r.cost))}</button>`;
     return `<li class="shopitem ${own ? 'owned' : need ? 'locked' : 'afford'} ${lit ? 'lit' : ''}"><span class="sico" aria-hidden="true">${r.icon}</span><div class="stxt"><b>${esc(t.name)}</b>${own ? ` <em class="own">✓ ${esc(T.owned)}</em>` : need ? ` <em class="cost" aria-label="${r.cost} stars">★ ${r.cost}</em>` : ''}<small>${esc(t.desc)}</small>${note ? `<small class="note">${esc(note)}</small>` : ''}</div>${btn}</li>`;
   };
-  const body = () => { const w = wallet(stars, G.shop); return `<div class="wallet"><span class="wstar" aria-hidden="true">★</span><b>${w}</b><span>${esc(T.have(w))}</span></div><p class="shopintro">${esc(T.intro)} <span class="earn">${esc(T.earn)}</span></p><ul class="shopgrid">${SHOP.map(card).join('')}</ul>`; };
+  // badges: things to try in the town, each worth a star (js/game/badges.js)
+  const badges = () => { const have = G.badges || {}; const j = app.band !== 'senior';
+    return `<h3 class="badgehead">${j ? 'Badges' : 'Badges'} <em>${badgeCount(have)} / ${BADGES.length}</em></h3><p class="shopintro">${j ? 'Things to try in your town. Each badge gives you a star.' : 'Challenges for your town. Each badge earns one star.'}</p><ul class="badgegrid">${BADGES.map((b) => `<li class="${have[b.id] ? 'got' : ''}"><span class="sico" aria-hidden="true">${b.icon}</span><div><b>${esc(b.name)}</b>${have[b.id] ? ' <em class="own">✓</em>' : ''}<small>${esc(j ? b.j : b.s)}</small></div></li>`).join('')}</ul>`; };
+  const body = () => { const w = wallet(stars, G.shop); return `<div class="wallet"><span class="wstar" aria-hidden="true">★</span><b>${w}</b><span>${esc(T.have(w))}</span></div><p class="shopintro">${esc(T.intro)} <span class="earn">${esc(T.earn)}</span></p><ul class="shopgrid">${SHOP.map(card).join('')}</ul>${badges()}`; };
   return ui.modal(`<div class="ribbon">★ ${esc(T.title)}</div><div data-shopbody>${body()}</div><div class="row" style="justify-content:center"><button class="btn go" data-act="close">${esc(T.done)}</button></div>`, {
     bind: (el) => {
       el.classList.remove('finale'); el.classList.add('shopcard');

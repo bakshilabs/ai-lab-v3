@@ -1,5 +1,5 @@
 """Records every sentence in voice/lines-<band>.json with Kokoro-82M (Apache-2.0) and packs the clips into
-game/voice/pack-<band>.json + pack-<band>-<hash>.bin. Narrator: bf_isabella (British). Florence: af_bella.
+game/voice/pack-<band>.json + pack-<band>-<hash>.bin chunks. Narrator: bf_isabella (British). Florence: af_bella.
 Needs: pip install kokoro-onnx soundfile; model.onnx + voices.bin from onnx-community/Kokoro-82M-v1.0-ONNX
 (see voice/README.md). Clips are cached by key, so re-runs only record new sentences.
 Usage: python3 voice/render.py <kokoro_dir> <cache_dir>"""
@@ -17,7 +17,12 @@ SAY = {'Florence’s': "Florence's", '°C': ' degrees', ' t ': ' tonnes ', 'cr '
 out = os.path.join(here, '..', 'game', 'voice'); os.makedirs(out, exist_ok=True)
 for band in ('junior', 'senior'):
     lines = json.load(open(os.path.join(here, f'lines-{band}.json')))
-    blob = bytearray(); clips = []
+    # clips go into chunks of about 200 KB, so the game fetches only the lines it is about to say
+    SIZE = 200 * 1024; chunks = []; clips = []; cur = bytearray(); total = 0
+    def flush():
+        global cur
+        if not cur: return
+        name = f'pack-{band}-{hashlib.sha256(cur).hexdigest()[:12]}.bin'; open(os.path.join(out, name), 'wb').write(cur); chunks.append(name); cur = bytearray()
     for i, ln in enumerate(lines):
         mp3 = os.path.join(cache, ln['key'] + '.mp3')
         if not os.path.exists(mp3):
@@ -27,11 +32,13 @@ for band in ('junior', 'senior'):
             audio, sr = k.create(text, voice=v, speed=speed, lang=lang)
             wav = mp3[:-4] + '.wav'; sf.write(wav, audio, sr)
             subprocess.run(['ffmpeg', '-loglevel', 'error', '-y', '-i', wav, '-ac', '1', '-b:a', '40k', mp3], check=True); os.remove(wav)
-        data = open(mp3, 'rb').read(); clips.append([ln['key'], len(blob), len(data)]); blob += data
+        data = open(mp3, 'rb').read(); total += len(data)
+        if cur and len(cur) + len(data) > SIZE: flush()
+        clips.append([ln['key'], len(chunks), len(cur), len(data)]); cur += data
         if i % 50 == 0: print(band, i, '/', len(lines), flush=True)
-    h = hashlib.sha256(blob).hexdigest()[:10]; name = f'pack-{band}-{h}.bin'
+    flush()
     for f in os.listdir(out):
-        if f.startswith(f'pack-{band}-') and f.endswith('.bin') and f != name: os.remove(os.path.join(out, f))
-    open(os.path.join(out, name), 'wb').write(blob)
-    json.dump({'bin': name, 'type': 'audio/mpeg', 'clips': clips}, open(os.path.join(out, f'pack-{band}.json'), 'w'))
+        if f.startswith(f'pack-{band}-') and f.endswith('.bin') and f not in chunks: os.remove(os.path.join(out, f))
+    json.dump({'type': 'audio/mpeg', 'chunks': chunks, 'clips': clips}, open(os.path.join(out, f'pack-{band}.json'), 'w'))
+    blob = range(total)
     print(band, len(clips), 'clips,', round(len(blob) / 1e6, 1), 'MB')

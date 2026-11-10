@@ -37,6 +37,11 @@ async function accessOK(req, env) {
 }
 
 const store = (env) => env.CODES.get(env.CODES.idFromName('main'));
+const recent = new Map(); // session -> time of its last successful check in this Worker instance
+// files whose name carries a hash of their contents never change: the player's own browser may keep them for a week
+// (the page itself is never stored, so the game still can't start without a valid passcode)
+const KEEP = { 'Cache-Control': 'private, max-age=604800, immutable' };
+const hashed = (f) => /^\/assets\/(app|m)-[a-f0-9]{8,}\.[a-z]+$/.test(f) || /^\/voice\/pack-[a-z]+-[a-f0-9]{8,}\.bin$/.test(f);
 const sessionOf = (req) => (req.headers.get('Cookie') || '').match(new RegExp(COOKIE + '=([^;]+)'))?.[1] || '';
 const MESSAGES = {
   unknown: 'That passcode wasn’t recognised. Check it and try again.', revoked: 'This passcode has been switched off. Ask your teacher.',
@@ -82,7 +87,11 @@ export default {
 
     // ---------------- game files: only with a valid session
     const file = p === '/' ? '/index.html' : p;
-    const r = await store(env).call('check', sessionOf(req), Date.now(), { touch: file === '/index.html' });
+    // The page itself and every heartbeat ask the code store. The other files of one page load (about a hundred)
+    // reuse a recent "yes" for a minute, so a class starting together is one store call each, not a hundred.
+    const sess = sessionOf(req); const now = Date.now(); const hit = file !== '/index.html' && recent.get(sess);
+    const r = hit && now - hit < 60e3 ? { ok: true } : await store(env).call('check', sess, now, { touch: file === '/index.html' });
+    if (r.ok && !hit) { if (recent.size > 5000) recent.clear(); recent.set(sess, now); } else if (!r.ok) recent.delete(sess);
     if (!r.ok) {
       if (file === '/index.html') return html(loginPage(r.reason === 'none' ? '' : MESSAGES[r.reason] || ''));
       return new Response('Login required', { status: 403, headers: { ...BASE, 'Content-Type': 'text/plain' } });
@@ -91,7 +100,7 @@ export default {
     if (file.startsWith('/voice/') && env.VOICE) {
       const name = file.slice(7); if (!/^pack-[a-z]+(-[a-f0-9]+)?\.(json|bin)$/.test(name)) return new Response('Not found', { status: 404, headers: BASE });
       const v = await env.VOICE.get(name, 'arrayBuffer'); if (!v) return new Response('Not found', { status: 404, headers: BASE });
-      return new Response(v, { headers: { ...BASE, 'Content-Type': name.endsWith('.json') ? 'application/json' : 'audio/mpeg' } });
+      return new Response(v, { headers: { ...BASE, ...(hashed(file) ? KEEP : {}), 'Content-Type': name.endsWith('.json') ? 'application/json' : 'audio/mpeg' } });
     }
     // Florence's portrait, build pictures and build videos also live in KV. Videos need byte ranges (Safari/iPad).
     if (/^\/(img|videos)\//.test(file) && env.VOICE) {
@@ -109,7 +118,7 @@ export default {
     }
     const body = FILES[file];
     if (body === undefined) return new Response('Not found', { status: 404, headers: BASE });
-    return new Response(body, { headers: { ...BASE, 'Content-Type': TYPES[file.split('.').pop()] || 'application/octet-stream' } });
+    return new Response(body, { headers: { ...BASE, ...(hashed(file) ? KEEP : {}), 'Content-Type': TYPES[file.split('.').pop()] || 'application/octet-stream' } });
   },
 };
 

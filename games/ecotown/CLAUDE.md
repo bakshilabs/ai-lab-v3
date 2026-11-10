@@ -60,6 +60,20 @@ Everything is merged to `main`. The working branch was `claude/focused-cori-qeov
 
 **Leftover:** an empty, login-protected Pages project `ecotown.pages.dev`. It can be deleted if the user agrees.
 
+## Ship-readiness round 1 (10 Nov 2026)
+The user asked whether the game was ready for millions of students (answer: not yet) and then asked for autonomous rounds of improvement. A fresh play-through (laptop, phone, all six missions) found the problems below; this round fixed the ones marked done.
+- **First load (done):** it was about 15 MB (one 10 MB voice pack that had to arrive whole, and a 2 MB model that blocked the start). Now about 5 MB before play.
+  - Voice packs are split into chunks of about 200 KB (`game/voice/pack-<band>-<hash>.bin`, index `pack-<band>.json` with `chunks` and `[key, chunk, offset, length]`). `js/ui/voice.js` fetches the index and first chunk at the start and each other chunk when a line in it is first spoken; a chunk that fails falls back to the device voice. `voice/render.py` writes chunks; `voice/chunk.mjs` converts an old one-file pack.
+  - Florence's model loads in the background (`app.modelP`); `runLab` waits for it.
+  - Loading screen: `#boot` in `index.html` (CSS at the end of `game.css`), removed in `start()`. It is a message only, not a WebGL check.
+- **Classroom site load (done in code, NOT deployed yet):** `worker/worker.js` reuses a successful session check for 60 s for files other than the page (one page load was about 100 calls to the single code store), and content-hashed files are sent with `Cache-Control: private, max-age=604800, immutable`. The page and heartbeats still ask the store every time. One store handles roughly 1,000 requests a second, so heartbeats cap it near 50,000 players at once; beyond that the store needs sharding by batch.
+- **Building pushes back (done):** Power and Town heart open only when the families are also fed (`progress.js` `TIERS`, `nextUnlock().kind`, `nextStep.food`). Eight taps of one house used to open every category in 40 seconds.
+- **Badges (done):** `js/game/badges.js` (13 badges, tests `tests/badges.test.mjs`), saved as `G.badges`, ★1 each, shown under the Star shop (`ui/rewards.js`), checked in `milestones()`.
+- **Phone portrait (done):** compact build bar (last block of `game.css`); tips with a button fold to Florence's small figure after 9 s on screens up to 760 px wide. Panels went from about 66 % of a 390 × 664 screen to about 46 %.
+- **Graphics "auto" (done):** `main.js` keeps watching the frame time and steps the quality down after four slow seconds.
+- **Still open (cannot be done from a cloud session):** sessions with real children; frame rates on a real Chromebook, an older iPad and a mid-range Android phone.
+- **Still open (can be done):** a screen-reader pass; other languages; a budget for ages 8–12; the four voice lines without a recording (lines with live numbers are read by the device voice by design).
+
 ## Free-build redesign (Nov 2026, after the beta)
 The user found the guided six-level sequence exhausting ("prompt after prompt, a tunnel") and asked for a StarCraft-style city builder: **build first, get tips from Florence, step into the AI Lab, come back to building**. Decisions the user made:
 - **Replace** the guided flow. A start-screen option "AI Lab missions: Any order / In order (class)" keeps the lessons in order for classes.
@@ -277,7 +291,7 @@ All 49 notes in the beta tester's file were addressed; see README "How the game 
   - `/admin` redirects (302) to `…cloudflareaccess.com`.
 
 ## Tests
-From `games/ecotown/game` (174 tests, all passing at handoff; run them all with `node --test tests/*.test.mjs`):
+From `games/ecotown/game` (180 tests, all passing at handoff; run them all with `node --test tests/*.test.mjs`):
 
 ```bash
 node --test tests/sim.test.mjs tests/model.test.mjs tests/teach.test.mjs tests/syntax.test.mjs tests/codes.test.mjs tests/playtest.test.mjs tests/progress.test.mjs tests/audio.test.mjs tests/replace.test.mjs tests/delta.test.mjs tests/qa.test.mjs
