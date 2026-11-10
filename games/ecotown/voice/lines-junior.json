@@ -145,6 +145,11 @@
   "key": "35851777"
  },
  {
+  "s": "The third star is for fixing it in one or two.",
+  "voice": "narrator",
+  "key": "d36b3159"
+ },
+ {
   "s": "I only spot key words, so I missed your “not”.",
   "voice": "narrator",
   "key": "f0308719"
@@ -445,9 +450,9 @@
   "key": "f00769ee"
  },
  {
-  "s": "Fixed the plan so it passes",
+  "s": "Fixed the plan in one or two tries",
   "voice": "narrator",
-  "key": "f1282574"
+  "key": "f74e1d4f"
  },
  {
   "s": "Clear instruction first time",
@@ -3058,6 +3063,11 @@
   "s": "Nobody told Florence what mattered (a short walk from every home), so she guessed the middle of the island.",
   "voice": "helper",
   "key": "4d6bd03b"
+ },
+ {
+  "s": "Fixed the plan so it passes",
+  "voice": "narrator",
+  "key": "f1282574"
  },
  {
   "s": "Try another way to check.",

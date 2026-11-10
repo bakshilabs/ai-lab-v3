@@ -259,15 +259,20 @@ export function createGame(app) {
   const fmt = (o, rv) => pick(o).replace('{n}', rv?.n ?? '');
 
   // ---------------- naming the habit: graded against what Florence actually assumed in this plan
+  const HABIT_NEAR = { one_word: ['literal', 'missing'], literal: ['one_word'], missing: ['one_word'], typical: [] };
   async function habitAct(id, res) {
     const lv = LEVELS[id]; const right = res.plan.habit || lv.habit; const why = res.plan.habitWhy || G.C.habits[right].explain; app.__expectHabit = right; // (read by the play-through test)
     const order = [...HABITS]; const wrong = new Set(); // the same order every time (a shuffled row made a young tester misclick)
     for (;;) {
-      const pickH = await new Promise((resolve) => ui.tray(`<h3>${esc(G.C.ui.whyWrong)}</h3><div class="row">${order.map((k) => `<button class="choice ${wrong.has(k) ? 'wrong' : ''}" data-h="${k}" ${wrong.has(k) ? 'disabled' : ''}><span class="ic">${G.C.habits[k].icon}</span>${esc(G.C.habits[k].label)}</button>`).join('')}</div>`, (tr) => tr.querySelectorAll('[data-h]').forEach((b) => (b.onclick = () => resolve(b.dataset.h)))));
-      if (pickH === right || pickH === res.plan.habitAlt) { // some plans fit two habits ("fastest roads for cars": one word, and the words read exactly)
+      const pickH = await new Promise((resolve) => ui.tray(`<h3>${esc(G.C.ui.whyWrong)}</h3><div class="row">${order.map((k) => `<button class="choice ${wrong.has(k) ? 'wrong' : ''}" data-h="${k}" ${wrong.has(k) ? 'disabled' : ''}><span class="ic">${G.C.habits[k].icon}</span><span class="hl">${esc(G.C.habits[k].label)}<small>${esc(G.C.habits[k].hint || '')}</small></span></button>`).join('')}</div>`, (tr) => tr.querySelectorAll('[data-h]').forEach((b) => (b.onclick = () => resolve(b.dataset.h)))));
+      // Some plans fit two names, and the four overlap: a vague word ("best") is also missing information and also a too-exact
+      // reading. Sound reasoning is never marked wrong: a defensible answer counts, and Florence adds the closest name.
+      const fair = pickH === res.plan.habitAlt || (HABIT_NEAR[right] || []).includes(pickH);
+      if (pickH === right || fair) {
         audio.good(); ui.alert(`${G.C.ui.correct} ${G.C.habits[pickH].label}`, true, 2600); if (!wrong.size) star(1, `${G.C.ui.correct} ${G.C.habits[pickH].label}`);
         G.mistakes.push({ level: id, habit: pickH, why });
-        help({ tag: G.j ? 'SPOTTED' : 'DIAGNOSED', tagCls: 'ok', html: `<p><b>${esc(G.C.ui.correct)}</b> ${esc(why)}</p>`, say: `${G.C.ui.correct} ${why}`, voice: 'helper' }); await sleep(600); return;
+        const also = fair && pickH !== right ? ` ${G.C.ui.alsoFits(G.C.habits[right].label)}` : '';
+        help({ tag: G.j ? 'SPOTTED' : 'DIAGNOSED', tagCls: 'ok', html: `<p><b>${esc(G.C.ui.correct)}</b> ${esc(why)}${esc(also)}</p>`, say: `${G.C.ui.correct} ${why}${also}`, voice: 'helper' }); await sleep(600); return;
       }
       audio.tap(); wrong.add(pickH);
       const reading = res.plan.reading[0] || '';
@@ -1008,7 +1013,9 @@ export function createGame(app) {
       G.outcomes[id] = { kind: ['one_word', 'literal'].includes(m?.habit) ? 'flawed' : 'missed', habit: m?.habit,
         detail: `${G.C.habits[m?.habit]?.label || ''}: ${m?.why || ''} ${chk.late ? (G.j ? 'Shown by' : 'Shown before building by') : (G.j ? 'You caught it with' : 'Caught by you with')} the ${checkName(chk.which)}: ${found}.` };
       res = await retry(id, res, G.C.ui.tryClearer, briefMin);
-      star(2, G.C.stars.flawed[2]);
+      // the third star is for a fix that works within two rewrites. Retrying is still free and unlimited, but a string of
+      // silly or unwise rewrites followed by a good one no longer earns the same three stars as a careful fix.
+      if ((run?.tries || 1) <= 2) star(2, G.C.stars.flawed[2]); else ui.caption(G.C.ui.manyTries(run.tries), 4200);
       ui.facil(null);
     }
     // the fixed plan is built on the practice island, system by system, layer by layer
@@ -1059,7 +1066,7 @@ export function createGame(app) {
   async function retry(id, res, heading, briefMin) {
     const lv = LEVELS[id];
     for (;;) {
-      world.clearGhost(); res = await round(id, heading); G.instructions[id].push(res.text); briefMin(res);
+      world.clearGhost(); res = await round(id, heading); G.instructions[id].push(res.text); briefMin(res); if (run) run.tries = (run.tries || 0) + 1;
       const again = await checkAct(id, res, { auto: true });
       if (!again.flawed) {
         const sA = sim(res.after); const cx = ctxFor(res.after);
@@ -1093,15 +1100,20 @@ export function createGame(app) {
     walk: { j: 'every home within a 15-minute walk.', s: 'a measurable limit: every home within 15 minutes’ walk.' },
   };
   // back to the player's own town. Using the plan adds what fits (never over what the player built).
+  const ADOPT_CAP = 4; // buildings Florence puts up when her plan is adopted
   async function leaveLab(real, placements = null, id = null) {
     world.clearGhost(); ui.legend(null); ui.helper(null); ui.tray(''); ui.facil(null); await checks.leave();
     sb.lastSuggest = performance.now(); // her next idea for the town waits a while after a lesson
     G.cells = real; app.inLab = false; app.levelId = null; app.briefMinutes = null; app.briefTargets = []; delete document.documentElement.dataset.lab; run = null;
     stage.setTime(app.hour = sb.hourWas ?? 12.5, 0); sb.hourWas = null; // (every mission used to reset the day to 12:30, so a whole game fitted inside Day 1)
     if (placements) {
-      const keys = new Set(); let skipped = 0;
+      const keys = new Set(); let skipped = 0; let built = 0; const left = [];
       for (const p of placements) {
         const tool = p.item || p.mod || p.mark; if (!tool || !ITEMS[tool]) continue;
+        // Florence lays the groundwork (land marks, paths and other routes) and builds the first few; the rest is the player's to
+        // build. (Adopting used to place the whole plan: one tester finished at 66 families having placed about ten builds.)
+        const groundwork = ITEMS[tool].kind === 'mark' || ['path', 'cycle', 'road', 'tram', 'bridge', 'greenbridge', 'hedge'].includes(tool);
+        if (!groundwork && built >= ADOPT_CAP) { left.push(p); continue; }
         if (ITEMS[tool].unique && [...G.cells.values()].some((cc) => cc.item === tool)) { skipped++; continue; } // the player's own school stays where they built it (adopting used to move it)
         const t = terrain.tiles.get(p.k); const c = cellOf(G.cells, p.k);
         let k = p.k;
@@ -1114,10 +1126,11 @@ export function createGame(app) {
             .sort((a2, b2) => world.tileTop(a2.u.k).distanceTo(from) - world.tileTop(b2.u.k).distanceTo(from))[0]?.u.k;
           if (!k) { skipped++; continue; }
         }
-        if (placeAt(k, tool, { free: true })) keys.add(k); else skipped++;
+        if (placeAt(k, tool, { free: true })) { keys.add(k); if (!groundwork) built++; } else skipped++;
       }
+      G.planLeft = left; // (the play-through test builds these the way a player would)
       showCells(G.cells, keys);
-      sb.afterLab = keys.size ? G.S.planUsed(keys.size, skipped) : G.S.planDidntFit;
+      sb.afterLab = keys.size ? G.S.planUsed(keys.size, skipped) + (left.length ? ` ${G.S.planLeft(left.length)}` : '') : G.S.planDidntFit;
       // the plan passed on the practice island; the player's town is different. Say what still differs, with numbers.
       if (id && LEVELS[id]) { const sT = sim(); const gap = LEVELS[id].needs(sT, ctxFor(G.cells), G.j).filter((n) => !n.ok && !/^(🚶 Paths|Routes to)/.test(n.label) && !(id === 'land' && /Town land:/.test(n.label) && sT.townTiles > TARGETS.townTiles)) /* more town land than the practice target is fine in your own town (“24 of 18 tiles”) */.map((n) => n.label.replace(/^\P{L}+/u, '')).map((l) => (/\d/.test(l) ? l : `${l}: not yet`)); if (gap.length) sb.afterLab += ` ${G.S.townDiffers(gap.join('; '))}`; }
     } else showCells(G.cells);
@@ -1339,7 +1352,7 @@ export function createGame(app) {
   G.canMenu = () => sb.running && !G.busy && !sb.intro; G.showReport = () => { if (G.canMenu()) showReport(); }; G.wholeDay = () => { if (G.canMenu()) wholeDay(); };
   G.showWhere = showWhere;
   G.suggest = () => { const sg = suggestFor(sim()); if (sg) offerSuggestion(sg); return sg?.id || null; };
-  G.openLab = openLab; G.labBoard = labBoard; G.enterClassroom = enterClassroom; G.classAsk = classAsk; G.leaveClassroom = leaveClassroom; G.playVideo = playVideo; G.videoCard = videoCard; G.florenceTo = florenceTo; G.placeAt = (k, tool) => { const ok = placeAt(k, tool); if (ok) changed(); return ok; }; G.sim = sim; G.advisor = sb.adv;
+  G.openLab = openLab; G.labBoard = labBoard; G.enterClassroom = enterClassroom; G.classAsk = classAsk; G.leaveClassroom = leaveClassroom; G.playVideo = playVideo; G.videoCard = videoCard; G.florenceTo = florenceTo; G.placeAt = (k, tool, o) => { const ok = placeAt(k, tool, o); if (ok) changed(); return ok; }; G.sim = sim; G.advisor = sb.adv;
   G.saved = () => { try { const d = JSON.parse(localStorage.getItem(SAVE) || 'null'); return d && d.band === G.band ? d : null; } catch { return null; } };
   return G;
 }
