@@ -12,6 +12,7 @@ import { createInside } from './world/inside.js';
 import { createClassroom } from './world/classroom.js';
 import { createCosmetics } from './world/cosmetics.js';
 import { createRig } from './camera/rig.js';
+import { ITEMS } from './world/catalog.js';
 import { createStreetPad } from './camera/streetpad.js';
 import { createUI, h, esc } from './ui/ui.js';
 import { createPortrait } from './ui/portrait.js';
@@ -85,7 +86,9 @@ let last = performance.now(); const T0 = last;
 function loop(now) {
   if (app.manual) { requestAnimationFrame(loop); return; } // the build-video recorder drives frames itself (?shoot=)
   const dt = Math.min(0.05, (now - last) / 1000); last = now; const t = (now - T0) / 1000;
-  rig.update(dt); { const st = rig.mode === 'street' && !!rig.street; if (st !== world.overlayHidden) { world.hideOverlay(st); document.documentElement.dataset.street = st ? 'on' : 'off'; } } world.update(dt, t, { windStill: app.winterTest }); life.update(dt, t, app.hour, { windStill: app.winterTest, moveIn: app.moveIn }); inside.update(dt, t); classroom.update(dt, t); bot.update(dt, t); cosmetics.update(dt, t, app.hour ?? 12);
+  rig.update(dt);
+  { const ins = rig.mode === 'inside' && inside.root.visible && !app.inLab; /* not the classroom, which also uses the inside camera */ if (ins !== app._ins) { app._ins = ins; document.documentElement.dataset.inside = ins ? 'on' : 'off'; if (app.insideBack) app.insideBack.hidden = !ins; } } // the free inside view: its own Back button, panels step aside (CSS)
+  { const st = rig.mode === 'street' && !!rig.street; if (st !== world.overlayHidden) { world.hideOverlay(st); document.documentElement.dataset.street = st ? 'on' : 'off'; } } world.update(dt, t, { windStill: app.winterTest }); life.update(dt, t, app.hour, { windStill: app.winterTest, moveIn: app.moveIn }); inside.update(dt, t); classroom.update(dt, t); bot.update(dt, t); cosmetics.update(dt, t, app.hour ?? 12);
   stage.render(dt, t); ui.labels.update(stage.camera, canvas);
   requestAnimationFrame(loop);
 }
@@ -103,7 +106,7 @@ function settingsSheet() {
     ${row('readAloud', 'Read aloud')}${row('reduce', 'Reduce motion')}${row('facilitator', 'Facilitator notes')}
     <div class="setrow"><span id="tsz">Text size</span><span class="seg" role="radiogroup" aria-labelledby="tsz">${['normal', 'large'].map((v) => `<button type="button" role="radio" data-tsize="${v}" aria-checked="${(s.text || 'normal') === v}">${v === 'large' ? 'Large' : 'Normal'}</button>`).join('')}</span></div>
     <label>Graphics<select data-k="quality">${['auto', 'low', 'mid', 'high'].map((q) => `<option ${s.quality === q ? 'selected' : ''}>${q}</option>`).join('')}</select></label>
-    <p style="font-size:.8em;color:#46596a">Florence: ${modelReady() ? 'small language model (on this device)' : 'keyword reader (model not loaded)'}. Voices: recorded on this device’s game files. Nothing you type is stored or sent.</p><button class="btn go" data-close>Done</button>`;
+    <p style="font-size:.8em;color:#46596a">Florence runs on this device (${modelReady() ? 'a small language model' : 'a keyword reader: the model did not load'}). Her voice is recorded in advance. What you type stays on this device: nothing is sent anywhere.</p><button class="btn go" data-close>Done</button>`;
   P.querySelectorAll('[data-k]').forEach((i) => (i.onchange = () => { s[i.dataset.k] = i.type === 'checkbox' ? i.checked : i.value; applySettings(); ui.refreshFacil(); }));
   // text size: two buttons, not a drop-down (a drop-down list opened over "Facilitator notes", and a tap meant for "Large" ticked it)
   P.querySelectorAll('[data-tsize]').forEach((b) => (b.onclick = () => { s.text = b.dataset.tsize; P.querySelectorAll('[data-tsize]').forEach((x) => x.setAttribute('aria-checked', String(x === b))); applySettings(); }));
@@ -130,9 +133,18 @@ async function setView(v) {
     const dir = p.clone().sub(q).setY(0).normalize(); const eye = q.clone().sub(dir.clone().multiplyScalar(2.5)).add(new THREE.Vector3(0, 2.1, 0));
     rig.toStreet(eye, p.clone().add(new THREE.Vector3(0, 1.5, 0)));
   }
-  if (v === 'inside') { inside.build(home?.[1].item || 'timber', 20); await rig.fade(() => { inside.root.visible = true; rig.mode = 'inside'; rig.apply(inside.pose()); }); }
+  if (v === 'inside') {
+    // the real home, at its real winter temperature (it was always shown at 20 °C), with a line saying what this view is
+    const id = home?.[1].item || 'timber'; const it = ITEMS[id]; const temp = it?.temp ?? 20; const j = app.band !== 'senior';
+    inside.build(id, temp); await rig.fade(() => { inside.root.visible = true; rig.mode = 'inside'; rig.apply(inside.pose()); });
+    ui.caption(home ? (j ? `Inside a ${it.label}: ${temp} °C in winter with the heating off. The cut-away wall shows what it is made of.` : `Inside: ${it.label}. ${temp} °C in winter, unheated. The cut-away wall shows the construction.`)
+      : (j ? 'No homes yet. This is what a Timber terrace looks like inside.' : 'No homes yet: a Timber terrace interior, for reference.'), 6500);
+  }
 }
 app.setView = setView;
+app.insideBack = h('<button id="insideback" class="btn go" style="position:absolute;left:50%;top:82px;transform:translateX(-50%);z-index:31" hidden>⬆ Back to the island</button>'); app.insideBack.onclick = () => setView('sky'); document.getElementById('layer').appendChild(app.insideBack);
+// Escape or Home leaves the inside view too (they already left the street view), unless a card is open
+addEventListener('keydown', (e) => { if ((e.key === 'Escape' || e.key === 'Home') && rig.mode === 'inside' && !app.inLab && ui.P.modal.classList.contains('hide') && !/INPUT|TEXTAREA/.test(document.activeElement?.tagName || '')) setView('sky'); });
 createStreetPad({ rig, world, terrain, onExit: () => setView('sky') }); // street view: walking, the pad and "Back to the island"
 ui.P.views.addEventListener('click', (e) => {
   const b = e.target.closest('[data-v]'); if (!b || b.disabled) return;
@@ -143,7 +155,7 @@ rig.onDoubleTap = (ndc) => { if (rig.mode !== 'sky') return; const k = world.pic
 // camera buttons
 ui.P.camctl.addEventListener('click', async (e) => {
   const b = e.target.closest('[data-cam]'); if (!b) return; const a = b.dataset.cam;
-  if (a === 'home') { if (rig.mode !== 'sky') setView('sky'); else rig.overview(1.2); return; }
+  if (a === 'home') { if (rig.mode !== 'sky') setView('sky'); else rig.overview(1.2, true); return; }
   if (rig.mode !== 'sky') return;
   if (a === 'in') rig.zoomBy(0.72); if (a === 'out') rig.zoomBy(1.38); if (a === 'left') rig.rotateBy(Math.PI / 4); if (a === 'right') rig.rotateBy(-Math.PI / 4);
 });
@@ -162,9 +174,20 @@ async function start() {
   </div></div>`);
   $('#layer').appendChild(scr); setTimeout(() => scr.querySelector('[data-band]')?.focus(), 100);
   const ORDER = { free: 'Free: players build and open any AI Lab mission once it unlocks. Florence invites them when the town hits a problem a mission teaches.', class: 'In order: the class does the missions one by one. Only the next mission opens, and Florence invites players to it as soon as it is ready.' };
-  const band = await new Promise((res) => scr.querySelectorAll('[data-band]').forEach((b) => (b.onclick = () => res(b.dataset.band))));
+  // a saved town: one button on the first screen carries straight on (a returning player used to choose an age and
+  // name a town again before the game offered the town they already had)
+  let resume = null;
+  try { const d = JSON.parse(localStorage.getItem('ecotown.save.v3') || 'null'); if (d && d.cells && d.townName && ['junior', 'senior'].includes(d.band) && !app.sandboxFull) resume = d; } catch { /* no save */ }
+  if (resume) {
+    const r = scr.querySelector('[data-resume]'); r.style.display = ''; r.className = 'resume';
+    r.innerHTML = `<button class="btn go" data-carry>▶ Carry on building ${esc(resume.townName)}</button><span>or start a new town:</span>`;
+    scr.querySelector('.ages').before(r); setTimeout(() => r.querySelector('[data-carry]')?.focus(), 120);
+  }
+  const band = await new Promise((res) => { scr.querySelectorAll('[data-band]').forEach((b) => (b.onclick = () => { resume = null; res(b.dataset.band); })); const c = scr.querySelector('[data-carry]'); if (c) c.onclick = () => res(resume.band); });
   initAudio(); sfx.good(); loadVoices(band);
   app.band = band; ui.readAloud = app.settings.readAloud && band === 'junior' ? true : app.settings.readAloud && band === 'senior' ? false : app.settings.readAloud;
+  if (resume) { app.classMode = !!resume.classMode; app.settings.music = app.settings.music && !app.classMode; applySettings(); app.townName = resume.townName; }
+  else {
   // name the town: one name, used everywhere (the header, the cards and the printed report)
   const card = scr.querySelector('.card');
   card.innerHTML = `<span class="chip">${band === 'junior' ? 'AGES 8–12' : 'AGES 13–17'}</span><h1>Name your <span>town</span></h1><p style="font-weight:600;color:#46596a">Pick a name or type your own.</p>
@@ -182,13 +205,16 @@ async function start() {
   const inp = card.querySelector('[data-name]'); inp.value = NAME_IDEAS[Math.floor(Math.random() * NAME_IDEAS.length)]; inp.addEventListener('focus', () => inp.select()); inp.addEventListener('pointerup', (e) => { if (!inp.dataset.typed) { e.preventDefault(); inp.select(); } }); inp.addEventListener('input', () => (inp.dataset.typed = '1')); setTimeout(() => { inp.focus(); inp.select(); }, 50); // typing replaces the suggestion (it used to append to it)
   card.querySelectorAll('[data-n]').forEach((b) => (b.onclick = () => { inp.value = b.dataset.n; inp.focus(); }));
   app.townName = await new Promise((res) => { const go = () => { const n = cleanTownName(inp.value); if (!n) { card.querySelector('[data-err]').textContent = 'Please choose a friendly name, or pick one above.'; return; } res(n); }; card.querySelector('[data-go]').onclick = go; inp.onkeydown = (e) => { if (e.key === 'Enter') go(); }; });
-  sfx.good(); ui.setTownName(app.townName);
+  sfx.good();
+  }
+  ui.setTownName(app.townName);
   scr.remove();
   const tier = await quality; if (app.settings.quality === 'auto') stage.setTier(tier);
   await modelP;
   const G = createGame(app);
   const saved = G.saved();
-  if (saved && !app.sandboxFull) { const a = await ui.modal(`<div class="ribbon">Welcome back</div><h2>Carry on building ${esc(saved.townName || 'your town')}?</h2><div class="row" style="justify-content:center"><button class="btn go" data-act="resume">Carry on</button><button class="btn alt" data-act="new">Start a new town</button></div>`); if (a === 'resume') { G.load(saved); ui.setTownName(G.townName); } }
+  if (saved && resume) { G.load(saved); ui.setTownName(G.townName); }
+  else if (saved && !app.sandboxFull) { const a = await ui.modal(`<div class="ribbon">Welcome back</div><h2>Carry on building ${esc(saved.townName || 'your town')}?</h2><div class="row" style="justify-content:center"><button class="btn go" data-act="resume">Carry on</button><button class="btn alt" data-act="new">Start a new town</button></div>`); if (a === 'resume') { G.load(saved); ui.setTownName(G.townName); } }
   // living-island opening: about 10 seconds, skippable
   rig.startTurntable(0); setMusic('calm');
   await G.run();

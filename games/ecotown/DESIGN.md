@@ -62,7 +62,7 @@ Choices can be undone within a level and lock at its end. This way early decisio
 | 3. Homes | Timber, straw bale, rammed earth, concrete, reclaimed materials, green roofs. Density, from detached to cohousing. | "Build strong homes" becomes concrete and steel everywhere (85%). | The carbon lens shows a carbon cloud 3× over the limit. Inside view: the timber home is 21 °C with the heating off. | "Warm, low-carbon homes from local timber and straw." |
 | 4. Food | Big fields, mixed farm, orchard and food forest, vertical farm, allotments, beehives, hedges. | "Grow as much food as possible" ploughs every field and the hedges (79%). | The nature lens: the bees and deer leave. | "Enough food, and keep the hedges for the bees." |
 | 5. Water, power, waste | Solar roofs, wind, battery, heat pumps, rain gardens, wetland, repair café, compost. | It plans power for an average day: solar roofs only (90%). | The winter test: blackout on a still winter night. | "Enough power for a still winter night. Store the sunshine." |
-| 6. Complete the town | Town heart, market square, school, nature links (hedgerows, green bridge), festival, a three-promise charter. | "Put the school in the middle" becomes the island's exact centre, which is in the wetland (81%). | The walking-time lens: 25 minutes from homes. | "School within a 10-minute walk of every home." |
+| 6. A school for everyone | Town heart, market square, school, nature links (hedgerows, green bridge), festival, a three-promise charter. | "Put the school in the middle" becomes the island's exact centre, which is in the wetland (81%). | The walking-time lens: 25 minutes from homes. | "School within a 10-minute walk of every home." |
 
 The AI's mistakes follow four rules that children learn to predict:
 

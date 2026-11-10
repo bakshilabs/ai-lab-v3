@@ -15,7 +15,7 @@
   "key": "c4ed29de"
  },
  {
-  "s": "Which evidence would test Florence\u2019s plan?",
+  "s": "Which evidence would test Florence’s plan?",
   "voice": "narrator",
   "key": "23d0d6c1"
  },
@@ -25,7 +25,7 @@
   "key": "352dcd24"
  },
  {
-  "s": "Accept Florence\u2019s plan",
+  "s": "Accept Florence’s plan",
   "voice": "narrator",
   "key": "749f027d"
  },
@@ -70,17 +70,17 @@
   "key": "a9917a8d"
  },
  {
-  "s": "This evidence doesn\u2019t show a problem.",
+  "s": "This test shows no problem.",
   "voice": "narrator",
-  "key": "9a63fdf6"
+  "key": "b50bda78"
  },
  {
-  "s": "Try another test.",
+  "s": "One test covers one risk: run another, or accept the plan.",
   "voice": "narrator",
-  "key": "c522e9e4"
+  "key": "1917c948"
  },
  {
-  "s": "I can\u2019t map that to a plan for this level.",
+  "s": "I can’t map that to a plan for this level.",
   "voice": "narrator",
   "key": "2eebb887"
  },
@@ -145,6 +145,11 @@
   "key": "c087f7e1"
  },
  {
+  "s": "I match key words and missed the negation.",
+  "voice": "narrator",
+  "key": "5f7408ce"
+ },
+ {
   "s": "[object Object]",
   "voice": "narrator",
   "key": "b07fa198"
@@ -175,17 +180,17 @@
   "key": "f451b9ea"
  },
  {
-  "s": "New lens unlocked",
+  "s": "New lens in this mission",
   "voice": "narrator",
-  "key": "890f4cdb"
+  "key": "1f042f95"
  },
  {
-  "s": "New test unlocked",
+  "s": "New test in this mission",
   "voice": "narrator",
-  "key": "352957a7"
+  "key": "a31c9de1"
  },
  {
-  "s": "Residents\u2019 petition",
+  "s": "Residents’ petition",
   "voice": "narrator",
   "key": "32ca0bbc"
  },
@@ -200,7 +205,7 @@
   "key": "21592efb"
  },
  {
-  "s": "Re-read Florence\u2019s reading:",
+  "s": "Re-read Florence’s reading:",
   "voice": "narrator",
   "key": "bd7c1238"
  },
@@ -225,7 +230,7 @@
   "key": "a2791dfc"
  },
  {
-  "s": "Florence\u2019s guess",
+  "s": "Florence’s guess",
   "voice": "narrator",
   "key": "2ac5a3f3"
  },
@@ -240,7 +245,7 @@
   "key": "5beb2820"
  },
  {
-  "s": "Keep testing if the evidence doesn\u2019t cover your brief yet; accept the plan when it does.",
+  "s": "Keep testing if the evidence doesn’t cover your brief yet; accept the plan when it does.",
   "voice": "narrator",
   "key": "3d5f9f35"
  },
@@ -260,7 +265,7 @@
   "key": "273a8b5e"
  },
  {
-  "s": "Before you accept: a test you haven\u2019t run shows a problem.",
+  "s": "Before you accept: a test you haven’t run shows a problem.",
   "voice": "narrator",
   "key": "caf12dfe"
  },
@@ -275,7 +280,7 @@
   "key": "4cce51cb"
  },
  {
-  "s": "I can\u2019t map that to a plan for this level.",
+  "s": "I can’t map that to a plan for this level.",
   "voice": "helper",
   "key": "320d890c"
  },
@@ -290,7 +295,7 @@
   "key": "7bb0b1ac"
  },
  {
-  "s": "Re-read Florence\u2019s reading:",
+  "s": "Re-read Florence’s reading:",
   "voice": "helper",
   "key": "34d0f845"
  },
@@ -298,6 +303,16 @@
   "s": "It was",
   "voice": "helper",
   "key": "33d6f6a3"
+ },
+ {
+  "s": "The plan passed, but the brief negates what the plan does: Florence missed the negation.",
+  "voice": "helper",
+  "key": "80a42d96"
+ },
+ {
+  "s": "No star for well specified first time.",
+  "voice": "helper",
+  "key": "7911073c"
  },
  {
   "s": "The plan passed, but the brief was mostly repetition.",
@@ -308,11 +323,6 @@
   "s": "A well-specified brief states the goal, the constraints and how success is tested.",
   "voice": "helper",
   "key": "59e009c1"
- },
- {
-  "s": "No star for well specified first time.",
-  "voice": "helper",
-  "key": "7911073c"
  },
  {
   "s": "The plan passed, but emoji are not a specification.",
@@ -365,7 +375,7 @@
   "key": "5a6bb5a1"
  },
  {
-  "s": "Florence maximised one measurable proxy for a vague word (\u201cbest\u201d \u2192 flattest, \u201cfast\u201d \u2192 wide roads) and ignored everything else.",
+  "s": "Florence maximised one measurable proxy for a vague word (“best” → flattest, “fast” → wide roads) and ignored everything else.",
   "voice": "helper",
   "key": "eb0e0388"
  },
@@ -390,7 +400,7 @@
   "key": "9c9de7cd"
  },
  {
-  "s": "Florence\u2019s data left out something that matters, so she couldn\u2019t account for it.",
+  "s": "Florence’s data left out something that matters, so she couldn’t account for it.",
   "voice": "helper",
   "key": "0658e72e"
  },
@@ -450,32 +460,32 @@
   "key": "9439a468"
  },
  {
-  "s": "I won\u2019t ignore flood risk: homes on flood land would be under water every winter, so I kept the town on dry land.",
+  "s": "I won’t ignore flood risk: homes on flood land would be under water every winter, so I kept the town on dry land.",
   "voice": "helper",
   "key": "db965746"
  },
  {
-  "s": "I won\u2019t clear the wetland: it is protected, and it soaks up the winter floods.",
+  "s": "I won’t clear the wetland: it is protected, and it soaks up the winter floods.",
   "voice": "helper",
   "key": "43fc39e6"
  },
  {
-  "s": "I won\u2019t clear the old wood: the deer and birds live there.",
+  "s": "I won’t clear the old wood: the deer and birds live there.",
   "voice": "helper",
   "key": "227247ff"
  },
  {
-  "s": "I didn\u2019t spray pesticide: it kills the bees, and the orchards need bees to make fruit.",
+  "s": "I didn’t spray pesticide: it kills the bees, and the orchards need bees to make fruit.",
   "voice": "helper",
   "key": "fb9aca55"
  },
  {
-  "s": "I won\u2019t clear the old wood for farms: the deer and birds live there.",
+  "s": "I won’t clear the old wood for farms: the deer and birds live there.",
   "voice": "helper",
   "key": "cde256b9"
  },
  {
-  "s": "I didn\u2019t plan a diesel or gas generator: burning fuel makes a lot of carbon and smoke, and the fuel has to come by boat.",
+  "s": "I didn’t plan a diesel or gas generator: burning fuel makes a lot of carbon and smoke, and the fuel has to come by boat.",
   "voice": "helper",
   "key": "362f6379"
  },
@@ -510,7 +520,7 @@
   "key": "fdbc0214"
  },
  {
-  "s": "Which assumption did Florence make that your brief didn\u2019t state?",
+  "s": "Which assumption did Florence make that your brief didn’t state?",
   "voice": "narrator",
   "key": "320c51c3"
  },
@@ -565,7 +575,7 @@
   "key": "13ddf515"
  },
  {
-  "s": "Who is \u201ceveryone\u201d?",
+  "s": "Who is “everyone”?",
   "voice": "narrator",
   "key": "89790184"
  },
@@ -630,7 +640,7 @@
   "key": "9cf3389a"
  },
  {
-  "s": "Embodied-carbon limit: 70 t for the homes\u2019 materials.",
+  "s": "Embodied-carbon limit: 70 t for the homes’ materials.",
   "voice": "narrator",
   "key": "f1ff7046"
  },
@@ -905,7 +915,7 @@
   "key": "d53af986"
  },
  {
-  "s": "Start with site selection: mark town land (\ud83d\uddfa Land), then connect it with paths.",
+  "s": "Start with site selection: mark town land (🗺 Land), then connect it with paths.",
   "voice": "helper",
   "key": "78d94887"
  },
@@ -960,7 +970,7 @@
   "key": "3a9160fd"
  },
  {
-  "s": "Hi, I\u2019m Florence, the town\u2019s AI planning assistant.",
+  "s": "Hi, I’m Florence, the town’s AI planning assistant.",
   "voice": "helper",
   "key": "a8225b0d"
  },
@@ -995,7 +1005,7 @@
   "key": "188363d4"
  },
  {
-  "s": "That\u2019s your first site.",
+  "s": "That’s your first site.",
   "voice": "helper",
   "key": "6195ab92"
  },
@@ -1015,7 +1025,7 @@
   "key": "bd849a41"
  },
  {
-  "s": "That\u2019s your first site, and housing is already unlocked.",
+  "s": "That’s your first site, and housing is already unlocked.",
   "voice": "helper",
   "key": "20496537"
  },
@@ -1030,7 +1040,7 @@
   "key": "d5c9bad3"
  },
  {
-  "s": "Once housing unlocks, \u25b6 on any build shows how it is constructed.",
+  "s": "Once housing unlocks, ▶ on any build shows how it is constructed.",
   "voice": "helper",
   "key": "ce99650c"
  },
@@ -1065,7 +1075,7 @@
   "key": "84be0561"
  },
  {
-  "s": "I\u2019ll flag problems as you build.",
+  "s": "I’ll flag problems as you build.",
   "voice": "helper",
   "key": "1c3a99ae"
  },
@@ -1225,6 +1235,16 @@
   "key": "cf37a6aa"
  },
  {
+  "s": "Next: the furthest homes are over 15 minutes from school.",
+  "voice": "helper",
+  "key": "d8821d89"
+ },
+ {
+  "s": "A town has one school: rebuild it nearer them (it relocates), or add paths.",
+  "voice": "helper",
+  "key": "9f781f51"
+ },
+ {
   "s": "Transfer it: one rule for any AI answer.",
   "voice": "narrator",
   "key": "0c254339"
@@ -1265,12 +1285,12 @@
   "key": "a1c79fbb"
  },
  {
-  "s": "\u201cCars only\u201d = car roads to every home and a drop-off at the school gate.",
+  "s": "“Cars only” = car roads to every home and a drop-off at the school gate.",
   "voice": "helper",
   "key": "94e03d8b"
  },
  {
-  "s": "Florence did exactly what the words said, \u201ccars only\u201d, and forgot that children walk and cycle to school.",
+  "s": "Florence did exactly what the words said, “cars only”, and forgot that children walk and cycle to school.",
   "voice": "helper",
   "key": "499ac6fd"
  },
@@ -1370,9 +1390,19 @@
   "key": "8987c896"
  },
  {
-  "s": "Suggested: near your town land.",
+  "s": "Suggested: dry ground beside your town land.",
   "voice": "helper",
-  "key": "32da3522"
+  "key": "b87e31e6"
+ },
+ {
+  "s": "Suggested: meadow, woodland and wetland, the island’s main habitats.",
+  "voice": "helper",
+  "key": "db75795a"
+ },
+ {
+  "s": "Suggested: close to the homes it serves.",
+  "voice": "helper",
+  "key": "e0fa8a4d"
  },
  {
   "s": "Suggested: the tile that keeps the longest walk to school shortest.",
@@ -1440,7 +1470,7 @@
   "key": "81a4ea47"
  },
  {
-  "s": "Target met: food supply \u2265 need.",
+  "s": "Target met: food supply ≥ need.",
   "voice": "narrator",
   "key": "7fbf0689"
  },
@@ -1455,7 +1485,7 @@
   "key": "4d235ce4"
  },
  {
-  "s": "Target met: winter-night supply \u2265 demand.",
+  "s": "Target met: winter-night supply ≥ demand.",
   "voice": "narrator",
   "key": "71f4f9b2"
  },
@@ -1470,7 +1500,7 @@
   "key": "efaba033"
  },
  {
-  "s": "Target met: every home \u2264 15 min from school.",
+  "s": "Target met: every home ≤ 15 min from school.",
   "voice": "narrator",
   "key": "29ab8bf3"
  },
@@ -1480,7 +1510,7 @@
   "key": "a14f0b6d"
  },
  {
-  "s": "Tap \ud83c\udf3c for all town targets; select any build to see its effects.",
+  "s": "Tap 🌼 for all town targets; select any build to see its effects.",
   "voice": "helper",
   "key": "081fea9b"
  },
@@ -1620,7 +1650,7 @@
   "key": "622d3179"
  },
  {
-  "s": "No free tiles for the plan\u2019s placements.",
+  "s": "No free tiles for the plan’s placements.",
   "voice": "narrator",
   "key": "138af429"
  },
@@ -1640,7 +1670,7 @@
   "key": "2f33e776"
  },
  {
-  "s": "\u201cBring the food in\u201d = nothing grown on the island: a lorry and the ferry bring every unit from the mainland.",
+  "s": "“Bring the food in” = nothing grown on the island: a lorry and the ferry bring every unit from the mainland.",
   "voice": "helper",
   "key": "e706db62"
  },
@@ -1655,7 +1685,7 @@
   "key": "ee13bda4"
  },
  {
-  "s": "\u201cMost families\u201d = the shortest walk on average.",
+  "s": "“Most families” = the shortest walk on average.",
   "voice": "helper",
   "key": "1f455b41"
  },
@@ -1665,7 +1695,7 @@
   "key": "0b4ea3f0"
  },
  {
-  "s": "Ask me about any build or problem and I\u2019ll put it on the screen, or choose a mission to test my plans.",
+  "s": "Ask me about any build or problem and I’ll put it on the screen, or choose a mission to test my plans.",
   "voice": "helper",
   "key": "227b29cc"
  },
@@ -1760,7 +1790,7 @@
   "key": "51be504c"
  },
  {
-  "s": "Proposal: solar roofs on these homes solve the town\u2019s power.",
+  "s": "Proposal: solar roofs on these homes solve the town’s power.",
   "voice": "helper",
   "key": "10c2567c"
  },
@@ -1815,7 +1845,7 @@
   "key": "431deb28"
  },
  {
-  "s": "This island\u2019s options are wind, solar and storage, tested on a still winter night.",
+  "s": "This island’s options are wind, solar and storage, tested on a still winter night.",
   "voice": "helper",
   "key": "340e5f5b"
  },
@@ -1855,7 +1885,7 @@
   "key": "dad3e451"
  },
  {
-  "s": "Vague words like \u201cbest\u201d or \u201cbig\u201d leave me guessing.",
+  "s": "Vague words like “best” or “big” leave me guessing.",
   "voice": "helper",
   "key": "b4103fd2"
  },
@@ -1915,7 +1945,7 @@
   "key": "211c1bbd"
  },
  {
-  "s": "The rule: every home within 15 minutes\u2019 walk of school.",
+  "s": "The rule: every home within 15 minutes’ walk of school.",
   "voice": "helper",
   "key": "9869e86f"
  },
@@ -1940,17 +1970,57 @@
   "key": "a9a3f186"
  },
  {
-  "s": "I\u2019m an AI planner: I turn your instruction into a plan by matching patterns.",
+  "s": "Bias is a systematic lean in what a model learned.",
+  "voice": "helper",
+  "key": "81aa97cb"
+ },
+ {
+  "s": "If my examples come mostly from households near the school, my summary speaks for them and misses the rest.",
+  "voice": "helper",
+  "key": "fed14ce0"
+ },
+ {
+  "s": "Ask who is in the data, who is missing, and test the plan for the people it leaves out.",
+  "voice": "helper",
+  "key": "52f77b95"
+ },
+ {
+  "s": "Stars come from AI Lab missions (a first check that finds the flaw, naming the failure pattern, a plan that passes) and from catching a flawed suggestion in your town.",
+  "voice": "helper",
+  "key": "a8b7b3bf"
+ },
+ {
+  "s": "They buy cosmetics in the Star shop ( in the top bar) and never change the town’s score.",
+  "voice": "helper",
+  "key": "b412cf8a"
+ },
+ {
+  "s": "The top bar shows your next step and 🌼 lists every town target.",
+  "voice": "helper",
+  "key": "4796597e"
+ },
+ {
+  "s": "Build toward them, and run the AI Lab missions: each adds a lens for testing my plans.",
+  "voice": "helper",
+  "key": "42f45768"
+ },
+ {
+  "s": "The town is complete when all targets are met and all six missions are done.",
+  "voice": "helper",
+  "key": "bb693373"
+ },
+ {
+  "s": "I’m an AI planner: I turn your instruction into a plan by matching patterns.",
   "voice": "helper",
   "key": "b7459f2b"
  },
  {
-  "s": "I don\u2019t observe the world, so human checking is part of the job.",
+  "s": "I don’t observe the world, so human checking is part of the job.",
   "voice": "helper",
   "key": "c053e1b0"
  },
  {
-  "s": "I\u2019m a program that predicts from patterns in text; I have no feelings or experiences, even when I sound warm or certain.",
+  "s": "I’m a program that predicts from patterns in text; I have no feelings or experiences, even when I sound warm or certain.",
   "voice": "helper",
   "key": "6a95b3c5"
  },
@@ -1958,6 +2028,31 @@
   "s": "Fluent, confident language is not understanding, which is exactly why my plans need testing.",
   "voice": "helper",
   "key": "d4b39b81"
+ },
+ {
+  "s": "It depends on the build.",
+  "voice": "helper",
+  "key": "54ac5e91"
+ },
+ {
+  "s": "Housing: dry slope, out of the floodplain.",
+  "voice": "helper",
+  "key": "a535eb3a"
+ },
+ {
+  "s": "A school: where the longest walk is shortest.",
+  "voice": "helper",
+  "key": "7181e2e5"
+ },
+ {
+  "s": "Farms: near homes, off town land.",
+  "voice": "helper",
+  "key": "b157c512"
+ },
+ {
+  "s": "Select a build to see the suggested tiles and the reason.",
+  "voice": "helper",
+  "key": "bd73bcb3"
  },
  {
   "s": "Fair question.",
@@ -1975,7 +2070,7 @@
   "key": "f8364c30"
  },
  {
-  "s": "That\u2019s outside what I can answer.",
+  "s": "That’s outside what I can answer.",
   "voice": "helper",
   "key": "8e0140f2"
  },
@@ -2125,7 +2220,7 @@
   "key": "adb9c456"
  },
  {
-  "s": "Repair caf\u00e9: Cuts waste and carbon; adds community.",
+  "s": "Repair café: Cuts waste and carbon; adds community.",
   "voice": "helper",
   "key": "fda64ebc"
  },
@@ -2175,12 +2270,12 @@
   "key": "7e28cade"
  },
  {
-  "s": "\u201cBest\u201d = the flattest land, easiest to build on, next to water.",
+  "s": "“Best” = the flattest land, easiest to build on, next to water.",
   "voice": "helper",
   "key": "4f860b1e"
  },
  {
-  "s": "Florence turned \u201cbest\u201d into \u201cflattest\u201d and forgot about floods and wildlife.",
+  "s": "Florence turned “best” into “flattest” and forgot about floods and wildlife.",
   "voice": "helper",
   "key": "730cc9c3"
  },
@@ -2225,12 +2320,12 @@
   "key": "882bfa8e"
  },
  {
-  "s": "Florence didn\u2019t know that the flat land by the river floods every winter.",
+  "s": "Florence didn’t know that the flat land by the river floods every winter.",
   "voice": "helper",
   "key": "17afc693"
  },
  {
-  "s": "\u201cEasy for everyone\u201d = easy for drivers: a wide road and a drop-off car park at the school.",
+  "s": "“Easy for everyone” = easy for drivers: a wide road and a drop-off car park at the school.",
   "voice": "helper",
   "key": "a56d1c89"
  },
@@ -2265,12 +2360,12 @@
   "key": "53fa7adc"
  },
  {
-  "s": "\u201cFast\u201d = wide roads for cars.",
+  "s": "“Fast” = wide roads for cars.",
   "voice": "helper",
   "key": "f2335a3e"
  },
  {
-  "s": "Florence turned \u201cfast\u201d into \u201cwide roads for cars\u201d and forgot about children crossing.",
+  "s": "Florence turned “fast” into “wide roads for cars” and forgot about children crossing.",
   "voice": "helper",
   "key": "3075a6cf"
  },
@@ -2305,12 +2400,12 @@
   "key": "7f587d2b"
  },
  {
-  "s": "\u201cStrong\u201d = concrete and steel.",
+  "s": "“Strong” = concrete and steel.",
   "voice": "helper",
   "key": "07668524"
  },
  {
-  "s": "Florence chased \u201cstrong\u201d and chose concrete, forgetting carbon and warmth.",
+  "s": "Florence chased “strong” and chose concrete, forgetting carbon and warmth.",
   "voice": "helper",
   "key": "1e62eb5e"
  },
@@ -2380,32 +2475,32 @@
   "key": "2e90b1b9"
  },
  {
-  "s": "\u201cCheap\u201d = concrete flats (cheapest per home).",
+  "s": "“Cheap” = concrete flats (cheapest per home).",
   "voice": "helper",
   "key": "44675d3c"
  },
  {
-  "s": "Florence chased \u201ccheap\u201d and chose concrete, forgetting carbon and warmth.",
+  "s": "Florence chased “cheap” and chose concrete, forgetting carbon and warmth.",
   "voice": "helper",
   "key": "f04abfec"
  },
  {
-  "s": "\u201cTall\u201d = concrete tower blocks.",
+  "s": "“Tall” = concrete tower blocks.",
   "voice": "helper",
   "key": "a0b1fa5d"
  },
  {
-  "s": "Florence chased \u201ctall\u201d and chose concrete, forgetting carbon and warmth.",
+  "s": "Florence chased “tall” and chose concrete, forgetting carbon and warmth.",
   "voice": "helper",
   "key": "b67acaea"
  },
  {
-  "s": "\u201cAs many as possible\u201d = concrete flats.",
+  "s": "“As many as possible” = concrete flats.",
   "voice": "helper",
   "key": "4022c029"
  },
  {
-  "s": "Florence chased \u201clots of\u201d and chose concrete, forgetting carbon and warmth.",
+  "s": "Florence chased “lots of” and chose concrete, forgetting carbon and warmth.",
   "voice": "helper",
   "key": "61bbc5b2"
  },
@@ -2465,12 +2560,12 @@
   "key": "2a632055"
  },
  {
-  "s": "\u201cAs much food as possible\u201d = plough every free field into big fields.",
+  "s": "“As much food as possible” = plough every free field into big fields.",
   "voice": "helper",
   "key": "4aef7f77"
  },
  {
-  "s": "Florence chased \u201cas much as possible\u201d and ploughed up every hedge.",
+  "s": "Florence chased “as much as possible” and ploughed up every hedge.",
   "voice": "helper",
   "key": "e55dd685"
  },
@@ -2505,7 +2600,7 @@
   "key": "86e10049"
  },
  {
-  "s": "Florence didn\u2019t know the bees and deer live in the hedges.",
+  "s": "Florence didn’t know the bees and deer live in the hedges.",
   "voice": "helper",
   "key": "0567186f"
  },
@@ -2550,7 +2645,7 @@
   "key": "456ffa7a"
  },
  {
-  "s": "A repair caf\u00e9.",
+  "s": "A repair café.",
   "voice": "helper",
   "key": "fc25dc1e"
  },
@@ -2560,12 +2655,12 @@
   "key": "78d85600"
  },
  {
-  "s": "\u201cThe middle\u201d = the centre of the island.",
+  "s": "“The middle” = the centre of the island.",
   "voice": "helper",
   "key": "f6791765"
  },
  {
-  "s": "Florence read \u201cthe middle\u201d as the middle of the island, not the middle of the homes.",
+  "s": "Florence read “the middle” as the middle of the island, not the middle of the homes.",
   "voice": "helper",
   "key": "b63bfccb"
  },
@@ -2600,7 +2695,7 @@
   "key": "82255e6e"
  },
  {
-  "s": "You didn\u2019t say where, so I guessed: the middle of the island.",
+  "s": "You didn’t say where, so I guessed: the middle of the island.",
   "voice": "helper",
   "key": "462ace22"
  },
@@ -2610,7 +2705,32 @@
   "key": "4d6bd03b"
  },
  {
-  "s": "\ud83c\udfe1 Homes: unlocked",
+  "s": "This evidence doesn’t show a problem.",
+  "voice": "narrator",
+  "key": "9a63fdf6"
+ },
+ {
+  "s": "Try another test.",
+  "voice": "narrator",
+  "key": "c522e9e4"
+ },
+ {
+  "s": "New lens unlocked",
+  "voice": "narrator",
+  "key": "890f4cdb"
+ },
+ {
+  "s": "New test unlocked",
+  "voice": "narrator",
+  "key": "352957a7"
+ },
+ {
+  "s": "Suggested: near your town land.",
+  "voice": "helper",
+  "key": "32da3522"
+ },
+ {
+  "s": "🏡 Homes: unlocked",
   "voice": "narrator",
   "key": "f7d29f18"
  },
@@ -2640,7 +2760,7 @@
   "key": "2e087fc4"
  },
  {
-  "s": "Embodied carbon 3.0\u00d7 the 70 t limit",
+  "s": "Embodied carbon 3.0× the 70 t limit",
   "voice": "narrator",
   "key": "4e8b2a71"
  },
@@ -2655,7 +2775,7 @@
   "key": "281d2457"
  },
  {
-  "s": "Food \u00b7 Power & water \u00b7 Town heart: unlocked",
+  "s": "Food · Power & water · Town heart: unlocked",
   "voice": "narrator",
   "key": "d1ac357b"
  },
@@ -2715,7 +2835,7 @@
   "key": "ee6e2af2"
  },
  {
-  "s": "Not yet: Every home within 15 minutes\u2019 walk of school.",
+  "s": "Not yet: Every home within 15 minutes’ walk of school.",
   "voice": "narrator",
   "key": "cf35140e"
  },
@@ -2740,7 +2860,7 @@
   "key": "efab1390"
  },
  {
-  "s": "Longest walk to school 24 min (rule: \u2264 15).",
+  "s": "Longest walk to school 24 min (rule: ≤ 15).",
   "voice": "helper",
   "key": "95b812da"
  },
@@ -2755,7 +2875,7 @@
   "key": "fbf99388"
  },
  {
-  "s": "I don\u2019t have an answer for that.",
+  "s": "I don’t have an answer for that.",
   "voice": "helper",
   "key": "1ad66cff"
  },
@@ -2800,7 +2920,7 @@
   "key": "7223465c"
  },
  {
-  "s": "2 car tiles on the children\u2019s route at 8:45 am",
+  "s": "2 car tiles on the children’s route at 8:45 am",
   "voice": "narrator",
   "key": "d1811c59"
  },

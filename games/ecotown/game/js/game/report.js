@@ -35,7 +35,7 @@ export function renderReport(app, G, s, shot, { onClose = null } = {}) {
     <h2><label for="reflect">Before I trust an AI plan, I…</label></h2><p class="reflecthow">${G.j ? 'Finish the sentence: tap an idea or write your own. Then tell a partner why.' : 'Complete the sentence: pick a check or write your own, then discuss it with a partner.'}</p>
     <div class="reflectchips noprint">${REFLECT.map((r) => `<button class="tile" data-r>${esc(r)}</button>`).join('')}</div>
     <textarea id="reflect" maxlength="300" rows="3" placeholder="…check the evidence. (Your answer stays on this device and prints with the report.)"></textarea><div class="printonly" data-reflect></div></div></div>
-    <p style="color:#46596a;font-size:.8em">Florence is a small language model made for this game: she reads your instruction and picks which plan ideas it asks for, then a planner builds exactly that. She runs on this device; nothing you typed was stored or sent.</p>
+    <p style="color:#46596a;font-size:.8em">Florence is a small language model made for this game: she reads your instruction and picks which plan ideas it asks for, then a planner builds exactly that. She runs on this device; what you typed stays on this device and was not sent anywhere.</p>
   </div></div>`);
   document.getElementById('layer').appendChild(n);
   const ta = n.querySelector('#reflect'); const pr = n.querySelector('[data-reflect]');

@@ -167,7 +167,9 @@ export function createChecks(app) {
       clear(); app.audio.whoosh();
       if (!['street', 'inside'].includes(id) && rig.mode === 'inside') await rig.fade(() => { inside.root.visible = false; rig.mode = 'sky'; rig.apply(rig.skyPose()); }); // (a lens once ran from inside a house)
       if (!['street', 'inside'].includes(id) && rig.mode !== 'sky') rig.mode = 'sky';
-      if (!['street', 'inside'].includes(id)) await rig.overview(0.9); // lenses read best on the whole island
+      // lenses read best on the whole island. Frame it for the panels as they are now: the island was fitted above the tall
+      // instruction tray and stayed that small (a third of the screen) for every lens after it
+      if (!['street', 'inside'].includes(id)) { app.frameView?.(); await rig.overview(0.9); }
       const info = await RUN[id](sim, cells);
       // in the AI Lab this is evidence about Florence's plan, not the built town; in free building it is the player's town now
       if (!P.lensbar.classList.contains('hide')) P.lensbar.insertAdjacentHTML('afterbegin', `<span class="when">${esc(app.inLab || app.checkingPlan ? app.C.ui.beforeBuild : app.C.ui.townNow)}</span>`);

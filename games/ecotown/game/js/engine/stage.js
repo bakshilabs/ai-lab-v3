@@ -61,13 +61,25 @@ function skyDome() {
       float hash(vec3 p){ return fract(sin(dot(p, vec3(12.9898,78.233,37.719))) * 43758.5453); }
       void main(){ vec3 d = normalize(vDir); float h = clamp(d.y * 0.5 + 0.5, 0.0, 1.0);
         vec3 c = mix(bottom, top, pow(smoothstep(0.38, 0.92, h), 0.75));
-        // looking down past the island: the sky deepens to a soft blue-lilac abyss with a bright haze band at the horizon
-        vec3 deep = mix(top, vec3(0.42, 0.5, 0.78), 0.45) * 0.9;
-        c = mix(c, deep, smoothstep(0.47, 0.12, h));
-        c += bottom * 0.25 * exp(-pow((h - 0.5) * 9.0, 2.0));
+        // looking down past the island: a warm haze just under the horizon that deepens, in a few soft steps, to a cool
+        // blue far below, so the sky behind the island has depth instead of one flat colour
+        vec3 haze = mix(bottom, top, 0.35);
+        vec3 deep = mix(top, vec3(0.16, 0.25, 0.66) * (1.0 - 0.8 * night), 0.5);
+        float t = pow(1.0 - smoothstep(0.0, 0.46, h), 0.8);          // (never smoothstep with its edges reversed: undefined on some GPUs)
+        vec3 under = mix(haze, deep, t) * (1.0 - 0.24 * (1.0 - smoothstep(0.2, 0.5, h)));   // darker further down (the tone mapping lifts it again)
+        c = mix(c, under, 1.0 - smoothstep(0.44, 0.52, h));
+        c += bottom * 0.22 * exp(-pow((h - 0.5) * 9.0, 2.0));
+        // the sunny side of the sky is warmer and lighter all the way down
+        vec2 sh = normalize(sunDir.xz + vec2(1e-4)); float az = dot(normalize(d.xz + vec2(1e-4)), sh);
+        c += sunCol * 0.085 * smoothstep(-0.3, 1.0, az) * sunAmt * smoothstep(0.0, 0.5, h);
+        c = mix(c, c * c * 1.12, 0.3);   // richer, a little deeper: the tone mapping below would wash the sky out to grey
         float s = max(dot(d, normalize(sunDir)), 0.0); c += sunCol * (pow(s, 900.0) * 5.0 + pow(s, 24.0) * 0.28 + pow(s, 4.0) * 0.08) * sunAmt;
         vec3 g = floor(d * 380.0); float st = step(0.9975, hash(g)) * smoothstep(0.52, 0.7, h) * night; c += vec3(st);
-        gl_FragColor = vec4(c, 1.0); }`,
+        gl_FragColor = vec4(c, 1.0);
+        // the same tone mapping and colour space as everything else, so the sky looks the same on every quality tier
+        #include <tonemapping_fragment>
+        #include <colorspace_fragment>
+      }`,
   });
   const m = new THREE.Mesh(new THREE.SphereGeometry(1400, 32, 16), mat); m.renderOrder = -10; m.frustumCulled = false; return m;
 }

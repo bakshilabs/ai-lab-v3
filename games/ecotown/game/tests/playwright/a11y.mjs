@@ -1,6 +1,6 @@
 // Keyboard and resume check for free building. Server on :8765 first.
 // Keyboard only: choose the age band, start, reach the build bar and the AI Lab button, open the Lab board.
-// Then place town land, reload, and check "Carry on building" restores the town.
+// Then place town land, reload, and check the start screen's "Carry on building" button restores the town.
 import { createRequire } from 'module'; const { chromium } = (() => { const r = createRequire(import.meta.url); try { return r('playwright'); } catch { return r('/opt/node22/lib/node_modules/playwright'); } })();
 const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
 const ctx = await b.newContext({ viewport: { width: 1280, height: 800 } }); const p = await ctx.newPage();
@@ -29,10 +29,12 @@ await p.keyboard.press('Escape'); const shopClosed = await p.waitForSelector('#m
 await p.evaluate(() => { const { G } = window.__eco.app; const ks = [...window.__eco.terrain.tiles.values()].filter((t) => ['field', 'slope'].includes(t.zone) && !t.fixed).slice(0, 4).map((t) => t.k); for (const k of ks) G.placeAt(k, 'town'); });
 await p.waitForTimeout(1500);
 const saved = await p.evaluate(() => !!localStorage.getItem('ecotown.save.v3'));
-await p.reload(); await p.click('[data-band="junior"]'); await p.click('[data-go]');
-const resume = await p.waitForSelector('#modal:not(.hide) [data-act="resume"]', { timeout: 60000 }).then(() => true).catch(() => false);
-if (resume) await p.click('#modal:not(.hide) [data-act="resume"]');
+// a saved town: the first screen offers "Carry on building <town>" (focused, so Enter resumes) without asking for an age or a name again
+await p.reload({ timeout: 120000 });
+const resume = await p.waitForSelector('#start [data-carry]', { timeout: 60000 }).then(() => true).catch(() => false);
+await p.waitForTimeout(400); const carryFocused = await p.evaluate(() => document.activeElement?.hasAttribute('data-carry'));
+if (resume) await p.keyboard.press('Enter');
 await p.waitForSelector('#build [data-cat="land"]', { timeout: 120000 });
 const tilesAfterResume = await p.evaluate(() => window.__eco.app.G.sim().townTiles);
-console.log(JSON.stringify({ focusedAge, focusedStart, focusedBuildTab: focusedTab, focusedLabButton: focusedLab, classroom, focusedMissions, labBoardOpened: board, focusedShop, shopOpened, shopClosed, saved, resumeOffered: resume, tilesAfterResume, errors: errs }, null, 1));
+console.log(JSON.stringify({ focusedAge, focusedStart, focusedBuildTab: focusedTab, focusedLabButton: focusedLab, classroom, focusedMissions, labBoardOpened: board, focusedShop, shopOpened, shopClosed, saved, resumeOffered: resume, carryFocused, tilesAfterResume, errors: errs }, null, 1));
 await b.close();
