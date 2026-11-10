@@ -148,7 +148,7 @@ for (const [id, check, vague, clear] of LEVELS) {
   console.log('mission done', id, clean ? 'clean' : 'flawed', 'stars', await p.evaluate(() => window.__eco.app.G.stars), 'unlocked', await p.evaluate(() => window.__eco.app.G.ever.join(',')));
 }
 checks.lensButtons = await p.evaluate(() => document.querySelectorAll('#lenspop [data-lens]').length);
-const play = await p.$('#build [data-play]'); if (play) { await play.click(); await p.waitForSelector('#modal:not(.hide) video', { timeout: 20000 }); await p.waitForTimeout(3000); checks.paletteVideoPlays = await p.evaluate(() => { const v = document.querySelector('#modal video'); return !!v && v.readyState >= 2 && v.currentTime > 0; }); await shot('video-card'); await click('#modal:not(.hide) [data-act="close"]'); }
+const play = await p.$('#build [data-play]'); if (play) { await p.click('#build [data-play]'); /* by selector: the bar re-renders (credits, clock), which detached a held element */ await p.waitForSelector('#modal:not(.hide) video', { timeout: 20000 }); await p.waitForTimeout(3000); checks.paletteVideoPlays = await p.evaluate(() => { const v = document.querySelector('#modal video'); return !!v && v.readyState >= 2 && v.currentTime > 0; }); await shot('video-card'); await click('#modal:not(.hide) [data-act="close"]'); }
 await click('#strip [data-lensbtn]'); await click('#lenspop [data-lens="flood"]'); await p.waitForTimeout(1500); await shot('lens-flood'); await click('#lensbar [data-lensx]');
 const pop = await p.$('#modal:not(.hide) [data-act="keep"]'); if (pop) { await shot('town-complete'); checks.townComplete = true; await pop.click(); await p.waitForTimeout(600); }
 await shot('town-built');
