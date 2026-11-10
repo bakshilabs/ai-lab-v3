@@ -30,20 +30,8 @@ const prefs = (() => { try { return JSON.parse(localStorage.getItem('ecotown.pre
 const savePrefs = () => { try { localStorage.setItem('ecotown.prefs', JSON.stringify(app.settings)); } catch { /* */ } };
 
 const canvas = $('#gl');
-// no 3D in this browser (WebGL off by policy, old drivers, some locked-down school machines): say so plainly instead of a blank page
-const hasGL = (() => { try { const c = document.createElement('canvas'); return !!(c.getContext('webgl2') || c.getContext('webgl')); } catch { return false; } })();
-if (!hasGL) {
-  document.body.innerHTML = `<div style="position:fixed;inset:0;display:grid;place-items:center;background:#f6ead2;color:#3b2a17;font:16px/1.5 Inter,system-ui,sans-serif;padding:16px">
-    <div style="max-width:520px;background:#fffaf0;border:3px solid #5e4936;border-radius:16px;padding:24px;box-shadow:0 4px 0 #5e4936">
-      <h1 style="margin:0 0 8px;font-size:1.4em">Eco Town needs 3D graphics</h1>
-      <p>This browser has 3D graphics (WebGL) turned off, so the island can’t be drawn. Your passcode is fine.</p>
-      <p><b>Try one of these:</b></p>
-      <ol><li>Open Eco Town in an up-to-date Chrome, Edge, Safari or Firefox.</li>
-      <li>In the browser’s settings, turn on <i>Use graphics acceleration when available</i>, then restart the browser.</li>
-      <li>On a school computer, ask IT to allow WebGL for this site.</li></ol>
-    </div></div>`;
-  throw new Error('Eco Town: WebGL is not available in this browser');
-}
+// (A start-up check that showed "Eco Town needs 3D graphics" was removed at the user's request: it stopped the game on a device
+// where the game itself had been loading fine. The game now always tries to start.)
 const stage = createStage(canvas, $('#sky'));
 const terrain = makeTerrain();
 const world = createWorld(stage, terrain);

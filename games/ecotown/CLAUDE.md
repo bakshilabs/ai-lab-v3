@@ -167,7 +167,7 @@ The user shared a scored review (Ages 8–12: 93/100, Ages 13–17: 95/100, expe
 - **A-03 Skip:** `film.js` races every wait and camera move against Skip; Skip stops the voice, finishes the builds and cuts to the overview. Films are shorter (`short`) for replays and after the first two missions.
 - **A-04 final reflection:** after the sixth mission `reflectAct()` asks "Before I trust an AI plan, I…" (idea chips from the six habits plus own words), reads the rule back, saves it (`G.reflection`, `G.reflectDone`, diary; it prints in the report), then gives one next action: the finale if the town is complete, otherwise "Back to building" with the next step.
 - **Edge cases** (`tests/review.test.mjs`): "cars only" is read as cars, not "no cars" (`plotter.read` override; planner `carsOnly`, habit `literal`), and the street view catches the crossings; the beach brief's diagnosis names the beach; 40 families is a hard target; a 10-minute brief shows both numbers.
-- **No WebGL:** `main.js` shows a plain message (try another browser, turn on graphics acceleration, ask IT) instead of a blank page.
+- **No WebGL:** `main.js` used to show a plain "needs 3D graphics" message when a start-up check could not create a WebGL context. Removed (10 Nov) at the user's request: the check stopped the game on a device where the game itself had been loading fine. Do not add a start-up WebGL check back without asking.
 - **Camera:** `rig.cut(pose)` is a hard cut that ends a running flight (used for the classroom and inside views), so a late flight can't pull the camera back to the island.
 - Not done: child-player sessions (the review's Section 9) and a keyboard/screen-reader pass beyond `a11y.mjs`.
 
