@@ -103,7 +103,7 @@ DESIGN.md says Levels 4 and 5 merge in shorter versions. Level debriefs (section
 **Short of time:** merge Levels 4 and 5, cut level debriefs to one question each, keep the Level 1 debrief in full and at least 10 minutes of final discussion.
 
 ### Full-day club plan (about 5 hours of play, with breaks)
-The game has enough for a whole club day: the player's own town and six missions in the morning, seven challenge towns in the afternoon.
+The game has enough for a whole club day: the player's own town and six missions in the morning, thirteen challenge towns on three islands in the afternoon.
 
 | Time | What | Notes |
 |---|---|---|
@@ -112,7 +112,7 @@ The game has enough for a whole club day: the player's own town and six missions
 | 1:30–1:45 | Break | |
 | 1:45–3:00 | Missions 4–6; finish the eight town goals | "Town complete" card and the town report |
 | 3:00–3:45 | Lunch | |
-| 3:45–4:00 | Open **Challenge towns** together: read the seven rules, predict which is hardest | 🏆 on the start screen, or ☰ → Challenge towns |
+| 3:45–4:00 | Open **Challenge towns** together: read the rules, predict which is hardest | 🏆 on the start screen, or ☰ → Challenge towns |
 | 4:00–5:15 | Challenge towns, in pairs: start with "Florence's Town", then free choice | A bronze medal for passing; silver and gold from the town score |
 | 5:15–5:30 | Break | |
 | 5:30–6:15 | Second round: go for a higher medal, or a challenge not tried yet | Ask pairs to swap a tip with another pair |
@@ -129,6 +129,18 @@ The game has enough for a whole club day: the player's own town and six missions
 | Wild Island | All five animals, and more nature than the empty island had | Building without taking habitat |
 | Room for Everyone | Safe homes for 60 families | Growth inside limits |
 | Eight-Minute Town | Every home within 8 minutes of school and daily needs | Layout and walking routes |
+| **Delta Island** (flood meadow and marsh, little dry ground) | | |
+| Delta: Dry Feet | Six or more homes on the flood meadow, and no home floods | Building with water: a reed bed beside a home drains its land |
+| Delta: Otter Country | All five animals, and 5 % more nature than the empty delta had | Building without taking habitat where almost all land is habitat |
+| Delta: Room for Everyone | Safe, dry homes for 60 families | Growth when dry ground runs out |
+| **Hill Island** (a big old wood, terraced slopes, a long beach, little flat field) | | |
+| Hills: Tiny Town | Only 8 tiles of town land | Density on steep ground |
+| Hills: Keep the Wood | All 21 tiles of old wood standing, and 15 % more nature than the empty island had | Habitat first: the town fits around the wood |
+| Hills: Eight-Minute Town | Every home within 8 minutes of school and daily needs | Compact layout between wood and beach |
+
+- **Three islands.** The first seven challenges are on the home island. The other six are on two more islands, and the board also offers **free building** on each of them (no special rule, its own saved town, a medal from the town score). Picking one reloads the game on that island; "Back to my own town" in ☰ returns home.
+- **Island of the day.** To start everyone on another island, add `?island=delta` or `?island=hills` to the game's address: the two age buttons then start a free town on that island, with everything unlocked.
+- **Missions are on the home island.** The six AI Lab missions use Florence's practice island, which is the home island. On the delta and the hills the AI Lab button says so; all six lenses are already open there.
 
 - **Club passport** (🎒 on the start screen, or ☰): adds up mission stars, the town medal, challenge medals and catches into points and six planner ranks, from Helper to Chief Planner. It always names the next thing worth points. "Print certificate" gives one page with the rank, the medals and the three habits for checking an AI; no name is stored, so the child writes their own. Use the ranks as the day's shared goal: "Who can reach Town Planner before lunch?"
 - **Opening them:** challenge towns appear on a device once its six missions are done. To open them straight away (a second day, a shared device), add `?challenges=1` to the game's address.

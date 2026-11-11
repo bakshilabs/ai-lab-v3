@@ -10,7 +10,7 @@ const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftsha
 const errors = []; const fails = []; const check = (ok, msg) => { if (!ok) { fails.push(msg); console.error('  FAIL:', msg); } };
 const shot = async (p, name) => { if (out) await p.screenshot({ path: `${out}/${name}.png` }); };
 async function page() {
-  const p = await b.newPage({ viewport: { width: 1366, height: 768 } }); p.on('pageerror', (e) => errors.push(e.message));
+  const p = await b.newPage({ viewport: { width: 1366, height: 768 } }); p.on('pageerror', (e) => errors.push(e.message)); p.setDefaultNavigationTimeout(180000); // software 3D on a busy machine is slow
   await p.addInitScript((q) => { if (!localStorage.getItem('ecotown.prefs')) localStorage.setItem('ecotown.prefs', JSON.stringify({ quality: q, reduce: true, sound: false })); }, quality);
   return p;
 }

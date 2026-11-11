@@ -70,17 +70,19 @@ Eco Town already does 2, 3 and 7. The plan below is mostly about 1, 4, 5 and 6.
 
 **Done when:** a new play-tester (AI persona first, then children) describes the island's reactions unprompted, and no reward depends on reading a banner.
 
-### Stage 3: more islands
+### Stage 3: more islands (built, 11 November 2026, except the two points marked below)
 
 **Problem:** every town is on the same island. After three hours the layout is familiar.
 
 | Build | Detail |
 |---|---|
-| **Island generator settings** | The terrain code already builds the island from numbers. Add two more layouts: a river-delta island (more flood land, less dry ground) and a hill island (little flat land, strong wind). |
-| **Island choice for challenges** | Each challenge can name its island, which doubles the challenge set without new rules. |
-| **Island of the day** | A club leader can pick the island for the day's free-building town. |
+| **Island generator settings** ✅ | The terrain code already builds the island from numbers. Add two more layouts: a river-delta island (more flood land, less dry ground) and a hill island (little flat land, strong wind). *Built as `makeTerrain('delta' / 'hills')`. Not built: stronger wind on the hills (the simulation is the same on every island).* |
+| **Island choice for challenges** ✅ | Each challenge can name its island, which doubles the challenge set without new rules. *Six new challenges: three on each new island (13 in all).* |
+| **Island of the day** ✅ | A club leader can pick the island for the day's free-building town. *`?island=delta` or `?island=hills` in the address, or the challenge board. The six missions stay on the home island.* |
 
 **Done when:** all goals and all challenges are shown passable on each island by the automated tests, and the frame rate is no worse than on the first island.
+
+**State:** the eight town goals and every challenge are proven passable on the island they are played on (`tests/challenges.test.mjs`, `tests/islands.test.mjs`); the seven home-island challenges were not moved to the other islands. Draw calls and triangles are within 3 % of the home island in software 3D (`tests/playwright/islands.mjs`); frame rate on real devices is still to be measured (stage 5).
 
 ### Stage 4: showing towns to each other
 

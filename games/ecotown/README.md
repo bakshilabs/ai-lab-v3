@@ -8,7 +8,7 @@ Players build a sustainable town on a floating island with **Florence**, an AI p
 - Facilitator guide: [`LAB-GUIDE.md`](LAB-GUIDE.md)
 - Research: `research/eco-town-*.md`
 
-**Challenge towns.** Once the six AI Lab missions are done on a device, the start screen offers seven challenge towns, each with one rule and its own medal. Add `?challenges=1` to the address to open them on any device. See LAB-GUIDE.md for a full-day club plan.
+**Challenge towns.** Once the six AI Lab missions are done on a device, the start screen offers thirteen challenge towns, each with one rule and its own medal: seven on the home island, three on the **Delta Island** (flood meadow and marsh) and three on the **Hill Island** (old wood, slopes and beach), plus free building on each of the two new islands. Add `?challenges=1` to the address to open them on any device, or `?island=delta` / `?island=hills` to start a free town on that island. The six missions stay on the home island. See LAB-GUIDE.md for a full-day club plan.
 
 ## Run it
 
