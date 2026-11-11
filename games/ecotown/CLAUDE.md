@@ -144,6 +144,21 @@ The user said "Do everything" in the plan, and asked for 3D cartoon episodes at 
 - **Stage 7:** `game/leader.html`, the club leader's one-page plan (one A4 page; linked from the start screen; copied by `build.mjs`). It has no script because the site's content security policy blocks inline scripts.
 - **Not started:** recording the new voice lines (challenges, passport, reactions), a second language, the trailer, the paywall (needs the user's decisions in `docs/FUTURE-PAYWALL.md` and a Stripe account), and stage 6 (real children and devices).
 
+## Best-seller plan, stage 3 (11 Nov 2026): two more islands
+Every town used to be on the same island. Now there are three (`makeTerrain(layout)` in `js/world/terrain.js`, `LAYOUTS`):
+- **Home** (the default): unchanged. `tests/islands.test.mjs` hashes its tile list and the practice island (`seedTo`) against the values from before this work; never change them.
+- **Delta** (`'delta'`): 40 flood-meadow and 14 marsh tiles, only 14 dry tiles (a low bank in the east). Hedges are on the north meadow. The marsh is painted with shallow pools; the rim hills are low.
+- **Hills** (`'hills'`): 21 tiles of old wood on high ground, 22 terraced slope tiles, a 31-tile beach, 4 field tiles, a 4-tile marsh. The rim hills are higher.
+- **What a layout changes:** zones, tile heights, hedges and the rim-hill height (`terrain.zoneAt`, `terrain.rim`, used by the terrain block of `world.js`). The grid, the river column, the outline, the mesas, the bridge tile and the three fixed tiles (`9,8`, `5,8`, `10,9`) are the same on every island. The simulation is the same on every island (the plan's "strong wind" on the hills was not built).
+- **Choosing the island:** the world is built at page load, so it comes from the address: `?island=delta|hills`. `?ch=<id>&band=<junior|senior>` starts a challenge or island town at once; the challenge board reloads with these when the town is on another island, and a wrong island in the address is put right (`main.js`, block "islands"). `?shoot=` and `?film=` always use the home island.
+- **Challenges** (`js/game/challenges.js`): a challenge may name its `island`. Six new ones, 13 in all: Delta: Dry Feet (`d-dry`, six homes on the flood meadow and no home floods), Delta: Otter Country (`d-wild`, five animals and nature ≥ 1.05 × the empty delta), Delta: Room for Everyone (`d-big`, 60 families), Hills: Tiny Town (`h-tiny`, cap 8), Hills: Keep the Wood (`h-wood`, all 21 wood tiles and nature ≥ 1.15 ×), Hills: Eight-Minute Town (`h-near`). `sim.js` gained one field for Dry Feet: each home's `zone`.
+- **Free building on another island:** `ISLAND_TOWNS` (`isle-delta`, `isle-hills`, `free: true`). They use the challenge plumbing in `game.js` (own save slot `ecotown.save.v3.isle-<island>`, everything open, no intro, a medal from the town score in `ch[band][id]`), but are not counted on the board or in the passport. On the board they are the last section; `?island=delta` alone makes the two age buttons start that island's free town (the "island of the day" for a club leader).
+- **Missions are on the home island:** off the home island `labBoard` and `openLab` show a card saying so (`missionsAtHome` in `game.js`), with a button back to the home island. The classroom (questions to Florence) still opens.
+- **Passport:** 13 challenges make 139 points in all (was 91). The ranks are unchanged, so Chief Planner is easier to reach than before; decide whether to raise the top ranks.
+- **Florence's flood tip** (`advisor.js`): not shown while homes stand on the flood meadow and none floods (the player is draining it, which is the way to build on the delta). The "fixed" line now reads "No homes will flood now" (no recording yet).
+- **Tests:** 218 unit tests. `tests/challenges.test.mjs` proves every challenge on its own island by a recipe, and that an ordinary town on each island meets the eight goals but not the hard challenges. `tests/playwright/islands.mjs [outDir] [baseUrl] [quality]` loads each island, builds on it, checks the Lab card, save and resume, the board's reload, a hint-follower on both new islands, and reports draw calls and triangles (delta 363 calls / 305k triangles, hills 380 / 323k, home 374 / 315k on an empty island at "mid").
+- **Not done:** the seven home-island challenges are not offered on the other islands; no different wind on the hills; the island names, rules and cards have no voice recordings; the build videos and the intro are home-island only (island towns skip the intro); phones were not looked at on the new islands; Florence's suggestions and town events run on the new islands but were not play-tested there.
+
 ## Free-build redesign (Nov 2026, after the beta)
 The user found the guided six-level sequence exhausting ("prompt after prompt, a tunnel") and asked for a StarCraft-style city builder: **build first, get tips from Florence, step into the AI Lab, come back to building**. Decisions the user made:
 - **Replace** the guided flow. A start-screen option "AI Lab missions: Any order / In order (class)" keeps the lessons in order for classes.
@@ -361,7 +376,7 @@ All 49 notes in the beta tester's file were addressed; see README "How the game 
   - `/admin` redirects (302) to `…cloudflareaccess.com`.
 
 ## Tests
-From `games/ecotown/game` (184 tests, all passing at handoff; run them all with `node --test tests/*.test.mjs`):
+From `games/ecotown/game` (218 tests, all passing at handoff; `model.test.mjs` "predict is fast" is a timing test and can fail on a busy machine; run them all with `node --test tests/*.test.mjs`):
 
 ```bash
 node --test tests/sim.test.mjs tests/model.test.mjs tests/teach.test.mjs tests/syntax.test.mjs tests/codes.test.mjs tests/playtest.test.mjs tests/progress.test.mjs tests/audio.test.mjs tests/replace.test.mjs tests/delta.test.mjs tests/qa.test.mjs

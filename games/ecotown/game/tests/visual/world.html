@@ -12,7 +12,7 @@ import { simulate } from '../../js/sim/sim.js';
 const q = new URLSearchParams(location.search);
 const stage = createStage(document.getElementById('gl'), document.getElementById('sky'));
 stage.setTier(q.get('tier') || 'high');
-const terrain = makeTerrain(); const world = createWorld(stage, terrain); const rig = createRig(stage, document.getElementById('gl'), document.getElementById('fade'));
+const terrain = makeTerrain(q.get('island') || 'home'); /* ?island=delta|hills, with ?levels=0 (the plans are for the home island) */ const world = createWorld(stage, terrain); const rig = createRig(stage, document.getElementById('gl'), document.getElementById('fade'));
 const upto = +(q.get('levels') ?? 6); const vague = q.get('vague');
 const L = [['land',['dry','sunny','keep_meadow']],['move',['safe_walking','cycling','cars_at_edge']],['homes',['warm','low_carbon','natural_materials']],['food',['enough_food','keep_hedges','bees']],['power',['enough_power','winter','night','storage','solar']],['heart',['walk_time','market','nature_links']]];
 let cells = new Map();

@@ -19,11 +19,11 @@ const ghostMats = new Map();
 const ghostMat = (lv) => { if (!ghostMats.has(lv)) ghostMats.set(lv, new THREE.MeshLambertMaterial({ color: new THREE.Color(GHOST_COL[lv] || '#ffffff').lerp(new THREE.Color('#ffffff'), 0.45) })); return ghostMats.get(lv); };
 const GHOST_BAD = new THREE.MeshLambertMaterial({ color: '#ffb3a6' });
 
-function zoneAtVoxel(x0, z0) {
+function zoneAtVoxel(x0, z0, zAt = zoneAt) { // zAt: the island's own zone rule (terrain.zoneAt)
   // wobble the boundaries so zones blend instead of following the tile grid, and stipple the last voxel or two,
   // so one kind of land fades into the next
   const j = (rand(x0, z0, 53) - 0.5) * 2.6, k = (rand(x0, z0, 59) - 0.5) * 2.6;
-  return zoneAt(x0 + (noise2(x0 * 0.18, z0 * 0.18, 31) - 0.5) * 3.4 + j, z0 + (noise2(x0 * 0.18, z0 * 0.18, 47) - 0.5) * 3.4 + k);
+  return zAt(x0 + (noise2(x0 * 0.18, z0 * 0.18, 31) - 0.5) * 3.4 + j, z0 + (noise2(x0 * 0.18, z0 * 0.18, 47) - 0.5) * 3.4 + k);
 }
 // sage and olive greens with ochre dry grass on the slope and fields: the warm brochure palette, not lime
 const TOPS = {
@@ -47,7 +47,7 @@ export function createWorld(stage, terrain) {
   const inTiles = (x, z) => { const tt = tileAt(x, z); return tt && terrain.tiles.has(tt[0] + ',' + tt[1]) ? tt : null; };
   const memo = (fn) => { const m = new Map(); return (x, z) => { const k = (x + 512) * 1024 + (z + 512); let r = m.get(k); if (r === undefined) { r = fn(x, z); m.set(k, r); } return r; }; }; // per-column cache (the island is built once)
   const inV = memo((x, z) => insideVoxel(x, z));
-  const rimH0 = memo((x, z) => Math.round(rimHeight(x, z) * Math.min(1, Math.max(0, (Math.abs(x + 0.5 - riverX(z)) - 2.5) / 6))));
+  const rimH0 = memo((x, z) => Math.round(rimHeight(x, z, terrain.rim ?? 1) * Math.min(1, Math.max(0, (Math.abs(x + 0.5 - riverX(z)) - 2.5) / 6))));
   const bridgeH = terrain.tiles.get(BRIDGE_TILE)?.h ?? 0; // the rim is cut to the bridge tile's level where the bridge leaves the town
   const rimH = (x, z) => (inBridgeCut(x, z) ? Math.min(rimH0(x, z), bridgeH) : rimH0(x, z));
   // the keel under the island: deep in the middle, thin at the rim. It steps down in benches (strata ledges) with
@@ -84,7 +84,7 @@ export function createWorld(stage, terrain) {
     const beach = !tt && z > 18 && top <= 1;
     // zones blend at their edges, but the protected wetland is painted exactly on its own tiles, so what
     // looks like wetland always follows the wetland rule
-    const tz = tt ? terrain.tiles.get(tt[0] + ',' + tt[1]).zone : null; const zw = tt ? zoneAtVoxel(x, z) : null;
+    const tz = tt ? terrain.tiles.get(tt[0] + ',' + tt[1]).zone : null; const zw = tt ? zoneAtVoxel(x, z, terrain.zoneAt || zoneAt) : null;
     const zone = tt ? (tz === 'wetland' || zw === 'wetland' ? tz : zw) : beach ? 'coast' : 'rim';
     const lime = !tt && isLimestone(x, z, top); const cd = !tt && canyonDepth(x, z); const strataCol = !tt && (lime || nearCanyon(x, z));
     const bottom = Math.min(keel(x, z), top - 3);
@@ -103,7 +103,8 @@ export function createWorld(stage, terrain) {
             else if (((z + Math.round(noise2(x / 6, z / 6, 64) * 5)) % 5 + 5) % 5 === 0 && rand(x >> 1, z, 65) > 0.4) c = tint(c, 0.955); // wind ripples in the sand
             else if (rand(x, z, 66) > 0.985) c = rand(x, z, 67) > 0.5 ? '#fff4e2' : '#f2a99a';               // shells
           } else if (zone === 'wood') { if (rand(x, z, 68) > 0.86) c = rand(x, z, 69) > 0.5 ? '#8a7a3e' : '#6f5a34'; }      // leaf litter on the forest floor
-          else if (zone === 'wetland') { if (noise2(x / 2.2, z / 2.2, 70) > 0.66) c = '#58907a'; }           // dark, wet patches
+          else if (zone === 'wetland') { const wn = noise2(x / 2.2, z / 2.2, 70); if (wn > 0.66) c = '#58907a';             // dark, wet patches
+            else if (terrain.layout === 'delta' && noise2(x / 3.1, z / 3.1, 74) > 0.6) c = rand(x, z, 75) > 0.5 ? '#62b9e8' : '#6cc2ec'; } // the delta's marsh: shallow pools
           else if (zone === 'meadow') { if (rand(x, z, 71) > 0.965) c = '#b9d48a'; }                         // pale new grass
           else if (zone === 'slope') {
             // the sunny slope is terraced: a pale dry-stone edge wherever the land steps down, so it reads as higher, drier ground
