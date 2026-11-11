@@ -36,6 +36,7 @@ import { openShop as shopCard, showFinale } from '../ui/rewards.js';
 import { newBadges, badgeCount, badge } from './badges.js';
 import { townScore } from './score.js';
 import { passport } from './passport.js';
+import { reactionFor, speciesNews, ANIMALS } from './reactions.js';
 import { challenge, challengeState, challengeMedal, better, florenceTown, GOAL_TEXT } from './challenges.js';
 import { answer as askFlorence, SUGGEST } from './qa.js';
 
@@ -843,7 +844,23 @@ export function createGame(app) {
     const html = d.map(chipHtml).join('') + (spent ? `<span class="chip ${spent > 0 ? 'good' : 'bad'}" style="--c:${CHIP.credits.col}">${spent > 0 ? '+' : '−'}${Math.abs(spent)} 💰</span>` : '');
     if (html) ui.labels.float({ at: world.tileTop(k).add(new THREE.Vector3(0, 5, 0)), html, text: chipsText(d) });
     sb.stamp = tool; showAllowed(sb.tool); changed(); if (d.some((c) => c.good)) flower(d.filter((c) => c.good).map((c) => c.key)); florenceTo(k, 'peer');
+    react(k, tool, d, before);
     return true;
+  }
+  // the island reacts first (js/game/reactions.js): the nearest family says something about the build within a
+  // second, and an animal coming back to the island (or leaving it) is news, shown where that animal lives
+  function react(k, tool, d, before) {
+    const now = performance.now(); const after = sim();
+    const r = tool === 'erase' ? null : reactionFor(tool, d, G.j, (sb.reactN = (sb.reactN || 0) + 1));
+    if (r && after.homes.length && now - (sb.reactAt || 0) > 2200 && !sb.intro) { sb.reactAt = now;
+      setTimeout(() => { if (!sb.running) return; const who = life.residentNear(k); const at = who ? () => who.position.clone().add(new THREE.Vector3(0, 1.9, 0)) : world.tileTop(k).add(new THREE.Vector3(0, 6.5, 0));
+        ui.labels.bubble({ at, text: r.text, bad: r.bad, quiet: true }); }, 650); }
+    const news = speciesNews(before, after); if (!news.length || !before.homes.length && !after.homes.length) return;
+    const n = news.find((x) => !x.came) || news[0]; const A = ANIMALS[n.id]; const text = `${A.icon} ${pick(n.came ? A.back : A.gone)}`;
+    setTimeout(() => { if (!sb.running) return; ui.alert(text, n.came, 3800); if (n.came) { audio.reward?.(); app.bot?.cheer(); } else { audio.bad(); app.bot?.oops(); }
+      const home = [...terrain.tiles.values()].filter((t) => t.zone === A.home && !t.fixed); const t = home[Math.floor(home.length / 2)];
+      if (t) { const at = world.tileTop(t.k).add(new THREE.Vector3(0, 5, 0)); ui.labels.float({ at, html: `<span class="chip ${n.came ? 'good' : 'bad'} animalnews" style="--c:${n.came ? '#4caf50' : '#b0331f'}">${A.icon} ${n.came ? 'back!' : 'gone'}</span>`, ms: 3600 }); if (n.came && !app.reduce) world.confetti(at, 40); }
+    }, 1500);
   }
   const TOUCH = matchMedia('(pointer: coarse)').matches;
   function bindTaps() {
@@ -1466,7 +1483,7 @@ export function createGame(app) {
     if (tool) { sb.cat = ITEMS[tool].level; sb.tool = tool; showAllowed(tool); }
     return { score: s.homes.length ? scoreNow(s) : null, step: nextStep(s).text, unlock: nu?.id || null, goal: g?.id || null, tool, spots: tool ? [...(sb.spots?.keys || [])] : [], why: tool ? spotLine() : '' }; };
   G.suggest = () => { const sg = suggestFor(sim()); if (sg) offerSuggestion(sg); return sg?.id || null; };
-  G.openLab = openLab; G.labBoard = labBoard; G.enterClassroom = enterClassroom; G.classAsk = classAsk; G.leaveClassroom = leaveClassroom; G.playVideo = playVideo; G.videoCard = videoCard; G.florenceTo = florenceTo; G.placeAt = (k, tool, o) => { const ok = placeAt(k, tool, o); if (ok) changed(); return ok; }; G.sim = sim; G.advisor = sb.adv;
+  G.act = act; G.openLab = openLab; G.labBoard = labBoard; G.enterClassroom = enterClassroom; G.classAsk = classAsk; G.leaveClassroom = leaveClassroom; G.playVideo = playVideo; G.videoCard = videoCard; G.florenceTo = florenceTo; G.placeAt = (k, tool, o) => { const ok = placeAt(k, tool, o); if (ok) changed(); return ok; }; G.sim = sim; G.advisor = sb.adv;
   G.saved = () => { try { const d = JSON.parse(localStorage.getItem(SLOT) || 'null'); return d && d.band === G.band ? d : null; } catch { return null; } };
   return G;
 }
