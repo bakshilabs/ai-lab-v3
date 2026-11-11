@@ -117,6 +117,8 @@ Eco Town already does 2, 3 and 7. The plan below is mostly about 1, 4, 5 and 6.
 
 **Done when:** the phone play-test scores 8 out of 10 or more, and criterion 4 above is met on real devices.
 
+**State (11 November 2026):** the phone build tray is three slim rows; the interface covers 27 % of an upright phone at rest (33 % before; measured by `tests/playwright/phonearea.mjs`). The quarter is not yet reached. No performance budget script and no real-device runs yet.
+
 ### Stage 6: proof with children (needs people)
 
 This cannot be done from a cloud session, and it is the stage that decides whether the game is a best seller.
@@ -134,7 +136,7 @@ This cannot be done from a cloud session, and it is the stage that decides wheth
 | **Voices** | Record every new line (challenges, passport, events). |
 | **Leader's one-page plan** | Printed, with the day's timetable and the five questions to ask. |
 | **Languages** | The text is already in one file per age band; add a second language as a test of the pipeline. |
-| **Trailer and store page** | A 60-second trailer from the build films, and a page a club leader can buy from. |
+| **Trailer and store page** | A 60-second trailer from the build films, and a page a club leader can buy from. *Trailer built (`game/trailer.html`, 59 s, cut from the episodes); the page to buy from waits for the paywall.* |
 | **Paywall** | As planned in `docs/FUTURE-PAYWALL.md`. |
 
 ## Order and reasons
