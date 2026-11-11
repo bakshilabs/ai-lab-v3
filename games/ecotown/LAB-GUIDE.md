@@ -109,6 +109,7 @@ DESIGN.md says Levels 4 and 5 merge in shorter versions. Level debriefs (section
   - Level 6's bias check adds a bonus star.
   - **the plan missed something:** ★ checked the plan before building · ★ told Florence what her plan missed · ★ her new plan passes.
   - Missions can be replayed; the best run's stars count.
+- **Town score** (tap 🌼): a number out of 100 with bronze, silver and gold medals. Meeting the eight goals earns about silver; gold needs lower carbon, shorter walks, spare winter power and catching Florence's wrong ideas. The start screen shows the best score on that device, so a second town has something to beat. Ask: what would you change to gain the most points, and what would it cost?
 - **Badges** (under the ★ Star shop): 14 things to try in the town, one star each, such as a car-free town, a 10-minute town, or catching five of Florence's wrong ideas without using one unchecked. They give early finishers a reason to rebuild. Ask: which badge would be hardest in a real town, and why?
 - **Feeding the families:** Power and Town heart open only when the families already housed have enough food. If a child is stuck with locked tabs, the next-step line at the top says how many baskets are missing.
 - **Checking:** after each check that shows no problem, children choose **Check another way** or **I think it’s fine: use this plan**. Ask them to say what the check tested before they accept. If they accept too early, the game shows the problem before building, so nothing is lost.

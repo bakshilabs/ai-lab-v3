@@ -24,6 +24,7 @@ for (let i = 0; i < 160; i++) {
   stuck = r.placed ? 0 : stuck + 1; last = line; if (stuck >= 3) { if (r.credits != null && r.credits < 5) { console.log('13–17: out of credits here (households pay each evening); the hints held up to this point'); done = true; } else fail = 'stuck: ' + line; break; }
   await p.waitForTimeout(150);
 }
+console.log('town score', JSON.stringify(await p.evaluate(() => window.__eco.app.G.hint().score)));
 console.log('badges', await p.evaluate(() => JSON.stringify(window.__eco.app.G.badges)), 'errors', errors);
 await p.screenshot({ path: process.argv[3] || '/dev/null' }).catch(() => {});
 await b.close();

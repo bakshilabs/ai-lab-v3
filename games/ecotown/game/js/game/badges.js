@@ -1,7 +1,7 @@
 // Badges: extra things to try once the town is growing, so there is a reason to keep playing and to rebuild.
 // Each badge is one clear, checkable fact about the town (or about checking Florence), is earned once and gives ★1.
 // Pure functions of the simulation and the save (tests/badges.test.mjs). Looks and stars only: no effect on the town.
-// test(s, x): s = simulate(...) result; x = { hasSchool, catches, trusted, labs (missions done), threeStars, complete }
+// test(s, x): s = simulate(...) result; x = { hasSchool, catches, trusted, labs (missions done), threeStars, complete, score (town score) }
 export const BADGES = [
   { id: 'firsthome', icon: '🏡', name: 'First family', j: 'Build your first home.', s: 'House the first household.', test: (s) => s.families > 0 },
   { id: 'dryfeet', icon: '🌊', name: 'Dry feet', j: '20 families, and nobody on the flood meadow.', s: '20 households, none on the floodplain.', test: (s) => s.families >= 20 && s.familiesSafe === s.families && s.townFlooded === 0 },
@@ -16,6 +16,7 @@ export const BADGES = [
   { id: 'checker', icon: '🧐', name: 'Check first', j: 'Catch five wrong ideas without ever using one unchecked.', s: 'Five catches and no proposal adopted unchecked.', test: (s, x) => x.catches >= 5 && !x.trusted },
   { id: 'labs', icon: '🧪', name: 'Lab expert', j: 'Finish all six AI Lab missions.', s: 'Complete all six AI Lab missions.', test: (s, x) => x.labs >= 6 },
   { id: 'threestar', icon: '🌟', name: 'Clear thinker', j: 'Get three stars in every mission.', s: 'Three stars in every mission.', test: (s, x) => x.threeStars >= 6 },
+  { id: 'gold', icon: '🥇', name: 'Gold town', j: 'Reach a town score of 90 out of 100.', s: 'Town score of 90/100 or more.', test: (s, x) => (x.score || 0) >= 90 },
   { id: 'complete', icon: '🎉', name: 'Town complete', j: 'Meet all eight town goals.', s: 'Meet all eight town targets.', test: (s, x) => !!x.complete },
 ];
 // ids newly earned now (not already in `have`)

@@ -104,6 +104,15 @@ A subagent played ages 8–12 on an upright phone with taps only (6.5/10; the ph
 - **Voices:** nothing new to record this round. Do not run `render.py` after `collect.mjs` when no line is new: collecting reorders the lines, which rebuilds every chunk under a new name (about 19 MB of churn in git).
 - **Not addressed from that report:** the intro has about six Next taps and asks for three tiles and then three more; the mission list does not say which missions are optional (none are: all six are needed to complete the town); a ★ pin can sit on a speech bubble; the Lenses pop-over covers the next-step text on a phone; the classroom board is blurry on a phone.
 
+## Ship-readiness round 5 (11 Nov 2026): a reason to play on
+The user asked again for best-seller quality. The biggest gap named was depth: a hint-follower finishes the town in 27 builds and has no reason to build a second one.
+- **Town score** (`js/game/score.js`, tests `tests/score.test.mjs`): 0–100 from nine parts (homes 15, food 10, nature 10, health 10, winter power 10, community 10, carbon 20, walk 10, catching Florence 5). Every part except homes is scaled by families ÷ 40, so a hamlet cannot out-score a town. A town that just meets the eight goals scores about 78 (silver, 75+); gold is 90 and needs more than "enough". A greedy builder on the real simulation reaches 88 without catches and 90 with them, so gold is reachable but hard.
+  - Shown above the goals in the 🌼 pop-over (`scoreHtml`: score, medal, points to the next medal, where the most is to gain), beside the clock (`sb.scoreTxt`), on the town-complete card and, as the best score per age on this device (`localStorage` `ecotown.best.v1`), on the start screen as the score to beat. Saved as `G.bestScore`, `G.medal`. A first-time medal is announced once.
+  - New badge "Gold town" (15 badges). `G.hint()` also returns the score.
+- **Intro:** the hello needs no tap and the walks are quicker (three Next taps, was four).
+- **Checked:** the public test site serves round four.
+- **Still a design question for the user:** whether the score is enough depth, or the game also needs challenge towns (a smaller island, a tighter carbon limit) and coins for ages 8–12.
+
 ## Free-build redesign (Nov 2026, after the beta)
 The user found the guided six-level sequence exhausting ("prompt after prompt, a tunnel") and asked for a StarCraft-style city builder: **build first, get tips from Florence, step into the AI Lab, come back to building**. Decisions the user made:
 - **Replace** the guided flow. A start-screen option "AI Lab missions: Any order / In order (class)" keeps the lessons in order for classes.
@@ -321,7 +330,7 @@ All 49 notes in the beta tester's file were addressed; see README "How the game 
   - `/admin` redirects (302) to `…cloudflareaccess.com`.
 
 ## Tests
-From `games/ecotown/game` (180 tests, all passing at handoff; run them all with `node --test tests/*.test.mjs`):
+From `games/ecotown/game` (184 tests, all passing at handoff; run them all with `node --test tests/*.test.mjs`):
 
 ```bash
 node --test tests/sim.test.mjs tests/model.test.mjs tests/teach.test.mjs tests/syntax.test.mjs tests/codes.test.mjs tests/playtest.test.mjs tests/progress.test.mjs tests/audio.test.mjs tests/replace.test.mjs tests/delta.test.mjs tests/qa.test.mjs
