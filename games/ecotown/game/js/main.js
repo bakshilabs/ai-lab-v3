@@ -23,6 +23,9 @@ import { createGame } from './game/game.js';
 import { loadModel, modelReady } from './ai/plotter.js';
 import { CONTENT, NAME_IDEAS, cleanTownName } from './game/content.js';
 import { loadVoices, setSpeakingHook } from './ui/voice.js';
+// showing towns to other people (stage 4): the postcard, "Visit a town" and the club wall live in these two files
+import { shareParams, startButtons, visitCard, wallCard, openPostcard, go as shareGo } from './ui/share.js';
+import { runVisit } from './game/visit.js';
 // while a 🔊 read-aloud plays, its button shows it (a tester couldn't tell whether anything was happening)
 let spkBtn = null;
 document.addEventListener('click', (e) => { const b = e.target.closest?.('[data-spk]'); if (b) { spkBtn?.classList.remove('speaking'); spkBtn = b; } }, true);
@@ -101,7 +104,7 @@ function settingsSheet() {
   const row = (k, label) => `<label>${esc(label)}<input type="checkbox" data-k="${k}" ${s[k] ? 'checked' : ''}></label>`;
   const snd = !s.sound ? 'off' : s.music === false ? 'fx' : 'on';
   P.innerHTML = `<h3 style="margin:0 0 8px">Menu</h3>
-    <div class="menuacts"><button class="slot act" data-m-act="report" ${free ? '' : 'disabled'}><b class="ico">📜</b><span>Town report</span></button><button class="slot act" data-m-act="day" ${free ? '' : 'disabled'}><b class="ico">🌇</b><span>Watch a whole day</span></button><button class="slot act" data-intro ${free ? '' : 'disabled'}><b class="ico">🎬</b><span>Watch Florence’s intro again</span></button><button class="slot act" data-m-act="passport" ${free ? '' : 'disabled'}><b class="ico">🎒</b><span>Club passport</span></button><button class="slot act" data-m-act="shop" ${free ? '' : 'disabled'}><b class="ico">★</b><span>${esc(G?.S?.shop?.menu || 'Star shop')}</span></button>${G?.challenge || (() => { try { return JSON.parse(localStorage.getItem('ecotown.best.v1') || '{}').labs?.[G?.band]; } catch { return false; } })() ? `<button class="slot act" data-m-act="challenges"><b class="ico">🏆</b><span>Challenge towns</span></button>` : ''}${G?.challenge ? `<button class="slot act" data-m-act="home"><b class="ico">🏡</b><span>Back to my own town</span></button>` : ''}${G?.completeShown && !G?.challenge ? `<button class="slot act" data-m-act="finale" ${free ? '' : 'disabled'}><b class="ico">🎉</b><span>${esc(G.S.finale.again)}</span></button>` : ''}</div>
+    <div class="menuacts"><button class="slot act" data-m-act="report" ${free ? '' : 'disabled'}><b class="ico">📜</b><span>Town report</span></button><button class="slot act" data-m-act="day" ${free ? '' : 'disabled'}><b class="ico">🌇</b><span>Watch a whole day</span></button><button class="slot act" data-intro ${free ? '' : 'disabled'}><b class="ico">🎬</b><span>Watch Florence’s intro again</span></button><button class="slot act" data-m-act="passport" ${free ? '' : 'disabled'}><b class="ico">🎒</b><span>Club passport</span></button><button class="slot act" data-m-act="shop" ${free ? '' : 'disabled'}><b class="ico">★</b><span>${esc(G?.S?.shop?.menu || 'Star shop')}</span></button>${/* sharing (stage 4) */ G?.visiting ? '<button class="slot act" data-m-act="vhome"><b class="ico">🏡</b><span>Back to my town</span></button>' : `<button class="slot act" data-m-act="postcard" ${free ? '' : 'disabled'}><b class="ico">✉</b><span>Town postcard</span></button>`}<button class="slot act" data-m-act="visit"><b class="ico">👀</b><span>Visit a town</span></button>${G?.challenge || (() => { try { return JSON.parse(localStorage.getItem('ecotown.best.v1') || '{}').labs?.[G?.band]; } catch { return false; } })() ? `<button class="slot act" data-m-act="challenges"><b class="ico">🏆</b><span>Challenge towns</span></button>` : ''}${G?.challenge ? `<button class="slot act" data-m-act="home"><b class="ico">🏡</b><span>Back to my own town</span></button>` : ''}${G?.completeShown && !G?.challenge ? `<button class="slot act" data-m-act="finale" ${free ? '' : 'disabled'}><b class="ico">🎉</b><span>${esc(G.S.finale.again)}</span></button>` : ''}</div>
     <h4 class="menuhead">Settings</h4>
     <label>Sound<select data-snd><option value="on" ${snd === 'on' ? 'selected' : ''}>On (music and effects)</option><option value="fx" ${snd === 'fx' ? 'selected' : ''}>Effects only</option><option value="off" ${snd === 'off' ? 'selected' : ''}>Off</option></select></label>
     ${row('readAloud', 'Read aloud')}${row('reduce', 'Reduce motion')}${row('facilitator', 'Facilitator notes')}
@@ -114,7 +117,7 @@ function settingsSheet() {
   P.querySelector('[data-snd]').onchange = (e) => { const v = e.target.value; s.sound = v !== 'off'; s.effects = v !== 'off'; s.music = v === 'on'; applySettings(); };
   P.querySelector('[data-close]').onclick = () => ui.show('settings', false);
   P.querySelector('[data-intro]').onclick = () => { ui.show('settings', false); app.G?.replayIntro?.(); };
-  P.querySelectorAll('[data-m-act]').forEach((b) => (b.onclick = () => { ui.show('settings', false); const m = b.dataset.mAct; if (m === 'passport') { app.G?.save?.(); ui.modal(`${passportHtml(app.band)}<div class="row" style="justify-content:center;margin-top:10px"><button class="btn alt" data-act="close">Close</button><button class="btn go" data-act="print">🖨 Print certificate</button></div>`).then((a) => { if (a === 'print') printCertificate(app.band); }); } else if (m === 'challenges') { app.G?.save?.(); location.search = '?challenges=1'; } else if (m === 'home') { app.G?.save?.(); location.search = ''; } else if (m === 'report') app.G?.showReport?.(); else if (m === 'shop') app.G?.openShop?.(); else if (m === 'finale') app.G?.finale?.(); else app.G?.wholeDay?.(); }));
+  P.querySelectorAll('[data-m-act]').forEach((b) => (b.onclick = () => { ui.show('settings', false); const m = b.dataset.mAct; if (m === 'postcard') return openPostcard(app); if (m === 'visit') { app.G?.save?.(); return shareGo('?visit=1'); } if (m === 'vhome') return shareGo('?carry=1'); /* sharing (stage 4) */ if (m === 'passport') { app.G?.save?.(); ui.modal(`${passportHtml(app.band)}<div class="row" style="justify-content:center;margin-top:10px"><button class="btn alt" data-act="close">Close</button><button class="btn go" data-act="print">🖨 Print certificate</button></div>`).then((a) => { if (a === 'print') printCertificate(app.band); }); } else if (m === 'challenges') { app.G?.save?.(); location.search = '?challenges=1'; } else if (m === 'home') { app.G?.save?.(); location.search = ''; } else if (m === 'report') app.G?.showReport?.(); else if (m === 'shop') app.G?.openShop?.(); else if (m === 'finale') app.G?.finale?.(); else app.G?.wholeDay?.(); }));
   ui.closePops(P.settings); ui.show('settings', true);
 }
 ui.P.tr.querySelector('[data-menu]').onclick = () => (ui.P.settings.classList.contains('hide') ? settingsSheet() : ui.show('settings', false));
@@ -182,6 +185,16 @@ async function start() {
   app.modelP = loadModel('./models/').catch(() => {});
   document.getElementById('boot')?.remove();
   const quality = app.settings.quality === 'auto' ? probeTier(stage) : Promise.resolve(app.settings.quality);
+  // ---- showing towns (stage 4). ?town=<code> opens that town read-only and never starts the building game, so
+  // nothing can be saved over the player's own town. ?visit=1 and ?wall=1 open their cards on the first screen
+  // (below); ?carry=1 goes straight back to the saved town ("Back to my town").
+  const share = shareParams();
+  if (share.town?.ok) {
+    const vb = share.town.town.band; initAudio(); loadVoices(vb); app.band = vb; ui.readAloud = app.settings.readAloud && vb === 'junior';
+    const vt = await quality; if (app.settings.quality === 'auto') stage.setTier(vt);
+    await runVisit(app, share.town.town, { from: share.from, onBack: (where) => shareGo(where === 'wall' ? '?wall=1' : '?carry=1') });
+    return;
+  }
   const scr = h(`<div id="start"><div class="card">
     <span class="chip">A DELTAOPS LEARNING AI LAB</span><h1>Eco <span>Town</span></h1>
     <p style="font-weight:600;color:#46596a;margin:4px 0">Build your own town on a floating island. Florence, your AI helper, gives tips as you build. Step into the AI Lab to test her plans: she is clever, and sometimes confidently wrong. Can you catch her mistakes?</p>
@@ -243,8 +256,12 @@ async function start() {
         const row = scr.querySelector('.chopen'); if (row) row.insertAdjacentHTML('afterbegin', html + ' '); else scr.querySelector('.ages').insertAdjacentHTML('afterend', `<p class="chopen">${html}</p>`); }
       const po = scr.querySelector('[data-popen]'); if (po) po.onclick = () => pass(resume?.band || pb[0]);
       const o = scr.querySelector('[data-chopen]'); if (o) o.onclick = () => board(resume && chBands.includes(resume.band) ? resume.band : chBands[0]);
+      startButtons(scr, terrain, { back: shareBack, junior: resume?.band !== 'senior' }); // sharing (stage 4): "Visit a town" and, for club leaders, the club wall
     };
+    const shareBack = () => { card.innerHTML = homeHtml; home(); };
     home(); if (forceCh) board(resume && chBands.includes(resume.band) ? resume.band : chBands[0]);
+    // sharing (stage 4): cards asked for by the address
+    if (share.wall) wallCard(card, terrain, { back: shareBack }); else if (share.visit || share.town) visitCard(card, terrain, { back: shareBack, junior: resume?.band !== 'senior', prefill: share.raw }); else if (share.carry && resume) res(resume.band);
   });
   initAudio(); sfx.good(); loadVoices(band);
   app.band = band; ui.readAloud = app.settings.readAloud && band === 'junior' ? true : app.settings.readAloud && band === 'senior' ? false : app.settings.readAloud;
