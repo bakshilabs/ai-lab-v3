@@ -34,9 +34,11 @@ export async function runIntro(api) {
     bot.appear(dockP.clone().add(new THREE.Vector3(1, 0, 6))); bot.look(null);
     await step(go(dockP, 100));
     await step(bot.walkTo(dockP.clone().add(new THREE.Vector3(-3, 0, -4)), { maxDur: 1.6 }));
-    bot.wave(); await step(say(T.hello));
+    // the hello needs no tap: it stays up while she waves, then she walks on (two playtests found the intro slow: a Next
+    // for every line, with waits in between)
+    bot.wave(); await step(say(T.hello, { next: false })); await step(sleep(app.reduce ? 2600 : 3400));
     // 2. the river meadow: flat, tempting, and it floods every winter
-    const mP = top(meadow.k); go(mP, 115); await step(bot.walkTo(mP, { stopShort: 5, maxDur: 3 }));
+    const mP = top(meadow.k); go(mP, 115); await step(bot.walkTo(mP, { stopShort: 5, maxDur: 2.2 }));
     bot.peer(mP, 2.4);
     let lvl = 0; const flood = setInterval(() => { lvl = Math.min(0.7, lvl + 0.05); world.setFlood(lvl); }, 60);
     try { await step(say(T.meadow)); } finally { clearInterval(flood); world.setFlood(0); }
@@ -53,7 +55,7 @@ export async function runIntro(api) {
     let stand = mid.clone().add(right.clone().multiplyScalar(spread + 7));
     const onTarget = (p) => suggest.some((t) => Math.hypot(top(t.k).x - p.x, top(t.k).z - p.z) < 5);
     if (onTarget(stand)) stand = mid.clone().sub(right.clone().multiplyScalar(spread + 7));
-    await step(bot.walkTo(stand, { maxDur: 3 }));
+    await step(bot.walkTo(stand, { maxDur: 2 }));
     bot.point(mid.clone().add(new THREE.Vector3(0, 1, 0)), 2.5);
     api.selectTool('land', 'town'); api.highlight('#build', true);
     let pulse = 0; const glow = () => { const spec = new Map(api.allowedSpec?.() || []); pulse++; for (const t of suggest) spec.set(t.k, { color: pulse % 2 ? '#ff9f1a' : '#ffd23f', ring: true, notch: true }); const kc = api.cursor?.(); if (kc) spec.set(kc[0], kc[1]); world.setOverlay(spec); }; // a pulsing orange target, unlike any other tile
@@ -79,7 +81,7 @@ export async function runIntro(api) {
     for (const s2 of marks) api.highlight(s2, true); const left = 6 - api.townTiles(); await step(say(`${left === 3 ? T.wellDone : left <= 0 ? T.wellDoneOpen : left === 1 ? T.wellDone1 : T.wellDone2} ${T.goals || T.unlocks}`)); // the number matches the top line
     for (const s2 of marks) api.highlight(s2, false);
     // 5. the AI Lab: test her plans. Then over to you.
-    go(labP, 100); await step(bot.walkTo(labP.clone().add(new THREE.Vector3(0, 0, 6)), { maxDur: 3.5 }));
+    go(labP, 100); await step(bot.walkTo(labP.clone().add(new THREE.Vector3(0, 0, 6)), { maxDur: 2.5 }));
     bot.point(labP.clone().add(new THREE.Vector3(0, 3, 0)), 2.6); api.highlight('#strip [data-lab]', true);
     await step(say(`${T.lab} ${T.overToYou}`)); api.highlight('#strip [data-lab]', false); bot.cheer();
   } catch (e) { if (e.message !== 'skip') throw e; }

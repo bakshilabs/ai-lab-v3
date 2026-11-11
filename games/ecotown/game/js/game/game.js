@@ -34,6 +34,7 @@ import { shopState, wallet, canAffordNew } from './shop.js'; // the Star shop (l
 import { townSummary } from './finale.js';
 import { openShop as shopCard, showFinale } from '../ui/rewards.js';
 import { newBadges, badgeCount, badge } from './badges.js';
+import { townScore } from './score.js';
 import { answer as askFlorence, SUGGEST } from './qa.js';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -76,7 +77,7 @@ export function createGame(app) {
   function star(i, why = '') { if (!run || run.marks[i]) return; run.marks[i] = true; audio.star(); G.stars = shownStars(); ui.setStars(G.stars); if (why) ui.caption(`★ ${why}`, 2600); }
   function bonusStar(why) { if (!run) return; run.bonus = true; G.stars = shownStars(); ui.setStars(G.stars); ui.caption(`★ ${why}`, 2800); }
   function flower(flash = true) { const s = sim(); ui.carbonInfo = { used: s.carbon, limit: TARGETS.carbonCeiling }; ui.flower(s.petals, G.townName, { flash }); renderGoals(s); }
-  const KEEP = ['badges', 'milestones', 'placements', 'catches', 'trusted', 'introDone', 'band', 'levelStars', 'starMarks', 'bonus', 'mistakes', 'diary', 'instructions', 'extra', 'credits', 'townName', 'inputMode', 'paths', 'outcomes', 'labs', 'ever', 'classMode', 'day', 'movedIn', 'completeShown', 'charter', 'reflection', 'reflectDone', 'shop'];
+  const KEEP = ['badges', 'bestScore', 'medal', 'milestones', 'placements', 'catches', 'trusted', 'introDone', 'band', 'levelStars', 'starMarks', 'bonus', 'mistakes', 'diary', 'instructions', 'extra', 'credits', 'townName', 'inputMode', 'paths', 'outcomes', 'labs', 'ever', 'classMode', 'day', 'movedIn', 'completeShown', 'charter', 'reflection', 'reflectDone', 'shop'];
   function save() {
     if (app.inLab || G.full) return; // a mission's practice island is never saved as the player's town
     try { const d = { cells: [...G.cells], li: 1 }; for (const k of KEEP) d[k] = G[k]; if (d.credits === Infinity) d.credits = null; localStorage.setItem(SAVE, JSON.stringify(d)); } catch { /* storage off: keep playing */ }
@@ -420,7 +421,7 @@ export function createGame(app) {
       tr.querySelector('[data-fold]').onclick = () => { sb.folded = !sb.folded; renderBar(); requestAnimationFrame(reframe); };
     });
   }
-  function renderDay() { ui.setDay(`☀ ${G.S.day} ${G.day} · ${clockText()}`, sb.paused, () => { sb.paused = !sb.paused; renderDay(); }); }
+  function renderDay() { ui.setDay(`☀ ${G.S.day} ${G.day} · ${clockText()}${sb.scoreTxt ? ` · ${sb.scoreTxt}` : ''}`, sb.paused, () => { sb.paused = !sb.paused; renderDay(); }); }
   function pickCat(cat) { sb.cat = cat; if (isOpen(cat)) { sb.tool = LEVELS[cat].palette[0]; showAllowed(sb.tool); } else { if (sb.tool !== 'erase') clearOverlay(); } sb.folded = false; audio.tap(); renderBar(); }
   function pickTool(id) { sb.tool = id; showAllowed(id); audio.tap(); renderBar(); }
   // what the selected (or hovered) build is and does: name, one sentence, effect chips, where it goes, cost, ▶
@@ -554,24 +555,41 @@ export function createGame(app) {
   function sayTip(text, praise = false) { showTip({ id: 'sg-' + Math.random(), text, praise }); }
 
   // the town goals in the 🌼 pop-over: all eight, ticked when met, with how to get there
+  // the town score (js/game/score.js): shown above the goals, with the next medal and where the most is to gain
+  const MEDAL = { gold: ['🥇', 'Gold'], silver: ['🥈', 'Silver'], bronze: ['🥉', 'Bronze'] };
+  const PART_NAME = { homes: ['homes', 'housing'], food: ['food', 'food'], nature: ['nature', 'nature'], health: ['health', 'health'], energy: ['winter power', 'winter power'], community: ['places to meet', 'community'], carbon: ['carbon', 'carbon'], walk: ['the walk to school', 'walk to school'], catches: ['catching Florence’s wrong ideas', 'catching flawed proposals'] };
+  const scoreNow = (s) => townScore(s, { hasSchool: ctxFor(G.cells).hasSchool, catches: G.catches || 0 });
+  function scoreHtml(s) {
+    if (!s.homes.length) return '';
+    const r = scoreNow(s); const m = r.medal && MEDAL[r.medal]; const nx = r.next && MEDAL[r.next.id];
+    const gain = r.gain ? (G.j ? `Most to gain: ${PART_NAME[r.gain.id][0]}.` : `Largest gap: ${PART_NAME[r.gain.id][1]} (${r.gain.left} pts).`) : '';
+    return `<div class="tscore" data-medal="${r.medal || ''}"><b>${G.j ? 'Town score' : 'Town score'} <span>${r.total}</span><small>/100</small>${m ? ` <em>${m[0]} ${m[1]}</em>` : ''}</b><small>${nx ? `${r.next.need} more for ${nx[0]} ${nx[1]}. ` : (G.j ? 'Top medal! ' : 'Top medal. ')}${esc(gain)}${G.bestScore ? ` ${G.j ? 'Your best' : 'Best'}: ${Math.max(G.bestScore, r.total)}.` : ''}</small></div>`;
+  }
   function renderGoals(s) {
     if (app.inLab) return;
     const goals = townGoals(s, ctxFor(G.cells)); const done = goals.filter((g) => g.ok).length;
     const cr = G.credits !== Infinity ? ` · 💰 ${G.credits} ${esc(G.S.credits)}` : '';
-    ui.setGoals(`<b class="gtitle">${esc(G.S.goalsTitle)} <em>${esc(G.S.goalsDone(done))}</em></b><ul>${goals.map((g) => { const open = isOpen(GOAL_CAT[g.id]);
+    ui.setGoals(scoreHtml(s) + `<b class="gtitle">${esc(G.S.goalsTitle)} <em>${esc(G.S.goalsDone(done))}</em></b><ul>${goals.map((g) => { const open = isOpen(GOAL_CAT[g.id]);
       return `<li class="${g.ok ? 'ok' : ''} ${open ? '' : 'locked'}"><i aria-hidden="true">${g.ok ? '✓' : open ? '○' : '🔒'}</i><span><b>${esc(G.S.goal[g.id](s).replace(/^\p{Ll}/u, (c) => c.toUpperCase()))}</b><small>${esc(g.ok ? '' : open ? G.S.goalHow[g.id] : G.S.opensWith(G.S.cats[GOAL_CAT[g.id]]))}</small></span></li>`; }).join('')}
       <li class="${labsDone() >= 6 ? 'ok' : ''}"><i aria-hidden="true">${labsDone() >= 6 ? '✓' : '🧪'}</i><span><b>${esc(G.S.labGoal(labsDone()))}</b><small>${esc(labsDone() >= 6 ? '' : G.S.labGoalHow)}${G.catches ? ` · ${esc(G.S.suggest.catches(G.catches))}` : ''}</small></span></li></ul>
       <p class="gstats">🏘 ${s.townTiles}/${SANDBOX_TOWN_CAP} ${esc(G.S.tiles)} · 👪 ${s.familiesSafe}/${TARGETS.families} ${esc(G.S.families)}${cr}</p>`);
   }
   // a goal met for the first time: a small celebration (once per town, saved)
   function milestones(s, { quiet = false } = {}) {
-    const goals = townGoals(s, ctxFor(G.cells)); const first = !G.milestones; G.milestones ||= {};
+    const goals = townGoals(s, ctxFor(G.cells)); const first = !G.milestones; G.milestones ||= {}; let got0 = 0;
     const fresh = goals.filter((g) => g.ok && !G.milestones[g.id]); for (const g of fresh) G.milestones[g.id] = true;
     // badges: extra things to try (js/game/badges.js); each gives a star, with a short line the first time
     { const ctx = ctxFor(G.cells); G.badges ||= {};
-      const got = newBadges(s, { hasSchool: ctx.hasSchool, catches: G.catches || 0, trusted: G.trusted || 0, labs: labsDone(), threeStars: Object.values(G.levelStars).filter((n) => n >= 3).length, complete: goals.every((g) => g.ok) }, G.badges);
-      for (const id of got) G.badges[id] = true;
+      const got = newBadges(s, { hasSchool: ctx.hasSchool, catches: G.catches || 0, trusted: G.trusted || 0, labs: labsDone(), threeStars: Object.values(G.levelStars).filter((n) => n >= 3).length, complete: goals.every((g) => g.ok), score: s.homes.length ? scoreNow(s).total : 0 }, G.badges);
+      for (const id of got) G.badges[id] = true; got0 = got.length;
       if (got.length && !first && !quiet && sb.running) { const say = () => { audio.star?.(); ui.caption(`★ ${G.j ? 'New badge' : 'Badge earned'}: ${badge(got[0]).name}${got.length > 1 ? ` (+${got.length - 1})` : ''}`, 3600); }; if (fresh.length) setTimeout(say, 3400); else say(); /* after the goal banner, not on top of it */ ui.setStars(G.stars = totalStars()); } }
+    // the town score: remember the best, and say so when a medal is reached for the first time
+    sb.scoreTxt = '';
+    if (s.homes.length) { const r = scoreNow(s); G.bestScore = Math.max(G.bestScore || 0, r.total); sb.scoreTxt = `${r.medal ? MEDAL[r.medal][0] : '◎'} ${r.total}`;
+      // the best score of any town on this device (the start screen shows it as the score to beat with a new town)
+      try { const all = JSON.parse(localStorage.getItem('ecotown.best.v1') || '{}'); if (r.total > (all[G.band]?.score || 0) && !G.full) { all[G.band] = { score: r.total, medal: r.medal, town: G.townName }; localStorage.setItem('ecotown.best.v1', JSON.stringify(all)); } } catch { /* storage off */ } // shown beside the clock on the town card const rank = { bronze: 1, silver: 2, gold: 3 };
+      if (r.medal && (rank[r.medal] || 0) > (rank[G.medal] || 0)) { const was = G.medal; G.medal = r.medal;
+        if (!first && !quiet && sb.running) setTimeout(() => { audio.star?.(); ui.caption(`${MEDAL[r.medal][0]} ${G.j ? `${MEDAL[r.medal][1]} town! Score ${r.total} out of 100.` : `${MEDAL[r.medal][1]} medal: town score ${r.total}/100.`}${r.next ? ` ${G.j ? 'Tap 🌼 to see how to go higher.' : 'Open 🌼 for the breakdown.'}` : ''}`, 5200); }, fresh.length ? 7200 : was === undefined && got0 ? 3800 : 400); } }
     if (first || quiet || !fresh.length || !sb.running || !s.homes.length) return;
     const g = fresh[0]; audio.reward?.(); ui.alert(G.S.goalMet[g.id], true, 3200); app.bot?.cheer();
     const town = [...G.cells].filter(([, c]) => c.item || c.mark === 'town').map(([k]) => k); const k = town[Math.floor(town.length / 2)];
@@ -1312,7 +1330,7 @@ export function createGame(app) {
       const s = sim(); flower(false); ui.show('card', false); ui.show('strip', false);
       audio.complete(app.reduce); setMusic('celebrate'); stage.setTime(17.8, 0); app.refreshLights();
       if (!app.reduce) { world.confetti(new THREE.Vector3(10, 20, 8), 240); app.cosmetics?.celebrate(5); }
-      const stars = totalStars(); const shown = showFinale(app, G, townSummary(G, s, stars), { left: wallet(stars, G.shop), title: s.title });
+      const stars = totalStars(); const shown = showFinale(app, G, townSummary(G, s, stars), { left: wallet(stars, G.shop), title: s.title, score: scoreNow(s) });
       await sleep(80); frameBeside(ui.P.modal);
       await rig.overview(app.reduce ? 0.01 : 1.6); rig.startTurntable(app.reduce ? 0 : 0.08);
       a = await shown;
@@ -1384,7 +1402,7 @@ export function createGame(app) {
   G.hint = () => { const s = sim(); const nu = nextUnlock(s, G.ever); const g = nu ? null : firstGoal(townGoals(s, ctxFor(G.cells)));
     const tool = nu ? (nu.id === 'homes' ? 'town' : nu.kind === 'food' ? ideaTool('food') : 'timber') : g ? ideaTool(g.id) : null;
     if (tool) { sb.cat = ITEMS[tool].level; sb.tool = tool; showAllowed(tool); }
-    return { step: nextStep(s).text, unlock: nu?.id || null, goal: g?.id || null, tool, spots: tool ? [...(sb.spots?.keys || [])] : [], why: tool ? spotLine() : '' }; };
+    return { score: s.homes.length ? scoreNow(s) : null, step: nextStep(s).text, unlock: nu?.id || null, goal: g?.id || null, tool, spots: tool ? [...(sb.spots?.keys || [])] : [], why: tool ? spotLine() : '' }; };
   G.suggest = () => { const sg = suggestFor(sim()); if (sg) offerSuggestion(sg); return sg?.id || null; };
   G.openLab = openLab; G.labBoard = labBoard; G.enterClassroom = enterClassroom; G.classAsk = classAsk; G.leaveClassroom = leaveClassroom; G.playVideo = playVideo; G.videoCard = videoCard; G.florenceTo = florenceTo; G.placeAt = (k, tool, o) => { const ok = placeAt(k, tool, o); if (ok) changed(); return ok; }; G.sim = sim; G.advisor = sb.adv;
   G.saved = () => { try { const d = JSON.parse(localStorage.getItem(SAVE) || 'null'); return d && d.band === G.band ? d : null; } catch { return null; } };

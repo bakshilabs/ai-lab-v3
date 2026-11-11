@@ -40,7 +40,9 @@ export function openShop(app, G, { stars, onChange }) {
 
 // the finale: a side sheet (bottom sheet on phones) so the island can turn behind it.
 // sum: townSummary(); left: stars still to spend. Resolves with 'keep' | 'report' | 'shop'.
-export function showFinale(app, G, sum, { left = 0, title = '' } = {}) {
+export function showFinale(app, G, sum, { left = 0, title = '', score = null } = {}) {
+  const MED = { gold: '🥇 Gold', silver: '🥈 Silver', bronze: '🥉 Bronze' };
+  const scoreLine = score ? `<p class="fscore"><b>${score.medal ? MED[score.medal] + ' · ' : ''}${G.j ? 'Town score' : 'Town score'} ${score.total} / 100</b>${score.next ? `<small>${G.j ? `${score.next.need} more for ${MED[score.next.id]}. Keep building, or start a new town and beat it!` : `${score.next.need} points short of ${MED[score.next.id]}. Improve this town, or beat it with a new one.`}</small>` : ''}</p>` : '';
   const F = G.S.finale; const pick = (o) => (typeof o === 'string' ? o : G.j ? o.j : o.s);
   const groups = FINALE_GROUPS.filter((g) => sum.groups[g]).map((g) => `<span>${GROUP_ICON[g]} ${sum.groups[g]} ${esc(G.S.cats[g])}</span>`).join('');
   const habits = sum.habits.map((h) => G.C.habits[h]).filter(Boolean).map((h) => `<li><span aria-hidden="true">${h.icon}</span>${esc(h.label)}</li>`).join('');
@@ -48,7 +50,7 @@ export function showFinale(app, G, sum, { left = 0, title = '' } = {}) {
   const say = `${F.title(G.townName)} ${pick(G.S.completeText)}`;
   document.documentElement.dataset.finale = 'on';
   return app.ui.modal(`<div class="ribbon green">🎉 ${esc(G.S.completeRibbon)}</div>
-    <h2>${esc(F.title(G.townName))}</h2>${title ? `<p class="fbadge">🏅 ${esc(title)}</p>` : ''}<p class="flead">${esc(pick(G.S.completeText))}</p>
+    <h2>${esc(F.title(G.townName))}</h2>${title ? `<p class="fbadge">🏅 ${esc(title)}</p>` : ''}<p class="flead">${esc(pick(G.S.completeText))}</p>${scoreLine}
     <div class="fgrid">
       ${tile('🏡', F.built, esc(F.builds(sum.builds)), `${groups ? `<span class="fgroups">${groups}</span>` : ''}<span class="ffam">👪 ${esc(F.families(sum.families))}</span>`, 'wide')}
       ${tile('🔍', F.caught, sum.caught, esc(F.caughtSub(sum.missionMistakes, sum.catches)))}

@@ -197,6 +197,9 @@ async function start() {
     r.innerHTML = `<button class="btn go" data-carry>▶ Carry on building ${esc(resume.townName)}</button><span>or start a new town:</span>`;
     scr.querySelector('.ages').before(r); setTimeout(() => r.querySelector('[data-carry]')?.focus(), 120);
   }
+  // the best town score on this device, per age: something to beat with a new town
+  try { const best = JSON.parse(localStorage.getItem('ecotown.best.v1') || '{}'); const M = { gold: '🥇', silver: '🥈', bronze: '🥉' };
+    for (const b of scr.querySelectorAll('[data-band]')) { const r = best[b.dataset.band]; if (r?.score) b.insertAdjacentHTML('beforeend', `<em class="bestscore">${M[r.medal] || '◎'} Best town score: ${Math.round(r.score)} of 100${r.town ? ` (${esc(r.town)})` : ''}. Can you beat it?</em>`); } } catch { /* no storage */ }
   const band = await new Promise((res) => { scr.querySelectorAll('[data-band]').forEach((b) => (b.onclick = () => { resume = null; res(b.dataset.band); })); const c = scr.querySelector('[data-carry]'); if (c) c.onclick = () => res(resume.band); });
   initAudio(); sfx.good(); loadVoices(band);
   app.band = band; ui.readAloud = app.settings.readAloud && band === 'junior' ? true : app.settings.readAloud && band === 'senior' ? false : app.settings.readAloud;
