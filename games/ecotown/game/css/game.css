@@ -2125,3 +2125,29 @@ html[data-visit="on"] #card .goal .gt { font-weight: 800; }
 .eplist .btn[disabled] { cursor: default; }
 @media (max-width: 560px) { .eplist li { grid-template-columns: 1.4em 1fr; } .eplist li .btn + .btn { grid-column: 2; } #episode .epname { display: none; } #episode .epbar { justify-content: flex-end; } }
 /* ---- story episodes · END OF BLOCK --------------------------------------------------------------------------- */
+
+/* ---------- phone portrait, stage 5 (best-seller plan): the build tray is three slim rows. Categories are 40 px tall,
+   the information line 24 px, and the builds 57 px; once the key has folded to "?" (after the first few builds) it sits
+   at the right-hand end of the information line instead of taking a row of its own. Tap targets stay at least 40 px. */
+@media (max-width: 560px) and (orientation: portrait) {
+  html #build .bbody { position: relative; gap: 3px; }
+  html #build .cats { padding-bottom: 0; }
+  html #build .cats .slot.cat { height: 40px; min-height: 40px; padding-top: 1px; padding-bottom: 1px; }
+  html #build .cats .slot.cat img { width: 17px; height: 17px; }
+  html #build .cats .slot.cat span { font-size: 10px; line-height: 1.1; }
+  html #build .info { height: 24px; }
+  html #build .bbody:has(.hlkey.mini) .info { padding-right: 30px; }
+  html #build .items { padding-top: 2px; padding-bottom: 2px; }
+  html #build .items .slotwrap, html #build .items .slot.item { height: 57px; min-height: 57px; }
+  html #build .items .slot.item img { width: 22px; height: 22px; }
+  html #build .items .slot.item span { font-size: 10.5px; line-height: 1.05; }
+  html #build .cats .slot.cat span { font-size: 9.5px; line-height: 1; }
+  /* the town card: a smaller flower button and slightly smaller words, so most next steps fit on two lines */
+  html #layer #card > .ib.bump { width: 46px; height: 46px; min-width: 46px; }
+  html #layer #card > .ib.bump svg { width: 44px; height: 44px; }
+  html #layer #card .goal { flex: 1 1 auto; padding-left: 9px; padding-right: 6px; }
+  html #layer #card .goal .gt { font-size: 12.5px; line-height: 1.2; }
+  html #build .hlkey:not(.mini) { font-size: 10px; line-height: 1.2; gap: 1px 7px; }
+  html #build .hlkey.mini { position: absolute; right: 0; top: 43px; height: 24px; margin: 0; z-index: 2; display: flex; align-items: center; justify-content: flex-end; }
+  html #build .hlkey.mini:hover, html #build .hlkey.mini:focus-within, html #build .hlkey.mini:focus { bottom: auto; top: auto; bottom: calc(100% + 4px); right: 0; height: auto; flex-wrap: wrap; max-width: 92vw; padding: 6px 8px; border-radius: 10px; background: var(--p6-card, #fffaf0); box-shadow: 0 4px 14px rgba(0,0,0,.25); }
+}

@@ -68,7 +68,7 @@ html = html.replace(/<script type="importmap">[\s\S]*?<\/script>\n?/, '')
   .replace('<head>', '<head>\n<meta name="robots" content="noindex, nofollow">');
 fs.writeFileSync(path.join(OUT, 'index.html'), html);
 // 5b. the club leader's one-page plan: a plain page, no scripts beyond its print button
-if (fs.existsSync(path.join(SRC, 'leader.html'))) fs.copyFileSync(path.join(SRC, 'leader.html'), path.join(OUT, 'leader.html'));
+for (const page of ['leader.html', 'trailer.html']) if (fs.existsSync(path.join(SRC, page))) fs.copyFileSync(path.join(SRC, page), path.join(OUT, page));
 
 // 6. security headers for Cloudflare Pages
 fs.copyFileSync(path.join(here, '_headers'), path.join(OUT, '_headers'));
