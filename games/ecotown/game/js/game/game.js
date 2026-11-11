@@ -587,7 +587,8 @@ export function createGame(app) {
     sb.scoreTxt = '';
     if (s.homes.length) { const r = scoreNow(s); G.bestScore = Math.max(G.bestScore || 0, r.total); sb.scoreTxt = `${r.medal ? MEDAL[r.medal][0] : '◎'} ${r.total}`;
       // the best score of any town on this device (the start screen shows it as the score to beat with a new town)
-      try { const all = JSON.parse(localStorage.getItem('ecotown.best.v1') || '{}'); if (r.total > (all[G.band]?.score || 0) && !G.full) { all[G.band] = { score: r.total, medal: r.medal, town: G.townName }; localStorage.setItem('ecotown.best.v1', JSON.stringify(all)); } } catch { /* storage off */ } // shown beside the clock on the town card const rank = { bronze: 1, silver: 2, gold: 3 };
+      try { const all = JSON.parse(localStorage.getItem('ecotown.best.v1') || '{}'); if (r.total > (all[G.band]?.score || 0) && !G.full) { all[G.band] = { score: r.total, medal: r.medal, town: G.townName }; localStorage.setItem('ecotown.best.v1', JSON.stringify(all)); } } catch { /* storage off */ }
+      const rank = { bronze: 1, silver: 2, gold: 3 };
       if (r.medal && (rank[r.medal] || 0) > (rank[G.medal] || 0)) { const was = G.medal; G.medal = r.medal;
         if (!first && !quiet && sb.running) setTimeout(() => { audio.star?.(); ui.caption(`${MEDAL[r.medal][0]} ${G.j ? `${MEDAL[r.medal][1]} town! Score ${r.total} out of 100.` : `${MEDAL[r.medal][1]} medal: town score ${r.total}/100.`}${r.next ? ` ${G.j ? 'Tap 🌼 to see how to go higher.' : 'Open 🌼 for the breakdown.'}` : ''}`, 5200); }, fresh.length ? 7200 : was === undefined && got0 ? 3800 : 400); } }
     if (first || quiet || !fresh.length || !sb.running || !s.homes.length) return;
