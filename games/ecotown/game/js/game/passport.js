@@ -6,7 +6,7 @@ import { CHALLENGES } from './challenges.js';
 
 export const RANKS = [
   { at: 0, name: 'Helper', icon: '🌱' }, { at: 8, name: 'Builder', icon: '🧱' }, { at: 20, name: 'Planner', icon: '📐' },
-  { at: 35, name: 'Town Planner', icon: '🏘' }, { at: 50, name: 'Master Planner', icon: '🏅' }, { at: 70, name: 'Chief Planner', icon: '👑' },
+  { at: 35, name: 'Town Planner', icon: '🏘' }, { at: 65, name: 'Master Planner', icon: '🏅' }, { at: 100, name: 'Chief Planner', icon: '👑' }, // out of 139 with 13 challenges (were 50 and 70 out of 91 with 7)
 ];
 export const MISSION_STARS = 19; // six missions × three stars, and the bias check's bonus star
 const TOWN_MEDAL = { bronze: 2, silver: 4, gold: 6 }; const CH_MEDAL = { bronze: 3, silver: 5, gold: 8 };

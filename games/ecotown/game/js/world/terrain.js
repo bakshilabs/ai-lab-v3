@@ -75,13 +75,13 @@ export function mesaAt(x, z) {
 export const TARN = { x: 12.5, z: -34, r: 2.3, h: 8 };
 // Height of the wild rim belt (0 inside the tile area): terraced hills, higher at the back (north/east)
 // and low at the front (south coast), so the town stays in view from the default camera.
-export function rimHeight(x, z) {
+export function rimHeight(x, z, hillScale = 1) { // hillScale: how high this island's rim hills stand (the mesas keep their height)
   if (insideTileArea(x, z)) return 0;
   const rIn = Math.hypot(x / TRX, z / TRZ);
   const t = Math.max(0, Math.min(1, (rIn - 1) / ((RX / TRX) - 1)));            // 0 at the tile edge → 1 at the outline
   const back = Math.max(0, Math.min(1, 0.45 - z / 34 + x / 160));              // north/back of the island
   const hills = noise2(x / 8, z / 8, 5) * 0.65 + noise2(x / 3.5, z / 3.5, 6) * 0.35;
-  let h = (1.5 + back * 7) * hills * Math.min(1, t * 2.4) + back * 2 * t;
+  let h = ((1.5 + back * 7) * hills * Math.min(1, t * 2.4) + back * 2 * t) * hillScale;
   if (h >= 3) h = Math.round(h / 2) * 2;                                       // the higher hills step up in terraces
   const mesa = mesaAt(x, z) * Math.min(1, t * 3 + 0.34);                       // mesas never crowd the town edge
   return Math.max(0, Math.round(h), Math.round(mesa));
@@ -124,35 +124,74 @@ export function zoneAt(cx, cz) {
   if (cx > 3 && cz > -7) return 'slope';
   return 'field';
 }
-function zoneOf(gx, gz) {
+// ---- More islands (best-seller plan, stage 3). A layout changes only what the land IS (zone, height, hedges) and how
+// high the wild rim stands. The tile grid, the river column, the outline, the mesas and the three fixed tiles are the
+// same on every island, so the bridge, the camera and the mesh code need nothing special. 'home' is the first island
+// and must never change (tests/islands.test.mjs hashes its tile list).
+//   delta: a river delta. Flood meadow and a big marsh; one low bank of dry ground in the east.
+//   hills: hill country. A big old wood on high ground, terraced slopes, a long beach; one small strip of flat field.
+function zoneDelta(cx, cz) {
+  if (cx < -11) return 'meadow';
+  if (cz > 17) return 'coast';
+  if (cx > 5 && cz < -15) return 'wood';
+  if (cx > 18 && cz < 10) return cx > 24 ? 'slope' : 'field';
+  if (Math.hypot((cx - 1) / 14, (cz + 3) / 12) < 1) return 'wetland';
+  return 'meadow';
+}
+function zoneHills(cx, cz) {
+  if (cz > 11 || cx + cz > 36) return 'coast';
+  if (cx < -18) return 'meadow';
+  if (Math.hypot((cx + 12) / 7, (cz - 3) / 6) < 1) return 'wetland';
+  if (cx < -12) return 'field';
+  if (cz < -9) return 'wood';
+  return 'slope';
+}
+const FIXED = { school: '9,8', dock: '5,8', lab: '10,9' }; // where the home island's rule puts them
+export const LAYOUTS = {
+  home: { id: 'home', name: 'Home Island', icon: '🏝', rim: 1, zoneAt },
+  delta: { id: 'delta', name: 'Delta Island', icon: '💧', rim: 0.45, zoneAt: zoneDelta,
+    height: (zone, gx, gz, n) => (zone === 'slope' ? 1 + (gx >= 12 ? 1 : 0) : zone === 'field' ? 1 : zone === 'wood' ? 2 + (n > 0.5 ? 1 : 0) : 0),
+    hedge: (zone, gx, gz) => zone === 'meadow' && gz <= 2 && gx >= 4 }, // old hedgerows on the north meadow, away from the scarce dry bank
+  hills: { id: 'hills', name: 'Hill Island', icon: '⛰', rim: 1.4, zoneAt: zoneHills,
+    height: (zone, gx, gz, n) => (zone === 'slope' ? 1 + (gz <= 4 ? 1 : 0) + (gx >= 9 ? 1 : 0) + (n > 0.62 ? 1 : 0) : zone === 'wood' ? 4 + (n > 0.5 ? 1 : 0) : zone === 'field' ? 1 + (gz <= 1 ? 1 : 0) : 0),
+    hedge: (zone) => zone === 'field' },
+};
+export const ISLANDS = Object.keys(LAYOUTS);
+export const islandId = (v) => (ISLANDS.includes(v) ? v : 'home');
+function zoneOf(gx, gz, zAt = zoneAt) {
   const [cx, cz] = tileCenter(gx, gz);
   const [x0, z0] = tileOrigin(gx, gz);
   for (const [x, z] of [[x0, z0], [x0 + T - 1, z0], [x0, z0 + T - 1], [x0 + T - 1, z0 + T - 1]]) if (!insideTileArea(x, z)) return null;
   if (gx === 2) return 'river';
-  return zoneAt(cx, cz);
+  return zAt(cx, cz);
 }
 
-// Build the immutable terrain description.
-export function makeTerrain() {
+// Build the immutable terrain description. layout: 'home' (default), 'delta' or 'hills'.
+export function makeTerrain(layout = 'home') {
+  const L = LAYOUTS[islandId(layout)]; const home = L.id === 'home';
   const tiles = new Map();
   for (let gx = 0; gx < GW; gx++) for (let gz = 0; gz < GH; gz++) {
-    const zone = zoneOf(gx, gz); if (!zone) continue;
+    const zone = zoneOf(gx, gz, L.zoneAt); if (!zone) continue;
     const [cx] = tileCenter(gx, gz);
     const n = noise2(gx / 2.3, gz / 2.3, 21);
-    const h = zone === 'slope' ? 1 + (cx > 14 ? 1 : 0) + (n > 0.62 ? 1 : 0) : zone === 'wood' ? 3 + (n > 0.5 ? 1 : 0) : zone === 'field' ? 1 + (n > 0.58 ? 1 : 0) + (gz <= 1 ? 1 : 0) : 0;
-    const hedge = zone === 'field' && (gz === 2 || gz === 4) && gx >= 4 && gx <= 11;
+    const h = !home ? L.height(zone, gx, gz, n) : zone === 'slope' ? 1 + (cx > 14 ? 1 : 0) + (n > 0.62 ? 1 : 0) : zone === 'wood' ? 3 + (n > 0.5 ? 1 : 0) : zone === 'field' ? 1 + (n > 0.58 ? 1 : 0) + (gz <= 1 ? 1 : 0) : 0;
+    const hedge = !home ? L.hedge(zone, gx, gz) : zone === 'field' && (gz === 2 || gz === 4) && gx >= 4 && gx <= 11;
     tiles.set(key(gx, gz), { gx, gz, k: key(gx, gz), zone, h, hedge });
   }
   // fixed features: island school and ferry dock on the coast, nearest the slope
   const coast = [...tiles.values()].filter((t) => t.zone === 'coast').sort((a, b) => a.gx - b.gx);
-  const school = coast.find((t) => t.gx >= 9) || coast[coast.length - 1];
-  const dock = coast.find((t) => t.gx >= 5 && t.gx < 9 && t !== school) || coast[0];
+  let school, dock, lab;
+  if (home) {
+    school = coast.find((t) => t.gx >= 9) || coast[coast.length - 1];
+    dock = coast.find((t) => t.gx >= 5 && t.gx < 9 && t !== school) || coast[0];
+  } else { school = tiles.get(FIXED.school); dock = tiles.get(FIXED.dock); } // the other islands keep them on the same tiles
   if (school) school.fixed = 'oldschool';
   if (dock) dock.fixed = 'dock';
   // Florence's AI Lab: on the coast beside the old school, where she walks in to start a mission
-  const lab = coast.find((t) => school && t.gx === school.gx + 1 && t.gz === school.gz + 1) || coast.find((t) => !t.fixed && t.gx > (school?.gx ?? 0));
+  if (home) lab = coast.find((t) => school && t.gx === school.gx + 1 && t.gz === school.gz + 1) || coast.find((t) => !t.fixed && t.gx > (school?.gx ?? 0));
+  else lab = tiles.get(FIXED.lab);
   if (lab) lab.fixed = 'ailab';
-  return { tiles, school: school?.k, dock: dock?.k, lab: lab?.k };
+  return { tiles, school: school?.k, dock: dock?.k, lab: lab?.k, layout: L.id, name: L.name, rim: L.rim, zoneAt: L.zoneAt };
 }
 
 export function neighbours(tiles, t) {

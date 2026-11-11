@@ -68,6 +68,23 @@ Rotate each level. Each role owns one lens or view, so every child has evidence 
 
 The intro can be replayed from ☰, and skipped in later sessions.
 
+**Using the story episodes with a group.** Every mission has two short cartoons (30 to 45 seconds each): an **opening** that plays before the mission's start card and a **closing** that plays after its reward card, the first time only. In the opening, Posy gives Florence a vague instruction, Florence makes a confident plan and says how sure she is, and the film stops on a question. In the closing, Dev checks the plan, Florence says "Oops" and what she guessed, Posy gives the clear instruction, and the film ends on a card with two things to remember: the eco idea (🌍) and the AI habit (🤖). Captions are on (the CC button turns them off), Skip or Escape ends a film, and ☰ → Episodes replays any film a player has reached. On a slow network, turn them off in ☰ → Settings → Story episodes and show them once on the room's screen instead.
+- **Pause points.** Each film holds its last card for about four seconds: pause there. In an opening, also pause when Florence's "% sure" label appears and ask "How sure is she? Is that the same as right?"
+- **Opening:** ask the question on the card and take two or three guesses. Do not give the answer; the mission does that.
+- **Closing:** before the last card appears, ask "What two things will the card say?" Then read the card together.
+- **One question for each film** (the first of each pair is the opening):
+
+| Mission | After the opening, ask | After the closing, ask |
+|---|---|---|
+| 1. Read the land | "Is the flattest land the best land? What might Florence have missed?" | "Which one word did Florence take too far? What would you say instead?" |
+| 2. Getting around | "Who is 'everyone'? Who did Florence forget?" | "What did Florence guess that nobody told her?" |
+| 3. Homes | "What can't you see from the sky?" | "The homes looked fine. What showed that they were not?" |
+| 4. Food | "What should Florence keep?" | "What is the difference between 'enough' and 'as much as possible'?" |
+| 5. Water, power and waste | "Is very sure the same as right? Which day would you test?" | "She was 90% sure and wrong, then 74% sure and right. Which plan do you trust, and why?" |
+| 6. A school for everyone | "The middle of what? And who should Florence ask?" | "Florence asked ten people at the car park. Who was missing?" |
+
+Full scripts and shot lists: `docs/EPISODES.md`.
+
 **Choose "In order (class)" on the start screen** for a class: only the next AI Lab mission opens, and Florence invites players to it as soon as it is ready, so the class stays roughly together. Between missions, players build freely; that build time is where they grow the town enough to unlock the next mission (homes at 6 tiles of town land, food at 12 families, power at 24, town heart at 36). A useful rhythm is "mission, debrief, build" for each level below. If a group is slow to unlock the next mission, tell them to choose **Use Florence's plan** at the end of a mission: that adds her fixed plan to their town and moves them on. "Any order" suits clubs, museums and home play. With "In order (class)" the music starts **off** (sound effects stay on) so a room of devices stays calm; turn it on from ☰ → Sound → On if you like.
 
 DESIGN.md says Levels 4 and 5 merge in shorter versions. Level debriefs (section 9A) happen inside the play time.
@@ -103,7 +120,7 @@ DESIGN.md says Levels 4 and 5 merge in shorter versions. Level debriefs (section
 **Short of time:** merge Levels 4 and 5, cut level debriefs to one question each, keep the Level 1 debrief in full and at least 10 minutes of final discussion.
 
 ### Full-day club plan (about 5 hours of play, with breaks)
-The game has enough for a whole club day: the player's own town and six missions in the morning, seven challenge towns in the afternoon.
+The game has enough for a whole club day: the player's own town and six missions in the morning, thirteen challenge towns on three islands in the afternoon.
 
 | Time | What | Notes |
 |---|---|---|
@@ -112,11 +129,12 @@ The game has enough for a whole club day: the player's own town and six missions
 | 1:30–1:45 | Break | |
 | 1:45–3:00 | Missions 4–6; finish the eight town goals | "Town complete" card and the town report |
 | 3:00–3:45 | Lunch | |
-| 3:45–4:00 | Open **Challenge towns** together: read the seven rules, predict which is hardest | 🏆 on the start screen, or ☰ → Challenge towns |
+| 3:45–4:00 | Open **Challenge towns** together: read the rules, predict which is hardest | 🏆 on the start screen, or ☰ → Challenge towns |
 | 4:00–5:15 | Challenge towns, in pairs: start with "Florence's Town", then free choice | A bronze medal for passing; silver and gold from the town score |
 | 5:15–5:30 | Break | |
 | 5:30–6:15 | Second round: go for a higher medal, or a challenge not tried yet | Ask pairs to swap a tip with another pair |
-| 6:15–6:45 | Final discussion (section 9B) and medal count | |
+| 6:00–6:15 | Each pair opens ☰ → **Town postcard** and reads its town code to the leader (or holds the postcard up to the leader's camera) | The leader's device shows the **club wall** (see below) |
+| 6:15–6:45 | Final discussion (section 9B) round the club wall, and medal count | Open two towns from the wall and run the same lens on both |
 
 **Challenge towns** (js/game/challenges.js). Each is a new town with one rule, its own saved town and its own medal. Everything is unlocked and all six lenses are ready, and Florence still offers plans that are sometimes wrong.
 
@@ -129,11 +147,52 @@ The game has enough for a whole club day: the player's own town and six missions
 | Wild Island | All five animals, and more nature than the empty island had | Building without taking habitat |
 | Room for Everyone | Safe homes for 60 families | Growth inside limits |
 | Eight-Minute Town | Every home within 8 minutes of school and daily needs | Layout and walking routes |
+| **Delta Island** (flood meadow and marsh, little dry ground) | | |
+| Delta: Dry Feet | Six or more homes on the flood meadow, and no home floods | Building with water: a reed bed beside a home drains its land |
+| Delta: Otter Country | All five animals, and 5 % more nature than the empty delta had | Building without taking habitat where almost all land is habitat |
+| Delta: Room for Everyone | Safe, dry homes for 60 families | Growth when dry ground runs out |
+| **Hill Island** (a big old wood, terraced slopes, a long beach, little flat field) | | |
+| Hills: Tiny Town | Only 8 tiles of town land | Density on steep ground |
+| Hills: Keep the Wood | All 21 tiles of old wood standing, and 15 % more nature than the empty island had | Habitat first: the town fits around the wood |
+| Hills: Eight-Minute Town | Every home within 8 minutes of school and daily needs | Compact layout between wood and beach |
+
+- **Three islands.** The first seven challenges are on the home island. The other six are on two more islands, and the board also offers **free building** on each of them (no special rule, its own saved town, a medal from the town score). Picking one reloads the game on that island; "Back to my own town" in ☰ returns home.
+- **Island of the day.** To start everyone on another island, add `?island=delta` or `?island=hills` to the game's address: the two age buttons then start a free town on that island, with everything unlocked.
+- **Missions are on the home island.** The six AI Lab missions use Florence's practice island, which is the home island. On the delta and the hills the AI Lab button says so; all six lenses are already open there.
 
 - **Club passport** (🎒 on the start screen, or ☰): adds up mission stars, the town medal, challenge medals and catches into points and six planner ranks, from Helper to Chief Planner. It always names the next thing worth points. "Print certificate" gives one page with the rank, the medals and the three habits for checking an AI; no name is stored, so the child writes their own. Use the ranks as the day's shared goal: "Who can reach Town Planner before lunch?"
 - **Opening them:** challenge towns appear on a device once its six missions are done. To open them straight away (a second day, a shared device), add `?challenges=1` to the game's address.
 - **Hints are lighter here by design.** The next-step line still names the goal, but the usual recipe does not pass every challenge (ten timber terraces do not fit Tiny Town). Let pairs struggle for a few minutes before helping.
 - **Discussion:** "Florence was 90 % sure about her own town. Which lens showed the first thing wrong? What would you ask a real AI planner to show you before building?"
+
+### Showing towns to each other: postcard, visit and the club wall
+Children want to show what they built. The game lets them do it **inside the room only**: a town travels as a code that someone types or scans. Nothing is put online.
+
+| What | Where | What it does |
+|---|---|---|
+| **Town postcard** | ☰ → Town postcard, or the button on the town report | A picture of the town with its badge, score and medal, the **town code** in groups of four and a QR square. "Save the picture" keeps it on that device. |
+| **Visit a town** | The first screen, or ☰ → Visit a town | Type or paste a code, or scan the square (where the device can). The town opens **read-only**: look around, walk the streets, run all six lenses, read its score and goals. Nothing can be built, and the visitor's own town is not touched. "Back to my town" returns. |
+| **Club wall** | The first screen, under "For club leaders" (or add `?wall=1` to the game's address) | A grid of the group's towns on the leader's device: a small map, the badge, the score and medal, the two strongest parts of the score and the one with most to gain. Tap a town to open it. "Remove" takes one off; "Clear the wall" empties it. |
+
+**How long is a code?** A first town is about 64 characters (16 groups of four); a large, finished town is 100 to 125 (25 to 31 groups). Reading one out takes a minute or two. Where a device has a camera and can read QR codes, scanning the postcard is quicker.
+
+**Running the end of the day with the wall (15 to 30 minutes)**
+1. Open the game on the leader's device (ideally on the big screen) and choose **Club wall**.
+2. Each pair opens ☰ → **Town postcard**. One child reads the code aloud in fours while the leader types; the wall says "✓" and the town's badge as soon as the code is complete. A slip is refused with a plain sentence, so nothing wrong can be added.
+3. When the towns are up, read the wall together: which parts are strong in most towns, which are weak.
+4. The wall gives **three questions** made from the towns on it (for example "5 of our 8 towns are weakest at low carbon: why is that the hard one, and which lens shows it?"). Use them as the opening of the final discussion (section 9B, questions 3, 5 and 8 follow on well).
+5. Tap two towns in turn and run the **same lens** on both. Ask the builders to speak for their evidence first, then take questions from the group. Florence gives one line about what the lens shows; she is a guide here, not a planner.
+6. At the end, "Clear the wall" if the device is shared with another group.
+
+**The safeguarding rules it keeps**
+- **No accounts, no chat, no online gallery.** Nothing is uploaded. The game makes no network request for any of this; a code only moves when a person reads, types or scans it.
+- **No names.** A town name a child typed never leaves their device: the postcard, the code, the visit and the wall show the town's badge (for example "Orchard Square"), or the name only if it is one of the six ideas offered on the first screen. The code holds the buildings, the age band, the score and the count of Florence's wrong ideas caught, and nothing about the child.
+- **No free text travels.** There is no message, caption or comment field anywhere in this feature.
+- **The wall lives on one device.** It is a list of town codes in that browser's storage. Clearing the wall, or clearing the browser's data, removes it.
+- **The camera is optional and stays local.** "Scan a postcard" appears only on devices that can read QR codes themselves. It starts only when tapped, asks the browser's usual permission, shows the picture on that device only, saves nothing and stops when a code is read or "Stop the camera" is pressed. If your setting does not allow cameras, type the codes; nothing else changes.
+- **The postcard is a file on the child's device.** Whether it may be taken home or printed is the venue's decision, as for any picture a child makes. It has no name on it.
+- **A link works on the same site only.** The QR square holds the game's own address with the code after it, so scanning it with a tablet's camera app opens the town in the game. On the passcode site the visitor still needs a passcode.
+- **In discussion:** compare towns, not children. Ask "what did this town protect?", not "who did best?". The score is a way in to the evidence, not a ranking of the group.
 
 ## 8. Assessment
 - **Stars** reward spotting and fixing the AI's mistakes, not how the town looks (DESIGN.md). Every level-complete card lists the three rules with ✓ or ☆:
@@ -296,7 +355,8 @@ Goldsmith Street in Norwich is a street of about 100 council homes built to a ve
 - **No devices:** an A2 island map with acetate lens overlays, paper build tiles and a facilitator script of plans and outcomes.
 
 ## 11. Safety, ethics and data
-- **Data collected:** none. No accounts, names (town titles only) or camera.
+- **Data collected:** none. No accounts and no names (town titles only). The camera is used only if someone taps "Scan a postcard" to read a town code; the picture stays on the device and nothing is saved or sent.
+- **Showing towns:** by a code typed or scanned in the room, never online. See "Showing towns to each other" in section 7 for the rules it keeps.
 - **Age and real AI tools:** the helper is scripted. No live AI tools with children; staff note age limits if real tools come up (check each tool's terms; to verify).
 - **Gentle consequences:** people queue, shiver or move away; nobody is harmed; no fail screen (DESIGN.md).
 - **Accuracy:** every real-world environmental claim on screen (carbon, flooding, materials) needs a source or an expert check before release.

@@ -70,19 +70,21 @@ Eco Town already does 2, 3 and 7. The plan below is mostly about 1, 4, 5 and 6.
 
 **Done when:** a new play-tester (AI persona first, then children) describes the island's reactions unprompted, and no reward depends on reading a banner.
 
-### Stage 3: more islands
+### Stage 3: more islands (built, 11 November 2026, except the two points marked below)
 
 **Problem:** every town is on the same island. After three hours the layout is familiar.
 
 | Build | Detail |
 |---|---|
-| **Island generator settings** | The terrain code already builds the island from numbers. Add two more layouts: a river-delta island (more flood land, less dry ground) and a hill island (little flat land, strong wind). |
-| **Island choice for challenges** | Each challenge can name its island, which doubles the challenge set without new rules. |
-| **Island of the day** | A club leader can pick the island for the day's free-building town. |
+| **Island generator settings** ✅ | The terrain code already builds the island from numbers. Add two more layouts: a river-delta island (more flood land, less dry ground) and a hill island (little flat land, strong wind). *Built as `makeTerrain('delta' / 'hills')`. Not built: stronger wind on the hills (the simulation is the same on every island).* |
+| **Island choice for challenges** ✅ | Each challenge can name its island, which doubles the challenge set without new rules. *Six new challenges: three on each new island (13 in all).* |
+| **Island of the day** ✅ | A club leader can pick the island for the day's free-building town. *`?island=delta` or `?island=hills` in the address, or the challenge board. The six missions stay on the home island.* |
 
 **Done when:** all goals and all challenges are shown passable on each island by the automated tests, and the frame rate is no worse than on the first island.
 
-### Stage 4: showing towns to each other
+**State:** the eight town goals and every challenge are proven passable on the island they are played on (`tests/challenges.test.mjs`, `tests/islands.test.mjs`); the seven home-island challenges were not moved to the other islands. Draw calls and triangles are within 3 % of the home island in software 3D (`tests/playwright/islands.mjs`); frame rate on real devices is still to be measured (stage 5).
+
+### Stage 4: showing towns to each other (built, 11 November 2026; not yet tried between two real devices)
 
 **Problem:** the strongest driver of spread in builder games is showing your world. Eco Town has a printed report only.
 
@@ -93,6 +95,17 @@ Eco Town already does 2, 3 and 7. The plan below is mostly about 1, 4, 5 and 6.
 | **Visit a town** | Open a friend's town from its code, look around and run the lenses on it. Read-only. |
 
 **Done when:** two devices exchange a town by code with no network account, and the safeguarding rules in the teacher guide still hold (no chat, no names, no online gallery).
+
+**State (11 November 2026):**
+- [x] **Town postcard**: picture, badge, score, medal, the town code in fours and a QR square, saved as a PNG (☰ and the town report).
+- [x] **Town code**: versioned and checked; a first town is about 64 characters, a large one 100 to 125. Not "short": typing one takes a minute or two, which is why the postcard also carries a QR square.
+- [x] **Visit a town**: read-only, with all six lenses, street view, score, goals and medal; the visitor's own save is untouched (automated check with three separate browser profiles).
+- [x] **Club wall**: on one device, with maps drawn from the codes, strongest and weakest parts, three discussion questions, Remove and Clear.
+- [x] Safeguarding: no accounts, no chat, no typed text or name in a code, no network request (automated checks).
+- [ ] **Two real devices in one room** (the "done when"): only simulated so far. Needs people: read a code aloud and type it; scan a postcard with a tablet camera.
+- [ ] **Camera scanning** has not been run on a real camera (the test browser has no QR reader). It is optional and fails quietly.
+- [ ] Voices for the new lines (Florence's lens lines in a visit) are read by the device voice.
+- [ ] Other islands (stage 3): the code has a field for the island; a visit to a town from an island this device does not have shows the buildings on this island with the score its own device worked out.
 
 ### Stage 5: phone and performance
 

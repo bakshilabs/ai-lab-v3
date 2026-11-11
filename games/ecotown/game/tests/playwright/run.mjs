@@ -27,6 +27,9 @@ await p.addInitScript((fast) => { window.__sayLog = []; if (fast) localStorage.s
 const errors = []; p.on('pageerror', (e) => errors.push(e.message + ' ' + (e.stack || '').split('\n')[1])); p.on('console', (m) => m.type() === 'error' && !/404/.test(m.text()) && errors.push(m.text()));
 const requests = []; p.on('request', (r) => { if (!r.url().startsWith(base)) requests.push(r.url()); });
 const budget = []; const checks = {};
+// story episodes (js/ui/epviewer.js): a film before and after each mission, the first time. The run skips each one as soon as
+// its Skip button shows. (Playwright's own Chromium has no H.264, so there the game carries on without the film.)
+let episodesSkipped = 0; await p.addLocatorHandler(p.locator('#episode [data-skip]'), async (skip) => { episodesSkipped++; await skip.click(); });
 let n = 0; const shot = async (name) => { await p.waitForTimeout(500); await p.screenshot({ path: `${out}/${String(++n).padStart(2, '0')}-${name}.png` }); };
 const click = async (sel, t = 20000) => { await p.waitForSelector(sel, { state: 'visible', timeout: t }); await p.click(sel); };
 const panelsVisible = () => p.evaluate(() => [...document.querySelectorAll('#layer > .panel:not(.hide)')].map((n) => n.id).filter(Boolean));
@@ -160,5 +163,6 @@ checks.saved = await p.evaluate(() => !!localStorage.getItem('ecotown.save.v3'))
 const said = await p.evaluate(() => window.__sayLog || []);
 fs.writeFileSync(`${out}/said.json`, JSON.stringify(said, null, 1));
 const over = budget.filter(([k, v]) => v.filter((x) => ['dock', 'alert', 'lensbar', 'modal'].includes(x)).length > (/live/.test(k) ? 2 : 4));
+checks.episodesSeen = await p.evaluate(() => Object.keys(window.__eco.app.G.eps || {}).length); checks.episodesSkipped = episodesSkipped;
 console.log(JSON.stringify({ checks, errors, external: requests, panelBudgetViolations: over, spoken: said.length, missingClips: said.reduce((a, x) => a + x.missing.length, 0) }, null, 1));
 await b.close();

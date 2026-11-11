@@ -5,7 +5,7 @@ import { createRequire } from 'module'; const { chromium } = (() => { const r = 
 const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
 const ctx = await b.newContext({ viewport: { width: 1280, height: 800 } }); const p = await ctx.newPage();
 const errs = []; p.on('pageerror', (e) => errs.push(e.message));
-await p.goto('http://localhost:8765/index.html');
+await p.goto((process.argv[2] || 'http://localhost:8765/') + 'index.html'); // base URL as the first argument
 await p.evaluate(() => { localStorage.clear(); localStorage.setItem('ecotown.prefs', JSON.stringify({ reduce: true, readAloud: false, quality: 'low' })); });
 await p.reload();
 const tabTo = async (test, max = 40) => { for (let i = 0; i < max; i++) { await p.keyboard.press('Tab'); if (await p.evaluate(test)) return true; } return false; };
