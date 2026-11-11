@@ -19,7 +19,7 @@ const ok = (name, v, note = '') => { checks[name] = v === true ? true : `FAILED 
 async function device(name) {
   const ctx = await b.newContext({ viewport: { width: W, height: H }, hasTouch: phone, isMobile: phone, acceptDownloads: true });
   await ctx.addInitScript(() => { if (!localStorage.getItem('ecotown.prefs')) localStorage.setItem('ecotown.prefs', JSON.stringify({ quality: 'low', reduce: true, readAloud: false })); });
-  const p = await ctx.newPage(); p.setDefaultNavigationTimeout(180000); p.on('pageerror', (e) => errors.push(`${name}: ${e.message}`));
+  const p = await ctx.newPage(); p.setDefaultNavigationTimeout(240000); p.setDefaultTimeout(120000); p.on('pageerror', (e) => errors.push(`${name}: ${e.message}`));
   p.on('request', (r) => { if (!r.url().startsWith(base) && !/^(data|blob):/.test(r.url())) foreign.push(`${name}: ${r.url()}`); });
   p.on('dialog', (d) => d.accept());
   return p;
@@ -43,7 +43,7 @@ for (let i = 0, stuck = 0; i < 120 && stuck < 3; i++) {
 await A.waitForTimeout(1500);
 const townA = await A.evaluate(() => { const G = window.__eco.app.G; const s = G.sim(); return { name: G.townName, families: s.familiesSafe, cells: [...G.cells].filter(([, c]) => c.item || c.mark).length, score: G.hint().score?.total ?? 0, title: s.title }; });
 ok('A: the town is called what the child typed', townA.name === TYPED, townA.name);
-await A.click('[data-menu]'); await A.click('[data-m-act="postcard"]'); await A.waitForSelector('.postcard .pccanvas', { timeout: 30000 }); await A.waitForTimeout(600);
+await A.click('[data-menu]'); await A.click('[data-m-act="postcard"]'); await A.waitForSelector('.postcard .pccanvas', { timeout: 60000, waitUntil: 'commit' }); await A.waitForTimeout(600);
 const code = (await A.textContent('.postcard [data-code]')).replace(/\s/g, '');
 const cardText = await A.textContent('#modal');
 ok('A: the postcard card shows a code in groups of four', /^[0-9A-HJKMNP-TV-Z]{11,}$/.test(code), code);
@@ -56,7 +56,7 @@ ok('A: "Save the picture" downloads a PNG', !!dl && /\.png$/.test(dl.suggestedFi
 await A.click('#modal [data-act="close"]');
 // the same card from the town report
 await A.waitForTimeout(500); await A.evaluate(() => window.__eco.app.G.showReport()); await A.waitForSelector('#report [data-postcard]', { timeout: 60000 });
-await A.click('#report [data-postcard]'); const fromReport = await A.waitForSelector('.postcard .pccanvas', { timeout: 30000 }).then(() => true).catch(() => false);
+await A.click('#report [data-postcard]'); const fromReport = await A.waitForSelector('.postcard .pccanvas', { timeout: 60000, waitUntil: 'commit' }).then(() => true).catch(() => false);
 ok('A: the town report has the postcard too', fromReport); if (fromReport) { await A.waitForTimeout(400); await shot(A, 'postcard-from-report'); await A.click('#modal [data-act="close"]'); }
 
 await A.context().close(); // one device at a time: software 3D is slow
@@ -65,7 +65,7 @@ await A.context().close(); // one device at a time: software 3D is slow
 const B = await device('B'); await startTown(B, null);
 await B.evaluate(() => { const { G } = window.__eco.app; const ks = [...window.__eco.terrain.tiles.values()].filter((t) => ['field', 'slope'].includes(t.zone) && !t.fixed).slice(0, 3).map((t) => t.k); for (const k of ks) G.placeAt(k, 'town'); });
 await B.waitForTimeout(1600);
-await B.click('[data-menu]'); await B.click('[data-m-act="visit"]'); // (the game saves B's town once more as it leaves)
+await B.click('[data-menu]'); await B.click('[data-m-act="visit"]', { noWaitAfter: true }); // (the game saves B's town once more as it leaves)
 await B.waitForSelector('#start [data-code]', { timeout: 120000 });
 const ownBefore = await B.evaluate(() => localStorage.getItem('ecotown.save.v3')); const keysBefore = await keys(B);
 const ownCells = (txt) => JSON.stringify((JSON.parse(txt || '{"cells":[]}').cells || []).filter(([, c]) => c.mark || c.item).map(([k, c]) => [k, c.mark, c.item]).sort());
@@ -77,7 +77,7 @@ await B.fill('#start [data-code]', code.match(/.{1,4}/g).join(' ').toLowerCase()
 await B.waitForSelector('#start .codemsg.ok', { timeout: 10000 }); const found = await B.textContent('#start .codemsg');
 ok('B: the code is recognised before opening', found.includes(String(townA.score)), found);
 await shot(B, 'visit-card');
-await Promise.all([B.waitForURL(/town=/, { timeout: 30000 }), B.click('#start [data-use]')]);
+await Promise.all([B.waitForURL(/town=/, { timeout: 60000, waitUntil: 'commit' }), B.click('#start [data-use]', { noWaitAfter: true })]);
 await B.waitForSelector('#visitbar', { timeout: 180000 }); await B.waitForTimeout(3500);
 const v = await B.evaluate(() => { const app = window.__eco.app; const G = app.G; const s = G.sim(); const before = JSON.stringify([...G.cells]);
   const k = [...window.__eco.terrain.tiles.values()].find((t) => t.zone === 'field' && !t.fixed && !G.cells.get(t.k)).k;
@@ -114,7 +114,7 @@ ok('B: the menu offers "Back to my town" and no report or postcard of someone el
 const ownDuring = await B.evaluate(() => localStorage.getItem('ecotown.save.v3')); const keysDuring = await keys(B);
 ok('B: its own save is byte-for-byte untouched by the visit', ownDuring === ownBefore);
 ok('B: the visit stored nothing new on the device', JSON.stringify(keysDuring) === JSON.stringify(keysBefore), `${keysBefore} → ${keysDuring}`);
-await Promise.all([B.waitForURL(/carry=1/, { timeout: 30000 }), B.click('#visitbar [data-vback]')]);
+await Promise.all([B.waitForURL(/carry=1/, { timeout: 60000, waitUntil: 'commit' }), B.click('#visitbar [data-vback]', { noWaitAfter: true })]);
 await B.waitForSelector('#build [data-cat="land"]', { timeout: 180000 }); await B.waitForTimeout(800);
 const back = await B.evaluate(() => { const G = window.__eco.app.G; return { tiles: G.sim().townTiles, cells: JSON.stringify([...G.cells]), name: G.townName, visiting: !!G.visiting }; });
 ok('B: "Back to my town" opens B’s own town exactly as it was', back.tiles === 3 && ownCells(JSON.stringify({ cells: JSON.parse(back.cells) })) === ownCells(ownBefore) && back.name === 'Otter Bend' && !back.visiting, JSON.stringify(back).slice(0, 200));
@@ -150,10 +150,10 @@ const stored = await C.evaluate(() => ({ keys: Object.keys(localStorage).sort(),
 ok('C: the wall is stored on this device as a list of codes and nothing else', JSON.stringify(stored.keys) === JSON.stringify(['ecotown.prefs', 'ecotown.wall.v1']) && JSON.parse(stored.wall).length === 3 && JSON.parse(stored.wall).every((c) => /^[0-9A-Z]+$/.test(c)), JSON.stringify(stored.keys));
 await C.reload(); await C.waitForSelector('#start .wtown', { timeout: 120000 });
 ok('C: the wall is still there after a reload', (await C.$$('#start .wtown')).length === 3);
-await Promise.all([C.waitForURL(/town=.*from=wall/, { timeout: 30000 }), C.click('#start .wtown .wopen')]);
+await Promise.all([C.waitForURL(/town=.*from=wall/, { timeout: 60000, waitUntil: 'commit' }), C.click('#start .wtown .wopen', { noWaitAfter: true })]);
 await C.waitForSelector('#visitbar [data-vwall]', { timeout: 180000 }); await C.waitForTimeout(2500);
 ok('C: tapping a town opens it in visit mode', await C.evaluate(() => window.__eco.app.G.visiting === true)); await shot(C, 'visit-from-wall');
-await Promise.all([C.waitForURL(/wall=1/, { timeout: 30000 }), C.click('#visitbar [data-vwall]')]); await C.waitForSelector('#start .wtown', { timeout: 120000 });
+await Promise.all([C.waitForURL(/wall=1/, { timeout: 60000, waitUntil: 'commit' }), C.click('#visitbar [data-vwall]', { noWaitAfter: true })]); await C.waitForSelector('#start .wtown', { timeout: 120000 });
 await C.click('#start .wtown [data-remove]'); await C.waitForTimeout(300); const afterRemove = (await C.$$('#start .wtown')).length;
 await C.click('#start [data-clear]'); await C.waitForTimeout(300); const afterClear = (await C.$$('#start .wtown')).length;
 ok('C: "Remove" takes one town off and "Clear the wall" takes them all', afterRemove === 2 && afterClear === 0 && (await C.evaluate(() => localStorage.getItem('ecotown.wall.v1'))) === '[]', `${afterRemove}, ${afterClear}`);

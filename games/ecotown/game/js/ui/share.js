@@ -2,6 +2,7 @@
 // club wall. Rules live in js/game/towncode.js (the code), js/game/qr.js (the QR picture) and js/game/townshare.js
 // (what a device works out from a code). Safeguarding: no accounts, no chat, no network calls; a code is typed or
 // scanned in the same room; the postcard is a picture saved on this device; a typed town name is never shown on it.
+import * as THREE from 'three';
 import { ITEMS } from '../world/catalog.js';
 import { ZONES } from '../world/terrain.js';
 import { decodeTown, groupCode, whyText, cleanCode } from '../game/towncode.js';
@@ -58,7 +59,7 @@ export function drawTownMap(canvas, terrain, cells) {
 function loadImage(src) { return new Promise((res) => { if (!src) return res(null); const i = new Image(); i.onload = () => res(i); i.onerror = () => res(null); i.src = src; }); }
 export async function postcardCanvas(o) {
   const img = await loadImage(o.shot); const tall = !!img && img.height > img.width * 1.1;
-  const W = tall ? 900 : 1200, H = tall ? 1320 : 870, PH = tall ? 820 : 520; const c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d');
+  const W = tall ? 900 : 1200, H = tall ? 1230 : 870, PH = tall ? 820 : 520; const c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d');
   g.fillStyle = '#bfe3f2'; g.fillRect(0, 0, W, PH);
   if (img) { const k = Math.max(W / img.width, PH / img.height); const w = img.width * k, h = img.height * k; g.drawImage(img, (W - w) / 2, (PH - h) / 2, w, h); }
   else if (o.terrain) { const m = document.createElement('canvas'); m.width = 640; m.height = 500; drawTownMap(m, o.terrain, o.sum.cells); g.drawImage(m, (W - 640 * PH / 500) / 2, 0, 640 * PH / 500, PH); }
@@ -91,6 +92,21 @@ function download(canvas, name) {
 }
 async function copyText(t) { try { await navigator.clipboard.writeText(t); return true; } catch { return false; } }
 
+// the postcard's picture: the whole island from the home direction, whatever the camera is looking at now, without
+// the build kerbs. The camera is put back at once (the render loop draws the next frame from where it was).
+function wholeIslandShot(app) {
+  const { stage, rig, world } = app; const cam = stage.camera; if (rig.mode !== 'sky') return app.snapshot();
+  const keep = { pos: cam.position.clone(), quat: cam.quaternion.clone(), view: cam.view?.enabled ? { ...cam.view } : null, kerbs: world.overlayHidden };
+  try {
+    cam.clearViewOffset(); world.hideOverlay?.(true);
+    const f = (cam.fov * Math.PI) / 360; const dist = Math.max(62 / Math.tan(Math.atan(Math.tan(f) * cam.aspect)), 52 / Math.tan(f));
+    const pose = rig.skyPose({ target: new THREE.Vector3(0, -3, -2), yaw: (-40 * Math.PI) / 180, pitch: (34 * Math.PI) / 180, dist });
+    cam.position.copy(pose.pos); cam.lookAt(pose.look); cam.updateMatrixWorld();
+    return app.snapshot();
+  } catch { return app.snapshot(); } finally {
+    cam.position.copy(keep.pos); cam.quaternion.copy(keep.quat); if (keep.view) cam.setViewOffset(keep.view.fullWidth, keep.view.fullHeight, keep.view.offsetX, keep.view.offsetY, keep.view.width, keep.view.height); cam.updateMatrixWorld(); world.hideOverlay?.(keep.kerbs);
+  }
+}
 // what the town being played would show on another device: { code, sum } (null if it cannot be written)
 export function myTown(app) {
   const G = app.G; if (!G?.cells) return null;
@@ -102,7 +118,7 @@ export async function openPostcard(app, { shot = null } = {}) {
   if (!t) { app.ui.caption(j ? 'Build something first, then make a postcard.' : 'Nothing to share yet.', 3000); return; }
   if (!t.sum.builds && !t.sum.sim.townTiles) { app.ui.caption(j ? 'Your island is still empty. Build a little first, then make a postcard.' : 'The island is empty: build first.', 3600); return; }
   // the picture without the build kerbs (the render loop puts them back on its next frame)
-  if (shot == null) { const was = app.world.overlayHidden; app.world.hideOverlay?.(true); shot = app.snapshot(); app.world.hideOverlay?.(was); }
+  if (shot == null) shot = wholeIslandShot(app);
   const card = await postcardCanvas({ shot, sum: t.sum, code: t.code, band: t.band, terrain: app.terrain });
   const nameNote = t.sum.heading !== app.G.townName ? `<p class="pcnote">${j ? `The postcard uses your town’s badge, “${esc(t.sum.title)}”, not the name you typed. Names you type stay on this device.` : `The postcard shows the town’s badge (“${esc(t.sum.title)}”), not the typed name: typed text never leaves this device.`}</p>` : '';
   return app.ui.modal(`<div class="postcard"><div class="ribbon">✉ Town postcard</div><div class="pcimg" data-pc></div>
