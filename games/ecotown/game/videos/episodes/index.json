@@ -54,6 +54,635 @@
      "text": "Step into the AI Lab and check."
     }
    ]
+  },
+  "land-close": {
+   "mission": "land",
+   "kind": "close",
+   "n": 1,
+   "title": "The flood",
+   "mp4": "land-close.mp4",
+   "poster": "land-close.jpg",
+   "vtt": "land-close.vtt",
+   "duration": 31.67,
+   "bytes": 1458451,
+   "cues": [
+    {
+     "t0": 1.3,
+     "t1": 4.75,
+     "who": "Narrator",
+     "text": "Winter came to Eco Town. And so did the rain."
+    },
+    {
+     "t0": 4.82,
+     "t1": 8.66,
+     "who": "Dev",
+     "text": "Look through the flood lens! The meadow floods every winter."
+    },
+    {
+     "t0": 8.73,
+     "t1": 11.15,
+     "who": "Florence",
+     "text": "Oops. You said best. I guessed flat."
+    },
+    {
+     "t0": 11.22,
+     "t1": 14.43,
+     "who": "Posy",
+     "text": "Try this. Dry, sunny land. Keep the meadow wild."
+    },
+    {
+     "t0": 14.5,
+     "t1": 18.29,
+     "who": "Florence",
+     "text": "Dry land on the slope. The meadow stays wild. Checked!"
+    },
+    {
+     "t0": 18.36,
+     "t1": 23.48,
+     "who": "Narrator",
+     "text": "Flat land by a river can flood. So build on dry ground, and keep the meadow wild."
+    },
+    {
+     "t0": 23.55,
+     "t1": 28,
+     "who": "Narrator",
+     "text": "And an AI can take one word too far. So say what you really mean."
+    }
+   ]
+  },
+  "move-open": {
+   "mission": "move",
+   "kind": "open",
+   "n": 2,
+   "title": "Easy for everyone",
+   "mp4": "move-open.mp4",
+   "poster": "move-open.jpg",
+   "vtt": "move-open.vtt",
+   "duration": 29.37,
+   "bytes": 1462463,
+   "cues": [
+    {
+     "t0": 1.3,
+     "t1": 4.9,
+     "who": "Narrator",
+     "text": "The town has its land. Now, how will people get around?"
+    },
+    {
+     "t0": 4.97,
+     "t1": 7.95,
+     "who": "Posy",
+     "text": "Make it easy for everyone to get to school!"
+    },
+    {
+     "t0": 8.02,
+     "t1": 11.79,
+     "who": "Florence",
+     "text": "Easy for everyone? Then everyone needs a big, wide road!"
+    },
+    {
+     "t0": 11.86,
+     "t1": 15.89,
+     "who": "Florence",
+     "text": "And a car park at the school gate. I am 77% sure!"
+    },
+    {
+     "t0": 17.16,
+     "t1": 19.81,
+     "who": "Dev",
+     "text": "But Florence, we walk to school."
+    },
+    {
+     "t0": 20.78,
+     "t1": 23.83,
+     "who": "Narrator",
+     "text": "Easy for everyone. Or just easy for cars?"
+    },
+    {
+     "t0": 23.9,
+     "t1": 25.7,
+     "who": "Narrator",
+     "text": "Who did Florence forget?"
+    }
+   ]
+  },
+  "move-close": {
+   "mission": "move",
+   "kind": "close",
+   "n": 2,
+   "title": "Look from the street",
+   "mp4": "move-close.mp4",
+   "poster": "move-close.jpg",
+   "vtt": "move-close.vtt",
+   "duration": 30.74,
+   "bytes": 1469924,
+   "cues": [
+    {
+     "t0": 1.3,
+     "t1": 3.79,
+     "who": "Narrator",
+     "text": "It is quarter to nine. School time."
+    },
+    {
+     "t0": 3.86,
+     "t1": 7.44,
+     "who": "Dev",
+     "text": "Look from the street. Too many cars! We cannot cross."
+    },
+    {
+     "t0": 7.5,
+     "t1": 11.36,
+     "who": "Florence",
+     "text": "Oops. Nobody said how. So I guessed that everyone drives."
+    },
+    {
+     "t0": 11.43,
+     "t1": 15,
+     "who": "Posy",
+     "text": "Safe paths for walking and cycling. Cars stay at the edge."
+    },
+    {
+     "t0": 15.07,
+     "t1": 18.48,
+     "who": "Florence",
+     "text": "Paths and cycle lanes. Cars at the edge. Checked!"
+    },
+    {
+     "t0": 18.54,
+     "t1": 22.24,
+     "who": "Narrator",
+     "text": "A town you can walk and cycle around is safer for everyone."
+    },
+    {
+     "t0": 22.31,
+     "t1": 27.07,
+     "who": "Narrator",
+     "text": "And when your words leave a gap, an AI fills it with a guess. So say who you mean."
+    }
+   ]
+  },
+  "homes-open": {
+   "mission": "homes",
+   "kind": "open",
+   "n": 3,
+   "title": "Strong homes",
+   "mp4": "homes-open.mp4",
+   "poster": "homes-open.jpg",
+   "vtt": "homes-open.vtt",
+   "duration": 27.63,
+   "bytes": 1452256,
+   "cues": [
+    {
+     "t0": 1.3,
+     "t1": 4.75,
+     "who": "Narrator",
+     "text": "Families are coming to Eco Town. They need homes."
+    },
+    {
+     "t0": 4.82,
+     "t1": 7.39,
+     "who": "Posy",
+     "text": "Florence, build strong homes, please!"
+    },
+    {
+     "t0": 7.46,
+     "t1": 10.33,
+     "who": "Florence",
+     "text": "Strong? I know strong! Concrete and steel!"
+    },
+    {
+     "t0": 10.4,
+     "t1": 13.63,
+     "who": "Florence",
+     "text": "They will stand for years. I am 85% sure!"
+    },
+    {
+     "t0": 15.9,
+     "t1": 19.42,
+     "who": "Dev",
+     "text": "They do look strong. But is strong all a home should be?"
+    },
+    {
+     "t0": 19.49,
+     "t1": 21.72,
+     "who": "Narrator",
+     "text": "From the sky, the homes look fine."
+    },
+    {
+     "t0": 21.79,
+     "t1": 23.96,
+     "who": "Narrator",
+     "text": "How can you check what you cannot see?"
+    }
+   ]
+  },
+  "homes-close": {
+   "mission": "homes",
+   "kind": "close",
+   "n": 3,
+   "title": "The hidden cloud",
+   "mp4": "homes-close.mp4",
+   "poster": "homes-close.jpg",
+   "vtt": "homes-close.vtt",
+   "duration": 31.45,
+   "bytes": 1466284,
+   "cues": [
+    {
+     "t0": 1.3,
+     "t1": 4.86,
+     "who": "Narrator",
+     "text": "Some problems hide. Until you look through the right lens."
+    },
+    {
+     "t0": 4.93,
+     "t1": 10.1,
+     "who": "Dev",
+     "text": "The carbon lens! Making all that concrete gave off three times too much carbon."
+    },
+    {
+     "t0": 10.17,
+     "t1": 12.36,
+     "who": "Florence",
+     "text": "Oops. I only thought about strong."
+    },
+    {
+     "t0": 12.43,
+     "t1": 15.43,
+     "who": "Posy",
+     "text": "Warm, low-carbon homes from timber and straw."
+    },
+    {
+     "t0": 15.5,
+     "t1": 19.29,
+     "who": "Florence",
+     "text": "Timber and straw. Warm inside, and under the limit. Checked!"
+    },
+    {
+     "t0": 19.36,
+     "t1": 23.7,
+     "who": "Narrator",
+     "text": "Carbon hides in the things we build with. Timber and straw keep it low."
+    },
+    {
+     "t0": 23.77,
+     "t1": 27.78,
+     "who": "Narrator",
+     "text": "And a plan that looks right is not proof. Always check with evidence."
+    }
+   ]
+  },
+  "food-open": {
+   "mission": "food",
+   "kind": "open",
+   "n": 4,
+   "title": "As much as possible",
+   "mp4": "food-open.mp4",
+   "poster": "food-open.jpg",
+   "vtt": "food-open.vtt",
+   "duration": 27.42,
+   "bytes": 1455700,
+   "cues": [
+    {
+     "t0": 1.3,
+     "t1": 4.45,
+     "who": "Narrator",
+     "text": "The town is growing. Now everyone needs food."
+    },
+    {
+     "t0": 4.52,
+     "t1": 7.29,
+     "who": "Posy",
+     "text": "Florence, grow as much food as possible!"
+    },
+    {
+     "t0": 7.36,
+     "t1": 10.44,
+     "who": "Florence",
+     "text": "As much as possible? Then I will plough everything!"
+    },
+    {
+     "t0": 10.51,
+     "t1": 14.43,
+     "who": "Florence",
+     "text": "Every field. Every hedge. I am 79% sure!"
+    },
+    {
+     "t0": 16.1,
+     "t1": 19.22,
+     "who": "Dev",
+     "text": "Wait. Where did the hedges go? And the bees?"
+    },
+    {
+     "t0": 19.29,
+     "t1": 21.91,
+     "who": "Narrator",
+     "text": "Lots of food. But who else was living here?"
+    },
+    {
+     "t0": 21.98,
+     "t1": 23.76,
+     "who": "Narrator",
+     "text": "What should Florence keep?"
+    }
+   ]
+  },
+  "food-close": {
+   "mission": "food",
+   "kind": "close",
+   "n": 4,
+   "title": "Enough",
+   "mp4": "food-close.mp4",
+   "poster": "food-close.jpg",
+   "vtt": "food-close.vtt",
+   "duration": 32.54,
+   "bytes": 1470109,
+   "cues": [
+    {
+     "t0": 1.3,
+     "t1": 4.65,
+     "who": "Narrator",
+     "text": "The fields are full. But the island has gone quiet."
+    },
+    {
+     "t0": 4.72,
+     "t1": 9.54,
+     "who": "Dev",
+     "text": "The nature lens shows it. No hedges. So the bees and the deer have left."
+    },
+    {
+     "t0": 9.61,
+     "t1": 12.85,
+     "who": "Florence",
+     "text": "Oops. You said as much as possible. So I took it all."
+    },
+    {
+     "t0": 12.92,
+     "t1": 15.83,
+     "who": "Posy",
+     "text": "Enough food. And keep the hedges for the bees."
+    },
+    {
+     "t0": 15.9,
+     "t1": 19.73,
+     "who": "Florence",
+     "text": "An orchard, beehives and hedges. Enough for everyone. Checked!"
+    },
+    {
+     "t0": 19.8,
+     "t1": 24.57,
+     "who": "Narrator",
+     "text": "Hedges are homes and safe paths for wildlife. Enough is better than most."
+    },
+    {
+     "t0": 24.64,
+     "t1": 28.88,
+     "who": "Narrator",
+     "text": "And an AI does what you say, not what you mean. So tell it what to keep."
+    }
+   ]
+  },
+  "power-open": {
+   "mission": "power",
+   "kind": "open",
+   "n": 5,
+   "title": "Very, very sure",
+   "mp4": "power-open.mp4",
+   "poster": "power-open.jpg",
+   "vtt": "power-open.vtt",
+   "duration": 26.07,
+   "bytes": 1458366,
+   "cues": [
+    {
+     "t0": 1.3,
+     "t1": 4.04,
+     "who": "Narrator",
+     "text": "Eco Town needs power. Clean power."
+    },
+    {
+     "t0": 4.11,
+     "t1": 7.22,
+     "who": "Posy",
+     "text": "Florence, make enough clean power for every home."
+    },
+    {
+     "t0": 7.29,
+     "t1": 11.18,
+     "who": "Florence",
+     "text": "Solar panels on every roof! On a normal day, that is plenty."
+    },
+    {
+     "t0": 11.24,
+     "t1": 14.48,
+     "who": "Florence",
+     "text": "I am 90% sure. That is very, very sure!"
+    },
+    {
+     "t0": 14.55,
+     "t1": 17.19,
+     "who": "Dev",
+     "text": "What about a day that is not normal?"
+    },
+    {
+     "t0": 17.26,
+     "t1": 20.62,
+     "who": "Narrator",
+     "text": "Ninety per cent sure. Is that the same as right?"
+    },
+    {
+     "t0": 20.69,
+     "t1": 22.4,
+     "who": "Narrator",
+     "text": "Which day would you test?"
+    }
+   ]
+  },
+  "power-close": {
+   "mission": "power",
+   "kind": "close",
+   "n": 5,
+   "title": "The winter night",
+   "mp4": "power-close.mp4",
+   "poster": "power-close.jpg",
+   "vtt": "power-close.vtt",
+   "duration": 33.61,
+   "bytes": 1468841,
+   "cues": [
+    {
+     "t0": 1.3,
+     "t1": 4.04,
+     "who": "Narrator",
+     "text": "A still winter night. The sun has gone."
+    },
+    {
+     "t0": 4.11,
+     "t1": 7.47,
+     "who": "Dev",
+     "text": "The winter test! Look. Every light has gone out."
+    },
+    {
+     "t0": 7.54,
+     "t1": 9.95,
+     "who": "Florence",
+     "text": "Oops. But I was 90% sure!"
+    },
+    {
+     "t0": 10.02,
+     "t1": 13.39,
+     "who": "Posy",
+     "text": "Enough power for a still winter night. Store the sunshine."
+    },
+    {
+     "t0": 13.46,
+     "t1": 19.96,
+     "who": "Florence",
+     "text": "A wind turbine and batteries. I have not planned for winter before. Only 74% sure."
+    },
+    {
+     "t0": 20.03,
+     "t1": 22.75,
+     "who": "Dev",
+     "text": "Test it again. The lights stay on!"
+    },
+    {
+     "t0": 22.82,
+     "t1": 26.49,
+     "who": "Narrator",
+     "text": "Plan your power for the hardest night, and store some for later."
+    },
+    {
+     "t0": 26.56,
+     "t1": 29.93,
+     "who": "Narrator",
+     "text": "And sure is not the same as right. So test the plan."
+    }
+   ]
+  },
+  "heart-open": {
+   "mission": "heart",
+   "kind": "open",
+   "n": 6,
+   "title": "The middle",
+   "mp4": "heart-open.mp4",
+   "poster": "heart-open.jpg",
+   "vtt": "heart-open.vtt",
+   "duration": 25.46,
+   "bytes": 1458393,
+   "cues": [
+    {
+     "t0": 1.3,
+     "t1": 4.54,
+     "who": "Narrator",
+     "text": "One last job. Eco Town needs a new school."
+    },
+    {
+     "t0": 4.61,
+     "t1": 7.16,
+     "who": "Posy",
+     "text": "Put the school right in the middle, Florence!"
+    },
+    {
+     "t0": 7.23,
+     "t1": 8.83,
+     "who": "Florence",
+     "text": "The middle. I will measure!"
+    },
+    {
+     "t0": 8.9,
+     "t1": 13.11,
+     "who": "Florence",
+     "text": "Here! The exact middle of the island. I am 81% sure!"
+    },
+    {
+     "t0": 14.98,
+     "t1": 17.65,
+     "who": "Dev",
+     "text": "That is a long way from my house."
+    },
+    {
+     "t0": 18.32,
+     "t1": 19.82,
+     "who": "Narrator",
+     "text": "The middle of what?"
+    },
+    {
+     "t0": 19.89,
+     "t1": 21.81,
+     "who": "Narrator",
+     "text": "And who should Florence ask?"
+    }
+   ]
+  },
+  "heart-close": {
+   "mission": "heart",
+   "kind": "close",
+   "n": 6,
+   "title": "Ask everyone",
+   "mp4": "heart-close.mp4",
+   "poster": "heart-close.jpg",
+   "vtt": "heart-close.vtt",
+   "duration": 36.67,
+   "bytes": 1489068,
+   "cues": [
+    {
+     "t0": 1.3,
+     "t1": 5.7,
+     "who": "Dev",
+     "text": "The walking lens shows it. Eighteen minutes from my house. Too far!"
+    },
+    {
+     "t0": 5.77,
+     "t1": 8.31,
+     "who": "Florence",
+     "text": "Oops. I read “the middle” too exactly."
+    },
+    {
+     "t0": 8.38,
+     "t1": 11.61,
+     "who": "Posy",
+     "text": "School within a 15-minute walk of every home."
+    },
+    {
+     "t0": 11.68,
+     "t1": 14.62,
+     "who": "Florence",
+     "text": "Moved! Now every home is close enough. Checked!"
+    },
+    {
+     "t0": 14.69,
+     "t1": 18.82,
+     "who": "Florence",
+     "text": "One more thing. People want more car parks! I asked ten of them."
+    },
+    {
+     "t0": 18.89,
+     "t1": 20.39,
+     "who": "Dev",
+     "text": "Where did you ask?"
+    },
+    {
+     "t0": 20.46,
+     "t1": 21.71,
+     "who": "Florence",
+     "text": "At the car park."
+    },
+    {
+     "t0": 21.79,
+     "t1": 25.09,
+     "who": "Posy",
+     "text": "So you only asked drivers! Ask at the school gate too."
+    },
+    {
+     "t0": 25.16,
+     "t1": 27.77,
+     "who": "Narrator",
+     "text": "Keep school a short walk from every home."
+    },
+    {
+     "t0": 27.84,
+     "t1": 33.01,
+     "who": "Narrator",
+     "text": "And an AI that only asks some people gives an unfair answer. So ask everyone."
+    }
+   ]
   }
  }
 }

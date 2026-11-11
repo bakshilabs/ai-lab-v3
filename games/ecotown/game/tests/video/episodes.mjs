@@ -1,10 +1,11 @@
 // Records the story episodes (js/game/episodes.js): voices, pictures, music and sound, captions, poster and index.
 // Usage: node tests/video/episodes.mjs <baseUrl> [episode ids…] --work <scratch dir> --kokoro <dir>
-//          [--force] [--stills 2,8,14] [--tier high] [--w 960 --h 540] [--kb 1450]
+//          [--force] [--stills 2,8,14|shots] [--remix] [--tier high] [--w 960 --h 540] [--kb 1450]
 //   <baseUrl>   a static server for games/ecotown/game, e.g. http://localhost:8771/
 //   --work      a scratch folder OUTSIDE the repository (voice clips, intermediate video, audio stems)
 //   --kokoro    folder with Kokoro's model.onnx and voices file (see voice/README.md); without it the voices
 //               are not recorded and an episode whose lines have no clip is refused (never a robot voice instead)
+//   --remix     only mix the sound again (from the stems kept in --work) under the finished pictures
 //   --stills    only save still pictures at these seconds into <work>/stills/<id>-<t>.jpg (for looking at framing)
 // For each episode it writes videos/episodes/<id>.mp4 (H.264 + AAC, faststart), <id>.jpg (poster), <id>.vtt
 // (captions), and then videos/episodes/index.json and timing.json (the recorded length of every line).
@@ -45,6 +46,7 @@ for (const id of ids) {
   const mp4 = path.join(out, `${id}.mp4`); if (!stills && !flag('force') && fs.existsSync(mp4)) { console.log('skip', id); continue; }
   const cues = schedule(ep, durs).cues;
   if (!stills) { const missing = cues.filter((c) => !fs.existsSync(path.join(work, 'voice', c.key + '.wav'))); if (missing.length) { console.error(`${id}: ${missing.length} lines have no recorded voice (run with --kokoro). Not rendered.`); continue; } }
+  if (flag('remix')) { remix(id, ep, cues); continue; }
   const p = await b.newPage({ viewport: { width: W, height: H }, deviceScaleFactor: 1 });
   await p.addInitScript(() => localStorage.setItem('ecotown.prefs', JSON.stringify({ quality: 'high', reduce: false, readAloud: false })));
   p.on('pageerror', (e) => console.log('[pageerror]', id, e.message)); p.on('console', (m) => m.type() === 'error' && !/404/.test(m.text()) && console.log('[console]', id, m.text()));
@@ -96,7 +98,7 @@ for (const id of ids) {
   chains.push('[0:a]volume=1.0[bed]');
   tl.cues.forEach((c, i) => { inputs.push('-i', path.join(work, 'voice', c.key + '.wav')); chains.push(`[${i + 1}:a]aresample=44100,volume=2.2,adelay=${Math.round(c.t0 * 1000)}:all=1[v${i}]`); names.push(`[v${i}]`); });
   const wav = path.join(work, `${id}.audio.wav`);
-  ff([...inputs, '-filter_complex', `${chains.join(';')};${names.join('')}amix=inputs=${names.length}:normalize=0:duration=longest,alimiter=limit=0.89,apad=whole_dur=${dur.toFixed(3)}[m]`, '-map', '[m]', '-t', dur.toFixed(3), '-ar', '44100', '-ac', '1', wav]);
+  ff([...inputs, '-filter_complex', `${chains.join(';')};${names.join('')}amix=inputs=${names.length}:normalize=0:duration=longest,alimiter=limit=0.89,volume=0.62,apad=whole_dur=${dur.toFixed(3)}[m]`, '-map', '[m]', '-t', dur.toFixed(3), '-ar', '44100', '-ac', '1', wav]);
   // ---------- 5. final file: two-pass H.264 sized for slow networks, AAC, faststart
   const AK = 64; const vk = Math.max(120, Math.floor((KB * 8) / dur - AK - 6)); const log = path.join(work, `${id}.2pass`);
   const vf = ['-c:v', 'libx264', '-preset', 'slow', '-tune', 'animation', '-profile:v', 'main', '-pix_fmt', 'yuv420p', '-b:v', `${vk}k`, '-maxrate', `${Math.round(vk * 1.8)}k`, '-bufsize', `${vk * 3}k`, '-g', String(FPS * 4), '-passlogfile', log];
@@ -104,9 +106,22 @@ for (const id of ids) {
   ff(['-i', raw, '-i', wav, ...vf, '-pass', '2', '-c:a', 'aac', '-b:a', `${AK}k`, '-ac', '1', '-movflags', '+faststart', '-shortest', mp4]);
   ff(['-i', path.join(work, `${id}.poster.jpg`), '-q:v', '5', path.join(out, `${id}.jpg`)]);
   fs.writeFileSync(path.join(out, `${id}.vtt`), vtt(ep, durs));
+  if (fs.existsSync(path.join(out, 'index.json'))) Object.assign(index.episodes, JSON.parse(fs.readFileSync(path.join(out, 'index.json'))).episodes); // another recorder may have added films meanwhile
   index.episodes[id] = { mission: ep.mission, kind: ep.kind, n: ep.n, title: ep.title, mp4: `${id}.mp4`, poster: `${id}.jpg`, vtt: `${id}.vtt`, duration: +probe(mp4).toFixed(2), bytes: fs.statSync(mp4).size,
     cues: tl.cues.map((c) => ({ t0: +c.t0.toFixed(2), t1: +(c.t1 + 0.25).toFixed(2), who: CAST[c.who].name, text: c.text })) };
   fs.writeFileSync(path.join(out, 'index.json'), JSON.stringify({ episodes: Object.fromEntries(EPISODES.filter((e) => index.episodes[e.id]).map((e) => [e.id, index.episodes[e.id]])) }, null, 1));
   console.log('recorded', id, `${n} frames in ${((Date.now() - t0) / 1000).toFixed(0)} s`, `${dur.toFixed(1)} s`, `${(fs.statSync(mp4).size / 1024).toFixed(0)} KB`);
 }
 await b.close();
+
+// --remix: mix the sound again from the stems in the work folder and put it under the finished pictures
+function remix(id, ep, cues) {
+  const bedRaw = path.join(work, `${id}.bed.s16`), mp4 = path.join(out, `${id}.mp4`), wav = path.join(work, `${id}.audio.wav`), tmp = path.join(work, `${id}.remix.mp4`);
+  if (!fs.existsSync(bedRaw) || !fs.existsSync(mp4)) { console.log('remix: nothing recorded yet for', id); return; }
+  const dur = schedule(ep, durs).duration; const inputs = ['-f', 's16le', '-ar', '44100', '-ac', '1', '-i', bedRaw]; const chains = ['[0:a]volume=1.0[bed]']; const names = ['[bed]'];
+  cues.forEach((c, i) => { inputs.push('-i', path.join(work, 'voice', c.key + '.wav')); chains.push(`[${i + 1}:a]aresample=44100,volume=2.2,adelay=${Math.round(c.t0 * 1000)}:all=1[v${i}]`); names.push(`[v${i}]`); });
+  ff([...inputs, '-filter_complex', `${chains.join(';')};${names.join('')}amix=inputs=${names.length}:normalize=0:duration=longest,alimiter=limit=0.89,volume=0.62,apad=whole_dur=${dur.toFixed(3)}[m]`, '-map', '[m]', '-t', dur.toFixed(3), '-ar', '44100', '-ac', '1', wav]);
+  ff(['-i', mp4, '-i', wav, '-map', '0:v', '-map', '1:a', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '64k', '-ac', '1', '-movflags', '+faststart', '-shortest', tmp]); fs.copyFileSync(tmp, mp4); fs.rmSync(tmp);
+  const idx = JSON.parse(fs.readFileSync(path.join(out, 'index.json'))); idx.episodes[id].bytes = fs.statSync(mp4).size; idx.episodes[id].duration = +probe(mp4).toFixed(2); fs.writeFileSync(path.join(out, 'index.json'), JSON.stringify(idx, null, 1));
+  console.log('remixed', id, `${(fs.statSync(mp4).size / 1024).toFixed(0)} KB`);
+}
