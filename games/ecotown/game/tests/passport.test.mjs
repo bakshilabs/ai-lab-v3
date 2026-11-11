@@ -20,7 +20,8 @@ test('the town and its missions alone reach Planner, not the top ranks', () => {
 test('every rank can be reached, and Chief Planner takes most challenges at silver or better', () => {
   const base = { junior: { score: 78, medal: 'silver' }, me: { junior: { stars: 15, complete: true, catches: 3 } } };
   const bronze = passport({ ...base, ch: { junior: home7('bronze') } }, 'junior'); assert.equal(bronze.rank.name, 'Town Planner'); assert.equal(bronze.tip.id, 'challenge'); assert.equal(passport({ ...base, ch: { junior: all('bronze') } }, 'junior').tip.id, 'higher');
-  assert.equal(CHALLENGES.filter((c) => !c.island).length, 7); const silver = passport({ ...base, ch: { junior: home7('silver') } }, 'junior'); assert.equal(silver.rank.name, 'Master Planner'); assert.ok(silver.points < 70, 'seven silvers with an average town are just short');
+  assert.equal(CHALLENGES.filter((c) => !c.island).length, 7); assert.equal(passport({ ...base, ch: { junior: home7('silver') } }, 'junior').rank.name, 'Town Planner', 'the seven home challenges at silver are not enough for Master');
+  const silver = passport({ ...base, ch: { junior: all('silver') } }, 'junior'); assert.equal(silver.rank.name, 'Master Planner'); assert.ok(silver.points < 100, 'all thirteen at silver with an average town are just short of Chief');
   const top = passport({ junior: { score: 92, medal: 'gold' }, me: { junior: { stars: 19, complete: true, catches: 5 } }, ch: { junior: all('gold') } }, 'junior');
   assert.equal(top.points, top.max); assert.equal(top.rank.name, 'Chief Planner'); assert.equal(top.next, null); assert.equal(top.tip.id, 'done'); assert.equal(top.medals.gold, CHALLENGES.length);
   assert.ok(RANKS.at(-1).at <= top.max); for (let i = 1; i < RANKS.length; i++) assert.ok(RANKS[i].at > RANKS[i - 1].at);

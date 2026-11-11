@@ -60,5 +60,5 @@ R.settingOff = await p.evaluate(async () => { const { app } = window.__eco; if (
 R.fetched = [...new Set(fetched)]; R.errors = errors;
 console.log(JSON.stringify(R, null, 1));
 await b.close();
-const ok = R.nothingFetchedBeforeAFilm && R.startCardWaits && R.plays && R.caption.length > 5 && R.captionsOff && R.escapeSkips && R.startCardAfter && R.seenInSave && R.savedToDisk && R.notForcedAgain && R.listed === 12 && R.unlocked.join() === 'ep:land-open' && R.skipButton && R.missingCarriesOn && R.settingOff && !errors.length;
+const ok = R.nothingFetchedBeforeAFilm && R.startCardWaits && R.plays && R.caption.length > 5 && R.captionsOff && R.escapeSkips && R.startCardAfter && R.seenInSave && R.savedToDisk && R.notForcedAgain && R.listed === 12 && R.unlocked.join() === 'ep:land-open,ep:move-open' /* both missions are open from the start */ && R.skipButton && R.missingCarriesOn && R.settingOff && !errors.length;
 console.log(ok ? 'EPISODES OK' : 'EPISODES FAILED'); process.exit(ok ? 0 : 1);
