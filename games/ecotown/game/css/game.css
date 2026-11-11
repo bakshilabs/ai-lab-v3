@@ -2101,3 +2101,27 @@ html[data-visit="on"] #card .goal .gt { font-weight: 800; }
   .postcard .pccanvas { max-height: 36vh; } .postcard .pccode { font-size: .9em; }
 }
 /* ---- Showing towns to other people: END OF BLOCK ---- */
+
+/* ---- story episodes (js/ui/epviewer.js) · START OF BLOCK ----------------------------------------------------
+   The film viewer shown before and after a mission, and the ☰ → Episodes list. Self-contained: nothing above is changed. */
+#episode { position: fixed; inset: 0; z-index: 90; background: #1c140e; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 10px; }
+#episode .epframe { position: relative; width: min(100%, calc((100vh - 84px) * 16 / 9)); aspect-ratio: 16 / 9; background: #000; border: 4px solid #5e4936; border-radius: 14px; overflow: hidden; }
+#episode video { width: 100%; height: 100%; display: block; object-fit: contain; background: #000; }
+#episode .epcap { position: absolute; left: 50%; bottom: 4%; transform: translateX(-50%); width: fit-content; max-width: 92%; margin: 0; text-align: center; pointer-events: none; display: none; color: #fff; background: #1c140e; border-radius: 10px; padding: 6px 14px; font-weight: 700; font-size: clamp(15px, 2.6vw, 26px); line-height: 1.25; }
+#episode .epcap.on { display: block; }
+#episode .epcap[hidden] { display: none; }
+#episode .epcap b { color: #ffd66b; }
+#episode .epwait { position: absolute; left: 50%; bottom: 45%; transform: translateX(-50%); width: fit-content; margin: 0; text-align: center; color: #fff; font-weight: 700; background: #1c140e; padding: 6px 14px; border-radius: 10px; }
+#episode .epwait[hidden], #episode .epplay[hidden] { display: none; }
+#episode .epplay { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 1.2em; }
+#episode .epbar { display: flex; align-items: center; gap: 10px; width: min(100%, calc((100vh - 84px) * 16 / 9)); }
+#episode .epname { color: #f6ead2; font-weight: 700; margin-right: auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#episode .epbar .btn { flex: none; min-height: 44px; }
+.eplist { list-style: none; margin: 8px 0 12px; padding: 0; display: grid; gap: 6px; }
+.eplist li { display: grid; grid-template-columns: 1.6em 1fr 1fr; gap: 6px; align-items: stretch; }
+.eplist li > span { font-weight: 800; align-self: center; text-align: center; }
+.eplist .btn { text-align: left; min-height: 44px; line-height: 1.2; }
+.eplist .btn small { display: block; font-weight: 600; font-size: .78em; }
+.eplist .btn[disabled] { cursor: default; }
+@media (max-width: 560px) { .eplist li { grid-template-columns: 1.4em 1fr; } .eplist li .btn + .btn { grid-column: 2; } #episode .epname { display: none; } #episode .epbar { justify-content: flex-end; } }
+/* ---- story episodes · END OF BLOCK --------------------------------------------------------------------------- */

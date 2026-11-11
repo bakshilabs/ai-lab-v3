@@ -175,6 +175,27 @@ Built on branch `wt/sharing`. **Rules that must hold:** no accounts, no chat, no
 - **Tests:** `tests/towncode.test.mjs` (13) and `tests/qr.test.mjs` (3); `tests/playwright/share.mjs [out] [base] [w] [h]` plays three devices.
 - **Not done:** two real devices in a room; the camera scan on a real camera (headless Chromium has no `BarcodeDetector`); recorded voices for Florence's visit lines; the star-shop decorations do not travel; a challenge town's rule is not shown to a visitor; the wall has no print layout.
 
+## Story episodes (11 Nov 2026): a cartoon before and after every mission
+The user asked for "3D cartoon movies or episodes at the start and end of each level that educate kids about the learning principles behind eco and AI". There are twelve: `<mission>-open` and `<mission>-close` for `land`, `move`, `homes`, `food`, `power`, `heart`, 25 to 37 seconds each, made with the game's own island, Florence, builds, lenses and simulation.
+- **Story and cast:** Posy gives the instruction (vague in the opening, clear in the closing), Florence plans and says how sure she is, Dev checks with the mission's lens, Pebble the otter and a narrator. An opening ends on a question card and never shows the lens or the fix; a closing ends on a card with the eco idea and the AI habit. Storyboards and scripts: `docs/EPISODES.md` (written by `game/tools/episodes-doc.mjs`; do not edit it by hand).
+- **Files:**
+  - `game/js/game/episodes.js`: the scripts as data (cast, shots, cameras, beats, lines, cards), `schedule()` and `vtt()`. No three.js, so tests and tools import it.
+  - `game/js/game/episodeplay.js`: the staging engine, a deterministic `render(t)` like `?shoot=`. Only used by `index.html?episode=<id>` (the block marked "story episodes" at the end of `main.js`).
+  - `game/js/ui/epviewer.js`: the in-game viewer (`app.episodes`): `auto(id, G)` from `runLab` in `game.js` (opening before the start card, closing after the reward card, first time only, saved as `G.eps`), `menu(G)` for ☰ → Episodes (locked until the mission is reached or finished), Skip button and Escape, captions on by default (`settings.epCaptions`), the setting ☰ → Story episodes (`settings.episodes`). Nothing under `videos/episodes/` is fetched until a film plays; a missing or unplayable film resolves `'failed'` and the game carries on. Never in challenge towns.
+  - `game/tests/video/episodes.mjs`: the recorder (voices → frames → music and sound → mix → two-pass H.264). `voice/episodes.py`: Kokoro lines (narrator `bf_isabella`, Florence `af_bella`, Posy `bf_lily` and Dev `bm_fable` raised 10 % in pitch).
+  - `game/videos/episodes/`: `<id>.mp4` (960 × 540, 24 fps, H.264 + AAC, about 1.4 MB), `<id>.jpg`, `<id>.vtt`, `index.json` (the viewer's list and caption cues) and `timing.json` (recorded line lengths, which set the shot lengths).
+- **Re-render one episode** (about 15 to 25 minutes in software 3D; needs ffmpeg, Playwright, and Kokoro's `model.onnx` plus an `.npz` voices file named `voices-all.bin` or `voices.bin`):
+  ```bash
+  cd games/ecotown/game && python3 -m http.server 8771 &
+  node tests/video/episodes.mjs http://localhost:8771/ land-open --work /tmp/ep --kokoro <kokoro dir> --force
+  node tools/episodes-doc.mjs    # after changing a script: rewrite docs/EPISODES.md
+  ```
+  `--stills shots` saves two stills per shot into `<work>/stills/` in seconds, for checking framing before a full render. Changing a line changes its recorded length, and with it every later cue in that film: re-render that episode, never edit `index.json` or the `.vtt` by hand (`tests/episodes.test.mjs` compares them with the script).
+- **Honest numbers:** labels in the films come from `simulate()` at render time; `tests/episodes.test.mjs` checks the spoken numbers too ("three times too much carbon", "eighteen minutes", every light out).
+- **Tests:** `tests/episodes.test.mjs` (every mission has both films with script, captions and files); `tests/playwright/episodes.mjs` (the viewer in the game); `tests/playwright/run.mjs` skips each film with its Skip button.
+- **Worker:** `worker/worker.js` now serves `videos/episodes/*` and `.vtt` from KV (`build.mjs` and `deploy.mjs` already copied and uploaded sub-folders). Not deployed.
+- **Not done:** nobody has listened to the films (a cloud session cannot): check the voices, the children's pitch and the music level by ear. Posy and Dev have no arms to gesture with (they hop, turn and walk). The films are in English only. On the Worker the films are about 17 MB more in KV. `voice/collect.mjs` does not know about the episode lines (they are recorded by `voice/episodes.py`).
+
 ## Free-build redesign (Nov 2026, after the beta)
 The user found the guided six-level sequence exhausting ("prompt after prompt, a tunnel") and asked for a StarCraft-style city builder: **build first, get tips from Florence, step into the AI Lab, come back to building**. Decisions the user made:
 - **Replace** the guided flow. A start-screen option "AI Lab missions: Any order / In order (class)" keeps the lessons in order for classes.
