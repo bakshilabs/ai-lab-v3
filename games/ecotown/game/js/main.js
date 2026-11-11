@@ -23,6 +23,7 @@ import { createGame } from './game/game.js';
 import { loadModel, modelReady } from './ai/plotter.js';
 import { CONTENT, NAME_IDEAS, cleanTownName } from './game/content.js';
 import { loadVoices, setSpeakingHook } from './ui/voice.js';
+import { createEpisodeViewer } from './ui/epviewer.js'; // story episodes: plays the recorded films (nothing is fetched until one plays)
 // while a 🔊 read-aloud plays, its button shows it (a tester couldn't tell whether anything was happening)
 let spkBtn = null;
 document.addEventListener('click', (e) => { const b = e.target.closest?.('[data-spk]'); if (b) { spkBtn?.classList.remove('speaking'); spkBtn = b; } }, true);
@@ -48,7 +49,7 @@ let lastStep = 0; bot.onStep = () => { const n = performance.now(); if (n - last
 life.setTown(simulate(terrain, new Map()), new Map(), stage.q);
 const app = {
   stage, terrain, world, life, inside, classroom, rig, bot, audio: sfx, setMusic, band: 'junior', session: 60, classMode: false, sandboxFull: new URLSearchParams(location.search).get('sandbox') === 'full', hour: 11, moveIn: null, winterTest: false,
-  settings: { readAloud: true, reduce: matchMedia('(prefers-reduced-motion: reduce)').matches, sound: true, effects: true, music: true, facilitator: false, text: 'normal', quality: 'auto', ...prefs },
+  settings: { readAloud: true, reduce: matchMedia('(prefers-reduced-motion: reduce)').matches, sound: true, effects: true, music: true, facilitator: false, text: 'normal', quality: 'auto', episodes: true, ...prefs },
   get reduce() { return this.settings.reduce; },
   // town picture for the report: render, then paint it over the current sky colours
   snapshot() {
@@ -64,6 +65,7 @@ const ui = app.ui = createUI($('#layer'), $('#labels'), { facilitator: () => app
 ui.portrait = createPortrait(createFlorence);
 if (ui.portrait) for (const g of ['wave', 'cheer', 'oops', 'shrug', 'proud', 'surprised', 'think', 'nod']) { const orig = bot[g].bind(bot); bot[g] = (...a) => { ui.portrait[g](); return orig(...a); }; }
 // Star-shop rewards in 3D (hats, flag, fountain, statue, fireworks): looks only, switched on by the game
+app.episodes = createEpisodeViewer(app, { mute: (v) => setSound(v ? false : app.settings.sound) }); // story episodes (game.js calls app.episodes.auto, ☰ calls .menu)
 const cosmetics = app.cosmetics = createCosmetics({ stage, world, terrain, bot, portrait: ui.portrait });
 function applySettings() {
   const s = app.settings; ui.readAloud = s.readAloud; rig.reduce = s.reduce; bot.reduce = s.reduce; if (ui.portrait) ui.portrait.reduce = s.reduce; setSound(s.sound); setMusicOn(s.music !== false); setSfxOn(s.effects !== false);
@@ -101,10 +103,10 @@ function settingsSheet() {
   const row = (k, label) => `<label>${esc(label)}<input type="checkbox" data-k="${k}" ${s[k] ? 'checked' : ''}></label>`;
   const snd = !s.sound ? 'off' : s.music === false ? 'fx' : 'on';
   P.innerHTML = `<h3 style="margin:0 0 8px">Menu</h3>
-    <div class="menuacts"><button class="slot act" data-m-act="report" ${free ? '' : 'disabled'}><b class="ico">📜</b><span>Town report</span></button><button class="slot act" data-m-act="day" ${free ? '' : 'disabled'}><b class="ico">🌇</b><span>Watch a whole day</span></button><button class="slot act" data-intro ${free ? '' : 'disabled'}><b class="ico">🎬</b><span>Watch Florence’s intro again</span></button><button class="slot act" data-m-act="passport" ${free ? '' : 'disabled'}><b class="ico">🎒</b><span>Club passport</span></button><button class="slot act" data-m-act="shop" ${free ? '' : 'disabled'}><b class="ico">★</b><span>${esc(G?.S?.shop?.menu || 'Star shop')}</span></button>${G?.challenge || (() => { try { return JSON.parse(localStorage.getItem('ecotown.best.v1') || '{}').labs?.[G?.band]; } catch { return false; } })() ? `<button class="slot act" data-m-act="challenges"><b class="ico">🏆</b><span>Challenge towns</span></button>` : ''}${G?.challenge ? `<button class="slot act" data-m-act="home"><b class="ico">🏡</b><span>Back to my own town</span></button>` : ''}${G?.completeShown && !G?.challenge ? `<button class="slot act" data-m-act="finale" ${free ? '' : 'disabled'}><b class="ico">🎉</b><span>${esc(G.S.finale.again)}</span></button>` : ''}</div>
+    <div class="menuacts"><button class="slot act" data-m-act="report" ${free ? '' : 'disabled'}><b class="ico">📜</b><span>Town report</span></button><button class="slot act" data-m-act="day" ${free ? '' : 'disabled'}><b class="ico">🌇</b><span>Watch a whole day</span></button><button class="slot act" data-intro ${free ? '' : 'disabled'}><b class="ico">🎬</b><span>Watch Florence’s intro again</span></button><button class="slot act" data-m-act="passport" ${free ? '' : 'disabled'}><b class="ico">🎒</b><span>Club passport</span></button><button class="slot act" data-m-act="episodes" ${free ? '' : 'disabled'}><b class="ico">🎬</b><span>Episodes</span></button><button class="slot act" data-m-act="shop" ${free ? '' : 'disabled'}><b class="ico">★</b><span>${esc(G?.S?.shop?.menu || 'Star shop')}</span></button>${G?.challenge || (() => { try { return JSON.parse(localStorage.getItem('ecotown.best.v1') || '{}').labs?.[G?.band]; } catch { return false; } })() ? `<button class="slot act" data-m-act="challenges"><b class="ico">🏆</b><span>Challenge towns</span></button>` : ''}${G?.challenge ? `<button class="slot act" data-m-act="home"><b class="ico">🏡</b><span>Back to my own town</span></button>` : ''}${G?.completeShown && !G?.challenge ? `<button class="slot act" data-m-act="finale" ${free ? '' : 'disabled'}><b class="ico">🎉</b><span>${esc(G.S.finale.again)}</span></button>` : ''}</div>
     <h4 class="menuhead">Settings</h4>
     <label>Sound<select data-snd><option value="on" ${snd === 'on' ? 'selected' : ''}>On (music and effects)</option><option value="fx" ${snd === 'fx' ? 'selected' : ''}>Effects only</option><option value="off" ${snd === 'off' ? 'selected' : ''}>Off</option></select></label>
-    ${row('readAloud', 'Read aloud')}${row('reduce', 'Reduce motion')}${row('facilitator', 'Facilitator notes')}
+    ${row('readAloud', 'Read aloud')}${row('episodes', 'Story episodes')}${row('reduce', 'Reduce motion')}${row('facilitator', 'Facilitator notes')}
     <div class="setrow"><span id="tsz">Text size</span><span class="seg" role="radiogroup" aria-labelledby="tsz">${['normal', 'large'].map((v) => `<button type="button" role="radio" data-tsize="${v}" aria-checked="${(s.text || 'normal') === v}">${v === 'large' ? 'Large' : 'Normal'}</button>`).join('')}</span></div>
     <label>Graphics<select data-k="quality">${['auto', 'low', 'mid', 'high'].map((q) => `<option ${s.quality === q ? 'selected' : ''}>${q}</option>`).join('')}</select></label>
     <p style="font-size:.8em;color:#46596a">Florence runs on this device (${modelReady() ? 'a small language model' : 'a keyword reader: the model did not load'}). Her voice is recorded in advance. What you type stays on this device: nothing is sent anywhere.</p><button class="btn go" data-close>Done</button>`;
@@ -114,7 +116,7 @@ function settingsSheet() {
   P.querySelector('[data-snd]').onchange = (e) => { const v = e.target.value; s.sound = v !== 'off'; s.effects = v !== 'off'; s.music = v === 'on'; applySettings(); };
   P.querySelector('[data-close]').onclick = () => ui.show('settings', false);
   P.querySelector('[data-intro]').onclick = () => { ui.show('settings', false); app.G?.replayIntro?.(); };
-  P.querySelectorAll('[data-m-act]').forEach((b) => (b.onclick = () => { ui.show('settings', false); const m = b.dataset.mAct; if (m === 'passport') { app.G?.save?.(); ui.modal(`${passportHtml(app.band)}<div class="row" style="justify-content:center;margin-top:10px"><button class="btn alt" data-act="close">Close</button><button class="btn go" data-act="print">🖨 Print certificate</button></div>`).then((a) => { if (a === 'print') printCertificate(app.band); }); } else if (m === 'challenges') { app.G?.save?.(); location.search = '?challenges=1'; } else if (m === 'home') { app.G?.save?.(); location.search = ''; } else if (m === 'report') app.G?.showReport?.(); else if (m === 'shop') app.G?.openShop?.(); else if (m === 'finale') app.G?.finale?.(); else app.G?.wholeDay?.(); }));
+  P.querySelectorAll('[data-m-act]').forEach((b) => (b.onclick = () => { ui.show('settings', false); const m = b.dataset.mAct; if (m === 'passport') { app.G?.save?.(); ui.modal(`${passportHtml(app.band)}<div class="row" style="justify-content:center;margin-top:10px"><button class="btn alt" data-act="close">Close</button><button class="btn go" data-act="print">🖨 Print certificate</button></div>`).then((a) => { if (a === 'print') printCertificate(app.band); }); } else if (m === 'episodes') app.episodes.menu(app.G); else if (m === 'challenges') { app.G?.save?.(); location.search = '?challenges=1'; } else if (m === 'home') { app.G?.save?.(); location.search = ''; } else if (m === 'report') app.G?.showReport?.(); else if (m === 'shop') app.G?.openShop?.(); else if (m === 'finale') app.G?.finale?.(); else app.G?.wholeDay?.(); }));
   ui.closePops(P.settings); ui.show('settings', true);
 }
 ui.P.tr.querySelector('[data-menu]').onclick = () => (ui.P.settings.classList.contains('hide') ? settingsSheet() : ui.show('settings', false));
@@ -312,7 +314,25 @@ window.addEventListener('dragstart', (e) => e.preventDefault());
 const filmParam = new URLSearchParams(location.search).get('film');
 app.townName = 'Eco Town';
 const shootParam = new URLSearchParams(location.search).get('shoot');
-if (shootParam) shoot(shootParam); else if (filmParam) filmPreview(filmParam); else start();
+const episodeParam = new URLSearchParams(location.search).get('episode');
+if (episodeParam) episodeShoot(episodeParam); else if (shootParam) shoot(shootParam); else if (filmParam) filmPreview(filmParam); else start();
+
+// ---- story episodes (START OF BLOCK) -------------------------------------------------------------------------
+// Recording: index.html?episode=<id> stages one story episode (js/game/episodes.js, episodeplay.js) and exposes
+// window.__render(t), deterministic like ?shoot=, for tests/video/episodes.mjs. The game itself only plays the
+// recorded videos (js/ui/epviewer.js): nothing here runs in normal play.
+async function episodeShoot(id) {
+  app.manual = true; $('#layer').style.display = 'none'; $('#labels').style.display = 'none'; document.getElementById('boot')?.remove();
+  const q = new URLSearchParams(location.search);
+  const { episode } = await import('./game/episodes.js'); const { createEpisodePlay } = await import('./game/episodeplay.js');
+  const ep = episode(id); if (!ep) { window.__error = `No episode called ${id}`; return; }
+  let durs = {}; try { const r = await fetch('videos/episodes/timing.json', { cache: 'no-store' }); if (r.ok) durs = await r.json(); } catch { /* not recorded yet: line lengths are guessed */ }
+  stage.setTier(q.get('tier') || 'high');
+  const play = createEpisodePlay({ stage, world, life, terrain, rig, bot, app }, ep, durs);
+  window.__duration = play.duration; window.__render = play.render; window.__timeline = play.timeline;
+  play.render(0); window.__ready = true;
+}
+// ---- story episodes (END OF BLOCK) ---------------------------------------------------------------------------
 
 // Build videos: index.html?shoot=<item> builds a whole demo town, puts the item on a good tile and exposes
 // window.__render(t) (deterministic, fixed steps) for tests/video/record.mjs. About 10 s: the build goes up

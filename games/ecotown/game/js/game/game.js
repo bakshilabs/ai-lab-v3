@@ -86,7 +86,7 @@ export function createGame(app) {
   function star(i, why = '') { if (!run || run.marks[i]) return; run.marks[i] = true; audio.star(); G.stars = shownStars(); ui.setStars(G.stars); if (why) ui.caption(`★ ${why}`, 2600); }
   function bonusStar(why) { if (!run) return; run.bonus = true; G.stars = shownStars(); ui.setStars(G.stars); ui.caption(`★ ${why}`, 2800); }
   function flower(flash = true) { const s = sim(); ui.carbonInfo = { used: s.carbon, limit: TARGETS.carbonCeiling }; ui.flower(s.petals, G.townName, { flash }); renderGoals(s); }
-  const KEEP = ['badges', 'bestScore', 'medal', 'milestones', 'placements', 'catches', 'trusted', 'introDone', 'band', 'levelStars', 'starMarks', 'bonus', 'mistakes', 'diary', 'instructions', 'extra', 'credits', 'townName', 'inputMode', 'paths', 'outcomes', 'labs', 'ever', 'classMode', 'day', 'movedIn', 'completeShown', 'charter', 'reflection', 'reflectDone', 'shop', 'chSeen'];
+  const KEEP = ['badges', 'bestScore', 'medal', 'milestones', 'placements', 'catches', 'trusted', 'introDone', 'band', 'levelStars', 'starMarks', 'bonus', 'mistakes', 'diary', 'instructions', 'extra', 'credits', 'townName', 'inputMode', 'paths', 'outcomes', 'labs', 'ever', 'classMode', 'day', 'movedIn', 'completeShown', 'charter', 'reflection', 'reflectDone', 'shop', 'chSeen', 'eps' /* story episodes seen: js/ui/epviewer.js */];
   // the club passport's part of the device record (js/game/passport.js): mission stars, town complete, catches
   function recordMe() {
     if (G.full) return; const stars = Object.values(G.levelStars).reduce((x, y) => x + y, 0) + Object.values(G.bonus).reduce((x, y) => x + y, 0);
@@ -1065,6 +1065,7 @@ export function createGame(app) {
     // brief, with what this mission adds (a new lens or test). "Not now" goes straight back to building.
     const N = L.newThing; const lens = G.C.checks[N.lens]; const newLabel = N.label ? pick(N.label) : lens.label;
     facil(id, 'brief');
+    await app.episodes?.auto(`${id}-open`, G); // story episode: the opening film, the first time this mission is opened (js/ui/epviewer.js)
     // the mission first (its name and the job), then the new lens it brings. (The card used to lead with "New lens unlocked"
     // and a big "Carbon lens" heading, with the mission's name in a small bar underneath: testers read it as a prize screen.)
     const go = await ui.modal(`<div class="ribbon">🧪 ${esc(G.S.labTitle)} · ${G.classMode ? `${esc(G.S.mission)} ${lv.n} OF 6` : esc(G.S.missionsDone(labsDone()))}</div><h2 class="mtitle">${esc(L.title)}</h2><p class="brief">${esc(pick(L.brief))}</p><div class="newtool"><b class="big" aria-hidden="true">${lens.icon}</b><span><small>${esc(N.test ? G.C.ui.newTest : G.C.ui.newLens)}</small><b>${esc(newLabel)}</b><em>${esc(pick(N))}</em></span></div><div class="levelbar"><span class="dots">${[1, 2, 3, 4, 5, 6].map((i) => `<i class="${i === lv.n ? 'now' : G.labs[LEVEL_ORDER[i - 1]] ? 'on' : ''}"></i>`).join('')}</span></div><p class="practice">${esc(pick(G.S.practice))}</p><div class="row" style="justify-content:center"><button class="btn alt" data-act="later">${esc(G.S.notNow)}</button><button class="btn go" data-act="go">${esc(G.C.ui.start)} ➜</button></div>`, { say: `${pick(L.brief)} ${newLabel}. ${pick(N)}` });
@@ -1135,6 +1136,7 @@ export function createGame(app) {
       <p class="usenote">${esc(G.paths[id] === 'clean' ? pick(G.S.useQuestion).replace('fixed ', '') : pick(G.S.useQuestion))}</p>
       <div class="row" style="justify-content:center"><button class="btn alt" data-act="keep">${esc(G.S.keepMine)}</button><button class="btn go" data-act="use">✓ ${esc(G.S.usePlan)}</button></div>`, { say: `${heading} ${stars} stars.` });
     rig.startTurntable(0); rewardView(false);
+    await app.episodes?.auto(`${id}-close`, G); // story episode: the closing film, the first time this mission is finished
     // keep the best run's stars
     G.levelStars[id] = Math.max(G.levelStars[id] || 0, stars); if (run.bonus) G.bonus[id] = 1;
     G.labs[id] = { stars: G.levelStars[id] };

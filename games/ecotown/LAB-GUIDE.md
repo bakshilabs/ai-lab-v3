@@ -68,6 +68,23 @@ Rotate each level. Each role owns one lens or view, so every child has evidence 
 
 The intro can be replayed from ☰, and skipped in later sessions.
 
+**Using the story episodes with a group.** Every mission has two short cartoons (30 to 45 seconds each): an **opening** that plays before the mission's start card and a **closing** that plays after its reward card, the first time only. In the opening, Posy gives Florence a vague instruction, Florence makes a confident plan and says how sure she is, and the film stops on a question. In the closing, Dev checks the plan, Florence says "Oops" and what she guessed, Posy gives the clear instruction, and the film ends on a card with two things to remember: the eco idea (🌍) and the AI habit (🤖). Captions are on (the CC button turns them off), Skip or Escape ends a film, and ☰ → Episodes replays any film a player has reached. On a slow network, turn them off in ☰ → Settings → Story episodes and show them once on the room's screen instead.
+- **Pause points.** Each film holds its last card for about four seconds: pause there. In an opening, also pause when Florence's "% sure" label appears and ask "How sure is she? Is that the same as right?"
+- **Opening:** ask the question on the card and take two or three guesses. Do not give the answer; the mission does that.
+- **Closing:** before the last card appears, ask "What two things will the card say?" Then read the card together.
+- **One question for each film** (the first of each pair is the opening):
+
+| Mission | After the opening, ask | After the closing, ask |
+|---|---|---|
+| 1. Read the land | "Is the flattest land the best land? What might Florence have missed?" | "Which one word did Florence take too far? What would you say instead?" |
+| 2. Getting around | "Who is 'everyone'? Who did Florence forget?" | "What did Florence guess that nobody told her?" |
+| 3. Homes | "What can't you see from the sky?" | "The homes looked fine. What showed that they were not?" |
+| 4. Food | "What should Florence keep?" | "What is the difference between 'enough' and 'as much as possible'?" |
+| 5. Water, power and waste | "Is very sure the same as right? Which day would you test?" | "She was 90% sure and wrong, then 74% sure and right. Which plan do you trust, and why?" |
+| 6. A school for everyone | "The middle of what? And who should Florence ask?" | "Florence asked ten people at the car park. Who was missing?" |
+
+Full scripts and shot lists: `docs/EPISODES.md`.
+
 **Choose "In order (class)" on the start screen** for a class: only the next AI Lab mission opens, and Florence invites players to it as soon as it is ready, so the class stays roughly together. Between missions, players build freely; that build time is where they grow the town enough to unlock the next mission (homes at 6 tiles of town land, food at 12 families, power at 24, town heart at 36). A useful rhythm is "mission, debrief, build" for each level below. If a group is slow to unlock the next mission, tell them to choose **Use Florence's plan** at the end of a mission: that adds her fixed plan to their town and moves them on. "Any order" suits clubs, museums and home play. With "In order (class)" the music starts **off** (sound effects stay on) so a room of devices stays calm; turn it on from ☰ → Sound → On if you like.
 
 DESIGN.md says Levels 4 and 5 merge in shorter versions. Level debriefs (section 9A) happen inside the play time.
