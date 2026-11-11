@@ -135,6 +135,15 @@ The user asked for a detailed plan to reach best-seller quality and to start bui
   - **Certificate:** "Print certificate" prints one A4 page (`#certificate`, `html[data-print=cert]` in the last block of `game.css`). No name is stored; there is a line to write it on.
 - **Start a challenge again:** ↺ on the challenge board clears that challenge's saved town (the medal is kept).
 
+## Best-seller plan, stages 2, 5 and 7 in part (11 Nov 2026)
+The user said "Do everything" in the plan, and asked for 3D cartoon episodes at the start and end of each mission. Three helper agents worked in git worktrees on local branches (`wt/episodes`, `wt/islands`, `wt/sharing`), merged into the working branch afterwards; their sections are below or beside this one.
+- **Stage 2, the world reacts first** (`js/game/reactions.js`, tests `tests/reactions.test.mjs`; `react()` in `game.js`, called from `act()`): the nearest family says a line about the build within a second (one line per catalogue item, grumbles for concrete, roads, car parks and big fields, "that made something worse" when a good build hurts the town); an animal coming back or leaving is an alert, a pin where it lives and, for a return, confetti. Florence has a joke (`qa.js` topic `joke`). `G.act` is a test hook for a real build tap.
+  - **Night scenes:** `townEvent` (every third day) is now a four-second scene before its message: night falls, the river rises over the meadow (`world.setFlood`) or the town goes dark, a resident speaks, then morning and the result. Skipped while a lens, a card or one of Florence's plans is open. Test hook `G.event(day)`.
+  - Not done from stage 2: animals walking in from the island's edge, a sound per build family, music that thickens.
+- **Stage 5, phone:** the build tray's two information lines are one (name, ▶, good-spot reason); the tray is 186 px on a 390 × 844 screen (217 at the start of the day). Card and tray together cover about 31 % of the screen; the plan's target of a quarter is not met.
+- **Stage 7:** `game/leader.html`, the club leader's one-page plan (one A4 page; linked from the start screen; copied by `build.mjs`). It has no script because the site's content security policy blocks inline scripts.
+- **Not started:** recording the new voice lines (challenges, passport, reactions), a second language, the trailer, the paywall (needs the user's decisions in `docs/FUTURE-PAYWALL.md` and a Stripe account), and stage 6 (real children and devices).
+
 ## Free-build redesign (Nov 2026, after the beta)
 The user found the guided six-level sequence exhausting ("prompt after prompt, a tunnel") and asked for a StarCraft-style city builder: **build first, get tips from Florence, step into the AI Lab, come back to building**. Decisions the user made:
 - **Replace** the guided flow. A start-screen option "AI Lab missions: Any order / In order (class)" keeps the lessons in order for classes.

@@ -2024,3 +2024,15 @@ html .streetpad [data-sp-exit] { white-space: nowrap; }
   #certificate ul, #certificate ol { display: inline-block; text-align: left; margin: 2mm auto; } #certificate ul { list-style: none; padding: 0; columns: 2; column-gap: 12mm; }
   #certificate .cfoot { margin-top: 8mm; font-size: 10pt; color: #666; }
 }
+
+/* ---------- phone portrait, round six: the build tray's two information lines are one. The build's name, its ▶ and
+   Florence's good-spot reason share a line; the effect chips are left to the floating numbers after a build and to
+   the sentence shown above a build's button when it is picked. */
+@media (max-width: 560px) and (orientation: portrait) {
+  html #build .info { flex-wrap: nowrap; gap: 6px; min-height: 0; height: 28px; overflow: hidden; }
+  html #build .info .chips, html #build .info > p { display: none; }
+  html #build .info .ihead b { flex: none; max-width: 46%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  html #build .info .ihead .spotwhy { flex: 1 1 auto; min-width: 0; display: block !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; -webkit-line-clamp: unset; }
+}
+
+#start .leaderlink { margin: 8px 0 0; font-size: .86em; font-weight: 600; color: var(--ink2); } #start .leaderlink a { color: #1f6b45; font-weight: 800; }

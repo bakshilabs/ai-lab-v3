@@ -70,7 +70,10 @@ export const TOPICS = [
     j: 'It depends what you are building! Homes: dry land up on the slope, never the flood meadow. A school: in the middle of the homes. Farms: near the homes, but not on town land. Pick a build and look for the ★ good spots I mark.',
     s: 'It depends on the build. Housing: dry slope, out of the floodplain. A school: where the longest walk is shortest. Farms: near homes, off town land. Select a build to see the ★ suggested tiles and the reason.' } },
   // small talk: a short, warm answer in character, then back to the town (a reviewer's "fav colour?" got a flat deflection)
-  { id: 'chat', keys: ['favourite', 'favorite', 'colour', 'color', 'hello', 'hi', 'how are you', 'your name', 'how old', 'joke', 'pet', 'hobby'], a: {
+  { id: 'joke', keys: ['joke', 'jokes', 'funny', 'laugh', 'riddle'], a: {
+    j: 'Here’s one! Why did the wind turbine get a medal? Because it was a big fan of clean energy! …I’m 97% sure that was funny. You’d better check.',
+    s: 'One joke, then back to work. I told a planner my plan was 95% certain. She asked, “Certain of what?” I’m still calculating. Moral: ask an AI what its confidence is confidence in.' } },
+  { id: 'chat', keys: ['favourite', 'favorite', 'colour', 'color', 'hello', 'hi', 'how are you', 'your name', 'how old', 'pet', 'hobby'], a: {
     j: 'Ooh, fun question! My favourite colour is leaf green, like a healthy hedge, and my favourite sound is bees buzzing. I’m a robot, so I never get tired! Now ask me about your town: floods, bees, or any build.',
     s: 'Fair question. If a planner can have a favourite, mine is hedge green: it means the habitat links are intact. Now, ask me about your town: carbon, flood risk, power, or any build.' } },
 ];

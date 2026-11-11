@@ -36,6 +36,7 @@ import { openShop as shopCard, showFinale } from '../ui/rewards.js';
 import { newBadges, badgeCount, badge } from './badges.js';
 import { townScore } from './score.js';
 import { passport } from './passport.js';
+import { reactionFor, speciesNews, ANIMALS } from './reactions.js';
 import { challenge, challengeState, challengeMedal, better, florenceTown, GOAL_TEXT } from './challenges.js';
 import { answer as askFlorence, SUGGEST } from './qa.js';
 
@@ -821,13 +822,32 @@ export function createGame(app) {
   }
   // every third day the weather tests the town: a winter storm (homes on flood land) or a still, dark night (winter
   // power). Something to plan for in free building, not only in the AI Lab copy of the island.
-  function townEvent(s) {
+  async function townEvent(s) {
     if (G.day < 3 || G.day % 3 !== 0 || !s.homes.length || !sb.running) return;
     const E = G.S.events; const storm = (G.day / 3) % 2 === 1;
+    if (!storm && !isOpen('power')) return;
+    // the night itself, as a short scene (about four seconds): the river rises over the meadow, or the town goes
+    // dark where its own power runs out. Then the morning, and what it meant. Skipped while a lens or a card is open.
+    if (!sb.lens && !G.busy && !sb.intro && !sb.sug) {
+      G.busy = true; const wait = (ms) => sleep(app.reduce ? Math.min(ms, 600) : ms);
+      try {
+        hideTip(); stage.setTime(23.2, 0); app.refreshLights(); audio.dusk?.();
+        ui.caption(storm ? (G.j ? `Night ${G.day - 1}: a winter storm. The river is rising…` : `Night ${G.day - 1}: winter storm. The river rises.`) : (G.j ? `Night ${G.day - 1}: no wind and no sun…` : `Night ${G.day - 1}: still and dark. No wind, no sun.`), 3600);
+        if (storm) {
+          for (let i = 0; i <= 12 && !app.reduce; i++) { world.setFlood(i / 12); await sleep(70); } world.setFlood(1);
+          const wet = s.homes.find((h) => h.flooded); if (wet) ui.labels.bubble({ at: world.tileTop(wet.k).add(new THREE.Vector3(0, 6.5, 0)), text: G.j ? 'Water is coming under the door!' : 'The ground floor is flooding.', bad: true, quiet: true });
+          await wait(2200); for (let i = 12; i >= 0 && !app.reduce; i--) { world.setFlood(i / 12); await sleep(50); } world.setFlood(0);
+        } else {
+          const dark = !s.power.winterOK && s.homes[s.homes.length - 1]; if (dark) ui.labels.bubble({ at: world.tileTop(dark.k).add(new THREE.Vector3(0, 6.5, 0)), text: G.j ? 'The lights have gone out!' : 'Power cut.', bad: true, quiet: true });
+          await wait(2800);
+        }
+      } finally { world.setFlood(0); stage.setTime(app.hour, 0); app.refreshLights(); G.busy = false; }
+      if (!sb.running) return;
+    }
     if (storm) {
       if (s.flooded > 0) { audio.bad?.(); ui.alert(E.stormBad(s.flooded), false, 4200); app.bot?.oops(); showTip({ id: 'ev-storm-' + G.day, text: E.stormTip, lab: !G.labs.land && labReady('land', G.ever, G.labs, G.classMode) ? 'land' : null, lens: G.labs.land ? 'flood' : null }); }
       else { ui.alert(E.stormGood, true, 3200); app.bot?.cheer(); }
-    } else if (isOpen('power')) {
+    } else {
       if (!s.power.winterOK) { audio.bad?.(); ui.alert(E.darkBad, false, 4200); app.bot?.oops(); showTip({ id: 'ev-dark-' + G.day, text: E.darkTip, lab: !G.labs.power && labReady('power', G.ever, G.labs, G.classMode) ? 'power' : null, lens: G.labs.power ? 'winter' : null }); }
       else { ui.alert(E.darkGood, true, 3200); app.bot?.cheer(); }
     }
@@ -843,7 +863,23 @@ export function createGame(app) {
     const html = d.map(chipHtml).join('') + (spent ? `<span class="chip ${spent > 0 ? 'good' : 'bad'}" style="--c:${CHIP.credits.col}">${spent > 0 ? '+' : '−'}${Math.abs(spent)} 💰</span>` : '');
     if (html) ui.labels.float({ at: world.tileTop(k).add(new THREE.Vector3(0, 5, 0)), html, text: chipsText(d) });
     sb.stamp = tool; showAllowed(sb.tool); changed(); if (d.some((c) => c.good)) flower(d.filter((c) => c.good).map((c) => c.key)); florenceTo(k, 'peer');
+    react(k, tool, d, before);
     return true;
+  }
+  // the island reacts first (js/game/reactions.js): the nearest family says something about the build within a
+  // second, and an animal coming back to the island (or leaving it) is news, shown where that animal lives
+  function react(k, tool, d, before) {
+    const now = performance.now(); const after = sim();
+    const r = tool === 'erase' ? null : reactionFor(tool, d, G.j, (sb.reactN = (sb.reactN || 0) + 1));
+    if (r && after.homes.length && now - (sb.reactAt || 0) > 2200 && !sb.intro) { sb.reactAt = now;
+      setTimeout(() => { if (!sb.running) return; const who = life.residentNear(k); const at = who ? () => who.position.clone().add(new THREE.Vector3(0, 1.9, 0)) : world.tileTop(k).add(new THREE.Vector3(0, 6.5, 0));
+        ui.labels.bubble({ at, text: r.text, bad: r.bad, quiet: true }); }, 650); }
+    const news = speciesNews(before, after); if (!news.length || !before.homes.length && !after.homes.length) return;
+    const n = news.find((x) => !x.came) || news[0]; const A = ANIMALS[n.id]; const text = `${A.icon} ${pick(n.came ? A.back : A.gone)}`;
+    setTimeout(() => { if (!sb.running) return; ui.alert(text, n.came, 3800); if (n.came) { audio.reward?.(); app.bot?.cheer(); } else { audio.bad(); app.bot?.oops(); }
+      const home = [...terrain.tiles.values()].filter((t) => t.zone === A.home && !t.fixed); const t = home[Math.floor(home.length / 2)];
+      if (t) { const at = world.tileTop(t.k).add(new THREE.Vector3(0, 5, 0)); ui.labels.float({ at, html: `<span class="chip ${n.came ? 'good' : 'bad'} animalnews" style="--c:${n.came ? '#4caf50' : '#b0331f'}">${A.icon} ${n.came ? 'back!' : 'gone'}</span>`, ms: 3600 }); if (n.came && !app.reduce) world.confetti(at, 40); }
+    }, 1500);
   }
   const TOUCH = matchMedia('(pointer: coarse)').matches;
   function bindTaps() {
@@ -1466,7 +1502,7 @@ export function createGame(app) {
     if (tool) { sb.cat = ITEMS[tool].level; sb.tool = tool; showAllowed(tool); }
     return { score: s.homes.length ? scoreNow(s) : null, step: nextStep(s).text, unlock: nu?.id || null, goal: g?.id || null, tool, spots: tool ? [...(sb.spots?.keys || [])] : [], why: tool ? spotLine() : '' }; };
   G.suggest = () => { const sg = suggestFor(sim()); if (sg) offerSuggestion(sg); return sg?.id || null; };
-  G.openLab = openLab; G.labBoard = labBoard; G.enterClassroom = enterClassroom; G.classAsk = classAsk; G.leaveClassroom = leaveClassroom; G.playVideo = playVideo; G.videoCard = videoCard; G.florenceTo = florenceTo; G.placeAt = (k, tool, o) => { const ok = placeAt(k, tool, o); if (ok) changed(); return ok; }; G.sim = sim; G.advisor = sb.adv;
+  G.act = act; G.event = (day) => { G.day = day; return townEvent(sim()); }; G.openLab = openLab; G.labBoard = labBoard; G.enterClassroom = enterClassroom; G.classAsk = classAsk; G.leaveClassroom = leaveClassroom; G.playVideo = playVideo; G.videoCard = videoCard; G.florenceTo = florenceTo; G.placeAt = (k, tool, o) => { const ok = placeAt(k, tool, o); if (ok) changed(); return ok; }; G.sim = sim; G.advisor = sb.adv;
   G.saved = () => { try { const d = JSON.parse(localStorage.getItem(SLOT) || 'null'); return d && d.band === G.band ? d : null; } catch { return null; } };
   return G;
 }
