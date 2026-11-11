@@ -102,6 +102,38 @@ DESIGN.md says Levels 4 and 5 merge in shorter versions. Level debriefs (section
 
 **Short of time:** merge Levels 4 and 5, cut level debriefs to one question each, keep the Level 1 debrief in full and at least 10 minutes of final discussion.
 
+### Full-day club plan (about 5 hours of play, with breaks)
+The game has enough for a whole club day: the player's own town and six missions in the morning, seven challenge towns in the afternoon.
+
+| Time | What | Notes |
+|---|---|---|
+| 0:00–0:15 | Florence's intro; name the town | Whole group watches one screen first, then everyone starts |
+| 0:15–1:30 | Build the town; missions 1–3 (land, getting around, homes) | Debrief after each mission (section 9A) |
+| 1:30–1:45 | Break | |
+| 1:45–3:00 | Missions 4–6; finish the eight town goals | "Town complete" card and the town report |
+| 3:00–3:45 | Lunch | |
+| 3:45–4:00 | Open **Challenge towns** together: read the seven rules, predict which is hardest | 🏆 on the start screen, or ☰ → Challenge towns |
+| 4:00–5:15 | Challenge towns, in pairs: start with "Florence's Town", then free choice | A bronze medal for passing; silver and gold from the town score |
+| 5:15–5:30 | Break | |
+| 5:30–6:15 | Second round: go for a higher medal, or a challenge not tried yet | Ask pairs to swap a tip with another pair |
+| 6:15–6:45 | Final discussion (section 9B) and medal count | |
+
+**Challenge towns** (js/game/challenges.js). Each is a new town with one rule, its own saved town and its own medal. Everything is unlocked and all six lenses are ready, and Florence still offers plans that are sometimes wrong.
+
+| Challenge | Rule | What it teaches |
+|---|---|---|
+| Florence's Town | Florence has already built a town, badly: flats on the flood meadow, car roads, a far-away school | Auditing an AI's finished work with evidence |
+| Tiny Town | Only 8 tiles of town land | Density and trade-offs |
+| Light Footprint | 60 tonnes of carbon or less (the usual limit is 160) | Materials, heating and where carbon hides |
+| The Still Island | No wind turbines | Storage needs a source; solar gives nothing on a winter night |
+| Wild Island | All five animals, and more nature than the empty island had | Building without taking habitat |
+| Room for Everyone | Safe homes for 60 families | Growth inside limits |
+| Eight-Minute Town | Every home within 8 minutes of school and daily needs | Layout and walking routes |
+
+- **Opening them:** challenge towns appear on a device once its six missions are done. To open them straight away (a second day, a shared device), add `?challenges=1` to the game's address.
+- **Hints are lighter here by design.** The next-step line still names the goal, but the usual recipe does not pass every challenge (ten timber terraces do not fit Tiny Town). Let pairs struggle for a few minutes before helping.
+- **Discussion:** "Florence was 90 % sure about her own town. Which lens showed the first thing wrong? What would you ask a real AI planner to show you before building?"
+
 ## 8. Assessment
 - **Stars** reward spotting and fixing the AI's mistakes, not how the town looks (DESIGN.md). Every level-complete card lists the three rules with ✓ or ☆:
   - **after a mistake:** ★ found it with the first check · ★ named Florence's habit first time · ★ the fixed plan passes;
