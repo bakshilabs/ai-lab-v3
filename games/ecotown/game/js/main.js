@@ -17,6 +17,8 @@ import { createStreetPad } from './camera/streetpad.js';
 import { createUI, h, esc } from './ui/ui.js';
 import { createPortrait } from './ui/portrait.js';
 import { CHALLENGES } from './game/challenges.js';
+import { passport } from './game/passport.js';
+import { passportHtml, printCertificate } from './ui/passcard.js';
 import { createGame } from './game/game.js';
 import { loadModel, modelReady } from './ai/plotter.js';
 import { CONTENT, NAME_IDEAS, cleanTownName } from './game/content.js';
@@ -99,7 +101,7 @@ function settingsSheet() {
   const row = (k, label) => `<label>${esc(label)}<input type="checkbox" data-k="${k}" ${s[k] ? 'checked' : ''}></label>`;
   const snd = !s.sound ? 'off' : s.music === false ? 'fx' : 'on';
   P.innerHTML = `<h3 style="margin:0 0 8px">Menu</h3>
-    <div class="menuacts"><button class="slot act" data-m-act="report" ${free ? '' : 'disabled'}><b class="ico">📜</b><span>Town report</span></button><button class="slot act" data-m-act="day" ${free ? '' : 'disabled'}><b class="ico">🌇</b><span>Watch a whole day</span></button><button class="slot act" data-intro ${free ? '' : 'disabled'}><b class="ico">🎬</b><span>Watch Florence’s intro again</span></button><button class="slot act" data-m-act="shop" ${free ? '' : 'disabled'}><b class="ico">★</b><span>${esc(G?.S?.shop?.menu || 'Star shop')}</span></button>${G?.challenge || (() => { try { return JSON.parse(localStorage.getItem('ecotown.best.v1') || '{}').labs?.[G?.band]; } catch { return false; } })() ? `<button class="slot act" data-m-act="challenges"><b class="ico">🏆</b><span>Challenge towns</span></button>` : ''}${G?.challenge ? `<button class="slot act" data-m-act="home"><b class="ico">🏡</b><span>Back to my own town</span></button>` : ''}${G?.completeShown && !G?.challenge ? `<button class="slot act" data-m-act="finale" ${free ? '' : 'disabled'}><b class="ico">🎉</b><span>${esc(G.S.finale.again)}</span></button>` : ''}</div>
+    <div class="menuacts"><button class="slot act" data-m-act="report" ${free ? '' : 'disabled'}><b class="ico">📜</b><span>Town report</span></button><button class="slot act" data-m-act="day" ${free ? '' : 'disabled'}><b class="ico">🌇</b><span>Watch a whole day</span></button><button class="slot act" data-intro ${free ? '' : 'disabled'}><b class="ico">🎬</b><span>Watch Florence’s intro again</span></button><button class="slot act" data-m-act="passport" ${free ? '' : 'disabled'}><b class="ico">🎒</b><span>Club passport</span></button><button class="slot act" data-m-act="shop" ${free ? '' : 'disabled'}><b class="ico">★</b><span>${esc(G?.S?.shop?.menu || 'Star shop')}</span></button>${G?.challenge || (() => { try { return JSON.parse(localStorage.getItem('ecotown.best.v1') || '{}').labs?.[G?.band]; } catch { return false; } })() ? `<button class="slot act" data-m-act="challenges"><b class="ico">🏆</b><span>Challenge towns</span></button>` : ''}${G?.challenge ? `<button class="slot act" data-m-act="home"><b class="ico">🏡</b><span>Back to my own town</span></button>` : ''}${G?.completeShown && !G?.challenge ? `<button class="slot act" data-m-act="finale" ${free ? '' : 'disabled'}><b class="ico">🎉</b><span>${esc(G.S.finale.again)}</span></button>` : ''}</div>
     <h4 class="menuhead">Settings</h4>
     <label>Sound<select data-snd><option value="on" ${snd === 'on' ? 'selected' : ''}>On (music and effects)</option><option value="fx" ${snd === 'fx' ? 'selected' : ''}>Effects only</option><option value="off" ${snd === 'off' ? 'selected' : ''}>Off</option></select></label>
     ${row('readAloud', 'Read aloud')}${row('reduce', 'Reduce motion')}${row('facilitator', 'Facilitator notes')}
@@ -112,7 +114,7 @@ function settingsSheet() {
   P.querySelector('[data-snd]').onchange = (e) => { const v = e.target.value; s.sound = v !== 'off'; s.effects = v !== 'off'; s.music = v === 'on'; applySettings(); };
   P.querySelector('[data-close]').onclick = () => ui.show('settings', false);
   P.querySelector('[data-intro]').onclick = () => { ui.show('settings', false); app.G?.replayIntro?.(); };
-  P.querySelectorAll('[data-m-act]').forEach((b) => (b.onclick = () => { ui.show('settings', false); const m = b.dataset.mAct; if (m === 'challenges') { app.G?.save?.(); location.search = '?challenges=1'; } else if (m === 'home') { app.G?.save?.(); location.search = ''; } else if (m === 'report') app.G?.showReport?.(); else if (m === 'shop') app.G?.openShop?.(); else if (m === 'finale') app.G?.finale?.(); else app.G?.wholeDay?.(); }));
+  P.querySelectorAll('[data-m-act]').forEach((b) => (b.onclick = () => { ui.show('settings', false); const m = b.dataset.mAct; if (m === 'passport') { app.G?.save?.(); ui.modal(`${passportHtml(app.band)}<div class="row" style="justify-content:center;margin-top:10px"><button class="btn alt" data-act="close">Close</button><button class="btn go" data-act="print">🖨 Print certificate</button></div>`).then((a) => { if (a === 'print') printCertificate(app.band); }); } else if (m === 'challenges') { app.G?.save?.(); location.search = '?challenges=1'; } else if (m === 'home') { app.G?.save?.(); location.search = ''; } else if (m === 'report') app.G?.showReport?.(); else if (m === 'shop') app.G?.openShop?.(); else if (m === 'finale') app.G?.finale?.(); else app.G?.wholeDay?.(); }));
   ui.closePops(P.settings); ui.show('settings', true);
 }
 ui.P.tr.querySelector('[data-menu]').onclick = () => (ui.P.settings.classList.contains('hide') ? settingsSheet() : ui.show('settings', false));
@@ -220,12 +222,26 @@ async function start() {
       card.scrollTop = 0;
       card.querySelectorAll('[data-chband]').forEach((x) => (x.onclick = () => board(x.dataset.chband)));
       card.querySelector('[data-chback]').onclick = () => { card.innerHTML = homeHtml; home(); };
+      // start a challenge again from an empty island (the medal already won is kept)
+      card.querySelectorAll('[data-ch]').forEach((x) => { const sv = slotOf(x.dataset.ch); if (!sv || sv.band !== b) return;
+        x.insertAdjacentHTML('afterend', `<button class="btn alt small chagain" data-again="${x.dataset.ch}" aria-label="Start ${esc(CHALLENGES.find((c) => c.id === x.dataset.ch).name)} again">↺ Start again</button>`); });
+      card.querySelectorAll('[data-again]').forEach((x) => (x.onclick = () => { if (!confirm('Start this challenge again from an empty island? Your medal is kept.')) return; try { localStorage.removeItem('ecotown.save.v3.' + x.dataset.again); } catch { /* */ } board(b); }));
       card.querySelectorAll('[data-ch]').forEach((x) => (x.onclick = () => { resume = null; app.challenge = x.dataset.ch; res(b); }));
       setTimeout(() => card.querySelector('[data-ch]')?.focus(), 60);
+    };
+    const pass = (b) => {
+      card.innerHTML = `${passportHtml(b)}${['junior', 'senior'].filter((x) => passport(dev, x).points).length > 1 ? `<div class="opts"><span class="seg" role="radiogroup" aria-label="Age">${['junior', 'senior'].map((x) => `<button type="button" role="radio" data-pband="${x}" aria-checked="${x === b}">${x === 'junior' ? 'Ages 8–12' : 'Ages 13–17'}</button>`).join('')}</span></div>` : ''}
+        <div class="row" style="justify-content:center;margin-top:10px"><button class="btn alt" data-pback>← Back</button><button class="btn go" data-pprint>🖨 Print certificate</button></div>`;
+      card.scrollTop = 0; card.querySelectorAll('[data-pband]').forEach((x) => (x.onclick = () => pass(x.dataset.pband)));
+      card.querySelector('[data-pback]').onclick = () => { card.innerHTML = homeHtml; home(); }; card.querySelector('[data-pprint]').onclick = () => printCertificate(b);
     };
     const home = () => {
       scr.querySelectorAll('[data-band]').forEach((b) => (b.onclick = () => { resume = null; res(b.dataset.band); })); const c = scr.querySelector('[data-carry]'); if (c) c.onclick = () => res(resume.band);
       if (chBands.length && !scr.querySelector('[data-chopen]')) scr.querySelector('.ages').insertAdjacentHTML('afterend', `<p class="chopen"><button class="btn alt" data-chopen>🏆 Challenge towns <small>${medalsOf(chBands[0])} of ${CHALLENGES.length} medals</small></button></p>`);
+      const pb = ['junior', 'senior'].map((x) => [x, passport(dev, x)]).sort((x, y) => y[1].points - x[1].points)[0];
+      if (pb[1].points && !scr.querySelector('[data-popen]')) { const html = `<button class="btn alt" data-popen>🎒 Club passport <small>${pb[1].rank.icon} ${esc(pb[1].rank.name)} · ${pb[1].points} points</small></button>`;
+        const row = scr.querySelector('.chopen'); if (row) row.insertAdjacentHTML('afterbegin', html + ' '); else scr.querySelector('.ages').insertAdjacentHTML('afterend', `<p class="chopen">${html}</p>`); }
+      const po = scr.querySelector('[data-popen]'); if (po) po.onclick = () => pass(resume?.band || pb[0]);
       const o = scr.querySelector('[data-chopen]'); if (o) o.onclick = () => board(resume && chBands.includes(resume.band) ? resume.band : chBands[0]);
     };
     home(); if (forceCh) board(resume && chBands.includes(resume.band) ? resume.band : chBands[0]);

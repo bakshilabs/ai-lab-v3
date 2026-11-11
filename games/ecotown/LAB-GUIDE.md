@@ -130,6 +130,7 @@ The game has enough for a whole club day: the player's own town and six missions
 | Room for Everyone | Safe homes for 60 families | Growth inside limits |
 | Eight-Minute Town | Every home within 8 minutes of school and daily needs | Layout and walking routes |
 
+- **Club passport** (🎒 on the start screen, or ☰): adds up mission stars, the town medal, challenge medals and catches into points and six planner ranks, from Helper to Chief Planner. It always names the next thing worth points. "Print certificate" gives one page with the rank, the medals and the three habits for checking an AI; no name is stored, so the child writes their own. Use the ranks as the day's shared goal: "Who can reach Town Planner before lunch?"
 - **Opening them:** challenge towns appear on a device once its six missions are done. To open them straight away (a second day, a shared device), add `?challenges=1` to the game's address.
 - **Hints are lighter here by design.** The next-step line still names the goal, but the usual recipe does not pass every challenge (ten timber terraces do not fit Tiny Town). Let pairs struggle for a few minutes before helping.
 - **Discussion:** "Florence was 90 % sure about her own town. Which lens showed the first thing wrong? What would you ask a real AI planner to show you before building?"

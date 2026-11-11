@@ -35,6 +35,7 @@ import { townSummary } from './finale.js';
 import { openShop as shopCard, showFinale } from '../ui/rewards.js';
 import { newBadges, badgeCount, badge } from './badges.js';
 import { townScore } from './score.js';
+import { passport } from './passport.js';
 import { challenge, challengeState, challengeMedal, better, florenceTown, GOAL_TEXT } from './challenges.js';
 import { answer as askFlorence, SUGGEST } from './qa.js';
 
@@ -86,7 +87,20 @@ export function createGame(app) {
   function bonusStar(why) { if (!run) return; run.bonus = true; G.stars = shownStars(); ui.setStars(G.stars); ui.caption(`★ ${why}`, 2800); }
   function flower(flash = true) { const s = sim(); ui.carbonInfo = { used: s.carbon, limit: TARGETS.carbonCeiling }; ui.flower(s.petals, G.townName, { flash }); renderGoals(s); }
   const KEEP = ['badges', 'bestScore', 'medal', 'milestones', 'placements', 'catches', 'trusted', 'introDone', 'band', 'levelStars', 'starMarks', 'bonus', 'mistakes', 'diary', 'instructions', 'extra', 'credits', 'townName', 'inputMode', 'paths', 'outcomes', 'labs', 'ever', 'classMode', 'day', 'movedIn', 'completeShown', 'charter', 'reflection', 'reflectDone', 'shop', 'chSeen'];
+  // the club passport's part of the device record (js/game/passport.js): mission stars, town complete, catches
+  function recordMe() {
+    if (G.full) return; const stars = Object.values(G.levelStars).reduce((x, y) => x + y, 0) + Object.values(G.bonus).reduce((x, y) => x + y, 0);
+    device((all) => { const me = ((all.me ||= {})[G.band] ||= {}); const n = { stars: CH ? me.stars || 0 : Math.max(me.stars || 0, stars), complete: !!me.complete || (!CH && !!G.completeShown), catches: Math.max(me.catches || 0, G.catches || 0) };
+      if (n.stars === me.stars && n.complete === me.complete && n.catches === me.catches) return false; Object.assign(me, n); });
+  }
+  // a new planner rank (the club passport, ☰): said once, when the points first reach it
+  function rankCheck() {
+    let dev = {}; try { dev = JSON.parse(localStorage.getItem('ecotown.best.v1') || '{}'); } catch { return; }
+    const p = passport(dev, G.band); const was = sb.rankIdx; sb.rankIdx = p.rankIndex;
+    if (was != null && p.rankIndex > was && sb.running) setTimeout(() => { audio.star?.(); app.bot?.cheer(); ui.alert(`${p.rank.icon} ${G.j ? `New rank: ${p.rank.name}!` : `Rank reached: ${p.rank.name}.`} ${G.j ? 'See your club passport in ☰.' : 'Club passport: ☰.'}`, true, 4200); }, 2600);
+  }
   function save() {
+    recordMe(); rankCheck();
     if (app.inLab || G.full) return; // a mission's practice island is never saved as the player's town
     try { const d = { cells: [...G.cells], li: 1 }; for (const k of KEEP) d[k] = G[k]; if (d.credits === Infinity) d.credits = null; localStorage.setItem(SLOT, JSON.stringify(d)); } catch { /* storage off: keep playing */ }
   }

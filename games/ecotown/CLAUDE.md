@@ -8,6 +8,7 @@ Eco Town is a browser game (three.js voxel) with two versions, for ages 8–12 a
 | The game's design | `DESIGN.md` |
 | Teachers and facilitators | `LAB-GUIDE.md` |
 | Future paywall plan (not built yet) | `docs/FUTURE-PAYWALL.md` |
+| **Plan to reach best-seller quality** (what to build next) | `docs/BESTSELLER-PLAN.md` |
 
 Everything is merged to `main`. The working branch was `claude/focused-cori-qeoveu`.
 
@@ -125,6 +126,14 @@ The user said the game is for a **full-day kids' club**, and **refused a budget 
 - **Voices:** the challenge names, rules and cards have no recordings yet (the device voice reads them). Record them with `voice/collect.mjs` and `render.py` when a session has Kokoro.
 - **LAB-GUIDE.md:** a full-day club plan and a table of the challenges.
 - **Still open:** sessions with real children and real devices (`docs/DEVICE-AND-CHILD-TESTS.md`); whether seven challenges are enough for a day or the club needs a second island.
+
+## Best-seller plan, stage 1 (11 Nov 2026): the club passport
+The user asked for a detailed plan to reach best-seller quality and to start building. **The plan is `docs/BESTSELLER-PLAN.md`** (seven stages, each with a "done when"). Read it before choosing what to build next; stage 2 (the world reacts first) is next.
+- **Club passport** (`js/game/passport.js`, tests `tests/passport.test.mjs`; card and certificate `js/ui/passcard.js`): points from mission stars (up to 19), town complete (5), the town medal (2/4/6), challenge medals (3/5/8 each) and catches (up to 5), 91 in all. Six ranks: Helper 0, Builder 8, Planner 20, Town Planner 35, Master Planner 50, Chief Planner 70. The town and missions alone stop at Town Planner; Chief Planner needs most challenges at silver or better.
+  - Device record: `ecotown.best.v1` `me[band] = { stars, complete, catches }`, written by `recordMe()` in `save()`. `rankCheck()` announces a new rank once.
+  - Opened from the start screen (🎒, shown once there are points) and ☰ → Club passport. It always names the next thing worth points (`tip`).
+  - **Certificate:** "Print certificate" prints one A4 page (`#certificate`, `html[data-print=cert]` in the last block of `game.css`). No name is stored; there is a line to write it on.
+- **Start a challenge again:** ↺ on the challenge board clears that challenge's saved town (the medal is kept).
 
 ## Free-build redesign (Nov 2026, after the beta)
 The user found the guided six-level sequence exhausting ("prompt after prompt, a tunnel") and asked for a StarCraft-style city builder: **build first, get tips from Florence, step into the AI Lab, come back to building**. Decisions the user made:
