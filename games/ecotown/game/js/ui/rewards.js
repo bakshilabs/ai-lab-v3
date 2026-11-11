@@ -58,7 +58,7 @@ export function showFinale(app, G, sum, { left = 0, title = '', score = null } =
     </div>
     ${habits ? `<h3 class="fhead">${esc(F.habits)}</h3><ul class="fhabits">${habits}</ul>` : ''}
     <p class="flesson">💡 ${esc(F.lesson)}</p>
-    <div class="row frow"><button class="btn alt" data-act="keep">${esc(G.S.keepBuilding)}</button>${left ? `<button class="btn alt" data-act="shop">★ ${esc(F.shop)}</button>` : ''}<button class="btn go" data-act="report">📜 ${esc(F.report)}</button></div>`,
+    <div class="row frow"><button class="btn alt" data-act="keep">${esc(G.S.keepBuilding)}</button><button class="btn alt" data-act="challenges">🏆 ${G.j ? 'Challenge towns' : 'Challenge towns'}</button>${left ? `<button class="btn alt" data-act="shop">★ ${esc(F.shop)}</button>` : ''}<button class="btn go" data-act="report">📜 ${esc(F.report)}</button></div>`,
   { say, bind: (el) => { el.classList.remove('shopcard'); el.classList.add('finale'); setTimeout(() => { el.scrollTop = 0; }, 90); } })
     .finally(() => { delete document.documentElement.dataset.finale; setTimeout(() => app.ui.P.modal.classList.remove('finale'), 380); });
 }

@@ -42,6 +42,6 @@ export function renderReport(app, G, s, shot, { onClose = null } = {}) {
   ta.value = G.reflection || ''; ta.oninput = () => { G.reflection = ta.value; pr.textContent = 'Before I trust an AI plan, I ' + ta.value; }; ta.oninput();
   n.querySelectorAll('[data-r]').forEach((b) => (b.onclick = () => { const t = b.textContent; ta.value = ta.value.trim() ? `${ta.value.trim().replace(/[.]$/, '')}, and ${t}` : t; ta.oninput(); ta.focus(); }));
   n.querySelector('[data-print]').onclick = () => window.print();
-  n.querySelector('[data-again]').onclick = () => { if (!confirm('Start a new town? This town will be cleared.')) return; try { localStorage.removeItem('ecotown.save.v3'); } catch { /* */ } location.reload(); };
+  n.querySelector('[data-again]').onclick = () => { if (!confirm('Start a new town? This town will be cleared.')) return; try { localStorage.removeItem(G.slot || 'ecotown.save.v3'); } catch { /* */ } location.reload(); };
   n.querySelector('[data-close]')?.addEventListener('click', () => { n.remove(); onClose(); });
 }

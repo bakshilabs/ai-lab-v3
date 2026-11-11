@@ -8,6 +8,8 @@ Players build a sustainable town on a floating island with **Florence**, an AI p
 - Facilitator guide: [`LAB-GUIDE.md`](LAB-GUIDE.md)
 - Research: `research/eco-town-*.md`
 
+**Challenge towns.** Once the six AI Lab missions are done on a device, the start screen offers seven challenge towns, each with one rule and its own medal. Add `?challenges=1` to the address to open them on any device. See LAB-GUIDE.md for a full-day club plan.
+
 ## Run it
 
 The game is a static site with no build step. Serve `games/ecotown/game/` from any web server and open `index.html`:

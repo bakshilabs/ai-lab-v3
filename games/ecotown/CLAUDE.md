@@ -8,6 +8,7 @@ Eco Town is a browser game (three.js voxel) with two versions, for ages 8–12 a
 | The game's design | `DESIGN.md` |
 | Teachers and facilitators | `LAB-GUIDE.md` |
 | Future paywall plan (not built yet) | `docs/FUTURE-PAYWALL.md` |
+| **Plan to reach best-seller quality** (what to build next) | `docs/BESTSELLER-PLAN.md` |
 
 Everything is merged to `main`. The working branch was `claude/focused-cori-qeoveu`.
 
@@ -112,6 +113,27 @@ The user asked again for best-seller quality. The biggest gap named was depth: a
 - **Intro:** the hello needs no tap and the walks are quicker (three Next taps, was four).
 - **Checked:** the public test site serves round four.
 - **Still a design question for the user:** whether the score is enough depth, or the game also needs challenge towns (a smaller island, a tighter carbon limit) and coins for ages 8–12.
+
+## Ship-readiness round 6 (11 Nov 2026): challenge towns for a full-day club
+The user said the game is for a **full-day kids' club**, and **refused a budget for ages 8–12** ("What is a budget for, to limit game time? No."). Do not propose a junior budget again. The gap was that one town is about an hour of play.
+- **Challenge towns** (`js/game/challenges.js`, tests `tests/challenges.test.mjs`): seven new towns with one rule each: Florence's Town (`start: 'florence'`, a flawed town built by `florenceTown`), Tiny Town (`cap: 8`), Light Footprint (carbon ≤ 60), The Still Island (`ban: ['wind']`), Wild Island (five animals, nature ≥ 1.3 × the empty island), Room for Everyone (60 families), Eight-Minute Town (school and daily needs within 8 minutes).
+  - Passed = the eight town goals and the challenge's own goals; the medal is the town score's medal, at least bronze. The tests build each one from a fixed recipe on the real island, so every challenge is known to be passable, and an ordinary town does not pass the hard ones.
+  - In `game.js`: `CH`, `CAP`, `banned`, `SLOT` (each challenge has its own save, `ecotown.save.v3.<id>`), every category and lens open, no intro, a rule card once (`G.chSeen`), the challenge's goals in the 🌼 pop-over (`tailGoals`, `chRule`) and in the next step, `challengeCheck` and `celebrateChallenge`.
+  - Device record `ecotown.best.v1`: `labs[band]` (six missions done, which opens the challenges) and `ch[band][id] = { medal, score }`. Challenge towns do not count for the "best town score" line.
+  - Start screen (`main.js`): a 🏆 Challenge towns button and board; `?challenges=1` opens the board on any device. ☰ has "Challenge towns" and, inside a challenge, "Back to my own town". The town-complete card has a Challenge towns button.
+  - The hint for winter power picks a generator first when nothing generates (`ideaTool`); on the Still Island it used to ask for battery after battery.
+- **Phone:** Florence's tip keeps ✕ and 🔊 side by side and her words wrap round them (a tip without a button is 72 px tall, was 106); category tabs are 46 px. The build tray is 207 px (was 217). This is a small gain: the tray's info lines are the next thing to fold.
+- **Voices:** the challenge names, rules and cards have no recordings yet (the device voice reads them). Record them with `voice/collect.mjs` and `render.py` when a session has Kokoro.
+- **LAB-GUIDE.md:** a full-day club plan and a table of the challenges.
+- **Still open:** sessions with real children and real devices (`docs/DEVICE-AND-CHILD-TESTS.md`); whether seven challenges are enough for a day or the club needs a second island.
+
+## Best-seller plan, stage 1 (11 Nov 2026): the club passport
+The user asked for a detailed plan to reach best-seller quality and to start building. **The plan is `docs/BESTSELLER-PLAN.md`** (seven stages, each with a "done when"). Read it before choosing what to build next; stage 2 (the world reacts first) is next.
+- **Club passport** (`js/game/passport.js`, tests `tests/passport.test.mjs`; card and certificate `js/ui/passcard.js`): points from mission stars (up to 19), town complete (5), the town medal (2/4/6), challenge medals (3/5/8 each) and catches (up to 5), 91 in all. Six ranks: Helper 0, Builder 8, Planner 20, Town Planner 35, Master Planner 50, Chief Planner 70. The town and missions alone stop at Town Planner; Chief Planner needs most challenges at silver or better.
+  - Device record: `ecotown.best.v1` `me[band] = { stars, complete, catches }`, written by `recordMe()` in `save()`. `rankCheck()` announces a new rank once.
+  - Opened from the start screen (🎒, shown once there are points) and ☰ → Club passport. It always names the next thing worth points (`tip`).
+  - **Certificate:** "Print certificate" prints one A4 page (`#certificate`, `html[data-print=cert]` in the last block of `game.css`). No name is stored; there is a line to write it on.
+- **Start a challenge again:** ↺ on the challenge board clears that challenge's saved town (the medal is kept).
 
 ## Free-build redesign (Nov 2026, after the beta)
 The user found the guided six-level sequence exhausting ("prompt after prompt, a tunnel") and asked for a StarCraft-style city builder: **build first, get tips from Florence, step into the AI Lab, come back to building**. Decisions the user made:
