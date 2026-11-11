@@ -3923,5 +3923,560 @@
   "s": "I would also call it “Read the words too exactly”: both fit.",
   "voice": "helper",
   "key": "af7155a3"
+ },
+ {
+  "s": "No homes will flood now.",
+  "voice": "helper",
+  "key": "6bbb5466"
+ },
+ {
+  "s": "Here’s one!",
+  "voice": "helper",
+  "key": "1925be0a"
+ },
+ {
+  "s": "Why did the wind turbine get a medal?",
+  "voice": "helper",
+  "key": "b0a94bdb"
+ },
+ {
+  "s": "You’d better check.",
+  "voice": "helper",
+  "key": "f170701d"
+ },
+ {
+  "s": "Florence built this town by herself, and she was very sure about it.",
+  "voice": "narrator",
+  "key": "2aad06db"
+ },
+ {
+  "s": "Find her mistakes with the lenses and put them right.",
+  "voice": "narrator",
+  "key": "098f6f82"
+ },
+ {
+  "s": "You did it: Florence’s Town is a whole town that works.",
+  "voice": "narrator",
+  "key": "e53e7ca2"
+ },
+ {
+  "s": "Only 8 tiles of town land.",
+  "voice": "narrator",
+  "key": "55d19f0d"
+ },
+ {
+  "s": "Every tile has to work hard.",
+  "voice": "narrator",
+  "key": "8e6bb68e"
+ },
+ {
+  "s": "You did it: Tiny Town is a whole town that works.",
+  "voice": "narrator",
+  "key": "b6f16e8e"
+ },
+ {
+  "s": "A whole town that makes 60 tonnes of carbon or less.",
+  "voice": "narrator",
+  "key": "bc79afed"
+ },
+ {
+  "s": "You did it: Light Footprint is a whole town that works.",
+  "voice": "narrator",
+  "key": "b95a93f3"
+ },
+ {
+  "s": "The wind never blows here, so there are no wind turbines.",
+  "voice": "narrator",
+  "key": "2202dc7d"
+ },
+ {
+  "s": "Keep the lights on through a winter night another way.",
+  "voice": "narrator",
+  "key": "5e12fbd5"
+ },
+ {
+  "s": "You did it: The Still Island is a whole town that works.",
+  "voice": "narrator",
+  "key": "0600f684"
+ },
+ {
+  "s": "Build a whole town and leave the island wilder than you found it.",
+  "voice": "narrator",
+  "key": "969f6e82"
+ },
+ {
+  "s": "Keep all five animals: deer, bees, otters, birds and frogs.",
+  "voice": "narrator",
+  "key": "9096170b"
+ },
+ {
+  "s": "You did it: Wild Island is a whole town that works.",
+  "voice": "narrator",
+  "key": "a30f2fed"
+ },
+ {
+  "s": "Sixty families want to live here, not forty.",
+  "voice": "narrator",
+  "key": "daf81257"
+ },
+ {
+  "s": "Find safe, warm homes for all of them.",
+  "voice": "narrator",
+  "key": "ce14b8d6"
+ },
+ {
+  "s": "You did it: Room for Everyone is a whole town that works.",
+  "voice": "narrator",
+  "key": "60fa6d21"
+ },
+ {
+  "s": "Every home within an 8-minute walk of school, and of a market, hall or allotment.",
+  "voice": "narrator",
+  "key": "6686fa8c"
+ },
+ {
+  "s": "You did it: Eight-Minute Town is a whole town that works.",
+  "voice": "narrator",
+  "key": "504eb79a"
+ },
+ {
+  "s": "Most of this island floods in winter.",
+  "voice": "narrator",
+  "key": "7d557480"
+ },
+ {
+  "s": "Build six homes on the flood meadow anyway, and keep every home dry.",
+  "voice": "narrator",
+  "key": "0cd03ced"
+ },
+ {
+  "s": "A reed bed next to a home drains its land.",
+  "voice": "narrator",
+  "key": "c2b18bfa"
+ },
+ {
+  "s": "You did it: Delta: Dry Feet is a whole town that works.",
+  "voice": "narrator",
+  "key": "ac290b57"
+ },
+ {
+  "s": "The delta is full of wildlife.",
+  "voice": "narrator",
+  "key": "54fae825"
+ },
+ {
+  "s": "Build a whole town and leave the island a little wilder than you found it, with all five animals.",
+  "voice": "narrator",
+  "key": "e7c5d8dd"
+ },
+ {
+  "s": "You did it: Delta: Otter Country is a whole town that works.",
+  "voice": "narrator",
+  "key": "72fafd4a"
+ },
+ {
+  "s": "Sixty families want to live on the delta, and there is not much dry ground.",
+  "voice": "narrator",
+  "key": "9e04399f"
+ },
+ {
+  "s": "Find safe, dry homes for all of them.",
+  "voice": "narrator",
+  "key": "4ac37b5a"
+ },
+ {
+  "s": "You did it: Delta: Room for Everyone is a whole town that works.",
+  "voice": "narrator",
+  "key": "50df3363"
+ },
+ {
+  "s": "Only 8 tiles of town land, on an island of hills and woods.",
+  "voice": "narrator",
+  "key": "1caadc74"
+ },
+ {
+  "s": "You did it: Hills: Tiny Town is a whole town that works.",
+  "voice": "narrator",
+  "key": "c63eef52"
+ },
+ {
+  "s": "The old wood covers the hills.",
+  "voice": "narrator",
+  "key": "bf766630"
+ },
+ {
+  "s": "Build a whole town without cutting one tile of it, and make the island even wilder than before.",
+  "voice": "narrator",
+  "key": "7163fbca"
+ },
+ {
+  "s": "You did it: Hills: Keep the Wood is a whole town that works.",
+  "voice": "narrator",
+  "key": "1d1c60f7"
+ },
+ {
+  "s": "Hills make walks longer.",
+  "voice": "narrator",
+  "key": "703982d5"
+ },
+ {
+  "s": "You did it: Hills: Eight-Minute Town is a whole town that works.",
+  "voice": "narrator",
+  "key": "6c5b74b6"
+ },
+ {
+  "s": "A river delta: lots of flood meadow and marsh, and only a little dry ground.",
+  "voice": "narrator",
+  "key": "91a8afcb"
+ },
+ {
+  "s": "Build any town you like here.",
+  "voice": "narrator",
+  "key": "98873390"
+ },
+ {
+  "s": "You did it: Delta Island is a whole town that works.",
+  "voice": "narrator",
+  "key": "7ad21d11"
+ },
+ {
+  "s": "Hills, a big old wood and a long beach, with very little flat field.",
+  "voice": "narrator",
+  "key": "4a131a87"
+ },
+ {
+  "s": "You did it: Hill Island is a whole town that works.",
+  "voice": "narrator",
+  "key": "56e7f038"
+ },
+ {
+  "s": "The deer are back in the old wood!",
+  "voice": "narrator",
+  "key": "594b584b"
+ },
+ {
+  "s": "The deer have left.",
+  "voice": "narrator",
+  "key": "963e575c"
+ },
+ {
+  "s": "They need the wood and hedges.",
+  "voice": "narrator",
+  "key": "362584b7"
+ },
+ {
+  "s": "The bees are buzzing again!",
+  "voice": "narrator",
+  "key": "2b4ea378"
+ },
+ {
+  "s": "The bees have gone.",
+  "voice": "narrator",
+  "key": "08e9c0cd"
+ },
+ {
+  "s": "They need flowers and hedges.",
+  "voice": "narrator",
+  "key": "b4c21f8b"
+ },
+ {
+  "s": "🦦 Otters are playing in the wetland!",
+  "voice": "narrator",
+  "key": "c7cd1f2b"
+ },
+ {
+  "s": "🦦 The otters have left the wetland.",
+  "voice": "narrator",
+  "key": "1dad45e3"
+ },
+ {
+  "s": "🐦 Listen: the birds are singing again!",
+  "voice": "narrator",
+  "key": "73f46daf"
+ },
+ {
+  "s": "🐦 The birds have flown away.",
+  "voice": "narrator",
+  "key": "f0ab9898"
+ },
+ {
+  "s": "🐸 Ribbit!",
+  "voice": "narrator",
+  "key": "e4df2972"
+ },
+ {
+  "s": "The frogs are back!",
+  "voice": "narrator",
+  "key": "012a3e90"
+ },
+ {
+  "s": "🐸 The frogs have gone quiet.",
+  "voice": "narrator",
+  "key": "b7890b5e"
+ },
+ {
+  "s": "🧱 New rank: Builder!",
+  "voice": "narrator",
+  "key": "019194f3"
+ },
+ {
+  "s": "See your club passport in ☰.",
+  "voice": "narrator",
+  "key": "9223150b"
+ },
+ {
+  "s": "New rank: Planner!",
+  "voice": "narrator",
+  "key": "a22e5e9d"
+ },
+ {
+  "s": "New rank: Town Planner!",
+  "voice": "narrator",
+  "key": "1aabc5c9"
+ },
+ {
+  "s": "🏅 New rank: Master Planner!",
+  "voice": "narrator",
+  "key": "c1aef068"
+ },
+ {
+  "s": "👑 New rank: Chief Planner!",
+  "voice": "narrator",
+  "key": "2c2dbb94"
+ },
+ {
+  "s": "The six AI Lab missions happen on the home island, on Florence’s practice island.",
+  "voice": "narrator",
+  "key": "ce193e62"
+ },
+ {
+  "s": "Here all six lenses are already yours: use them to check your town.",
+  "voice": "narrator",
+  "key": "1f826a2a"
+ },
+ {
+  "s": "Welcome to Hearth Valley!",
+  "voice": "helper",
+  "key": "ca368980"
+ },
+ {
+  "s": "Someone else planned this town.",
+  "voice": "helper",
+  "key": "09953666"
+ },
+ {
+  "s": "Tap 🔍 and pick a lens: what did they get right, and what would you check?",
+  "voice": "helper",
+  "key": "ebb8211c"
+ },
+ {
+  "s": "Welcome to Hearth Meadows!",
+  "voice": "helper",
+  "key": "db2cc51f"
+ },
+ {
+  "s": "Welcome to Hearth Town!",
+  "voice": "helper",
+  "key": "9a35ec9d"
+ },
+ {
+  "s": "Welcome to Hearth Hill!",
+  "voice": "helper",
+  "key": "e8545618"
+ },
+ {
+  "s": "Welcome to Hearth Square!",
+  "voice": "helper",
+  "key": "cf2e6bec"
+ },
+ {
+  "s": "Welcome to Hearth Vale!",
+  "voice": "helper",
+  "key": "67a89f7b"
+ },
+ {
+  "s": "Welcome to Orchard Village!",
+  "voice": "helper",
+  "key": "8b53aa84"
+ },
+ {
+  "s": "Welcome to Orchard Meadows!",
+  "voice": "helper",
+  "key": "e71d2652"
+ },
+ {
+  "s": "Welcome to Orchard Town!",
+  "voice": "helper",
+  "key": "67c4f7ea"
+ },
+ {
+  "s": "Welcome to Orchard Hill!",
+  "voice": "helper",
+  "key": "1ba2f7f3"
+ },
+ {
+  "s": "Welcome to Orchard Square!",
+  "voice": "helper",
+  "key": "30621f77"
+ },
+ {
+  "s": "Welcome to Orchard Vale!",
+  "voice": "helper",
+  "key": "4cb0311c"
+ },
+ {
+  "s": "Welcome to Wild Garden Village!",
+  "voice": "helper",
+  "key": "1689cf5a"
+ },
+ {
+  "s": "Welcome to Wild Garden Valley!",
+  "voice": "helper",
+  "key": "843689ed"
+ },
+ {
+  "s": "Welcome to Wild Garden Town!",
+  "voice": "helper",
+  "key": "3956c7f0"
+ },
+ {
+  "s": "Welcome to Wild Garden Hill!",
+  "voice": "helper",
+  "key": "94033d25"
+ },
+ {
+  "s": "Welcome to Wild Garden Square!",
+  "voice": "helper",
+  "key": "14499c79"
+ },
+ {
+  "s": "Welcome to Wild Garden Vale!",
+  "voice": "helper",
+  "key": "a80c165a"
+ },
+ {
+  "s": "Welcome to Cycle Village!",
+  "voice": "helper",
+  "key": "25fa89d7"
+ },
+ {
+  "s": "Welcome to Cycle Valley!",
+  "voice": "helper",
+  "key": "cc676976"
+ },
+ {
+  "s": "Welcome to Cycle Meadows!",
+  "voice": "helper",
+  "key": "4a471921"
+ },
+ {
+  "s": "Welcome to Cycle Hill!",
+  "voice": "helper",
+  "key": "0ba8ccca"
+ },
+ {
+  "s": "Welcome to Cycle Square!",
+  "voice": "helper",
+  "key": "d1201ace"
+ },
+ {
+  "s": "Welcome to Cycle Vale!",
+  "voice": "helper",
+  "key": "6d517679"
+ },
+ {
+  "s": "Welcome to Windmill Village!",
+  "voice": "helper",
+  "key": "3812eb51"
+ },
+ {
+  "s": "Welcome to Windmill Valley!",
+  "voice": "helper",
+  "key": "5a436810"
+ },
+ {
+  "s": "Welcome to Windmill Meadows!",
+  "voice": "helper",
+  "key": "65b114cf"
+ },
+ {
+  "s": "Welcome to Windmill Town!",
+  "voice": "helper",
+  "key": "032c5cad"
+ },
+ {
+  "s": "Welcome to Windmill Square!",
+  "voice": "helper",
+  "key": "7846213c"
+ },
+ {
+  "s": "Welcome to Windmill Vale!",
+  "voice": "helper",
+  "key": "5a7b27ab"
+ },
+ {
+  "s": "Welcome to Market Village!",
+  "voice": "helper",
+  "key": "6f40fa41"
+ },
+ {
+  "s": "Welcome to Market Valley!",
+  "voice": "helper",
+  "key": "e3147bc0"
+ },
+ {
+  "s": "Welcome to Market Meadows!",
+  "voice": "helper",
+  "key": "bf974a5f"
+ },
+ {
+  "s": "Welcome to Market Town!",
+  "voice": "helper",
+  "key": "a6aa81dd"
+ },
+ {
+  "s": "Welcome to Market Hill!",
+  "voice": "helper",
+  "key": "db7c3658"
+ },
+ {
+  "s": "Welcome to Market Vale!",
+  "voice": "helper",
+  "key": "2e916ebb"
+ },
+ {
+  "s": "Welcome to Green Leaf Village!",
+  "voice": "helper",
+  "key": "0d5efd12"
+ },
+ {
+  "s": "Welcome to Green Leaf Valley!",
+  "voice": "helper",
+  "key": "8ccd79f5"
+ },
+ {
+  "s": "Welcome to Green Leaf Meadows!",
+  "voice": "helper",
+  "key": "0c3ea354"
+ },
+ {
+  "s": "Welcome to Green Leaf Town!",
+  "voice": "helper",
+  "key": "d07e6ee8"
+ },
+ {
+  "s": "Welcome to Green Leaf Hill!",
+  "voice": "helper",
+  "key": "df36243d"
+ },
+ {
+  "s": "Welcome to Green Leaf Square!",
+  "voice": "helper",
+  "key": "36f11eb1"
+ },
+ {
+  "s": "Tap 🔍 and pick a lens to check this town.",
+  "voice": "helper",
+  "key": "9df86a2c"
  }
 ]

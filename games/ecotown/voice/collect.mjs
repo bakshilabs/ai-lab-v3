@@ -77,6 +77,17 @@ const out = await p.evaluate(async () => {
     { const { TOPICS, answer } = await import('./js/game/qa.js'); const { ITEMS } = await import('./js/world/catalog.js');
       for (const t of TOPICS) add(band, t.a[j ? 'j' : 's'], 'helper'); add(band, answer('zzz', j).text, 'helper');
       for (const it of Object.values(ITEMS)) if (it.desc) add(band, `${it.label}: ${it.desc[j ? 'j' : 's']}`, 'helper'); }
+    // best-seller plan (Nov 2026): challenge towns and island towns, animal news, planner ranks, the off-home-island
+    // Lab card, Florence's hello in a visited town (other lines with live numbers use the device voice)
+    { const { CHALLENGES, ISLAND_TOWNS = [] } = await import('./js/game/challenges.js'); const { ANIMALS } = await import('./js/game/reactions.js'); const { RANKS } = await import('./js/game/passport.js');
+      for (const c of [...CHALLENGES, ...ISLAND_TOWNS]) { add(band, pick(c.rule), 'narrator'); add(band, j ? `You did it: ${c.name} is a whole town that works.` : c.free ? `${c.name}: every town goal is met.` : `${c.name}: every town goal and the challenge rule are met.`, 'narrator'); }
+      for (const A of Object.values(ANIMALS)) { add(band, `${A.icon} ${pick(A.back)}`, 'narrator'); add(band, `${A.icon} ${pick(A.gone)}`, 'narrator'); }
+      for (const r of RANKS.slice(1)) add(band, `${r.icon} ${j ? `New rank: ${r.name}!` : `Rank reached: ${r.name}.`} ${j ? 'See your club passport in ☰.' : 'Club passport: ☰.'}`, 'narrator');
+      add(band, j ? 'The six AI Lab missions happen on the home island, on Florence’s practice island. Here all six lenses are already yours: use them to check your town.' : 'The six AI Lab missions run on the home island’s practice island. On this island all six lenses are already open.', 'narrator');
+      const { townTitle, PETALS } = await import('./js/sim/sim.js');
+      for (const a of PETALS) for (const b2 of PETALS) if (a !== b2) { const p = Object.fromEntries(PETALS.map((x) => [x, x === a ? 1.5 : x === b2 ? 1.4 : 0.1])); const h = townTitle(p, { bees: true, deer: true });
+        add(band, j ? `Welcome to ${h}! Someone else planned this town. Tap 🔍 and pick a lens: what did they get right, and what would you check?` : `This is ${h}, planned by someone else. Run the lenses: what holds up, and what would you question?`, 'helper'); }
+      add(band, j ? 'Tap 🔍 and pick a lens to check this town.' : 'Run a lens on this town.', 'helper'); }
     add(band, S.classInvite, 'helper'); add(band, S.moveIn, 'narrator'); add(band, S.completeText, 'narrator'); add(band, S.planDidntFit, 'narrator');
   }
   // Florence's readings for many instructions (both bands hear them in her voice)

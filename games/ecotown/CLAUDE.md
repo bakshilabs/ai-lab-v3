@@ -142,7 +142,8 @@ The user said "Do everything" in the plan, and asked for 3D cartoon episodes at 
   - Not done from stage 2: animals walking in from the island's edge, a sound per build family, music that thickens.
 - **Stage 5, phone:** the build tray's two information lines are one (name, ▶, good-spot reason); the tray is 186 px on a 390 × 844 screen (217 at the start of the day). Card and tray together cover about 31 % of the screen; the plan's target of a quarter is not met.
 - **Stage 7:** `game/leader.html`, the club leader's one-page plan (one A4 page; linked from the start screen; copied by `build.mjs`). It has no script because the site's content security policy blocks inline scripts.
-- **Not started:** recording the new voice lines (challenges, passport, reactions), a second language, the trailer, the paywall (needs the user's decisions in `docs/FUTURE-PAYWALL.md` and a Stripe account), and stage 6 (real children and devices).
+- **Voices recorded (11 Nov, later):** 205 new lines (challenge and island-town rules and results, animal news, rank alerts, the off-home-island Lab card, Florence's hello in a visited town and her joke). `voice/collect.mjs` now collects them. The old lines were kept in their old order and the new ones appended, so only the last chunk of each band changed. The clip cache from earlier sessions was in this session's scratchpad (`vcache`, 1,157 clips); without it, seed a cache from the packs first (each clip is `[key, chunk, offset, length]` in `pack-<band>.json`). Reactions bubbles are silent by design; lines with live numbers use the device voice.
+- **Not started:** a second language, the trailer, the paywall (needs the user's decisions in `docs/FUTURE-PAYWALL.md` and a Stripe account), and stage 6 (real children and devices).
 
 ## Best-seller plan, stage 3 (11 Nov 2026): two more islands
 Every town used to be on the same island. Now there are three (`makeTerrain(layout)` in `js/world/terrain.js`, `LAYOUTS`):

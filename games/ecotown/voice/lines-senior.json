@@ -2983,5 +2983,475 @@
   "s": "“Specification ambiguity” fits it too.",
   "voice": "helper",
   "key": "43b0e038"
+ },
+ {
+  "s": "Resolved: no homes at flood risk.",
+  "voice": "helper",
+  "key": "275696c4"
+ },
+ {
+  "s": "One joke, then back to work.",
+  "voice": "helper",
+  "key": "abf15aea"
+ },
+ {
+  "s": "I told a planner my plan was 95% certain.",
+  "voice": "helper",
+  "key": "a919fe7f"
+ },
+ {
+  "s": "She asked, “Certain of what?” I’m still calculating.",
+  "voice": "helper",
+  "key": "d033701d"
+ },
+ {
+  "s": "Moral: ask an AI what its confidence is confidence in.",
+  "voice": "helper",
+  "key": "ce84673d"
+ },
+ {
+  "s": "Florence planned this town unsupervised.",
+  "voice": "narrator",
+  "key": "a4a72c4b"
+ },
+ {
+  "s": "Audit it with the lenses and fix what she got wrong.",
+  "voice": "narrator",
+  "key": "71c0b340"
+ },
+ {
+  "s": "Florence’s Town: every town goal and the challenge rule are met.",
+  "voice": "narrator",
+  "key": "0af57d23"
+ },
+ {
+  "s": "Town land is capped at 8 tiles: density without the carbon.",
+  "voice": "narrator",
+  "key": "436bef20"
+ },
+ {
+  "s": "Tiny Town: every town goal and the challenge rule are met.",
+  "voice": "narrator",
+  "key": "73fbcfd3"
+ },
+ {
+  "s": "Light Footprint: every town goal and the challenge rule are met.",
+  "voice": "narrator",
+  "key": "af43eb60"
+ },
+ {
+  "s": "No wind resource: cover a still winter night without turbines.",
+  "voice": "narrator",
+  "key": "89c24ab4"
+ },
+ {
+  "s": "The Still Island: every town goal and the challenge rule are met.",
+  "voice": "narrator",
+  "key": "a0276727"
+ },
+ {
+  "s": "Wild Island: every town goal and the challenge rule are met.",
+  "voice": "narrator",
+  "key": "52ed1aba"
+ },
+ {
+  "s": "Room for Everyone: every town goal and the challenge rule are met.",
+  "voice": "narrator",
+  "key": "9309f96e"
+ },
+ {
+  "s": "Every home within 8 minutes’ walk of the school and of daily needs (market, hall or allotments).",
+  "voice": "narrator",
+  "key": "8b95d3c4"
+ },
+ {
+  "s": "Eight-Minute Town: every town goal and the challenge rule are met.",
+  "voice": "narrator",
+  "key": "d42e044b"
+ },
+ {
+  "s": "A river delta: six or more homes on the flood meadow, and no home may flood.",
+  "voice": "narrator",
+  "key": "109f721e"
+ },
+ {
+  "s": "Drain the land with reed beds.",
+  "voice": "narrator",
+  "key": "b4d0eb88"
+ },
+ {
+  "s": "Delta: Dry Feet: every town goal and the challenge rule are met.",
+  "voice": "narrator",
+  "key": "ea3d44fc"
+ },
+ {
+  "s": "Delta: Otter Country: every town goal and the challenge rule are met.",
+  "voice": "narrator",
+  "key": "2cc154a5"
+ },
+ {
+  "s": "Delta: Room for Everyone: every town goal and the challenge rule are met.",
+  "voice": "narrator",
+  "key": "07153f5a"
+ },
+ {
+  "s": "Town land is capped at 8 tiles on the hill island: density on steep ground.",
+  "voice": "narrator",
+  "key": "893b8371"
+ },
+ {
+  "s": "Hills: Tiny Town: every town goal and the challenge rule are met.",
+  "voice": "narrator",
+  "key": "862c57c1"
+ },
+ {
+  "s": "Hills: Keep the Wood: every town goal and the challenge rule are met.",
+  "voice": "narrator",
+  "key": "1cff6fa2"
+ },
+ {
+  "s": "On the hill island: every home within 8 minutes’ walk of the school and of daily needs.",
+  "voice": "narrator",
+  "key": "e61afa48"
+ },
+ {
+  "s": "Hills: Eight-Minute Town: every town goal and the challenge rule are met.",
+  "voice": "narrator",
+  "key": "76bc82ed"
+ },
+ {
+  "s": "A river delta with little dry ground.",
+  "voice": "narrator",
+  "key": "77ed18cd"
+ },
+ {
+  "s": "Free building: no special rule.",
+  "voice": "narrator",
+  "key": "83ec3e28"
+ },
+ {
+  "s": "Delta Island: every town goal is met.",
+  "voice": "narrator",
+  "key": "c2aaf4f3"
+ },
+ {
+  "s": "Hill country with little flat land.",
+  "voice": "narrator",
+  "key": "4daa2089"
+ },
+ {
+  "s": "Hill Island: every town goal is met.",
+  "voice": "narrator",
+  "key": "30ef0092"
+ },
+ {
+  "s": "Deer have returned to the old wood.",
+  "voice": "narrator",
+  "key": "0ecca655"
+ },
+ {
+  "s": "The deer are gone: too little woodland and hedgerow.",
+  "voice": "narrator",
+  "key": "7a15214c"
+ },
+ {
+  "s": "Pollinators are back.",
+  "voice": "narrator",
+  "key": "967a9aa2"
+ },
+ {
+  "s": "Pollinators lost: not enough meadow, hedge or hives.",
+  "voice": "narrator",
+  "key": "98ece568"
+ },
+ {
+  "s": "🦦 Otters are back in the wetland.",
+  "voice": "narrator",
+  "key": "72d5adf1"
+ },
+ {
+  "s": "🦦 Otters lost: the wetland is too small now.",
+  "voice": "narrator",
+  "key": "332cc500"
+ },
+ {
+  "s": "🐦 Birdsong has returned.",
+  "voice": "narrator",
+  "key": "2554ca80"
+ },
+ {
+  "s": "🐦 Birds lost: too few trees and hedges.",
+  "voice": "narrator",
+  "key": "a363a5c3"
+ },
+ {
+  "s": "🐸 Frogs are back.",
+  "voice": "narrator",
+  "key": "6a20676f"
+ },
+ {
+  "s": "🐸 Frogs lost: no wetland or reed bed left for them.",
+  "voice": "narrator",
+  "key": "25375e12"
+ },
+ {
+  "s": "🧱 Rank reached: Builder.",
+  "voice": "narrator",
+  "key": "0046ec02"
+ },
+ {
+  "s": "Club passport: ☰.",
+  "voice": "narrator",
+  "key": "3a912302"
+ },
+ {
+  "s": "Rank reached: Planner.",
+  "voice": "narrator",
+  "key": "0b339214"
+ },
+ {
+  "s": "Rank reached: Town Planner.",
+  "voice": "narrator",
+  "key": "dce11a00"
+ },
+ {
+  "s": "🏅 Rank reached: Master Planner.",
+  "voice": "narrator",
+  "key": "bc2f1785"
+ },
+ {
+  "s": "👑 Rank reached: Chief Planner.",
+  "voice": "narrator",
+  "key": "ba2bd13d"
+ },
+ {
+  "s": "The six AI Lab missions run on the home island’s practice island.",
+  "voice": "narrator",
+  "key": "69a0700a"
+ },
+ {
+  "s": "On this island all six lenses are already open.",
+  "voice": "narrator",
+  "key": "d1eea155"
+ },
+ {
+  "s": "This is Hearth Valley, planned by someone else.",
+  "voice": "helper",
+  "key": "382fcc58"
+ },
+ {
+  "s": "Run the lenses: what holds up, and what would you question?",
+  "voice": "helper",
+  "key": "18dedb76"
+ },
+ {
+  "s": "This is Hearth Meadows, planned by someone else.",
+  "voice": "helper",
+  "key": "260b5f2f"
+ },
+ {
+  "s": "This is Hearth Town, planned by someone else.",
+  "voice": "helper",
+  "key": "615be67b"
+ },
+ {
+  "s": "This is Hearth Hill, planned by someone else.",
+  "voice": "helper",
+  "key": "17890030"
+ },
+ {
+  "s": "This is Hearth Square, planned by someone else.",
+  "voice": "helper",
+  "key": "7bace98c"
+ },
+ {
+  "s": "This is Hearth Vale, planned by someone else.",
+  "voice": "helper",
+  "key": "cd67a8d5"
+ },
+ {
+  "s": "This is Orchard Village, planned by someone else.",
+  "voice": "helper",
+  "key": "4dd23fe0"
+ },
+ {
+  "s": "This is Orchard Meadows, planned by someone else.",
+  "voice": "helper",
+  "key": "3ad66746"
+ },
+ {
+  "s": "This is Orchard Town, planned by someone else.",
+  "voice": "helper",
+  "key": "83f59cc4"
+ },
+ {
+  "s": "This is Orchard Hill, planned by someone else.",
+  "voice": "helper",
+  "key": "0f3eddbf"
+ },
+ {
+  "s": "This is Orchard Square, planned by someone else.",
+  "voice": "helper",
+  "key": "c53b48bb"
+ },
+ {
+  "s": "This is Orchard Vale, planned by someone else.",
+  "voice": "helper",
+  "key": "4c5d7462"
+ },
+ {
+  "s": "This is Wild Garden Village, planned by someone else.",
+  "voice": "helper",
+  "key": "9bc272d2"
+ },
+ {
+  "s": "This is Wild Garden Valley, planned by someone else.",
+  "voice": "helper",
+  "key": "63bf2529"
+ },
+ {
+  "s": "This is Wild Garden Town, planned by someone else.",
+  "voice": "helper",
+  "key": "80e83fae"
+ },
+ {
+  "s": "This is Wild Garden Hill, planned by someone else.",
+  "voice": "helper",
+  "key": "7fc570a5"
+ },
+ {
+  "s": "This is Wild Garden Square, planned by someone else.",
+  "voice": "helper",
+  "key": "ec50d001"
+ },
+ {
+  "s": "This is Wild Garden Vale, planned by someone else.",
+  "voice": "helper",
+  "key": "c9d18f0c"
+ },
+ {
+  "s": "This is Cycle Village, planned by someone else.",
+  "voice": "helper",
+  "key": "e479beb5"
+ },
+ {
+  "s": "This is Cycle Valley, planned by someone else.",
+  "voice": "helper",
+  "key": "64e367b8"
+ },
+ {
+  "s": "This is Cycle Meadows, planned by someone else.",
+  "voice": "helper",
+  "key": "b5c5ce8f"
+ },
+ {
+  "s": "This is Cycle Hill, planned by someone else.",
+  "voice": "helper",
+  "key": "031e2610"
+ },
+ {
+  "s": "This is Cycle Square, planned by someone else.",
+  "voice": "helper",
+  "key": "a9d3a36c"
+ },
+ {
+  "s": "This is Cycle Vale, planned by someone else.",
+  "voice": "helper",
+  "key": "637f7135"
+ },
+ {
+  "s": "This is Windmill Village, planned by someone else.",
+  "voice": "helper",
+  "key": "04fa909d"
+ },
+ {
+  "s": "This is Windmill Valley, planned by someone else.",
+  "voice": "helper",
+  "key": "e2f2ea50"
+ },
+ {
+  "s": "This is Windmill Meadows, planned by someone else.",
+  "voice": "helper",
+  "key": "386982c7"
+ },
+ {
+  "s": "This is Windmill Town, planned by someone else.",
+  "voice": "helper",
+  "key": "bc014e83"
+ },
+ {
+  "s": "This is Windmill Square, planned by someone else.",
+  "voice": "helper",
+  "key": "708ca494"
+ },
+ {
+  "s": "This is Windmill Vale, planned by someone else.",
+  "voice": "helper",
+  "key": "7dcb112d"
+ },
+ {
+  "s": "This is Market Village, planned by someone else.",
+  "voice": "helper",
+  "key": "dd2c5ff9"
+ },
+ {
+  "s": "This is Market Valley, planned by someone else.",
+  "voice": "helper",
+  "key": "9c1f582c"
+ },
+ {
+  "s": "This is Market Meadows, planned by someone else.",
+  "voice": "helper",
+  "key": "298abec3"
+ },
+ {
+  "s": "This is Market Town, planned by someone else.",
+  "voice": "helper",
+  "key": "faff7f2f"
+ },
+ {
+  "s": "This is Market Hill, planned by someone else.",
+  "voice": "helper",
+  "key": "bd9cd5c4"
+ },
+ {
+  "s": "This is Market Vale, planned by someone else.",
+  "voice": "helper",
+  "key": "f4ee04c1"
+ },
+ {
+  "s": "This is Green Leaf Village, planned by someone else.",
+  "voice": "helper",
+  "key": "28d0b254"
+ },
+ {
+  "s": "This is Green Leaf Valley, planned by someone else.",
+  "voice": "helper",
+  "key": "6674612b"
+ },
+ {
+  "s": "This is Green Leaf Meadows, planned by someone else.",
+  "voice": "helper",
+  "key": "571b643a"
+ },
+ {
+  "s": "This is Green Leaf Town, planned by someone else.",
+  "voice": "helper",
+  "key": "f7945328"
+ },
+ {
+  "s": "This is Green Leaf Hill, planned by someone else.",
+  "voice": "helper",
+  "key": "303bc063"
+ },
+ {
+  "s": "This is Green Leaf Square, planned by someone else.",
+  "voice": "helper",
+  "key": "62184f2f"
+ },
+ {
+  "s": "Run a lens on this town.",
+  "voice": "helper",
+  "key": "0c3b7414"
  }
 ]
