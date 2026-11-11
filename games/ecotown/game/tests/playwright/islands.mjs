@@ -8,7 +8,7 @@ let chromium; try { ({ chromium } = require('playwright')); } catch { ({ chromiu
 const out = process.argv[2] || null; const base = process.argv[3] || 'http://localhost:8772/'; const quality = process.argv[4] || 'mid';
 const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
 const errors = []; const fails = []; const check = (ok, msg) => { if (!ok) { fails.push(msg); console.error('  FAIL:', msg); } };
-const shot = async (p, name) => { if (out) await p.screenshot({ path: `${out}/${name}.png` }); };
+const shot = async (p, name) => { if (out) await p.screenshot({ path: `${out}/${name}.png`, timeout: 120000 }).catch((e) => console.log(`  (no screenshot ${name}: ${e.message.split("\n")[0]})`)); };
 async function page() {
   const p = await b.newPage({ viewport: { width: 1366, height: 768 } }); p.on('pageerror', (e) => errors.push(e.message)); p.setDefaultNavigationTimeout(180000); // software 3D on a busy machine is slow
   await p.addInitScript((q) => { if (!localStorage.getItem('ecotown.prefs')) localStorage.setItem('ecotown.prefs', JSON.stringify({ quality: q, reduce: true, sound: false })); }, quality);

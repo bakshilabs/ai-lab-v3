@@ -146,7 +146,8 @@ Every town used to be on the same island. Now there are three (`makeTerrain(layo
 - **Free building on another island:** `ISLAND_TOWNS` (`isle-delta`, `isle-hills`, `free: true`). They use the challenge plumbing in `game.js` (own save slot `ecotown.save.v3.isle-<island>`, everything open, no intro, a medal from the town score in `ch[band][id]`), but are not counted on the board or in the passport. On the board they are the last section; `?island=delta` alone makes the two age buttons start that island's free town (the "island of the day" for a club leader).
 - **Missions are on the home island:** off the home island `labBoard` and `openLab` show a card saying so (`missionsAtHome` in `game.js`), with a button back to the home island. The classroom (questions to Florence) still opens.
 - **Passport:** 13 challenges make 139 points in all (was 91). The ranks are unchanged, so Chief Planner is easier to reach than before; decide whether to raise the top ranks.
-- **Tests:** 217 unit tests. `tests/challenges.test.mjs` proves every challenge on its own island by a recipe, and that an ordinary town on each island meets the eight goals but not the hard challenges. `tests/playwright/islands.mjs [outDir] [baseUrl] [quality]` loads each island, builds on it, checks the Lab card, save and resume, the board's reload, a hint-follower on both new islands, and reports draw calls and triangles (delta 363 calls / 305k triangles, hills 380 / 323k, home 374 / 315k on an empty island at "mid").
+- **Florence's flood tip** (`advisor.js`): not shown while homes stand on the flood meadow and none floods (the player is draining it, which is the way to build on the delta). The "fixed" line now reads "No homes will flood now" (no recording yet).
+- **Tests:** 218 unit tests. `tests/challenges.test.mjs` proves every challenge on its own island by a recipe, and that an ordinary town on each island meets the eight goals but not the hard challenges. `tests/playwright/islands.mjs [outDir] [baseUrl] [quality]` loads each island, builds on it, checks the Lab card, save and resume, the board's reload, a hint-follower on both new islands, and reports draw calls and triangles (delta 363 calls / 305k triangles, hills 380 / 323k, home 374 / 315k on an empty island at "mid").
 - **Not done:** the seven home-island challenges are not offered on the other islands; no different wind on the hills; the island names, rules and cards have no voice recordings; the build videos and the intro are home-island only (island towns skip the intro); phones were not looked at on the new islands; Florence's suggestions and town events run on the new islands but were not play-tested there.
 
 ## Free-build redesign (Nov 2026, after the beta)
@@ -366,7 +367,7 @@ All 49 notes in the beta tester's file were addressed; see README "How the game 
   - `/admin` redirects (302) to `…cloudflareaccess.com`.
 
 ## Tests
-From `games/ecotown/game` (217 tests, all passing at handoff; run them all with `node --test tests/*.test.mjs`):
+From `games/ecotown/game` (218 tests, all passing at handoff; `model.test.mjs` "predict is fast" is a timing test and can fail on a busy machine; run them all with `node --test tests/*.test.mjs`):
 
 ```bash
 node --test tests/sim.test.mjs tests/model.test.mjs tests/teach.test.mjs tests/syntax.test.mjs tests/codes.test.mjs tests/playtest.test.mjs tests/progress.test.mjs tests/audio.test.mjs tests/replace.test.mjs tests/delta.test.mjs tests/qa.test.mjs

@@ -7,6 +7,7 @@ import { makeTerrain, ISLANDS, LAYOUTS, islandId, zoneAt, rimHeight } from '../j
 import { simulate, natureBaseline } from '../js/sim/sim.js';
 import { seedTo } from '../js/game/seed.js';
 import { HILLS_WOOD, CHALLENGES, ISLAND_TOWNS, islandOf } from '../js/game/challenges.js';
+import { RULES } from '../js/game/advisor.js';
 
 const hash = (t) => createHash('sha256').update([...t.tiles.values()].map((x) => [x.k, x.gx, x.gz, x.zone, x.h, x.hedge, x.fixed || ''].join('|')).join('\n')).digest('hex');
 const count = (t) => { const n = {}; for (const x of t.tiles.values()) n[x.zone] = (n[x.zone] || 0) + 1; return n; };
@@ -61,4 +62,16 @@ const PRACTICE = '682a4e5e4dc2b749bba958948fa9247585656007f30ac3b56df553e7579cbb
 test('every challenge and island town names an island that exists', () => {
   for (const c of [...CHALLENGES, ...ISLAND_TOWNS]) assert.ok(ISLANDS.includes(islandOf(c)), c.id);
   assert.equal(new Set([...CHALLENGES, ...ISLAND_TOWNS].map((c) => c.id)).size, CHALLENGES.length + ISLAND_TOWNS.length);
+});
+
+test('on the delta, homes on the flood meadow beside a reed bed are dry, and Florence does not tell the player to move them', () => {
+  const t = makeTerrain('delta'); const flood = RULES.find((r) => r.id === 'flood'); const home = (k) => [k, { mark: 'town', item: 'timber', mods: [], locked: false }];
+  assert.equal(t.tiles.get('9,4').zone, 'meadow'); assert.equal(t.tiles.get('8,4').zone, 'wetland');
+  const wet = new Map([home('9,4'), home('9,5')]); const a = simulate(t, wet);
+  assert.equal(a.flooded, 2); assert.ok(a.homes.every((h) => h.zone === 'meadow')); assert.ok(flood.when(a), 'undrained homes on the meadow get the flood tip');
+  const dry = new Map([...wet, ['8,4', { mark: null, item: 'reedbed', mods: [], locked: false }], ['8,5', { mark: null, item: 'reedbed', mods: [], locked: false }]]); const b = simulate(t, dry);
+  assert.equal(b.flooded, 0); assert.equal(b.familiesSafe, 8); assert.equal(b.townFlooded, 2); assert.ok(!flood.when(b), 'drained homes do not');
+  assert.equal(b.wetIntact, a.wetIntact, 'a reed bed keeps the marsh a marsh');
+  // town land marked on the meadow with no homes yet still gets the tip, as on the home island
+  assert.ok(flood.when(simulate(t, new Map([['9,4', { mark: 'town', item: null, mods: [] }], ['9,5', { mark: 'town', item: null, mods: [] }]]))));
 });
