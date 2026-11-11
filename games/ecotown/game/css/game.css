@@ -2024,3 +2024,11 @@ html .streetpad [data-sp-exit] { white-space: nowrap; }
   #certificate ul, #certificate ol { display: inline-block; text-align: left; margin: 2mm auto; } #certificate ul { list-style: none; padding: 0; columns: 2; column-gap: 12mm; }
   #certificate .cfoot { margin-top: 8mm; font-size: 10pt; color: #666; }
 }
+
+/* ---- islands (best-seller plan, stage 3): island headings on the challenge board, the note on another island's start card. START OF BLOCK */
+#start .chisle { margin: 16px 0 0; font-size: 1.05em; text-align: left; color: var(--ink, #3b2a1c); }
+#start .chisle small { display: block; font-size: .8em; font-weight: 600; color: var(--ink2); }
+#start .islenote { margin: 10px 0; font-size: .9em; font-weight: 600; color: var(--ink2); }
+#start .islenote a { color: inherit; font-weight: 800; white-space: nowrap; }
+html[data-island="delta"] #start .both, html[data-island="hills"] #start .both { display: none; } /* that line is about the home island's missions and naming a town */
+/* ---- islands: END OF BLOCK */

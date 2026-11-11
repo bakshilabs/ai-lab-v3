@@ -5,7 +5,7 @@ import { createStage, probeTier } from './engine/stage.js';
 import { createLife } from './engine/life.js';
 import { createFlorence } from './engine/florence.js';
 import { initAudio, sfx, setSound, setMusic, setMusicOn, setSfxOn, duck } from './engine/audio.js';
-import { makeTerrain } from './world/terrain.js';
+import { makeTerrain, islandId, LAYOUTS } from './world/terrain.js';
 import { simulate } from './sim/sim.js';
 import { createWorld } from './world/world.js';
 import { createInside } from './world/inside.js';
@@ -16,7 +16,7 @@ import { ITEMS } from './world/catalog.js';
 import { createStreetPad } from './camera/streetpad.js';
 import { createUI, h, esc } from './ui/ui.js';
 import { createPortrait } from './ui/portrait.js';
-import { CHALLENGES } from './game/challenges.js';
+import { CHALLENGES, ISLAND_TOWNS, challenge, islandOf } from './game/challenges.js';
 import { passport } from './game/passport.js';
 import { passportHtml, printCertificate } from './ui/passcard.js';
 import { createGame } from './game/game.js';
@@ -36,7 +36,15 @@ const canvas = $('#gl');
 // (A start-up check that showed "Eco Town needs 3D graphics" was removed at the user's request: it stopped the game on a device
 // where the game itself had been loading fine. The game now always tries to start.)
 const stage = createStage(canvas, $('#sky'));
-const terrain = makeTerrain();
+// ---- islands (best-seller plan, stage 3): the world is built here, before the start screen, so the island comes from
+// the URL: ?island=delta|hills (anything else is the home island). ?ch=<challenge or island town>&band=<age> starts that
+// town at once (the challenge board reloads the page with these when a challenge is on another island). The build
+// videos and film previews always use the home island.
+const QS = new URLSearchParams(location.search);
+const ISLAND = QS.has('shoot') || QS.has('film') ? 'home' : islandId(QS.get('island'));
+const islandUrl = (id, band) => { const c = challenge(id); const isl = islandOf(c); return '?' + (isl !== 'home' ? `island=${isl}&` : '') + `ch=${encodeURIComponent(id)}&band=${band}`; };
+const terrain = makeTerrain(ISLAND);
+document.documentElement.dataset.island = ISLAND;
 const world = createWorld(stage, terrain);
 const life = createLife(stage, world, terrain);
 const inside = createInside(stage);
@@ -47,7 +55,7 @@ let lastStep = 0; bot.onStep = () => { const n = performance.now(); if (n - last
 { const d = world.tileTop(terrain.dock); bot.appear(d.clone().add(new THREE.Vector3(-4, 0, -6))); }
 life.setTown(simulate(terrain, new Map()), new Map(), stage.q);
 const app = {
-  stage, terrain, world, life, inside, classroom, rig, bot, audio: sfx, setMusic, band: 'junior', session: 60, classMode: false, sandboxFull: new URLSearchParams(location.search).get('sandbox') === 'full', hour: 11, moveIn: null, winterTest: false,
+  stage, terrain, island: ISLAND, world, life, inside, classroom, rig, bot, audio: sfx, setMusic, band: 'junior', session: 60, classMode: false, sandboxFull: new URLSearchParams(location.search).get('sandbox') === 'full', hour: 11, moveIn: null, winterTest: false,
   settings: { readAloud: true, reduce: matchMedia('(prefers-reduced-motion: reduce)').matches, sound: true, effects: true, music: true, facilitator: false, text: 'normal', quality: 'auto', ...prefs },
   get reduce() { return this.settings.reduce; },
   // town picture for the report: render, then paint it over the current sky colours
@@ -194,7 +202,7 @@ async function start() {
   // a saved town: one button on the first screen carries straight on (a returning player used to choose an age and
   // name a town again before the game offered the town they already had)
   let resume = null;
-  try { const d = JSON.parse(localStorage.getItem('ecotown.save.v3') || 'null'); if (d && d.cells && d.townName && ['junior', 'senior'].includes(d.band) && !app.sandboxFull) resume = d; } catch { /* no save */ }
+  try { const d = JSON.parse(localStorage.getItem('ecotown.save.v3') || 'null'); if (d && d.cells && d.townName && ['junior', 'senior'].includes(d.band) && !app.sandboxFull && ISLAND === 'home') resume = d; } catch { /* no save */ } // (the player's own town lives on the home island)
   if (resume) {
     const r = scr.querySelector('[data-resume]'); r.style.display = ''; r.className = 'resume';
     r.innerHTML = `<button class="btn go" data-carry>▶ Carry on building ${esc(resume.townName)}</button><span>or start a new town:</span>`;
@@ -210,23 +218,30 @@ async function start() {
   const MED = { gold: '🥇', silver: '🥈', bronze: '🥉' };
   const medalsOf = (b) => CHALLENGES.filter((c) => dev.ch?.[b]?.[c.id]).length;
   const slotOf = (id) => { try { const d = JSON.parse(localStorage.getItem('ecotown.save.v3.' + id) || 'null'); return d && d.cells ? d : null; } catch { return null; } };
+  // ---- islands: on another island's page the two age buttons start that island's free town (its own save slot)
+  const isleTown = ISLAND !== 'home' ? ISLAND_TOWNS.find((c) => c.island === ISLAND) : null;
+  if (isleTown) scr.querySelector('.ages').insertAdjacentHTML('beforebegin', `<p class="islenote"><b>${isleTown.icon} ${esc(isleTown.name)}: free building.</b> Pick an age to build a town here. Everything is unlocked. Missions are on the home island. <a href="./">← Home island</a></p>`);
+  // ?ch=…&band=… : start that town straight away, if it belongs on this island (otherwise go to its island)
+  const autoCh = challenge(QS.get('ch')); const autoBand = ['junior', 'senior'].includes(QS.get('band')) ? QS.get('band') : null;
+  if (autoCh && autoBand && islandOf(autoCh) !== ISLAND) { location.replace(islandUrl(autoCh.id, autoBand)); return; }
   const homeHtml = scr.querySelector('.card').innerHTML;
   const band = await new Promise((res) => {
     const card = scr.querySelector('.card');
     const board = (b) => {
       card.innerHTML = `<span class="chip">🏆 CHALLENGE TOWNS</span><h1>Pick a <span>challenge</span></h1><p class="sub">A new town with one special rule. Everything is unlocked. Meet the town goals and the rule to win a medal: ${medalsOf(b)} of ${CHALLENGES.length} so far.</p>
         ${chBands.length > 1 ? `<div class="opts"><span class="seg" role="radiogroup" aria-label="Age">${chBands.map((x) => `<button type="button" role="radio" data-chband="${x}" aria-checked="${x === b}">${x === 'junior' ? 'Ages 8–12' : 'Ages 13–17'}</button>`).join('')}</span></div>` : ''}
-        <div class="chgrid">${CHALLENGES.map((c) => { const r = dev.ch?.[b]?.[c.id]; const sv = slotOf(c.id); const mine = sv && sv.band === b;
-          return `<button class="age chcard ${r ? 'won' : ''}" data-ch="${c.id}"><b class="chico" aria-hidden="true">${c.icon}</b><span><b>${esc(c.name)}</b><small>${esc(b === 'junior' ? c.rule.j : c.rule.s)}</small><em>${r ? `${MED[r.medal]} ${r.medal[0].toUpperCase() + r.medal.slice(1)} · score ${Math.round(r.score)}${r.medal !== 'gold' ? ' · go for a higher medal' : ''}` : mine ? '▶ Carry on' : 'Not tried yet'}</em></span></button>`; }).join('')}</div>
+        ${[['home', CHALLENGES.filter((c) => !c.island)], ['delta', CHALLENGES.filter((c) => c.island === 'delta')], ['hills', CHALLENGES.filter((c) => c.island === 'hills')], ['free', ISLAND_TOWNS]].map(([isl, list]) => `${isl === 'home' ? '' : `<h2 class="chisle">${isl === 'free' ? '🏝 Free building on another island <small>no special rule, its own saved town</small>' : `${LAYOUTS[isl].icon} ${esc(LAYOUTS[isl].name)} <small>${isl === 'delta' ? 'flood meadow and marsh, little dry ground' : 'woods, slopes and a long beach, little flat field'}</small>`}</h2>`}<div class="chgrid">${list.map((c) => { const r = dev.ch?.[b]?.[c.id]; const sv = slotOf(c.id); const mine = sv && sv.band === b;
+          return `<button class="age chcard ${r ? 'won' : ''}" data-ch="${c.id}"><b class="chico" aria-hidden="true">${c.icon}</b><span><b>${esc(c.name)}</b><small>${esc(b === 'junior' ? c.rule.j : c.rule.s)}</small><em>${r ? `${MED[r.medal]} ${r.medal[0].toUpperCase() + r.medal.slice(1)} · score ${Math.round(r.score)}${r.medal !== 'gold' ? ' · go for a higher medal' : ''}` : mine ? '▶ Carry on' : 'Not tried yet'}</em></span></button>`; }).join('')}</div>`).join('')}
+        <p class="islenote">The AI Lab missions are on the home island. A town on another island opens after a short reload.</p>
         <div class="row" style="justify-content:center;margin-top:10px"><button class="btn alt" data-chback>← Back</button></div>`;
       card.scrollTop = 0;
       card.querySelectorAll('[data-chband]').forEach((x) => (x.onclick = () => board(x.dataset.chband)));
       card.querySelector('[data-chback]').onclick = () => { card.innerHTML = homeHtml; home(); };
       // start a challenge again from an empty island (the medal already won is kept)
       card.querySelectorAll('[data-ch]').forEach((x) => { const sv = slotOf(x.dataset.ch); if (!sv || sv.band !== b) return;
-        x.insertAdjacentHTML('afterend', `<button class="btn alt small chagain" data-again="${x.dataset.ch}" aria-label="Start ${esc(CHALLENGES.find((c) => c.id === x.dataset.ch).name)} again">↺ Start again</button>`); });
+        x.insertAdjacentHTML('afterend', `<button class="btn alt small chagain" data-again="${x.dataset.ch}" aria-label="Start ${esc(challenge(x.dataset.ch).name)} again">↺ Start again</button>`); });
       card.querySelectorAll('[data-again]').forEach((x) => (x.onclick = () => { if (!confirm('Start this challenge again from an empty island? Your medal is kept.')) return; try { localStorage.removeItem('ecotown.save.v3.' + x.dataset.again); } catch { /* */ } board(b); }));
-      card.querySelectorAll('[data-ch]').forEach((x) => (x.onclick = () => { resume = null; app.challenge = x.dataset.ch; res(b); }));
+      card.querySelectorAll('[data-ch]').forEach((x) => (x.onclick = () => { if (islandOf(challenge(x.dataset.ch)) !== ISLAND) { location.search = islandUrl(x.dataset.ch, b); return; } /* another island: reload there */ resume = null; app.challenge = x.dataset.ch; res(b); }));
       setTimeout(() => card.querySelector('[data-ch]')?.focus(), 60);
     };
     const pass = (b) => {
@@ -236,7 +251,7 @@ async function start() {
       card.querySelector('[data-pback]').onclick = () => { card.innerHTML = homeHtml; home(); }; card.querySelector('[data-pprint]').onclick = () => printCertificate(b);
     };
     const home = () => {
-      scr.querySelectorAll('[data-band]').forEach((b) => (b.onclick = () => { resume = null; res(b.dataset.band); })); const c = scr.querySelector('[data-carry]'); if (c) c.onclick = () => res(resume.band);
+      scr.querySelectorAll('[data-band]').forEach((b) => (b.onclick = () => { resume = null; if (isleTown) app.challenge = isleTown.id; res(b.dataset.band); })); const c = scr.querySelector('[data-carry]'); if (c) c.onclick = () => res(resume.band);
       if (chBands.length && !scr.querySelector('[data-chopen]')) scr.querySelector('.ages').insertAdjacentHTML('afterend', `<p class="chopen"><button class="btn alt" data-chopen>🏆 Challenge towns <small>${medalsOf(chBands[0])} of ${CHALLENGES.length} medals</small></button></p>`);
       const pb = ['junior', 'senior'].map((x) => [x, passport(dev, x)]).sort((x, y) => y[1].points - x[1].points)[0];
       if (pb[1].points && !scr.querySelector('[data-popen]')) { const html = `<button class="btn alt" data-popen>🎒 Club passport <small>${pb[1].rank.icon} ${esc(pb[1].rank.name)} · ${pb[1].points} points</small></button>`;
@@ -244,11 +259,12 @@ async function start() {
       const po = scr.querySelector('[data-popen]'); if (po) po.onclick = () => pass(resume?.band || pb[0]);
       const o = scr.querySelector('[data-chopen]'); if (o) o.onclick = () => board(resume && chBands.includes(resume.band) ? resume.band : chBands[0]);
     };
+    if (autoCh && autoBand) { resume = null; app.challenge = autoCh.id; return res(autoBand); } // islands: ?ch=…&band=…
     home(); if (forceCh) board(resume && chBands.includes(resume.band) ? resume.band : chBands[0]);
   });
   initAudio(); sfx.good(); loadVoices(band);
   app.band = band; ui.readAloud = app.settings.readAloud && band === 'junior' ? true : app.settings.readAloud && band === 'senior' ? false : app.settings.readAloud;
-  if (app.challenge) { app.classMode = false; app.townName = CHALLENGES.find((c) => c.id === app.challenge).name; }
+  if (app.challenge) { app.classMode = false; app.townName = challenge(app.challenge).name; }
   else if (resume) { app.classMode = !!resume.classMode; app.settings.music = app.settings.music && !app.classMode; applySettings(); app.townName = resume.townName; }
   else {
   // name the town: one name, used everywhere (the header, the cards and the printed report)

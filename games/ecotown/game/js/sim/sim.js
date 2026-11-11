@@ -81,7 +81,7 @@ export function simulate(terrain, cells, extra = {}) {
       for (const m of c.mods) { const mi = ITEMS[m]; emb += mi.embodied || 0; nature += mi.nature || 0; avg += mi.avg || 0; gen += mi.avg || 0; winter += mi.winter || 0; carbon += mi.carbon || 0; demand += mi.demand || 0; if (m === 'greenroof') temp += 1; if (m === 'heatpump') gas = 0; }
       demand += 1; homesCarbon += emb; carbon += emb + gas; temps.push(temp);
       R.families += it.families; if (!flooded) R.familiesSafe += it.families; else R.flooded++;
-      R.homes.push({ k: t.k, item: c.item, families: it.families, flooded, temp, gas: gas > 0 });
+      R.homes.push({ k: t.k, item: c.item, families: it.families, flooded, temp, gas: gas > 0, zone: t.zone });
     }
   }
   // pollination: crops next to beehives yield one extra food each

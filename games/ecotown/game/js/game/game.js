@@ -59,6 +59,16 @@ export function createGame(app) {
   const SLOT = SAVE + (CH ? '.' + CH.id : ''); G.slot = SLOT; G.challenge = CH?.id || null;
   if (CH) { G.labs = Object.fromEntries(LEVEL_ORDER.map((id) => [id, true])); G.ever = TIERS.map((t) => t.id); G.introDone = true; G.classMode = false; G.townName = CH.name;
     if (CH.start === 'florence') G.cells = florenceTown([...terrain.tiles.values()]); }
+  // islands (stage 3): a town on the delta or hill island (a challenge or a free town, CH.free). The six missions run on
+  // the home island's practice island only, so off the home island the Lab board says where they are.
+  const OFF_HOME = (terrain.layout || 'home') !== 'home';
+  async function missionsAtHome() {
+    if (G.busy) return; G.busy = true; let a = null;
+    try { const t = G.j ? 'The six AI Lab missions happen on the home island, on Florence’s practice island. Here all six lenses are already yours: use them to check your town.' : 'The six AI Lab missions run on the home island’s practice island. On this island all six lenses are already open.';
+      a = await ui.modal(`<div class="ribbon">🧪 ${esc(G.S.labTitle)}</div><h2>Missions are on the home island</h2><p>${esc(t)}</p><div class="row" style="justify-content:center"><button class="btn go" data-act="close">${esc(G.S.backToBuilding)}</button><button class="btn alt" data-act="home">🏡 Go to the home island</button></div>`, { say: t });
+    } finally { G.busy = false; }
+    if (a === 'home') { save(); location.search = ''; }
+  }
   // what is kept for the whole device (not one town): best scores, whether the six missions are done, challenge medals
   const device = (fn) => { try { const all = JSON.parse(localStorage.getItem('ecotown.best.v1') || '{}'); if (fn(all) !== false) localStorage.setItem('ecotown.best.v1', JSON.stringify(all)); } catch { /* storage off */ } };
   app.C = G.C; app.hour = 8; app.levelId = null; app.inLab = false;
@@ -485,7 +495,7 @@ export function createGame(app) {
     if (nu && sb.intro && nu.id === 'homes' && nu.have < 3) return { text: G.S.nextStep.land(3 - nu.have, 3), have: nu.have, need: 3 }; // the intro asks for three first
     if (nu) { const left = nu.need - nu.have; return { text: nu.id === 'homes' ? G.S.nextStep.land(left, nu.need) : nu.kind === 'food' ? G.S.nextStep.food(Math.max(1, left), G.S.cats[nu.id]) : G.S.nextStep.fam(left, G.S.cats[nu.id]), have: nu.have, need: nu.need }; }
     const goals = townGoals(s, ctxFor(G.cells)); const next = firstGoal(goals); const done = goals.filter((g) => g.ok).length;
-    if (!next && CH) { const g = chState(s).extra.find((x) => !x.ok); if (!g) return { text: G.j ? 'Challenge passed! Keep building for a higher medal.' : 'Challenge passed. Improve the score for a higher medal.', have: 1, need: 1 };
+    if (!next && CH) { const g = chState(s).extra.find((x) => !x.ok); if (!g) return { text: CH.free ? G.S.allGoals : G.j ? 'Challenge passed! Keep building for a higher medal.' : 'Challenge passed. Improve the score for a higher medal.', have: 1, need: 1 };
       return { text: `${G.S.next}: ${GOAL_TEXT[g.id](g)[0]}`, have: g.low ? Math.min(g.need, Math.round(g.need * g.need / Math.max(1, g.have))) : Math.min(g.have, g.need), need: g.need }; }
     if (!next) return labsDone() < 6 ? { text: `${G.S.next}: ${G.S.labGoal(labsDone())}`, have: labsDone(), need: 6 } : { text: G.S.allGoals, have: 1, need: 1 };
     const pct = (v) => Math.min(100, Math.round(v * 100));
@@ -1017,6 +1027,7 @@ export function createGame(app) {
   // the board: six missions, locked / ready / done, plus the whole-day and the report
   async function labBoard() {
     if (G.busy) return;
+    if (OFF_HOME) return missionsAtHome(); // islands: missions are on the home island
     const rows = LEVEL_ORDER.map((id, i) => {
       const done = G.labs[id]; const ready = labReady(id, G.ever, G.labs, G.classMode); const tier = TIERS.find((t) => t.id === id);
       const why = !isOpen(id) ? `🔒 ${G.S.unlocksWhen} ${pick(tier.need)}` : !ready ? `🔒 ${G.S.classFirst}` : done ? `${'★'.repeat(done.stars)}${'☆'.repeat(3 - done.stars)} · ${G.S.playAgain}` : G.S.ready;
@@ -1033,6 +1044,7 @@ export function createGame(app) {
     if (a === 'report') return showReport();
   }
   async function openLab(id) {
+    if (OFF_HOME) return missionsAtHome(); // islands: missions are on the home island
     if (G.busy || !id) return; if (sb.lens) { sb.lens = null; await checks.leave(); renderLenses(); }
     G.busy = true; stopBuilding();
     ui.caption(G.j ? '🧪 Going into the AI Lab…' : '🧪 Entering the AI Lab…', 7000); // the walk takes a few seconds: a tester thought the button had done nothing
@@ -1391,8 +1403,8 @@ export function createGame(app) {
     try {
       const r = scoreNow(s); const med = MEDAL[challengeMedal(r)]; const nx = r.next && r.total >= 60 ? MEDAL[r.next.id] : null;
       audio.complete(app.reduce); app.bot?.cheer(); if (!app.reduce) world.confetti(new THREE.Vector3(10, 20, 8), 200);
-      const lead = G.j ? `You did it: ${CH.name} is a whole town that works.` : `${CH.name}: every town goal and the challenge rule are met.`;
-      a = await ui.modal(`<div class="ribbon green">${CH.icon} Challenge passed</div><h2>${med[0]} ${med[1]} medal</h2><p>${esc(lead)}</p><p class="fscore"><b>Town score ${r.total} / 100</b>${nx ? `<small>${r.next.need} more for ${nx[0]} ${nx[1]}. Keep building to raise it.</small>` : ''}</p>
+      const lead = G.j ? `You did it: ${CH.name} is a whole town that works.` : CH.free ? `${CH.name}: every town goal is met.` : `${CH.name}: every town goal and the challenge rule are met.`;
+      a = await ui.modal(`<div class="ribbon green">${CH.icon} ${CH.free ? 'Town goals met' : 'Challenge passed'}</div><h2>${med[0]} ${med[1]} medal</h2><p>${esc(lead)}</p><p class="fscore"><b>Town score ${r.total} / 100</b>${nx ? `<small>${r.next.need} more for ${nx[0]} ${nx[1]}. Keep building to raise it.</small>` : ''}</p>
         <div class="row" style="justify-content:center"><button class="btn alt" data-act="keep">${esc(G.S.keepBuilding)}</button><button class="btn go" data-act="more">🏆 More challenges</button></div>`, { say: lead });
     } finally { G.busy = false; if (a !== 'more') startBuilding(); }
     if (a === 'more') location.search = '?challenges=1';
@@ -1435,7 +1447,7 @@ export function createGame(app) {
     bindTaps(); startBuilding();
     setInterval(tick, 200);
     // a challenge town opens with its rule (once)
-    if (CH && !G.chSeen) { G.chSeen = true; save(); const rule = pick(CH.rule); await ui.modal(`<div class="ribbon">🏆 Challenge town</div><h2>${CH.icon} ${esc(CH.name)}</h2><p>${esc(rule)}</p><p style="font-size:.9em">${G.j ? 'Everything is unlocked and all six lenses are ready. Meet the town goals and the challenge rule to win a medal. Tap 🌼 to see them.' : 'All builds and lenses are open. Meet the eight town goals and the challenge rule for a medal (🌼 shows them).'}</p><div class="row" style="justify-content:center"><button class="btn go" data-act="go">Start ➜</button></div>`, { say: rule }); }
+    if (CH && !G.chSeen) { G.chSeen = true; save(); const rule = pick(CH.rule); await ui.modal(`<div class="ribbon">${CH.free ? '🏝 Another island' : '🏆 Challenge town'}</div><h2>${CH.icon} ${esc(CH.name)}</h2><p>${esc(rule)}</p><p style="font-size:.9em">${CH.free ? (G.j ? 'Everything is unlocked and all six lenses are ready. Meet the eight town goals to win a medal. Tap 🌼 to see them.' : 'All builds and lenses are open. Meet the eight town goals for a medal (🌼 shows them).') : G.j ? 'Everything is unlocked and all six lenses are ready. Meet the town goals and the challenge rule to win a medal. Tap 🌼 to see them.' : 'All builds and lenses are open. Meet the eight town goals and the challenge rule for a medal (🌼 shows them).'}${OFF_HOME ? ` ${esc(terrain.name)}: missions are on the home island.` : ''}</p><div class="row" style="justify-content:center"><button class="btn go" data-act="go">Start ➜</button></div>`, { say: rule }); }
     if (CH && sim().homes.length) milestones(sim(), { quiet: true });
     // a new town starts with Florence's guided first build
     if (!G.introDone && !G.full) await intro();
