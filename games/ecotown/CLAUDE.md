@@ -12,6 +12,47 @@ Eco Town is a browser game (three.js voxel) with two versions, for ages 8–12 a
 
 Everything is merged to `main`. The working branch was `claude/focused-cori-qeoveu`.
 
+## Start here (last updated 12 Nov 2026)
+**State:** everything is on `main` (last merge: [bakshilabs/ai-lab-v3#36](https://github.com/bakshilabs/ai-lab-v3/pull/36)). The classroom site and the public test site both run that version. 250 unit tests pass.
+
+**Done so far in the best-seller plan (`docs/BESTSELLER-PLAN.md`):**
+- stage 1, the club passport;
+- stage 2 in part: reactions, night scenes and Florence's joke;
+- stage 3, three islands with 13 challenge towns;
+- stage 4, sharing towns by code or QR;
+- stage 5 in part: the phone tray now covers 27 % of the screen at rest;
+- stage 7 in part: voices, the leader's page and the 60-second trailer;
+- 12 story episodes.
+
+**Next, in order (none needs the user):**
+1. **Phone to a quarter of the screen** (now 27.3 % on 390 × 844, measured by `tests/playwright/phonearea.mjs`). Next targets:
+   - the town card (★ and pause buttons, 6.3 %);
+   - or a category picker that folds into the build row.
+   Re-run `a11y.mjs` and `share.mjs` at phone size after any change.
+2. **Stage 2 leftovers:**
+   - animals walking in from the island's edge when a nature goal is met;
+   - a sound for each build family;
+   - music that thickens as the town grows (`js/engine/audio.js`, `js/music/songs.js`).
+3. **Performance budget script** (stage 5): draw calls and triangles per graphics level, failing when over budget. `tests/playwright/islands.mjs` already reports them.
+4. **A second language** (stage 7): the text is in one file per age band. Add one language as a test of the pipeline. Voices for it would need a Kokoro voice in that language.
+5. The trailer at 1280 × 720 or larger, if it is wanted for a store page. The episodes are 960 × 540, so that means re-rendering the episodes at a higher resolution with `--w/--h`.
+
+**Needs the user (ask, don't guess):**
+- Listening checks: the episodes, the trailer and the new voice lines. A cloud session cannot hear audio.
+- Sessions with real children and real devices (`docs/DEVICE-AND-CHILD-TESTS.md`), including two devices swapping a town code.
+- Paywall decisions (`docs/FUTURE-PAYWALL.md`) and a Stripe account; then the page a club can buy from.
+
+**Standing permissions and rules from the user:**
+- Redeploy the classroom site after merging, without asking (deploy command under "Deploying from a cloud session"). Always run the post-deploy checks.
+- No budget or coins for ages 8–12. The game is for a full-day kids' club.
+- Merge the pull request yourself.
+- Plain British English for the user.
+
+**Scratch files from the last session** (they are gone in a new container):
+- Kokoro and the voice clip cache: re-download Kokoro; seed the cache from the packs (see "Voices recorded").
+- The episode voice clips used by `tools/trailer.mjs`: re-record them with `node tests/video/episodes.mjs … --kokoro <dir>`, which records voices only for lines missing from its `--work` folder.
+
+
 ## Who the user is and what they want
 - **The business.** The user runs a game design company and keeps admin access themselves:
   - teachers ask the company for a **batch of passcodes** for a set period;
