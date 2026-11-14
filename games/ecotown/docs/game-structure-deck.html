@@ -79,6 +79,26 @@ td b{font-weight:600}
 .cat ul{list-style:none;display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
 .cat li{font-size:14px;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:4px 8px}
 
+/* sequence diagrams (drawn by seq() below from the data in each <svg data-seq>) */
+.seqslide h2{margin-bottom:6px}
+.seqslide .lede{font-size:16px;color:var(--muted);margin-bottom:10px}
+.seqwrap{flex:1;min-height:0;display:flex}
+svg.seq{width:100%;height:100%;font-family:Inter,system-ui,sans-serif}
+svg.seq .actor rect{stroke-width:1.5}
+svg.seq .actor text{font-size:15px;font-weight:700;fill:var(--ink)}
+svg.seq .life{stroke:#cdb8a2;stroke-width:1.5;stroke-dasharray:5 5}
+svg.seq .msg{stroke:var(--ink);stroke-width:1.6;fill:none}
+svg.seq .ret{stroke:var(--muted);stroke-dasharray:6 4}
+svg.seq .lbl{font-size:13.5px;fill:var(--ink);paint-order:stroke;stroke:var(--paper);stroke-width:5px;stroke-linejoin:round}
+svg.seq .lbl.r{fill:var(--muted)}
+svg.seq .num{font-size:11px;font-weight:700;fill:#fff}
+svg.seq .frag{fill:none;stroke:var(--terra);stroke-width:1.3}
+svg.seq .fragtab{fill:var(--terra-soft);stroke:var(--terra);stroke-width:1.3}
+svg.seq .fraglbl{font-size:12.5px;font-weight:700;fill:#8e3e20}
+svg.seq .fragcond{font-size:12.5px;font-style:italic;fill:#8e3e20}
+svg.seq .note rect{fill:var(--ochre-soft);stroke:var(--ochre)}
+svg.seq .note text{font-size:13px;fill:#7d5a12;font-weight:600}
+
 /* nav */
 #bar{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);display:flex;gap:8px;align-items:center;
   background:rgba(0,0,0,.45);color:#fff;border-radius:999px;padding:6px 10px;font-size:14px;z-index:5}
@@ -158,6 +178,13 @@ td b{font-weight:600}
   </div>
 </section>
 
+<section class="slide seqslide" aria-label="Sequence: the first ten minutes">
+  <div class="kicker">Sequence diagram · first session</div>
+  <h2>The first ten minutes</h2>
+  <p class="lede">From the start screen to the first unlock. The intro sits on top of free building, so the player is building within a minute.</p>
+  <div class="seqwrap"><svg class="seq" data-seq="first" role="img" aria-label="Sequence diagram of the first ten minutes"></svg></div>
+</section>
+
 <!-- 4 -->
 <section class="slide" aria-label="Unlock ladder">
   <div class="kicker">Progression in town</div>
@@ -185,6 +212,13 @@ td b{font-weight:600}
     <div class="card cat"><h3>🏫 Town heart</h3><ul><li>School</li><li>Market square</li><li>Park</li><li>Green bridge</li><li>Community hall</li><li>Festival field</li></ul></div>
   </div>
   <p class="muted small" style="margin-top:16px">Every build has a 10-second construction film (layer by layer), a description, live “what this changes” chips and Florence's good-spot pins.</p>
+</section>
+
+<section class="slide seqslide" aria-label="Sequence: one build tap">
+  <div class="kicker">Sequence diagram · the core action</div>
+  <h2>What happens on one build tap</h2>
+  <p class="lede">Every number the player sees comes from the one honest simulation. Only Florence can be wrong.</p>
+  <div class="seqwrap"><svg class="seq" data-seq="build" role="img" aria-label="Sequence diagram of one build tap"></svg></div>
 </section>
 
 <!-- 6 -->
@@ -223,6 +257,13 @@ td b{font-weight:600}
   </div>
 </section>
 
+<section class="slide seqslide" aria-label="Sequence: an AI Lab mission">
+  <div class="kicker">Sequence diagram · AI Lab</div>
+  <h2>One AI Lab mission, start to finish</h2>
+  <p class="lede">Example: mission 1, Read the land. Missions run on Florence's practice island, never on the player's town.</p>
+  <div class="seqwrap"><svg class="seq" data-seq="mission" role="img" aria-label="Sequence diagram of an AI Lab mission"></svg></div>
+</section>
+
 <!-- 8 -->
 <section class="slide" aria-label="Florence in town">
   <div class="kicker">Florence outside the Lab</div>
@@ -236,6 +277,13 @@ td b{font-weight:600}
     <div class="card"><h3>Reactions</h3><p>The nearest family comments on each build; animals arrive or leave; night events every third day (flood, blackout).</p></div>
     <div class="card"><h3>Character</h3><p>A 3D wooden robot who walks the island, points, cheers and pulls an “oops” face when caught. Recorded voices for both age bands.</p></div>
   </div>
+</section>
+
+<section class="slide seqslide" aria-label="Sequence: catching Florence">
+  <div class="kicker">Sequence diagram · the AI lesson in town</div>
+  <h2>Catching Florence in the player's own town</h2>
+  <p class="lede">Only for lenses the player has already earned. Most suggestions are confidently wrong; some (an orchard, a park) are fine.</p>
+  <div class="seqwrap"><svg class="seq" data-seq="catch" role="img" aria-label="Sequence diagram of checking one of Florence's suggestions"></svg></div>
 </section>
 
 <!-- 9 -->
@@ -299,6 +347,13 @@ td b{font-weight:600}
     <div class="card"><h3>Free island towns</h3><p>Build freely on Delta or Hills (“island of the day” for a club leader).</p></div>
     <div class="card"><h3>Safety rules for sharing</h3><p>No accounts, no chat, no free text between devices, no personal data, no server.</p></div>
   </div>
+</section>
+
+<section class="slide seqslide" aria-label="Sequence: sharing a town">
+  <div class="kicker">Sequence diagram · sharing</div>
+  <h2>Showing a town to a friend</h2>
+  <p class="lede">Two devices in the same room. The visiting device works out the score itself, so a code cannot fake a gold town.</p>
+  <div class="seqwrap"><svg class="seq" data-seq="share" role="img" aria-label="Sequence diagram of sharing a town by code"></svg></div>
 </section>
 
 <!-- 12 -->
@@ -395,6 +450,185 @@ td b{font-weight:600}
   <button id="full" aria-label="Full screen">⤢</button>
 </nav>
 
+<script>
+// Sequence diagrams. Each step is one of:
+//   [from, to, text]            a message      [from, to, text, 'r']  a reply (dashed)
+//   [who, who, text]            a self-step    ['note', a, b, text]   a note across a..b
+//   ['alt'|'opt', condition]    start a box    ['else', condition]    divider   ['end']
+const DIAGRAMS = {
+  first: {
+    actors: [['P', 'Player', 'terra'], ['S', 'Start screen', 'plum'], ['F', 'Florence', 'sage'], ['G', 'Game (town)', 'ochre'], ['M', 'Simulation', 'sky']],
+    steps: [
+      ['P', 'S', 'Pick an age band (8–12 or 13–17) and name the town'],
+      ['S', 'G', 'Load the island and the saved town, if any'],
+      ['G', 'F', 'Start the intro (first time only)'],
+      ['F', 'P', 'Walk the island: flood meadow versus dry slope'],
+      ['P', 'G', 'Mark the first three tiles of town land'],
+      ['F', 'P', 'Show a build film, the build bar and the AI Lab building'],
+      ['note', 'G', 'M', 'Free building begins · autosaved on this device'],
+      ['P', 'G', 'Mark more town land, add paths'],
+      ['G', 'M', 'Simulate the town'],
+      ['M', 'G', '6 tiles of town land', 'r'],
+      ['G', 'P', '“Homes unlocked” · next step: homes for 12 families', 'r'],
+    ],
+  },
+  build: {
+    actors: [['P', 'Player', 'terra'], ['B', 'Build bar', 'plum'], ['G', 'Game', 'ochre'], ['M', 'Simulation', 'sky'], ['R', 'Residents & animals', 'sage'], ['F', 'Florence', 'sage']],
+    steps: [
+      ['P', 'B', 'Choose a build, e.g. Orchard'],
+      ['B', 'G', 'Show where it can go'],
+      ['G', 'P', 'Kerbs on free tiles, ★ on Florence’s good spots', 'r'],
+      ['P', 'G', 'Hover a tile (phones: first tap)'],
+      ['G', 'M', 'Preview the change'],
+      ['M', 'B', 'Chips: + food, + nature', 'r'],
+      ['P', 'G', 'Tap to build (phones: second tap)'],
+      ['G', 'G', 'Construction film, layer by layer'],
+      ['G', 'M', 'Simulate the town'],
+      ['M', 'R', 'Nearest family comments; animals arrive or leave'],
+      ['M', 'G', 'Goals, score, stars, new categories', 'r'],
+      ['opt', 'a rule has just turned true'],
+      ['G', 'F', 'Advise'],
+      ['F', 'P', 'One-line tip (at most one every 25 s)'],
+      ['end'],
+    ],
+  },
+  mission: {
+    actors: [['P', 'Player', 'terra'], ['L', 'AI Lab', 'plum'], ['E', 'Episode', 'ochre'], ['F', 'Florence', 'sage'], ['I', 'Practice island', 'sky'], ['T', 'Player’s town', 'ochre']],
+    steps: [
+      ['P', 'L', 'Tap 🧪, or “Show me in the AI Lab” on a tip'],
+      ['L', 'E', 'Opening film, first time (ends on a question)'],
+      ['P', 'F', 'Vague instruction: “Find the best land”'],
+      ['F', 'I', 'Ghost-block plan on the floodplain, “82% sure”'],
+      ['P', 'I', 'Check it with the flood lens'],
+      ['I', 'P', 'Winter flooding shows on the planned tiles', 'r'],
+      ['P', 'F', 'Clearer instruction: “Dry, sunny land. Keep the meadow wild”'],
+      ['F', 'I', 'New plan (may honestly be less sure); build film'],
+      ['L', 'P', 'Reward card: up to ★★★ and the AI habit learned'],
+      ['alt', 'use Florence’s plan'],
+      ['P', 'T', 'Add what fits, never over the player’s builds'],
+      ['else', 'keep my town'],
+      ['P', 'T', 'Town unchanged'],
+      ['end'],
+      ['L', 'E', 'Closing film, first time (eco idea + AI habit)'],
+      ['L', 'T', 'Flood lens added to the town’s lens strip'],
+    ],
+  },
+  catch: {
+    actors: [['F', 'Florence', 'sage'], ['P', 'Player', 'terra'], ['L', 'Lens', 'plum'], ['M', 'Simulation', 'sky'], ['G', 'Game', 'ochre']],
+    steps: [
+      ['F', 'P', 'Ghost plan in the player’s town: “I’m 89% sure!” (every ~2.5 min)'],
+      ['alt', 'the player checks first'],
+      ['P', 'L', 'Check it with a lens'],
+      ['L', 'M', 'Run the plan before building'],
+      ['M', 'L', 'Flood, carbon, nature, winter or walking result', 'r'],
+      ['L', 'P', 'Painted tiles show the problem', 'r'],
+      ['P', 'G', 'Say “Wrong” (or “Right” for a good idea)'],
+      ['G', 'P', 'Catch counted: ★1, toward “Sharp eyes” and the passport', 'r'],
+      ['else', 'the player uses it unchecked'],
+      ['P', 'G', 'Use it'],
+      ['G', 'M', 'Build the plan and simulate'],
+      ['F', 'P', '“Oops”: what was wrong and which lens would have shown it'],
+      ['end'],
+    ],
+  },
+  share: {
+    actors: [['A', 'Device A', 'terra'], ['C', 'Town code', 'plum'], ['B', 'Device B', 'sage'], ['M', 'Simulation on B', 'sky']],
+    steps: [
+      ['A', 'C', 'Encode the town: tiles, island, age band, score, catches'],
+      ['C', 'A', '64-character code, QR and a postcard picture', 'r'],
+      ['A', 'B', 'A child reads out the code or shows the QR (same room)'],
+      ['B', 'C', 'Decode and check (a wrong character is caught)'],
+      ['C', 'B', 'The town’s tiles', 'r'],
+      ['B', 'M', 'Simulate the town again, honestly'],
+      ['M', 'B', 'Score, medal, two strongest parts, one weakest', 'r'],
+      ['B', 'B', 'Read-only visit; add to the club wall (up to 60 towns)'],
+      ['note', 'A', 'M', 'No server · no accounts · no chat · no free text · no personal data'],
+    ],
+  },
+};
+
+function seq(svg, d) {
+  const NS = 'http://www.w3.org/2000/svg';
+  const W = 1136, boxH = 38, gap = 30, colW = W / d.actors.length;
+  const idx = Object.fromEntries(d.actors.map((a, i) => [a[0], i]));
+  const X = (k) => colW * (idx[k] + 0.5);
+  const tone = (t) => getComputedStyle(document.documentElement).getPropertyValue('--' + t).trim();
+  const soft = (t) => getComputedStyle(document.documentElement).getPropertyValue('--' + t + '-soft').trim();
+  const out = [];
+  const el = (tag, attrs, text) => {
+    const n = document.createElementNS(NS, tag);
+    for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v);
+    if (text != null) n.textContent = text;
+    out.push(n); return n;
+  };
+  let y = boxH + 30, num = 0;
+  const frags = [];
+  const body = [];
+  for (const s of d.steps) {
+    if (s[0] === 'alt' || s[0] === 'opt') { frags.push({ kind: s[0], y0: y - 4, divs: [], cond: s[1] }); y += 40; continue; }
+    if (s[0] === 'else') { frags[frags.length - 1].divs.push({ y: y - 4, cond: s[1] }); y += 40; continue; }
+    if (s[0] === 'end') { const f = frags.pop(); f.y1 = y - 8; body.push({ frag: f }); y += 18; continue; }
+    if (s[0] === 'note') { body.push({ note: s, y }); y += 38; continue; }
+    num++;
+    if (s[0] === s[1]) { body.push({ self: s, y, num }); y += gap + 14; continue; }
+    body.push({ msg: s, y, num }); y += gap;
+  }
+  const H = y + 6;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.setAttribute('preserveAspectRatio', 'xMidYMin meet');
+  // markers
+  const defs = el('defs', {});
+  defs.innerHTML = `<marker id="ah-${svg.dataset.seq}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="${tone('ink')}"/></marker>
+  <marker id="ar-${svg.dataset.seq}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10" fill="none" stroke="${tone('muted')}" stroke-width="1.6"/></marker>`;
+  // lifelines and actor boxes
+  d.actors.forEach(([k, name, t]) => {
+    el('line', { class: 'life', x1: X(k), x2: X(k), y1: boxH, y2: H });
+    const g = el('g', { class: 'actor' });
+    const w = Math.min(colW - 16, Math.max(110, name.length * 9 + 28));
+    const r = document.createElementNS(NS, 'rect');
+    Object.entries({ x: X(k) - w / 2, y: 0, width: w, height: boxH, rx: 9, fill: soft(t), stroke: tone(t) }).forEach(([a, v]) => r.setAttribute(a, v));
+    const tx = document.createElementNS(NS, 'text');
+    Object.entries({ x: X(k), y: boxH / 2 + 5, 'text-anchor': 'middle' }).forEach(([a, v]) => tx.setAttribute(a, v));
+    tx.textContent = name; g.append(r, tx);
+  });
+  const badge = (x, yy, n) => { el('circle', { cx: x, cy: yy, r: 9, fill: tone('terra') }); el('text', { class: 'num', x, y: yy + 4, 'text-anchor': 'middle' }, n); };
+  for (const b of body) {
+    if (b.frag) {
+      const f = b.frag, x0 = 6, x1 = W - 6;
+      el('rect', { class: 'frag', x: x0, y: f.y0, width: x1 - x0, height: f.y1 - f.y0, rx: 6 });
+      el('path', { class: 'fragtab', d: `M${x0} ${f.y0 + 6} q0 -6 6 -6 h44 v12 l-8 8 h-42 z` });
+      el('text', { class: 'fraglbl', x: x0 + 9, y: f.y0 + 15 }, f.kind);
+      el('text', { class: 'fragcond', x: x0 + 62, y: f.y0 + 15 }, `[${f.cond}]`);
+      for (const dv of f.divs) {
+        el('line', { class: 'frag', x1: x0, x2: x1, y1: dv.y, y2: dv.y, 'stroke-dasharray': '6 4' });
+        el('text', { class: 'fragcond', x: x0 + 10, y: dv.y + 16 }, `[${dv.cond}]`);
+      }
+    } else if (b.note) {
+      const [, a, c, text] = b.note;
+      const xa = Math.min(X(a), X(c)) - colW * 0.4, xc = Math.max(X(a), X(c)) + colW * 0.4;
+      const g = el('g', { class: 'note' });
+      const r = document.createElementNS(NS, 'rect');
+      Object.entries({ x: xa, y: b.y - 14, width: xc - xa, height: 28, rx: 6 }).forEach(([k, v]) => r.setAttribute(k, v));
+      const t = document.createElementNS(NS, 'text');
+      Object.entries({ x: (xa + xc) / 2, y: b.y + 5, 'text-anchor': 'middle' }).forEach(([k, v]) => t.setAttribute(k, v));
+      t.textContent = text; g.append(r, t);
+    } else if (b.self) {
+      const [k, , text] = b.self, x = X(k), yy = b.y - 6;
+      el('path', { class: 'msg', d: `M${x} ${yy} h34 v20 h-34`, 'marker-end': `url(#ah-${svg.dataset.seq})` });
+      badge(x + 52, yy + 10, b.num);
+      el('text', { class: 'lbl', x: x + 68, y: yy + 14 }, text);
+    } else {
+      const [a, c, text, r] = b.msg, xa = X(a), xc = X(c), dir = xc > xa ? 1 : -1;
+      el('line', { class: 'msg' + (r ? ' ret' : ''), x1: xa + dir * 4, x2: xc - dir * 4, y1: b.y, y2: b.y, 'marker-end': `url(#${r ? 'ar' : 'ah'}-${svg.dataset.seq})` });
+      const x0 = Math.min(xa, xc);
+      badge(x0 + 16, b.y - 12, b.num);
+      el('text', { class: 'lbl' + (r ? ' r' : ''), x: x0 + 31, y: b.y - 7 }, text);
+    }
+  }
+  svg.replaceChildren(...out);
+}
+document.querySelectorAll('svg[data-seq]').forEach((s) => seq(s, DIAGRAMS[s.dataset.seq]));
+</script>
 <script>
 (() => {
   const slides = [...document.querySelectorAll('.slide')];
